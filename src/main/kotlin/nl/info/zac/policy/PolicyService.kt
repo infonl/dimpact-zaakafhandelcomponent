@@ -165,7 +165,7 @@ class PolicyService @Inject constructor(
             zaakOpen = zaak?.isOpen() ?: false,
             zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() },
             zaakspecifiekGeautoriseerd = zaakspecifiekGeautoriseerd,
-            loggedInUserIsGeautoriseerdeMedewerker = zaakspecifiekGeautoriseerd && zaak != null &&
+            loggedInUserIsGeautoriseerdeMedewerker = zaakspecifiekGeautoriseerd &&
                 isGeautoriseerdeMedewerkerOf(zaak = zaak, userId = loggedInUserInstance.get().id)
         )
         return evaluationClient.readDocumentRechten(

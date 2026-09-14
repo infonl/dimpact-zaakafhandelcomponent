@@ -337,7 +337,7 @@ export class ZakenWerkvoorraadComponent
         (!release || !!behandelaarGebruikersnaam),
     );
 
-if (!zaken.length) {
+    if (!zaken.length) {
       this.showSkippedZakenMessage(
         release,
         skippedBecauseGeautoriseerd.length,

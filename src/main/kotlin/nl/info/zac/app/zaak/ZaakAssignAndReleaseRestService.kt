@@ -172,9 +172,10 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie
             ?.identificatie
+            ?: return
         if (newBehandelaarId.isNullOrEmpty()) {
-            if (currentBehandelaarId != null) throw ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException()
-} else if (currentBehandelaarId != null && newBehandelaarId != currentBehandelaarId) {
+            throw ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException()
+        } else if (newBehandelaarId != currentBehandelaarId) {
             throw ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
         }
     }

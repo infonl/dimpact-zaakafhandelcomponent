@@ -1844,7 +1844,11 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
-            every { indexingService.addOrUpdateZaak(zaak.uuid, true) } returns true
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
 
             `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
@@ -1860,7 +1864,8 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 and("the zaak, its taken and its documenten are reindexed right away") {
                     verify(exactly = 1) {
-                        indexingService.addOrUpdateZaak(zaak.uuid, true)
+                        indexingService.addOrUpdateZaak(zaak.uuid, false)
+                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                         indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
                     }
                 }
@@ -1965,6 +1970,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
             } returns createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
 
             `when`("that user, who does not hold the zaakspecifiek_geautoriseerd role, marks the zaak") {
                 val exception = shouldThrow<ZaakspecifiekeAutorisatieNotAllowedException> {
@@ -2094,6 +2102,44 @@ class ZaakRestServiceTest : BehaviorSpec({
                     exception.errorCode shouldBe
                         ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED
                     verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak whose behandelaar was removed outside ZAC") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeRecordmanagerId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeNewBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+            val patchedZaak = createZaak()
+            val restZaak = createRestZaak()
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
+
+            `when`("the update assigns a behandelaar") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the update is not refused, so that the zaak does not stay without a behandelaar") {
+                    verify(exactly = 1) { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) }
                 }
             }
         }

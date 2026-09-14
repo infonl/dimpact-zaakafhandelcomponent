@@ -346,6 +346,36 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        given("a zaakspecifiek geautoriseerde zaak whose behandelaar was removed outside ZAC") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaak = createRestZaak()
+            val loggedInUser = createLoggedInUser()
+            val restZaakAssignmentData = createRESTZaakAssignmentData(behandelaarGebruikersnaam = "fakeBehandelaarId")
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechtenAllDeny(toekennen = true)
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every {
+                zaakService.assignZaak(zaak, restZaakAssignmentData.groupId, "fakeBehandelaarId", restZaakAssignmentData.reason)
+            } just runs
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+
+            `when`("the zaak is assigned a behandelaar") {
+                val returnedRestZaak = zaakAssignAndReleaseRestService.assignZaak(restZaakAssignmentData)
+
+                then("the assignment is not refused, so that the zaak does not stay without a behandelaar") {
+                    returnedRestZaak shouldBe restZaak
+                }
+            }
+        }
     }
 
     context("Releasing zaken from a list") {
