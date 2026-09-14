@@ -345,14 +345,14 @@ backendConfig:
 resources:
   requests:
     cpu: 100m
-    memory: 1Gi
+    memory: 2Gi
     ephemeral-storage: 4Gi
   limits:
      # -- The JVM sizes its heap from this limit, so this is how the heap available to ZAC is set.
-     # With the default `-XX:MaxRAMPercentage=75.0` a 1Gi limit gives a 768 MB heap, which leaves
-     # room for a `maxInMemoryFileSizeMB` of up to 128. The chart refuses to render without this
+     # With the default `-XX:MaxRAMPercentage=75.0` a 2Gi limit gives a 1536 MB heap, which leaves
+     # room for a `maxInMemoryFileSizeMB` of up to 256. The chart refuses to render without this
      # limit, because it cannot otherwise tell whether the configured file size limits fit.
-    memory: 1Gi
+    memory: 2Gi
     ephemeral-storage: 4Gi
 
 # -- liveness probe configuration for the main ZAC container
