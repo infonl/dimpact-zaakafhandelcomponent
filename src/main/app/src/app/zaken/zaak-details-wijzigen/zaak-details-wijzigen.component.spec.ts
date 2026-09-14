@@ -841,6 +841,47 @@ describe(CaseDetailsEditComponent.name, () => {
         true,
       );
     });
+
+    it("sends the marking in the update request when the control is checked", async () => {
+      renderComponent({
+        zaaktype: fromPartial<GeneratedType<"RestZaaktype">>(
+          autoriseerbaarZaaktype,
+        ),
+        isZaakspecifiekGeautoriseerd: false,
+      });
+      component["form"].controls.isZaakspecifiekGeautoriseerd.setValue(true);
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("fakeReden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.zaak).toEqual(
+        expect.objectContaining({ isZaakspecifiekGeautoriseerd: true }),
+      );
+      request.flush({});
+    });
+
+    it("leaves the marking out of the update request when the control is unchecked", async () => {
+      renderComponent({
+        zaaktype: fromPartial<GeneratedType<"RestZaaktype">>(
+          autoriseerbaarZaaktype,
+        ),
+        isZaakspecifiekGeautoriseerd: false,
+      });
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("fakeReden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(
+        request.request.body.zaak?.isZaakspecifiekGeautoriseerd,
+      ).toBeUndefined();
+      request.flush({});
+    });
   });
   describe("refusal of a zaakspecifiek geautoriseerde zaak", () => {
     const refusal = (message: string) => ({

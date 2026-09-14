@@ -436,7 +436,9 @@ export class ZakenWerkvoorraadComponent
       .filter(([aantal]) => aantal > 0)
       .map(([aantal, reason]) =>
         this.translateService.instant(
-          `msg.zaken.${action}.overgeslagen.${reason}`,
+          `msg.zaken.${action}.overgeslagen.${reason}.${
+            aantal === 1 ? "enkelvoud" : "meervoud"
+          }`,
           { aantal },
         ),
       );

@@ -374,6 +374,13 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       behandelaarGebruikersnaam: "user2",
       afgehandeld: true,
     });
+    const tweedeGeautoriseerdeZaak = fromPartial<ZaakZoekObject>({
+      id: "zaak-geautoriseerd-2",
+      rechten: { toekennen: true },
+      groepId: "groupA",
+      behandelaarGebruikersnaam: "user2",
+      isZaakspecifiekGeautoriseerd: true,
+    });
     const gewoneZaak = fromPartial<ZaakZoekObject>({
       id: "zaak-gewoon",
       rechten: { toekennen: true },
@@ -416,7 +423,25 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
       expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
-        "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd",
+        "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud",
+        undefined,
+        8,
+      );
+    });
+
+    it("uses the plural message when more than one zaak is skipped for a reason", async () => {
+      await setupWithMockedBatchProcess();
+      component["selection"].select(
+        geautoriseerdeZaak,
+        tweedeGeautoriseerdeZaak,
+        gewoneZaak,
+      );
+
+      component["openVerdelenScherm"]();
+
+      expect(dialogData).toEqual([gewoneZaak]);
+      expect(openSnackbar).toHaveBeenCalledWith(
+        "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.meervoud",
         undefined,
         8,
       );
@@ -434,8 +459,8 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
       expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
-        "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd " +
-          "msg.zaken.vrijgeven.overgeslagen.afgehandeld",
+        "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud " +
+          "msg.zaken.vrijgeven.overgeslagen.afgehandeld.enkelvoud",
         undefined,
         8,
       );
