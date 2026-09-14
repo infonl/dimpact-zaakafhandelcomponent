@@ -5,18 +5,25 @@
 package nl.info.zac.search.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.net.URI
+import java.util.UUID
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -25,8 +32,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.search.model.DocumentIndicatie
-import java.net.URI
-import java.util.UUID
+import nl.info.zac.search.model.createZaakAutorisatieGegevens
 
 class DocumentZoekObjectConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
@@ -34,6 +40,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val documentZoekObjectConverter = DocumentZoekObjectConverter(
         identityService = identityService,
@@ -41,6 +48,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         drcClientService = drcClientService,
         zrcClientService = zrcClientService,
+        zgwApiService = zgwApiService,
         enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService
     )
 
@@ -77,6 +85,9 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
             createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
         )
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeZaakBehandelaarId")
+        )
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
@@ -94,6 +105,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     // because the archiefnominatie is null, the zaak is still open and not considered 'afgehandeld'
                     isZaakAfgehandeld shouldBe false
                     isZaakspecifiekGeautoriseerd shouldBe true
+                    zaakGeautoriseerdeMedewerkers shouldBe listOf("fakeZaakBehandelaarId")
                     getDocumentIndicaties().size shouldBe 0
                 }
             }
@@ -127,6 +139,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
@@ -144,6 +157,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     // because the archiefnominatie is set, the zaak is closed and considered 'afgehandeld'
                     isZaakAfgehandeld shouldBe true
                     isZaakspecifiekGeautoriseerd shouldBe false
+                    zaakGeautoriseerdeMedewerkers.shouldBeEmpty()
                     with(getDocumentIndicaties()) {
                         size shouldBe 1
                         first() shouldBe DocumentIndicatie.GEBRUIKSRECHT
@@ -181,6 +195,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
@@ -209,7 +224,9 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
 
         `when`("convert is called with the zaak and zaakinformatieobject supplied directly") {
-            val documentZoekObject = documentZoekObjectConverter.convert(zaakInformatieobject, zaak) { true }
+            val documentZoekObject = documentZoekObjectConverter.convert(zaakInformatieobject, zaak) {
+                createZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true)
+            }
 
             then("the document zoek object resolves its zaak fields from the supplied zaak") {
                 documentZoekObject.zaakUuid shouldBe zaak.uuid.toString()

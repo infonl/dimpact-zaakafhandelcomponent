@@ -138,8 +138,10 @@ class SearchServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaakType1" OR zaaktypeOmschrijving:"$zaakType2"""",
-                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true) """ +
-                            """OR (zaaktypeOmschrijving:"$zaakType2" AND zaakspecifiekGeautoriseerd:true))""",
+                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true """ +
+                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId") """ +
+                            """OR (zaaktypeOmschrijving:"$zaakType2" AND zaakspecifiekGeautoriseerd:true """ +
+                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
                         "type:ZAAK",
                         "zaak_omschrijving:($zaakDescriptionSearchField)",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
@@ -230,7 +232,8 @@ class SearchServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaakType1"""",
-                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true))""",
+                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true """ +
+                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
                         "type:TAAK",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
@@ -301,7 +304,8 @@ class SearchServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaakType1"""",
-                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true))""",
+                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true """ +
+                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
                         "type:DOCUMENT"
                     )
                     get("facet") shouldBe "true"
@@ -386,7 +390,8 @@ class SearchServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaakType1"""",
-                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true))""",
+                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true """ +
+                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
                         "type:TAAK",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
@@ -514,7 +519,8 @@ class SearchServiceTest : BehaviorSpec({
                 with(solrParamsSlot.captured) {
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaaktypeWithFlag" OR zaaktypeOmschrijving:"$zaaktypeWithoutFlag"""",
-                        """-((zaaktypeOmschrijving:"$zaaktypeWithoutFlag" AND zaakspecifiekGeautoriseerd:true))""",
+                        """-((zaaktypeOmschrijving:"$zaaktypeWithoutFlag" AND zaakspecifiekGeautoriseerd:true """ +
+                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
                         "type:ZAAK"
                     )
                 }
@@ -584,6 +590,40 @@ class SearchServiceTest : BehaviorSpec({
                 with(solrParamsSlot.captured) {
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaaktypeWithoutFlag"""",
+                        "type:ZAAK"
+                    )
+                }
+            }
+        }
+    }
+
+    given("A logged-in user who holds no zaakspecifiek_geautoriseerd role for the zaaktype they may see") {
+        val zaaktypeWithoutFlag = "fakeZaaktypeWithoutFlag"
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            id = "fakeBehandelaarId",
+            applicationRolesPerZaaktype = mapOf(zaaktypeWithoutFlag to setOf("fakeApplicationRole1"))
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 0
+        every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
+        every { solrDocumentList.numFound } returns 0
+        every { queryResponse.facetFields } returns emptyList()
+
+        `when`("searching for all documents of type ZAAK") {
+            zoekService.search(createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK))
+
+            then("rows of which that user is the zaak behandelaar are exempted from the exclusion") {
+                with(solrParamsSlot.captured) {
+                    getParams("fq") shouldBe arrayOf(
+                        """zaaktypeOmschrijving:"$zaaktypeWithoutFlag"""",
+                        """-((zaaktypeOmschrijving:"$zaaktypeWithoutFlag" AND zaakspecifiekGeautoriseerd:true """ +
+                            """AND -zaakGeautoriseerdeMedewerkers:"fakeBehandelaarId"))""",
                         "type:ZAAK"
                     )
                 }
