@@ -112,6 +112,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.app.zaak.exception.ZaakAssignmentCannotBeChangedByUpdateException
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -1807,6 +1808,47 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
+        given("an unmarked zaak and an update that names a different behandelaar while marking it") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeOtherBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every {
+                ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            } returns createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+
+            `when`("the update is requested") {
+                val exception = shouldThrow<ZaakAssignmentCannotBeChangedByUpdateException> {
+                    zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+                }
+
+                then("it is refused, because this endpoint never applies the behandelaar it is given") {
+                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_ZAAK_ASSIGNMENT_CANNOT_BE_CHANGED_BY_UPDATE
+                    verify(exactly = 0) { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) }
+                }
+            }
+        }
+
         given("an unmarked zaak of a zaakspecifiek autoriseerbaar zaaktype with the logged-in user as behandelaar") {
             val changeDescription = "change description"
             val zaak = createZaak()
@@ -2138,7 +2180,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             `when`("the update assigns a behandelaar") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
-                then("the update is not refused, so that the zaak does not stay without a behandelaar") {
+                then("the update is not refused") {
                     verify(exactly = 1) { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) }
                 }
             }

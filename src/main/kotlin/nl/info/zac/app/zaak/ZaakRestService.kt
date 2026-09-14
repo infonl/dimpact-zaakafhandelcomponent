@@ -70,6 +70,7 @@ import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
+import nl.info.zac.app.zaak.exception.ZaakAssignmentCannotBeChangedByUpdateException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
@@ -795,6 +796,7 @@ class ZaakRestService @Inject constructor(
                 if (!zaakType.isZaakspecifiekAutoriseerbaar()) {
                     throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
                 }
+                assertBehandelaarNotChangedByActivation(zaak, restZaak)
                 val behandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                     ?.betrokkeneIdentificatie
                     ?.identificatie
@@ -805,6 +807,17 @@ class ZaakRestService @Inject constructor(
                     throw ZaakspecifiekeAutorisatieNotAllowedException()
                 }
                 true
+            }
+        }
+    }
+
+    private fun assertBehandelaarNotChangedByActivation(zaak: Zaak, restZaak: RestZaakCreateData) {
+        restZaak.behandelaar?.id?.let { requestedBehandelaarId ->
+            val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+                ?.betrokkeneIdentificatie
+                ?.identificatie
+            if (requestedBehandelaarId != currentBehandelaarId) {
+                throw ZaakAssignmentCannotBeChangedByUpdateException()
             }
         }
     }

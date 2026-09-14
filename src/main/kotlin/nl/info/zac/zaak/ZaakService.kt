@@ -29,6 +29,8 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -201,6 +203,7 @@ class ZaakService @Inject constructor(
     fun assignZaak(zaak: Zaak, groupId: String, userName: String?, reason: String?) {
         // lock for the given zaak so that it is impossible to assign the zaak to multiple users on quick subsequent calls
         lockForZaak(zaak.uuid).withLock {
+            assertBehandelaarMayChange(zaak, userName)
             userName?.let {
                 identityService.validateIfUserIsInGroup(it, groupId)
             }
@@ -234,6 +237,9 @@ class ZaakService @Inject constructor(
 
             if (userAssigned || userDeleted || groupAssigned) {
                 indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                if (userAssigned || userDeleted) {
+                    reindexZaakspecifiekeAutorisatieDependents(zaak)
+                }
             }
         }
     }
@@ -347,6 +353,25 @@ class ZaakService @Inject constructor(
 
     private fun isZaakspecifiekGeautoriseerd(zaak: Zaak) =
         zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
+
+    private fun assertBehandelaarMayChange(zaak: Zaak, userName: String?) {
+        if (!isZaakspecifiekGeautoriseerd(zaak)) return
+        val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            ?.betrokkeneIdentificatie
+            ?.identificatie
+            ?: return
+        when (userName) {
+            currentBehandelaarId -> return
+            null, "" -> throw ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException()
+            else -> throw ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
+        }
+    }
+
+    private fun reindexZaakspecifiekeAutorisatieDependents(zaak: Zaak) {
+        if (!isZaakspecifiekGeautoriseerd(zaak)) return
+        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
+        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+    }
 
     private fun addRoleToZaak(
         roleType: RolType,

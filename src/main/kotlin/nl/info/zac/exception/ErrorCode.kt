@@ -75,4 +75,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED(
         "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned"
     ),
+    ERROR_CODE_ZAAK_ASSIGNMENT_CANNOT_BE_CHANGED_BY_UPDATE(
+        "msg.error.zaak.assignment.cannot-be-changed-by-update"
+    ),
 }

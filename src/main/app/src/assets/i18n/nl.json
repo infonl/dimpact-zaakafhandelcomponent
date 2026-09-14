@@ -890,6 +890,7 @@
   "msg.error.zaakspecifieke.autorisatie.cannot.be.lifted": "De zaakspecifieke autorisatie van deze zaak kan niet worden opgeheven.",
   "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released": "Deze zaak is zaakspecifiek geautoriseerd en kan daarom niet worden vrijgegeven.",
   "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned": "Deze zaak is zaakspecifiek geautoriseerd en kan daarom niet aan een andere behandelaar worden toegekend.",
+  "msg.error.zaak.assignment.cannot-be-changed-by-update": "De behandelaar en de groep van een zaak kunnen niet via deze actie worden gewijzigd. Gebruik hiervoor het toekennen van de zaak.",
   "msg.hint.kvk.unknown": "Herkoppel de betrokkene met een bekend KvK-nummer.",
   "msg.hint.kvk.outdated": "De gekoppelde betrokkene is niet meer bekend bij de KvK.",
   "msg.hint.kvk.other-error": "Er is een fout opgetreden bij het ophalen van de KvK-gegevens.",
