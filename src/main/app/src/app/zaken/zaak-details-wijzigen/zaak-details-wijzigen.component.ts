@@ -17,6 +17,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -44,6 +45,7 @@ import { ZakenService } from "../zaken.service";
     MatButtonModule,
     MatDividerModule,
     MatExpansionModule,
+    MatFormFieldModule,
     MatIconModule,
     MatSidenavModule,
     MatToolbarModule,
