@@ -43,6 +43,7 @@ import java.util.UUID
 
 const val SECRET = "fakeSecret"
 
+@Suppress("LargeClass")
 class NotificationReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val productaanvraagService = mockk<ProductaanvraagService>()

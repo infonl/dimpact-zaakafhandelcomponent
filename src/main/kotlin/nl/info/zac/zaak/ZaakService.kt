@@ -360,10 +360,12 @@ class ZaakService @Inject constructor(
             ?.betrokkeneIdentificatie
             ?.identificatie
             ?: return
-        when (userName) {
-            currentBehandelaarId -> return
-            null, "" -> throw ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException()
-            else -> throw ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
+        if (userName != currentBehandelaarId) {
+            throw if (userName.isNullOrEmpty()) {
+                ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException()
+            } else {
+                ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
+            }
         }
     }
 
