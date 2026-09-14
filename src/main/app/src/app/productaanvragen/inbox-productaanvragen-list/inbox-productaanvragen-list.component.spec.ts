@@ -192,6 +192,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
       order: "desc",
       type: "type-B",
     });
+    expect(fixture.componentInstance["sort"].active).toBe("id");
+    expect(fixture.componentInstance["sort"].direction).toBe("desc");
   });
 
   it("filters on the type that was chosen in the type filter", async () => {
