@@ -169,16 +169,13 @@ services:
         condition: service_healthy
     profiles: [ "opennotificaties", "openformulieren" ]
 
-  # nginx reverse proxy in front of Open Zaak, carrying the `openzaak.local` name that every other
-  # container uses. It handles ZAC's chunked transfer encoding (Transfer-Encoding: chunked), which
-  # ZAC uses for large request bodies such as an uploaded document. uwsgi in HTTP mode does not
-  # buffer a chunked request body before passing it to Django, which then sees no fields at all and
-  # returns a 400. nginx buffers the full request and forwards it with a Content-Length, matching
-  # the production Kubernetes setup where nginx also sits in front of Open Zaak.
-  # It passes the `openzaak.local` Host on unchanged, so Open Zaak keeps generating the URLs that
-  # ZAC validates its responses against.
-  openzaak.local:
-    image: nginxinc/nginx-unprivileged:1.31.5@sha256:f4a6f1ea26f4e500265b60b1935f2a5a0bc0cc5da4ca02ec32b2099426612229
+  # nginx reverse proxy in front of Open Zaak.
+  # Needed to handle ZAC's chunked transfer encoding (Transfer-Encoding: chunked) for large
+  # file uploads. uwsgi in HTTP mode does not buffer chunked request bodies before passing
+  # them to Django. nginx buffers the full request before forwarding it with Content-Length,
+  # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
+  openzaak-nginx:
+    image: nginxinc/nginx-unprivileged:1.31.5@sha256:4210a3296e7cae7b4f355da48192cd5ea51c88acf9892b95bff967cede85a915
     ports:
       - "8001:8000"
     volumes:
@@ -705,7 +702,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.5@sha256:f4a6f1ea26f4e500265b60b1935f2a5a0bc0cc5da4ca02ec32b2099426612229
+    image: nginxinc/nginx-unprivileged:1.31.5@sha256:4210a3296e7cae7b4f355da48192cd5ea51c88acf9892b95bff967cede85a915
     ports:
       - "8005:8080"
     volumes:
@@ -1112,7 +1109,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.5@sha256:f4a6f1ea26f4e500265b60b1935f2a5a0bc0cc5da4ca02ec32b2099426612229
+    image: nginxinc/nginx-unprivileged:1.31.5@sha256:4210a3296e7cae7b4f355da48192cd5ea51c88acf9892b95bff967cede85a915
     ports:
       - "8007:8080"
     volumes:
