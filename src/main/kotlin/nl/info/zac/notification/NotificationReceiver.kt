@@ -274,6 +274,20 @@ class NotificationReceiver @Inject constructor(
     }
 
     /**
+     * Reindexes the zaak and, when it is zaakspecifiek geautoriseerd, its taken and - asynchronously -
+     * its documenten, because a behandelaar change moves the geautoriseerde medewerker that those
+     * taak- and document-rows carry a copy of. Without this the previous behandelaar would keep passing
+     * the Solr exclusion on those rows while the new one is omitted from them.
+     */
+    private fun handleRolIndexing(zaakUUID: UUID) {
+        indexingService.addOrUpdateZaak(zaakUUID, false)
+        if (zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)) {
+            indexingService.addOrUpdateTakenForZaak(zaakUUID)
+            indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
+        }
+    }
+
+    /**
      * Reindexes the zaak (including both its open and its completed taken, since a taak-level flag
      * can go stale on a completed taak just as easily as on an open one) and, asynchronously, its
      * documenten, but only when the changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have
@@ -289,14 +303,6 @@ class NotificationReceiver @Inject constructor(
      * reindexed asynchronously, there is a short window where the zaak (and its taken) already reflect
      * the new zaakspecifiek geautoriseerd status but its documenten do not yet.
      */
-    private fun handleRolIndexing(zaakUUID: UUID) {
-        indexingService.addOrUpdateZaak(zaakUUID, false)
-        if (zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)) {
-            indexingService.addOrUpdateTakenForZaak(zaakUUID)
-            indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
-        }
-    }
-
     private fun handleZaakeigenschapIndexing(notification: Notification) {
         val zaakUUID = notification.mainResourceUrl.extractUuid()
         if (notification.action != Action.DELETE &&
