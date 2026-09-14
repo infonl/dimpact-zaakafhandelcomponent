@@ -70,7 +70,6 @@ import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
-import nl.info.zac.app.zaak.exception.ZaakAssignmentCannotBeChangedByUpdateException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
@@ -586,47 +585,40 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         checkZaakUpdatePermissions(zaakRechten, restZaakEditMetRedenGegevens, zaak)
         assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
-        restZaakEditMetRedenGegevens.zaak.einddatumGepland?.let {
-            zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
-        }
-        restZaakEditMetRedenGegevens.zaak.run {
-            behandelaar?.id?.let { behandelaarId ->
-                groep?.id?.let { groepId ->
-                    identityService.validateIfUserIsInGroup(behandelaarId, groepId)
-                }
-            }
-        }
+        assertZaakUpdateDataIsValid(zaakType, restZaakEditMetRedenGegevens.zaak)
         val isAlreadyZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+        val requestedAssignment = resolveRequestedAssignment(zaak, restZaakEditMetRedenGegevens.zaak)
+        requestedAssignment?.let { assertPolicy(zaakRechten.toekennen) }
+        val behandelaarIdAfterUpdate = if (requestedAssignment != null) {
+            requestedAssignment.behandelaarId
+        } else {
+            currentBehandelaarId(zaak)
+        }
         val shouldBeMarkedZaakspecifiekGeautoriseerd = checkZaakspecifiekeAutorisatie(
             zaak = zaak,
             zaakType = zaakType,
             restZaak = restZaakEditMetRedenGegevens.zaak,
             isAlreadyZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
+            behandelaarId = behandelaarIdAfterUpdate,
             loggedInUser = loggedInUser
         )
+        requestedAssignment?.let {
+            zaakService.assignZaak(
+                zaak = zaak,
+                groupId = it.groupId,
+                userName = it.behandelaarId,
+                reason = restZaakEditMetRedenGegevens.reden
+            )
+        }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
         if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
-            zrcClientService.markZaakspecifiekGeautoriseerd(updatedZaak, ztcClientService)
-            indexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = false)
-            indexingService.addOrUpdateTakenForZaak(zaakUUID)
-            indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+            markZaakspecifiekGeautoriseerdAndReindex(zaakUUID, updatedZaak)
         }
-        restZaakEditMetRedenGegevens.zaak.communicatiekanaal?.let {
-            if (zaakType.isConfiguredBPMNZaaktype()) {
-                updateCommunicationChannelZaakVariabele(zaak, it)
-            }
-        }
-        restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
-            if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
-                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaakUUID, newFinalDate)
-                    .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
-                    .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
-            }
-        }
+        applyZaakUpdateSideEffects(zaak, zaakType, updatedZaak, restZaakEditMetRedenGegevens.zaak)
         return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
     }
 
@@ -780,6 +772,7 @@ class ZaakRestService @Inject constructor(
         zaakType: ZaakType,
         restZaak: RestZaakCreateData,
         isAlreadyZaakspecifiekGeautoriseerd: Boolean,
+        behandelaarId: String?,
         loggedInUser: LoggedInUser
     ): Boolean {
         if (isAlreadyZaakspecifiekGeautoriseerd) {
@@ -796,11 +789,7 @@ class ZaakRestService @Inject constructor(
                 if (!zaakType.isZaakspecifiekAutoriseerbaar()) {
                     throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
                 }
-                assertBehandelaarNotChangedByActivation(zaak, restZaak)
-                val behandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-                    ?.betrokkeneIdentificatie
-                    ?.identificatie
-                    ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
+                        behandelaarId ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
                 if (behandelaarId != loggedInUser.id &&
                     !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.getOmschrijving())
                 ) {
@@ -811,16 +800,61 @@ class ZaakRestService @Inject constructor(
         }
     }
 
-    private fun assertBehandelaarNotChangedByActivation(zaak: Zaak, restZaak: RestZaakCreateData) {
-        restZaak.behandelaar?.id?.let { requestedBehandelaarId ->
-            val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-                ?.betrokkeneIdentificatie
-                ?.identificatie
-            if (requestedBehandelaarId != currentBehandelaarId) {
-                throw ZaakAssignmentCannotBeChangedByUpdateException()
+    private fun assertZaakUpdateDataIsValid(zaakType: ZaakType, restZaak: RestZaakCreateData) {
+        restZaak.einddatumGepland?.let {
+            zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
+        }
+        restZaak.behandelaar?.id?.let { behandelaarId ->
+            restZaak.groep?.id?.let { groepId ->
+                identityService.validateIfUserIsInGroup(behandelaarId, groepId)
             }
         }
     }
+
+    private fun markZaakspecifiekGeautoriseerdAndReindex(zaakUUID: UUID, updatedZaak: Zaak) {
+        zrcClientService.markZaakspecifiekGeautoriseerd(updatedZaak, ztcClientService)
+        indexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = false)
+        indexingService.addOrUpdateTakenForZaak(zaakUUID)
+        indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+    }
+
+    private fun applyZaakUpdateSideEffects(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        updatedZaak: Zaak,
+        restZaak: RestZaakCreateData
+    ) {
+        restZaak.communicatiekanaal?.let {
+            if (zaakType.isConfiguredBPMNZaaktype()) {
+                updateCommunicationChannelZaakVariabele(zaak, it)
+            }
+        }
+        restZaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
+            if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
+                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newFinalDate)
+                    .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
+                    .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
+            }
+        }
+    }
+
+    private fun currentBehandelaarId(zaak: Zaak) =
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            ?.betrokkeneIdentificatie
+            ?.identificatie
+
+    private fun resolveRequestedAssignment(zaak: Zaak, restZaak: RestZaakCreateData) =
+        restZaak.groep?.id?.let { requestedGroupId ->
+            val requestedBehandelaarId = restZaak.behandelaar?.id
+            val currentGroupId = zgwApiService.findGroepForZaak(zaak)
+                ?.betrokkeneIdentificatie
+                ?.identificatie
+            if (requestedGroupId == currentGroupId && requestedBehandelaarId == currentBehandelaarId(zaak)) {
+                null
+            } else {
+                RequestedAssignment(groupId = requestedGroupId, behandelaarId = requestedBehandelaarId)
+            }
+        }
 
     private fun checkBehandelaarUnchanged(zaak: Zaak, restZaak: RestZaakCreateData) {
         val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
@@ -1084,4 +1118,7 @@ class ZaakRestService @Inject constructor(
             )
         }
     }
+
+    private data class RequestedAssignment(val groupId: String, val behandelaarId: String?)
+
 }

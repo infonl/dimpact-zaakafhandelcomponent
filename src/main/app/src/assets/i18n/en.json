@@ -890,7 +890,6 @@
   "msg.error.zaakspecifieke.autorisatie.cannot.be.lifted": "The zaakspecifieke autorisatie of this zaak cannot be lifted.",
   "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released": "This zaak is zaakspecifiek geautoriseerd and can therefore not be released.",
   "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned": "This zaak is zaakspecifiek geautoriseerd and can therefore not be assigned to another behandelaar.",
-  "msg.error.zaak.assignment.cannot-be-changed-by-update": "The behandelaar and the groep of a zaak cannot be changed through this action. Use the zaak assignment for that.",
   "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
   "msg.hint.kvk.outdated": "The registered involved is not found at the CoC.",
   "msg.hint.kvk.other-error": "An error occurred while retrieving the KvK data",
