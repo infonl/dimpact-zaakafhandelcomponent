@@ -27,6 +27,7 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
@@ -238,9 +239,10 @@ class NotificationReceiver @Inject constructor(
                                 else -> {}
                             }
                         }
-                        Resource.STATUS, Resource.RESULTAAT, Resource.ROL, Resource.ZAAKOBJECT -> {
+                        Resource.STATUS, Resource.RESULTAAT, Resource.ZAAKOBJECT -> {
                             indexingService.addOrUpdateZaak(notification.mainResourceUrl.extractUuid(), false)
                         }
+                        Resource.ROL -> handleRolIndexing(notification.mainResourceUrl.extractUuid())
                         Resource.ZAAKEIGENSCHAP -> handleZaakeigenschapIndexing(notification)
                         Resource.ZAAKINFORMATIEOBJECT -> {
                             if (notification.action == Action.CREATE) {
@@ -287,6 +289,14 @@ class NotificationReceiver @Inject constructor(
      * reindexed asynchronously, there is a short window where the zaak (and its taken) already reflect
      * the new zaakspecifiek geautoriseerd status but its documenten do not yet.
      */
+    private fun handleRolIndexing(zaakUUID: UUID) {
+        indexingService.addOrUpdateZaak(zaakUUID, false)
+        if (zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)) {
+            indexingService.addOrUpdateTakenForZaak(zaakUUID)
+            indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
+        }
+    }
+
     private fun handleZaakeigenschapIndexing(notification: Notification) {
         val zaakUUID = notification.mainResourceUrl.extractUuid()
         if (notification.action != Action.DELETE &&
