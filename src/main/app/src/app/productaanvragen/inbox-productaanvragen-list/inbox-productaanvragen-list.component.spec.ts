@@ -159,6 +159,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     const defaultParameters = {
       sort: "id",
       order: "desc",
+      filtersType: "InboxProductaanvraagListParameters",
       page: 0,
       maxResults: 10,
     };
@@ -213,6 +214,32 @@ describe(InboxProductaanvragenListComponent.name, () => {
     });
     expect(fixture.componentInstance["sort"].active).toBe("type");
     expect(fixture.componentInstance["sort"].direction).toBe("desc");
+  });
+
+  it("forgets the remembered filters and asks for the default first page again", async () => {
+    sessionStorage.setItem(
+      SEARCH_PARAMETERS_KEY,
+      JSON.stringify({ sort: "type", order: "asc", type: "type-B" }),
+    );
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    fixture.componentInstance["resetSearch"]();
+
+    expect(rememberedParameters()).toEqual({
+      sort: "id",
+      order: "desc",
+      filtersType: "InboxProductaanvraagListParameters",
+      page: 0,
+      maxResults: 10,
+    });
+    expect(fixture.componentInstance["sort"].active).toBe("id");
+    expect(fixture.componentInstance["sort"].direction).toBe("desc");
+    expect(await lastListRequestBody()).toMatchObject({
+      sort: "id",
+      order: "desc",
+      page: 0,
+    });
   });
 
   it("filters on the type that was chosen in the type filter", async () => {

@@ -66,6 +66,7 @@ type InboxProductaanvraagListParameters =
   GeneratedType<"RestInboxProductaanvraagListParameters"> & {
     sort: string;
     order: SortDirection;
+    filtersType: "InboxProductaanvraagListParameters";
   };
 
 @Component({
@@ -247,7 +248,11 @@ export class InboxProductaanvragenListComponent
   }
 
   protected createDefaultParameters(): InboxProductaanvraagListParameters {
-    return { sort: "id", order: "desc" };
+    return {
+      sort: "id",
+      order: "desc",
+      filtersType: "InboxProductaanvraagListParameters",
+    };
   }
 
   getWerklijst(): GeneratedType<"Werklijst"> {
