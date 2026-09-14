@@ -171,8 +171,6 @@ class RestInformatieobjectConverter @Inject constructor(
     ): EnkelvoudigInformatieObjectCreateLockRequest = buildEnkelvoudigInformatieObjectData(
         restEnkelvoudigInformatieobject
     ).apply {
-        inhoud = restEnkelvoudigInformatieobject.file!!.toBase64String()
-        bestandsomvang = restEnkelvoudigInformatieobject.file!!.size
         formaat = restEnkelvoudigInformatieobject.formaat
     }
 
@@ -208,7 +206,9 @@ class RestInformatieobjectConverter @Inject constructor(
             auteur = loggedInUserInstance.get().getFullName()
             taal = ConfigurationService.TAAL_NEDERLANDS
             informatieobjecttype = informatieObjectType.url
+            // task form attachments are held in memory, so their content travels in the request itself
             inhoud = bestand.file!!.toBase64String()
+            bestandsomvang = bestand.file!!.size
             formaat = bestand.type
             bestandsnaam = bestand.filename
             status = StatusEnum.DEFINITIEF
@@ -251,9 +251,7 @@ class RestInformatieobjectConverter @Inject constructor(
             restEnkelvoudigInformatieObjectVersieGegevens
         )
         if (hasFileContent(restEnkelvoudigInformatieObjectVersieGegevens)) {
-            enkelvoudigInformatieObjectWithLockRequest.inhoud = restEnkelvoudigInformatieObjectVersieGegevens.file!!.toBase64String()
             enkelvoudigInformatieObjectWithLockRequest.bestandsnaam = restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam
-            enkelvoudigInformatieObjectWithLockRequest.bestandsomvang = restEnkelvoudigInformatieObjectVersieGegevens.file!!.size
             enkelvoudigInformatieObjectWithLockRequest.formaat = restEnkelvoudigInformatieObjectVersieGegevens.formaat
         }
         enkelvoudigInformatieObjectWithLockRequest.informatieobjecttype =
@@ -353,7 +351,6 @@ class RestInformatieobjectConverter @Inject constructor(
 
     private fun hasFileContent(versieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens) =
         versieGegevens.file != null &&
-            versieGegevens.file!!.isNotEmpty() &&
             versieGegevens.bestandsnaam != null &&
             versieGegevens.formaat != null
 }

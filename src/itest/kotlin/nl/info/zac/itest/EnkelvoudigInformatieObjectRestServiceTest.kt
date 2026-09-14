@@ -132,7 +132,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         `when`("update of enkelvoudig informatie object with file upload endpoint is called with a TXT file") {
             val endpointUrl =
-                "$ZAC_API_URI/informatieobjecten/informatieobject/update"
+                "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid?zaak=$zaakUuid"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME).let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
@@ -141,8 +141,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val requestBody =
                 MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("uuid", enkelvoudigInformatieObjectUuid)
-                    .addFormDataPart("zaakUuid", zaakUuid.toString())
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_FACTUUR_UUID)
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
                     .addFormDataPart("titel", DOCUMENT_UPDATED_FILE_TITLE)
@@ -158,7 +156,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                         file.asRequestBody(TEXT_MEDIA_TYPE.toMediaType())
                     )
                     .build()
-            val response = itestHttpClient.performPostRequest(
+            val response = itestHttpClient.performPutRequest(
                 url = endpointUrl,
                 headers = Headers.headersOf(
                     "Accept",
