@@ -20,9 +20,8 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import nl.info.client.zgw.zrc.model.Rol
-import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import nl.info.client.zgw.zrc.model.ZaakListParameters
+import java.time.LocalDate
+import java.util.UUID
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -32,14 +31,21 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
+import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
+import nl.info.client.zgw.zrc.util.markZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
@@ -56,7 +62,6 @@ import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
-import nl.info.zac.util.toLocalDate
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
@@ -64,26 +69,31 @@ import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
+import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
+import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
-import nl.info.zac.app.zaak.model.RestReden
-import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
-import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
-import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
-import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
-import nl.info.zac.app.zaak.model.RestZaakHeropenenGegevens
-import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestDetachDocumentData
+import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.RestStatustype
 import nl.info.zac.app.zaak.model.RestZaak
+import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
+import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
+import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
 import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.RestZaakCreateData
 import nl.info.zac.app.zaak.model.RestZaakDataUpdate
+import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
+import nl.info.zac.app.zaak.model.RestZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
+import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toPatchZaak
@@ -109,10 +119,9 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.toLocalDate
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
-import java.time.LocalDate
-import java.util.UUID
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -576,33 +585,40 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         checkZaakUpdatePermissions(zaakRechten, restZaakEditMetRedenGegevens, zaak)
         assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
-        restZaakEditMetRedenGegevens.zaak.einddatumGepland?.let {
-            zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
+        assertZaakUpdateDataIsValid(zaakType, restZaakEditMetRedenGegevens.zaak)
+        val isAlreadyZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+        val requestedAssignment = resolveRequestedAssignment(zaak, restZaakEditMetRedenGegevens.zaak)
+        requestedAssignment?.let { assertPolicy(zaakRechten.toekennen) }
+        val behandelaarIdAfterUpdate = if (requestedAssignment != null) {
+            requestedAssignment.behandelaarId
+        } else {
+            currentBehandelaarId(zaak)
         }
-        restZaakEditMetRedenGegevens.zaak.run {
-            behandelaar?.id?.let { behandelaarId ->
-                groep?.id?.let { groepId ->
-                    identityService.validateIfUserIsInGroup(behandelaarId, groepId)
-                }
-            }
+        val shouldBeMarkedZaakspecifiekGeautoriseerd = checkZaakspecifiekeAutorisatie(
+            zaak = zaak,
+            zaakType = zaakType,
+            restZaak = restZaakEditMetRedenGegevens.zaak,
+            isAlreadyZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
+            behandelaarId = behandelaarIdAfterUpdate,
+            loggedInUser = loggedInUser
+        )
+        requestedAssignment?.let {
+            zaakService.assignZaak(
+                zaak = zaak,
+                groupId = it.groupId,
+                userName = it.behandelaarId,
+                reason = restZaakEditMetRedenGegevens.reden
+            )
         }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
-        restZaakEditMetRedenGegevens.zaak.communicatiekanaal?.let {
-            if (zaakType.isConfiguredBPMNZaaktype()) {
-                updateCommunicationChannelZaakVariabele(zaak, it)
-            }
+        if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
+            markZaakspecifiekGeautoriseerdAndReindex(zaakUUID, updatedZaak)
         }
-        restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
-            if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
-                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaakUUID, newFinalDate)
-                    .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
-                    .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
-            }
-        }
+        applyZaakUpdateSideEffects(zaak, zaakType, updatedZaak, restZaakEditMetRedenGegevens.zaak)
         return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
     }
 
@@ -749,6 +765,116 @@ class ZaakRestService @Inject constructor(
             }
         }
     }
+
+    @Suppress("ThrowsCount")
+    private fun checkZaakspecifiekeAutorisatie(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        restZaak: RestZaakCreateData,
+        isAlreadyZaakspecifiekGeautoriseerd: Boolean,
+        behandelaarId: String?,
+        loggedInUser: LoggedInUser
+    ): Boolean {
+        if (isAlreadyZaakspecifiekGeautoriseerd) {
+            checkBehandelaarUnchanged(zaak, restZaak)
+        }
+        return when {
+            restZaak.isZaakspecifiekGeautoriseerd == null -> false
+            restZaak.isZaakspecifiekGeautoriseerd == false -> {
+                if (isAlreadyZaakspecifiekGeautoriseerd) throw ZaakspecifiekeAutorisatieCannotBeLiftedException()
+                false
+            }
+            isAlreadyZaakspecifiekGeautoriseerd -> false
+            else -> {
+                if (!zaakType.isZaakspecifiekAutoriseerbaar()) {
+                    throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
+                }
+                        behandelaarId ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
+                if (behandelaarId != loggedInUser.id &&
+                    !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.getOmschrijving())
+                ) {
+                    throw ZaakspecifiekeAutorisatieNotAllowedException()
+                }
+                true
+            }
+        }
+    }
+
+    private fun assertZaakUpdateDataIsValid(zaakType: ZaakType, restZaak: RestZaakCreateData) {
+        restZaak.einddatumGepland?.let {
+            zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
+        }
+        restZaak.behandelaar?.id?.let { behandelaarId ->
+            restZaak.groep?.id?.let { groepId ->
+                identityService.validateIfUserIsInGroup(behandelaarId, groepId)
+            }
+        }
+    }
+
+    private fun markZaakspecifiekGeautoriseerdAndReindex(zaakUUID: UUID, updatedZaak: Zaak) {
+        zrcClientService.markZaakspecifiekGeautoriseerd(updatedZaak, ztcClientService)
+        indexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = false)
+        indexingService.addOrUpdateTakenForZaak(zaakUUID)
+        indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+    }
+
+    private fun applyZaakUpdateSideEffects(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        updatedZaak: Zaak,
+        restZaak: RestZaakCreateData
+    ) {
+        restZaak.communicatiekanaal?.let {
+            if (zaakType.isConfiguredBPMNZaaktype()) {
+                updateCommunicationChannelZaakVariabele(zaak, it)
+            }
+        }
+        restZaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
+            if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
+                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newFinalDate)
+                    .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
+                    .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
+            }
+        }
+    }
+
+    private fun currentBehandelaarId(zaak: Zaak) =
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            ?.betrokkeneIdentificatie
+            ?.identificatie
+
+    private fun resolveRequestedAssignment(zaak: Zaak, restZaak: RestZaakCreateData) =
+        restZaak.groep?.id?.let { requestedGroupId ->
+            val requestedBehandelaarId = restZaak.behandelaar?.id
+            val currentGroupId = zgwApiService.findGroepForZaak(zaak)
+                ?.betrokkeneIdentificatie
+                ?.identificatie
+            if (requestedGroupId == currentGroupId && requestedBehandelaarId == currentBehandelaarId(zaak)) {
+                null
+            } else {
+                RequestedAssignment(groupId = requestedGroupId, behandelaarId = requestedBehandelaarId)
+            }
+        }
+
+    private fun checkBehandelaarUnchanged(zaak: Zaak, restZaak: RestZaakCreateData) {
+        val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            ?.betrokkeneIdentificatie
+            ?.identificatie
+            ?: return
+        restZaak.behandelaar?.id?.let {
+            if (it != currentBehandelaarId) throw ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
+        }
+    }
+
+    private fun ZaakType.isZaakspecifiekAutoriseerbaar() =
+        ztcClientService.findEigenschap(
+            zaaktype = getUrl(),
+            eigenschap = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+        ) != null
+
+    private fun LoggedInUser.isZaakspecifiekGeautoriseerdFor(zaaktypeOmschrijving: String) =
+        ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in overallRoles ||
+            ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in applicationRolesPerZaaktype[zaaktypeOmschrijving].orEmpty()
 
     private fun composeBetrokkeneIdentification(
         betrokkeneIdentificatie: BetrokkeneIdentificatie
@@ -992,4 +1118,7 @@ class ZaakRestService @Inject constructor(
             )
         }
     }
+
+    private data class RequestedAssignment(val groupId: String, val behandelaarId: String?)
+
 }
