@@ -337,6 +337,14 @@ export class ZakenWerkvoorraadComponent
         (!release || !!behandelaarGebruikersnaam),
     );
 
+if (!zaken.length) {
+      this.showSkippedZakenMessage(
+        release,
+        skippedBecauseGeautoriseerd.length,
+        skippedBecauseAfgehandeld.length,
+      );
+      return;
+    }
     this.batchProcessService.subscribe({
       ids: zaken.map(({ id }) => id),
       progressSubscription: {
