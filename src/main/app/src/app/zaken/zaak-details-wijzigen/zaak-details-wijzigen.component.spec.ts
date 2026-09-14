@@ -817,7 +817,7 @@ describe(CaseDetailsEditComponent.name, () => {
 
       expect(
         screen.queryByRole("checkbox", {
-          name: /isZaakspecifiekGeautoriseerd/i,
+          name: /is-zaakspecifiek-geautoriseerd/i,
         }),
       ).not.toBeInTheDocument();
     });
@@ -831,7 +831,9 @@ describe(CaseDetailsEditComponent.name, () => {
       });
 
       expect(
-        screen.getByRole("checkbox", { name: /isZaakspecifiekGeautoriseerd/i }),
+        screen.getByRole("checkbox", {
+          name: /is-zaakspecifiek-geautoriseerd/i,
+        }),
       ).toBeEnabled();
       expect(
         component["form"].controls.isZaakspecifiekGeautoriseerd.value,
@@ -847,7 +849,9 @@ describe(CaseDetailsEditComponent.name, () => {
       });
 
       expect(
-        screen.getByRole("checkbox", { name: /isZaakspecifiekGeautoriseerd/i }),
+        screen.getByRole("checkbox", {
+          name: /is-zaakspecifiek-geautoriseerd/i,
+        }),
       ).toBeDisabled();
       expect(component["form"].getRawValue().isZaakspecifiekGeautoriseerd).toBe(
         true,
