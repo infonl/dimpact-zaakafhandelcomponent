@@ -32,6 +32,7 @@ data class RestZaakCreateData(
     var initiatorIdentificatie: BetrokkeneIdentificatie? = null,
 
     @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    @set:JsonbProperty("isZaakspecifiekGeautoriseerd")
     var isZaakspecifiekGeautoriseerd: Boolean? = null,
 
     @field:Size(max = OMSCHRIJVING_MAX_LENGTH)

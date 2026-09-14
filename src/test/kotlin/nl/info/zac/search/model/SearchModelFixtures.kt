@@ -27,7 +27,7 @@ fun createZaakZoekObject(
     indicatie: ZaakIndicatie? = null,
     behandelaarGebruikersnaam: String? = null,
     isZaakspecifiekGeautoriseerd: Boolean = false,
-    zaakGeautoriseerdeMedewerkers: List<String> = emptyList()
+    zaakGeautoriseerdeMedewerkers: List<String>? = emptyList()
 ) = ZaakZoekObject(
     id = uuidAsString,
     type = type.name,
@@ -57,7 +57,7 @@ fun createTaakZoekObject(
     zaakOmschrijving: String = "fakeOmschrijving",
     behandelaarGebruikersnaam: String? = null,
     isZaakspecifiekGeautoriseerd: Boolean = false,
-    zaakGeautoriseerdeMedewerkers: List<String> = emptyList(),
+    zaakGeautoriseerdeMedewerkers: List<String>? = emptyList(),
     status: TaakStatus? = null
 ) = TaakZoekObject(
     id = uuidAsString,
@@ -87,7 +87,7 @@ fun createDocumentZoekObject(
     zaakUuid: String = UUID.randomUUID().toString(),
     isZaakAfgehandeld: Boolean = false,
     isZaakspecifiekGeautoriseerd: Boolean = false,
-    zaakGeautoriseerdeMedewerkers: List<String> = emptyList()
+    zaakGeautoriseerdeMedewerkers: List<String>? = emptyList()
 ) = DocumentZoekObject(
     id = uuidAsString,
     type = type.name

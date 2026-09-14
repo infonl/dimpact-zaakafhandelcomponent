@@ -17,7 +17,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_1
@@ -223,7 +223,7 @@ class ZaakRestServiceZaakspecifiekeAutorisatieActivatieTest : BehaviorSpec({
 
     given("a zaak of a zaaktype that is not zaakspecifiek autoriseerbaar") {
         val (_, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHANDELAAR_1,
             behandelaarId = BEHANDELAAR_1.username,
@@ -275,7 +275,7 @@ class ZaakRestServiceZaakspecifiekeAutorisatieActivatieTest : BehaviorSpec({
         `when`(
             "an employee who is neither the behandelaar nor a flag holder tries to mark the zaak"
         ) {
-            val response = markZaakspecifiekGeautoriseerd(zaakUuid, RECORDMANAGER_1)
+            val response = markZaakspecifiekGeautoriseerd(zaakUuid, COORDINATOR_1)
 
             then("the request is refused, either by the policy or by the activation rule") {
                 response.code shouldBeIn listOf(HTTP_BAD_REQUEST, HTTP_FORBIDDEN)

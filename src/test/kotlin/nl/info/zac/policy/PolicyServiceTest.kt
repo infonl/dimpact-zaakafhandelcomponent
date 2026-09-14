@@ -399,6 +399,46 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
+    context("Reading rechten for a zoekobject that Solr returned without any geautoriseerde medewerkers") {
+        given("A zaakspecifiek geautoriseerd zaak, taak and document whose geautoriseerde medewerkers are null") {
+            val zaakZoekObject = createZaakZoekObject(
+                isZaakspecifiekGeautoriseerd = true,
+                zaakGeautoriseerdeMedewerkers = null
+            )
+            val taakZoekObject = createTaakZoekObject(
+                isZaakspecifiekGeautoriseerd = true,
+                zaakGeautoriseerdeMedewerkers = null
+            )
+            val documentZoekObject = createDocumentZoekObject(
+                isZaakspecifiekGeautoriseerd = true,
+                zaakGeautoriseerdeMedewerkers = null
+            )
+            val zaakRuleQuerySlot = slot<RuleQuery<ZaakInput>>()
+            val taakRuleQuerySlot = slot<RuleQuery<TaakInput>>()
+            val documentRuleQuerySlot = slot<RuleQuery<DocumentInput>>()
+            every { opaEvaluationClient.readZaakRechten(capture(zaakRuleQuerySlot)) } returns
+                RuleResponse(createZaakRechten())
+            every { opaEvaluationClient.readTaakRechten(capture(taakRuleQuerySlot)) } returns
+                RuleResponse(createTaakRechten())
+            every { opaEvaluationClient.readDocumentRechten(capture(documentRuleQuerySlot)) } returns
+                RuleResponse(createDocumentRechten())
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
+
+            `when`("policy rights are requested") {
+                policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
+                policyService.readTaakRechten(taakZoekObject)
+                policyService.readDocumentRechten(documentZoekObject)
+
+                then("OPA is told the logged-in user is not a geautoriseerde medewerker") {
+                    zaakRuleQuerySlot.captured.input.zaakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe false
+                    taakRuleQuerySlot.captured.input.taakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe false
+                    documentRuleQuerySlot.captured.input.documentData
+                        .loggedInUserIsGeautoriseerdeMedewerker shouldBe false
+                }
+            }
+        }
+    }
+
     context("Reading zaakrechten for a zaak with more than one geautoriseerde medewerker") {
         given("A ZaakZoekObject of a zaakspecifiek geautoriseerde zaak with two geautoriseerde medewerkers") {
             val zaakZoekObject = createZaakZoekObject(
