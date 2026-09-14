@@ -177,6 +177,23 @@ describe(InboxProductaanvragenListComponent.name, () => {
     expect(await lastListRequestBody()).toMatchObject({ type: "type-B" });
   });
 
+  it("restores the default sort when a saved search omits sort and order", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    fixture.componentInstance["zoekopdrachtChanged"](
+      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+        json: JSON.stringify({ type: "type-B" }),
+      }),
+    );
+
+    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+      sort: "id",
+      order: "desc",
+      type: "type-B",
+    });
+  });
+
   it("filters on the type that was chosen in the type filter", async () => {
     await setup();
     await showProductaanvragen([inboxProductaanvraag]);

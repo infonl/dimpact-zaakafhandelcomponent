@@ -235,7 +235,10 @@ export class InboxProductaanvragenListComponent
     actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
   ) {
     if (actieveZoekopdracht?.json) {
-      this.listParameters = JSON.parse(actieveZoekopdracht.json);
+      this.listParameters = {
+        ...this.createDefaultParameters(),
+        ...JSON.parse(actieveZoekopdracht.json),
+      };
       this.sort.active = this.listParameters.sort;
       this.sort.direction = this.listParameters.order;
       this.paginator.pageIndex = 0;
