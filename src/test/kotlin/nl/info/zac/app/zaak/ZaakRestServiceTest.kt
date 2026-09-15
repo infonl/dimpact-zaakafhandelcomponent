@@ -1844,6 +1844,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 ztcClientService.readEigenschap(patchedZaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
             } returns eigenschap
             every { zgwApiService.findGroepForZaak(zaak) } returns null
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { zaakService.assignZaak(zaak, restGroup.id, "fakeNewBehandelaarId", changeDescription) } just runs
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
             every { zrcClientService.createEigenschap(patchedZaak.uuid, any()) } returns createZaakEigenschap()
@@ -1863,6 +1864,58 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zaakService.assignZaak(zaak, restGroup.id, "fakeNewBehandelaarId", changeDescription)
                         zrcClientService.createEigenschap(patchedZaak.uuid, any())
                     }
+                }
+            }
+        }
+
+        given("a zaak with a behandelaar and an update that changes the groep without naming a behandelaar") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeLoggedInUserId")
+            val restGroup = createRestGroup(id = "fakeNewGroupId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = null,
+                restGroup = restGroup,
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+            val patchedZaak = createZaak()
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zgwApiService.findGroepForZaak(zaak) } returns createRolOrganisatorischeEenheid(
+                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(
+                    identificatie = "fakeCurrentGroupId"
+                )
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeExistingBehandelaarId")
+            )
+            every { zaakService.assignZaak(any(), any(), any(), any()) } just runs
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every {
+                restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten, loggedInUser)
+            } returns createRestZaak()
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+
+            `when`("the update is requested") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the zaak keeps its existing behandelaar instead of having the rol removed") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaak(zaak, restGroup.id, "fakeExistingBehandelaarId", changeDescription)
+                    }
+                }
+
+                and("the behandelaar rol is read only once for the whole update") {
+                    verify(exactly = 1) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) }
                 }
             }
         }
@@ -1889,6 +1942,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
             every { zgwApiService.findGroepForZaak(zaak) } returns null
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()

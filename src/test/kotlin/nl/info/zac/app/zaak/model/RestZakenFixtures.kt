@@ -142,7 +142,7 @@ fun createRestUser(
 
 @Suppress("LongParameterList")
 fun createRestZaak(
-    behandelaar: RestUser = createRestUser(),
+    behandelaar: RestUser? = createRestUser(),
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
     einddatumGepland: LocalDate? = null,
     heeftOntvangstbevestigingVerstuurd: Boolean = false,
@@ -220,7 +220,7 @@ fun createRestZaakDataUpdate(
 fun createRestZaakCreateData(
     description: String = "fakeDescription",
     explanation: String = "fakeExplanation",
-    behandelaar: RestUser = createRestUser(),
+    behandelaar: RestUser? = createRestUser(),
     restGroup: RestGroup = createRestGroup(),
     restZaakType: RestZaaktype = createRestZaaktype(),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
