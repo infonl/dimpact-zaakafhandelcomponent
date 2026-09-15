@@ -65,6 +65,20 @@ const routes: Routes = [
       ),
   },
   {
+    path: "informatie-objecten",
+    loadChildren: () =>
+      import("./informatie-objecten/informatie-objecten.routes").then(
+        (module) => module.INFORMATIE_OBJECTEN_ROUTES,
+      ),
+  },
+  {
+    path: "fout",
+    loadChildren: () =>
+      import("./fout-afhandeling/fout-afhandeling.routes").then(
+        (module) => module.FOUT_AFHANDELING_ROUTES,
+      ),
+  },
+  {
     path: "productaanvragen",
     loadChildren: () =>
       import("./productaanvragen/productaanvragen-routing.module").then(
