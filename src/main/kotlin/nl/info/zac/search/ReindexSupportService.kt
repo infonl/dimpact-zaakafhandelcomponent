@@ -21,6 +21,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.task.model.TaakSortering
+import nl.info.zac.authentication.systemUserContext
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -123,7 +124,7 @@ class ReindexSupportService @Inject constructor(
      * into [pageConversionDispatcher] themselves.
      */
     internal fun <T, R> runConcurrentPageConversions(items: List<T>, convert: suspend (T) -> R): List<R> =
-        runBlocking(pageConversionDispatcher) {
+        runBlocking(pageConversionDispatcher + systemUserContext()) {
             items.map { item -> async { convert(item) } }.awaitAll()
         }
 
