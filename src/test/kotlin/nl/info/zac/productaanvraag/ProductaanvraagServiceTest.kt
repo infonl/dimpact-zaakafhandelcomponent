@@ -16,6 +16,10 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
+import jakarta.enterprise.inject.Instance
+import jakarta.servlet.http.HttpSession
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
@@ -1969,6 +1973,61 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         bpmnService.startProcess(any(), any(), any(), any())
                         inboxProductaanvraagService.create(any())
                     }
+                }
+            }
+        }
+    }
+
+    context("Handling a productaanvraag") {
+        given("a productaanvraag that has not been handled yet") {
+            val productaanvraagObjectUUID = UUID.randomUUID()
+            val productaanvraagType = "fakeProductaanvraagType"
+            val productaanvraagObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to createBron(),
+                        "type" to productaanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
+                    )
+                )
+            )
+            val httpSession = mockk<HttpSession>()
+            val httpSessionInstance = mockk<Instance<HttpSession>>()
+            val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
+            var userWhileHandlingProductaanvraag: LoggedInUser? = null
+
+            // the notification endpoint leaves the functionele gebruiker on the session
+            every { httpSessionInstance.get() } returns httpSession
+            every {
+                httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE)
+            } returns LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+            every { productaanvraagClaimRepository.claim(productaanvraagObjectUUID) } returns true
+            every { objectsClientService.readObject(productaanvraagObjectUUID) } returns productaanvraagObject
+            every {
+                zaaktypeCmmnConfigurationBeheerService
+                    .findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraagType)
+            } answers {
+                userWhileHandlingProductaanvraag = loggedInUserProvider.getLoggedInUser()
+                throw IllegalStateException("fakeProductaanvraagHandlingFailure")
+            }
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID)
+                val userAfterHandlingProductaanvraag = loggedInUserProvider.getLoggedInUser()
+
+                then("the zaaktype lookup that decides how to create the zaak runs as the productaanvraag user") {
+                    userWhileHandlingProductaanvraag shouldBe LoggedInUserProvider.PRODUCTAANVRAAG_GEBRUIKER
+                }
+
+                and("a failure while handling does not reach the notification endpoint that triggered it") {
+                    verify(exactly = 1) {
+                        zaaktypeCmmnConfigurationBeheerService
+                            .findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraagType)
+                    }
+                }
+
+                and("the session is left as the notification endpoint set it") {
+                    userAfterHandlingProductaanvraag shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
                 }
             }
         }
