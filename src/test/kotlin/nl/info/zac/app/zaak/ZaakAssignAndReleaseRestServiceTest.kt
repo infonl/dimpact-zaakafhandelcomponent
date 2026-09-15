@@ -303,7 +303,6 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 reden = "fakeReason"
             )
             var userResolvedWhileAssigning: LoggedInUser? = null
-            every { httpSessionInstance.get() } returns null
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             every { identityService.readGroup(group.name) } returns group
@@ -331,7 +330,6 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 screenEventResourceId = "fakeScreenEventResourceId"
             )
             var userResolvedWhileReleasing: LoggedInUser? = null
-            every { httpSessionInstance.get() } returns null
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             every { zaakService.releaseZaken(any(), any(), any()) } answers {
