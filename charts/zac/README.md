@@ -38,6 +38,27 @@ And install zac:
 helm install my-release zac/zaakafhandelcomponent
 ```
 
+## Credentials
+
+Every credential ZAC needs is a chart value. The chart renders them into one Kubernetes `Secret`
+named after the release, which the ZAC deployment reads through `envFrom`. There is no external
+secret store involved, so whoever installs the chart is responsible for supplying the values from
+their own secret management (for example a CI secret store) and for keeping them out of any values
+file that is committed.
+
+Two services ZAC talks to need credentials on both sides, and the chart keeps the two sides in step:
+
+| Service | User name and password | Where they come from |
+|---|---|---|
+| Office converter (Gotenberg) | `office_converter.username`, `office_converter.password` | Required. The chart stores them in the ZAC secret and injects them into both the Gotenberg container (`GOTENBERG_API_BASIC_AUTH_*`) and ZAC (`OFFICE_CONVERTER_*`), so the two can never drift apart. |
+| Solr, managed by the Solr operator | none | The chart enables basic authentication on the `SolrCloud` resource and the operator generates the credentials into its own `<solrcloud-name>-solrcloud-basic-auth` secret, which ZAC reads directly. |
+| Solr, external (`solr.url` set) | `solr.username`, `solr.password` | Required in that case. Configure the matching user in the `security.json` of that Solr instance yourself. |
+
+Both services reject unauthenticated requests, and ZAC fails to start when its credentials are
+missing rather than falling back to unauthenticated requests. See
+[Managing the Solr search engine](https://github.com/infonl/dimpact-zaakafhandelcomponent/blob/main/docs/development/managingSolr.md)
+for the Solr details.
+
 ## Changes to the helm chart
 
 The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
