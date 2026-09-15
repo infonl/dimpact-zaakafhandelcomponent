@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 
 class LoggedInUserProviderTest : BehaviorSpec({
@@ -54,6 +55,60 @@ class LoggedInUserProviderTest : BehaviorSpec({
 
                 then("it returns null instead of propagating the IllegalStateException") {
                     result shouldBe null
+                }
+            }
+        }
+    }
+
+    context("Producing the logged-in user for the current thread") {
+        val httpSessionInstance = mockk<Instance<HttpSession>>()
+        val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
+
+        given("no HTTP session and a user carried into the async context") {
+            val loggedInUser = createLoggedInUser()
+            every { httpSessionInstance.get() } returns null
+
+            `when`("getLoggedInUser is called") {
+                LoggedInUserProvider.asyncContextUser.set(loggedInUser)
+                val result = try {
+                    loggedInUserProvider.getLoggedInUser()
+                } finally {
+                    LoggedInUserProvider.asyncContextUser.remove()
+                }
+
+                then("it returns the user that started the work instead of the functionele gebruiker") {
+                    result shouldBe loggedInUser
+                }
+            }
+        }
+
+        given("no HTTP session and nothing carried into the async context") {
+            every { httpSessionInstance.get() } returns null
+
+            `when`("getLoggedInUser is called") {
+                val result = loggedInUserProvider.getLoggedInUser()
+
+                then("it returns the functionele gebruiker") {
+                    result shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                }
+            }
+        }
+
+        given("an explicitly requested system user and a user carried into the async context") {
+            val loggedInUser = createLoggedInUser()
+
+            `when`("getLoggedInUser is called") {
+                LoggedInUserProvider.asyncContextUser.set(loggedInUser)
+                LoggedInUserProvider.systemUser.set(true)
+                val result = try {
+                    loggedInUserProvider.getLoggedInUser()
+                } finally {
+                    LoggedInUserProvider.systemUser.remove()
+                    LoggedInUserProvider.asyncContextUser.remove()
+                }
+
+                then("the explicitly requested system user wins over the async context") {
+                    result shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
                 }
             }
         }

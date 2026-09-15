@@ -15,8 +15,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -27,6 +25,7 @@ import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.launchAsLoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -65,7 +64,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        dispatcher.launchAsLoggedInUser(loggedInUserInstance) {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
@@ -147,7 +146,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        dispatcher.launchAsLoggedInUser(loggedInUserInstance) {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,
@@ -155,4 +154,5 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
             )
         }
     }
+
 }
