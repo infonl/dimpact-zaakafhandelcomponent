@@ -5,7 +5,6 @@
 package nl.info.zac.search.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -156,7 +155,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     // because the archiefnominatie is set, the zaak is closed and considered 'afgehandeld'
                     isZaakAfgehandeld shouldBe true
                     isZaakspecifiekGeautoriseerd shouldBe false
-                    zaakGeautoriseerdeMedewerkers.shouldBeEmpty()
+                    zaakGeautoriseerdeMedewerkers shouldBe emptyList()
                     verify(exactly = 0) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any()) }
                     with(getDocumentIndicaties()) {
                         size shouldBe 1

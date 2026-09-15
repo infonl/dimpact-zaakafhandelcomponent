@@ -400,18 +400,21 @@ class PolicyServiceTest : BehaviorSpec({
     }
 
     context("Reading rechten for a zoekobject that Solr returned without any geautoriseerde medewerkers") {
-        given("A zaakspecifiek geautoriseerd zaak, taak and document whose geautoriseerde medewerkers are empty") {
+        given(
+            "A zaakspecifiek geautoriseerd zaak, taak and document for which Solr omitted the geautoriseerde " +
+                "medewerkers field, so that SolrJ bound it back as null"
+        ) {
             val zaakZoekObject = createZaakZoekObject(
                 isZaakspecifiekGeautoriseerd = true,
-                zaakGeautoriseerdeMedewerkers = emptyList()
+                zaakGeautoriseerdeMedewerkers = null
             )
             val taakZoekObject = createTaakZoekObject(
                 isZaakspecifiekGeautoriseerd = true,
-                zaakGeautoriseerdeMedewerkers = emptyList()
+                zaakGeautoriseerdeMedewerkers = null
             )
             val documentZoekObject = createDocumentZoekObject(
                 isZaakspecifiekGeautoriseerd = true,
-                zaakGeautoriseerdeMedewerkers = emptyList()
+                zaakGeautoriseerdeMedewerkers = null
             )
             val zaakRuleQuerySlot = slot<RuleQuery<ZaakInput>>()
             val taakRuleQuerySlot = slot<RuleQuery<TaakInput>>()

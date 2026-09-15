@@ -81,7 +81,7 @@ data class TaakZoekObject(
     var isZaakspecifiekGeautoriseerd: Boolean = false,
 
     @Field(ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD)
-    var zaakGeautoriseerdeMedewerkers: List<String> = emptyList()
+    var zaakGeautoriseerdeMedewerkers: List<String>? = null
 ) : ZoekObject {
     companion object {
         const val BEHANDELAAR_ID_FIELD: String = "taak_behandelaarGebruikersnaam"
