@@ -587,19 +587,20 @@ class ZaakRestService @Inject constructor(
         assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
         assertZaakUpdateDataIsValid(zaakType, restZaakEditMetRedenGegevens.zaak)
         val isAlreadyZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-        val requestedAssignment = resolveRequestedAssignment(zaak, restZaakEditMetRedenGegevens.zaak)
-        requestedAssignment?.let { assertPolicy(zaakRechten.toekennen) }
-        val behandelaarIdAfterUpdate = if (requestedAssignment != null) {
-            requestedAssignment.behandelaarId
-        } else {
-            currentBehandelaarId(zaak)
-        }
-        val shouldBeMarkedZaakspecifiekGeautoriseerd = checkZaakspecifiekeAutorisatie(
+        val currentBehandelaarId = currentBehandelaarId(zaak)
+        val requestedAssignment = resolveRequestedAssignment(
             zaak = zaak,
+            restZaak = restZaakEditMetRedenGegevens.zaak,
+            currentBehandelaarId = currentBehandelaarId
+        )
+        requestedAssignment?.let { assertPolicy(zaakRechten.toekennen) }
+        val behandelaarIdAfterUpdate = requestedAssignment?.behandelaarId ?: currentBehandelaarId
+        val shouldBeMarkedZaakspecifiekGeautoriseerd = checkZaakspecifiekeAutorisatie(
             zaakType = zaakType,
             restZaak = restZaakEditMetRedenGegevens.zaak,
             isAlreadyZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
             behandelaarId = behandelaarIdAfterUpdate,
+            currentBehandelaarId = currentBehandelaarId,
             loggedInUser = loggedInUser
         )
         requestedAssignment?.let {
@@ -768,15 +769,15 @@ class ZaakRestService @Inject constructor(
 
     @Suppress("ThrowsCount")
     private fun checkZaakspecifiekeAutorisatie(
-        zaak: Zaak,
         zaakType: ZaakType,
         restZaak: RestZaakCreateData,
         isAlreadyZaakspecifiekGeautoriseerd: Boolean,
         behandelaarId: String?,
+        currentBehandelaarId: String?,
         loggedInUser: LoggedInUser
     ): Boolean {
         if (isAlreadyZaakspecifiekGeautoriseerd) {
-            checkBehandelaarUnchanged(zaak, restZaak)
+            checkBehandelaarUnchanged(restZaak, currentBehandelaarId)
         }
         return when {
             restZaak.isZaakspecifiekGeautoriseerd == null -> false
@@ -789,7 +790,7 @@ class ZaakRestService @Inject constructor(
                 if (!zaakType.isZaakspecifiekAutoriseerbaar()) {
                     throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
                 }
-                        behandelaarId ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
+                behandelaarId ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
                 if (behandelaarId != loggedInUser.id &&
                     !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.getOmschrijving())
                 ) {
@@ -843,24 +844,31 @@ class ZaakRestService @Inject constructor(
             ?.betrokkeneIdentificatie
             ?.identificatie
 
-    private fun resolveRequestedAssignment(zaak: Zaak, restZaak: RestZaakCreateData) =
-        restZaak.groep?.id?.let { requestedGroupId ->
-            val requestedBehandelaarId = restZaak.behandelaar?.id
-            val currentGroupId = zgwApiService.findGroepForZaak(zaak)
-                ?.betrokkeneIdentificatie
-                ?.identificatie
-            if (requestedGroupId == currentGroupId && requestedBehandelaarId == currentBehandelaarId(zaak)) {
-                null
-            } else {
-                RequestedAssignment(groupId = requestedGroupId, behandelaarId = requestedBehandelaarId)
-            }
-        }
-
-    private fun checkBehandelaarUnchanged(zaak: Zaak, restZaak: RestZaakCreateData) {
-        val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+    /**
+     * An absent `behandelaar` keeps the one the zaak already has. The zaak edit form disables its
+     * behandelaar control while a new groep is being picked, and Angular omits disabled controls from
+     * the payload, so the field is missing exactly when the groep changes. Reading that as "remove the
+     * behandelaar" would drop the rol on every group edit; releasing a behandelaar goes through the
+     * dedicated vrijgeven endpoint instead.
+     */
+    private fun resolveRequestedAssignment(
+        zaak: Zaak,
+        restZaak: RestZaakCreateData,
+        currentBehandelaarId: String?
+    ) = restZaak.groep?.id?.let { requestedGroupId ->
+        val requestedBehandelaarId = restZaak.behandelaar?.id ?: currentBehandelaarId
+        val currentGroupId = zgwApiService.findGroepForZaak(zaak)
             ?.betrokkeneIdentificatie
             ?.identificatie
-            ?: return
+        if (requestedGroupId == currentGroupId && requestedBehandelaarId == currentBehandelaarId) {
+            null
+        } else {
+            RequestedAssignment(groupId = requestedGroupId, behandelaarId = requestedBehandelaarId)
+        }
+    }
+
+    private fun checkBehandelaarUnchanged(restZaak: RestZaakCreateData, currentBehandelaarId: String?) {
+        currentBehandelaarId ?: return
         restZaak.behandelaar?.id?.let {
             if (it != currentBehandelaarId) throw ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
         }
