@@ -65,6 +65,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: "fout",
+    loadChildren: () =>
+      import("./fout-afhandeling/fout-afhandeling.routes").then(
+        (module) => module.FOUT_AFHANDELING_ROUTES,
+      ),
+  },
+  {
     path: "productaanvragen",
     loadChildren: () =>
       import("./productaanvragen/productaanvragen-routing.module").then(

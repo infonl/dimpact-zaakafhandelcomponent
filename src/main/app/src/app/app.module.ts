@@ -27,7 +27,6 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
-import { FoutAfhandelingRoutingModule } from "./fout-afhandeling/fout-afhandeling-routing.module";
 import { InformatieObjectenModule } from "./informatie-objecten/informatie-objecten.module";
 import { Paths } from "./shared/http/http-client";
 import { QUERY_CLIENT } from "./shared/http/query-client";
@@ -42,7 +41,6 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
     BrowserAnimationsModule,
     CoreModule,
     SharedModule,
-    FoutAfhandelingRoutingModule,
     ZoekComponent,
     InformatieObjectenModule,
     AppRoutingModule,
