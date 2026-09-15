@@ -20,6 +20,33 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 
 Bundle so far: **672.06 kB -> 520.80 kB** initial transfer (−22%).
 
+### Where the initial bundle stands now (measured 2026-09-15, production build)
+
+Initial total: 2.48 MB raw / 520.97 kB transfer. Full build across all 112 chunks:
+7.22 MB raw / ~1.72 MB transfer. Source-map attribution of the largest initial
+chunk (1.54 MB raw / 297 kB transfer), by original source size:
+
+| Source | Size |
+|---|---|
+| `@angular/material` | 1727 kB |
+| `@angular/core` | 1720 kB |
+| `@angular/cdk` | 657 kB |
+| `@angular/common` + `router` + `forms` | 989 kB |
+| TanStack + rxjs + ngx-translate | 212 kB |
+| **own app code** | **~45 kB** |
+
+Two consequences for the remaining steps:
+
+- **Steps 3–5 yield no bundle win.** Only ~45 kB of own code is left in the initial
+  bundle; there is nothing meaningful left to lazy-load. They are needed to reach zero
+  modules, not for performance.
+- **Step 7 is where the remaining win is**, because Material is eager and the barrels
+  are what keep it there.
+
+Note that the estimated transfer sizes only materialise behind nginx
+(`charts/zac/templates/configmap-nginx.yaml`), which gzips. WildFly itself is not
+configured to compress, so a local run on :8080 ships the full raw size.
+
 ## Starting position (verified 2026-09-10, `main`)
 
 - **187 components, all already standalone.** Angular 19+ defaults `standalone: true`;
@@ -240,6 +267,15 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
   - `LOCALE_ID`, `MAT_DATE_LOCALE`, `MAT_DIALOG_DEFAULT_OPTIONS`, `UtilService`,
     `APP_BASE_HREF`, `LocationStrategy`, `Title`, `MatPaginatorIntl`,
     `RouteReuseStrategy` -> bootstrap providers.
+  - **Hoist `SharedModule`'s providers too**, even though the barrel itself is not
+    dissolved until step 7. They live in `SharedModule` but are app-wide today
+    because `AppModule` imports it: `Title`, the `MatPaginatorIntl` factory, the
+    paginator-language `provideAppInitializer`, and
+    `VertrouwelijkaanduidingToTranslationKeyPipe`. Moving them here leaves
+    `SharedModule` a pure re-export barrel, which is what makes step 7 safe.
+    Watch the `MatPaginatorIntl` trap from step 2: specs inherit that provider
+    transitively, and lose their translated paginator accessible names when it
+    moves. Expect a few specs to need the factory provided locally.
   - `BrowserAnimationsModule` -> `provideAnimations()`. Handle with care: this repo
     has a history of NG05100 from animation providers being imported more than once.
   - `provideHttpClient(withInterceptorsFromDi())` currently appears in **three**
@@ -254,14 +290,26 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 
 ## Step 7 — Dissolve the four shared barrels
 
-Independent of steps 1–6; can run in parallel or after. One barrel per PR.
+Independent of steps 1–6, with one exception: `SharedModule` must wait until step 6
+has hoisted its providers to bootstrap. One barrel per PR.
 
-| Barrel | Non-module importers |
-|---|---|
-| `MaterialFormBuilderModule` | 28 |
-| `MaterialModule` | 19 |
-| `PipesModule` | 12 |
-| `SharedModule` | 9 |
+Dissolve them in this order — the table below is sorted by importer count, which is
+not the order to work in:
+
+| # | Barrel | Non-module importers | Providers riding along | Why here |
+|---|---|---|---|---|
+| 1 | `PipesModule` | 12 | none | Pure leaf: four standalone pipes, no providers, nothing transitive. Proves the pattern at zero risk. No bundle win. |
+| 2 | `SharedModule` | 9 | 4 (hoisted in step 6) | Breaks the chain: until it stops re-exporting the two Material barrels, nothing below can tree-shake. |
+| 3 | `MaterialModule` | 19 | `MAT_SNACK_BAR_DEFAULT_OPTIONS` | Real Material win starts here. |
+| 4 | `MaterialFormBuilderModule` | 28 | date adapter, `MAT_DATE_FORMATS`, `MAT_MOMENT_DATE_ADAPTER_OPTIONS` | Largest payoff, longest tail. |
+
+**Expectation to set:** Material will not drop to zero in the initial bundle. The app
+shell renders toolbar, sidenav, dialog and snackbar on first paint, so that part of
+Material stays eager by design. What this step removes is the *unused* Material that
+the barrels drag in — not Material itself.
+
+**Bycatch:** `MaterialFormBuilderModule.forRoot()` returns `providers: []`. The API does
+nothing; delete it rather than porting it.
 
 Importing `SharedModule` today transitively pulls `MaterialModule` +
 `MaterialFormBuilderModule` + `PipesModule` + ~20 components, so every consumer
@@ -281,4 +329,5 @@ Providers riding along inside these barrels must land somewhere explicit:
 
 Steps 1–5: low risk, sequential, no behaviour change.
 Step 6: the gate.
-Step 7: independent, longest tail, biggest bundle payoff.
+Step 7: longest tail, biggest bundle payoff. Independent of steps 1–6 except for
+`SharedModule`, which needs step 6's provider hoist first.
