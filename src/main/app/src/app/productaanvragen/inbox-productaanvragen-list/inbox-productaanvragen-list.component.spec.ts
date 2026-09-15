@@ -268,6 +268,51 @@ describe(InboxProductaanvragenListComponent.name, () => {
     });
   });
 
+  it("sorts on the initiator attribute the backend knows when its header is clicked", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(screen.getByRole("columnheader", { name: "initiator" }));
+
+    expect(await lastListRequestBody()).toMatchObject({
+      sort: "initiatorID",
+      order: "asc",
+      page: 0,
+    });
+  });
+
+  it("falls back to the default sort when a remembered sort field is not sortable", async () => {
+    sessionStorage.setItem(
+      SEARCH_PARAMETERS_KEY,
+      JSON.stringify({ sort: "initiator", order: "asc", type: "type-B" }),
+    );
+
+    await setup();
+
+    expect(await lastListRequestBody()).toMatchObject({
+      sort: "id",
+      order: "desc",
+      type: "type-B",
+    });
+  });
+
+  it("falls back to the default sort when a saved search sorts on a field that is not sortable", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    fixture.componentInstance["zoekopdrachtChanged"](
+      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+        json: JSON.stringify({ sort: "initiator", order: "asc" }),
+      }),
+    );
+
+    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+      sort: "id",
+      order: "desc",
+    });
+    expect(fixture.componentInstance["sort"].active).toBe("id");
+  });
+
   it("remembers the first page for the next visit when it is destroyed", async () => {
     await setup();
     await showProductaanvragen([inboxProductaanvraag], 30);

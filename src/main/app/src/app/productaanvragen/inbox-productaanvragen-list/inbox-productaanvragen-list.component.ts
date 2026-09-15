@@ -122,6 +122,12 @@ export class InboxProductaanvragenListComponent
     "aantal_bijlagen",
     "actions",
   ] as const;
+  private readonly sortableColumns: string[] = [
+    "id",
+    "type",
+    "ontvangstdatum",
+    "initiatorID",
+  ];
   protected readonly filterColumns = [
     "expand_filter",
     "type_filter",
@@ -130,9 +136,11 @@ export class InboxProductaanvragenListComponent
     "aantal_bijlagen_filter",
     "actions_filter",
   ] as const;
-  protected listParameters = SessionStorageUtil.getItem(
-    `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-    this.createDefaultParameters(),
+  protected listParameters = this.withSupportedSort(
+    SessionStorageUtil.getItem(
+      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
+      this.createDefaultParameters(),
+    ),
   );
   protected expandedRow: GeneratedType<"RestInboxProductaanvraag"> | null =
     null;
@@ -232,10 +240,10 @@ export class InboxProductaanvragenListComponent
     actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
   ) {
     if (actieveZoekopdracht?.json) {
-      this.listParameters = {
+      this.listParameters = this.withSupportedSort({
         ...this.createDefaultParameters(),
         ...JSON.parse(actieveZoekopdracht.json),
-      };
+      });
       this.sort.active = this.listParameters.sort;
       this.sort.direction = this.listParameters.order;
       this.paginator.pageIndex = 0;
@@ -245,6 +253,16 @@ export class InboxProductaanvragenListComponent
     } else {
       this.filterChange.emit();
     }
+  }
+
+  private withSupportedSort(
+    listParameters: InboxProductaanvraagListParameters,
+  ): InboxProductaanvraagListParameters {
+    if (this.sortableColumns.includes(listParameters.sort)) {
+      return listParameters;
+    }
+    const { sort, order } = this.createDefaultParameters();
+    return { ...listParameters, sort, order };
   }
 
   protected createDefaultParameters(): InboxProductaanvraagListParameters {

@@ -95,7 +95,12 @@
       </ng-container>
 
       <ng-container matColumnDef="initiator">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header="initiatorID"
+          disableClear
+        >
           {{ "initiator" | translate }}
         </th>
         <td mat-cell *matCellDef="let row">{{ row.initiatorID }}</td>
