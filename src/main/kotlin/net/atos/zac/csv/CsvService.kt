@@ -10,7 +10,6 @@ import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import java.beans.Introspector
 import java.io.OutputStreamWriter
-import java.util.concurrent.atomic.AtomicInteger
 
 private const val SEPARATOR = ';'
 private const val QUOTE_ESCAPE_CHAR = '"'
@@ -31,7 +30,6 @@ private val EXCLUDED_PROPERTIES = listOf(
 
 class CsvService {
     fun exportToCsv(zoekResultaat: ZoekResultaat<out ZoekObject>): StreamingOutput {
-        val headerCounter = AtomicInteger()
         val headers = mutableListOf<String>()
         val records = mutableListOf<Array<String>>()
         zoekResultaat.items.forEach { zoekObject ->
@@ -40,8 +38,7 @@ class CsvService {
             propertyDescriptors.forEach { property ->
                 val getter = property.readMethod
                 if (property.name !in EXCLUDED_PROPERTIES && getter != null) {
-                    if (headerCounter.get() < propertyDescriptors.size) {
-                        headerCounter.getAndIncrement()
+                    if (headers.size < propertyDescriptors.size) {
                         headers.add(property.displayName)
                     }
                     record.add(

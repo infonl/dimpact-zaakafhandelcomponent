@@ -100,7 +100,11 @@ class TaakZoekObjectConverter @Inject constructor(
             zaakToelichting = zaak.toelichting
             zaakAutorisatieGegevens(zaakUUID).let { gegevens ->
                 this.isZaakspecifiekGeautoriseerd = gegevens.isZaakspecifiekGeautoriseerd
-                zaakGeautoriseerdeMedewerkers = gegevens.geautoriseerdeMedewerkers
+                zaakGeautoriseerdeMedewerkers = if (gegevens.isZaakspecifiekGeautoriseerd) {
+                    gegevens.geautoriseerdeMedewerkers
+                } else {
+                    emptyList()
+                }
             }
             taakData = readTaskData(taskInfo).entries.map { "${it.key}|${it.value}" }
             taakInformatie = readTaskInformation(taskInfo).entries.map { "${it.key}|${it.value}" }

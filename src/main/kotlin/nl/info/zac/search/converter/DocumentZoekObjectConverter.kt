@@ -110,7 +110,11 @@ class DocumentZoekObjectConverter @Inject constructor(
             zaakUuid = zaak.uuid.toString()
             zaakAutorisatieGegevens(zaak.uuid).let { gegevens ->
                 this.isZaakspecifiekGeautoriseerd = gegevens.isZaakspecifiekGeautoriseerd
-                zaakGeautoriseerdeMedewerkers = gegevens.geautoriseerdeMedewerkers
+                zaakGeautoriseerdeMedewerkers = if (gegevens.isZaakspecifiekGeautoriseerd) {
+                    gegevens.geautoriseerdeMedewerkers
+                } else {
+                    emptyList()
+                }
             }
             gekoppeldeZaakInformatieobject.aardRelatieWeergave?.let { zaakRelatie = it.toString() }
             isZaakAfgehandeld = !zaak.isOpen()

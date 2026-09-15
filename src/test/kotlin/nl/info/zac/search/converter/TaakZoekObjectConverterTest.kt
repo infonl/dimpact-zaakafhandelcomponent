@@ -173,7 +173,6 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
             every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
 
             every { taskInfo.name } returns "fakeTaskName"
             every { taskInfo.description } returns null
@@ -195,8 +194,12 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.isZaakspecifiekGeautoriseerd shouldBe false
                 }
 
-                and("no zaak behandelaar is recorded for a zaak that has none") {
+                and(
+                    "no geautoriseerde medewerkers are recorded, and the zaak's rollen are never read to " +
+                        "resolve them, because the zaak is not zaakspecifiek geautoriseerd"
+                ) {
                     taakZoekObject.zaakGeautoriseerdeMedewerkers.shouldBeEmpty()
+                    verify(exactly = 0) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any()) }
                 }
             }
         }
