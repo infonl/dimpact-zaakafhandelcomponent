@@ -98,14 +98,10 @@ export class BagZakenTabelComponent
 
   ngOnInit() {
     this.zoekParameters.type = "ZAAK";
-    this.zoekParameters.zoeken ??= {};
     this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
   }
 
   private loadZaken() {
-    if (!this.zoekParameters.zoeken) {
-      this.zoekParameters.zoeken = {};
-    }
     this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.sorteerRichting = this.sort.direction;

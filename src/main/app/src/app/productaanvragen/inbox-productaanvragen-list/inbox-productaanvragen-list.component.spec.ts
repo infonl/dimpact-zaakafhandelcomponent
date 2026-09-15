@@ -159,6 +159,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     const defaultParameters = {
       sort: "id",
       order: "desc",
+      filtersType: "InboxProductaanvraagListParameters",
       page: 0,
       maxResults: 10,
     };
@@ -175,6 +176,70 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await setup();
 
     expect(await lastListRequestBody()).toMatchObject({ type: "type-B" });
+  });
+
+  it("restores the default sort when a saved search omits sort and order", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    fixture.componentInstance["zoekopdrachtChanged"](
+      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+        json: JSON.stringify({ type: "type-B" }),
+      }),
+    );
+
+    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+      sort: "id",
+      order: "desc",
+      type: "type-B",
+    });
+    expect(fixture.componentInstance["sort"].active).toBe("id");
+    expect(fixture.componentInstance["sort"].direction).toBe("desc");
+  });
+
+  it("restores the default order when a saved search omits only the order", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    fixture.componentInstance["zoekopdrachtChanged"](
+      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+        json: JSON.stringify({ sort: "type", type: "type-B" }),
+      }),
+    );
+
+    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+      sort: "type",
+      order: "desc",
+      type: "type-B",
+    });
+    expect(fixture.componentInstance["sort"].active).toBe("type");
+    expect(fixture.componentInstance["sort"].direction).toBe("desc");
+  });
+
+  it("forgets the remembered filters and asks for the default first page again", async () => {
+    sessionStorage.setItem(
+      SEARCH_PARAMETERS_KEY,
+      JSON.stringify({ sort: "type", order: "asc", type: "type-B" }),
+    );
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    fixture.componentInstance["resetSearch"]();
+
+    expect(rememberedParameters()).toEqual({
+      sort: "id",
+      order: "desc",
+      filtersType: "InboxProductaanvraagListParameters",
+      page: 0,
+      maxResults: 10,
+    });
+    expect(fixture.componentInstance["sort"].active).toBe("id");
+    expect(fixture.componentInstance["sort"].direction).toBe("desc");
+    expect(await lastListRequestBody()).toMatchObject({
+      sort: "id",
+      order: "desc",
+      page: 0,
+    });
   });
 
   it("filters on the type that was chosen in the type filter", async () => {
@@ -201,6 +266,51 @@ describe(InboxProductaanvragenListComponent.name, () => {
       order: "asc",
       page: 0,
     });
+  });
+
+  it("sorts on the initiator attribute the backend knows when its header is clicked", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(screen.getByRole("columnheader", { name: "initiator" }));
+
+    expect(await lastListRequestBody()).toMatchObject({
+      sort: "initiatorID",
+      order: "asc",
+      page: 0,
+    });
+  });
+
+  it("falls back to the default sort when a remembered sort field is not sortable", async () => {
+    sessionStorage.setItem(
+      SEARCH_PARAMETERS_KEY,
+      JSON.stringify({ sort: "initiator", order: "asc", type: "type-B" }),
+    );
+
+    await setup();
+
+    expect(await lastListRequestBody()).toMatchObject({
+      sort: "id",
+      order: "desc",
+      type: "type-B",
+    });
+  });
+
+  it("falls back to the default sort when a saved search sorts on a field that is not sortable", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    fixture.componentInstance["zoekopdrachtChanged"](
+      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+        json: JSON.stringify({ sort: "initiator", order: "asc" }),
+      }),
+    );
+
+    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+      sort: "id",
+      order: "desc",
+    });
+    expect(fixture.componentInstance["sort"].active).toBe("id");
   });
 
   it("remembers the first page for the next visit when it is destroyed", async () => {

@@ -62,6 +62,13 @@ import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filt
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 
+type InboxProductaanvraagListParameters =
+  GeneratedType<"RestInboxProductaanvraagListParameters"> & {
+    sort: string;
+    order: SortDirection;
+    filtersType: "InboxProductaanvraagListParameters";
+  };
+
 @Component({
   templateUrl: "./inbox-productaanvragen-list.component.html",
   styleUrls: ["./inbox-productaanvragen-list.component.less"],
@@ -115,6 +122,12 @@ export class InboxProductaanvragenListComponent
     "aantal_bijlagen",
     "actions",
   ] as const;
+  private readonly sortableColumns: string[] = [
+    "id",
+    "type",
+    "ontvangstdatum",
+    "initiatorID",
+  ];
   protected readonly filterColumns = [
     "expand_filter",
     "type_filter",
@@ -123,9 +136,11 @@ export class InboxProductaanvragenListComponent
     "aantal_bijlagen_filter",
     "actions_filter",
   ] as const;
-  protected listParameters = SessionStorageUtil.getItem(
-    `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-    this.createDefaultParameters(),
+  protected listParameters = this.withSupportedSort(
+    SessionStorageUtil.getItem(
+      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
+      this.createDefaultParameters(),
+    ),
   );
   protected expandedRow: GeneratedType<"RestInboxProductaanvraag"> | null =
     null;
@@ -215,8 +230,8 @@ export class InboxProductaanvragenListComponent
       `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
-    this.sort.active = this.listParameters.sort ?? "id";
-    this.sort.direction = this.listParameters.order as SortDirection;
+    this.sort.active = this.listParameters.sort;
+    this.sort.direction = this.listParameters.order;
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
   }
@@ -225,9 +240,12 @@ export class InboxProductaanvragenListComponent
     actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
   ) {
     if (actieveZoekopdracht?.json) {
-      this.listParameters = JSON.parse(actieveZoekopdracht.json);
-      this.sort.active = this.listParameters.sort ?? "id";
-      this.sort.direction = this.listParameters.order as SortDirection;
+      this.listParameters = this.withSupportedSort({
+        ...this.createDefaultParameters(),
+        ...JSON.parse(actieveZoekopdracht.json),
+      });
+      this.sort.active = this.listParameters.sort;
+      this.sort.direction = this.listParameters.order;
       this.paginator.pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
@@ -237,8 +255,22 @@ export class InboxProductaanvragenListComponent
     }
   }
 
-  protected createDefaultParameters(): GeneratedType<"RestInboxProductaanvraagListParameters"> {
-    return { sort: "id", order: "desc" };
+  private withSupportedSort(
+    listParameters: InboxProductaanvraagListParameters,
+  ): InboxProductaanvraagListParameters {
+    if (this.sortableColumns.includes(listParameters.sort)) {
+      return listParameters;
+    }
+    const { sort, order } = this.createDefaultParameters();
+    return { ...listParameters, sort, order };
+  }
+
+  protected createDefaultParameters(): InboxProductaanvraagListParameters {
+    return {
+      sort: "id",
+      order: "desc",
+      filtersType: "InboxProductaanvraagListParameters",
+    };
   }
 
   getWerklijst(): GeneratedType<"Werklijst"> {
