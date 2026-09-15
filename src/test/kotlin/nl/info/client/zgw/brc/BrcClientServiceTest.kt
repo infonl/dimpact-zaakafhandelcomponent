@@ -52,7 +52,7 @@ class BrcClientServiceTest : BehaviorSpec({
         )
         val updateReason = "fakeReason"
         val returnedBesluit = createBesluit()
-        every { zgwClientHeadersFactory.setAuditExplanation(updateReason) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(updateReason, any()) } answers { secondArg<() -> Any?>()() }
         every { brcClient.besluitUpdate(besluitUuid, besluit) } returns returnedBesluit
 
         `when`("update besluit is called with a reason string") {
@@ -64,7 +64,7 @@ class BrcClientServiceTest : BehaviorSpec({
         }
 
         `when`("patch besluit is called with a reason string") {
-            every { zgwClientHeadersFactory.setAuditExplanation(updateReason) } just Runs
+            every { zgwClientHeadersFactory.withAuditExplanation<Any?>(updateReason, any()) } answers { secondArg<() -> Any?>()() }
             every { brcClient.besluitPartialUpdate(besluitUuid, besluit) } returns returnedBesluit
 
             val patchedBesluit = brcClientService.patchBesluit(besluitUuid, besluit, updateReason)

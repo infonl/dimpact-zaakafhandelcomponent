@@ -53,21 +53,18 @@ class ZrcClientService @Inject constructor(
     fun createRol(rol: Rol<*>) = createRol(rol, null)
 
     fun createRol(rol: Rol<*>, auditExplanation: String?): Rol<*> {
-        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return zrcClient.rolCreate(rol)
+        return zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolCreate(rol) }
     }
 
     fun deleteRol(rol: Rol<*>, auditExplanation: String?) {
-        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        zrcClient.rolDelete(rol.uuid!!)
+        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolDelete(rol.uuid!!) }
     }
 
     fun createZaakobject(zaakobject: ZaakobjectRequest): Zaakobject =
         zrcClient.zaakobjectCreate(zaakobject)
 
     fun deleteZaakobject(zaakobject: Zaakobject, toelichting: String?) {
-        toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        zrcClient.zaakobjectDelete(zaakobject.uuid)
+        zgwClientHeadersFactory.withAuditExplanation(toelichting) { zrcClient.zaakobjectDelete(zaakobject.uuid) }
     }
 
     fun readZaakobject(zaakobjectUUID: UUID): Zaakobject = zrcClient.zaakobjectRead(zaakobjectUUID)
@@ -76,8 +73,9 @@ class ZrcClientService @Inject constructor(
         zaakInformatieObjectRequest: ZaakInformatieObjectRequest,
         toelichting: String? = null
     ): ZaakInformatieObject {
-        toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return zrcClient.zaakinformatieobjectCreate(zaakInformatieObjectRequest)
+        return zgwClientHeadersFactory.withAuditExplanation(toelichting) {
+            zrcClient.zaakinformatieobjectCreate(zaakInformatieObjectRequest)
+        }
     }
 
     fun deleteZaakInformatieobject(
@@ -86,8 +84,9 @@ class ZrcClientService @Inject constructor(
         toelichtingPrefix: String
     ) {
         val fullToelichting = toelichting?.let { "$toelichtingPrefix: $it" } ?: toelichtingPrefix
-        zgwClientHeadersFactory.setAuditExplanation(fullToelichting)
-        zrcClient.zaakinformatieobjectDelete(zaakInformatieobjectUuid)
+        zgwClientHeadersFactory.withAuditExplanation(fullToelichting) {
+            zrcClient.zaakinformatieobjectDelete(zaakInformatieobjectUuid)
+        }
     }
 
     fun readZaak(zaakUUID: UUID): Zaak = zrcClient.zaakRead(zaakUUID)
@@ -135,8 +134,7 @@ class ZrcClientService @Inject constructor(
         zrcClient.zaakobjectList(zaakobjectListParameters)
 
     fun patchZaak(zaakUUID: UUID, zaak: Zaak, explanation: String?): Zaak {
-        explanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return patchZaak(zaakUUID, zaak)
+        return zgwClientHeadersFactory.withAuditExplanation(explanation) { patchZaak(zaakUUID, zaak) }
     }
 
     fun patchZaak(zaakUUID: UUID, zaak: Zaak): Zaak = zrcClient.zaakPartialUpdate(zaakUUID, zaak)
@@ -230,16 +228,16 @@ class ZrcClientService @Inject constructor(
     fun deleteResultaat(resultaatUUID: UUID) = zrcClient.resultaatDelete(resultaatUUID)
 
     fun createZaak(zaak: Zaak): Zaak {
-        zaak.toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return zrcClient.zaakCreate(zaak)
+        return zgwClientHeadersFactory.withAuditExplanation(zaak.toelichting) { zrcClient.zaakCreate(zaak) }
     }
 
     fun createStatus(zaakUuid: UUID, status: StatusSub): StatusSub {
-        status.statustoelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         val zaakBijwerken = ZaakBijwerken().apply {
             this.status = status
         }
-        return zrcClient.zaakBijwerken(zaakUuid, zaakBijwerken).status
+        return zgwClientHeadersFactory.withAuditExplanation(status.statustoelichting) {
+            zrcClient.zaakBijwerken(zaakUuid, zaakBijwerken).status
+        }
     }
 
     fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap {

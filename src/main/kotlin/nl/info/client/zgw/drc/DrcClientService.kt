@@ -81,11 +81,12 @@ class DrcClientService @Inject constructor(
         enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest,
         auditExplanation: String?
     ): EnkelvoudigInformatieObject {
-        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return drcClient.enkelvoudigInformatieobjectPartialUpdate(
-            uuid = enkelvoudigInformatieobjectUUID,
-            enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest
-        )
+        return zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
+            drcClient.enkelvoudigInformatieobjectPartialUpdate(
+                uuid = enkelvoudigInformatieobjectUUID,
+                enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest
+            )
+        }
     }
 
     fun lockEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID): String {
@@ -178,11 +179,12 @@ class DrcClientService @Inject constructor(
             )
         }
         enkelvoudigInformatieObjectWithLockRequest.inhoud = null
-        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        drcClient.enkelvoudigInformatieobjectPartialUpdateForPartsUpload(
-            uuid = enkelvoudigInformatieobjectUUID,
-            body = enkelvoudigInformatieObjectWithLockRequest.toContentReplacingBody()
-        )
+        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
+            drcClient.enkelvoudigInformatieobjectPartialUpdateForPartsUpload(
+                uuid = enkelvoudigInformatieobjectUUID,
+                body = enkelvoudigInformatieObjectWithLockRequest.toContentReplacingBody()
+            )
+        }
         uploadParts(
             documentUUID = enkelvoudigInformatieobjectUUID,
             parts = readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID).bestandsdelen,
