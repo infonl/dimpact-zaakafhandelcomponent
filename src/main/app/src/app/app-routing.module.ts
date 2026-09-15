@@ -65,6 +65,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: "informatie-objecten",
+    loadChildren: () =>
+      import("./informatie-objecten/informatie-objecten.routes").then(
+        (module) => module.INFORMATIE_OBJECTEN_ROUTES,
+      ),
+  },
+  {
     path: "fout",
     loadChildren: () =>
       import("./fout-afhandeling/fout-afhandeling.routes").then(

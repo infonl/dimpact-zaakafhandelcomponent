@@ -7,11 +7,11 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 4 of 18 modules removed
+## Progress — 5 of 18 modules removed
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
-- [ ] **Step 2** — `informatie-objecten` slice (+ `fout-afhandeling`) — NEXT
+- [~] **Step 2** — split in two: `fout-afhandeling` done; `informatie-objecten` — NEXT
 - [ ] **Step 3** — already-lazy routing modules (`taken`, `documenten`, `productaanvragen`)
 - [ ] **Step 4** — delete `TakenModule` + `InformatieObjectenModule`
 - [ ] **Step 5** — `app-routing.module.ts` -> `app.routes.ts`
@@ -37,7 +37,7 @@ Bundle so far: **672.06 kB -> 538.14 kB** initial transfer (−20%).
 | [x] `zaken/zaken-routing.module.ts` | routing (eager `forChild`) | done |
 | [x] `klanten/klanten-routing.module.ts` | routing (eager `forChild`) | done |
 | [ ] `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 |
-| [ ] `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | 2 |
+| [x] `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | done |
 | [ ] `taken/taken-routing.module.ts` | routing (lazy) | 3 |
 | [ ] `documenten/documenten-routing.module.ts` | routing (lazy) | 3 |
 | [ ] `productaanvragen/productaanvragen-routing.module.ts` | routing (lazy) | 3 |
@@ -160,10 +160,15 @@ chunk work — there is no point `@defer`-ing a child of an eagerly loaded paren
 - Zaak-view specs: expect harness timeouts, not assertion failures, if async work
   is pending on mount.
 
-## Step 2 — The remaining two eager `forChild` modules — NEXT
+## Step 2 — The remaining two eager `forChild` modules — IN PROGRESS
 
-`klanten` is done (step 1b). Remaining: `informatie-objecten` and `fout-afhandeling` — same
-treatment, `.routes.ts` + real `loadChildren` mount point.
+Split into two PRs. `fout-afhandeling` is done: `fout-afhandeling.routes.ts`
+(`FOUT_AFHANDELING_ROUTES`, `loadComponent`), `loadChildren` mount at `path: "fout"`, module
+import dropped from `AppModule`. No provider, no exported component, no reachability trap.
+Bundle 538.75 kB -> 538.39 kB — structural only; `FoutAfhandelingService` and the error dialogs
+stay eager because most of the app imports them directly.
+
+Remaining: `informatie-objecten` — same treatment, `.routes.ts` + real `loadChildren` mount point.
 
 Watch out:
 - Both are still eager-with-no-mount-point, so apply the reachability check first: what else
