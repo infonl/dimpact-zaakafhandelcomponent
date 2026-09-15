@@ -284,11 +284,15 @@ services:
       - "8983:8983"
     volumes:
       - solr-data:/var/solr
+      - ./scripts/docker-compose/imports/solr/security.json:/opt/zac/solr-security.json:ro
     # run as root to change the permissions of the solr folder
     user: root
-    # Change permissions of the solr folder, create the 'zac' core and start solr
+    # Install the security configuration that enables basic authentication, change permissions of the
+    # solr folder, create the 'zac' core and start solr
     command: bash -c "
-      chown -R 8983:8983 /var/solr
+      mkdir -p /var/solr/data
+      && cp /opt/zac/solr-security.json /var/solr/data/security.json
+      && chown -R 8983:8983 /var/solr
       && runuser -u solr -- solr-precreate zac"
 
   # Open Policy Agent (OPA)
@@ -411,6 +415,10 @@ services:
     command:
       - "gotenberg"
       - "--chromium-disable-routes=true"
+      - "--api-enable-basic-auth=true"
+    environment:
+      - GOTENBERG_API_BASIC_AUTH_USERNAME=${OFFICE_CONVERTER_USERNAME:-zac}
+      - GOTENBERG_API_BASIC_AUTH_PASSWORD=${OFFICE_CONVERTER_PASSWORD:-fakeOfficeConverterPassword}
     ports:
       - "8083:3000"
 
@@ -841,6 +849,8 @@ services:
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:3000
+      - OFFICE_CONVERTER_USERNAME=${OFFICE_CONVERTER_USERNAME:-zac}
+      - OFFICE_CONVERTER_PASSWORD=${OFFICE_CONVERTER_PASSWORD:-fakeOfficeConverterPassword}
       - OBJECTS_API_CLIENT_MP_REST_URL=http://open-object.local:8000
       - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-500}
@@ -862,6 +872,8 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD:-fakeMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
+      - SOLR_USERNAME=${SOLR_USERNAME:-zac}
+      - SOLR_PASSWORD=${SOLR_PASSWORD:-fakeSolrPassword}
       # Turn off the MicroProfile Open Telemetry subsystem by default because it is not always necessary.
       # Typically, when using the Docker Compose profile 'metrics' you want to set this to 'false'.
       - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
