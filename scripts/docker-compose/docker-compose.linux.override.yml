@@ -70,8 +70,11 @@ services:
     # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    # Create the 'zac' core and start solr
-    command: solr-precreate zac
+    # Install the security configuration that enables basic authentication, create the 'zac' core and start solr
+    command: bash -c "
+      mkdir -p /var/solr/data
+      && cp /opt/zac/solr-security.json /var/solr/data/security.json
+      && solr-precreate zac"
 
   opa:
     # Linux workaround for host.docker.internal support

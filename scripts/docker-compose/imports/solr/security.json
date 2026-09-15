@@ -1,0 +1,23 @@
+{
+  "authentication": {
+    "class": "solr.BasicAuthPlugin",
+    "blockUnknown": true,
+    "realm": "ZAC Solr",
+    "forwardCredentials": false,
+    "credentials": {
+      "zac": "kaRw7O6j389zsDJZuoVFhbs0dcPJwiwTF+iRgf4pqpc= l8fGJV+B/9hxHZ5w7DIJriNspi5C+JEqraTovjMV3f4="
+    }
+  },
+  "authorization": {
+    "class": "solr.RuleBasedAuthorizationPlugin",
+    "permissions": [
+      {
+        "name": "all",
+        "role": "admin"
+      }
+    ],
+    "user-role": {
+      "zac": "admin"
+    }
+  }
+}

@@ -90,3 +90,7 @@ organizations:
     rsin: "123456782"
   bron:
     rsin: "234567893"
+
+office_converter:
+  username: "office-converter-user"
+  password: "office-converter-password"
