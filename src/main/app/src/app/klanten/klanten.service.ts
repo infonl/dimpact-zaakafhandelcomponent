@@ -164,11 +164,14 @@ export class KlantenService {
 
   /* istanbul ignore next */
   getContactDetailsForPersonQuery(temporaryPersonId: string) {
-    return this.zacQueryClient.GET(
-      "/rest/klanten/contactdetails/person/{temporaryPersonId}",
-      {
-        path: { temporaryPersonId: temporaryPersonId },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/klanten/contactdetails/person/{temporaryPersonId}",
+        {
+          path: { temporaryPersonId: temporaryPersonId },
+        },
+      ),
+      meta: { reportErrors: false },
+    };
   }
 }
