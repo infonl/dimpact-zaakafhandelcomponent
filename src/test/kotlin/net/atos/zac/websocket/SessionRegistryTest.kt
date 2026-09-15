@@ -115,4 +115,39 @@ class SessionRegistryTest : BehaviorSpec({
             }
         }
     }
+    given("a new session registry is created") {
+        `when`("a session is added") {
+            then("it is included in the list of all sessions") {
+                val sessionRegistry = SessionRegistry()
+
+                sessionRegistry.addSession(session1)
+
+                sessionRegistry.listAllSessions() shouldContain session1
+            }
+        }
+    }
+    given("a session that was added to the session registry") {
+        `when`("the session is removed") {
+            then("it is no longer included in the list of all sessions") {
+                val sessionRegistry = SessionRegistry()
+                sessionRegistry.addSession(session1)
+                sessionRegistry.addSession(session2)
+
+                sessionRegistry.removeSession(session1)
+
+                sessionRegistry.listAllSessions() shouldBe setOf(session2)
+            }
+        }
+    }
+    given("a session that was added to the session registry without any event subscriptions") {
+        `when`("listAllSessions is called") {
+            then("the session is still included") {
+                val sessionRegistry = SessionRegistry()
+
+                sessionRegistry.addSession(session1)
+
+                sessionRegistry.listAllSessions() shouldContain session1
+            }
+        }
+    }
 })
