@@ -132,7 +132,7 @@ class PolicyService @Inject constructor(
             brondatumBepaald = null,
             zaakspecifiekGeautoriseerd = zaakZoekObject.isZaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = zaakZoekObject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in zaakZoekObject.zaakGeautoriseerdeMedewerkers
+                loggedInUserInstance.get().id in zaakZoekObject.zaakGeautoriseerdeMedewerkers.orEmpty()
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -188,7 +188,7 @@ class PolicyService @Inject constructor(
             ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null,
             zaakspecifiekGeautoriseerd = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in enkelvoudigInformatieobject.zaakGeautoriseerdeMedewerkers
+                loggedInUserInstance.get().id in enkelvoudigInformatieobject.zaakGeautoriseerdeMedewerkers.orEmpty()
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -234,7 +234,7 @@ class PolicyService @Inject constructor(
             zaaktype = taakZoekObject.zaaktypeOmschrijving,
             zaakspecifiekGeautoriseerd = taakZoekObject.isZaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = taakZoekObject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in taakZoekObject.zaakGeautoriseerdeMedewerkers
+                loggedInUserInstance.get().id in taakZoekObject.zaakGeautoriseerdeMedewerkers.orEmpty()
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(

@@ -5,7 +5,6 @@
 package nl.info.zac.search.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -198,7 +197,7 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     "no geautoriseerde medewerkers are recorded, and the zaak's rollen are never read to " +
                         "resolve them, because the zaak is not zaakspecifiek geautoriseerd"
                 ) {
-                    taakZoekObject.zaakGeautoriseerdeMedewerkers.shouldBeEmpty()
+                    taakZoekObject.zaakGeautoriseerdeMedewerkers shouldBe emptyList()
                     verify(exactly = 0) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any()) }
                 }
             }

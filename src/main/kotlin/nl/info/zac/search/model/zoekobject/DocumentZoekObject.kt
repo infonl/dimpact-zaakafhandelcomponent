@@ -112,7 +112,7 @@ data class DocumentZoekObject(
     var isZaakspecifiekGeautoriseerd: Boolean = false,
 
     @Field(ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD)
-    var zaakGeautoriseerdeMedewerkers: List<String> = emptyList()
+    var zaakGeautoriseerdeMedewerkers: List<String>? = null
 ) : ZoekObject {
     companion object {
         const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "informatieobject_zaakspecifiekGeautoriseerd"
