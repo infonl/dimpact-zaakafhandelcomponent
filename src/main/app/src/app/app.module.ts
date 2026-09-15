@@ -16,6 +16,7 @@ import {
 } from "@angular/common";
 import { MatIconRegistry } from "@angular/material/icon";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { RouteReuseStrategy } from "@angular/router";
 import {
   provideTanStackQuery,
   QueryClient,
@@ -23,7 +24,6 @@ import {
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { persistQueryClient } from "@tanstack/query-persist-client-core";
-import { RouteReuseStrategy } from "@angular/router";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";

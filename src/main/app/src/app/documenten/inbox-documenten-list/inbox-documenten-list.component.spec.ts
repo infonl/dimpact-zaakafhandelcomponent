@@ -15,7 +15,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { PaginatorTranslator } from "../../shared/paginator/paginator-translator";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -26,6 +25,7 @@ import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { PaginatorTranslator } from "../../shared/paginator/paginator-translator";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
 const SEARCH_PARAMETERS_KEY = "INBOX_DOCUMENTEN_ZOEKPARAMETERS";
