@@ -105,6 +105,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak, rollenZaak) } returns rolInitiator
         every { zgwApiService.findGroepForZaak(zaak, rollenZaak) } returns null
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, rollenZaak) } returns rolMedewerkerBehandelaar
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
         } returns userBehandelaar
@@ -151,7 +152,8 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     }
                     getZaakIndicaties() shouldNotContain ZaakIndicatie.HEROPEND
                     resultaattypeOmschrijving shouldBe resultaatType.omschrijving
-                    zaakGeautoriseerdeMedewerkers shouldBe listOf(userBehandelaar.id)
+                    zaakGeautoriseerdeMedewerkers shouldBe
+                        listOf(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
                 }
             }
         }

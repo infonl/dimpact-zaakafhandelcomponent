@@ -42,10 +42,18 @@ class ZaakZoekObjectConverter @Inject constructor(
 ) : AbstractZoekObjectConverter<ZaakZoekObject>() {
 
     override fun convert(id: String): ZaakZoekObject =
-        convert(id) { zaakUUID ->
-            ZaakAutorisatieGegevens(
-                isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-            ) { emptyList() }
+        zrcClientService.readZaak(UUID.fromString(id)).let { zaak ->
+            convert(zaak) { zaakUUID ->
+                ZaakAutorisatieGegevens(
+                    isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+                ) {
+                    listOfNotNull(
+                        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+                            ?.betrokkeneIdentificatie
+                            ?.identificatie
+                    )
+                }
+            }
         }
 
     /**
@@ -72,7 +80,14 @@ class ZaakZoekObjectConverter @Inject constructor(
             zaaktypeOmschrijving = zaaktype.omschrijving,
             zaaktypeUuid = zaaktype.url.extractUuid().toString()
         ).apply {
-            this.isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens(zaak.uuid).isZaakspecifiekGeautoriseerd
+            zaakAutorisatieGegevens(zaak.uuid).let { gegevens ->
+                this.isZaakspecifiekGeautoriseerd = gegevens.isZaakspecifiekGeautoriseerd
+                zaakGeautoriseerdeMedewerkers = if (gegevens.isZaakspecifiekGeautoriseerd) {
+                    gegevens.geautoriseerdeMedewerkers
+                } else {
+                    emptyList()
+                }
+            }
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
             registratiedatum = zaak.registratiedatum?.let(::convertToDate)
@@ -111,7 +126,6 @@ class ZaakZoekObjectConverter @Inject constructor(
         findBehandelaar(zaak, roles)?.let {
             zaakZoekObject.behandelaarNaam = it.getFullName()
             zaakZoekObject.behandelaarGebruikersnaam = it.id
-            zaakZoekObject.zaakGeautoriseerdeMedewerkers = listOf(it.id)
             zaakZoekObject.isToegekend = true
         }
         zaak.status?.let {

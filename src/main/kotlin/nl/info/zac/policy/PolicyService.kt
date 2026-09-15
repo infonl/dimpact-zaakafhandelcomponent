@@ -105,7 +105,7 @@ class PolicyService @Inject constructor(
             brondatumBepaald = zaak.startdatumBewaartermijn != null,
             zaakspecifiekGeautoriseerd = zaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = zaakspecifiekGeautoriseerd &&
-                isGeautoriseerdeMedewerkerOf(zaak = zaak, userId = loggedInUser.id)
+                zaak.isGeautoriseerdeMedewerkerOf(loggedInUser.id)
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -132,7 +132,7 @@ class PolicyService @Inject constructor(
             brondatumBepaald = null,
             zaakspecifiekGeautoriseerd = zaakZoekObject.isZaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = zaakZoekObject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in zaakZoekObject.zaakGeautoriseerdeMedewerkers.orEmpty()
+                loggedInUserInstance.get().id in zaakZoekObject.zaakGeautoriseerdeMedewerkers
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -166,7 +166,7 @@ class PolicyService @Inject constructor(
             zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() },
             zaakspecifiekGeautoriseerd = zaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = zaakspecifiekGeautoriseerd &&
-                isGeautoriseerdeMedewerkerOf(zaak = zaak, userId = loggedInUserInstance.get().id)
+                zaak.isGeautoriseerdeMedewerkerOf(loggedInUserInstance.get().id)
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -188,7 +188,7 @@ class PolicyService @Inject constructor(
             ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null,
             zaakspecifiekGeautoriseerd = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in enkelvoudigInformatieobject.zaakGeautoriseerdeMedewerkers.orEmpty()
+                loggedInUserInstance.get().id in enkelvoudigInformatieobject.zaakGeautoriseerdeMedewerkers
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -215,10 +215,8 @@ class PolicyService @Inject constructor(
             open = TaskUtil.isOpen(taskInfo),
             zaaktype = zaaktypeOmschrijving,
             zaakspecifiekGeautoriseerd = zaakspecifiekGeautoriseerd,
-            loggedInUserIsGeautoriseerdeMedewerker = zaakspecifiekGeautoriseerd && isGeautoriseerdeMedewerkerOf(
-                zaak = zrcClientService.readZaak(zaakUUID),
-                userId = loggedInUserInstance.get().id
-            )
+            loggedInUserIsGeautoriseerdeMedewerker = zaakspecifiekGeautoriseerd &&
+                zrcClientService.readZaak(zaakUUID).isGeautoriseerdeMedewerkerOf(loggedInUserInstance.get().id)
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(
@@ -236,7 +234,7 @@ class PolicyService @Inject constructor(
             zaaktype = taakZoekObject.zaaktypeOmschrijving,
             zaakspecifiekGeautoriseerd = taakZoekObject.isZaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = taakZoekObject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in taakZoekObject.zaakGeautoriseerdeMedewerkers.orEmpty()
+                loggedInUserInstance.get().id in taakZoekObject.zaakGeautoriseerdeMedewerkers
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(
@@ -248,8 +246,8 @@ class PolicyService @Inject constructor(
         ).result
     }
 
-    private fun isGeautoriseerdeMedewerkerOf(zaak: Zaak, userId: String) =
-        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.betrokkeneIdentificatie?.identificatie == userId
+    private fun Zaak.isGeautoriseerdeMedewerkerOf(userId: String) =
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(this)?.betrokkeneIdentificatie?.identificatie == userId
 
     fun readNotitieRechten(): NotitieRechten =
         evaluationClient.readNotitieRechten(
