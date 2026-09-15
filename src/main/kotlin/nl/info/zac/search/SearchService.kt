@@ -21,6 +21,7 @@ import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.solr.SolrClientFactory
 import nl.info.zac.solr.encoded
 import nl.info.zac.solr.quoted
 import nl.info.zac.util.AllOpen
@@ -28,9 +29,7 @@ import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
-import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.common.params.SimpleParams
-import org.eclipse.microprofile.config.ConfigProvider
 import java.io.IOException
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter.ISO_INSTANT
@@ -39,7 +38,8 @@ import java.time.format.DateTimeFormatter.ISO_INSTANT
 @AllOpen
 @NoArgConstructor
 class SearchService @Inject constructor(
-    private val loggedInUserInstance: Instance<LoggedInUser>
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+    solrClientFactory: SolrClientFactory
 ) {
     companion object {
         private lateinit var solrClient: SolrClient
@@ -49,9 +49,7 @@ class SearchService @Inject constructor(
     }
 
     init {
-        solrClient = Http2SolrClient.Builder(
-            "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/$SOLR_CORE"
-        ).build()
+        solrClient = solrClientFactory.createSolrClient(SOLR_CORE)
     }
 
     @Suppress("LongMethod")
