@@ -4,13 +4,19 @@
  */
 package nl.info.zac.authentication
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 class LoggedInUserProviderTest : BehaviorSpec({
     val httpSession = mockk<HttpSession>()
@@ -132,4 +138,107 @@ class LoggedInUserProviderTest : BehaviorSpec({
             }
         }
     }
+
+    context("Running work as the system user") {
+        val httpSessionInstance = mockk<Instance<HttpSession>>()
+        val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
+
+        given("a logged-in user session") {
+            val loggedInUser = createLoggedInUser()
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns loggedInUser
+
+            `when`("work is run as the system user") {
+                val userDuringSystemWork = runAsSystemUser { loggedInUserProvider.getLoggedInUser() }
+                val userAfterSystemWork = loggedInUserProvider.getLoggedInUser()
+
+                then("that work runs as the functionele gebruiker") {
+                    userDuringSystemWork shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                }
+
+                and("the session user is restored afterwards") {
+                    userAfterSystemWork shouldBe loggedInUser
+                }
+            }
+        }
+
+        given("system user work nested inside other system user work") {
+            `when`("the nested work has finished") {
+                val userAfterNestedWork = runAsSystemUser {
+                    runAsSystemUser { }
+                    loggedInUserProvider.getLoggedInUser()
+                }
+
+                then("the outer work still runs as the system user") {
+                    userAfterNestedWork shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                }
+
+                and("the system user is no longer active once all of it has finished") {
+                    LoggedInUserProvider.systemUser.get() shouldBe false
+                }
+            }
+        }
+
+        given("work as the system user that throws") {
+            `when`("the exception has propagated") {
+                val illegalStateException = shouldThrow<IllegalStateException> {
+                    runAsSystemUser { throw IllegalStateException("fakeFailure") }
+                }
+
+                then("the exception is propagated and the system user is no longer active") {
+                    illegalStateException.message shouldBe "fakeFailure"
+                    LoggedInUserProvider.systemUser.get() shouldBe false
+                }
+            }
+        }
+    }
+
+    context("Falling back to the functionele gebruiker") {
+        val httpSessionInstance = mockk<Instance<HttpSession>>()
+        val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
+
+        given("no user in scope") {
+            every { httpSessionInstance.get() } returns null
+
+            `when`("getLoggedInUser is called twice from the same place") {
+                LoggedInUserProvider.loggedFallbackOrigins.clear()
+                lateinit var firstResult: LoggedInUser
+                lateinit var secondResult: LoggedInUser
+                val logRecords = captureLogRecords {
+                    firstResult = loggedInUserProvider.getLoggedInUser()
+                    secondResult = loggedInUserProvider.getLoggedInUser()
+                }
+
+                then("it still returns the functionele gebruiker") {
+                    firstResult shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                    secondResult shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                }
+
+                and("the fallback is reported once, naming where it happened") {
+                    val warnings = logRecords.filter { it.level == Level.WARNING }
+                    warnings.size shouldBe 1
+                    warnings.first().message shouldContain "LoggedInUserProviderTest"
+                }
+            }
+        }
+    }
 })
+
+private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
+    val logger = Logger.getLogger(LoggedInUserProvider::class.java.name)
+    val records = mutableListOf<LogRecord>()
+    val handler = object : Handler() {
+        override fun publish(record: LogRecord) {
+            records.add(record)
+        }
+        override fun flush() = Unit
+        override fun close() = Unit
+    }
+    logger.addHandler(handler)
+    try {
+        block()
+    } finally {
+        logger.removeHandler(handler)
+    }
+    return records
+}

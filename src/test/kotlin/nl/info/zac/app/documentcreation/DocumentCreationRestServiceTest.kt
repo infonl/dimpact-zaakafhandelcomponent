@@ -235,13 +235,17 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val httpSessionInstance = mockk<Instance<HttpSession>>()
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
         var userWhileStoringDocument: LoggedInUser? = null
+        var userWhileReadingZaak: LoggedInUser? = null
 
         // the browser posting the callback still carries a ZAC session cookie
         every { httpSessionInstance.get() } returns httpSession
         every {
             httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE)
         } returns createLoggedInUser(id = "fakeSessionUserId")
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.readZaak(zaak.uuid) } answers {
+            userWhileReadingZaak = loggedInUserProvider.getLoggedInUser()
+            zaak
+        }
         every { documentCreationUserStore.consumeUser("fakeExpiredToken", any()) } returns null
         every {
             documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
@@ -275,6 +279,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 userWhileStoringDocument shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
             }
 
+            and("the reads the callback makes along the way run as that same user") {
+                userWhileReadingZaak shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+            }
+
             and("the fallback is logged, so a lost token does not go unnoticed") {
                 logRecords.any { it.level == Level.WARNING && it.message.contains(zaak.uuid.toString()) } shouldBe true
             }
@@ -291,12 +299,16 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val httpSessionInstance = mockk<Instance<HttpSession>>()
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
         var userWhileStoringDocument: LoggedInUser? = null
+        var userWhileReadingZaak: LoggedInUser? = null
 
         every { httpSessionInstance.get() } returns httpSession
         every {
             httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE)
         } returns sessionUser
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.readZaak(zaak.uuid) } answers {
+            userWhileReadingZaak = loggedInUserProvider.getLoggedInUser()
+            zaak
+        }
         every { documentCreationUserStore.consumeUser(documentCreationToken, any()) } returns documentCreationUser
         every {
             documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
@@ -327,6 +339,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             then("the token decides who created the document, not the session") {
                 userWhileStoringDocument shouldBe documentCreationUser
             }
+
+            and("the reads the callback makes along the way run as that same user") {
+                userWhileReadingZaak shouldBe documentCreationUser
+            }
         }
     }
 
@@ -356,6 +372,44 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
             then("the token is still spent, so a cancelled wizard cannot leave it open to replay") {
                 verify(exactly = 1) { documentCreationUserStore.consumeUser(documentCreationToken, any()) }
+            }
+        }
+    }
+
+    given("a SmartDocuments callback whose document cannot be stored") {
+        val zaak = createZaak()
+        val documentCreationToken = "fakeDocumentCreationToken"
+        val informatieobjecttypeUuid = UUID.randomUUID()
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { documentCreationUserStore.consumeUser(documentCreationToken, any()) } returns createLoggedInUser()
+        every {
+            documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
+        } returns informatieobjecttypeUuid
+        every {
+            documentCreationService.storeDocument(any(), any(), any(), any(), any(), any(), any(), any())
+        } throws IllegalStateException("fakeStoreFailure")
+        every {
+            documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), any())
+        } returns URI("https://example.com/finish")
+
+        `when`("the callback is called") {
+            documentCreationRestService.createCmmnDocumentForZaakCallback(
+                zaakUuid = zaak.uuid,
+                templateGroupId = "fakeTemplateGroupId",
+                templateId = "fakeTemplateId",
+                title = "fakeTitle",
+                description = null,
+                creationDate = ZonedDateTime.now(),
+                userName = "fakeUserDisplayName",
+                documentCreationToken = documentCreationToken,
+                fileId = "fakeFileId"
+            )
+
+            then("the wizard is sent to the failure page instead of the error reaching SmartDocuments") {
+                verify(exactly = 1) {
+                    documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), "failure")
+                }
             }
         }
     }
