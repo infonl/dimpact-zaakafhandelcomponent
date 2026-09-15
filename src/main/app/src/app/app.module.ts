@@ -23,11 +23,12 @@ import {
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { persistQueryClient } from "@tanstack/query-persist-client-core";
+import { RouteReuseStrategy } from "@angular/router";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
-import { InformatieObjectenModule } from "./informatie-objecten/informatie-objecten.module";
+import { RouteReuseStrategyService } from "./informatie-objecten/route-reuse-strategy.service";
 import { Paths } from "./shared/http/http-client";
 import { QUERY_CLIENT } from "./shared/http/query-client";
 import { SharedModule } from "./shared/shared.module";
@@ -42,12 +43,12 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
     CoreModule,
     SharedModule,
     ZoekComponent,
-    InformatieObjectenModule,
     AppRoutingModule,
   ],
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
+    { provide: RouteReuseStrategy, useClass: RouteReuseStrategyService },
     provideTanStackQuery(
       QUERY_CLIENT,
       withDevtools(() => ({

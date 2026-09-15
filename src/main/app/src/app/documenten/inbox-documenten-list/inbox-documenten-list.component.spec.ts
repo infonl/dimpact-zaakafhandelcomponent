@@ -13,9 +13,11 @@ import {
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
+import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { PaginatorTranslator } from "../../shared/paginator/paginator-translator";
 import { ActivatedRoute, provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -51,6 +53,14 @@ describe(InboxDocumentenListComponent.name, () => {
         imports: [NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
           provideRouter([]),
+          {
+            provide: MatPaginatorIntl,
+            deps: [TranslateService],
+            useFactory: (translateService: TranslateService) =>
+              new PaginatorTranslator(
+                translateService,
+              ).getTranslatedPaginator(),
+          },
           {
             provide: ActivatedRoute,
             useValue: fromPartial<ActivatedRoute>({
