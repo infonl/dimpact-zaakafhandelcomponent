@@ -38,6 +38,17 @@ class OpenZaakClient(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID"
         )
 
+    fun getZaakeigenschappenForZaak(zaakUUID: UUID): ResponseContent =
+        itestHttpClient.performZgwApiGetRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen"
+        )
+
+    fun deleteRol(rolUUID: UUID) {
+        itestHttpClient.performZgwApiDeleteRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen/$rolUUID"
+        )
+    }
+
     /**
      * Creates a zaakeigenschap directly in Open Zaak's ZRC API, bypassing ZAC. Use this to mark a
      * zaak as zaakspecifiek geautoriseerd in integration tests, by creating a zaakeigenschap with

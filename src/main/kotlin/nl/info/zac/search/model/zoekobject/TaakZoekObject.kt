@@ -78,11 +78,15 @@ data class TaakZoekObject(
     var isToegekend: Boolean = false,
 
     @Field(ZAAKSPECIFIEK_GEAUTORISEERD_FIELD)
-    var isZaakspecifiekGeautoriseerd: Boolean = false
+    var isZaakspecifiekGeautoriseerd: Boolean = false,
+
+    @Field(ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD)
+    var zaakGeautoriseerdeMedewerkers: List<String>? = null
 ) : ZoekObject {
     companion object {
         const val BEHANDELAAR_ID_FIELD: String = "taak_behandelaarGebruikersnaam"
         const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "taak_zaakspecifiekGeautoriseerd"
+        const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD: String = "taak_zaakGeautoriseerdeMedewerkers"
     }
 
     override fun getObjectId() = id
