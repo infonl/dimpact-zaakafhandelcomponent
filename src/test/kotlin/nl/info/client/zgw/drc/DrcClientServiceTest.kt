@@ -74,7 +74,7 @@ class DrcClientServiceTest : BehaviorSpec({
         val patchRequest = createEnkelvoudigInformatieObjectWithLockRequest()
         val updatedDocument = createEnkelvoudigInformatieObject(uuid = uuid)
         val auditExplanation = "some audit reason"
-        every { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) } just runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any()) } answers { secondArg<() -> Any?>()() }
         every {
             drcClient.enkelvoudigInformatieobjectPartialUpdate(
                 uuid = uuid,
@@ -90,7 +90,7 @@ class DrcClientServiceTest : BehaviorSpec({
             )
 
             then("it should set the audit explanation and return the updated document") {
-                verify(exactly = 1) { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) }
+                verify(exactly = 1) { zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any()) }
                 result shouldBe updatedDocument
             }
         }
@@ -106,6 +106,7 @@ class DrcClientServiceTest : BehaviorSpec({
                 enkelvoudigInformatieObjectWithLockRequest = patchRequest
             )
         } returns updatedDocument
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(null, any()) } answers { secondArg<() -> Any?>()() }
 
         `when`("updating the EnkelvoudigInformatieobject") {
             val result = drcClientService.updateEnkelvoudigInformatieobject(
@@ -114,8 +115,8 @@ class DrcClientServiceTest : BehaviorSpec({
                 auditExplanation = null
             )
 
-            then("it should NOT call setAuditExplanation and should return the updated document") {
-                verify(exactly = 0) { zgwClientHeadersFactory.setAuditExplanation(any()) }
+            then("it should not set an audit explanation and should return the updated document") {
+                verify(exactly = 1) { zgwClientHeadersFactory.withAuditExplanation<Any?>(null, any()) }
                 result shouldBe updatedDocument
             }
         }
