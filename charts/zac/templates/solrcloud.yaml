@@ -52,9 +52,6 @@ spec:
     pullPolicy: {{ (index .Values "solr-operator").solr.image.pullPolicy }}
     repository: {{ (index .Values "solr-operator").solr.image.repository }}
     tag: {{ (index .Values "solr-operator").solr.image.tag }}
-  solrSecurity:
-    authenticationType: Basic
-    probesRequireAuth: true
   solrJavaMem: {{ (index .Values "solr-operator").solr.javaMem }}
   solrLogLevel: {{ (index .Values "solr-operator").solr.logLevel }}
   dataStorage:

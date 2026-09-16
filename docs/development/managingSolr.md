@@ -39,14 +39,17 @@ print(base64.b64encode(hashlib.sha256(hashlib.sha256(salt + password).digest()).
 
 ### Kubernetes setup
 
-For a Solr managed by the Solr operator, the Helm chart enables basic authentication on the `SolrCloud`
-resource. The operator generates the credentials and stores them in the
-`<solrcloud-name>-solrcloud-basic-auth` Kubernetes secret; ZAC reads `SOLR_USERNAME` and `SOLR_PASSWORD`
-from that secret.
+Set `solr.username` and `solr.password` in the Helm values. They end up in the ZAC Kubernetes secret,
+and ZAC authenticates every Solr request with them.
 
-For an external Solr instance (`solr.url` in the Helm values), set `solr.username` and `solr.password` in
-the Helm values instead. They end up in the ZAC Kubernetes secret. Configure the matching user in the
+For an external Solr instance (`solr.url` in the Helm values), configure the matching user in the
 `security.json` of that Solr instance yourself.
+
+The Solr the chart deploys through the Solr operator does not require authentication yet, so it
+ignores the credentials ZAC sends. That Solr is only reachable from inside the cluster; it has no
+ingress and no external addressability. Turning authentication on there means giving ZAC an account
+that may read and edit the schema and update the index, which the operator's own generated account
+may not, so it needs a `security.json` of our own rather than the one the operator bootstraps.
 
 ## Update the Solr search index manually
 

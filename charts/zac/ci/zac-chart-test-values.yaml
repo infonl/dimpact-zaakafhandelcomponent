@@ -94,3 +94,7 @@ organizations:
 office_converter:
   username: "office-converter-user"
   password: "office-converter-password"
+
+solr:
+  username: "solr-user"
+  password: "solr-password"

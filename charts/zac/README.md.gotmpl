@@ -47,11 +47,16 @@ Two services ZAC talks to need credentials on both sides, and the chart keeps th
 | Service | User name and password | Where they come from |
 |---|---|---|
 | Office converter (Gotenberg) | `office_converter.username`, `office_converter.password` | Required. The chart stores them in the ZAC secret and injects them into both the Gotenberg container (`GOTENBERG_API_BASIC_AUTH_*`) and ZAC (`OFFICE_CONVERTER_*`), so the two can never drift apart. |
-| Solr, managed by the Solr operator | none | The chart enables basic authentication on the `SolrCloud` resource and the operator generates the credentials into its own `<solrcloud-name>-solrcloud-basic-auth` secret, which ZAC reads directly. |
-| Solr, external (`solr.url` set) | `solr.username`, `solr.password` | Required in that case. Configure the matching user in the `security.json` of that Solr instance yourself. |
+| Solr | `solr.username`, `solr.password` | Required. The chart stores them in the ZAC secret and ZAC authenticates every Solr request with them. Configure the matching user in the `security.json` of the Solr instance. |
 
-Both services reject unauthenticated requests, and ZAC fails to start when its credentials are
-missing rather than falling back to unauthenticated requests. See
+The office converter rejects unauthenticated requests, and ZAC fails to start when its credentials
+are missing rather than falling back to unauthenticated requests.
+
+The Solr the chart deploys through the Solr operator does not require authentication yet: it is only
+reachable from inside the cluster, and giving ZAC an account with the schema and update rights it
+needs takes a `security.json` of our own rather than the operator's built-in one. ZAC sends its
+credentials regardless, so enabling authentication on that Solr later needs no change on the ZAC
+side. An external Solr (`solr.url` set) verifies them today. See
 [Managing the Solr search engine](https://github.com/infonl/dimpact-zaakafhandelcomponent/blob/main/docs/development/managingSolr.md)
 for the Solr details.
 
