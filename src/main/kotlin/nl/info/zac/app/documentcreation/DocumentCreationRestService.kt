@@ -232,14 +232,15 @@ class DocumentCreationRestService @Inject constructor(
         userName: String,
         fileId: String,
         fetchInformatieobjecttypeUuidFunction: (zaak: Zaak) -> UUID,
-    ): Response =
-        runCatching {
+    ): Response {
+        var zaak: Zaak? = null
+        return runCatching {
             // downloaded first, so an unsupported output format surfaces before the zaak is read
             val file = smartDocumentsService.downloadDocument(fileId)
-            val zaak = zrcClientService.readZaak(zaakUuid)
-            val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(zaak)
+            val readZaak = zrcClientService.readZaak(zaakUuid).also { zaak = it }
+            val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(readZaak)
             documentCreationService.storeDownloadedDocument(
-                zaak = zaak,
+                zaak = readZaak,
                 taskId = taskId,
                 file = file,
                 title = title,
@@ -248,17 +249,17 @@ class DocumentCreationRestService @Inject constructor(
                 creationDate = creationDate,
                 userName = userName
             )
-            zaak
+            readZaak
         }.onFailure {
             LOG.log(Level.WARNING, it) {
                 "Failed to create document for zaak $zaakUuid" +
                     if (taskId != null) " and task $taskId" else ""
             }
         }.fold(
-            onSuccess = { zaak ->
+            onSuccess = { successZaak ->
                 Response.seeOther(
                     documentCreationService.documentCreationFinishPageUrl(
-                        zaakId = zaak.identificatie,
+                        zaakId = successZaak.identificatie,
                         taskId = taskId,
                         documentName = title,
                         result = SmartDocumentsWizardResult.SUCCESS.value
@@ -273,7 +274,8 @@ class DocumentCreationRestService @Inject constructor(
                 }
                 Response.seeOther(
                     documentCreationService.documentCreationFinishPageUrl(
-                        zaakId = zrcClientService.readZaak(zaakUuid).identificatie,
+                        // the zaak was already read successfully before the failure: reuse it instead of reading again
+                        zaakId = (zaak ?: zrcClientService.readZaak(zaakUuid)).identificatie,
                         taskId = taskId,
                         documentName = title,
                         result = result.value
@@ -281,6 +283,7 @@ class DocumentCreationRestService @Inject constructor(
                 ).build()
             }
         )
+    }
 
     // if/else instead of `?.let`: CodeQL's model of `let` makes the HTML response look tainted by the token (java/xss)
     private fun consumeDocumentCreationUser(documentCreationToken: UUID?, zaakUuid: UUID): LoggedInUser? =

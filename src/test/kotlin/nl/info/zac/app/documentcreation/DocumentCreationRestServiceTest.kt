@@ -421,6 +421,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), "failure")
                 }
             }
+
+            and("the already-read zaak is reused for that redirect instead of reading it again") {
+                verify(exactly = 1) { zrcClientService.readZaak(zaak.uuid) }
+            }
         }
     }
 
