@@ -5,10 +5,13 @@
 package nl.info.zac.app.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldNotBeBefore
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -188,6 +191,35 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                     }
                 }
             }
+
+            given("a previous configuration without any zaak beeindigen gegevens") {
+                val newToegekendUuid = UUID.randomUUID()
+                val newZaaktype = createZaakType(resultTypes = listOf(resultaattypeUri(newToegekendUuid)))
+
+                every { ztcClientService.readResultaattype(resultaattypeUri(newToegekendUuid)) } returns
+                    createResultaatType(url = resultaattypeUri(newToegekendUuid), omschrijving = "Toegekend")
+
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    nietOntvankelijkResultaattype = null
+                }
+                val newZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID())
+
+                `when`("the zaakbeeindig gegevens are mapped to the new configuration") {
+                    zaaktypeHelperService.mapZaakbeeindigGegevens(
+                        previousZaaktypeConfiguration,
+                        newZaaktypeConfiguration,
+                        newZaaktype
+                    )
+
+                    then("the new configuration keeps an empty collection of parameters instead of a null one") {
+                        newZaaktypeConfiguration.zaaktypeCompletionParameters.shouldNotBeNull().shouldBeEmpty()
+                    }
+
+                    and("the niet-ontvankelijk resultaattype of the new configuration is cleared") {
+                        newZaaktypeConfiguration.nietOntvankelijkResultaattype.shouldBeNull()
+                    }
+                }
+            }
         }
 
         context("updateZaakbeeindigGegevens of a $configurationType zaaktype configuration") {
@@ -242,6 +274,45 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                         zaakbeeindigParameters shouldHaveSize 1
                         zaakbeeindigParameters.first().resultaattype shouldBe newToegekendUuid
                         zaaktypeConfiguration.nietOntvankelijkResultaattype shouldBe newNietOntvankelijkUuid
+                    }
+                }
+            }
+
+            given("a configuration that has already been remapped onto the resultaattypen of its own zaaktype") {
+                val toegekendUuid = UUID.randomUUID()
+                val newZaaktype = createZaakType(resultTypes = listOf(resultaattypeUri(toegekendUuid)))
+
+                every { ztcClientService.readResultaattype(resultaattypeUri(toegekendUuid)) } returns
+                    createResultaatType(url = resultaattypeUri(toegekendUuid), omschrijving = "Toegekend")
+                every { ztcClientService.readResultaattype(toegekendUuid) } returns
+                    createResultaatType(url = resultaattypeUri(toegekendUuid), omschrijving = "Toegekend")
+
+                val existingZaaktypeConfiguration = createZaaktypeConfiguration(toegekendUuid)
+                existingZaaktypeConfiguration.setZaakbeeindigParameters(
+                    listOf(
+                        completionParameter(
+                            existingZaaktypeConfiguration,
+                            zaakbeeindigReden(id = 2L, naam = "Zaak is toegekend"),
+                            toegekendUuid
+                        )
+                    )
+                )
+                val persistedParameter = existingZaaktypeConfiguration.getZaakbeeindigParameters().first().apply {
+                    id = 1234L
+                }
+
+                `when`("the same zaaktype notification is handled twice") {
+                    zaaktypeHelperService.updateZaakbeeindigGegevens(existingZaaktypeConfiguration, newZaaktype)
+                    zaaktypeHelperService.updateZaakbeeindigGegevens(existingZaaktypeConfiguration, newZaaktype)
+
+                    then("the persisted parameter is updated in place instead of being replaced by a new one") {
+                        val zaakbeeindigParameters = existingZaaktypeConfiguration.getZaakbeeindigParameters()
+                        zaakbeeindigParameters shouldHaveSize 1
+                        with(zaakbeeindigParameters.first()) {
+                            this shouldBeSameInstanceAs persistedParameter
+                            id shouldBe 1234L
+                            resultaattype shouldBe toegekendUuid
+                        }
                     }
                 }
             }

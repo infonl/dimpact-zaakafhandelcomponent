@@ -33,6 +33,9 @@ private const val ZAAKTYPE_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID = "31f56eaa-4515
 private const val ZAAKTYPE_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID = "060b1651-4795-4982-bf66-584391bf0421"
 private const val ZAAKTYPE_TEST_3_RESULTAATTYPE_VERLEEND_UUID = "2b774ae4-68b0-462c-b6a0-e48b861ee148"
 
+/** Resultaattype of zaaktype test 3 whose omschrijving does not occur in any of the zaaktypes under test. */
+private const val ZAAKTYPE_TEST_3_RESULTAATTYPE_EIGENSCHAP_UUID = "ce19f9dc-efd7-4f6a-a95f-7b22f5ab9a09"
+
 class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zaaktypeCmmnConfigurationUri = "$ZAC_API_URI/zaakafhandelparameters"
@@ -97,8 +100,9 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
             """a ${zaaktypeConfigurationUnderTest.configurationType} zaaktype configuration whose zaak beeindigen
                 gegevens point at resultaattypen of another zaaktype"""
         ) {
-            val zaakbeeindigReden = JSONArray(read("$zaaktypeCmmnConfigurationUri/zaakbeeindigredenen"))
-                .getJSONObject(0)
+            val zaakbeeindigRedenen = JSONArray(read("$zaaktypeCmmnConfigurationUri/zaakbeeindigredenen"))
+            val zaakbeeindigReden = zaakbeeindigRedenen.getJSONObject(0)
+            val unmatchedZaakbeeindigReden = zaakbeeindigRedenen.getJSONObject(1)
 
             originalZaaktypeConfiguration = zaaktypeConfigurationUnderTest.readConfiguration()
             zaaktypeConfigurationUnderTest.storeConfiguration(
@@ -112,17 +116,26 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
                     )
                     put(
                         "zaakbeeindigParameters",
-                        JSONArray().put(
-                            JSONObject()
-                                .put("zaakbeeindigReden", zaakbeeindigReden)
-                                .put(
-                                    "resultaattype",
-                                    JSONObject().put(
-                                        "id",
-                                        zaaktypeConfigurationUnderTest.previousZaakbeeindigResultaattypeUuid
+                        JSONArray()
+                            .put(
+                                JSONObject()
+                                    .put("zaakbeeindigReden", zaakbeeindigReden)
+                                    .put(
+                                        "resultaattype",
+                                        JSONObject().put(
+                                            "id",
+                                            zaaktypeConfigurationUnderTest.previousZaakbeeindigResultaattypeUuid
+                                        )
                                     )
-                                )
-                        )
+                            )
+                            .put(
+                                JSONObject()
+                                    .put("zaakbeeindigReden", unmatchedZaakbeeindigReden)
+                                    .put(
+                                        "resultaattype",
+                                        JSONObject().put("id", ZAAKTYPE_TEST_3_RESULTAATTYPE_EIGENSCHAP_UUID)
+                                    )
+                            )
                     )
                 }.toString()
             )
@@ -164,12 +177,22 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
                             zaaktypeConfigurationUnderTest.expectedNietOntvankelijkResultaattypeUuid
 
                         val zaakbeeindigParameters = zaaktypeConfiguration.getJSONArray("zaakbeeindigParameters")
-                        zaakbeeindigParameters.length() shouldBe 1
                         zaakbeeindigParameters
                             .getJSONObject(0)
                             .getJSONObject("resultaattype")
                             .getString("id") shouldBe
                             zaaktypeConfigurationUnderTest.expectedZaakbeeindigResultaattypeUuid
+                    }
+                }
+
+                then(
+                    """the parameter whose resultaattype omschrijving does not occur in the zaaktype is dropped
+                        instead of being mapped to an arbitrary resultaattype"""
+                ) {
+                    eventually(30.seconds) {
+                        JSONObject(zaaktypeConfigurationUnderTest.readConfiguration())
+                            .getJSONArray("zaakbeeindigParameters")
+                            .length() shouldBe 1
                     }
                 }
             }
