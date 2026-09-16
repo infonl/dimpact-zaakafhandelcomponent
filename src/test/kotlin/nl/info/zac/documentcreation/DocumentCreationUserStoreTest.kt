@@ -14,6 +14,7 @@ import jakarta.enterprise.inject.Instance
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import java.time.Instant
+import java.util.UUID
 
 class DocumentCreationUserStoreTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -92,7 +93,7 @@ class DocumentCreationUserStoreTest : BehaviorSpec({
 
         given("a token that was never created") {
             `when`("the token is exchanged for a user") {
-                val result = documentCreationUserStore.consumeUser("fakeUnknownToken")
+                val result = documentCreationUserStore.consumeUser(UUID.randomUUID())
 
                 then("it returns null, so the callback can fall back to the functionele gebruiker") {
                     result shouldBe null
