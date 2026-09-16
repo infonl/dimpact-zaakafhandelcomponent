@@ -40,29 +40,29 @@ helm install my-release zac/zaakafhandelcomponent
 
 ## Credentials
 
-Every credential ZAC needs is a chart value. The chart renders them into one Kubernetes `Secret`
-named after the release, which the ZAC deployment reads through `envFrom`. There is no external
-secret store involved, so whoever installs the chart is responsible for supplying the values from
-their own secret management (for example a CI secret store) and for keeping them out of any values
-file that is committed.
+Every credential ZAC needs is a chart value, except the Solr credentials that the Solr operator
+generates when the chart deploys Solr itself. The chart renders the values into one Kubernetes
+`Secret` named after the release, which the ZAC deployment reads through `envFrom`. There is no
+external secret store involved, so whoever installs the chart is responsible for supplying the values
+from their own secret management (for example a CI secret store) and for keeping them out of any
+values file that is committed.
 
 Two services ZAC talks to need credentials on both sides, and the chart keeps the two sides in step:
 
 | Service | User name and password | Where they come from |
 |---|---|---|
 | Office converter (Gotenberg) | `office_converter.username`, `office_converter.password` | Required. The chart stores them in the ZAC secret and injects them into both the Gotenberg container (`GOTENBERG_API_BASIC_AUTH_*`) and ZAC (`OFFICE_CONVERTER_*`), so the two can never drift apart. |
-| Solr | `solr.username`, `solr.password` | Required. The chart stores them in the ZAC secret and ZAC authenticates every Solr request with them. Configure the matching user in the `security.json` of the Solr instance. |
+| External Solr (`solr.url` set) | `solr.username`, `solr.password` | Required for an external Solr. The chart stores them in the ZAC secret and ZAC authenticates every Solr request with them. Configure the matching user in the `security.json` of that instance yourself. |
+| Solr deployed by the chart | none | The chart enables basic authentication on the `SolrCloud` resource and the Solr operator generates the credentials into the `<solrcloud>-solrcloud-security-bootstrap` secret. ZAC reads the `admin` account from that secret, so no Solr credential is a chart value. |
 
-The office converter rejects unauthenticated requests, and ZAC fails to start when its credentials
-are missing rather than falling back to unauthenticated requests.
+Both services reject unauthenticated requests, and ZAC fails to start when its credentials are missing
+rather than falling back to unauthenticated requests.
 
-The Solr the chart deploys through the Solr operator does not require authentication yet: it is only
-reachable from inside the cluster, and giving ZAC an account with the schema and update rights it
-needs takes a `security.json` of our own rather than the operator's built-in one. ZAC sends its
-credentials regardless, so enabling authentication on that Solr later needs no change on the ZAC
-side. An external Solr (`solr.url` set) verifies them today. See
+The Solr operator bootstraps the `security.json` once, when Solr has none yet, and does not update it
+afterwards. To change a Solr password, set it through the Solr security API as `admin` first and then
+update the bootstrap secret by hand. See
 [Managing the Solr search engine](https://github.com/infonl/dimpact-zaakafhandelcomponent/blob/main/docs/development/managingSolr.md)
-for the Solr details.
+for the Solr details, including how to read the admin password for the Solr admin UI.
 
 ## Changes to the helm chart
 
@@ -407,9 +407,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"zookeeper"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for zookeeper |
 | solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
-| solr.password | string | `""` | Solr basic authentication password. Required. Configure the matching user in the `security.json` of the Solr instance. The solr-operator managed Solr does not verify these credentials yet; ZAC sends them regardless. |
+| solr.password | string | `""` | Solr basic authentication password. Required when `solr.url` points at an external Solr; ignored for the solr-operator managed Solr. |
 | solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
-| solr.username | string | `""` | Solr basic authentication user name. Required. Configure the matching user in the `security.json` of the Solr instance. The solr-operator managed Solr does not verify these credentials yet; ZAC sends them regardless. |
+| solr.username | string | `""` | Solr basic authentication user name. Required when `solr.url` points at an external Solr; configure the matching user in the `security.json` of that instance. Ignored for the solr-operator managed Solr, where the operator generates the credentials and ZAC uses the `admin` account from the operator's security bootstrap secret. |
 | tmpVolumeSize | string | `"4Gi"` | Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it. Note that the matching 4Gi ephemeral-storage request is a scheduling requirement: a node without that much free ephemeral storage, or a namespace whose quota does not allow it, will not schedule the pod. Lower all three together when the environment cannot spare it; the cost is fewer concurrent transfers of `maxFileSizeMB`, not a lower maximum document size. |
 | tolerations | list | `[]` | set toleration parameters |
 | topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |
