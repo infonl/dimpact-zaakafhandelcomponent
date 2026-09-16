@@ -5,21 +5,17 @@
 
 import { Routes } from "@angular/router";
 import { InformatieObjectResolver } from "./informatie-object.resolver";
-
-const loadInformatieObjectViewComponent = () =>
-  import("./informatie-object-view/informatie-object-view.component").then(
-    (module) => module.InformatieObjectViewComponent,
-  );
+import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
 
 export const INFORMATIE_OBJECTEN_ROUTES: Routes = [
   {
     path: ":uuid",
-    loadComponent: loadInformatieObjectViewComponent,
+    component: InformatieObjectViewComponent,
     resolve: { informatieObject: InformatieObjectResolver },
   },
   {
     path: ":uuid/:versie",
-    loadComponent: loadInformatieObjectViewComponent,
+    component: InformatieObjectViewComponent,
     resolve: { informatieObject: InformatieObjectResolver },
   },
 ];

@@ -4,13 +4,8 @@
  */
 
 import { Routes } from "@angular/router";
+import { FoutAfhandelingComponent } from "./fout-afhandeling.component";
 
 export const FOUT_AFHANDELING_ROUTES: Routes = [
-  {
-    path: "",
-    loadComponent: () =>
-      import("./fout-afhandeling.component").then(
-        (module) => module.FoutAfhandelingComponent,
-      ),
-  },
+  { path: "", component: FoutAfhandelingComponent },
 ];
