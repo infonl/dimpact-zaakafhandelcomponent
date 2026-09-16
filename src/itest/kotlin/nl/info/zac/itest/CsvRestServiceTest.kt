@@ -72,7 +72,8 @@ class CsvRestServiceTest : BehaviorSpec({
         "afgehandeld",
         "archiefActiedatum",
         "archiefNominatie",
-        "bagObjectIDs"
+        "bagObjectIDs",
+        "behandelaarGebruikersnaam"
     )
 
     context("Export to CSV") {

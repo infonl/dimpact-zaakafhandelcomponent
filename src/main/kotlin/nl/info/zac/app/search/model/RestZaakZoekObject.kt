@@ -6,6 +6,7 @@
  */
 package nl.info.zac.app.search.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.app.policy.model.toRestZaakRechten
@@ -33,6 +34,9 @@ data class RestZaakZoekObject(
     val vertrouwelijkheidaanduiding: String? = null,
     val archiefNominatie: String? = null,
     val afgehandeld: Boolean = false,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    val isZaakspecifiekGeautoriseerd: Boolean = false,
     val groepId: String? = null,
     val groepNaam: String? = null,
     val behandelaarNaam: String? = null,
@@ -76,6 +80,7 @@ fun ZaakZoekObject.toRestZaakZoekObject(zaakRechten: ZaakRechten) = RestZaakZoek
     communicatiekanaal = this@toRestZaakZoekObject.communicatiekanaal,
     vertrouwelijkheidaanduiding = this@toRestZaakZoekObject.vertrouwelijkheidaanduiding,
     afgehandeld = this@toRestZaakZoekObject.isAfgehandeld,
+    isZaakspecifiekGeautoriseerd = this@toRestZaakZoekObject.isZaakspecifiekGeautoriseerd,
     groepId = this@toRestZaakZoekObject.groepID,
     groepNaam = this@toRestZaakZoekObject.groepNaam,
     behandelaarNaam = this@toRestZaakZoekObject.behandelaarNaam,

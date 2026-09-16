@@ -312,6 +312,13 @@
       "functionalRoleId": "45678901-bcde-f123-4567-890abcdef123",
       "applicationRoleId": "1a2b3c4d-5e6f-4708-9a0b-c1d2e3f4a5b6",
       "isAllEntityTypes": true
+    },
+    {
+      "id": "8a1d3f2e-6b4c-4d9a-9e77-1c0f5b7a2d43",
+      "functionalRoleId": "3c2b877f-75f9-4275-86d9-81f9a779ce30",
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
+      "applicationRoleId": "1a2b3c4d-5e6f-4708-9a0b-c1d2e3f4a5b6",
+      "isAllEntityTypes": false
     }
   ],
   "domainEntityTypes": [

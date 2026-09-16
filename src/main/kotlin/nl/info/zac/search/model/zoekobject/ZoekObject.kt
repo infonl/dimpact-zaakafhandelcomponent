@@ -15,6 +15,13 @@ interface ZoekObject {
          * mirroring how the three types' `zaaktypeOmschrijving` fields are merged into one shared field.
          */
         const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "zaakspecifiekGeautoriseerd"
+
+        /**
+         * The shared Solr field that [ZaakZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD],
+         * [TaakZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD], and
+         * [DocumentZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD] are each `copyField`-merged into.
+         */
+        const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD: String = "zaakGeautoriseerdeMedewerkers"
     }
 
     fun getObjectId(): String

@@ -12,6 +12,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import java.net.URI
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
@@ -28,11 +30,10 @@ import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
 import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
+import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import org.flowable.task.api.Task
-import java.net.URI
-import java.util.UUID
 
 private data class ZaakGedrevenReindexServiceTestContext(
     val reindexSupportService: ReindexSupportService,
@@ -109,7 +110,7 @@ private fun ZaakGedrevenReindexServiceTestContext.stubRunConcurrentPageConversio
  * page of zaken, so that tests covering that path do not have to repeat this bundle individually.
  */
 private fun ZaakGedrevenReindexServiceTestContext.stubZaakPageProcessing() {
-    every { reindexSupportService.memoizedIsZaakspecifiekGeautoriseerd() } returns { false }
+    every { reindexSupportService.memoizedZaakAutorisatieGegevens() } returns { createZaakAutorisatieGegevens() }
     stubRunConcurrentPageConversionsForwarding()
     every { reindexSupportService.deleteExistingEntities(any()) } just Runs
     every { reindexSupportService.addToSolrIndex(any(), any()) } just Runs

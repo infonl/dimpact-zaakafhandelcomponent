@@ -35,6 +35,9 @@ import kotlin.time.Duration.Companion.seconds
  * zaakspecifiek_geautoriseerd application role - asserted by the polling loop that waits for reindexing
  * to finish, since there is no other signal to poll for - while remaining visible, with correct
  * rechten, for a behandelaar who holds it.
+ *
+ * Also verifies the exception to that rule: the zaak's own behandelaar keeps seeing the zaak, its task
+ * and its document without holding the zaakspecifiek_geautoriseerd role at all.
  */
 class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -48,13 +51,10 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
     // ZAAKTYPE_CMMN_TEST_2 is shared with other itests. Once these are set, afterSpec unflags the
     // created zaak again, so it does not stay invisible to BEHANDELAAR_1 (who lacks the
     // zaakspecifiek_geautoriseerd role) for the rest of the test run.
-    var zaakUuidToUnflag: UUID? = null
-    var zaakeigenschapUuidToDelete: UUID? = null
+    val flaggedZaken = mutableListOf<Pair<UUID, UUID>>()
 
     afterSpec {
-        val zaakUuid = zaakUuidToUnflag
-        val zaakeigenschapUuid = zaakeigenschapUuidToDelete
-        if (zaakUuid != null && zaakeigenschapUuid != null) {
+        flaggedZaken.forEach { (zaakUuid, zaakeigenschapUuid) ->
             openZaakClient.deleteZaakeigenschap(zaakUuid, zaakeigenschapUuid)
             openZaakClient.sendZaakeigenschapDestroyNotification(zaakUuid, zaakeigenschapUuid)
         }
@@ -155,8 +155,7 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             eigenschapNaam = "ZAAK_GEAUTORISEERD",
             waarde = "true"
         )
-        zaakUuidToUnflag = zaakUuid
-        zaakeigenschapUuidToDelete = zaakeigenschapUuid
+        flaggedZaken += zaakUuid to zaakeigenschapUuid
         // createZaakeigenschap() above bypasses ZAC, so it triggers no real notificatie; simulate the
         // zaakeigenschap notificatie that Open Notificaties would otherwise send, which is handled
         // asynchronously and reindexes the zaak, its (open) taken and its documenten. Then wait for that
@@ -190,6 +189,102 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             then(
                 "the zaakspecifiek geautoriseerde zaak, its task and its document are present in all " +
                     "results with lezen rechten set to true"
+            ) {
+                logger.info { "Zaak search response: ${zaakResponse.bodyAsString}" }
+                logger.info { "Taak search response: ${taakResponse.bodyAsString}" }
+                logger.info { "Document search response: ${documentResponse.bodyAsString}" }
+                zaakResponse.code shouldBe HTTP_OK
+                taakResponse.code shouldBe HTTP_OK
+                documentResponse.code shouldBe HTTP_OK
+
+                val zaakResult = JSONObject(zaakResponse.bodyAsString)
+                zaakResult.getInt("totaal") shouldBe 1
+                zaakResult.getJSONArray("resultaten").getJSONObject(0)
+                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+
+                val taakResult = JSONObject(taakResponse.bodyAsString)
+                taakResult.getInt("totaal") shouldBe 1
+                taakResult.getJSONArray("resultaten").getJSONObject(0)
+                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+
+                val documentResult = JSONObject(documentResponse.bodyAsString)
+                documentResult.getInt("totaal") shouldBe 1
+                documentResult.getJSONArray("resultaten").getJSONObject(0)
+                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+            }
+        }
+    }
+
+    given(
+        """
+        A CMMN zaak of a zaaktype that supports zaakspecifieke autorisatie, with a task and a document,
+        is assigned to a behandelaar who does not hold the zaakspecifiek_geautoriseerd role, and is then
+        marked as zaakspecifiek geautoriseerd
+        """
+    ) {
+        val documentTitle = "itestDocumentTitle-${System.currentTimeMillis()}"
+        val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            indexZaak = true,
+            testUser = BEHANDELAAR_1
+        )
+        taskHelper.startAanvullendeInformatieTaskForZaak(
+            zaakUuid = zaakUuid,
+            zaakIdentificatie = zaakIdentificatie,
+            fatalDate = LocalDate.now().plusWeeks(1),
+            group = GROUP_BEHANDELAARS_TEST_1,
+            waitForTaskToBeIndexed = true,
+            testUser = BEHANDELAAR_1
+        )
+        documentHelper.uploadDocumentToZaak(
+            zaakUuid = zaakUuid,
+            fileName = TEST_PDF_FILE_NAME,
+            documentTitle = documentTitle,
+            authorName = FAKE_AUTHOR_NAME,
+            indexDocument = true,
+            testUser = BEHANDELAAR_1
+        )
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/toekennen",
+            requestBodyAsString = """
+                {
+                    "zaakUUID": "$zaakUuid",
+                    "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                    "behandelaarGebruikersnaam": "${BEHANDELAAR_1.username}",
+                    "reden": "fakeAssignReason"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        ).code shouldBe HTTP_OK
+        val zaakeigenschapUuid = openZaakClient.createZaakeigenschap(
+            zaakUUID = zaakUuid,
+            zaaktypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            eigenschapNaam = "ZAAK_GEAUTORISEERD",
+            waarde = "true"
+        )
+        flaggedZaken += zaakUuid to zaakeigenschapUuid
+        // As above, createZaakeigenschap() bypasses ZAC, so the notificatie is simulated. The flag
+        // turning true in this behandelaar's own zaak result is the readiness signal here: unlike the
+        // scenario above, nothing becomes invisible to poll for, because this user is the behandelaar.
+        openZaakClient.sendZaakeigenschapCreateNotification(zaakUuid, zaakeigenschapUuid)
+        eventually(30.seconds) {
+            searchZaak(zaakIdentificatie, BEHANDELAAR_1).let {
+                it.code shouldBe HTTP_OK
+                val result = JSONObject(it.bodyAsString)
+                result.getInt("totaal") shouldBe 1
+                result.getJSONArray("resultaten").getJSONObject(0)
+                    .getBoolean("isZaakspecifiekGeautoriseerd") shouldBe true
+            }
+        }
+
+        `when`("worklist/search results are requested by that behandelaar") {
+            val zaakResponse = searchZaak(zaakIdentificatie, BEHANDELAAR_1)
+            val taakResponse = searchTaak(zaakIdentificatie, BEHANDELAAR_1)
+            val documentResponse = searchDocument(documentTitle, BEHANDELAAR_1)
+
+            then(
+                "the zaak, its task and its document are all still present with lezen rechten set to " +
+                    "true, because being the behandelaar grants access without the role"
             ) {
                 logger.info { "Zaak search response: ${zaakResponse.bodyAsString}" }
                 logger.info { "Taak search response: ${taakResponse.bodyAsString}" }
