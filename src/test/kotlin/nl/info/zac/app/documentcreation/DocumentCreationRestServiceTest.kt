@@ -187,7 +187,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     given("a SmartDocuments callback for a document creation started by a logged-in user") {
         val zaak = createZaak()
         val loggedInUser = createLoggedInUser()
-        val documentCreationToken = "fakeDocumentCreationToken"
+        val documentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
         val httpSessionInstance = mockk<Instance<HttpSession>>()
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
@@ -230,6 +230,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     given("a SmartDocuments callback whose document creation token is no longer known") {
         val zaak = createZaak()
+        val expiredDocumentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
         val httpSession = mockk<HttpSession>()
         val httpSessionInstance = mockk<Instance<HttpSession>>()
@@ -246,7 +247,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             userWhileReadingZaak = loggedInUserProvider.getLoggedInUser()
             zaak
         }
-        every { documentCreationUserStore.consumeUser("fakeExpiredToken", any()) } returns null
+        every { documentCreationUserStore.consumeUser(expiredDocumentCreationToken, any()) } returns null
         every {
             documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
         } returns informatieobjecttypeUuid
@@ -270,7 +271,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     description = null,
                     creationDate = ZonedDateTime.now(),
                     userName = "fakeUserDisplayName",
-                    documentCreationToken = "fakeExpiredToken",
+                    documentCreationToken = expiredDocumentCreationToken,
                     fileId = "fakeFileId"
                 )
             }
@@ -293,7 +294,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val documentCreationUser = createLoggedInUser(id = "fakeDocumentCreationUserId")
         val sessionUser = createLoggedInUser(id = "fakeSessionUserId")
-        val documentCreationToken = "fakeDocumentCreationToken"
+        val documentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
         val httpSession = mockk<HttpSession>()
         val httpSessionInstance = mockk<Instance<HttpSession>>()
@@ -348,7 +349,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     given("a SmartDocuments callback for a wizard that was cancelled") {
         val zaak = createZaak()
-        val documentCreationToken = "fakeDocumentCreationToken"
+        val documentCreationToken = UUID.randomUUID()
         val httpSessionInstance = mockk<Instance<HttpSession>>()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -378,7 +379,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     given("a SmartDocuments callback whose document cannot be stored") {
         val zaak = createZaak()
-        val documentCreationToken = "fakeDocumentCreationToken"
+        val documentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
