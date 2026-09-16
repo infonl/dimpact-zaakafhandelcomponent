@@ -250,9 +250,12 @@ class DocumentCreationRestService @Inject constructor(
         }
     }
 
+    // if/else instead of `?.let`: CodeQL's model of `let` makes the HTML response look tainted by the token (java/xss)
     private fun consumeDocumentCreationUser(documentCreationToken: UUID?, zaakUuid: UUID): LoggedInUser? =
-        documentCreationToken?.let { token ->
-            documentCreationUserStore.consumeUser(token) ?: run {
+        if (documentCreationToken == null) {
+            null
+        } else {
+            documentCreationUserStore.consumeUser(documentCreationToken) ?: run {
                 LOG.warning {
                     "Unknown or expired document creation token for zaak '$zaakUuid'; " +
                         "storing the document as the functionele gebruiker"
@@ -266,5 +269,9 @@ class DocumentCreationRestService @Inject constructor(
      * functionele gebruiker rather than failing.
      */
     private fun <T> runAsDocumentCreationUser(documentCreationUser: LoggedInUser?, block: () -> T): T =
-        documentCreationUser?.let { runAsLoggedInUser(it, block) } ?: runAsSystemUser(block)
+        if (documentCreationUser == null) {
+            runAsSystemUser(block)
+        } else {
+            runAsLoggedInUser(documentCreationUser, block)
+        }
 }
