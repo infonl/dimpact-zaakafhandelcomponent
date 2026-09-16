@@ -456,9 +456,13 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 }
             }
 
-            and("the zaak is only read once, for that redirect, so the unsupported format is detected before it") {
-                verify(exactly = 1) { zrcClientService.readZaak(zaak.uuid) }
-            }
+and("the file is downloaded before the zaak is read") {
+    io.mockk.verifyOrder {
+        smartDocumentsService.downloadDocument("fakeFileId")
+        zrcClientService.readZaak(zaak.uuid)
+    }
+    verify(exactly = 1) { zrcClientService.readZaak(zaak.uuid) }
+}
         }
     }
 })
