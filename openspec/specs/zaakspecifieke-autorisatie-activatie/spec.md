@@ -1,10 +1,12 @@
+# zaakspecifieke-autorisatie-activatie Specification
+
 ## Purpose
 
 Lets an authorised employee mark an individual zaak as zaakspecifiek geautoriseerd from the zaakgegevens
 edit form in ZAC, under business rules the zaakregister itself cannot enforce, and fixes the zaak's
 behandelaar for as long as that marking stands.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: A zaak can be marked as zaakspecifiek geautoriseerd while editing its zaakgegevens
 

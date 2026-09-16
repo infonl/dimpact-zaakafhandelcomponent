@@ -48,10 +48,10 @@ in turn is why the zaak may no longer be released or reassigned while it is flag
   against the zaak's current marking, so lifting the marking in
   [PZ-12022](https://dimpact.atlassian.net/browse/PZ-12022) makes the zaak releasable and reassignable again;
   reassignment while flagged arrives with [PZ-10202](https://dimpact.atlassian.net/browse/PZ-10202).
-- **The werkvoorraad dialogs say why a zaak was left out.** Distributing or releasing a selection that
-  contains flagged zaken reports them separately from zaken skipped because they are already afgehandeld,
-  rather than as one combined message. Today neither reason surfaces at all — nothing in the frontend
-  inspects the `SKIPPED` websocket opcode — so this adds reason-aware feedback where there was none.
+- **The werkvoorraad dialogs say when flagged zaken were left out.** Distributing or releasing a selection
+  that contains flagged zaken reports how many were skipped for that reason. Today no skip reason surfaces
+  at all — nothing in the frontend inspects the `SKIPPED` websocket opcode — so this adds reason-aware
+  feedback where there was none.
 - **Recordmanagers and beheerders get no hard-coded exemption.** Per
   [PZ-10203](https://dimpact.atlassian.net/browse/PZ-10203)'s own conclusion, their access to flagged zaken
   is arranged by granting them `zaakspecifiek_geautoriseerd` in PABC, exactly like any other employee. This

@@ -161,17 +161,17 @@ the requirement is to follow it, not to invent anything.
 backend for Dutch strings is checking the wrong layer; the backend assertion is that the right *code* comes
 back, and the frontend assertion is that the code resolves to the right sentence in both translation files.
 
-**The verdelen and vrijgeven dialogs distinguish the two skip reasons** ("zaakspecifiek geautoriseerd"
-versus "reeds afgehandeld") rather than showing one combined message. Note that today *neither* reason
-reaches the user at all: `batch-process.service.ts` subscribes only to `Opcode.UPDATED`, and nothing in the
-frontend inspects `Opcode.SKIPPED`, so a skipped zaak simply completes the batch unchanged and silently.
+**The verdelen and vrijgeven dialogs name the zaakspecifiek geautoriseerde zaken they left out.** Note that
+today no skip reason reaches the user at all: `batch-process.service.ts` subscribes only to `Opcode.UPDATED`,
+and nothing in the frontend inspects `Opcode.SKIPPED`, so a skipped zaak simply completes the batch unchanged
+and silently. The backend also skips zaken that are no longer open, but the werkvoorraad only lists open
+zaken, so that reason cannot occur there and is deliberately not reported.
 
-The distinction is made by **partitioning the selection in the frontend before dispatching the batch**,
+The message is produced by **partitioning the selection in the frontend before dispatching the batch**,
 not by adding a reason to the `SKIPPED` websocket payload. `zaken-werkvoorraad.component.ts` already
-pre-filters this way for release (it drops zaken with no behandelaar from the selection), and the row model
-already carries `afgehandeld`; it only needs `isZaakspecifiekGeautoriseerd` exposed on the werklijst row as
-well — a value that is already indexed in Solr, so exposing it costs nothing but a field on
-`RestZaakOverzicht`/the zoekobject REST model.
+pre-filters this way for release (it drops zaken with no behandelaar from the selection); it only needs
+`isZaakspecifiekGeautoriseerd` exposed on the werklijst row as well — a value that is already indexed in
+Solr, so exposing it costs nothing but a field on `RestZaakOverzicht`/the zoekobject REST model.
 
 *Alternative considered:* extend `ScreenEventType.skipped(zaak)` to carry a reason and have the frontend
 render it on arrival. Rejected: it changes the websocket contract for every consumer of `ZAAK_ROLLEN`, and

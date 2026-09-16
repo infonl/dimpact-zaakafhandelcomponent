@@ -87,12 +87,11 @@
       when an employee tries to release or reassign a zaakspecifiek geautoriseerde zaak. Verify with component
       specs using Testing Library role-based queries, per the project's spec conventions.
 - [x] 4.5 Partition the selection in `zaken-werkvoorraad.component.ts` before dispatching the batch, splitting
-      out zaken that are zaakspecifiek geautoriseerd and zaken that are already afgehandeld, and report the
-      two counts as separate translated messages in the verdelen and vrijgeven flows — following the existing
-      pre-filter for zaken without a behandelaar rather than adding a reason to the `SKIPPED` websocket
-      payload, as decided in design.md. Add the i18n keys to `nl.json` and `en.json` with kebab-case last
-      segments. Verify with component specs covering: only-flagged skipped, both reasons skipped, and nothing
-      skipped (no message shown).
+      out zaken that are zaakspecifiek geautoriseerd, and report the count as a translated message in the
+      verdelen and vrijgeven flows — following the existing pre-filter for zaken without a behandelaar rather
+      than adding a reason to the `SKIPPED` websocket payload, as decided in design.md. Add the i18n keys to
+      `nl.json` and `en.json` with kebab-case last segments. Verify with component specs covering: flagged
+      zaken skipped (singular and plural) and nothing skipped (no message shown).
 
 ## 5. Frontend activation control
 
