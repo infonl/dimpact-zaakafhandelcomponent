@@ -7,13 +7,12 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 7 of 18 modules removed
+## Progress — 7 of 18 modules removed, step 3 in review
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
 - [x] **Step 2** — `fout-afhandeling` + `informatie-objecten` routes; `InformatieObjectenModule` deleted
-- [ ] **Step 3** — cut the eager export edges into Material — IN PROGRESS (ngx-editor slice
-      measured and green, awaiting a browser check)
+- [x] **Step 3** — ngx-editor out of the eager graph (PZ-12707) — **−77 kB**
 - [ ] **Step 4** — dissolve `PipesModule` (3 non-spec, 11 specs)
 - [ ] **Step 5** — dissolve `MaterialModule` (6 non-spec, 14 specs)
 - [ ] **Step 6** — dissolve `MaterialFormBuilderModule` (17 non-spec, 12 specs)
@@ -23,8 +22,8 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [ ] **Step 9** — `app-routing.module.ts` -> `app.routes.ts`
 - [ ] **Step 10** — `bootstrapApplication` + delete `CoreModule`
 
-Bundle so far: **672.06 kB -> 520.80 kB** initial transfer (−22%), with step 3's first
-slice measured at a further **520.80 -> 444.27 kB** and waiting in a branch.
+Bundle so far: **672.06 -> 444.27 kB** initial transfer (**−34%**), the last 77 kB of that in
+the PZ-12707 PR.
 
 **Ordering criterion: measured bundle payoff.** An NgModule's `exports` are a live edge that
 never tree-shakes; its `imports` are shaken away when nothing uses them. So the barrels only
@@ -199,15 +198,13 @@ same factory itself now. Expect the same when dissolving the barrels in steps 4�
 
 Result: 538.75 kB -> 520.80 kB initial transfer.
 
-## Step 3 — Cut the eager export edges into Material — IN PROGRESS
+## Step 3 — ngx-editor out of the eager graph — DONE (PZ-12707)
 
 **The rule this step is built on:** an NgModule's `exports` are a live edge that never
 tree-shakes; its `imports` are shaken away once nothing uses them. So a barrel costs only what
 it *exports* — and `AppModule -> SharedModule -> MaterialModule / MaterialFormBuilderModule`
-is what keeps Material eager. Cutting those edges is the whole remaining bundle win; deleting
-the barrel files afterwards (step 4) adds nothing.
-
-### Slice 1 — ngx-editor — done, measured, not yet merged
+is what keeps Material eager. That remaining edge is cut in steps 5 and 6, where those barrels
+are dissolved; it is the last place a bundle win is expected.
 
 `MaterialFormBuilderModule` imported `NgxEditorModule` *and* exported `ZacHtmlEditor`, so every
 first paint carried the whole WYSIWYG editor. It is used on four lazy screens only: mail-create,
@@ -231,36 +228,16 @@ number does not.
 
 The `imports` line alone buys nothing — esbuild shakes it. The `exports` alone buy ~20 kB but
 leave the library eager, because the barrel still imports it. Only cutting both moves ngx-editor
-into a lazy chunk. Still to do: a browser check of those four screens, since a missing import
-fails on screen, not in the build.
-
-### Slice 2 — the Material barrels themselves
-
-`SharedModule.exports` lists `MaterialModule` and `MaterialFormBuilderModule`. Verified in the
-production build: `mat-mdc-table`, `mat-calendar`, `mat-datepicker`, `mat-mdc-chip`,
-`mat-stepper`, `mat-tree`, `mat-mdc-tab`, `mat-expansion`, `mat-mdc-paginator`, `mat-sort` and
-`mat-mdc-autocomplete` all sit in the initial chunks, while the app shell renders only toolbar,
-sidenav, icon, button, menu, dialog and snackbar.
-
-Drop both from `SharedModule.exports` and give the consumers their own imports. Removing the
-heavy entries and building lists exactly who those are — the compile errors are the worklist:
-`bpmn-process-definitions` (`mat-tree`), `klant-koppel` (`mat-action-row`), and the rest of the
-six lazy `SharedModule` consumers under `admin/` and `klanten/koppel/`.
-
-The ceiling is not measured: probing it costs the same work as doing the step, because the build
-does not complete until those consumers are fixed. Measure `Initial total` before and after.
-
-`MAT_SNACK_BAR_DEFAULT_OPTIONS` (in `MaterialModule`) and the moment date adapter with
-`MAT_DATE_FORMATS` / `MAT_MOMENT_DATE_ADAPTER_OPTIONS` (in `MaterialFormBuilderModule`) must land
-somewhere explicit — they do not travel with the exports.
+into a lazy chunk. The same PR also drops 26 dead `imports` entries from the two barrels — no
+bundle effect, measured. Verify the four screens in a browser: a missing import fails on screen,
+not in the build.
 
 ## Steps 4–7 — Dissolve the barrels, one per PR
 
-Step 3 only fixes the six lazy `SharedModule` consumers. Every other file that imports a barrel
-directly still has to be given its own imports before the file can go — that is the work, not the
-deletion. No bundle win is left here: step 3 took it, and what remains is mostly spec files, which
-ship to nobody. Order is forced by the dependencies, smallest first, `SharedModule` last because
-it re-exports the other three.
+Every file that imports a barrel has to be given its own imports before the file can go — that is
+the work, not the deletion. Order is forced by the dependencies: smallest first, `SharedModule`
+last because it re-exports the other three. Step 5 is the one with a bundle win left in it; the
+other three are cleanup, and mostly touch spec files, which ship to nobody.
 
 Shared cautions for all four: expect a tail of missing-import template errors, and expect specs to
 lose providers they were inheriting through a barrel — step 2 hit exactly that with
@@ -279,6 +256,16 @@ The leaf: four standalone pipes, no providers, nothing transitive. Proves the pa
 risk.
 
 ### Step 5 — `MaterialModule` — 6 non-spec, 14 specs
+
+**This is where the remaining bundle win is.** `SharedModule` exports `MaterialModule`, and
+`AppModule` imports `SharedModule`, so the whole Material surface is eagerly reachable. Verified
+in the production build: `mat-mdc-table`, `mat-calendar`, `mat-datepicker`, `mat-mdc-chip`,
+`mat-stepper`, `mat-tree`, `mat-mdc-tab`, `mat-expansion`, `mat-mdc-paginator`, `mat-sort` and
+`mat-mdc-autocomplete` all sit in the initial chunks, while the app shell renders only toolbar,
+sidenav, icon, button, menu, dialog and snackbar. Not yet quantified — probing costs the same
+work as doing the step, because the build does not complete until the consumers are fixed.
+Measure `Initial total` before and after.
+
 
 - `fout-afhandeling/dialog/fout-detailed-dialog.component.ts`
 - `shared/indicaties/{besluit,informatie-object,persoon,zaak}-indicaties`
@@ -369,9 +356,9 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 
 ## Order summary
 
-Step 3: the only step with bundle payoff left in the plan. Slice 1 is measured at −77 kB and
-sits in a branch; slice 2's win is demonstrated but not yet quantified.
-Steps 4–7: cleanup, no win, safe to defer; order forced by the barrels' own dependencies.
+Step 3: done, −77 kB, in review.
+Steps 4–7: order forced by the barrels' own dependencies. Step 5 still carries a real but
+unquantified win (Material is eager because `SharedModule` exports it); 4, 6 and 7 are cleanup.
 Steps 8–9: low risk, sequential, no behaviour change, no win.
 Step 10: the gate — all of the risk, none of the payoff, so last.
 
