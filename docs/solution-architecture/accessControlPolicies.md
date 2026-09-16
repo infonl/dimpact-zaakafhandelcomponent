@@ -131,10 +131,10 @@ Notes:
   behandelaar grants no rights of its own - a medewerker who holds no application role for the zaaktype gets
   nothing from it. The exception applies to worklists and search results as well, so a behandelaar keeps
   finding their own zaak, its taken and its documenten.
-- **`recordmanager` and `beheerder` have no exemption of their own.** They reach zaakspecifiek geautoriseerde
-  zaken by being granted `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration,
-  exactly like any other application role. Granting them that mapping is therefore a deployment prerequisite:
-  without it, they cannot reach a zaakspecifiek geautoriseerde zaak at all, and nothing in ZAC explains why.
+- **Other employees are able to access zaakspecifiek geautoriseerde zaken** by being granted
+  `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration, exactly like any other
+  application role. Granting them that mapping is therefore a deployment prerequisite: without it, they cannot
+  access any zaakspecifiek geautoriseerde zaak.
 
 ## Technical implementation
 

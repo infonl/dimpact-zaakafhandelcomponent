@@ -322,27 +322,14 @@ export class ZakenWerkvoorraadComponent
     const skippedBecauseGeautoriseerd = this.selection.selected.filter(
       ({ isZaakspecifiekGeautoriseerd }) => isZaakspecifiekGeautoriseerd,
     );
-    const skippedBecauseAfgehandeld = this.selection.selected.filter(
-      ({ isZaakspecifiekGeautoriseerd, afgehandeld }) =>
-        !isZaakspecifiekGeautoriseerd && afgehandeld,
-    );
     const zaken = this.selection.selected.filter(
-      ({
-        isZaakspecifiekGeautoriseerd,
-        afgehandeld,
-        behandelaarGebruikersnaam,
-      }) =>
+      ({ isZaakspecifiekGeautoriseerd, behandelaarGebruikersnaam }) =>
         !isZaakspecifiekGeautoriseerd &&
-        !afgehandeld &&
         (!release || !!behandelaarGebruikersnaam),
     );
 
     if (!zaken.length) {
-      this.showSkippedZakenMessage(
-        release,
-        skippedBecauseGeautoriseerd.length,
-        skippedBecauseAfgehandeld.length,
-      );
+      this.showSkippedZakenMessage(release, skippedBecauseGeautoriseerd.length);
       return;
     }
     this.batchProcessService.subscribe({
@@ -417,35 +404,20 @@ export class ZakenWerkvoorraadComponent
         this.showSkippedZakenMessage(
           release,
           skippedBecauseGeautoriseerd.length,
-          skippedBecauseAfgehandeld.length,
         );
       });
   }
 
-  private showSkippedZakenMessage(
-    release: boolean,
-    aantalGeautoriseerd: number,
-    aantalAfgehandeld: number,
-  ) {
+  private showSkippedZakenMessage(release: boolean, aantal: number) {
+    if (!aantal) return;
     const action = release ? "vrijgeven" : "verdelen";
-    const reasons = [
-      [aantalGeautoriseerd, "zaakspecifiek-geautoriseerd"],
-      [aantalAfgehandeld, "afgehandeld"],
-    ] as const;
-    const messages = reasons
-      .filter(([aantal]) => aantal > 0)
-      .map(([aantal, reason]) =>
-        this.translateService.instant(
-          `msg.zaken.${action}.overgeslagen.${reason}.${
-            aantal === 1 ? "enkelvoud" : "meervoud"
-          }`,
-          { aantal },
-        ),
-      );
-    if (!messages.length) return;
-    // openSnackbar translates its argument and TranslateService passes an unknown key through unchanged,
-    // which is what lets these already-translated sentences be shown as one snackbar
-    this.utilService.openSnackbar(messages.join(" "), undefined, 8);
+    this.utilService.openSnackbar(
+      `msg.zaken.${action}.overgeslagen.zaakspecifiek-geautoriseerd.${
+        aantal === 1 ? "enkelvoud" : "meervoud"
+      }`,
+      { aantal },
+      8,
+    );
   }
 
   ngOnDestroy() {

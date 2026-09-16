@@ -367,13 +367,6 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       behandelaarGebruikersnaam: "user2",
       isZaakspecifiekGeautoriseerd: true,
     });
-    const afgehandeldeZaak = fromPartial<ZaakZoekObject>({
-      id: "zaak-afgehandeld",
-      rechten: { toekennen: true },
-      groepId: "groupA",
-      behandelaarGebruikersnaam: "user2",
-      afgehandeld: true,
-    });
     const tweedeGeautoriseerdeZaak = fromPartial<ZaakZoekObject>({
       id: "zaak-geautoriseerd-2",
       rechten: { toekennen: true },
@@ -424,7 +417,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
         "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud",
-        undefined,
+        { aantal: 1 },
         8,
       );
     });
@@ -442,26 +435,21 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
         "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.meervoud",
-        undefined,
+        { aantal: 2 },
         8,
       );
     });
 
-    it("names both reasons separately when zaken are skipped for both", async () => {
+    it("uses the vrijgeven wording when a geautoriseerde zaak is skipped on release", async () => {
       await setupWithMockedBatchProcess();
-      component["selection"].select(
-        geautoriseerdeZaak,
-        afgehandeldeZaak,
-        gewoneZaak,
-      );
+      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
 
       component["openVrijgevenScherm"]();
 
       expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
-        "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud " +
-          "msg.zaken.vrijgeven.overgeslagen.afgehandeld.enkelvoud",
-        undefined,
+        "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud",
+        { aantal: 1 },
         8,
       );
     });
