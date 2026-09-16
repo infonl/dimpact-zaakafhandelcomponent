@@ -156,6 +156,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val data = createData()
         val documentCreationAttendedResponse = createDocumentCreationAttendedResponse()
         val contextUrl = "https://example.com"
+        val documentCreationToken = UUID.randomUUID()
         val templateGroupName = "fakeTemplateGroupName"
         val templateName = "fakeTemplateName"
         val dataSlot = slot<Data>()
@@ -179,7 +180,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
             smartDocumentsTemplatesService.getTemplateName(documentCreationData.templateId)
         } returns templateName
         every { configurationService.readContextUrl() } returns contextUrl
-        every { documentCreationUserStore.createToken(any()) } returns "fakeDocumentCreationToken"
+        every { documentCreationUserStore.createToken(any()) } returns documentCreationToken
 
         `when`("the 'create document attended' method is called") {
             val documentCreationResponse = documentCreationService.createDocumentAttended(documentCreationData)
@@ -211,7 +212,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                             )}" +
                             "&templateId=${documentCreationData.templateId}" +
                             "&templateGroupId=${documentCreationData.templateGroupId}" +
-                            "&documentCreationToken=fakeDocumentCreationToken"
+                            "&documentCreationToken=$documentCreationToken"
                     }
                 }
             }
@@ -227,7 +228,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val description = "description"
         val creationDate = ZonedDateTime.of(2024, 10, 7, 0, 0, 0, 0, ZoneOffset.UTC)
         val userName = "Full User Name"
-        val documentCreationToken = "fakeDocumentCreationToken"
+        val documentCreationToken = UUID.randomUUID()
 
         every { configurationService.readContextUrl() } returns contextUrl
         every { documentCreationUserStore.createToken(any()) } returns documentCreationToken

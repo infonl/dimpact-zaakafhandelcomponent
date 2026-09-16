@@ -25,10 +25,13 @@ import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_GROUP_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import okhttp3.FormBody
 import okhttp3.Headers
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.HttpURLConnection.HTTP_SEE_OTHER
 import java.time.LocalDate
@@ -44,6 +47,16 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     lateinit var taskId: String
     lateinit var zaakUuid: String
     lateinit var zaakIdentification: String
+
+    fun fetchZaakInformatieobjecten(zaakUuid: String): List<JSONObject> {
+        val zaakInformatieObjectenResponse = itestHttpClient.performZgwApiGetRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten" +
+                "?zaak=$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUuid"
+        )
+        zaakInformatieObjectenResponse.code shouldBe HTTP_OK
+        return JSONArray(zaakInformatieObjectenResponse.bodyAsString)
+            .let { array -> (0 until array.length()).map(array::getJSONObject) }
+    }
 
     given(
         """
@@ -196,6 +209,45 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "?zaak=$zaakIdentification" +
                     "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&result=success"
+            }
+        }
+    }
+
+    given("zaak and a file created in SmartDocuments, with a document creation token that is not a UUID") {
+        val documentTitle = "fakeInvalidDocumentCreationTokenTitle"
+
+        `when`("SmartDocuments zaak callback is called") {
+            val endpointUrl =
+                "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
+                    "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
+                    "&title=" + documentTitle.urlEncode() +
+                    "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
+                    "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID" +
+                    "&documentCreationToken=" + "<script>alert(1)</script>".urlEncode()
+
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performPostRequest(
+                url = endpointUrl,
+                headers = Headers.headersOf(
+                    "Accept",
+                    "text/html",
+                    "Content-Type",
+                    "multipart/form-data"
+                ),
+                requestBody = FormBody.Builder()
+                    .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
+                    .build(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the request is rejected before the callback runs") {
+                logger.info { "Response: ${response.bodyAsString}" }
+                response.code shouldBe HTTP_NOT_FOUND
+            }
+
+            and("no document is stored") {
+                fetchZaakInformatieobjecten(zaakUuid).none { it.getString("titel") == documentTitle } shouldBe true
             }
         }
     }

@@ -35,15 +35,15 @@ class DocumentCreationUserStore @Inject constructor(
 
     private data class TokenData(val loggedInUser: LoggedInUser, val expiresAt: Instant)
 
-    private val tokenMap: MutableMap<String, TokenData> =
+    private val tokenMap: MutableMap<UUID, TokenData> =
         Collections.synchronizedMap(LRUMap(TOKEN_MAP_MAX_SIZE))
 
-    fun createToken(now: Instant = Instant.now()): String =
-        UUID.randomUUID().toString().also {
+    fun createToken(now: Instant = Instant.now()): UUID =
+        UUID.randomUUID().also {
             tokenMap[it] = TokenData(loggedInUserInstance.get(), now.plus(TOKEN_VALIDITY))
         }
 
     /** Consumes the token, so a callback URL cannot be replayed to create more documents as its user. */
-    fun consumeUser(token: String, now: Instant = Instant.now()): LoggedInUser? =
+    fun consumeUser(token: UUID, now: Instant = Instant.now()): LoggedInUser? =
         tokenMap.remove(token)?.takeIf { now.isBefore(it.expiresAt) }?.loggedInUser
 }
