@@ -7,18 +7,45 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 4 of 18 modules removed
+## Progress — 7 of 18 modules removed
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
-- [ ] **Step 2** — `informatie-objecten` slice (+ `fout-afhandeling`) — NEXT
-- [ ] **Step 3** — already-lazy routing modules (`taken`, `documenten`, `productaanvragen`)
-- [ ] **Step 4** — delete `TakenModule` + `InformatieObjectenModule`
+- [x] **Step 2** — `fout-afhandeling` + `informatie-objecten` routes; `InformatieObjectenModule` deleted
+- [ ] **Step 3** — already-lazy routing modules (`taken`, `documenten`, `productaanvragen`) — NEXT
+- [ ] **Step 4** — delete `TakenModule` (`InformatieObjectenModule` already gone in step 2)
 - [ ] **Step 5** — `app-routing.module.ts` -> `app.routes.ts`
 - [ ] **Step 6** — `bootstrapApplication` + delete `CoreModule`
 - [ ] **Step 7** — dissolve the four shared barrels
 
-Bundle so far: **672.06 kB -> 538.14 kB** initial transfer (−20%).
+Bundle so far: **672.06 kB -> 520.80 kB** initial transfer (−22%).
+
+### Where the initial bundle stands now (measured 2026-09-15, production build)
+
+Initial total: 2.48 MB raw / 520.97 kB transfer. Full build across all 112 chunks:
+7.22 MB raw / ~1.72 MB transfer. Source-map attribution of the largest initial
+chunk (1.54 MB raw / 297 kB transfer), by original source size:
+
+| Source | Size |
+|---|---|
+| `@angular/material` | 1727 kB |
+| `@angular/core` | 1720 kB |
+| `@angular/cdk` | 657 kB |
+| `@angular/common` + `router` + `forms` | 989 kB |
+| TanStack + rxjs + ngx-translate | 212 kB |
+| **own app code** | **~45 kB** |
+
+Two consequences for the remaining steps:
+
+- **Steps 3–5 yield no bundle win.** Only ~45 kB of own code is left in the initial
+  bundle; there is nothing meaningful left to lazy-load. They are needed to reach zero
+  modules, not for performance.
+- **Step 7 is where the remaining win is**, because Material is eager and the barrels
+  are what keep it there.
+
+Note that the estimated transfer sizes only materialise behind nginx
+(`charts/zac/templates/configmap-nginx.yaml`), which gzips. WildFly itself is not
+configured to compress, so a local run on :8080 ships the full raw size.
 
 ## Starting position (verified 2026-09-10, `main`)
 
@@ -36,15 +63,15 @@ Bundle so far: **672.06 kB -> 538.14 kB** initial transfer (−20%).
 |---|---|---|
 | [x] `zaken/zaken-routing.module.ts` | routing (eager `forChild`) | done |
 | [x] `klanten/klanten-routing.module.ts` | routing (eager `forChild`) | done |
-| [ ] `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 |
-| [ ] `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | 2 |
+| [x] `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | done |
+| [x] `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | done |
 | [ ] `taken/taken-routing.module.ts` | routing (lazy) | 3 |
 | [ ] `documenten/documenten-routing.module.ts` | routing (lazy) | 3 |
 | [ ] `productaanvragen/productaanvragen-routing.module.ts` | routing (lazy) | 3 |
 | [x] `zaken/zaken.module.ts` | container | done |
 | [x] `klanten/klanten.module.ts` | container | done |
 | [ ] `taken/taken.module.ts` | container | 4 |
-| [ ] `informatie-objecten/informatie-objecten.module.ts` | container + provider | 4 |
+| [x] `informatie-objecten/informatie-objecten.module.ts` | container + provider | done |
 | [ ] `app-routing.module.ts` | root routing | 5 |
 | [ ] `app.module.ts` | root | 6 |
 | [ ] `core/core.module.ts` | providers | 6 |
@@ -160,10 +187,33 @@ chunk work — there is no point `@defer`-ing a child of an eagerly loaded paren
 - Zaak-view specs: expect harness timeouts, not assertion failures, if async work
   is pending on mount.
 
-## Step 2 — The remaining two eager `forChild` modules — NEXT
+## Step 2 — The remaining two eager `forChild` modules — DONE
 
-`klanten` is done (step 1b). Remaining: `informatie-objecten` and `fout-afhandeling` — same
-treatment, `.routes.ts` + real `loadChildren` mount point.
+Split into two PRs. `fout-afhandeling` is done: `fout-afhandeling.routes.ts`
+(`FOUT_AFHANDELING_ROUTES`, `loadComponent`), `loadChildren` mount at `path: "fout"`, module
+import dropped from `AppModule`. No provider, no exported component, no reachability trap.
+Bundle 538.75 kB -> 538.39 kB — structural only; `FoutAfhandelingService` and the error dialogs
+stay eager because most of the app imports them directly.
+
+`informatie-objecten` followed, and took its container module with it (step 4's half, done early
+because the module turned out to be empty once the routing import was gone):
+
+- `informatie-objecten.routes.ts` (`INFORMATIE_OBJECTEN_ROUTES`), both `:uuid` and `:uuid/:versie`
+  on `loadComponent`, resolver unchanged; mounted at `path: "informatie-objecten"`.
+- `InformatieObjectenModule` declared nothing, so every entry in its `imports` was dead weight
+  (`SharedModule`, `DocumentIconComponent`, `InformatieObjectIndicatiesComponent`,
+  `MimetypeToExtensionPipe`, `InformatieObjectEditComponent`). Deleted.
+- Its two consumers, `inbox-documenten-list` and `ontkoppelde-documenten-list`, only ever used
+  `<zac-informatie-object-link>`; they import that component directly now.
+- `RouteReuseStrategy` moved to `AppModule.providers` — not lost.
+
+**Trap that cost a test run:** `inbox-documenten-list.component.spec.ts` was inheriting
+`SharedModule`'s `MatPaginatorIntl` provider transitively through `InformatieObjectenModule`, so
+the paginator buttons lost their translated accessible names and two Testing Library queries
+failed. Runtime was never affected (`AppModule` imports `SharedModule`). The spec provides the
+same factory itself now. Expect the same when dissolving the barrels in step 7.
+
+Result: 538.75 kB -> 520.80 kB initial transfer.
 
 Watch out:
 - Both are still eager-with-no-mount-point, so apply the reachability check first: what else
@@ -217,6 +267,15 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
   - `LOCALE_ID`, `MAT_DATE_LOCALE`, `MAT_DIALOG_DEFAULT_OPTIONS`, `UtilService`,
     `APP_BASE_HREF`, `LocationStrategy`, `Title`, `MatPaginatorIntl`,
     `RouteReuseStrategy` -> bootstrap providers.
+  - **Hoist `SharedModule`'s providers too**, even though the barrel itself is not
+    dissolved until step 7. They live in `SharedModule` but are app-wide today
+    because `AppModule` imports it: `Title`, the `MatPaginatorIntl` factory, the
+    paginator-language `provideAppInitializer`, and
+    `VertrouwelijkaanduidingToTranslationKeyPipe`. Moving them here leaves
+    `SharedModule` a pure re-export barrel, which is what makes step 7 safe.
+    Watch the `MatPaginatorIntl` trap from step 2: specs inherit that provider
+    transitively, and lose their translated paginator accessible names when it
+    moves. Expect a few specs to need the factory provided locally.
   - `BrowserAnimationsModule` -> `provideAnimations()`. Handle with care: this repo
     has a history of NG05100 from animation providers being imported more than once.
   - `provideHttpClient(withInterceptorsFromDi())` currently appears in **three**
@@ -231,14 +290,26 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 
 ## Step 7 — Dissolve the four shared barrels
 
-Independent of steps 1–6; can run in parallel or after. One barrel per PR.
+Independent of steps 1–6, with one exception: `SharedModule` must wait until step 6
+has hoisted its providers to bootstrap. One barrel per PR.
 
-| Barrel | Non-module importers |
-|---|---|
-| `MaterialFormBuilderModule` | 28 |
-| `MaterialModule` | 19 |
-| `PipesModule` | 12 |
-| `SharedModule` | 9 |
+Dissolve them in this order — the table below is sorted by importer count, which is
+not the order to work in:
+
+| # | Barrel | Non-module importers | Providers riding along | Why here |
+|---|---|---|---|---|
+| 1 | `PipesModule` | 12 | none | Pure leaf: four standalone pipes, no providers, nothing transitive. Proves the pattern at zero risk. No bundle win. |
+| 2 | `SharedModule` | 9 | 4 (hoisted in step 6) | Breaks the chain: until it stops re-exporting the two Material barrels, nothing below can tree-shake. |
+| 3 | `MaterialModule` | 19 | `MAT_SNACK_BAR_DEFAULT_OPTIONS` | Real Material win starts here. |
+| 4 | `MaterialFormBuilderModule` | 28 | date adapter, `MAT_DATE_FORMATS`, `MAT_MOMENT_DATE_ADAPTER_OPTIONS` | Largest payoff, longest tail. |
+
+**Expectation to set:** Material will not drop to zero in the initial bundle. The app
+shell renders toolbar, sidenav, dialog and snackbar on first paint, so that part of
+Material stays eager by design. What this step removes is the *unused* Material that
+the barrels drag in — not Material itself.
+
+**Bycatch:** `MaterialFormBuilderModule.forRoot()` returns `providers: []`. The API does
+nothing; delete it rather than porting it.
 
 Importing `SharedModule` today transitively pulls `MaterialModule` +
 `MaterialFormBuilderModule` + `PipesModule` + ~20 components, so every consumer
@@ -258,4 +329,5 @@ Providers riding along inside these barrels must land somewhere explicit:
 
 Steps 1–5: low risk, sequential, no behaviour change.
 Step 6: the gate.
-Step 7: independent, longest tail, biggest bundle payoff.
+Step 7: longest tail, biggest bundle payoff. Independent of steps 1–6 except for
+`SharedModule`, which needs step 6's provider hoist first.
