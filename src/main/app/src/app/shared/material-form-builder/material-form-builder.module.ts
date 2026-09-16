@@ -40,15 +40,12 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { NgxEditorModule } from "ngx-editor";
 import { FileDragAndDropDirective } from "../directives/file-drag-and-drop.directive";
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacCheckbox } from "../form/checkbox/checkbox";
-import { ZacComposedForm } from "../form/composed-form/composed-form.component";
 import { ZacDate } from "../form/date/date";
 import { ZacDocuments } from "../form/documents/documents";
 import { ZacFormActions } from "../form/form-actions/form-actions.component";
-import { ZacHtmlEditor } from "../form/html-editor/html-editor";
 import { ZacInput } from "../form/input/input";
 import { ZacRadio } from "../form/radio/radio";
 import { ZacSelect } from "../form/select/select";
@@ -68,41 +65,14 @@ import { PipesModule } from "../pipes/pipes.module";
     ZacTextarea,
     ZacToggle,
     ZacCheckbox,
-    ZacHtmlEditor,
     ZacDocuments,
     ZacRadio,
-    ZacComposedForm,
     CapitalizeFirstLetterPipe,
     EmptyPipe,
     ZacFormActions,
   ],
   imports: [
     FileDragAndDropDirective,
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRadioModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatAutocompleteModule,
-    MatChipsModule,
-    MatSlideToggleModule,
-    MatDialogActions,
-    TranslateModule,
-    PipesModule,
-    MatTableModule,
-    RouterModule,
-    FormsModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    NgxEditorModule,
-    MatMenuModule,
-    MatListModule,
-    MatExpansionPanelActionRow,
     EmptyPipe,
     CapitalizeFirstLetterPipe,
     ZacFormActions,
@@ -115,8 +85,6 @@ import { PipesModule } from "../pipes/pipes.module";
     ZacInput,
     ZacAutoComplete,
     ZacDocuments,
-    ZacHtmlEditor,
-    ZacComposedForm,
   ],
   providers: [
     {
