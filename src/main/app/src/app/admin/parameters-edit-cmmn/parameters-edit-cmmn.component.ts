@@ -83,6 +83,18 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   resultaattype?: GeneratedType<"RestResultaattype"> | null;
 };
 
+type StatusMailOption = GeneratedType<"ZaakafhandelparametersStatusMailOption">;
+
+type ZaakbeeindigResultaatControl = FormControl<
+  GeneratedType<"RestResultaattype"> | null | undefined
+>;
+
+type MailFormControls = {
+  intakeMail: FormControl<StatusMailOption | null | undefined>;
+  afrondenMail: FormControl<StatusMailOption | null | undefined>;
+  [key: string]: AbstractControl;
+};
+
 @Component({
   selector: "zac-parameters-edit-cmmn",
   templateUrl: "./parameters-edit-cmmn.component.html",
@@ -205,9 +217,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   humanTasksFormGroup = new FormGroup({});
   userEventListenersFormGroup = new FormGroup({});
-  mailFormGroup = new FormGroup<Record<string, AbstractControl>>({
-    intakeMail: new FormControl(),
-    afrondenMail: new FormControl(),
+  mailFormGroup = this.formBuilder.group<MailFormControls>({
+    intakeMail: this.formBuilder.control<StatusMailOption | null>(null),
+    afrondenMail: this.formBuilder.control<StatusMailOption | null>(null),
   });
   brpProtocoleringFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
@@ -215,9 +227,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     verwerkingregisterWaarde: new FormControl(""),
   });
 
-  protected zaakbeeindigFormGroup = new FormGroup<Record<string, FormControl>>(
-    {},
-  );
+  protected zaakbeeindigFormGroup =
+    this.formBuilder.record<ZaakbeeindigResultaatControl>({});
   protected betrokkeneKoppelingen = new FormGroup({
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
@@ -418,8 +429,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     koppeling: GeneratedType<"Mail">,
     field: string,
   ) {
-    const formGroup = this.mailFormGroup.get(koppeling);
-    return formGroup?.get(field) as FormControl;
+    const formGroup = this.mailFormGroup.controls[koppeling];
+    return formGroup.get(field) as FormControl;
   }
 
   async createForm() {
@@ -568,12 +579,12 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private createMailForm() {
-    this.mailFormGroup = new FormGroup<Record<string, AbstractControl>>(
+    this.mailFormGroup = this.formBuilder.group<MailFormControls>(
       {
-        intakeMail: new FormControl(this.parameters.intakeMail, [
+        intakeMail: this.formBuilder.control(this.parameters.intakeMail, [
           Validators.required,
         ]),
-        afrondenMail: new FormControl(this.parameters.afrondenMail, [
+        afrondenMail: this.formBuilder.control(this.parameters.afrondenMail, [
           Validators.required,
         ]),
       },
@@ -593,7 +604,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private createZaakbeeindigForm() {
-    this.zaakbeeindigFormGroup = new FormGroup<Record<string, FormControl>>({});
+    this.zaakbeeindigFormGroup =
+      this.formBuilder.record<ZaakbeeindigResultaatControl>({});
     this.addZaakbeeindigParameter(
       this.getZaaknietontvankelijkParameter(this.parameters),
     );
@@ -841,9 +853,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     zaakAfzender: GeneratedType<"RestZaakAfzender"> & { index?: number },
     field: string,
   ) {
-    return this.mailFormGroup.get(
-      `afzender${zaakAfzender.index}__${field}`,
-    ) as FormControl;
+    return this.mailFormGroup.controls[
+      `afzender${zaakAfzender.index}__${field}`
+    ] as FormControl;
   }
 
   private initAfzenders() {
@@ -876,9 +888,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     parameter: RestPristineZaakbeeindigParameterFormData,
     field: string,
   ) {
-    return this.zaakbeeindigFormGroup.get(
-      `${parameter.zaakbeeindigReden?.id}__${field}`,
-    ) as FormControl;
+    return this.zaakbeeindigFormGroup.controls[
+      `${parameter.zaakbeeindigReden?.id}__${field}`
+    ];
   }
 
   protected isValid(): boolean {
@@ -962,10 +974,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.parameters.userEventListenerParameters =
       this.userEventListenerParameters;
 
-    this.parameters.intakeMail = this.mailFormGroup.get("intakeMail")
-      ?.value as GeneratedType<"ZaakafhandelparametersStatusMailOption">;
-    this.parameters.afrondenMail = this.mailFormGroup.get("afrondenMail")
-      ?.value as GeneratedType<"ZaakafhandelparametersStatusMailOption">;
+    this.parameters.intakeMail = this.mailFormGroup.controls.intakeMail.value;
+    this.parameters.afrondenMail =
+      this.mailFormGroup.controls.afrondenMail.value;
 
     const parameterMailtemplateKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] =
       [];
