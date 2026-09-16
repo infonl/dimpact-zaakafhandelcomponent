@@ -216,7 +216,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
         `when`("Publishing a new zaaktype") {
             val exception = shouldThrow<ZaaktypeConfigurationNotFoundException> {
-                zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
+                zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaakType)
             }
 
             then("exception is thrown") {
@@ -269,7 +269,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 entityManager.merge(capture(slotPersistZaaktypeCmmnConfiguration))
             } answers { ZaaktypeCmmnConfiguration() }
 
-            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
+            zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaakType)
 
             then("The related zaaktypeCmmnConfiguration is stored through the entity manager") {
                 slotPersistZaaktypeCmmnConfiguration.isCaptured shouldBe true
@@ -299,7 +299,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
             every { smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(any(), any()) } just runs
 
-            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
+            zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaakType)
 
             then("The zaaktype simple values have been copied from the original") {
                 with(slotPersistZaaktypeCmmnConfiguration.captured) {
@@ -500,7 +500,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { entityManager.persist(capture(configurationSlot)) } just runs
 
             `when`("upserting the configuration") {
-                zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
+                zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaakType)
 
                 then("the resultaattypen are matched by omschrijving onto those of the new zaaktype") {
                     with(configurationSlot.captured) {
@@ -566,7 +566,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { entityManager.merge(capture(configurationSlot)) } returns existingConfiguration
 
             `when`("upserting the configuration") {
-                zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
+                zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaakType)
 
                 then("its resultaattypen are remapped in place instead of a copy being made") {
                     configurationSlot.captured shouldBe existingConfiguration

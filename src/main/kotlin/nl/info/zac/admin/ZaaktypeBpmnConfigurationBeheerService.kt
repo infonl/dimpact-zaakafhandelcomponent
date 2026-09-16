@@ -33,7 +33,7 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val zaaktypeHelperService: ZaaktypeHelperService
-) {
+) : ZaaktypeConfigurationBeheerService {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
     }
@@ -158,7 +158,7 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
             }
         }
 
-    fun upsertConfiguration(zaaktype: ZaakType) {
+    override fun upsertConfiguration(zaaktype: ZaakType) {
         val zaaktypeUuid = zaaktype.url.extractUuid()
         findConfiguration(zaaktypeUuid)?.let { existingConfiguration ->
             LOG.info {

@@ -46,7 +46,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val zaaktypeHelperService: ZaaktypeHelperService,
-) {
+) : ZaaktypeConfigurationBeheerService {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeCmmnConfigurationBeheerService::class.java.name)
     }
@@ -151,7 +151,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    fun upsertZaaktypeCmmnConfiguration(zaaktype: ZaakType) {
+    override fun upsertConfiguration(zaaktype: ZaakType) {
         zaaktypeCmmnConfigurationService.clearListCache()
         val zaaktypeUuid = zaaktype.url.extractUuid()
 

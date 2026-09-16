@@ -58,7 +58,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
                 then("no update is actually made") {
                     verify(exactly = 0) {
-                        zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype)
+                        zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaaktype)
                         zaaktypeBpmnConfigurationBeheerService.upsertConfiguration(zaaktype)
                     }
                 }
@@ -90,7 +90,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
                 then("no update is actually made") {
                     verify(exactly = 0) {
-                        zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype)
+                        zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaaktype)
                         zaaktypeBpmnConfigurationBeheerService.upsertConfiguration(zaaktype)
                     }
                 }
@@ -118,7 +118,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                 every { resultList } returns listOf(zaaktypeCmmnConfiguration)
             }
 
-            every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype) } just runs
+            every { zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaaktype) } just runs
 
             `when`("updating zaakafhandel parameters") {
                 zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
@@ -128,7 +128,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                         zaaktypeBpmnConfigurationBeheerService.upsertConfiguration(zaaktype)
                     }
                     verify(exactly = 1) {
-                        zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype)
+                        zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaaktype)
                     }
                 }
             }
@@ -162,7 +162,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
                 then("the correct updates are made") {
                     verify(exactly = 0) {
-                        zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype)
+                        zaaktypeCmmnConfigurationBeheerService.upsertConfiguration(zaaktype)
                     }
                     verify(exactly = 1) {
                         zaaktypeBpmnConfigurationBeheerService.upsertConfiguration(zaaktype)
