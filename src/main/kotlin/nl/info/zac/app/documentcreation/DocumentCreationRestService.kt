@@ -108,7 +108,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("description") description: String?,
         @QueryParam("creationDate") creationDate: ZonedDateTime,
         @QueryParam("userName") userName: String,
-        @QueryParam("documentCreationToken") documentCreationToken: String?,
+        @QueryParam("documentCreationToken") documentCreationToken: UUID?,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
         storeDocument(
@@ -143,7 +143,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("description") description: String?,
         @QueryParam("creationDate") creationDate: ZonedDateTime,
         @QueryParam("userName") userName: String,
-        @QueryParam("documentCreationToken") documentCreationToken: String?,
+        @QueryParam("documentCreationToken") documentCreationToken: UUID?,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
         storeDocument(
@@ -188,7 +188,7 @@ class DocumentCreationRestService @Inject constructor(
         description: String?,
         creationDate: ZonedDateTime,
         userName: String,
-        documentCreationToken: String?,
+        documentCreationToken: UUID?,
         fileId: String,
         fetchInformatieobjecttypeUuidFunction: (zaak: Zaak) -> UUID,
     ): Response {
@@ -250,7 +250,7 @@ class DocumentCreationRestService @Inject constructor(
         }
     }
 
-    private fun consumeDocumentCreationUser(documentCreationToken: String?, zaakUuid: UUID): LoggedInUser? =
+    private fun consumeDocumentCreationUser(documentCreationToken: UUID?, zaakUuid: UUID): LoggedInUser? =
         documentCreationToken?.let { token ->
             documentCreationUserStore.consumeUser(token) ?: run {
                 LOG.warning {
