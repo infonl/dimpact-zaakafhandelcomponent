@@ -38,7 +38,6 @@ import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
@@ -50,7 +49,6 @@ import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
-import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.createEigenschap
@@ -71,9 +69,6 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.log.log
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
-import nl.info.zac.exception.ErrorCode
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 
 @Suppress("LargeClass")
@@ -87,6 +82,7 @@ class ZaakServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val pabcClientService = mockk<PabcClientService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val zaakService = ZaakService(
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
@@ -96,7 +92,8 @@ class ZaakServiceTest : BehaviorSpec({
         identityService = identityService,
         indexingService = indexingService,
         bpmnService = bpmnService,
-        pabcClientService = pabcClientService
+        pabcClientService = pabcClientService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
@@ -116,7 +113,8 @@ class ZaakServiceTest : BehaviorSpec({
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
             )
             val reason = "fakeReason"
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, user.id) } just runs
+            every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { zrcClientService.listRollen(zaak) } returns emptyList()
             every { zrcClientService.createRol(capture(medewerkerRolSlot), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, capture(groupRolSlot), reason) } just runs
@@ -180,7 +178,7 @@ class ZaakServiceTest : BehaviorSpec({
             val groupId = "unknown"
             val userId = "fakeUser"
 
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, userId) } just runs
             every { identityService.validateIfUserIsInGroup(userId, groupId) } throws UserNotInGroupException()
 
             `when`("the zaak is assigned to an unknown group") {
@@ -203,7 +201,8 @@ class ZaakServiceTest : BehaviorSpec({
             val existingRolGroup = createRolOrganisatorischeEenheid()
             val reason = "fakeReason"
 
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, user.id) } just runs
+            every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { zrcClientService.listRollen(zaak) } returns listOf(existingRolMedewerker)
             every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
@@ -266,7 +265,7 @@ class ZaakServiceTest : BehaviorSpec({
             val existingRolGroup = createRolOrganisatorischeEenheid()
             val reason = "fakeReason"
 
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, user.id) } just runs
             every { zrcClientService.listRollen(zaak) } returns listOf(existingRolMedewerker)
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
             every { identityService.readUser(user.id) } returns user
@@ -304,7 +303,8 @@ class ZaakServiceTest : BehaviorSpec({
             val existingRolGroup = createRolOrganisatorischeEenheid()
             val reason = "fakeReason"
             val existingRolMedewerker = createRolMedewerker(rolType = rolTypeBehandelaar)
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, null) } just runs
+            every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { zrcClientService.listRollen(zaak) } returns listOf(existingRolMedewerker)
             every { zrcClientService.updateRol(zaak, capture(updateRolSlot), reason) } just runs
             every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
@@ -367,7 +367,8 @@ class ZaakServiceTest : BehaviorSpec({
             val existingRolGroup = createRolOrganisatorischeEenheid()
             val reason = "fakeReason"
 
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, user.id) } just runs
+            every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { zrcClientService.listRollen(zaak) } returns listOf(existingRolMedewerker)
             every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
@@ -435,7 +436,8 @@ class ZaakServiceTest : BehaviorSpec({
             )
             val reason = "fakeReason"
 
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, user.id) } just runs
+            every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { zrcClientService.listRollen(zaak) } returns listOf(duplicateRole1, duplicateRole2)
             every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
@@ -485,7 +487,8 @@ class ZaakServiceTest : BehaviorSpec({
             val rolTypeBehandelaar = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
             val reason = "fakeReason"
 
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, any()) } just runs
+            every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { zrcClientService.listRollen(zaak) } returns emptyList()
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
@@ -548,7 +551,7 @@ class ZaakServiceTest : BehaviorSpec({
             val screenEventSlot = slot<ScreenEvent>()
             zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
-                every { zrcClientService.listZaakeigenschappen(it.uuid) } returns emptyList()
+                every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(it) } returns false
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -625,7 +628,7 @@ class ZaakServiceTest : BehaviorSpec({
             zakenList.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
-            every { zrcClientService.listZaakeigenschappen(openZaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(openZaak) } returns false
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
                 ztcClientService.readRoltype(
@@ -749,7 +752,7 @@ class ZaakServiceTest : BehaviorSpec({
             )
             zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
-                every { zrcClientService.listZaakeigenschappen(it.uuid) } returns emptyList()
+                every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(it) } returns false
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -871,7 +874,7 @@ class ZaakServiceTest : BehaviorSpec({
             val screenEventSlot = slot<ScreenEvent>()
             zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
-                every { zrcClientService.listZaakeigenschappen(it.uuid) } returns emptyList()
+                every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(it) } returns false
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
             }
             every { eventingService.send(capture(screenEventSlot)) } just Runs
@@ -913,7 +916,7 @@ class ZaakServiceTest : BehaviorSpec({
             zakenList.map {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
-            every { zrcClientService.listZaakeigenschappen(openZaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(openZaak) } returns false
             every { zrcClientService.deleteRol(openZaak, any(), explanation) } just Runs
             every { eventingService.send(any<ScreenEvent>()) } just Runs
             `when`(
@@ -947,10 +950,8 @@ class ZaakServiceTest : BehaviorSpec({
             val ordinaryZaak = createZaak()
             val zakenList = listOf(markedZaak, ordinaryZaak)
             zakenList.forEach { every { zrcClientService.readZaak(it.uuid) } returns it }
-            every { zrcClientService.listZaakeigenschappen(markedZaak.uuid) } returns listOf(
-                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
-            )
-            every { zrcClientService.listZaakeigenschappen(ordinaryZaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(markedZaak) } returns true
+            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(ordinaryZaak) } returns false
             every { zrcClientService.deleteRol(ordinaryZaak, any(), explanation) } just Runs
             every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -989,10 +990,8 @@ class ZaakServiceTest : BehaviorSpec({
             val rolTypeBehandelaar = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
 
             zakenList.forEach { every { zrcClientService.readZaak(it.uuid) } returns it }
-            every { zrcClientService.listZaakeigenschappen(markedZaak.uuid) } returns listOf(
-                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
-            )
-            every { zrcClientService.listZaakeigenschappen(ordinaryZaak.uuid) } returns emptyList()
+            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(markedZaak) } returns true
+            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(ordinaryZaak) } returns false
             every {
                 ztcClientService.readRoltype(
                     ordinaryZaak.zaaktype,
@@ -1587,10 +1586,8 @@ class ZaakServiceTest : BehaviorSpec({
             val markedZaak = createZaak()
             val newBehandelaar = createLoggedInUser()
             val group = createGroup()
-            every { zrcClientService.listZaakeigenschappen(markedZaak.uuid) } returns listOf(
-                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
-            )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(markedZaak) } returns null
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(markedZaak, newBehandelaar.id) } just runs
+            every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(markedZaak) } just runs
             every { zrcClientService.listRollen(markedZaak) } returns emptyList()
             every { zrcClientService.createRol(any(), "fakeReason") } returns createRolMedewerker()
             every { zrcClientService.updateRol(markedZaak, any(), "fakeReason") } just runs
@@ -1609,50 +1606,16 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakVariabelenService.setGroup(markedZaak.uuid, group.name) } just runs
             every { zaakVariabelenService.setUser(markedZaak.uuid, newBehandelaar.id) } just runs
             every { indexingService.indexeerDirect(markedZaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
-            every { indexingService.addOrUpdateTakenForZaak(markedZaak.uuid) } just runs
-            every { indexingService.addOrUpdateInformatieobjectenForZaak(markedZaak.uuid) } just runs
 
             `when`("a new behandelaar is assigned") {
                 zaakService.assignZaak(markedZaak, group.name, newBehandelaar.id, "fakeReason")
 
-                then("its taken and documenten are reindexed so their authorisation data is not stale") {
-                    verify(exactly = 1) {
-                        indexingService.addOrUpdateTakenForZaak(markedZaak.uuid)
-                        indexingService.addOrUpdateInformatieobjectenForZaak(markedZaak.uuid)
+                then("the guard is consulted before anything changes and the dependents are reindexed afterwards") {
+                    verifyOrder {
+                        zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(markedZaak, newBehandelaar.id)
+                        zrcClientService.createRol(any(), "fakeReason")
+                        zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(markedZaak)
                     }
-                }
-            }
-        }
-    }
-
-    context("Assigning a zaakspecifiek geautoriseerde zaak through the shared assignment service") {
-        given("a zaakspecifiek geautoriseerde zaak with a behandelaar") {
-            val markedZaak = createZaak()
-            val currentBehandelaar = createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeCurrentBehandelaarId")
-            )
-            every { zrcClientService.listZaakeigenschappen(markedZaak.uuid) } returns listOf(
-                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
-            )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(markedZaak) } returns currentBehandelaar
-
-            `when`("a caller that bypasses the REST layer assigns it to a different behandelaar") {
-                val exception = shouldThrow<ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException> {
-                    zaakService.assignZaak(markedZaak, "fakeGroupId", "fakeOtherBehandelaarId", "fakeReason")
-                }
-
-                then("the reassignment is refused with its own error code") {
-                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED
-                }
-            }
-
-            `when`("a caller that bypasses the REST layer releases it") {
-                val exception = shouldThrow<ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException> {
-                    zaakService.assignZaak(markedZaak, "fakeGroupId", null, "fakeReason")
-                }
-
-                then("the release is refused with its own error code") {
-                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_RELEASED
                 }
             }
         }

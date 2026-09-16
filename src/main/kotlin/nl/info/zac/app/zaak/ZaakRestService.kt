@@ -31,7 +31,6 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
-import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -41,11 +40,8 @@ import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
-import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
-import nl.info.client.zgw.zrc.util.markZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
@@ -69,11 +65,6 @@ import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
-import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
-import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestDetachDocumentData
@@ -121,6 +112,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toLocalDate
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 
 @Path("zaken")
@@ -159,7 +151,8 @@ class ZaakRestService @Inject constructor(
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val identificationService: IdentificationService
+    private val identificationService: IdentificationService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -586,7 +579,7 @@ class ZaakRestService @Inject constructor(
         checkZaakUpdatePermissions(zaakRechten, restZaakEditMetRedenGegevens, zaak)
         assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
         assertZaakUpdateDataIsValid(zaakType, restZaakEditMetRedenGegevens.zaak)
-        val isAlreadyZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+        val isAlreadyZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(zaak)
         val currentBehandelaarId = currentBehandelaarId(zaak)
         val requestedAssignment = resolveRequestedAssignment(
             zaak = zaak,
@@ -594,13 +587,17 @@ class ZaakRestService @Inject constructor(
             currentBehandelaarId = currentBehandelaarId
         )
         requestedAssignment?.let { assertPolicy(zaakRechten.toekennen) }
-        val behandelaarIdAfterUpdate = requestedAssignment?.behandelaarId ?: currentBehandelaarId
-        val shouldBeMarkedZaakspecifiekGeautoriseerd = checkZaakspecifiekeAutorisatie(
+        if (isAlreadyZaakspecifiekGeautoriseerd) {
+            zaakspecifiekeAutorisatieService.assertBehandelaarNotReassigned(
+                requestedBehandelaarId = restZaakEditMetRedenGegevens.zaak.behandelaar?.id,
+                currentBehandelaarId = currentBehandelaarId
+            )
+        }
+        val shouldBeMarkedZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
             zaakType = zaakType,
-            restZaak = restZaakEditMetRedenGegevens.zaak,
+            requestedMarking = restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd,
             isAlreadyZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
-            behandelaarId = behandelaarIdAfterUpdate,
-            currentBehandelaarId = currentBehandelaarId,
+            behandelaarId = requestedAssignment?.behandelaarId ?: currentBehandelaarId,
             loggedInUser = loggedInUser
         )
         requestedAssignment?.let {
@@ -617,7 +614,7 @@ class ZaakRestService @Inject constructor(
             restZaakEditMetRedenGegevens.reden
         )
         if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
-            markZaakspecifiekGeautoriseerdAndReindex(zaakUUID, updatedZaak)
+            zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(updatedZaak)
         }
         applyZaakUpdateSideEffects(zaak, zaakType, updatedZaak, restZaakEditMetRedenGegevens.zaak)
         return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
@@ -767,40 +764,6 @@ class ZaakRestService @Inject constructor(
         }
     }
 
-    @Suppress("ThrowsCount")
-    private fun checkZaakspecifiekeAutorisatie(
-        zaakType: ZaakType,
-        restZaak: RestZaakCreateData,
-        isAlreadyZaakspecifiekGeautoriseerd: Boolean,
-        behandelaarId: String?,
-        currentBehandelaarId: String?,
-        loggedInUser: LoggedInUser
-    ): Boolean {
-        if (isAlreadyZaakspecifiekGeautoriseerd) {
-            checkBehandelaarUnchanged(restZaak, currentBehandelaarId)
-        }
-        return when {
-            restZaak.isZaakspecifiekGeautoriseerd == null -> false
-            restZaak.isZaakspecifiekGeautoriseerd == false -> {
-                if (isAlreadyZaakspecifiekGeautoriseerd) throw ZaakspecifiekeAutorisatieCannotBeLiftedException()
-                false
-            }
-            isAlreadyZaakspecifiekGeautoriseerd -> false
-            else -> {
-                if (!zaakType.isZaakspecifiekAutoriseerbaar()) {
-                    throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
-                }
-                behandelaarId ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
-                if (behandelaarId != loggedInUser.id &&
-                    !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.getOmschrijving())
-                ) {
-                    throw ZaakspecifiekeAutorisatieNotAllowedException()
-                }
-                true
-            }
-        }
-    }
-
     private fun assertZaakUpdateDataIsValid(zaakType: ZaakType, restZaak: RestZaakCreateData) {
         restZaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
@@ -810,13 +773,6 @@ class ZaakRestService @Inject constructor(
                 identityService.validateIfUserIsInGroup(behandelaarId, groepId)
             }
         }
-    }
-
-    private fun markZaakspecifiekGeautoriseerdAndReindex(zaakUUID: UUID, updatedZaak: Zaak) {
-        zrcClientService.markZaakspecifiekGeautoriseerd(updatedZaak, ztcClientService)
-        indexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = false)
-        indexingService.addOrUpdateTakenForZaak(zaakUUID)
-        indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
     }
 
     private fun applyZaakUpdateSideEffects(
@@ -845,11 +801,8 @@ class ZaakRestService @Inject constructor(
             ?.identificatie
 
     /**
-     * An absent `behandelaar` keeps the one the zaak already has. The zaak edit form disables its
-     * behandelaar control while a new groep is being picked, and Angular omits disabled controls from
-     * the payload, so the field is missing exactly when the groep changes. Reading that as "remove the
-     * behandelaar" would drop the rol on every group edit; releasing a behandelaar goes through the
-     * dedicated vrijgeven endpoint instead.
+     * An absent `behandelaar` keeps the one the zaak already has: a partial update never releases a
+     * behandelaar, that goes through the dedicated vrijgeven endpoint.
      */
     private fun resolveRequestedAssignment(
         zaak: Zaak,
@@ -866,23 +819,6 @@ class ZaakRestService @Inject constructor(
             RequestedAssignment(groupId = requestedGroupId, behandelaarId = requestedBehandelaarId)
         }
     }
-
-    private fun checkBehandelaarUnchanged(restZaak: RestZaakCreateData, currentBehandelaarId: String?) {
-        currentBehandelaarId ?: return
-        restZaak.behandelaar?.id?.let {
-            if (it != currentBehandelaarId) throw ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
-        }
-    }
-
-    private fun ZaakType.isZaakspecifiekAutoriseerbaar() =
-        ztcClientService.findEigenschap(
-            zaaktype = getUrl(),
-            eigenschap = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
-        ) != null
-
-    private fun LoggedInUser.isZaakspecifiekGeautoriseerdFor(zaaktypeOmschrijving: String) =
-        ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in overallRoles ||
-            ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in applicationRolesPerZaaktype[zaaktypeOmschrijving].orEmpty()
 
     private fun composeBetrokkeneIdentification(
         betrokkeneIdentificatie: BetrokkeneIdentificatie
