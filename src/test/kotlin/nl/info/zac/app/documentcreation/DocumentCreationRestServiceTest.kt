@@ -13,7 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -461,11 +460,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 }
             }
 
-            and("the file is downloaded before the zaak is read") {
-                verifyOrder {
-                    smartDocumentsService.downloadDocument("fakeFileId")
-                    zrcClientService.readZaak(zaak.uuid)
-                }
+            and("the zaak is read only once, even though the download failed") {
                 verify(exactly = 1) { zrcClientService.readZaak(zaak.uuid) }
             }
         }

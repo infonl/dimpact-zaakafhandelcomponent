@@ -233,14 +233,12 @@ class DocumentCreationRestService @Inject constructor(
         fileId: String,
         fetchInformatieobjecttypeUuidFunction: (zaak: Zaak) -> UUID,
     ): Response {
-        var zaak: Zaak? = null
+        val zaak = zrcClientService.readZaak(zaakUuid)
         return runCatching {
-            // downloaded first, so an unsupported output format surfaces before the zaak is read
             val file = smartDocumentsService.downloadDocument(fileId)
-            val readZaak = zrcClientService.readZaak(zaakUuid).also { zaak = it }
-            val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(readZaak)
+            val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(zaak)
             documentCreationService.storeDownloadedDocument(
-                zaak = readZaak,
+                zaak = zaak,
                 taskId = taskId,
                 file = file,
                 title = title,
@@ -249,7 +247,7 @@ class DocumentCreationRestService @Inject constructor(
                 creationDate = creationDate,
                 userName = userName
             )
-            readZaak
+            zaak
         }.onFailure {
             LOG.log(Level.WARNING, it) {
                 "Failed to create document for zaak $zaakUuid" +
@@ -274,8 +272,7 @@ class DocumentCreationRestService @Inject constructor(
                 }
                 Response.seeOther(
                     documentCreationService.documentCreationFinishPageUrl(
-                        // the zaak was already read successfully before the failure: reuse it instead of reading again
-                        zaakId = (zaak ?: zrcClientService.readZaak(zaakUuid)).identificatie,
+                        zaakId = zaak.identificatie,
                         taskId = taskId,
                         documentName = title,
                         result = result.value
