@@ -31,6 +31,7 @@ type ZaakDetailsUpdate = Partial<
     | "vertrouwelijkheidaanduiding"
     | "omschrijving"
     | "toelichting"
+    | "isZaakspecifiekGeautoriseerd"
   >
 >;
 

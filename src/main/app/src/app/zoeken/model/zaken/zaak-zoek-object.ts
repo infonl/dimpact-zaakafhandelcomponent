@@ -26,6 +26,7 @@ export type ZaakZoekObject =
     archiefActiedatum: string;
     archiefNominatie: string;
     afgehandeld: boolean;
+    isZaakspecifiekGeautoriseerd: boolean;
     groepId: string;
     groepNaam: string;
     behandelaarNaam: string;
