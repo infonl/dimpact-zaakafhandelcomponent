@@ -4,8 +4,8 @@
  */
 
 import { Routes } from "@angular/router";
-import { InformatieObjectResolver } from "./informatie-object.resolver";
 import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
+import { InformatieObjectResolver } from "./informatie-object.resolver";
 
 export const INFORMATIE_OBJECTEN_ROUTES: Routes = [
   {
