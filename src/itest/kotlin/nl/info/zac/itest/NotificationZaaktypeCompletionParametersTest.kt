@@ -18,6 +18,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_RESULTAA
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ZaaktypeConfigurationType.BPMN
+import nl.info.zac.itest.config.ZaaktypeConfigurationType.CMMN
+import nl.info.zac.itest.config.ZaaktypeConfigurationUnderTest
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -25,7 +28,6 @@ import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 private const val ZAAKTYPE_TEST_1_RESULTAATTYPE_GEWEIGERD_UUID = "f940861c-f8f8-4e45-8317-a6175561af0a"
@@ -41,17 +43,6 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationUri = "$ZAC_API_URI/zaakafhandelparameters"
     val zaaktypeBpmnConfigurationUri = "$ZAC_API_URI/zaaktype-bpmn-configuration"
 
-    data class ZaaktypeConfigurationUnderTest(
-        val configurationType: String,
-        val zaaktypeUuid: UUID,
-        val readConfiguration: () -> String,
-        val storeConfiguration: (String) -> Unit,
-        val previousNietOntvankelijkResultaattypeUuid: String,
-        val previousZaakbeeindigResultaattypeUuid: String,
-        val expectedNietOntvankelijkResultaattypeUuid: String,
-        val expectedZaakbeeindigResultaattypeUuid: String
-    )
-
     fun read(url: String) = itestHttpClient.performGetRequest(url = url, testUser = BEHEERDER_1).let {
         it.code shouldBe HTTP_OK
         it.bodyAsString
@@ -59,7 +50,7 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
 
     listOf(
         ZaaktypeConfigurationUnderTest(
-            configurationType = "CMMN",
+            configurationType = CMMN,
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
             readConfiguration = { read("$zaaktypeCmmnConfigurationUri/$ZAAKTYPE_CMMN_TEST_1_UUID") },
             storeConfiguration = {
@@ -75,7 +66,7 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
             expectedZaakbeeindigResultaattypeUuid = ZAAKTYPE_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID
         ),
         ZaaktypeConfigurationUnderTest(
-            configurationType = "BPMN",
+            configurationType = BPMN,
             zaaktypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
             readConfiguration = { read("$zaaktypeBpmnConfigurationUri/$BPMN_TEST_PROCESS_DEFINITION_KEY") },
             storeConfiguration = {
@@ -139,6 +130,9 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
                     )
                 }.toString()
             )
+            JSONObject(zaaktypeConfigurationUnderTest.readConfiguration())
+                .getJSONArray("zaakbeeindigParameters")
+                .length() shouldBe 2
 
             `when`("a zaaktype notification for this zaaktype is received") {
                 val zaaktypeUri = "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/" +
