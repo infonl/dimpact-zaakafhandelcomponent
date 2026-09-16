@@ -27,6 +27,7 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
@@ -238,9 +239,10 @@ class NotificationReceiver @Inject constructor(
                                 else -> {}
                             }
                         }
-                        Resource.STATUS, Resource.RESULTAAT, Resource.ROL, Resource.ZAAKOBJECT -> {
+                        Resource.STATUS, Resource.RESULTAAT, Resource.ZAAKOBJECT -> {
                             indexingService.addOrUpdateZaak(notification.mainResourceUrl.extractUuid(), false)
                         }
+                        Resource.ROL -> handleRolIndexing(notification.mainResourceUrl.extractUuid())
                         Resource.ZAAKEIGENSCHAP -> handleZaakeigenschapIndexing(notification)
                         Resource.ZAAKINFORMATIEOBJECT -> {
                             if (notification.action == Action.CREATE) {
@@ -268,6 +270,20 @@ class NotificationReceiver @Inject constructor(
             }
         } catch (exception: RuntimeException) {
             warning("indexing", notification, exception)
+        }
+    }
+
+    /**
+     * Reindexes the zaak and, when it is zaakspecifiek geautoriseerd, its taken and - asynchronously -
+     * its documenten, because a behandelaar change moves the geautoriseerde medewerker that those
+     * taak- and document-rows carry a copy of. Without this the previous behandelaar would keep passing
+     * the Solr exclusion on those rows while the new one is omitted from them.
+     */
+    private fun handleRolIndexing(zaakUUID: UUID) {
+        indexingService.addOrUpdateZaak(zaakUUID, false)
+        if (zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)) {
+            indexingService.addOrUpdateTakenForZaak(zaakUUID)
+            indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
         }
     }
 

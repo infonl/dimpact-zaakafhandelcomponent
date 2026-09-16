@@ -142,7 +142,7 @@ fun createRestUser(
 
 @Suppress("LongParameterList")
 fun createRestZaak(
-    behandelaar: RestUser = createRestUser(),
+    behandelaar: RestUser? = createRestUser(),
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
     einddatumGepland: LocalDate? = null,
     heeftOntvangstbevestigingVerstuurd: Boolean = false,
@@ -220,14 +220,15 @@ fun createRestZaakDataUpdate(
 fun createRestZaakCreateData(
     description: String = "fakeDescription",
     explanation: String = "fakeExplanation",
-    behandelaar: RestUser = createRestUser(),
+    behandelaar: RestUser? = createRestUser(),
     restGroup: RestGroup = createRestGroup(),
     restZaakType: RestZaaktype = createRestZaaktype(),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     einddatumGepland: LocalDate? = null,
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
-    vertrouwelijkheidaanduiding: String = RestVertrouwelijkheidaanduiding.OPENBAAR.name
+    vertrouwelijkheidaanduiding: String = RestVertrouwelijkheidaanduiding.OPENBAAR.name,
+    isZaakspecifiekGeautoriseerd: Boolean? = null
 ) = RestZaakCreateData(
     omschrijving = description,
     toelichting = explanation,
@@ -245,7 +246,8 @@ fun createRestZaakCreateData(
     groep = restGroup,
     behandelaar = behandelaar,
     gerelateerdeZaken = listOf(createRESTGerelateerdeZaak()),
-    initiatorIdentificatie = createBetrokkeneIdentificatie()
+    initiatorIdentificatie = createBetrokkeneIdentificatie(),
+    isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
 )
 
 fun createRESTZaakAanmaakGegevens(
@@ -282,7 +284,7 @@ fun createRESTZaakKenmerk() = RestZaakKenmerk("Sample kenmerk", "Sample bron")
 fun createRESTZaakAssignmentData(
     zaakUUID: UUID = UUID.randomUUID(),
     groepId: String = "fakeGroupId",
-    behandelaarGebruikersnaam: String = "fakeBehandelaarGebruikersnaam",
+    behandelaarGebruikersnaam: String? = "fakeBehandelaarGebruikersnaam",
     reden: String = "fakeReden"
 ) = RestZaakAssignmentData(
     zaakUUID = zaakUUID,
