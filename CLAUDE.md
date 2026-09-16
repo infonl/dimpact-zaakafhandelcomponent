@@ -593,3 +593,4 @@ Detailed guides live in `docs/development/`:
 - `documentFileSizes.md` — the two maximum document sizes and how to raise them
 - `endToEndTypeSafety.md` — type safety approach
 - `paging.md` — REST paging conventions
+- `logging.md` — logging conventions and GDPR/AVG-required follow-up changes
