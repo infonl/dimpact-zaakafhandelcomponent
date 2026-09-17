@@ -24,8 +24,8 @@ import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { fromPartial } from "src/test-helpers";
-import { GeneratedType } from "../../utils/generated-types";
 import { testQueryClient } from "../../../../../setupJest";
+import { GeneratedType } from "../../utils/generated-types";
 import { ZacFile } from "./file";
 
 const ALLOWED_FILE_TYPES_QUERY_KEY = ["/rest/configuratie/file-types"];

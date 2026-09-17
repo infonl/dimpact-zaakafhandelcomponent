@@ -169,13 +169,15 @@ export class ZacFile<
   private async resolveAllowedFormats() {
     if (this.allowedFileTypes().length) return this.allowedFileTypes();
 
-    return this.queryClient
-      .query(this.configuratieService.readAllowedFileTypesQuery())
-      .then((allowedFileTypes) =>
-        allowedFileTypes.map((allowedFileType) => allowedFileType.extension),
-      )
-      // an unreachable configuration cannot narrow the selection; the backend rejects what is not allowed
-      .catch(() => []);
+    return (
+      this.queryClient
+        .query(this.configuratieService.readAllowedFileTypesQuery())
+        .then((allowedFileTypes) =>
+          allowedFileTypes.map((allowedFileType) => allowedFileType.extension),
+        )
+        // an unreachable configuration cannot narrow the selection; the backend rejects what is not allowed
+        .catch(() => [])
+    );
   }
 
   private async isFileTypeAllowed(file: File) {
