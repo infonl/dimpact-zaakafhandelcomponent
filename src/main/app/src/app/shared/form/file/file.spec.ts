@@ -20,10 +20,15 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { fromPartial } from "src/test-helpers";
+import { GeneratedType } from "../../utils/generated-types";
+import { testQueryClient } from "../../../../../setupJest";
 import { ZacFile } from "./file";
+
+const ALLOWED_FILE_TYPES_QUERY_KEY = ["/rest/configuratie/file-types"];
 
 interface TestForm extends Record<string, AbstractControl> {
   document: FormControl<File | null>;
@@ -39,6 +44,7 @@ describe(ZacFile.name, () => {
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
   let translateService: TranslateService;
+  let configuratieService: ConfiguratieService;
 
   const createTestForm = () => {
     return new FormGroup<TestForm>({
@@ -63,19 +69,31 @@ describe(ZacFile.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ZacFile, NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [TranslateService, provideHttpClient()],
+      providers: [
+        TranslateService,
+        provideHttpClient(),
+        provideTanStackQuery(testQueryClient),
+      ],
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
 
-    const configuratieService = TestBed.inject(ConfiguratieService);
-    configuratieService.readMaxFileSizeMB = jest.fn().mockReturnValue(of(10));
-    configuratieService.readAllowedFileTypes = jest.fn().mockReturnValue(
-      of([
-        { extension: ".txt", mediaType: "text/plain" },
-        { extension: ".pdf", mediaType: "application/pdf" },
-      ]),
-    );
+    configuratieService = TestBed.inject(ConfiguratieService);
+    jest
+      .spyOn(configuratieService, "readMaxFileSizeMB")
+      .mockReturnValue(of(10));
+    jest
+      .spyOn(configuratieService, "readAllowedFileTypesQuery")
+      .mockReturnValue(
+        fromPartial({
+          queryKey: ALLOWED_FILE_TYPES_QUERY_KEY,
+          queryFn: () =>
+            Promise.resolve([
+              { extension: ".txt", mediaType: "text/plain" },
+              { extension: ".pdf", mediaType: "application/pdf" },
+            ]),
+        }),
+      );
 
     fixture = TestBed.createComponent(ZacFile<TestForm, keyof TestForm>);
     component = fixture.componentInstance;
@@ -465,6 +483,98 @@ describe(ZacFile.name, () => {
       const [hint] = await formField.getTextHints();
       expect(hint).toContain("Max size: 5MB");
       expect(hint).toContain("Formats: .txt, .pdf");
+    });
+  });
+
+  describe("Hint display while the allowed file types are unavailable", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(configuratieService, "readAllowedFileTypesQuery")
+        .mockReturnValue(
+          fromPartial({
+            queryKey: ALLOWED_FILE_TYPES_QUERY_KEY,
+            queryFn: () => Promise.resolve([]),
+          }),
+        );
+
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
+      component.ngOnInit();
+      componentRef.setInput("maxFileSizeMB", 5);
+      translateService.setTranslation("en", {
+        "form.input.file.hint":
+          "Max size: {{sizeInMB}}MB, Formats: {{formats}}",
+        "form.input.file.hint.size-only": "Max size: {{sizeInMB}}MB",
+      });
+      translateService.use("en");
+      fixture.detectChanges();
+    });
+
+    it("should omit the formats from the hint rather than leaving them blank", async () => {
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const [hint] = await formField.getTextHints();
+      expect(hint).toBe("Max size: 5MB");
+    });
+  });
+
+  describe("Allowed file types that arrive after the file is chosen", () => {
+    let resolveAllowedFileTypes: (
+      allowedFileTypes: GeneratedType<"RestAllowedFileType">[],
+    ) => void;
+
+    beforeEach(() => {
+      jest
+        .spyOn(configuratieService, "readAllowedFileTypesQuery")
+        .mockReturnValue(
+          fromPartial({
+            queryKey: ALLOWED_FILE_TYPES_QUERY_KEY,
+            queryFn: () =>
+              new Promise<GeneratedType<"RestAllowedFileType">[]>((resolve) => {
+                resolveAllowedFileTypes = resolve;
+              }),
+          }),
+        );
+
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
+      component.ngOnInit();
+      fixture.detectChanges();
+    });
+
+    it("should accept a file of an allowed type that is chosen before the list has loaded", async () => {
+      const validFile = createMockFile("test.txt", 1024);
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
+          files: [validFile],
+        }),
+      });
+
+      const selection = component["selectedFile"](mockEvent);
+      resolveAllowedFileTypes([
+        { extension: ".txt", mediaType: "text/plain" },
+        { extension: ".pdf", mediaType: "application/pdf" },
+      ]);
+      await selection;
+
+      expect(component.form().controls.document.value).toBe(validFile);
+      expect(component.form().controls.document.errors).toBeNull();
+    });
+
+    it("should reject a file of a disallowed type that is chosen before the list has loaded", async () => {
+      const invalidFile = createMockFile("test.exe", 1024);
+      const mockEvent = fromPartial<Event>({
+        target: fromPartial<HTMLInputElement>({
+          files: [invalidFile],
+        }),
+      });
+
+      const selection = component["selectedFile"](mockEvent);
+      resolveAllowedFileTypes([{ extension: ".txt", mediaType: "text/plain" }]);
+      await selection;
+
+      expect(component.form().controls.document.errors).toEqual({
+        fileTypeInvalid: { type: "exe" },
+      });
     });
   });
 

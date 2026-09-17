@@ -1100,6 +1100,7 @@
   "validators.fileEmpty": "The file is empty",
   "validators.emptyHtmlElement": "The message is required",
   "form.input.file.hint": "Max files size: {{sizeInMB}}MB | Allowed formats: {{formats}}",
+  "form.input.file.hint.size-only": "Max files size: {{sizeInMB}}MB",
   " 12 ": ">>--> TODO <--<<",
   "gegevens": "Details",
   "persoonsgegevens": "Personal data",

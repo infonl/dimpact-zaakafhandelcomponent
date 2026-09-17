@@ -28,6 +28,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
@@ -77,20 +78,12 @@ export class ZacFile<
     private readonly changeDetector: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
     private readonly configuratieService: ConfiguratieService,
+    private readonly queryClient: QueryClient,
   ) {
     super();
 
     effect(async () => {
-      if (this.allowedFileTypes().length) {
-        this.allowedFormats.set(this.allowedFileTypes());
-        return;
-      }
-      const allowedFileTypes = await lastValueFrom(
-        this.configuratieService.readAllowedFileTypes(),
-      );
-      this.allowedFormats.set(
-        allowedFileTypes.map((allowedFileType) => allowedFileType.extension),
-      );
+      this.allowedFormats.set(await this.resolveAllowedFormats());
     });
   }
 
@@ -139,7 +132,7 @@ export class ZacFile<
     this.control()?.setErrors(null);
     this.updateInputControls(file);
 
-    if (!this.isFileTypeAllowed(file)) {
+    if (!(await this.isFileTypeAllowed(file))) {
       this.control()?.setErrors({
         fileTypeInvalid: { type: this.getFileExtension(file) },
       });
@@ -173,10 +166,23 @@ export class ZacFile<
     this.changeDetector.detectChanges();
   }
 
-  private isFileTypeAllowed(file: File) {
-    if (!this.allowedFormats().length) return false;
+  private async resolveAllowedFormats() {
+    if (this.allowedFileTypes().length) return this.allowedFileTypes();
+
+    return this.queryClient
+      .query(this.configuratieService.readAllowedFileTypesQuery())
+      .then((allowedFileTypes) =>
+        allowedFileTypes.map((allowedFileType) => allowedFileType.extension),
+      )
+      // an unreachable configuration cannot narrow the selection; the backend rejects what is not allowed
+      .catch(() => []);
+  }
+
+  private async isFileTypeAllowed(file: File) {
+    const allowedFormats = await this.resolveAllowedFormats();
+    if (!allowedFormats.length) return true;
     const extension = this.getFileExtension(file);
-    return this.allowedFormats().includes(`.${extension}`);
+    return allowedFormats.includes(`.${extension}`);
   }
 
   private async isFileSizeAllowed(file: File) {

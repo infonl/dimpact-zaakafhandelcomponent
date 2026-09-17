@@ -44,7 +44,10 @@
     <mat-hint *ngIf="!formError()">
       <ng-content select="mat-hint">
         {{
-          "form.input.file.hint"
+          (allowedFormats().length
+            ? "form.input.file.hint"
+            : "form.input.file.hint.size-only"
+          )
             | translate
               : {
                   sizeInMB: fileSize() | async,

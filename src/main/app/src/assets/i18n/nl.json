@@ -1100,6 +1100,7 @@
   "validators.fileEmpty": "Het bestand is leeg",
   "validators.emptyHtmlElement": "Het bericht is verplicht",
   "form.input.file.hint": "Maximale bestandsgrootte: {{sizeInMB}}MB | Toegestane bestandtypen: {{formats}}",
+  "form.input.file.hint.size-only": "Maximale bestandsgrootte: {{sizeInMB}}MB",
   " 12 ": ">>--> TODO <--<<",
   "gegevens": "Gegevens",
   "persoonsgegevens": "Persoonsgegevens",
