@@ -28,7 +28,6 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
@@ -90,7 +89,6 @@ describe(BedrijfsgegevensComponent.name, () => {
         TranslateModule.forRoot(),
         NoopAnimationsModule,
         MaterialModule,
-        PipesModule,
       ],
       providers: [
         KlantenService,

@@ -21,7 +21,6 @@ import {
 } from "@angular/material/radio/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { PipesModule } from "../../pipes/pipes.module";
 import { ZacRadio } from "./radio";
 
 interface TestOption {
@@ -63,7 +62,6 @@ describe(ZacRadio.name, () => {
         ReactiveFormsModule,
         MatRadioModule,
         TranslateModule.forRoot(),
-        PipesModule,
         NoopAnimationsModule,
       ],
       providers: [TranslateService],

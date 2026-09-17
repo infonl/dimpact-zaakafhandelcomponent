@@ -7,13 +7,13 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 7 of 18 modules removed, step 3 in review
+## Progress — 8 of 18 modules removed, step 4 done
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
 - [x] **Step 2** — `fout-afhandeling` + `informatie-objecten` routes; `InformatieObjectenModule` deleted
-- [x] **Step 3** — ngx-editor out of the eager graph (PZ-12707) — **−77 kB**
-- [ ] **Step 4** — dissolve `PipesModule` (3 non-spec, 11 specs)
+- [x] **Step 3** — ngx-editor out of the eager graph (PZ-12707) — **−77 kB** (merged, #7088)
+- [x] **Step 4** — dissolve `PipesModule` — pure deletion, 444.27 -> 443.64 kB
 - [ ] **Step 5** — dissolve `MaterialModule` (6 non-spec, 14 specs)
 - [ ] **Step 6** — dissolve `MaterialFormBuilderModule` (17 non-spec, 12 specs)
 - [ ] **Step 7** — dissolve `SharedModule` (8 non-spec, 3 specs) — last, it re-exports the others
@@ -22,14 +22,15 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [ ] **Step 9** — `app-routing.module.ts` -> `app.routes.ts`
 - [ ] **Step 10** — `bootstrapApplication` + delete `CoreModule`
 
-Bundle so far: **672.06 -> 444.27 kB** initial transfer (**−34%**), the last 77 kB of that in
-the PZ-12707 PR.
+Bundle so far: **672.06 -> 443.64 kB** initial transfer (**−34%**), the 77 kB of that in
+the PZ-12707 PR (step 3) and the last 0.6 kB in step 4.
 
 **Ordering criterion: measured bundle payoff.** An NgModule's `exports` are a live edge that
 never tree-shakes; its `imports` are shaken away when nothing uses them. So the barrels only
-cost what they *export*, and step 3 — the single export line that anchors Material — is the
-one remaining step with a measured win. Everything after it is bookkeeping toward zero
-`@NgModule` and is ordered by risk, not payoff.
+cost what they *export*, and step 3 — the single export line that anchored ngx-editor — was the
+biggest measured win. Step 5 (`MaterialModule`) is the one remaining step expected to pay; step 4
+confirmed the rest of the pattern: a barrel whose exports every consumer already imports directly
+is worth ~0. Everything else is bookkeeping toward zero `@NgModule`, ordered by risk, not payoff.
 
 ### Where the initial bundle stood before step 3 (measured 2026-09-15, production build)
 
@@ -77,10 +78,10 @@ configured to compress, so a local run on :8080 ships the full raw size.
 | [x] | `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | 2 | none (0.4 kB) |
 | [x] | `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 | −18 kB with the container |
 | [x] | `informatie-objecten/informatie-objecten.module.ts` | container + provider | 2 | (same) |
-| [ ] | `shared/material/material.module.ts` | barrel | 3 + 5 | step 3, not yet measured |
-| [ ] | `shared/material-form-builder/material-form-builder.module.ts` | barrel | 3 + 6 | **−77 kB** measured in step 3 |
-| [ ] | `shared/shared.module.ts` | barrel | 3 + 7 | step 3, not yet measured |
-| [ ] | `shared/pipes/pipes.module.ts` | barrel | 4 | none |
+| [ ] | `shared/material/material.module.ts` | barrel | 5 | not yet measured |
+| [ ] | `shared/material-form-builder/material-form-builder.module.ts` | barrel | 6 | **−77 kB** already banked in step 3 |
+| [ ] | `shared/shared.module.ts` | barrel | 7 | not yet measured |
+| [x] | `shared/pipes/pipes.module.ts` | barrel | 4 | −0.6 kB (measured) |
 | [ ] | `taken/taken-routing.module.ts` | routing (lazy) | 8 | none |
 | [ ] | `taken/taken.module.ts` | container | 8 | none |
 | [ ] | `documenten/documenten-routing.module.ts` | routing (lazy) | 8 | none |
@@ -194,7 +195,7 @@ because the module turned out to be empty once the routing import was gone):
 `SharedModule`'s `MatPaginatorIntl` provider transitively through `InformatieObjectenModule`, so
 the paginator buttons lost their translated accessible names and two Testing Library queries
 failed. Runtime was never affected (`AppModule` imports `SharedModule`). The spec provides the
-same factory itself now. Expect the same when dissolving the barrels in steps 4–7.
+same factory itself now. Expect the same when dissolving the barrels in steps 5–7 (step 4 bore this out: −0.6 kB).
 
 Result: 538.75 kB -> 520.80 kB initial transfer.
 
@@ -246,14 +247,22 @@ lose providers they were inheriting through a barrel — step 2 hit exactly that
 `admin/bpmn-process-definitions` + its `-item`) and `no-restricted-syntax` is an **error** on any
 spec a PR touches, so migrate each in the PR it falls into.
 
-### Step 4 — `PipesModule` — 3 non-spec, 11 specs
+## Step 4 — `PipesModule` — DONE
 
-- `shared/indicaties/informatie-object-indicaties`
-- `shared/material-form-builder/material-form-builder.module.ts`
-- `shared/shared.module.ts`
+Removed from `shared/shared.module.ts` (imports + exports), from
+`shared/indicaties/informatie-object-indicaties` and from 12 specs; file deleted. 14 -> 13 modules.
+43 lines out, 1 in. `Initial total` 444.27 -> 443.64 kB.
 
-The leaf: four standalone pipes, no providers, nothing transitive. Proves the pattern at near-zero
-risk.
+**No fan-out was needed, and that is the reusable finding.** All 40 components whose templates use
+`datum` / `dagen` / `location` / `bestandsomvang` already listed the pipe in their own `imports`
+array, so the barrel's `exports` edge fed nobody. Likewise the 12 specs: a standalone component
+carries its own `imports`, so a spec that imports the component under test gets the pipes
+transitively — a spec needs a pipe directly only when the *spec's own* inline template uses it,
+and none did. Check both before assuming a barrel removal requires touching consumers.
+
+Verification that makes this safe to repeat for steps 5-7: an AOT production build hard-errors on
+an unresolvable pipe or directive, so a completing `ng build --configuration production` is the
+real proof that no consumer was silently left behind. `ng test` alone is weaker.
 
 ### Step 5 — `MaterialModule` — 6 non-spec, 14 specs
 
@@ -269,7 +278,7 @@ Measure `Initial total` before and after.
 
 - `fout-afhandeling/dialog/fout-detailed-dialog.component.ts`
 - `shared/indicaties/{besluit,informatie-object,persoon,zaak}-indicaties`
-- `shared/shared.module.ts` (only if step 3 left the import behind)
+- `shared/shared.module.ts` (step 3 left both `MaterialModule` and `MaterialFormBuilderModule` in place, in `imports` and `exports`)
 
 Carries `MAT_SNACK_BAR_DEFAULT_OPTIONS`, which must land somewhere explicit.
 
@@ -356,9 +365,10 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 
 ## Order summary
 
-Step 3: done, −77 kB, in review.
-Steps 4–7: order forced by the barrels' own dependencies. Step 5 still carries a real but
-unquantified win (Material is eager because `SharedModule` exports it); 4, 6 and 7 are cleanup.
+Step 3: done, −77 kB, merged (#7088).
+Step 4: done, −0.6 kB — no consumer needed touching at all.
+Steps 5–7: order forced by the barrels' own dependencies. Step 5 still carries a real but
+unquantified win (Material is eager because `SharedModule` exports it); 6 and 7 are cleanup.
 Steps 8–9: low risk, sequential, no behaviour change, no win.
 Step 10: the gate — all of the risk, none of the payoff, so last.
 
