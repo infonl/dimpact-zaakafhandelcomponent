@@ -259,7 +259,7 @@ Door te klikken op het oog icoon kan een item geopend worden, Ctrl + oog icoon o
 
 Met de werklijst 'Werkvoorraad-zaken' zijn alle lopende zaken van de gehele organisatie in een overzicht in te zien.
 
-Een behandelaar kan een zaak die is toegekend aan een groep waar de medewerker zelf in zit, en die of nog helemaal niet is toegekend aan een medewerker of is toegekend aan een andere medewerker in deze groep, aan zichzelf toekennen m.b.v. de 'Ken aan mezelf toe' knop in de zaken-werkvoorraad.
+Een behandelaar kan een zaak die is toegekend aan een groep waar de medewerker zelf in zit, en die of nog helemaal niet is toegekend aan een medewerker of is toegekend aan een andere medewerker in deze groep, aan zichzelf toekennen m.b.v. de 'Ken aan mij toe' knop in de zaken-werkvoorraad.
 
 **_Afgehandelde zaken_**
 
