@@ -36,6 +36,7 @@ import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.AllOpen
@@ -58,7 +59,8 @@ class DocumentCreationRestService @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val flowableTaskService: FlowableTaskService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
-    private val documentCreationUserStore: DocumentCreationUserStore
+    private val documentCreationUserStore: DocumentCreationUserStore,
+    private val smartDocumentsService: SmartDocumentsService
 ) {
     companion object {
         enum class SmartDocumentsWizardResult(val value: String) {
@@ -195,59 +197,89 @@ class DocumentCreationRestService @Inject constructor(
         // spend the token before the cancellation branch, so a cancelled wizard cannot leave it open to replay
         val documentCreationUser = consumeDocumentCreationUser(documentCreationToken, zaakUuid)
         return runAsDocumentCreationUser(documentCreationUser) {
-            zrcClientService.readZaak(zaakUuid).let { zaak ->
-                if (fileId.isBlank()) {
-                    Response.seeOther(
-                        documentCreationService.documentCreationFinishPageUrl(
-                            zaakId = zaak.identificatie,
-                            taskId = taskId,
-                            documentName = title,
-                            result = SmartDocumentsWizardResult.CANCELLED.value
-                        )
-                    ).build()
-                } else {
-                    runCatching {
-                        val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(zaak)
-                        documentCreationService.downloadAndStoreDocument(
-                            zaak = zaak,
-                            taskId = taskId,
-                            fileId = fileId,
-                            title = title,
-                            description = description,
-                            informatieobjecttypeUuid = informatieobjecttypeUuid,
-                            creationDate = creationDate,
-                            userName = userName
-                        )
-                        Response.seeOther(
-                            documentCreationService.documentCreationFinishPageUrl(
-                                zaakId = zaak.identificatie,
-                                taskId = taskId,
-                                documentName = title,
-                                result = SmartDocumentsWizardResult.SUCCESS.value
-                            )
-                        ).build()
-                    }.onFailure {
-                        LOG.log(Level.WARNING, it) {
-                            "Failed to create document for zaak ${zaak.identificatie}" +
-                                if (taskId != null) " and task $taskId" else ""
-                        }
-                    }.getOrElse { exception ->
-                        Response.seeOther(
-                            documentCreationService.documentCreationFinishPageUrl(
-                                zaakId = zaak.identificatie,
-                                taskId = taskId,
-                                documentName = title,
-                                result = when (exception) {
-                                    is SmartDocumentsUnsupportedOutputFormatException ->
-                                        SmartDocumentsWizardResult.UNSUPPORTED_OUTPUT_FORMAT
-                                    else -> SmartDocumentsWizardResult.FAILURE
-                                }.value
-                            )
-                        ).build()
-                    }
-                }
+            if (fileId.isBlank()) {
+                val zaak = zrcClientService.readZaak(zaakUuid)
+                Response.seeOther(
+                    documentCreationService.documentCreationFinishPageUrl(
+                        zaakId = zaak.identificatie,
+                        taskId = taskId,
+                        documentName = title,
+                        result = SmartDocumentsWizardResult.CANCELLED.value
+                    )
+                ).build()
+            } else {
+                storeSmartDocumentsDocument(
+                    zaakUuid = zaakUuid,
+                    taskId = taskId,
+                    title = title,
+                    description = description,
+                    creationDate = creationDate,
+                    userName = userName,
+                    fileId = fileId,
+                    fetchInformatieobjecttypeUuidFunction = fetchInformatieobjecttypeUuidFunction
+                )
             }
         }
+    }
+
+    @Suppress("LongParameterList")
+    private fun storeSmartDocumentsDocument(
+        zaakUuid: UUID,
+        taskId: String?,
+        title: String,
+        description: String?,
+        creationDate: ZonedDateTime,
+        userName: String,
+        fileId: String,
+        fetchInformatieobjecttypeUuidFunction: (zaak: Zaak) -> UUID,
+    ): Response {
+        val zaak = zrcClientService.readZaak(zaakUuid)
+        return runCatching {
+            val file = smartDocumentsService.downloadDocument(fileId)
+            val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(zaak)
+            documentCreationService.storeDownloadedDocument(
+                zaak = zaak,
+                taskId = taskId,
+                file = file,
+                title = title,
+                description = description,
+                informatieobjecttypeUuid = informatieobjecttypeUuid,
+                creationDate = creationDate,
+                userName = userName
+            )
+            zaak
+        }.onFailure {
+            LOG.log(Level.WARNING, it) {
+                "Failed to create document for zaak $zaakUuid" +
+                    if (taskId != null) " and task $taskId" else ""
+            }
+        }.fold(
+            onSuccess = { successZaak ->
+                Response.seeOther(
+                    documentCreationService.documentCreationFinishPageUrl(
+                        zaakId = successZaak.identificatie,
+                        taskId = taskId,
+                        documentName = title,
+                        result = SmartDocumentsWizardResult.SUCCESS.value
+                    )
+                ).build()
+            },
+            onFailure = { exception ->
+                val result = if (exception is SmartDocumentsUnsupportedOutputFormatException) {
+                    SmartDocumentsWizardResult.UNSUPPORTED_OUTPUT_FORMAT
+                } else {
+                    SmartDocumentsWizardResult.FAILURE
+                }
+                Response.seeOther(
+                    documentCreationService.documentCreationFinishPageUrl(
+                        zaakId = zaak.identificatie,
+                        taskId = taskId,
+                        documentName = title,
+                        result = result.value
+                    )
+                ).build()
+            }
+        )
     }
 
     // if/else instead of `?.let`: CodeQL's model of `let` makes the HTML response look tainted by the token (java/xss)

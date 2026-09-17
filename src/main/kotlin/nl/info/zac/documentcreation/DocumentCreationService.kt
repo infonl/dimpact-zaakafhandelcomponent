@@ -60,39 +60,37 @@ class DocumentCreationService @Inject constructor(
     }
 
     /**
-     * Download a generated SmartDocuments document and store it in the ZGW zaak registry.
+     * Store an already downloaded SmartDocuments document in the ZGW zaak registry.
      */
-    fun downloadAndStoreDocument(
+    fun storeDownloadedDocument(
         zaak: Zaak,
         taskId: String? = null,
-        fileId: String,
+        file: File,
         title: String,
         description: String?,
         informatieobjecttypeUuid: UUID,
         creationDate: ZonedDateTime,
         userName: String
     ): ZaakInformatieObject =
-        smartDocumentsService.downloadDocument(fileId).let { file ->
-            createEnkelvoudigInformatieObjectCreateLockRequest(
-                file = file,
-                format = file.outputFormat,
-                informatieobjecttypeUrl = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url,
-                title = title,
-                description = description,
-                creationDate = creationDate,
-                userName = userName,
-            ).let {
-                enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                    zaak = zaak,
-                    enkelvoudigInformatieObjectCreateLockRequest = it,
-                    taskId = taskId,
-                    // In the ZAC SmartDocuments flow, a separate browser tab is used for the SmartDocuments callback process.
-                    // This means that the ZAC authorization token may have expired by the time the document is downloaded.
-                    // When this happens, no policy checks can be done, as we no longer have a valid token.
-                    // All policy checks need to be performed at document creation request time.
-                    skipPolicyCheck = true
-                )
-            }
+        createEnkelvoudigInformatieObjectCreateLockRequest(
+            file = file,
+            format = file.outputFormat,
+            informatieobjecttypeUrl = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url,
+            title = title,
+            description = description,
+            creationDate = creationDate,
+            userName = userName,
+        ).let {
+            enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = it,
+                taskId = taskId,
+                // In the ZAC SmartDocuments flow, a separate browser tab is used for the SmartDocuments callback process.
+                // This means that the ZAC authorization token may have expired by the time the document is downloaded.
+                // When this happens, no policy checks can be done, as we no longer have a valid token.
+                // All policy checks need to be performed at document creation request time.
+                skipPolicyCheck = true
+            )
         }
 
     @Suppress("MaxLineLength")
