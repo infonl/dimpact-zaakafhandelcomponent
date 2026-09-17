@@ -176,6 +176,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "indicatieOpschorting" : false,
                             "indicatieVerlenging" : false,
                             "indicaties" : [ ],
+                            "isZaakspecifiekGeautoriseerd" : false,
                             "omschrijving" : "$zaakDescription",
                             "rechten" : {
                               "afbreken" : false,

@@ -14,12 +14,19 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import java.util.UUID
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaakEigenschap
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -41,10 +48,6 @@ import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
 import org.flowable.task.api.Task
-import java.util.UUID
-import java.util.logging.Handler
-import java.util.logging.LogRecord
-import java.util.logging.Logger
 
 private data class ReindexSupportServiceTestContext(
     val solrClient: Http2SolrClient,
@@ -53,6 +56,7 @@ private data class ReindexSupportServiceTestContext(
     val zrcClientService: ZrcClientService,
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
+    val zgwApiService: ZgwApiService,
     val reindexSupportService: ReindexSupportService
 )
 
@@ -91,12 +95,14 @@ private fun setupContext(): ReindexSupportServiceTestContext {
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
+    val zgwApiService = mockk<ZgwApiService>()
 
     val reindexSupportService = ReindexSupportService(
         converterInstances,
         zrcClientService,
         drcClientService,
-        flowableTaskService
+        flowableTaskService,
+        zgwApiService
     )
 
     return ReindexSupportServiceTestContext(
@@ -106,6 +112,7 @@ private fun setupContext(): ReindexSupportServiceTestContext {
         zrcClientService,
         drcClientService,
         flowableTaskService,
+        zgwApiService,
         reindexSupportService
     )
 }
@@ -283,17 +290,42 @@ class ReindexSupportServiceTest : BehaviorSpec({
         )
 
         `when`("the returned lookup is invoked twice for the same zaak UUID") {
-            val isZaakspecifiekGeautoriseerd = ctx.reindexSupportService.memoizedIsZaakspecifiekGeautoriseerd()
-            val firstResult = isZaakspecifiekGeautoriseerd(zaakUUID)
-            val secondResult = isZaakspecifiekGeautoriseerd(zaakUUID)
+            val zaakAutorisatieGegevens = ctx.reindexSupportService.memoizedZaakAutorisatieGegevens()
+            val firstResult = zaakAutorisatieGegevens(zaakUUID)
+            val secondResult = zaakAutorisatieGegevens(zaakUUID)
 
-            then("both calls return true") {
-                firstResult shouldBe true
-                secondResult shouldBe true
+            then("both calls report the zaak as zaakspecifiek geautoriseerd") {
+                firstResult.isZaakspecifiekGeautoriseerd shouldBe true
+                secondResult.isZaakspecifiekGeautoriseerd shouldBe true
             }
 
             then("the ZGW API is only queried once for that zaak") {
                 verify(exactly = 1) { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) }
+            }
+        }
+    }
+
+    given("zaakAutorisatieGegevens for a zaak the caller has already read") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker(
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+        )
+        every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, any()) } returns rolMedewerker
+
+        `when`("its geautoriseerde medewerkers are resolved") {
+            val geautoriseerdeMedewerkers =
+                ctx.reindexSupportService.zaakAutorisatieGegevens(zaak).geautoriseerdeMedewerkers
+
+            then("the behandelaar is returned") {
+                geautoriseerdeMedewerkers shouldBe listOf("fakeBehandelaarId")
+            }
+
+            then("the zaak is not read again, since the caller already provided it") {
+                verify(exactly = 0) { ctx.zrcClientService.readZaak(zaak.uuid) }
             }
         }
     }

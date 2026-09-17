@@ -67,7 +67,6 @@ class DocumentCreationServiceTest : BehaviorSpec({
     }
 
     given("Generated document information") {
-        val smartDocumentId = "1"
         val taakId = "4"
         val title = "title"
         val description = "description"
@@ -81,7 +80,6 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val zaakInformatieobject = createZaakInformatieobjectForReads()
         val enkelvoudigInformatieObjectLockRequestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
 
-        every { smartDocumentsService.downloadDocument(smartDocumentId) } returns downloadedFile
         every { ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid) } returns informatieObjectType
         every { configurationService.readBronOrganisatie() } returns bronOrganisatie
         every {
@@ -94,10 +92,10 @@ class DocumentCreationServiceTest : BehaviorSpec({
         } returns zaakInformatieobject
 
         `when`("storing a downloaded file is requested") {
-            val returnedZaakInformatieobject = documentCreationService.downloadAndStoreDocument(
+            val returnedZaakInformatieobject = documentCreationService.storeDownloadedDocument(
                 zaak = zaak,
                 taskId = taakId,
-                fileId = smartDocumentId,
+                file = downloadedFile,
                 title = title,
                 description = description,
                 informatieobjecttypeUuid = informatieobjecttypeUuid,

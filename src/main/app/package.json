@@ -72,7 +72,7 @@
     "@angular/language-service": "20.3.31",
     "@formio/core": "2.8.2",
     "@testing-library/angular": "18.1.1",
-    "@testing-library/dom": "10.4.1",
+    "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/user-event": "14.6.7",
     "@types/jest": "29.5.14",
