@@ -26,17 +26,18 @@
     <span matSuffix>
       <ng-content select="button">
         @if (!control()?.value) {
-        <button mat-icon-button type="button">
-          <mat-icon>upload</mat-icon>
-        </button>
-        } @if (control()?.value) {
-        <button
-          mat-icon-button
-          (click)="$event.stopPropagation(); reset()"
-          type="button"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
+          <button mat-icon-button type="button">
+            <mat-icon>upload</mat-icon>
+          </button>
+        }
+        @if (control()?.value) {
+          <button
+            mat-icon-button
+            (click)="$event.stopPropagation(); reset()"
+            type="button"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
         }
       </ng-content>
       <ng-content select="span"></ng-content>
@@ -44,22 +45,26 @@
     </span>
 
     @if (formError()) {
-    <mat-error>{{ formError() }}</mat-error>
+      <mat-error>{{ formError() }}</mat-error>
     } @else {
-    <mat-hint>
-      <ng-content select="mat-hint">
-        <div>
-          {{ "form.input.file.hint.max-size" | translate: { sizeInMB: fileSize()
-          | async } }}
-        </div>
-        @if (allowedFormats().length) {
-        <div>
-          {{ "form.input.file.hint.formats" | translate: { formats:
-          allowedFormats().join(", ") } }}
-        </div>
-        }
-      </ng-content>
-    </mat-hint>
+      <mat-hint>
+        <ng-content select="mat-hint">
+          <div>
+            {{
+              "form.input.file.hint.max-size"
+                | translate: { sizeInMB: fileSize() | async }
+            }}
+          </div>
+          @if (allowedFormats().length) {
+            <div>
+              {{
+                "form.input.file.hint.formats"
+                  | translate: { formats: allowedFormats().join(", ") }
+              }}
+            </div>
+          }
+        </ng-content>
+      </mat-hint>
     }
 
     <input

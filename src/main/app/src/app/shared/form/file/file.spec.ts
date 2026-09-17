@@ -634,7 +634,9 @@ describe(ZacFile.name, () => {
     });
 
     it("should not reopen the file picker", async () => {
-      component.form().controls.document.setValue(createMockFile("a.txt", 1024));
+      component
+        .form()
+        .controls.document.setValue(createMockFile("a.txt", 1024));
       fixture.detectChanges();
       const fileInput = component["fileInput"]()!.nativeElement;
       const openPicker = jest.spyOn(fileInput, "click");
