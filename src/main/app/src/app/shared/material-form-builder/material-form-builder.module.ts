@@ -3,52 +3,27 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CommonModule } from "@angular/common";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
   withJsonpSupport,
 } from "@angular/common/http";
 import { ModuleWithProviders, NgModule } from "@angular/core";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
   MomentDateAdapter,
 } from "@angular/material-moment-adapter";
-import { MatAutocompleteModule } from "@angular/material/autocomplete";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatChipsModule } from "@angular/material/chips";
 import {
   DateAdapter,
   MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
 } from "@angular/material/core";
-import { MatDatepickerModule } from "@angular/material/datepicker";
-import { MatDialogActions } from "@angular/material/dialog";
-import { MatDividerModule } from "@angular/material/divider";
-import { MatExpansionPanelActionRow } from "@angular/material/expansion";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatListModule } from "@angular/material/list";
-import { MatMenuModule } from "@angular/material/menu";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatRadioModule } from "@angular/material/radio";
-import { MatSelectModule } from "@angular/material/select";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
-import { MatTableModule } from "@angular/material/table";
-import { RouterModule } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
-import { NgxEditorModule } from "ngx-editor";
 import { FileDragAndDropDirective } from "../directives/file-drag-and-drop.directive";
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacCheckbox } from "../form/checkbox/checkbox";
-import { ZacComposedForm } from "../form/composed-form/composed-form.component";
 import { ZacDate } from "../form/date/date";
 import { ZacDocuments } from "../form/documents/documents";
 import { ZacFormActions } from "../form/form-actions/form-actions.component";
-import { ZacHtmlEditor } from "../form/html-editor/html-editor";
 import { ZacInput } from "../form/input/input";
 import { ZacRadio } from "../form/radio/radio";
 import { ZacSelect } from "../form/select/select";
@@ -56,7 +31,6 @@ import { ZacTextarea } from "../form/textarea/textarea";
 import { ZacToggle } from "../form/toggle/toggle";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 import { EmptyPipe } from "../pipes/empty.pipe";
-import { PipesModule } from "../pipes/pipes.module";
 
 @NgModule({
   exports: [
@@ -68,41 +42,14 @@ import { PipesModule } from "../pipes/pipes.module";
     ZacTextarea,
     ZacToggle,
     ZacCheckbox,
-    ZacHtmlEditor,
     ZacDocuments,
     ZacRadio,
-    ZacComposedForm,
     CapitalizeFirstLetterPipe,
     EmptyPipe,
     ZacFormActions,
   ],
   imports: [
     FileDragAndDropDirective,
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRadioModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatAutocompleteModule,
-    MatChipsModule,
-    MatSlideToggleModule,
-    MatDialogActions,
-    TranslateModule,
-    PipesModule,
-    MatTableModule,
-    RouterModule,
-    FormsModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    NgxEditorModule,
-    MatMenuModule,
-    MatListModule,
-    MatExpansionPanelActionRow,
     EmptyPipe,
     CapitalizeFirstLetterPipe,
     ZacFormActions,
@@ -115,8 +62,6 @@ import { PipesModule } from "../pipes/pipes.module";
     ZacInput,
     ZacAutoComplete,
     ZacDocuments,
-    ZacHtmlEditor,
-    ZacComposedForm,
   ],
   providers: [
     {

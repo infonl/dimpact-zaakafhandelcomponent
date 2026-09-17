@@ -25,6 +25,7 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { ZacHtmlEditor } from "../../shared/form/html-editor/html-editor";
 import { PostBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -47,6 +48,7 @@ import { mailSelectList } from "../model/mail-utils";
     TranslateModule,
     SideNavComponent,
     MaterialFormBuilderModule,
+    ZacHtmlEditor,
     ZacFormActions,
   ],
 })

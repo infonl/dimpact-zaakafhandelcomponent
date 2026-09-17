@@ -17,6 +17,7 @@ import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { ZacHtmlEditor } from "../../shared/form/html-editor/html-editor";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -37,6 +38,7 @@ import { MailService } from "../mail.service";
     MatExpansionPanelActionRow,
     TranslateModule,
     MaterialFormBuilderModule,
+    ZacHtmlEditor,
   ],
 })
 export class OntvangstbevestigingComponent implements OnInit {
