@@ -14,11 +14,9 @@ import {
 import { FormsModule } from "@angular/forms";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { Title } from "@angular/platform-browser";
-import { RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { ZaakdataComponent } from "../zaken/zaakdata/zaakdata.component";
 import { ConfirmDialogComponent } from "./confirm-dialog/confirm-dialog.component";
-import { OutsideClickDirective } from "./directives/outside-click.directive";
 import { DocumentViewerComponent } from "./document-viewer/document-viewer.component";
 import { ColumnPickerComponent } from "./dynamic-table/column-picker/column-picker.component";
 import { SortPipe } from "./dynamic-table/pipes/sort.pipe";
@@ -54,7 +52,6 @@ import { VersionComponent } from "./version/version.component";
     ExportButtonComponent,
     BackButtonDirective,
     StaticTextComponent,
-    OutsideClickDirective,
     ZacNarrowMatCheckboxDirective,
     ToggleFilterComponent,
     TekstFilterComponent,
@@ -65,7 +62,6 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     FormsModule,
-    RouterModule,
     PipesModule,
     MaterialModule,
     MaterialFormBuilderModule.forRoot(),
