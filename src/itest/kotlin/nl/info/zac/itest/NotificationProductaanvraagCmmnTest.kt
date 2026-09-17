@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.ints.shouldBeGreaterThan
@@ -81,6 +82,7 @@ import java.util.UUID
  * The productaanvraag flow starts with a received productaanvraag notification.
  */
 @Suppress("LargeClass")
+@Isolate
 class NotificationProductaanvraagCmmnTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()

@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -20,6 +21,7 @@ import java.net.HttpURLConnection.HTTP_OK
  * Without this, a request reusing a pooled connection whose underlying PostgreSQL backend
  * was terminated would fail with a "This connection has been closed." SQL exception.
  */
+@Isolate
 class DataSourceConnectionValidationTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
