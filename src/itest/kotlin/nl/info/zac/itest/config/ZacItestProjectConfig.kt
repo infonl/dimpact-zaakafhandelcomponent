@@ -4,6 +4,9 @@
  */
 package nl.info.zac.itest.config
 
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.exception.ConflictException
+import com.github.dockerjava.api.exception.NotFoundException
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
@@ -91,6 +94,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KE
 import okhttp3.Headers
 import org.json.JSONObject
 import org.slf4j.Logger
+import org.testcontainers.DockerClientFactory
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
@@ -117,8 +121,10 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
         private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
         private const val DOCKER_USE_ARM64_CONTAINERS_ENV_VAR = "DOCKER_USE_ARM64_CONTAINERS"
+        private const val COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
 
         private val logger = KotlinLogging.logger {}
+        private val dockerClient: DockerClient by lazy { DockerClientFactory.instance().client() }
         private val itestHttpClient = ItestHttpClient()
         private val zacClient = ZacClient()
         private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
@@ -173,6 +179,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      * from leaking into another spec's assertions.
      */
     override val extensions: List<Extension> = listOf(
+        ItestTimingReport,
         object : BeforeSpecListener {
             override suspend fun beforeSpec(spec: Spec) {
                 logger.info { "Purging GreenMail email store before spec '${spec::class.simpleName}'" }
@@ -182,11 +189,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     )
 
     override suspend fun beforeProject() {
+        ItestTimingReport.markPhase(ItestTimingReport.PHASE_RUN_STARTED)
         logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
         try {
             if (!skipDockerComposeStart) {
                 dockerComposeContainer = createDockerComposeContainer()
                 dockerComposeContainer.start()
+                ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
                 logger.info { "Started ZAC Docker Compose containers" }
             } else {
                 logger.warn {
@@ -206,6 +215,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                     url = KEYCLOAK_HEALTH_READY_URL
                 ).code shouldBe HTTP_OK
             }
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_KEYCLOAK_HEALTHY)
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
             eventually(60.seconds) {
@@ -217,9 +227,11 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                     JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
                 }
             }
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
             logger.info { "ZAC is healthy" }
             if (!skipDockerComposeStart) {
                 createTestSetupData()
+                ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
             }
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker Compose containers" }
@@ -236,10 +248,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 }
                 return
             }
+            val composeProjectName = findComposeProjectName()
+            composeProjectName?.let { ItestTimingReport.collectContainerTimings(dockerClient, it) }
             if (skipContainerCleanup) {
                 logger.warn {
                     "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
                 }
+                ItestTimingReport.writeReport()
                 Runtime.getRuntime().halt(0)
             }
 
@@ -254,11 +269,38 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                     .exec()
                 logger.info { "Stopped ZAC Docker container" }
             }
-            // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_STOPPED)
+            // the other containers hold no state worth preserving, so kill them instead of waiting
+            // for each of them to handle a stop signal, and then let Docker Compose remove them
+            composeProjectName?.let(::killRunningContainers)
             dockerComposeContainer.withOptions("--profile itest").stop()
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_REMOVED)
         } finally {
             emptyEnvFile?.delete()
+            ItestTimingReport.writeReport()
         }
+    }
+
+    private fun findComposeProjectName() =
+        listOf(ZAC_CONTAINER_SERVICE_NAME, "keycloak", "solr").firstNotNullOfOrNull { serviceName ->
+            dockerComposeContainer.getContainerByServiceName(serviceName).getOrNull()
+                ?.containerInfo?.config?.labels?.get(COMPOSE_PROJECT_LABEL)
+        }
+
+    private fun killRunningContainers(composeProjectName: String) {
+        dockerClient.listContainersCmd()
+            .withLabelFilter(mapOf(COMPOSE_PROJECT_LABEL to composeProjectName))
+            .exec()
+            .forEach { container ->
+                try {
+                    dockerClient.killContainerCmd(container.id).exec()
+                } catch (conflictException: ConflictException) {
+                    logger.debug { "Container '${container.id}' was no longer running: ${conflictException.message}" }
+                } catch (notFoundException: NotFoundException) {
+                    logger.debug { "Container '${container.id}' was already removed: ${notFoundException.message}" }
+                }
+            }
+        logger.info { "Killed the remaining Docker Compose containers of project '$composeProjectName'" }
     }
 
     @Suppress("UNCHECKED_CAST", "LongMethod")

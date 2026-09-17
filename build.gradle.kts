@@ -10,6 +10,8 @@ import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.io.File
 import java.net.HttpURLConnection
@@ -261,6 +263,17 @@ testing {
                         // mirror previous behavior
                         useJUnitPlatform()
                         systemProperty("zacDockerImage", zacDockerImage)
+                        // write the (very verbose) integration test log to a file instead of the console
+                        // when the 'itestLogFile' Gradle property is set, as is done in CI
+                        providers.gradleProperty("itestLogFile").orNull?.let { itestLogFile ->
+                            systemProperty("org.slf4j.simpleLogger.logFile", itestLogFile)
+                            val itestLogDirectory = file(itestLogFile).parentFile
+                            doFirst { itestLogDirectory.mkdirs() }
+                        }
+                        testLogging {
+                            events(TestLogEvent.FAILED)
+                            exceptionFormat = TestExceptionFormat.FULL
+                        }
                         dependsOn("buildDockerImage")
                         // always execute the integration tests
                         outputs.upToDateWhen { false }
