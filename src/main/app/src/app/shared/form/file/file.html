@@ -7,6 +7,7 @@
 <div DropZone (fileDropped)="droppedFile($event)">
   <mat-form-field
     appearance="fill"
+    subscriptSizing="dynamic"
     class="full-width"
     [formGroup]="form()"
     (click)="fileInput.click()"
@@ -24,38 +25,42 @@
     />
     <span matSuffix>
       <ng-content select="button">
-        <button *ngIf="!control()?.value" mat-icon-button type="button">
+        @if (!control()?.value) {
+        <button mat-icon-button type="button">
           <mat-icon>upload</mat-icon>
         </button>
+        } @if (control()?.value) {
         <button
-          *ngIf="control()?.value"
           mat-icon-button
-          (click)="reset()"
+          (click)="$event.stopPropagation(); reset()"
           type="button"
         >
           <mat-icon>delete</mat-icon>
         </button>
+        }
       </ng-content>
       <ng-content select="span"></ng-content>
       <ng-content select="mat-icon"></ng-content>
     </span>
 
-    <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
-    <mat-hint *ngIf="!formError()">
+    @if (formError()) {
+    <mat-error>{{ formError() }}</mat-error>
+    } @else {
+    <mat-hint>
       <ng-content select="mat-hint">
-        {{
-          (allowedFormats().length
-            ? "form.input.file.hint"
-            : "form.input.file.hint.size-only"
-          )
-            | translate
-              : {
-                  sizeInMB: fileSize() | async,
-                  formats: allowedFormats().join(","),
-                }
-        }}
+        <div>
+          {{ "form.input.file.hint.max-size" | translate: { sizeInMB: fileSize()
+          | async } }}
+        </div>
+        @if (allowedFormats().length) {
+        <div>
+          {{ "form.input.file.hint.formats" | translate: { formats:
+          allowedFormats().join(", ") } }}
+        </div>
+        }
       </ng-content>
     </mat-hint>
+    }
 
     <input
       hidden="hidden"

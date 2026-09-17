@@ -4,12 +4,11 @@
  *
  */
 
-import { AsyncPipe, NgIf } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
   computed,
-  effect,
   ElementRef,
   input,
   numberAttribute,
@@ -38,6 +37,7 @@ import { SingleInputFormField } from "../BaseFormField";
 @Component({
   selector: "zac-file",
   templateUrl: "./file.html",
+  styleUrls: ["./file.less"],
   standalone: true,
   imports: [
     AsyncPipe,
@@ -47,7 +47,6 @@ import { SingleInputFormField } from "../BaseFormField";
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    NgIf,
     ReactiveFormsModule,
     TranslatePipe,
   ],
@@ -81,13 +80,11 @@ export class ZacFile<
     private readonly queryClient: QueryClient,
   ) {
     super();
-
-    effect(async () => {
-      this.allowedFormats.set(await this.resolveAllowedFormats());
-    });
   }
 
   ngOnInit() {
+    void this.resolveAllowedFormats();
+
     // Subscribe to form control status changes to sync errors
     this.control()
       ?.statusChanges.pipe(takeUntil(this.destroy$))
@@ -167,6 +164,12 @@ export class ZacFile<
   }
 
   private async resolveAllowedFormats() {
+    const allowedFormats = await this.readAllowedFormats();
+    this.allowedFormats.set(allowedFormats);
+    return allowedFormats;
+  }
+
+  private async readAllowedFormats() {
     if (this.allowedFileTypes().length) return this.allowedFileTypes();
 
     return (

@@ -472,7 +472,8 @@ describe(ZacFile.name, () => {
       componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
       fixture.detectChanges();
       translateService.setTranslation("en", {
-        "form.input.file.hint": "Max size: 5MB, Formats: .txt, .pdf",
+        "form.input.file.hint.max-size": "Max size: {{sizeInMB}}MB",
+        "form.input.file.hint.formats": "Formats: {{formats}}",
       });
       translateService.use("en");
       fixture.detectChanges();
@@ -502,9 +503,8 @@ describe(ZacFile.name, () => {
       component.ngOnInit();
       componentRef.setInput("maxFileSizeMB", 5);
       translateService.setTranslation("en", {
-        "form.input.file.hint":
-          "Max size: {{sizeInMB}}MB, Formats: {{formats}}",
-        "form.input.file.hint.size-only": "Max size: {{sizeInMB}}MB",
+        "form.input.file.hint.max-size": "Max size: {{sizeInMB}}MB",
+        "form.input.file.hint.formats": "Formats: {{formats}}",
       });
       translateService.use("en");
       fixture.detectChanges();
@@ -514,6 +514,7 @@ describe(ZacFile.name, () => {
       const formField = await loader.getHarness(MatFormFieldHarness);
       const [hint] = await formField.getTextHints();
       expect(hint).toBe("Max size: 5MB");
+      expect(hint).not.toContain("Formats:");
     });
   });
 
@@ -575,6 +576,75 @@ describe(ZacFile.name, () => {
       expect(component.form().controls.document.errors).toEqual({
         fileTypeInvalid: { type: "exe" },
       });
+    });
+  });
+
+  describe("Allowed file types that failed to load on the first attempt", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(configuratieService, "readAllowedFileTypesQuery")
+        .mockReturnValue(
+          fromPartial({
+            queryKey: ALLOWED_FILE_TYPES_QUERY_KEY,
+            queryFn: jest
+              .fn()
+              .mockRejectedValueOnce(new Error("fakeNetworkFailure"))
+              .mockResolvedValue([
+                { extension: ".txt", mediaType: "text/plain" },
+              ]),
+            staleTime: "static",
+          }),
+        );
+
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
+      component.ngOnInit();
+      componentRef.setInput("maxFileSizeMB", 5);
+      translateService.setTranslation("en", {
+        "form.input.file.hint.max-size": "Max size: {{sizeInMB}}MB",
+        "form.input.file.hint.formats": "Formats: {{formats}}",
+      });
+      translateService.use("en");
+      fixture.detectChanges();
+    });
+
+    it("should list the formats in the hint once a later attempt succeeds", async () => {
+      await fixture.whenStable();
+      const validFile = createMockFile("test.txt", 1024);
+
+      await component["selectedFile"](
+        fromPartial<Event>({
+          target: fromPartial<HTMLInputElement>({ files: [validFile] }),
+        }),
+      );
+      fixture.detectChanges();
+
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const [hint] = await formField.getTextHints();
+      expect(hint).toContain("Formats: .txt");
+    });
+  });
+
+  describe("Removing the chosen file", () => {
+    beforeEach(() => {
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
+      component.ngOnInit();
+      fixture.detectChanges();
+    });
+
+    it("should not reopen the file picker", async () => {
+      component.form().controls.document.setValue(createMockFile("a.txt", 1024));
+      fixture.detectChanges();
+      const fileInput = component["fileInput"]()!.nativeElement;
+      const openPicker = jest.spyOn(fileInput, "click");
+
+      const deleteButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "delete" }),
+      );
+      await deleteButton.click();
+
+      expect(openPicker).not.toHaveBeenCalled();
     });
   });
 
