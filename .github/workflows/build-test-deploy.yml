@@ -458,9 +458,9 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           if [ -f build/reports/itest/timings.md ]; then
-            cat build/reports/itest/timings.md >> "$GITHUB_STEP_SUMMARY"
+            tee --append "$GITHUB_STEP_SUMMARY" < build/reports/itest/timings.md
           else
-            echo "No integration test timing report was generated" >> "$GITHUB_STEP_SUMMARY"
+            echo "No integration test timing report was generated" | tee --append "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload integration test log
