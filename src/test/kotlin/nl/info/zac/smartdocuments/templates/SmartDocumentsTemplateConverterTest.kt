@@ -111,63 +111,46 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
             then("it produces a correct jpa representation") {
                 jpaModel.size shouldBe 1
                 with(jpaModel.first()) {
-                    name shouldBe "root"
                     zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
 
                     templates!!.size shouldBe 2
                     with(templates!!.first()) {
-                        name shouldBe "root template 1"
                         zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                         informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
-                        templateGroup.name shouldBe "root"
                     }
                     with(templates!!.last()) {
-                        name shouldBe "root template 2"
                         zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                         informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
-                        templateGroup.name shouldBe "root"
                     }
 
                     children!!.size shouldBe 2
                     with(children!!.first()) {
-                        name shouldBe "group 1"
                         zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
 
                         templates!!.size shouldBe 2
                         with(templates!!.first()) {
-                            name shouldBe "group 1 template 1"
                             zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                             informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
-                            templateGroup.name shouldBe "group 1"
                         }
                         with(templates!!.last()) {
-                            name shouldBe "group 1 template 2"
                             zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                             informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
-                            templateGroup.name shouldBe "group 1"
                         }
 
-                        parent!!.name shouldBe "root"
                         children.shouldBeEmpty()
                     }
                     with(children!!.last()) {
-                        name shouldBe "group 2"
                         zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
 
                         with(templates!!.first()) {
-                            name shouldBe "group 2 template 1"
                             zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                             informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
-                            templateGroup.name shouldBe "group 2"
                         }
                         with(templates!!.last()) {
-                            name shouldBe "group 2 template 2"
                             zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                             informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
-                            templateGroup.name shouldBe "group 2"
                         }
 
-                        parent!!.name shouldBe "root"
                         children.shouldBeEmpty()
                     }
                 }
@@ -176,18 +159,18 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
     }
 
     given("a JPA model") {
-        val jpaRoot = createSmartDocumentsTemplateGroup(name = "root")
+        val jpaRoot = createSmartDocumentsTemplateGroup()
         val jpaTemplates = mutableSetOf(
-            createSmartDocumentsTemplate(name = "template 1"),
-            createSmartDocumentsTemplate(name = "template 2")
+            createSmartDocumentsTemplate(),
+            createSmartDocumentsTemplate()
         )
         val jpaGroups = mutableSetOf(
-            createSmartDocumentsTemplateGroup(name = "group 1").apply {
+            createSmartDocumentsTemplateGroup().apply {
                 parent = jpaRoot
                 templates = jpaTemplates
                 children = mutableSetOf()
             },
-            createSmartDocumentsTemplateGroup(name = "group 2").apply {
+            createSmartDocumentsTemplateGroup().apply {
                 parent = jpaRoot
                 templates = jpaTemplates
                 children = mutableSetOf()
@@ -203,37 +186,38 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
         `when`("a convert to REST model is called") {
             val restModel = jpaModel.toRestSmartDocumentsTemplateGroup()
 
-            then("it produces a correct REST model") {
+            then(
+                """
+                it produces a correct REST model, with a placeholder name that resolveCurrentNames
+                is expected to replace afterwards
+                """
+            ) {
                 restModel.size shouldBe 1
                 with(restModel.first()) {
                     id shouldBe jpaRoot.smartDocumentsId
-                    name shouldBe "root"
+                    name shouldBe ""
 
                     templates!!.size shouldBe 2
                     with(templates!!.first()) {
                         id shouldBe jpaTemplates.first().smartDocumentsId
-                        name shouldBe "template 1"
+                        name shouldBe ""
                     }
                     with(templates!!.last()) {
                         id shouldBe jpaTemplates.last().smartDocumentsId
-                        name shouldBe "template 2"
+                        name shouldBe ""
                     }
 
                     groups!!.size shouldBe 2
                     with(groups!!.first()) {
                         id shouldBe jpaGroups.first().smartDocumentsId
-                        name shouldBe "group 1"
+                        name shouldBe ""
                         templates!!.size shouldBe 2
-                        templates!!.first().name shouldBe "template 1"
-                        templates!!.last().name shouldBe "template 2"
                         groups.shouldBeEmpty()
                     }
                     with(groups!!.last()) {
                         id shouldBe jpaGroups.last().smartDocumentsId
-                        name shouldBe "group 2"
+                        name shouldBe ""
                         templates!!.size shouldBe 2
-                        templates!!.first().name shouldBe "template 1"
-                        templates!!.last().name shouldBe "template 2"
                         groups.shouldBeEmpty()
                     }
                 }

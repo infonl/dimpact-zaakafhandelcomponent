@@ -69,8 +69,9 @@ fun createBrondatumArchiefprocedure(
 fun createEigenschap(
     naam: String = "fakeNaam",
     definitie: String? = "fakeDefinitie",
-    zaaktype: URI = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
-) = Eigenschap().apply {
+    zaaktype: URI = URI("https://example.com/zaaktype/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/eigenschap/${UUID.randomUUID()}")
+) = Eigenschap(url, null, null, null, null).apply {
     this.naam = naam
     this.definitie = definitie
     this.zaaktype = zaaktype
@@ -128,6 +129,7 @@ fun createRolType(
 fun createZaakType(
     uri: URI = URI("https://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "fakeZaakTypeOmschrijving",
+    omschrijvingGeneriek: String? = null,
     informatieObjectTypen: List<URI>? = listOf(
         URI("fakeInformatieObjectType/${UUID.randomUUID()}"),
         URI("fakeInformatieObjectType/${UUID.randomUUID()}")
@@ -158,6 +160,7 @@ fun createZaakType(
     null
 ).apply {
     this.omschrijving = omschrijving
+    this.omschrijvingGeneriek = omschrijvingGeneriek
     this.besluittypen = besluittypen
     this.identificatie = identification
     this.doorlooptijd = doorloopTijd

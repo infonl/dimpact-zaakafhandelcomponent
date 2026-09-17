@@ -320,7 +320,10 @@ data:
       location / {
         client_max_body_size {{ .Values.nginx.client_max_body_size }};
         proxy_connect_timeout 300s;
-        proxy_read_timeout 300s;
+        proxy_read_timeout {{ .Values.nginx.proxy_timeout | default "1800s" }};
+        # sending hundreds of megabytes over a slow connection takes far longer than the default 60s
+        proxy_send_timeout {{ .Values.nginx.proxy_timeout | default "1800s" }};
+        proxy_request_buffering off;
 
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start successfully if the upstream endpoint cannot be resolved

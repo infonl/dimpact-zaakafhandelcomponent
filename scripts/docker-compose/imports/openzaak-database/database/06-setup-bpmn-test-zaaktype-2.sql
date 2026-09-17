@@ -53,7 +53,7 @@ VALUES
     '7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e', -- uuid (derived from the URL)
     'bpmn-test-zaaktype-2', -- identificatie
     'BPMN test zaaktype 2', -- zaaktype_omschrijving
-    'BPMN test zaaktype 2', -- zaaktype_omschrijving_generiek
+    'Generieke omschrijving van BPMN test zaaktype 2', -- zaaktype_omschrijving_generiek
     'openbaar', -- vertrouwelijkheidaanduiding
     'BPMN test zaaktype 2', -- doel
     'BPMN test zaaktype 2', -- aanleiding

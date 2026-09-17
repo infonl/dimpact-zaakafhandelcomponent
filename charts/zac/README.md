@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.309](https://img.shields.io/badge/Version-1.0.309-informational?style=flat-square) ![AppVersion: 5.6](https://img.shields.io/badge/AppVersion-5.6-informational?style=flat-square)
+![Version: 1.0.325](https://img.shields.io/badge/Version-1.0.325-informational?style=flat-square) ![AppVersion: 5.8](https://img.shields.io/badge/AppVersion-5.8-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.172.0 |
+| @opentelemetry | opentelemetry-collector | 0.173.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -90,12 +90,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.naam | string | `""` |  |
 | global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
-| global.curlImage.tag | string | `"8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13"` | curl docker tag to pull |
+| global.curlImage.tag | string | `"8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | specifies image pull secrets |
-| ingress.annotations | object | `{}` |  |
+| ingress.annotations | object | `{}` | An ingress in front of ZAC has to allow at least `maxFileSizeMB` plus multipart overhead and needs timeouts long enough to up- or download a document of that size over a slow connection. For the nginx ingress controller that means, next to any annotations of your own:   nginx.ingress.kubernetes.io/proxy-body-size: 600m   nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"   nginx.ingress.kubernetes.io/proxy-send-timeout: "1800" A deployment that configures its ingress at the umbrella chart rather than per sub chart, as PodiumD does, has to apply the same annotations there instead; this sub chart never sees them. |
 | ingress.className | string | `""` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0].host | string | `"chart-example.local"` |  |
@@ -106,7 +106,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | initContainer.resources.requests.cpu | string | `"50m"` |  |
 | initContainer.resources.requests.memory | string | `"256Mi"` |  |
 | initContainer.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security context for the curl-based init containers (read-only root filesystem is safe here) |
-| javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
+| javaOptions | string | `""` | JVM startup options. Defaults to "-XX:MaxRAMPercentage=75.0 -Xlog:gc::time,uptime", which leaves the heap to be sized from `resources.limits.memory` by the JVM itself. Prefer changing that limit over pinning the heap here with `-Xmx`. |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
 | klantinteractiesApi.token | string | `""` |  |
@@ -119,7 +119,8 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
 | mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
 | mail.smtp.username | string | `""` | SMTP server username if authentication is required. Optional |
-| maxFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of files that can be uploaded. |
+| maxFileSizeMB | int | `500` | Maximum size (in Mega Bytes) of documents that can be uploaded and downloaded. Uploads and downloads are streamed, so this value is bound by the temporary disk space available to ZAC rather than by the heap. See `resources.limits.ephemeral-storage` and the nginx and ingress body size settings, which all have to allow at least this much. Values above 2047 are rejected, because the documents registry expresses the size of a document as a 32 bit integer number of bytes. In practice the ceiling is around 768, the temporary file size WildFly allows through `dev.resteasy.entity.file.threshold`, which is part of the ZAC image and not of this chart. See `docs/development/documentFileSizes.md`. |
+| maxInMemoryFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of documents for operations that cannot stream and therefore hold the whole document in memory: converting to PDF for preview, sending as a mail attachment and editing through WebDAV. Larger documents can still be uploaded and downloaded. ZAC refuses to start when this value does not fit in the heap; it needs roughly three times this value, and may use at most half of the heap for it. The heap is 75% of `resources.limits.memory`, so with the default 1Gi limit the heap is 768 MB and the ceiling for this value is 128. Raise `resources.limits.memory` to go beyond that. |
 | nameOverride | string | `""` | name to use |
 | nginx.allowedHosts | string | `""` |  |
 | nginx.api_proxy.bag.apikey_header_name | string | `"apikey"` |  |
@@ -175,18 +176,19 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.api_proxy.kvk.zoeken.server_secret | string | `"kvk_server"` |  |
 | nginx.api_proxy.kvk.zoeken.ssl_verify | bool | `false` |  |
 | nginx.autoscaling.enabled | bool | `false` |  |
-| nginx.client_max_body_size | string | `"120M"` |  |
+| nginx.client_max_body_size | string | `"600M"` | Has to allow at least `maxFileSizeMB` plus multipart overhead. |
 | nginx.enabled | bool | `false` |  |
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414"` |  |
+| nginx.image.tag | string | `"1.31.6@sha256:e44b470e571b20d935336bfb9f8277c1468d15e1e4d105a12ab5609d0b4682cb"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
 | nginx.livenessProbe.successThreshold | int | `1` |  |
 | nginx.livenessProbe.timeoutSeconds | int | `5` |  |
 | nginx.podLabels | object | `{}` |  |
+| nginx.proxy_timeout | string | `"1800s"` | Read and send timeout towards ZAC. Uploading or downloading a document of hundreds of megabytes over a slow connection takes far longer than the nginx default of 60s. |
 | nginx.readinessProbe.failureThreshold | int | `3` |  |
 | nginx.readinessProbe.initialDelaySeconds | int | `30` |  |
 | nginx.readinessProbe.periodSeconds | int | `10` |  |
@@ -213,7 +215,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"8.36.0@sha256:87c16b9f364279d321bc9772d31fa58aa6abe036423c270698bd636c3a8e9466"` |  |
+| office_converter.image.tag | string | `"8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -235,7 +237,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.20.1-static@sha256:efbca2ec7decf2cf23fd93ae171280a736c17d83d9d2e21c66a8f717e8fc7f20"` |  |
+| opa.image.tag | string | `"1.20.2-static@sha256:bb245e9e36be0d0ed486c240b606c56be7aba96014a4a87895fed4ba7a6dfa8d"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -263,7 +265,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.159.0@sha256:1f2c54a30e713fac6b3ae77a1ec84010c2007e29ced8ec666214fc2f6739c1cc"` |  |
+| opentelemetry-collector.image.tag | string | `"0.161.0@sha256:fd328de2552466ad78385e1b1289c3f2402b1c45f265b252aab1955b42845ac1"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -282,8 +284,11 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | productaanvraag.claimTimeoutMinutes | int | `10` | Number of minutes after which a productaanvraag claim that was never completed (for example because ZAC was restarted) may be picked up again by a redelivered notification. |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
+| resources.limits.ephemeral-storage | string | `"4Gi"` |  |
+| resources.limits.memory | string | `"2Gi"` | The JVM sizes its heap from this limit, so this is how the heap available to ZAC is set. With the default `-XX:MaxRAMPercentage=75.0` a 2Gi limit gives a 1536 MB heap, which leaves room for a `maxInMemoryFileSizeMB` of up to 256. The chart refuses to render without this limit, because it cannot otherwise tell whether the configured file size limits fit. |
 | resources.requests.cpu | string | `"100m"` |  |
-| resources.requests.memory | string | `"1Gi"` |  |
+| resources.requests.ephemeral-storage | string | `"4Gi"` |  |
+| resources.requests.memory | string | `"2Gi"` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
@@ -327,7 +332,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:38dd9719f0f6e799d04bb8c22fb5eaca3a9fe7ffaf313c296327c6cca02f3c1d"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:0a931f52cfd9a9afd6d958d246e64115648099c788e41a01adad9f09e6f73594"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` |  |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
@@ -374,6 +379,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"zookeeper"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for zookeeper |
 | solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
 | solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
+| tmpVolumeSize | string | `"4Gi"` | Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it. Note that the matching 4Gi ephemeral-storage request is a scheduling requirement: a node without that much free ephemeral storage, or a namespace whose quota does not allow it, will not schedule the pod. Lower all three together when the environment cannot spare it; the cost is fewer concurrent transfers of `maxFileSizeMB`, not a lower maximum document size. |
 | tolerations | list | `[]` | set toleration parameters |
 | topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |

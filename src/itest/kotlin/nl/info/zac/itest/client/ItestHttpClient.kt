@@ -439,6 +439,34 @@ class ItestHttpClient {
         }
     }
 
+    /**
+     * Performs a ZGW API DELETE request on the given URL with optional headers.
+     *
+     * @param url The URL to perform the DELETE request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers for ZGW API requests.
+     * @return A [ResponseContent] containing the response body, headers, and status code.
+     */
+    fun performZgwApiDeleteRequest(
+        url: String,
+        headers: Headers = buildHeaders()
+    ): ResponseContent {
+        logger.info { "Performing DELETE request on: '$url'" }
+        val request = Request.Builder()
+            .headers(
+                cloneHeadersWithAuthorization(
+                    headers = headers,
+                    url = url
+                )
+            )
+            .url(url)
+            .delete()
+            .build()
+        return okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.bytes(), it.headers, it.code)
+        }
+    }
+
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers =
         headers.newBuilder().add(Header.AUTHORIZATION.name, generateBearerToken(url)).build()
 

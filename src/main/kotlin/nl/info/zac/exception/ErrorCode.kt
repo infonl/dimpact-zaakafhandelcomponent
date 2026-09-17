@@ -15,6 +15,9 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_BRC_CLIENT("msg.error.brc.client.exception"),
     ERROR_CODE_BRP_CLIENT("msg.error.brp.client.exception"),
     ERROR_CODE_DRC_CLIENT("msg.error.drc.client.exception"),
+    ERROR_CODE_DOCUMENT_UPLOAD_INVALID("msg.error.document.upload.invalid"),
+    ERROR_CODE_FILE_SIZE_EXCEEDED("msg.error.file.size-exceeded"),
+    ERROR_CODE_FILE_TOO_LARGE_TO_OPEN("msg.error.file.too-large-to-open"),
     ERROR_CODE_FORBIDDEN("msg.error.server.forbidden"),
     ERROR_CODE_SERVER_GENERIC("msg.error.server.generic"),
     ERROR_CODE_KLANTINTERACTIES_CLIENT("msg.error.klanten.client.exception"),
@@ -62,4 +65,14 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_EXTENSION_PERIOD_INVALID("msg.error.extension.period.invalid"),
     ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED("msg.error.afleidingwijze.brondatum.not.supported"),
     ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE("msg.error.brondatum.cannot.be.before.end.date"),
+    ERROR_CODE_ZAAKTYPE_NOT_ZAAKSPECIFIEK_AUTORISEERBAAR("msg.error.zaaktype.not.zaakspecifiek-autoriseerbaar"),
+    ERROR_CODE_ZAAK_WITHOUT_BEHANDELAAR_CANNOT_BE_MARKED("msg.error.zaak.without.behandelaar.cannot.be.marked"),
+    ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_NOT_ALLOWED("msg.error.zaakspecifieke.autorisatie.not.allowed"),
+    ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_CANNOT_BE_LIFTED("msg.error.zaakspecifieke.autorisatie.cannot.be.lifted"),
+    ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_RELEASED(
+        "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released"
+    ),
+    ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED(
+        "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned"
+    ),
 }

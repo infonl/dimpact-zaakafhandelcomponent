@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
+    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
     ports:
       - "54326:5432"
     healthcheck:
@@ -20,7 +20,7 @@ services:
       - zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.7.3@sha256:ff4257d0d64efbe99ed1ddfaf07765cc3c36dc7518bf8324d41961327f441c54
+    image: quay.io/keycloak/keycloak:26.7.4@sha256:82a77884f3af238beab1e7afd63b5f530e1b5c0590bd7aa60b40a40463e29b2c
     depends_on:
       keycloak-database:
         condition: service_healthy
@@ -98,9 +98,12 @@ services:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
       - openzaak-database-data:/var/lib/postgresql/data
 
+  # Open Zaak itself. Everything reaches it through the nginx proxy that carries the
+  # `openzaak.local` name, never directly, so that request bodies are always buffered before uwsgi
+  # sees them.
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
-  openzaak.local:
+  openzaak-app.local:
     image: openzaak/open-zaak:1.29.3@sha256:7ac22da287ac190a0e1c14849a370c433d3511678dcc8f3897007fd6de6dd4ac
     platform: linux/amd64
     environment: &openzaak-env
@@ -162,27 +165,36 @@ services:
       retries: 10
       start_period: 10s
     depends_on:
-      openzaak.local:
+      openzaak-app.local:
         condition: service_healthy
     profiles: [ "opennotificaties", "openformulieren" ]
 
-  # nginx reverse proxy in front of Open Zaak.
-  # Needed to handle ZAC's chunked transfer encoding (Transfer-Encoding: chunked) for large
-  # file uploads. uwsgi in HTTP mode does not buffer chunked request bodies before passing
-  # them to Django. nginx buffers the full request before forwarding it with Content-Length,
-  # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
-  openzaak-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414
+  # nginx reverse proxy in front of Open Zaak, carrying the `openzaak.local` name that every other
+  # container uses. It handles ZAC's chunked transfer encoding (Transfer-Encoding: chunked), which
+  # ZAC uses for large request bodies such as an uploaded document. uwsgi in HTTP mode does not
+  # buffer a chunked request body before passing it to Django, which then sees no fields at all and
+  # returns a 400. nginx buffers the full request and forwards it with a Content-Length, matching
+  # the production Kubernetes setup where nginx also sits in front of Open Zaak.
+  # It passes the `openzaak.local` Host on unchanged, so Open Zaak keeps generating the URLs that
+  # ZAC validates its responses against.
+  openzaak.local:
+    image: nginxinc/nginx-unprivileged:1.31.6@sha256:e44b470e571b20d935336bfb9f8277c1468d15e1e4d105a12ab5609d0b4682cb
     ports:
       - "8001:8000"
     volumes:
       - ./scripts/docker-compose/imports/openzaak/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "test -f /tmp/nginx.pid" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 5s
     depends_on:
-      openzaak.local:
+      openzaak-app.local:
         condition: service_healthy
 
   redis:
-    image: redis:8.6.6@sha256:ca06f464eec50217353220d2b1297e83a008881b26f51f30470c6620c240193d
+    image: redis:8.6.6@sha256:51d21cdd406d5cee4e4b2c002310dd413b2c5a87b0f4c36d30fcbb7684a00541
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -267,11 +279,11 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:38dd9719f0f6e799d04bb8c22fb5eaca3a9fe7ffaf313c296327c6cca02f3c1d
+    image: solr:9.10.1-slim@sha256:0a931f52cfd9a9afd6d958d246e64115648099c788e41a01adad9f09e6f73594
     ports:
       - "8983:8983"
     volumes:
-      - ./scripts/docker-compose/volume-data/solr-data:/var/solr
+      - solr-data:/var/solr
     # run as root to change the permissions of the solr folder
     user: root
     # Change permissions of the solr folder, create the 'zac' core and start solr
@@ -282,7 +294,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.20.1-static@sha256:efbca2ec7decf2cf23fd93ae171280a736c17d83d9d2e21c66a8f717e8fc7f20
+    image: openpolicyagent/opa:1.20.2-static@sha256:bb245e9e36be0d0ed486c240b606c56be7aba96014a4a87895fed4ba7a6dfa8d
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -299,7 +311,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202606291131@sha256:f476fe05715869997d7dbaff969f81e4bb67c5560439c65afd7020c5e987f67f
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202609170854@sha256:1ceeaba2a008c315aa64b5ca9c292f371ad776932d25f498fc7af9ee25f4f0c8
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -307,7 +319,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
+    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
     ports:
       - "54325:5432"
     healthcheck:
@@ -385,7 +397,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.20.1@sha256:39daf255ae7f25d81103f03a0c18308a50b7b5bb67907bed6166f70e24a970ff
+    image: openpolicyagent/opa:1.20.2@sha256:7b15f9d96345dfa639322ad97f65a0b38260f95efcdd7f5c24e284228708f06c
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -394,7 +406,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: gotenberg/gotenberg:8.36.0@sha256:87c16b9f364279d321bc9772d31fa58aa6abe036423c270698bd636c3a8e9466
+    image: gotenberg/gotenberg:8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769
     # Disable Chromium routes since we only use LibreOffice for document conversion.
     command:
       - "gotenberg"
@@ -404,7 +416,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.159.0@sha256:1f2c54a30e713fac6b3ae77a1ec84010c2007e29ced8ec666214fc2f6739c1cc
+    image: otel/opentelemetry-collector-contrib:0.161.0@sha256:fd328de2552466ad78385e1b1289c3f2402b1c45f265b252aab1955b42845ac1
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -447,10 +459,10 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.2.1@sha256:f772d434e8fab0049deb2b1b30abd43342bcfca1537614aa8d36080232cf4283
+    image: grafana/grafana:13.2.2@sha256:ac461fb352abc50da10a51c7d02462e9c05488f11f53f14b3ad79a8145f638a0
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
-      - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
@@ -693,7 +705,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414
+    image: nginxinc/nginx-unprivileged:1.31.6@sha256:e44b470e571b20d935336bfb9f8277c1468d15e1e4d105a12ab5609d0b4682cb
     ports:
       - "8005:8080"
     volumes:
@@ -704,7 +716,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
+    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
     ports:
       - "54329:5432"
     environment:
@@ -720,7 +732,7 @@ services:
       - pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.1@sha256:803596bb1f365a1296a4ef450a35fea5022798190b7b7a467a896c42675e280e
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:2.0.0-prerelease@sha256:643c03a2e24b9adcbeb9fb2ea21295abe29327d7ce68fba85ec56e93e4868936
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -732,7 +744,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.1.1@sha256:80c77b7a22f918fd94e8831ea75b249bdc9bd7a3efc57a5269d6a7086d5366e0
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:2.0.0-prerelease@sha256:c473698be2e2b7fc5b5bc18dde5f72fe569eaf0794fe69d04a0186fc96f4d584
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -747,6 +759,17 @@ services:
       Oidc__RequireHttps: "false"
       KeycloakAdmin__ClientId: "pabc-admin-client"
       KeycloakAdmin__ClientSecret: "pabcAdminClientSecret"
+      # Does not work in this Docker environment as the pabc-api container needs to talk to the Open Zaak
+      # via container openzaak-nginx on port 8000. This would mean that the CatalogiBaseUrl needs to be
+      # set to "http://openzaak-nginx:8000/catalogi/api/v1/". But then the URL does not match the URL configured in
+      # Open Zaak itself, which causes errors such as "Voer een geldige URL in."
+      # As this is not an essential feature to have locally, it was decided to only enable this on the actual
+      # environments.
+      ZgwZaakregister__Enabled: "false"
+      ZgwZaakregister__CatalogiBaseUrl: "http://localhost:8001/catalogi/api/v1/"
+      ZgwZaakregister__ClientId: "pabc"
+      ZgwZaakregister__ClientSecret: "pabcClientSecretWithExtraPadding"
+      ZgwZaakregister__CatalogusDomein: "ALG"
     ports:
       - "8006:8000"
     depends_on:
@@ -756,7 +779,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
+    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
     ports:
       - "54320:5432"
     healthcheck:
@@ -820,6 +843,10 @@ services:
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:3000
       - OBJECTS_API_CLIENT_MP_REST_URL=http://open-object.local:8000
       - OBJECTS_API_TOKEN=fakeZacObjectsToken
+      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-500}
+      # deliberately low so that the local stack and the integration tests exercise the upload
+      # in parts that a production-sized document would take
+      - MAX_IN_MEMORY_FILE_SIZE_MB=${MAX_IN_MEMORY_FILE_SIZE_MB:-10}
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # fake for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
@@ -874,7 +901,7 @@ services:
     profiles: ["zac"]
 
   openformulieren-database:
-    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
+    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
     ports:
       - "54330:5432"
     healthcheck:
@@ -891,7 +918,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.5.7@sha256:8b22f4f2ae91ee3d54ed72e6702d91860511d1a461bdb5aef8849a95a01279d4
+    image: openformulieren/open-forms:3.5.8@sha256:1050b6dd1554ff6f620390870fbb2056157d792e75b9fe6e965371a2ae84f41a
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1008,7 +1035,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.5.7@sha256:8b22f4f2ae91ee3d54ed72e6702d91860511d1a461bdb5aef8849a95a01279d4
+    image: openformulieren/open-forms:3.5.8@sha256:1050b6dd1554ff6f620390870fbb2056157d792e75b9fe6e965371a2ae84f41a
     # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1035,7 +1062,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.5.7@sha256:8b22f4f2ae91ee3d54ed72e6702d91860511d1a461bdb5aef8849a95a01279d4
+    image: openformulieren/open-forms:3.5.8@sha256:1050b6dd1554ff6f620390870fbb2056157d792e75b9fe6e965371a2ae84f41a
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1063,7 +1090,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.5.7@sha256:8b22f4f2ae91ee3d54ed72e6702d91860511d1a461bdb5aef8849a95a01279d4
+    image: openformulieren/open-forms:3.5.8@sha256:1050b6dd1554ff6f620390870fbb2056157d792e75b9fe6e965371a2ae84f41a
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1085,7 +1112,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414
+    image: nginxinc/nginx-unprivileged:1.31.6@sha256:e44b470e571b20d935336bfb9f8277c1468d15e1e4d105a12ab5609d0b4682cb
     ports:
       - "8007:8080"
     volumes:
@@ -1108,3 +1135,5 @@ volumes:
   pabc-database-data:
   zac-database-data:
   openformulieren-database-data:
+  solr-data:
+  grafana-data:

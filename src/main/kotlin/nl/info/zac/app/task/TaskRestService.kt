@@ -22,8 +22,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -58,7 +56,9 @@ import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.launchAsLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService
@@ -110,6 +110,7 @@ class TaskRestService @Inject constructor(
     private val suspensionZaakHelper: SuspensionZaakHelper,
     private val bpmnTaskFormRuntimeService: BpmnTaskFormRuntimeService,
     private val zaakVariabelenService: ZaakVariabelenService,
+    private val fileSizeConfiguration: FileSizeConfiguration,
 
     /**
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
@@ -178,10 +179,10 @@ class TaskRestService @Inject constructor(
         // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        dispatcher.launchAsLoggedInUser(loggedInUserInstance) { loggedInUser ->
             taskService.assignTasks(
                 restTaskDistributeData = restTaskDistributeData,
-                loggedInUser = loggedInUserInstance.get(),
+                loggedInUser = loggedInUser,
                 screenEventResourceId = restTaskDistributeData.screenEventResourceId
             )
         }
@@ -192,10 +193,10 @@ class TaskRestService @Inject constructor(
     fun releaseTaskFromList(@Valid restTaskReleaseData: RestTaskReleaseData) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        dispatcher.launchAsLoggedInUser(loggedInUserInstance) { loggedInUser ->
             taskService.releaseTasks(
                 restTaskReleaseData = restTaskReleaseData,
-                loggedInUser = loggedInUserInstance.get(),
+                loggedInUser = loggedInUser,
                 screenEventResourceId = restTaskReleaseData.screenEventResourceId
             )
         }
@@ -250,7 +251,7 @@ class TaskRestService @Inject constructor(
         } ?: processHardCodedFormTask(restTask, zaak)
 
         return flowableTaskService.completeTask(updatedTask).also {
-            indexingService.addOrUpdateZaak(restTask.zaakUuid, false)
+            indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
         }.let(restTaskConverter::convert)
@@ -301,6 +302,13 @@ class TaskRestService @Inject constructor(
         @PathParam("uuid") uuid: UUID,
         @Valid @MultipartForm data: RestFileUpload
     ): Response {
+        val file = data.file?.takeIf { it.isNotEmpty() } ?: throw InputValidationFailedException(
+            errorCode = ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID,
+            message = "An empty document cannot be uploaded"
+        )
+        // a task form attachment is kept in the HTTP session until the form is submitted, so it is
+        // bound by the in-memory limit rather than by the much larger maximum document size
+        fileSizeConfiguration.assertFileCanBeHeldInMemory(file.size.toLong())
         httpSession.get().setAttribute("_FILE__${uuid}__$field", data)
         return Response.ok("\"Success\"").build()
     }
@@ -440,4 +448,5 @@ class TaskRestService @Inject constructor(
             toelichting
         )
     }
+
 }

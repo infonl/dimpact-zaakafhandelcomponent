@@ -15,6 +15,15 @@ import { map, shareReplay } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { OrderUtil } from "../../shared/order/order-util";
 
+/**
+ * `description` is a translation key naming the action, so that the progress indicator has an
+ * accessible name that says what is taking time.
+ */
+export type Progress = {
+  percentage: number;
+  description: string;
+};
+
 @Injectable({
   providedIn: "root",
 })
@@ -24,6 +33,8 @@ export class UtilService {
   );
 
   readonly loading = signal(false);
+
+  readonly progress = signal<Progress | null>(null);
 
   public headerTitle$: Observable<string> = this.headerTitle.asObservable();
   public disable$ = new Subject<boolean>();
@@ -84,6 +95,10 @@ export class UtilService {
 
   setLoading(loading: boolean): void {
     this.loading.set(loading);
+  }
+
+  setProgress(progress: Progress | null): void {
+    this.progress.set(progress);
   }
 
   getEnumAsSelectList(prefix: string, enumValue: object) {

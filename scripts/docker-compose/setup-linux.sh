@@ -16,9 +16,7 @@ sed "s/\${UID}/$UID/g" "$SCRIPT_DIR/docker-compose.linux.override.yml" > "$REPO_
 sed -i "s/\${GID}/$GID/g" "$REPO_DIR/docker-compose.override.yml"
 
 echo "Changing ownership of directories ..."
-[ -d "$REPO_DIR/scripts/docker-compose/volume-data" ] && sudo chown -R "$UID:$GID" "$REPO_DIR/scripts/docker-compose/volume-data"
 [ -d "$REPO_DIR/build" ] && sudo chown -R "$UID:$GID" "$REPO_DIR/build"
 
 echo "Copying support environment scripts ..."
-cp "$SCRIPT_DIR/fix-permissions.sh" "$REPO_DIR/fix-permissions.sh"
 cp "$SCRIPT_DIR/check-for-running-containers.sh" "$REPO_DIR/check-for-running-containers.sh"

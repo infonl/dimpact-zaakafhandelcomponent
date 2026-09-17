@@ -125,7 +125,7 @@ data class ZaakZoekObject(
     @Field("zaak_aantalOpenstaandeTaken")
     var aantalOpenstaandeTaken: Long = 0,
 
-    @Field(ZoekObject.Companion.IS_TOEGEKEND_FIELD)
+    @Field(ZoekObject.IS_TOEGEKEND_FIELD)
     var isToegekend: Boolean = false,
 
     @Field("zaak_indicaties")
@@ -138,7 +138,13 @@ data class ZaakZoekObject(
     var betrokkenen: MutableMap<String, MutableList<String>>? = null,
 
     @Field("zaak_bagObjecten")
-    var bagObjectIDs: List<String>? = null
+    var bagObjectIDs: List<String>? = null,
+
+    @Field(ZAAKSPECIFIEK_GEAUTORISEERD_FIELD)
+    var isZaakspecifiekGeautoriseerd: Boolean = false,
+
+    @Field(ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD)
+    var zaakGeautoriseerdeMedewerkers: List<String>? = null
 ) : ZoekObject {
     companion object {
         const val AFGEHANDELD_FIELD: String = "zaak_afgehandeld"
@@ -147,6 +153,8 @@ data class ZaakZoekObject(
         const val OMSCHRIJVING_FIELD: String = "zaak_omschrijving"
         const val TOELICHTING_FIELD: String = "zaak_toelichting"
         const val ZAAK_BETROKKENE_PREFIX: String = "zaak_betrokkene_"
+        const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "zaak_zaakspecifiekGeautoriseerd"
+        const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD: String = "zaak_zaakGeautoriseerdeMedewerkers"
     }
 
     override fun getObjectId() = id

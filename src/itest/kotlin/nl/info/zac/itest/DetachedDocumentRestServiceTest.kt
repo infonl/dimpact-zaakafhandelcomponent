@@ -17,7 +17,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
-import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.PDF_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -45,7 +45,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             fileName = TEST_PDF_FILE_NAME,
             documentTitle = documentTitle,
             authorName = FAKE_AUTHOR_NAME,
-            mediaType = PDF_MIME_TYPE,
+            mediaType = PDF_MEDIA_TYPE,
             testUser = BEHANDELAAR_1
         )
         val detachReason = "fakeDetachReason"

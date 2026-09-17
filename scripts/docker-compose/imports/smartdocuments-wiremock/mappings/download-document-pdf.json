@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/smartdocuments/result/show?id=fakePdfFileId"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/html",
+      "content-disposition": "attachment; filename=\"sample.pdf\""
+    },
+    "bodyFileName": "sample.pdf"
+  }
+}

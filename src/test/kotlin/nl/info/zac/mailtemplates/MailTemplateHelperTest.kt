@@ -135,7 +135,7 @@ class MailTemplateHelperTest : BehaviorSpec({
 
             `when`("the variables are resolved with a text containing placeholders") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
-                    "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
+                    "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAKTYPE_OMSCHRIJVING}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
                         "{ZAAK_BEHANDELAAR_GROEP}, {ZAAK_BEHANDELAAR_MEDEWERKER}, {ZAAK_INITIATOR}",
                     zaak,
                     "userName"
@@ -149,6 +149,49 @@ class MailTemplateHelperTest : BehaviorSpec({
                 ) {
                     resolvedText shouldBe "fakeText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
                         "${statusType.omschrijving}, 12-10-2021, $groupName, $medewerkerVoorletters $medewerkerAchternaam, "
+                }
+            }
+        }
+
+        given("A zaaktype with a generic description") {
+            val zaakType = createZaakType(omschrijvingGeneriek = "fakeZaakTypeOmschrijvingGeneriek")
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+
+            `when`("a text containing the generic zaaktype description placeholder is resolved") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAKTYPE_OMSCHRIJVING_GENERIEK}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the placeholder is replaced by the generic description of the zaaktype") {
+                    resolvedText shouldBe "fakeText, fakeZaakTypeOmschrijvingGeneriek"
+                }
+            }
+        }
+
+        given("A zaaktype whose optional generic description is not filled in") {
+            val zaakType = createZaakType(
+                omschrijving = "fakeZaakTypeOmschrijving",
+                omschrijvingGeneriek = ""
+            )
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+
+            `when`("a text containing the generic zaaktype description placeholder is resolved") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAKTYPE_OMSCHRIJVING_GENERIEK}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the placeholder is replaced by an empty string") {
+                    resolvedText shouldBe "fakeText, "
                 }
             }
         }

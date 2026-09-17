@@ -25,9 +25,13 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
@@ -56,11 +60,13 @@ class NotificationReceiver @Inject constructor(
     private val productaanvraagService: ProductaanvraagService,
     private val indexingService: IndexingService,
     private val inboxDocumentService: InboxDocumentService,
+    private val detachedDocumentService: DetachedDocumentService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val cmmnService: CMMNService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val signaleringService: SignaleringService,
     private val taskService: TaskService,
+    private val zrcClientService: ZrcClientService,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -84,6 +90,7 @@ class NotificationReceiver @Inject constructor(
         handleProductaanvraag(notification)
         handleIndexing(notification)
         handleInboxDocuments(notification)
+        handleDetachedDocuments(notification)
         handleFlowableProcessData(notification)
         handleZaaktype(notification)
         handleWebsockets(notification)
@@ -232,9 +239,11 @@ class NotificationReceiver @Inject constructor(
                                 else -> {}
                             }
                         }
-                        Resource.STATUS, Resource.RESULTAAT, Resource.ROL, Resource.ZAAKOBJECT -> {
+                        Resource.STATUS, Resource.RESULTAAT, Resource.ZAAKOBJECT -> {
                             indexingService.addOrUpdateZaak(notification.mainResourceUrl.extractUuid(), false)
                         }
+                        Resource.ROL -> handleRolIndexing(notification.mainResourceUrl.extractUuid())
+                        Resource.ZAAKEIGENSCHAP -> handleZaakeigenschapIndexing(notification)
                         Resource.ZAAKINFORMATIEOBJECT -> {
                             if (notification.action == Action.CREATE) {
                                 indexingService.addOrUpdateInformatieobjectByZaakinformatieobject(
@@ -264,6 +273,62 @@ class NotificationReceiver @Inject constructor(
         }
     }
 
+    /**
+     * Reindexes the zaak and, when it is zaakspecifiek geautoriseerd, its taken and - asynchronously -
+     * its documenten, because a behandelaar change moves the geautoriseerde medewerker that those
+     * taak- and document-rows carry a copy of. Without this the previous behandelaar would keep passing
+     * the Solr exclusion on those rows while the new one is omitted from them.
+     */
+    private fun handleRolIndexing(zaakUUID: UUID) {
+        indexingService.addOrUpdateZaak(zaakUUID, false)
+        if (zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)) {
+            indexingService.addOrUpdateTakenForZaak(zaakUUID)
+            indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
+        }
+    }
+
+    /**
+     * Reindexes the zaak (including both its open and its completed taken, since a taak-level flag
+     * can go stale on a completed taak just as easily as on an open one) and, asynchronously, its
+     * documenten, but only when the changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have
+     * many eigenschappen that change far more often than its zaakspecifiek geautoriseerd status, and
+     * reindexing the zaak's documenten requires a ZGW call per document, so reindexing on every
+     * zaakeigenschap notificatie would be expensive on a path that Open Notificaties retries on
+     * timeout. A 'destroy' notificatie cannot be read back to check its naam, so it always triggers
+     * a reindex, as does a zaakeigenschap that cannot be read back for any other reason: whether it
+     * has already been deleted (a 404) or the read itself failed (e.g. a ZGW timeout or 5xx), the safe
+     * default is to reindex anyway, since a transient read failure only costs one extra reindex, while
+     * silently skipping it would leave the zaak out of sync with Solr with nothing left to retry, as
+     * this handler already reports success back to Open Notificaties. Because the documenten are
+     * reindexed asynchronously, there is a short window where the zaak (and its taken) already reflect
+     * the new zaakspecifiek geautoriseerd status but its documenten do not yet.
+     */
+    private fun handleZaakeigenschapIndexing(notification: Notification) {
+        val zaakUUID = notification.mainResourceUrl.extractUuid()
+        if (notification.action != Action.DELETE &&
+            !isZaakeigenschapGeautoriseerdOrUnreadable(notification, zaakUUID)
+        ) {
+            return
+        }
+        indexingService.addOrUpdateZaak(zaakUUID, false)
+        indexingService.addOrUpdateTakenForZaak(zaakUUID)
+        indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun isZaakeigenschapGeautoriseerdOrUnreadable(notification: Notification, zaakUUID: UUID) =
+        try {
+            zrcClientService.readZaakeigenschap(zaakUUID, notification.resourceUrl.extractUuid()).naam ==
+                ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+        } catch (exception: RuntimeException) {
+            LOG.log(
+                Level.WARNING,
+                "Failed to read zaakeigenschap for zaak with UUID '$zaakUUID'; reindexing the zaak defensively",
+                exception
+            )
+            true
+        }
+
     @Suppress("TooGenericExceptionCaught")
     private fun handleInboxDocuments(notification: Notification) {
         // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
@@ -283,8 +348,23 @@ class NotificationReceiver @Inject constructor(
                     else -> {}
                 }
             }
+            if (notification.action == Action.DELETE && notification.resource == Resource.INFORMATIEOBJECT) {
+                inboxDocumentService.deleteIfExists(notification.resourceUrl.extractUuid())
+            }
         } catch (exception: RuntimeException) {
             warning("inbox documents", notification, exception)
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun handleDetachedDocuments(notification: Notification) {
+        // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
+        if (notification.channel == Channel.TEST) return
+        if (notification.action != Action.DELETE || notification.resource != Resource.INFORMATIEOBJECT) return
+        try {
+            detachedDocumentService.deleteIfExists(notification.resourceUrl.extractUuid())
+        } catch (exception: RuntimeException) {
+            warning("detached documents", notification, exception)
         }
     }
 

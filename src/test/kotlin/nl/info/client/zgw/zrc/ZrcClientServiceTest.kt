@@ -66,7 +66,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         )
         val auditExplanation = "fakeExplanation"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
-        every { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any()) } answers { secondArg<() -> Any?>()() }
         every { zrcClient.rolCreate(any()) } returns newRole
 
         `when`("updateRol is called") {
@@ -74,7 +74,7 @@ class ZrcClientServiceTest : BehaviorSpec({
 
             then("it should create the new role and set the audit description") {
                 verify(exactly = 1) {
-                    zgwClientHeadersFactory.setAuditExplanation(auditExplanation)
+                    zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
                     zrcClient.rolCreate(newRole)
                 }
             }
@@ -90,7 +90,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         val description = "fakeDescription"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
         every { zrcClient.rolDelete(any()) } just Runs
-        every { zgwClientHeadersFactory.setAuditExplanation(description) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(description, any()) } answers { secondArg<() -> Any?>()() }
 
         `when`("deleteRol is called for betrokkeneType 'Medewerker'") {
             zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, description)
@@ -111,14 +111,14 @@ class ZrcClientServiceTest : BehaviorSpec({
         val rol = createRolMedewerkerForReads()
         val auditExplanation = "fakeExplanation"
         every { zrcClient.rolDelete(rol.uuid!!) } just Runs
-        every { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any()) } answers { secondArg<() -> Any?>()() }
 
         `when`("deleteRol is called with the rol directly") {
             zrcClientService.deleteRol(rol, auditExplanation)
 
             then("it should delete the rol and set the audit description") {
                 verify(exactly = 1) {
-                    zgwClientHeadersFactory.setAuditExplanation(auditExplanation)
+                    zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
                     zrcClient.rolDelete(rol.uuid!!)
                 }
             }
@@ -129,14 +129,14 @@ class ZrcClientServiceTest : BehaviorSpec({
         val zaakobject = createZaakobjectPand()
         val toelichting = "fakeToelichting"
         every { zrcClient.zaakobjectDelete(zaakobject.uuid) } just Runs
-        every { zgwClientHeadersFactory.setAuditExplanation(toelichting) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(toelichting, any()) } answers { secondArg<() -> Any?>()() }
 
         `when`("deleteZaakobject is called") {
             zrcClientService.deleteZaakobject(zaakobject, toelichting)
 
             then("it should delete the zaakobject and set the audit description") {
                 verify(exactly = 1) {
-                    zgwClientHeadersFactory.setAuditExplanation(toelichting)
+                    zgwClientHeadersFactory.withAuditExplanation<Any?>(toelichting, any())
                     zrcClient.zaakobjectDelete(zaakobject.uuid)
                 }
             }
@@ -149,7 +149,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         val description = "fakeDescription"
         every { zrcClient.zaakinformatieobjectList(any()) } returns emptyList()
         every { zrcClient.zaakinformatieobjectCreate(any()) } returns createZaakInformatieobjectForReads()
-        every { zgwClientHeadersFactory.setAuditExplanation(description) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(description, any()) } answers { secondArg<() -> Any?>()() }
 
         `when`("koppelInformatieobject is called") {
             zrcClientService.koppelInformatieobject(informatieobject, targetZaak, description)

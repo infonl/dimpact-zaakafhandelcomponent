@@ -14,7 +14,7 @@ help()
    echo "Syntax: $0 [-d|e|h|z|b|l|m|t|o|n|a|f]"
    echo
    echo "General:"
-   echo "   -d     Delete local Docker volume data before starting Docker Compose."
+   echo "   -d     Delete local Docker named volumes before starting Docker Compose."
    echo "   -e     Run Docker Compose without using the 1Password CLI tools to retrieve secrets (instead, environment variables must be set manually)."
    echo "   -h     Print this Help."
    echo
@@ -39,14 +39,13 @@ echoerr() {
   echo 1>&2;
 }
 
-volumeDataFolder="./scripts/docker-compose/volume-data"
 pullZac=false
 buildZac=false
 localZac=false
 disableZacOpenTelemetry=true
 disableOnePassword=false
 profiles=()
-postgresVolumes=(
+namedVolumes=(
   "zac-keycloak-database-data"
   "openzaak-database-data"
   "openklant-database-data"
@@ -55,18 +54,16 @@ postgresVolumes=(
   "pabc-database-data"
   "zac-database-data"
   "openformulieren-database-data"
+  "solr-data"
+  "grafana-data"
 )
-
-[ -f fix-permissions.sh ] && ./fix-permissions.sh
 
 while getopts ':dhzblmtonafe' OPTION; do
   case $OPTION in
     d)
-      echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
-      rm -rf $volumeDataFolder
-      echo "Deleting Postgres named Docker volumes .."
-      for postgresVolume in "${postgresVolumes[@]}"; do
-        docker volume rm --force "zac_$postgresVolume" >/dev/null 2>&1 || true
+      echo "Deleting named Docker volumes .."
+      for namedVolume in "${namedVolumes[@]}"; do
+        docker volume rm --force "zac_$namedVolume" >/dev/null 2>&1 || true
       done
       echo "Done"
       ;;
@@ -145,9 +142,6 @@ if [ "$pullZac" = "true" ]; then
     echo "Pulling latest ZAC Docker Image ..."
     docker compose pull zac
 fi
-
-# Ensure that Docker Compose volume-data directories are created with current user
-mkdir -p $volumeDataFolder/solr-data
 
 # Build comma separated profile list
 profilesList=""

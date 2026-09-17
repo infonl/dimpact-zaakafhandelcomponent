@@ -1,0 +1,42 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+@if (isVisible()) {
+  <section class="w100 flex-1">
+    @switch (viewType()) {
+      @case ("ADD") {
+        <zac-zaak-initiator-toevoegen
+          class="w100 flex-1"
+          [toevoegenToegestaan]="mayAddBetrokkene()"
+          (add)="addOrEdit.emit()"
+        ></zac-zaak-initiator-toevoegen>
+      }
+      @case ("CONTACT_DETAILS") {
+        <zac-contactgegevens
+          class="w100 flex-1"
+          [contactDetails]="zaak().zaakSpecificContactDetails!"
+          [toevoegenToegestaan]="mayAddBetrokkene()"
+          (add)="addOrEdit.emit()"
+        ></zac-contactgegevens>
+      }
+      @case ("PERSON") {
+        <zac-persoongegevens
+          class="w100 flex-1"
+          [zaak]="zaak()"
+          (edit)="addOrEdit.emit()"
+          (delete)="delete.emit()"
+        ></zac-persoongegevens>
+      }
+      @case ("COMPANY") {
+        <zac-bedrijfsgegevens
+          class="w100 flex-1"
+          [zaak]="zaak()"
+          (edit)="addOrEdit.emit()"
+          (delete)="delete.emit()"
+        ></zac-bedrijfsgegevens>
+      }
+    }
+  </section>
+}

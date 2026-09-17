@@ -1,11 +1,11 @@
-# syntax=docker/dockerfile:1.26.0@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+# syntax=docker/dockerfile:1.27.0@sha256:bde3983e9c939224420ddaf6b784cc30e09b035a4dea01f581230c50809f372e
 
 #
 # SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-FROM eclipse-temurin:25.0.4_7-jre-ubi10-minimal@sha256:00e82db3af3345ff1823b8344dc4abde5cc05b2a2cc8fc5159d3e48a1f63b178 AS runtime
+FROM eclipse-temurin:25.0.4_7-jre-ubi10-minimal@sha256:6c0490f8760c09beab648b0f245390d87f8005225535e79ad1a5c97226a9e543 AS runtime
 ARG branchName
 ARG commitHash
 ARG versionNumber

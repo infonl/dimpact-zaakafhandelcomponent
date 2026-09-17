@@ -86,8 +86,10 @@ data class TaskData(
 )
 
 data class Variables(
+    // specifying the document output format(s) is optional
+    // if it is not specified, the document output format configured in SmartDocuments ('document uitvoer') is used instead
     @field:JsonbProperty("OutputFormats")
-    val outputFormats: List<OutputFormat>,
+    val outputFormats: List<OutputFormat>? = null,
 
     @field:JsonbProperty("RedirectUrl")
     val redirectUrl: String,

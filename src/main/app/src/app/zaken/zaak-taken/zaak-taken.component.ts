@@ -177,10 +177,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     this.websocketService.removeListener(this.zaakTakenListener);
   }
 
-  reload() {
-    this.invalidate();
-  }
-
   private invalidate() {
     this.queryClient.invalidateQueries({
       queryKey: this.takenService.listTakenVoorZaakQuery(this.zaak().uuid)

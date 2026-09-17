@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -29,6 +30,10 @@ data class RestZaakCreateData(
     @field:Valid
     var groep: RestGroup? = null,
     var initiatorIdentificatie: BetrokkeneIdentificatie? = null,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    @set:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    var isZaakspecifiekGeautoriseerd: Boolean? = null,
 
     @field:Size(max = OMSCHRIJVING_MAX_LENGTH)
     var omschrijving: String,

@@ -160,6 +160,10 @@ interface ZrcClient {
     @Path("zaken/{zaak_uuid}/zaakeigenschappen")
     fun zaakeigenschapList(@PathParam("zaak_uuid") zaakUUID: UUID): List<ZaakEigenschap>
 
+    @GET
+    @Path("zaken/{zaak_uuid}/zaakeigenschappen/{uuid}")
+    fun zaakeigenschapRead(@PathParam("zaak_uuid") zaakUUID: UUID, @PathParam("uuid") uuid: UUID): ZaakEigenschap
+
     @PUT
     @Path("zaken/{zaak_uuid}/zaakeigenschappen/{uuid}")
     fun zaakEigenschapUpdate(

@@ -18,7 +18,7 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_TAS
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.PDF_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -69,7 +69,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
         zacClient.createEnkelvoudigInformatieobjectForZaak(
             zaakUUID = zaakUuid,
             fileName = TEST_PDF_FILE_NAME,
-            fileMediaType = PDF_MIME_TYPE,
+            fileMediaType = PDF_MEDIA_TYPE,
             vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
             testUser = BEHANDELAAR_1
         ).run {

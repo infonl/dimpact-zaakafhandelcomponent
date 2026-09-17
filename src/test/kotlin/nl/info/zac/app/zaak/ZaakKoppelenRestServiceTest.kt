@@ -247,7 +247,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every { policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser) } returns createZaakRechten()
             every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
-            every { indexingService.addOrUpdateZaak(teKoppelenZaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(teKoppelenZaak.uuid, false) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -288,7 +288,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser)
             } returns createZaakRechten()
             every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -566,7 +566,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every {
                 zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
             } returns zaak
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 

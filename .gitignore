@@ -56,7 +56,6 @@ scripts/github/.secrets
 ### Docker Compose ###
 docker-compose.override.yml
 check-for-running-containers.sh
-fix-permissions.sh
 
 ### Docker ###
 .DS_store

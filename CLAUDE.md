@@ -133,6 +133,26 @@ Where a third-party widget renders nothing queryable — `ngx-editor` sets no ro
 ProseMirror element, OpenLayers draws to a canvas, a file input is `display: none` —
 disable the rule on that line with a comment saying which widget forces it.
 
+### Reuse existing TanStack Query definitions
+Before writing a new `injectQuery`/`ensureQueryData` call, check whether the relevant service already exposes
+a `queryOptions()`-based method for that endpoint (e.g. `SmartDocumentsService.getTemplatesMappingQuery`,
+`InformatieObjectenService.listEnkelvoudigInformatieobjectenQuery`). Reuse it instead of inlining a new
+`{ queryKey, queryFn }` object — duplicating the query key and fetch logic across components risks the keys
+drifting out of sync (breaking the shared cache) and multiplies the places a bug must be fixed.
+```ts
+// Before
+private readonly someQuery = injectQuery(() => ({
+  queryKey: ["smartDocumentsTemplatesMapping", this.zaaktypeUuid],
+  queryFn: () => lastValueFrom(this.smartDocumentsService.getTemplatesMapping(this.zaaktypeUuid)),
+}));
+// After
+private readonly someQuery = injectQuery(() =>
+  this.smartDocumentsService.getTemplatesMappingQuery(this.zaaktypeUuid),
+);
+```
+If no shared method exists yet for the endpoint you need, add one to the relevant service using
+`queryOptions()` from `@tanstack/angular-query-experimental`, so future callers can reuse it too.
+
 ### SPDX License Headers
 All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
 ```
@@ -192,6 +212,51 @@ When you encounter placeholder or test URLs in code or documentation, use `https
 When you see a variable declaration where the variable name is different from its type, rename the variable to match the type. For example, if you have `val user: User`, rename it to `val user: User` instead of `val u: User` or `val usr: User`. This improves readability and makes it clear what the variable represents.
 This includes exceptions.
 For example `catch (e: Exception)` should be `catch (exception: Exception)`.
+
+### Catch narrow exceptions, not generic ones
+Never write `catch (exception: Exception)`, `catch (throwable: Throwable)` or `runCatching { }`. Catch the specific
+exception types the code in the `try` block can actually throw, and let everything else propagate. A generic catch
+swallows bugs — a `NullPointerException` or an `IllegalStateException` from a mistake in the `try` block gets treated
+as an expected failure and is silently handled.
+
+```kotlin
+// Before
+try {
+    drcClient.enkelvoudigInformatieobjectDelete(uuid)
+} catch (exception: Exception) {
+    LOG.warning { "Failed to delete document: ${exception.message}" }
+}
+// After
+try {
+    drcClient.enkelvoudigInformatieobjectDelete(uuid)
+} catch (drcRuntimeException: DrcRuntimeException) {
+    LOG.warning { "Failed to delete document: ${drcRuntimeException.message}" }
+} catch (processingException: ProcessingException) {
+    LOG.warning { "Failed to delete document: ${processingException.message}" }
+}
+```
+
+When the goal is cleanup on any failure rather than handling a failure, use `finally` — it needs no catch at all:
+
+```kotlin
+// Before
+try {
+    return writeTo(path)
+} catch (exception: Exception) {
+    Files.deleteIfExists(path)
+    throw exception
+}
+// After
+var isWritten = false
+try {
+    return writeTo(path).also { isWritten = true }
+} finally {
+    if (!isWritten) Files.deleteIfExists(path)
+}
+```
+
+The same goes for `@Suppress("TooGenericExceptionCaught")`: it is a signal that the catch is too broad, not a way to
+silence Detekt.
 
 ### Avoid the use of `requireNotNull`
 When you encounter a nullable variable that is being forcefully unwrapped using `requireNotNull`, consider refactoring the code to handle the null case more gracefully, for example by making the variable non-nullable.
@@ -525,5 +590,7 @@ Detailed guides live in `docs/development/`:
 - `testing.md` — comprehensive testing guide
 - `ideConfig.md` — IDE setup
 - `installDockerCompose.md` — local Docker Compose setup
+- `documentFileSizes.md` — the two maximum document sizes and how to raise them
 - `endToEndTypeSafety.md` — type safety approach
 - `paging.md` — REST paging conventions
+- `logging.md` — logging conventions and GDPR/AVG-required follow-up changes

@@ -26,12 +26,12 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAG
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
-import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.PDF_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_CONVERTED_TO_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
-import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_1
@@ -82,7 +82,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
                 zaakUUID = zaakUuid,
                 fileName = TEST_PDF_FILE_NAME,
-                fileMediaType = PDF_MIME_TYPE,
+                fileMediaType = PDF_MEDIA_TYPE,
                 vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK,
                 testUser = BEHANDELAAR_1
             )
@@ -103,7 +103,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "beschrijving" : "",
                           "bestandsomvang" : ${file.length()},
                           "creatiedatum" : "${LocalDate.now()}",
-                          "formaat" : "$PDF_MIME_TYPE",
+                          "formaat" : "$PDF_MEDIA_TYPE",
                           "indicatieGebruiksrecht" : false,
                           "indicaties" : [ ],
                           "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -132,7 +132,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         `when`("update of enkelvoudig informatie object with file upload endpoint is called with a TXT file") {
             val endpointUrl =
-                "$ZAC_API_URI/informatieobjecten/informatieobject/update"
+                "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid?zaak=$zaakUuid"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME).let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
@@ -141,13 +141,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val requestBody =
                 MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("uuid", enkelvoudigInformatieObjectUuid)
-                    .addFormDataPart("zaakUuid", zaakUuid.toString())
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_FACTUUR_UUID)
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
                     .addFormDataPart("titel", DOCUMENT_UPDATED_FILE_TITLE)
                     .addFormDataPart("bestandsomvang", TEST_TXT_FILE_SIZE.toString())
-                    .addFormDataPart("formaat", TEXT_MIME_TYPE)
+                    .addFormDataPart("formaat", TEXT_MEDIA_TYPE)
                     .addFormDataPart(
                         "vertrouwelijkheidaanduiding",
                         VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK
@@ -155,10 +153,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     .addFormDataPart(
                         "file",
                         TEST_TXT_FILE_NAME,
-                        file.asRequestBody(TEXT_MIME_TYPE.toMediaType())
+                        file.asRequestBody(TEXT_MEDIA_TYPE.toMediaType())
                     )
                     .build()
-            val response = itestHttpClient.performPostRequest(
+            val response = itestHttpClient.performPutRequest(
                 url = endpointUrl,
                 headers = Headers.headersOf(
                     "Accept",
@@ -183,7 +181,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "beschrijving" : "",
                       "bestandsomvang" : $TEST_TXT_FILE_SIZE,
                       "creatiedatum" : "$today",
-                      "formaat" : "$TEXT_MIME_TYPE",
+                      "formaat" : "$TEXT_MEDIA_TYPE",
                       "indicatieGebruiksrecht" : false,
                       "indicaties" : [ ],
                       "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING",
@@ -251,7 +249,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "beschrijving" : "",
                       "bestandsomvang" : $TEST_TXT_FILE_SIZE,
                       "creatiedatum" : "$today",
-                      "formaat" : "$TEXT_MIME_TYPE",
+                      "formaat" : "$TEXT_MEDIA_TYPE",
                       "indicatieGebruiksrecht" : false,
                       "indicaties" : [ "ONDERTEKEND" ],
                       "informatieobjectTypeOmschrijving" : "factuur",
@@ -329,11 +327,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
                     .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
                     .addFormDataPart("bestandsomvang", file.length().toString())
-                    .addFormDataPart("formaat", TEXT_MIME_TYPE)
+                    .addFormDataPart("formaat", TEXT_MEDIA_TYPE)
                     .addFormDataPart(
                         "file",
                         TEST_TXT_FILE_NAME,
-                        file.asRequestBody(TEXT_MIME_TYPE.toMediaType())
+                        file.asRequestBody(TEXT_MEDIA_TYPE.toMediaType())
                     )
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
                     .addFormDataPart(
@@ -381,7 +379,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "beschrijving" : "",
                       "bestandsomvang" : ${file.length()},
                       "creatiedatum" : "${LocalDate.now()}",
-                      "formaat" : "$TEXT_MIME_TYPE",
+                      "formaat" : "$TEXT_MEDIA_TYPE",
                       "indicatieGebruiksrecht" : false,
                       "indicaties" : [ ],
                       "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -444,7 +442,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "auteur" : "$FAKE_AUTHOR_NAME",
                   "beschrijving" : "",
                   "creatiedatum" : "${LocalDate.now()}",
-                  "formaat" : "$PDF_MIME_TYPE",
+                  "formaat" : "$PDF_MEDIA_TYPE",
                   "indicatieGebruiksrecht" : false,
                   "indicaties" : [ ],
                   "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -521,11 +519,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     .addFormDataPart("bestandsnaam", TEST_PDF_FILE_NAME)
                     .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
                     .addFormDataPart("bestandsomvang", file.length().toString())
-                    .addFormDataPart("formaat", PDF_MIME_TYPE)
+                    .addFormDataPart("formaat", PDF_MEDIA_TYPE)
                     .addFormDataPart(
                         "file",
                         TEST_PDF_FILE_NAME,
-                        file.asRequestBody(PDF_MIME_TYPE.toMediaType())
+                        file.asRequestBody(PDF_MEDIA_TYPE.toMediaType())
                     )
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
                     .addFormDataPart(
@@ -566,7 +564,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "auteur" : "$FAKE_AUTHOR_NAME",
                   "beschrijving" : "",
                   "creatiedatum" : "${LocalDate.now()}",
-                  "formaat" : "$PDF_MIME_TYPE",
+                  "formaat" : "$PDF_MEDIA_TYPE",
                   "indicatieGebruiksrecht" : false,
                   "indicaties" : [ ],
                   "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",

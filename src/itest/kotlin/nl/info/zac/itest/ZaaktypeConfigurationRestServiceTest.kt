@@ -201,7 +201,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                       "mailtemplateKoppelingen" : [
                         {
                           "mailtemplate": {
-                            "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
+                            "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAKTYPE_OMSCHRIJVING} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
                             "defaultMailtemplate": true,
                             "id": 2,
                             "mail": "ZAAK_NIET_ONTVANKELIJK",
@@ -210,7 +210,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                             "variabelen": [
                               "GEMEENTE",
                               "ZAAK_NUMMER",
-                              "ZAAK_TYPE",
+                              "ZAAKTYPE_OMSCHRIJVING",
+                              "ZAAKTYPE_OMSCHRIJVING_GENERIEK",
                               "ZAAK_STATUS",
                               "ZAAK_REGISTRATIEDATUM",
                               "ZAAK_STARTDATUM",

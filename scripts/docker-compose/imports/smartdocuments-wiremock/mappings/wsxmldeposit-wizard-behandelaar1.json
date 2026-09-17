@@ -28,11 +28,6 @@
                   "FixedValues": ""
                 },
                 "Variables": {
-                  "OutputFormats": [
-                    {
-                      "OutputFormat": "docx"
-                    }
-                  ],
                   "RedirectMethod": "POST",
                   "RedirectUrl": "${json-unit.any-string}"
                 }
@@ -68,11 +63,6 @@
                   "FixedValues": ""
                 },
                 "Variables": {
-                  "OutputFormats": [
-                    {
-                      "OutputFormat": "docx"
-                    }
-                  ],
                   "RedirectMethod": "POST",
                   "RedirectUrl": "${json-unit.any-string}"
                 }

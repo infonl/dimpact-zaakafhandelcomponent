@@ -53,7 +53,7 @@ VALUES
         '8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a', -- uuid
         'zaaktype-test-1', -- identificatie
         'Test zaaktype 1', -- zaaktype_omschrijving
-        'Test zaaktype 1', -- zaaktype_omschrijving_generiek
+        'Generieke omschrijving van test zaaktype 1', -- zaaktype_omschrijving_generiek
         'openbaar',   -- vertrouwelijkheidaanduiding
         'Test zaaktype 1', -- doel
         'Test zaaktype 1', -- aanleiding

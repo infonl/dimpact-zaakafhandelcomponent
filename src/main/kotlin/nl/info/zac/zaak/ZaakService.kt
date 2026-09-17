@@ -71,7 +71,8 @@ class ZaakService @Inject constructor(
     private val identityService: IdentityService,
     private val indexingService: IndexingService,
     private val bpmnService: BpmnService,
-    private val pabcClientService: PabcClientService
+    private val pabcClientService: PabcClientService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
 ) {
     companion object {
         private val zaakAssignmentLocks = Array(64) { ReentrantLock() }
@@ -152,11 +153,12 @@ class ZaakService @Inject constructor(
         val (zakenAssignedList, zakenToSkip) = zaakUUIDs
             .map(zrcClientService::readZaak)
             .partition {
-                isZaakOpen(it) && group.isAuthorisedForApplicationRoleAndZaaktype(
-                    // you are only allowed to assign zaken to 'behandelaren'
-                    zacApplicationRole = BEHANDELAAR,
-                    zaaktypeUuid = it.zaaktype.extractUuid()
-                )
+                isZaakOpen(it) && !zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(it) &&
+                    group.isAuthorisedForApplicationRoleAndZaaktype(
+                        // you are only allowed to assign zaken to 'behandelaren'
+                        zacApplicationRole = BEHANDELAAR,
+                        zaaktypeUuid = it.zaaktype.extractUuid()
+                    )
             }
         zakenToSkip
             .forEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
@@ -199,6 +201,7 @@ class ZaakService @Inject constructor(
     fun assignZaak(zaak: Zaak, groupId: String, userName: String?, reason: String?) {
         // lock for the given zaak so that it is impossible to assign the zaak to multiple users on quick subsequent calls
         lockForZaak(zaak.uuid).withLock {
+            zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, userName)
             userName?.let {
                 identityService.validateIfUserIsInGroup(it, groupId)
             }
@@ -232,6 +235,9 @@ class ZaakService @Inject constructor(
 
             if (userAssigned || userDeleted || groupAssigned) {
                 indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                if (userAssigned || userDeleted) {
+                    zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak)
+                }
             }
         }
     }
@@ -313,11 +319,12 @@ class ZaakService @Inject constructor(
         zaakUUIDs
             .map(zrcClientService::readZaak)
             .filter {
-                if (!it.isOpen()) {
-                    LOG.fine("Zaak with UUID '${it.uuid} is not open. Therefore it is not released.")
+                val canBeReleased = it.isOpen() && !zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(it)
+                if (!canBeReleased) {
+                    LOG.fine("Zaak with UUID '${it.uuid} cannot be released. Therefore it is not released.")
                     eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it))
                 }
-                it.isOpen()
+                canBeReleased
             }
             .forEach { zrcClientService.deleteRol(it, BetrokkeneTypeEnum.MEDEWERKER, explanation) }
         LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }

@@ -18,9 +18,12 @@ import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
+import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
+import org.apache.commons.io.FilenameUtils.getExtension
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
@@ -84,10 +87,10 @@ class SmartDocumentsService @Inject constructor(
             data = data,
             smartDocument = smartDocument
         )
-        val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
-            LOG.fine("Starting Smart Documents wizard for user: '$it'")
-        }
         return if (useWizardAuthEnabled()) {
+            val userName = determineUserName().also {
+                LOG.fine("Starting Smart Documents wizard for user: '$it'")
+            }
             smartDocumentsClient.get().attendedDeposit(
                 authenticationToken = "Basic ${authenticationToken.get()}",
                 userName = userName,
@@ -115,26 +118,50 @@ class SmartDocumentsService @Inject constructor(
      *
      * @return A structure describing templates and groups
      */
-    fun listTemplates(): SmartDocumentsTemplatesResponse =
-        smartDocumentsClient.get().listTemplates(
+    fun listTemplates(): SmartDocumentsTemplatesResponse {
+        val userName = determineUserName()
+        return smartDocumentsClient.get().listTemplates(
             authenticationToken = "Basic ${authenticationToken.get()}",
-            userName = fixedUserName.orElse(loggedInUserInstance.get().id)
+            userName = userName
         )
+    }
 
     /**
-     * Download generated document
+     * Download the generated document from SmartDocuments.
      */
     fun downloadDocument(fileId: String): File =
         smartDocumentsClient.get().downloadFile(
-            smartDocumentsId = fileId,
-            documentFormat = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
+            smartDocumentsId = fileId
         ).let { downloadedFile ->
+            val fileName = downloadedFile.contentDisposition()
+                .removePrefix("attachment; filename=\"")
+                .removeSuffix("\"")
             File(
-                fileName = downloadedFile.contentDisposition()
-                    .removePrefix("attachment; filename=\"")
-                    .removeSuffix("\""),
+                fileName = fileName,
                 document = Document(data = downloadedFile.body().toBase64String()),
-                outputFormat = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
+                outputFormat = outputFormatForFileName(fileName)
             )
+        }
+
+    /**
+     * Determines the username to use for SmartDocuments requests: the configured fixed username if present,
+     * or else the currently logged-in user's id.
+     */
+    private fun determineUserName(): String =
+        fixedUserName.orElseGet {
+            if (loggedInUserInstance.isUnsatisfied) {
+                throw SmartDocumentsConfigurationException(
+                    "No SmartDocuments fixed user name configured and no user is currently logged in"
+                )
+            }
+            loggedInUserInstance.get().id
+        }
+
+    private fun outputFormatForFileName(fileName: String): String =
+        ".${getExtension(fileName)}".let { extension ->
+            MediaTypes.Application.entries.find { extension in it.extensions }?.mediaType
+                ?: throw SmartDocumentsUnsupportedOutputFormatException(
+                    "Unsupported SmartDocuments output file extension: '$extension' for file name: '$fileName'"
+                )
         }
 }

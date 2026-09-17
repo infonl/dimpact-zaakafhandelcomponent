@@ -53,7 +53,7 @@ VALUES
   '448356ff-dcfb-4504-9501-7fe929077c4f', -- uuid
   'test-zaaktype-3', -- identificatie
   'Test zaaktype 3', -- zaaktype_omschrijving
-  'Test zaaktype 3', -- zaaktype_omschrijving_generiek
+  'Generieke omschrijving van test zaaktype 3', -- zaaktype_omschrijving_generiek
   'openbaar',   -- vertrouwelijkheidaanduiding
   'Test zaaktype 3', -- doel
   'Test zaaktype 3', -- aanleiding

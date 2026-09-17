@@ -53,7 +53,7 @@ VALUES
     'e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c',
     'bpmn-test-zaaktype-3',
     'BPMN test zaaktype 3',
-    'BPMN test zaaktype 3',
+    'Generieke omschrijving van BPMN test zaaktype 3',
     'openbaar',
     'BPMN test zaaktype 3',
     'BPMN test zaaktype 3',

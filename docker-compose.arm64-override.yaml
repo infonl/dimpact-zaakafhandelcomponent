@@ -67,7 +67,7 @@ services:
     image: ghcr.io/infonl/postgis:17-3.5@sha256:62657ab3cdacebf7d99184ac2a6777ce34815447dfd819f5d11e1bf074dd6876
     platform: linux/arm64
 
-  openzaak.local:
+  openzaak-app.local:
     image: ghcr.io/infonl/open-zaak:1.29.3@sha256:6cae5e1c92856e97c814c02618960dbbcb018cb739b257de5da5daead35bd3fb
     platform: linux/arm64
 
@@ -76,9 +76,9 @@ services:
     platform: linux/arm64
 
   pabc-migrations:
-    image: ghcr.io/infonl/pabc-migrations:1.1.1@sha256:651deedc739b8dc0778310e5518cfde503f129656702899bebf2677bb7a0cd3b
+    image: ghcr.io/infonl/pabc-migrations:2.0.0-prerelease-arm64@sha256:b627a3dd1bc19af874f9204aad400a782d9139ef816ffb73d0d43d580e78344f
     platform: linux/arm64
 
   pabc-api:
-    image: ghcr.io/infonl/pabc-api:1.1.1@sha256:223a59a7253511ccf13445096a55434a7b21ceda5bb3590edbd51963fb4ac904
+    image: ghcr.io/infonl/pabc-api:2.0.0-prerelease-arm64@sha256:671659bcbf65bdd39ed9d3c46840af12ae5c0762bbcb2e7faa82e1f7261866d8
     platform: linux/arm64

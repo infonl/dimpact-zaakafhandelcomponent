@@ -3,7 +3,7 @@
 Besides [CMMN](cmmn.md), ZAC also supports [BPMN (Business Process Model and Notation)](https://www.bpmn.org/) processes to handle zaken.
 
 Also see:
-* [Process automation architecture](../solution-architecture/processAutomationArchitecture.md)
+* [Business Process automation architecture](../solution-architecture/businessProcessAutomationArchitecture.md)
 * [BPMN guide](../manuals/bpmn-guide/README.md)
 
 ## BPMN process automation engine 

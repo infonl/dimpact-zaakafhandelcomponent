@@ -10,10 +10,7 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.HttpMethod
 import jakarta.ws.rs.core.UriBuilder
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.model.document.File
-import nl.info.client.smartdocuments.model.document.OutputFormat
-import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -52,6 +49,7 @@ class DocumentCreationService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val documentCreationUserStore: DocumentCreationUserStore,
 ) {
     companion object {
         private const val SMART_DOCUMENTS_WIZARD_FINISH_PAGE = "static/smart-documents-result.html"
@@ -62,39 +60,37 @@ class DocumentCreationService @Inject constructor(
     }
 
     /**
-     * Download a generated SmartDocuments file and store it as an Informatieobject
+     * Store an already downloaded SmartDocuments document in the ZGW zaak registry.
      */
-    fun storeDocument(
+    fun storeDownloadedDocument(
         zaak: Zaak,
         taskId: String? = null,
-        fileId: String,
+        file: File,
         title: String,
         description: String?,
         informatieobjecttypeUuid: UUID,
         creationDate: ZonedDateTime,
         userName: String
     ): ZaakInformatieObject =
-        smartDocumentsService.downloadDocument(fileId).let { file ->
-            createEnkelvoudigInformatieObjectCreateLockRequest(
-                file = file,
-                format = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType,
-                informatieobjecttypeUrl = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url,
-                title = title,
-                description = description,
-                creationDate = creationDate,
-                userName = userName,
-            ).let {
-                enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                    zaak = zaak,
-                    enkelvoudigInformatieObjectCreateLockRequest = it,
-                    taskId = taskId,
-                    // We open SmartDocuments in a new tab. This means that authorization token we have from Keycloak
-                    // will expire in some time (60-90 seconds usually). After this time no policy checks can be done,
-                    // as we no longer have a valid token. All policy checks need to be performed on document creation
-                    // request time.
-                    skipPolicyCheck = true
-                )
-            }
+        createEnkelvoudigInformatieObjectCreateLockRequest(
+            file = file,
+            format = file.outputFormat,
+            informatieobjecttypeUrl = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url,
+            title = title,
+            description = description,
+            creationDate = creationDate,
+            userName = userName,
+        ).let {
+            enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = it,
+                taskId = taskId,
+                // In the ZAC SmartDocuments flow, a separate browser tab is used for the SmartDocuments callback process.
+                // This means that the ZAC authorization token may have expired by the time the document is downloaded.
+                // When this happens, no policy checks can be done, as we no longer have a valid token.
+                // All policy checks need to be performed at document creation request time.
+                skipPolicyCheck = true
+            )
         }
 
     @Suppress("MaxLineLength")
@@ -145,6 +141,8 @@ class DocumentCreationService @Inject constructor(
         ).apply {
             queryParam("templateId", templateId)
             queryParam("templateGroupId", templateGroupId)
+            // the callback is unauthenticated: it recovers the user from this token, not from the URL
+            queryParam("documentCreationToken", documentCreationUserStore.createToken())
         }
 
         return if (taskId != null) {
@@ -198,18 +196,11 @@ class DocumentCreationService @Inject constructor(
 
     private fun createDocumentForAttendedFlow(creationDataAttended: DocumentCreationDataAttended) =
         SmartDocument(
-            selection = Selection(
-                templateGroup = smartDocumentsTemplatesService.getTemplateGroupName(
-                    creationDataAttended.templateGroupId
-                ),
-                template = smartDocumentsTemplatesService.getTemplateName(creationDataAttended.templateId)
+            selection = smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = creationDataAttended.templateGroupId,
+                templateId = creationDataAttended.templateId
             ),
             variables = Variables(
-                // SmartDocuments use file extensions (without the leading `.`) instead of media types
-                // as the output format
-                outputFormats = listOf(
-                    OutputFormat(MediaTypes.Application.MS_WORD_OPEN_XML.extensions.first().drop(1))
-                ),
                 redirectMethod = HttpMethod.POST,
                 redirectUrl = documentCreationCallbackUrl(
                     zaakUuid = creationDataAttended.zaak.uuid,

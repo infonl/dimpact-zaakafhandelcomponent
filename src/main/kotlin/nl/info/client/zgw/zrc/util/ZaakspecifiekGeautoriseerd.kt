@@ -5,12 +5,29 @@
 package nl.info.client.zgw.zrc.util
 
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.ztc.ZtcClientService
 import java.util.UUID
 
-private const val ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD = "ZAAK_GEAUTORISEERD"
+const val ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD = "ZAAK_GEAUTORISEERD"
 private const val ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD = "true"
 
 fun ZrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID: UUID): Boolean =
     listZaakeigenschappen(zaakUUID).any {
         it.naam == ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD && it.waarde == ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD
     }
+
+fun ZrcClientService.markZaakspecifiekGeautoriseerd(zaak: Zaak, ztcClientService: ZtcClientService) {
+    if (isZaakspecifiekGeautoriseerd(zaak.uuid)) return
+    ztcClientService.readEigenschap(zaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD).let { eigenschap ->
+        createEigenschap(
+            zaak.uuid,
+            ZaakEigenschap().apply {
+                this.eigenschap = eigenschap.url
+                this.zaak = zaak.url
+                this.waarde = ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD
+            }
+        )
+    }
+}

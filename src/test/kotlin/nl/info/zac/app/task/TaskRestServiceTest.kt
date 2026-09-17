@@ -18,6 +18,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.json.Json
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -38,6 +39,7 @@ import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.model.createRESTUser
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
@@ -47,7 +49,9 @@ import nl.info.zac.app.task.model.createRestTaskDistributeData
 import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.model.getFullName
@@ -110,6 +114,7 @@ class TaskRestServiceTest : BehaviorSpec({
         taskService = taskService,
         bpmnTaskFormRuntimeService = bpmnTaskFormRuntimeService,
         zaakVariabelenService = zaakVariabelenService,
+        fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L),
         dispatcher = testDispatcher
     )
     val loggedInUser = createLoggedInUser()
@@ -245,7 +250,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
             every { taakVariabelenService.setTaskinformation(task, null) } just runs
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-            every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
             every { historicTaskInstance.id } returns restTaak.id
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
@@ -309,7 +314,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-            every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { httpSessionInstance.get() } returns httpSession
             // in this test we assume there was no document uploaded to the http session beforehand
@@ -396,7 +401,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { bpmnTaskFormRuntimeService.submit(restTask, assignedTask, zaak) } returns assignedTask
             every { flowableTaskService.completeTask(assignedTask) } returns historicTaskInstance
             every { historicTaskInstance.id } returns restTask.id
-            every { indexingService.addOrUpdateZaak(restTask.zaakUuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false) } just runs
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaskConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
@@ -573,6 +578,125 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("a TaskNotFoundException is thrown") {
                     exception.message shouldBe "Task not found"
+                }
+            }
+        }
+    }
+    given("a task form attachment upload") {
+        val httpSession = mockk<HttpSession>()
+        val uuid = UUID.randomUUID()
+
+        `when`("it carries no file at all") {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                taskRestService.uploadFile(field = "fakeField", uuid = uuid, data = RestFileUpload())
+            }
+
+            then("it is refused, so that submitting the task cannot fail on a missing attachment") {
+                inputValidationFailedException.message shouldBe "An empty document cannot be uploaded"
+                verify(exactly = 0) { httpSession.setAttribute(any<String>(), any()) }
+            }
+        }
+
+        `when`("it carries an empty file") {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                taskRestService.uploadFile(
+                    field = "fakeField",
+                    uuid = uuid,
+                    data = RestFileUpload(file = ByteArray(0), filename = "fakeFileName.pdf")
+                )
+            }
+
+            then("it is refused as well") {
+                inputValidationFailedException.message shouldBe "An empty document cannot be uploaded"
+                verify(exactly = 0) { httpSession.setAttribute(any<String>(), any()) }
+            }
+        }
+
+        `when`("it carries a file within the in-memory maximum") {
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.setAttribute(any<String>(), any()) } just runs
+
+            taskRestService.uploadFile(
+                field = "fakeField",
+                uuid = uuid,
+                data = RestFileUpload(file = "fakeContent".toByteArray(), filename = "fakeFileName.pdf")
+            )
+
+            then("it is kept in the session until the task is submitted") {
+                verify(exactly = 1) { httpSession.setAttribute("_FILE__${uuid}__fakeField", any()) }
+            }
+        }
+    }
+
+    context("Running a batch task operation as the user that started it") {
+        given("a batch task assignment whose user session ends before the coroutine runs") {
+            val screenEventResourceId = "fakeScreenEventResourceId"
+            val restTaakVerdelenGegevens = createRestTaskDistributeData(
+                taken = listOf(createRestTaskDistributeTask()),
+                screenEventResourceId = screenEventResourceId
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            var userInContextDuringAssignment: LoggedInUser? = null
+            every { taskService.assignTasks(any(), any(), any()) } answers {
+                userInContextDuringAssignment = LoggedInUserProvider.asyncContextUser.get()
+            }
+
+            `when`("the 'verdelen vanuit lijst' function is called") {
+                var isSessionEnded = false
+                every { loggedInUserInstance.get() } answers {
+                    if (isSessionEnded) LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER else loggedInUser
+                }
+
+                runTest(testDispatcher) {
+                    taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
+                    isSessionEnded = true
+                    advanceUntilIdle()
+                }
+
+                then("the tasks are assigned as the user that started the batch") {
+                    verify(exactly = 1) {
+                        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                    }
+                }
+
+                and("the coroutine carries that user, so its ZGW calls run as that user too") {
+                    userInContextDuringAssignment shouldBe loggedInUser
+                }
+            }
+        }
+
+        given("a batch task release whose user session ends before the coroutine runs") {
+            val screenEventResourceId = "fakeScreenEventResourceId"
+            val restTaakVrijgevenGegevens = createRestTaskReleaseData(
+                taken = listOf(createRestTaskDistributeTask()),
+                screenEventResourceId = screenEventResourceId
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            var userInContextDuringRelease: LoggedInUser? = null
+            every { taskService.releaseTasks(any(), any(), any()) } answers {
+                userInContextDuringRelease = LoggedInUserProvider.asyncContextUser.get()
+            }
+
+            `when`("the 'vrijgeven vanuit lijst' function is called") {
+                var isSessionEnded = false
+                every { loggedInUserInstance.get() } answers {
+                    if (isSessionEnded) LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER else loggedInUser
+                }
+
+                runTest(testDispatcher) {
+                    taskRestService.releaseTaskFromList(restTaakVrijgevenGegevens)
+                    isSessionEnded = true
+                    advanceUntilIdle()
+                }
+
+                then("the tasks are released as the user that started the batch") {
+                    verify(exactly = 1) {
+                        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                    }
+                }
+
+                and("the coroutine carries that user, so its ZGW calls run as that user too") {
+                    userInContextDuringRelease shouldBe loggedInUser
                 }
             }
         }

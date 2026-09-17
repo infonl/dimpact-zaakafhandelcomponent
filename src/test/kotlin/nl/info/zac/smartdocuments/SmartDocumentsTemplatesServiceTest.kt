@@ -12,9 +12,12 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.persistence.EntityManager
+import jakarta.persistence.Query
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.CriteriaDelete
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
@@ -25,6 +28,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
+import nl.info.zac.smartdocuments.templates.model.createSmartDocumentsTemplateGroup
 import java.util.UUID
 
 class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
@@ -97,11 +101,75 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
                 exception.message shouldContain "Dimpact, no such group"
             }
         }
+
+        `when`("the current selection is requested for an existing template group and template") {
+            val nestedGroup = smartDocumentsTemplatesResponse.documentsStructure.templatesStructure
+                .templateGroups.first().templateGroups!!.first()
+            val nestedTemplate = nestedGroup.templates!!.first()
+
+            val currentSelection = smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = nestedGroup.id,
+                templateId = nestedTemplate.id
+            )
+
+            then("the current template group name and template name are returned") {
+                currentSelection.templateGroup shouldBe nestedGroup.name
+                currentSelection.template shouldBe nestedTemplate.name
+            }
+        }
+
+        `when`("the current selection is requested for a template group id that no longer exists") {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                smartDocumentsTemplatesService.readCurrentSelection(
+                    templateGroupId = "no such group id",
+                    templateId = "irrelevant template id"
+                )
+            }
+
+            then("exception is thrown") {
+                exception.message shouldContain "no such group id"
+            }
+        }
+
+        `when`("the current selection is requested for a template id that no longer exists") {
+            val rootGroup = smartDocumentsTemplatesResponse.documentsStructure.templatesStructure
+                .templateGroups.first()
+
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                smartDocumentsTemplatesService.readCurrentSelection(
+                    templateGroupId = rootGroup.id,
+                    templateId = "no such template id"
+                )
+            }
+
+            then("exception is thrown") {
+                exception.message shouldContain "no such template id"
+            }
+        }
+
+        `when`("the current selection is requested for a template that exists, but not under the given template group") {
+            val nestedGroups = smartDocumentsTemplatesResponse.documentsStructure.templatesStructure
+                .templateGroups.first().templateGroups!!
+            val templateGroup = nestedGroups.first()
+            val templateFromADifferentGroup = nestedGroups.last().templates!!.first()
+
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                smartDocumentsTemplatesService.readCurrentSelection(
+                    templateGroupId = templateGroup.id,
+                    templateId = templateFromADifferentGroup.id
+                )
+            }
+
+            then("exception is thrown instead of returning a mismatched template group and template pair") {
+                exception.message shouldContain templateFromADifferentGroup.id
+                exception.message shouldContain templateGroup.id
+            }
+        }
     }
 
     given("A missing mapping") {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaakafhanderParametersId = 1L
+        val zaakafhandelParametersId = 1L
         val templateGroupId = "template group id"
         val templateId = "template id"
 
@@ -123,7 +191,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
         every { criteriaBuilder.createQuery(UUID::class.java) } returns criteriaQuery
         every { criteriaBuilder.and(any<Predicate>(), any<Predicate>(), any<Predicate>()) } returns predicate
-        every { criteriaBuilder.equal(longPath, zaakafhanderParametersId) } returns predicate
+        every { criteriaBuilder.equal(longPath, zaakafhandelParametersId) } returns predicate
         every { criteriaBuilder.equal(stringPath, templateGroupId) } returns predicate
         every { criteriaBuilder.equal(templatePath, templateId) } returns predicate
 
@@ -142,7 +210,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
         } returns zaaktypeConfiguration
-        every { zaaktypeConfiguration.id } returns zaakafhanderParametersId
+        every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns emptyList()
@@ -165,7 +233,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
     given("An existing mapping") {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaakafhanderParametersId = 1L
+        val zaakafhandelParametersId = 1L
         val templateGroupId = "template group id"
         val templateId = "template id"
         val informationObjectTypeUUID = UUID.randomUUID()
@@ -188,7 +256,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
         every { criteriaBuilder.createQuery(UUID::class.java) } returns criteriaQuery
         every { criteriaBuilder.and(any<Predicate>(), any<Predicate>(), any<Predicate>()) } returns predicate
-        every { criteriaBuilder.equal(longPath, zaakafhanderParametersId) } returns predicate
+        every { criteriaBuilder.equal(longPath, zaakafhandelParametersId) } returns predicate
         every { criteriaBuilder.equal(stringPath, templateGroupId) } returns predicate
         every { criteriaBuilder.equal(templatePath, templateId) } returns predicate
 
@@ -207,7 +275,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
         } returns zaaktypeConfiguration
-        every { zaaktypeConfiguration.id } returns zaakafhanderParametersId
+        every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns listOf(informationObjectTypeUUID)
@@ -225,76 +293,101 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         }
     }
 
-    given("A missing template group") {
-        val templateGroupId = "123abc"
+    given("A zaaktype configuration exists but has no persisted SmartDocuments mapping") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaakafhandelParametersId = 1L
 
         val criteriaBuilder = mockk<CriteriaBuilder>()
-        val criteriaQuery = mockk<CriteriaQuery<String>>()
+        val criteriaQuery = mockk<CriteriaQuery<SmartDocumentsTemplateGroup>>()
         val root = mockk<Root<SmartDocumentsTemplateGroup>>()
-        val stringPath = mockk<Path<String>>()
-        val predicate = mockk<Predicate>()
-        val typedQuery = mockk<TypedQuery<String>>()
+        val zaaktypeConfigurationPath = mockk<Path<ZaaktypeConfiguration>>()
+        val longPath = mockk<Path<Long>>()
+        val parentPath = mockk<Path<SmartDocumentsTemplateGroup>>()
+        val equalPredicate = mockk<Predicate>()
+        val isNullPredicate = mockk<Predicate>()
+        val andPredicate = mockk<Predicate>()
+        val zaaktypeConfiguration = mockk<ZaaktypeConfiguration>()
+        val typedQuery = mockk<TypedQuery<SmartDocumentsTemplateGroup>>()
 
         every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
-
-        every { criteriaBuilder.createQuery(String::class.java) } returns criteriaQuery
-        every { criteriaBuilder.equal(stringPath, templateGroupId) } returns predicate
-
-        every { root.get<String>("name") } returns stringPath
-        every { root.get<String>("smartDocumentsId") } returns stringPath
-
-        every { criteriaQuery.select(stringPath) } returns criteriaQuery
-        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
+        every { criteriaBuilder.createQuery(SmartDocumentsTemplateGroup::class.java) } returns criteriaQuery
         every { criteriaQuery.from(SmartDocumentsTemplateGroup::class.java) } returns root
-
-        every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
+        every {
+            root.get<ZaaktypeConfiguration>("zaaktypeConfiguration")
+        } returns zaaktypeConfigurationPath
+        every { zaaktypeConfigurationPath.get<Long>("id") } returns longPath
+        every { root.get<SmartDocumentsTemplateGroup>("parent") } returns parentPath
+        every { criteriaBuilder.equal(longPath, zaakafhandelParametersId) } returns equalPredicate
+        every { criteriaBuilder.isNull(parentPath) } returns isNullPredicate
+        every { criteriaBuilder.and(equalPredicate, isNullPredicate) } returns andPredicate
+        every { criteriaQuery.select(root) } returns criteriaQuery
+        every { criteriaQuery.where(andPredicate) } returns criteriaQuery
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { typedQuery.resultList } returns emptyList()
 
-        `when`("template group name query is started") {
-            val exception = shouldThrow<SmartDocumentsConfigurationException> {
-                smartDocumentsTemplatesService.getTemplateGroupName(templateGroupId)
-            }
+        every { smartDocumentsService.isEnabled() } returns true
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+        } returns zaaktypeConfiguration
+        every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
-            then("exception is thrown") {
-                exception.message shouldContain "123abc"
+        `when`("templates mapping is requested") {
+            val mappings = smartDocumentsTemplatesService.getTemplatesMapping(zaaktypeUUID)
+
+            then("it returns an empty set without making a live SmartDocuments call") {
+                mappings shouldBe emptySet()
+                verify(exactly = 0) { smartDocumentsService.listTemplates() }
             }
         }
     }
 
-    given("A missing template") {
-        val templateId = "123abc"
+    given("A previous zaaktype with a persisted, non-empty SmartDocuments mapping") {
+        val previousZaaktypeUuid = UUID.randomUUID()
+        val newZaaktypeUuid = UUID.randomUUID()
+        val previousZaaktypeConfiguration = mockk<ZaaktypeConfiguration>()
+        val newZaaktypeConfiguration = mockk<ZaaktypeConfiguration>()
+        val persistedGroup = createSmartDocumentsTemplateGroup()
 
-        val criteriaBuilder = mockk<CriteriaBuilder>()
-        val criteriaQuery = mockk<CriteriaQuery<String>>()
-        val root = mockk<Root<SmartDocumentsTemplate>>()
-        val stringPath = mockk<Path<String>>()
-        val predicate = mockk<Predicate>()
-        val typedQuery = mockk<TypedQuery<String>>()
+        val criteriaBuilder = mockk<CriteriaBuilder>(relaxed = true)
+        val selectQuery = mockk<CriteriaQuery<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val selectRoot = mockk<Root<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val selectTypedQuery = mockk<TypedQuery<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val deleteQuery = mockk<CriteriaDelete<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val deleteRoot = mockk<Root<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val deleteExecutableQuery = mockk<Query>(relaxed = true)
 
         every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
 
-        every { criteriaBuilder.createQuery(String::class.java) } returns criteriaQuery
-        every { criteriaBuilder.equal(stringPath, templateId) } returns predicate
+        every { criteriaBuilder.createQuery(SmartDocumentsTemplateGroup::class.java) } returns selectQuery
+        every { selectQuery.from(SmartDocumentsTemplateGroup::class.java) } returns selectRoot
+        every { selectQuery.select(selectRoot) } returns selectQuery
+        every { selectQuery.where(any<Predicate>()) } returns selectQuery
+        every { entityManager.createQuery(selectQuery) } returns selectTypedQuery
+        every { selectTypedQuery.resultList } returns listOf(persistedGroup)
 
-        every { root.get<String>("name") } returns stringPath
-        every { root.get<String>("smartDocumentsId") } returns stringPath
+        every { criteriaBuilder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java) } returns deleteQuery
+        every { deleteQuery.from(SmartDocumentsTemplateGroup::class.java) } returns deleteRoot
+        every { deleteQuery.where(any<Predicate>()) } returns deleteQuery
+        every { entityManager.createQuery(deleteQuery) } returns deleteExecutableQuery
+        every { deleteExecutableQuery.executeUpdate() } returns 1
+        every { entityManager.merge(any<SmartDocumentsTemplateGroup>()) } returns persistedGroup
 
-        every { criteriaQuery.select(stringPath) } returns criteriaQuery
-        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
-        every { criteriaQuery.from(SmartDocumentsTemplate::class.java) } returns root
+        every { smartDocumentsService.isEnabled() } returns true
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(previousZaaktypeUuid)
+        } returns previousZaaktypeConfiguration
+        every { previousZaaktypeConfiguration.id } returns 1L
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(newZaaktypeUuid)
+        } returns newZaaktypeConfiguration
+        every { newZaaktypeConfiguration.id } returns 2L
 
-        every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
-        every { typedQuery.resultList } returns emptyList()
+        `when`("the template mapping is copied to a new zaaktype") {
+            smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(previousZaaktypeUuid, newZaaktypeUuid)
 
-        `when`("template name query is started") {
-            val exception = shouldThrow<SmartDocumentsConfigurationException> {
-                smartDocumentsTemplatesService.getTemplateName(templateId)
-            }
-
-            then("exception is thrown") {
-                exception.message shouldContain "123abc"
+            then("the persisted mapping is copied without ever making a live SmartDocuments call") {
+                verify(exactly = 0) { smartDocumentsService.listTemplates() }
+                verify(exactly = 1) { entityManager.merge(any<SmartDocumentsTemplateGroup>()) }
             }
         }
     }

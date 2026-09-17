@@ -29,6 +29,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.Attachment
 import nl.info.zac.mail.model.Bronnen
@@ -68,6 +69,7 @@ class MailService @Inject constructor(
     private var mailTemplateHelper: MailTemplateHelper,
     private var officeConverterClientService: OfficeConverterClientService,
     private var loggedInUserInstance: Instance<LoggedInUser>,
+    private var fileSizeConfiguration: FileSizeConfiguration,
 
     @ConfigProperty(name = "SMTP_USERNAME")
     private val smtpUsername: Optional<String> = Optional.empty()
@@ -278,7 +280,10 @@ class MailService @Inject constructor(
             .map(UUIDUtil::uuid)
             .map { uuid ->
                 val infoObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-                val content = drcClientService.downloadEnkelvoudigInformatieobject(uuid).readAllBytes()
+                infoObject.bestandsomvang?.let { fileSizeConfiguration.assertFileCanBeHeldInMemory(it.toLong()) }
+                val content = drcClientService.downloadEnkelvoudigInformatieobject(uuid).use {
+                    fileSizeConfiguration.readWithinInMemoryLimit(it)
+                }
                 Attachment(
                     contentType = infoObject.formaat,
                     filename = infoObject.bestandsnaam,

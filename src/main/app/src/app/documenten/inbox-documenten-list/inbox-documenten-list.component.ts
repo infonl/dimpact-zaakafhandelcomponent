@@ -43,7 +43,7 @@ import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
-import { InformatieObjectenModule } from "../../informatie-objecten/informatie-objecten.module";
+import { InformatieObjectLinkComponent } from "../../informatie-objecten/informatie-object-link/informatie-object-link.component";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   ConfirmDialogComponent,
@@ -95,7 +95,7 @@ import { InboxDocumentenService } from "../inbox-documenten.service";
     ReadMoreComponent,
     ZoekopdrachtComponent,
     DatumPipe,
-    InformatieObjectenModule,
+    InformatieObjectLinkComponent,
   ],
 })
 export class InboxDocumentenListComponent

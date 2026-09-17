@@ -24,6 +24,8 @@ import nl.info.webdav.ITransaction
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.setLoggedInUser
+import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.document.content.DocumentContentReader
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
@@ -33,6 +35,10 @@ class WebdavStoreTest : BehaviorSpec({
     val webdavHelper = mockk<WebdavHelper>()
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
+
+    val documentContentReader = DocumentContentReader(
+        FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
+    )
 
     fun setupCdi(
         webdavHelper: WebdavHelper,
@@ -51,6 +57,10 @@ class WebdavStoreTest : BehaviorSpec({
         every { cdi.select(EnkelvoudigInformatieObjectUpdateService::class.java) } returns
             mockk<Instance<EnkelvoudigInformatieObjectUpdateService>>().also {
                 every { it.get() } returns enkelvoudigInformatieObjectUpdateService
+            }
+        every { cdi.select(DocumentContentReader::class.java) } returns
+            mockk<Instance<DocumentContentReader>>().also {
+                every { it.get() } returns documentContentReader
             }
         if (httpSession != null) {
             every { cdi.select(HttpSession::class.java) } returns mockk<Instance<HttpSession>>().also {
@@ -130,9 +140,10 @@ class WebdavStoreTest : BehaviorSpec({
             every { setLoggedInUser(httpSession, loggedInUser) } just runs
             every {
                 enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                    documentUUID,
-                    any(),
-                    "Document bewerkt"
+                    enkelvoudigInformatieObjectUUID = documentUUID,
+                    enkelvoudigInformatieObjectWithLockRequest = any(),
+                    toelichting = "Document bewerkt",
+                    content = any()
                 )
             } returns updatedDocument
 
@@ -148,9 +159,10 @@ class WebdavStoreTest : BehaviorSpec({
                 result shouldBe 5L
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        documentUUID,
-                        any(),
-                        "Document bewerkt"
+                        enkelvoudigInformatieObjectUUID = documentUUID,
+                        enkelvoudigInformatieObjectWithLockRequest = any(),
+                        toelichting = "Document bewerkt",
+                        content = any()
                     )
                 }
             }

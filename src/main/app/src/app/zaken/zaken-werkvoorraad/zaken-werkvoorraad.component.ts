@@ -319,11 +319,19 @@ export class ZakenWerkvoorraadComponent
     dialogComponent: ComponentType<T>,
     release = false,
   ) {
+    const skippedBecauseGeautoriseerd = this.selection.selected.filter(
+      ({ isZaakspecifiekGeautoriseerd }) => isZaakspecifiekGeautoriseerd,
+    );
     const zaken = this.selection.selected.filter(
-      ({ behandelaarGebruikersnaam }) =>
-        !release || !!behandelaarGebruikersnaam,
+      ({ isZaakspecifiekGeautoriseerd, behandelaarGebruikersnaam }) =>
+        !isZaakspecifiekGeautoriseerd &&
+        (!release || !!behandelaarGebruikersnaam),
     );
 
+    if (!zaken.length) {
+      this.showSkippedZakenMessage(release, skippedBecauseGeautoriseerd.length);
+      return;
+    }
     this.batchProcessService.subscribe({
       ids: zaken.map(({ id }) => id),
       progressSubscription: {
@@ -393,7 +401,23 @@ export class ZakenWerkvoorraadComponent
             this.utilService.openSnackbar("msg.error.timeout");
           },
         });
+        this.showSkippedZakenMessage(
+          release,
+          skippedBecauseGeautoriseerd.length,
+        );
       });
+  }
+
+  private showSkippedZakenMessage(release: boolean, aantal: number) {
+    if (!aantal) return;
+    const action = release ? "vrijgeven" : "verdelen";
+    this.utilService.openSnackbar(
+      `msg.zaken.${action}.overgeslagen.zaakspecifiek-geautoriseerd.${
+        aantal === 1 ? "enkelvoud" : "meervoud"
+      }`,
+      { aantal },
+      8,
+    );
   }
 
   ngOnDestroy() {

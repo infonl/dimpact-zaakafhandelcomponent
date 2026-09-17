@@ -4,9 +4,14 @@
  */
 
 import { Injectable } from "@angular/core";
-import { map } from "rxjs";
+import {
+  QueryClient,
+  queryOptions,
+} from "@tanstack/angular-query-experimental";
+import { tap } from "rxjs/operators";
 import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 export interface TemplateMapping {
@@ -17,7 +22,11 @@ export interface TemplateMapping {
 
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  constructor(
+    private readonly zacHttpClient: ZacHttpClient,
+    private readonly zacQueryClient: ZacQueryClient,
+    private readonly queryClient: QueryClient,
+  ) {}
 
   getAllSmartDocumentsTemplateGroups() {
     return this.zacHttpClient.GET(
@@ -25,13 +34,14 @@ export class SmartDocumentsService {
     );
   }
 
-  getTemplatesMapping(zaakafhandelUUID: string) {
-    return this.zacHttpClient
-      .GET(
+  getTemplatesMappingQuery(zaakafhandelUUID: string) {
+    return queryOptions({
+      ...this.zacQueryClient.GET(
         "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
         { path: { zaakafhandelUUID } },
-      )
-      .pipe(map((data) => this.flattenGroups(this.convertApiData(data))));
+      ),
+      select: (data) => this.flattenGroups(this.convertApiData(data)),
+    });
   }
 
   private convertApiData(
@@ -49,11 +59,19 @@ export class SmartDocumentsService {
     templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
   ) {
     const body = this.convertToApiFormat(templateGroups);
-    return this.zacHttpClient.POST(
-      "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
-      body,
-      { path: { zaakafhandelUUID } },
-    );
+    return this.zacHttpClient
+      .POST(
+        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
+        body,
+        { path: { zaakafhandelUUID } },
+      )
+      .pipe(tap(() => this.invalidateTemplatesMappingQuery(zaakafhandelUUID)));
+  }
+
+  private invalidateTemplatesMappingQuery(zaakafhandelUUID: string) {
+    return this.queryClient.invalidateQueries({
+      queryKey: this.getTemplatesMappingQuery(zaakafhandelUUID).queryKey,
+    });
   }
 
   private convertToApiFormat(

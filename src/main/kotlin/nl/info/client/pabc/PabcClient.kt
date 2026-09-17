@@ -40,6 +40,12 @@ const val APPLICATION_NAME_ZAC = "zaakafhandelcomponent"
  */
 const val ROLE_NAME_BRP_ZOEKEN = "brp_zoeken"
 
+/**
+ * Constant for the PABC application role name 'zaakspecifiek_geautoriseerd'.
+ * Must match the role string used in the `zaakspecifiekGeautoriseerd` rule in `rollen.rego`.
+ */
+const val ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD = "zaakspecifiek_geautoriseerd"
+
 @RegisterRestClient(configKey = "PABC-API-Client")
 @RegisterClientHeaders(PabcClientHeadersFactory::class)
 @Path("/api/v1")

@@ -19,6 +19,8 @@ import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -39,14 +41,35 @@ class ZaakZoekObjectConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) : AbstractZoekObjectConverter<ZaakZoekObject>() {
 
-    override fun convert(id: String): ZaakZoekObject {
+    override fun convert(id: String): ZaakZoekObject =
+        zrcClientService.readZaak(UUID.fromString(id)).let { zaak ->
+            convert(zaak) { zaakUUID ->
+                ZaakAutorisatieGegevens(
+                    isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+                ) {
+                    listOfNotNull(
+                        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+                            ?.betrokkeneIdentificatie
+                            ?.identificatie
+                    )
+                }
+            }
+        }
+
+    /**
+     * Converts [id], looking up the zaak-level data through [zaakAutorisatieGegevens] instead of always
+     * deriving it directly. Used by [nl.info.zac.search.IndexingService] to memoize that lookup per zaak
+     * UUID across the taken of one zaak.
+     */
+    override fun convert(id: String, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens): ZaakZoekObject {
         val zaak = zrcClientService.readZaak(UUID.fromString(id))
-        return convert(zaak)
+        return convert(zaak, zaakAutorisatieGegevens)
     }
+
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.ZAAK
 
     @Suppress("LongMethod")
-    private fun convert(zaak: Zaak): ZaakZoekObject {
+    fun convert(zaak: Zaak, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens): ZaakZoekObject {
         val roles = zrcClientService.listRollen(zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakZoekObject = ZaakZoekObject(
@@ -57,6 +80,14 @@ class ZaakZoekObjectConverter @Inject constructor(
             zaaktypeOmschrijving = zaaktype.omschrijving,
             zaaktypeUuid = zaaktype.url.extractUuid().toString()
         ).apply {
+            zaakAutorisatieGegevens(zaak.uuid).let { gegevens ->
+                this.isZaakspecifiekGeautoriseerd = gegevens.isZaakspecifiekGeautoriseerd
+                zaakGeautoriseerdeMedewerkers = if (gegevens.isZaakspecifiekGeautoriseerd) {
+                    gegevens.geautoriseerdeMedewerkers
+                } else {
+                    emptyList()
+                }
+            }
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
             registratiedatum = zaak.registratiedatum?.let(::convertToDate)

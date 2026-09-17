@@ -4,6 +4,7 @@
  */
 package nl.info.zac.documentcreation
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -14,6 +15,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.smartdocuments.model.createFile
 import nl.info.client.smartdocuments.model.document.Data
+import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -31,6 +33,7 @@ import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.createDocumentCreationDataAttended
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
+import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
 import java.net.URLEncoder
@@ -47,6 +50,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val configurationService: ConfigurationService = mockk<ConfigurationService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val documentCreationUserStore = mockk<DocumentCreationUserStore>()
     val documentCreationService = DocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
@@ -54,7 +58,8 @@ class DocumentCreationServiceTest : BehaviorSpec({
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
         ztcClientService = ztcClientService,
         configurationService = configurationService,
-        loggedInUserInstance = loggedInUserInstance
+        loggedInUserInstance = loggedInUserInstance,
+        documentCreationUserStore = documentCreationUserStore
     )
 
     afterEach {
@@ -62,7 +67,6 @@ class DocumentCreationServiceTest : BehaviorSpec({
     }
 
     given("Generated document information") {
-        val smartDocumentId = "1"
         val taakId = "4"
         val title = "title"
         val description = "description"
@@ -76,7 +80,6 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val zaakInformatieobject = createZaakInformatieobjectForReads()
         val enkelvoudigInformatieObjectLockRequestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
 
-        every { smartDocumentsService.downloadDocument(smartDocumentId) } returns downloadedFile
         every { ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid) } returns informatieObjectType
         every { configurationService.readBronOrganisatie() } returns bronOrganisatie
         every {
@@ -89,10 +92,10 @@ class DocumentCreationServiceTest : BehaviorSpec({
         } returns zaakInformatieobject
 
         `when`("storing a downloaded file is requested") {
-            val returnedZaakInformatieobject = documentCreationService.storeDocument(
+            val returnedZaakInformatieobject = documentCreationService.storeDownloadedDocument(
                 zaak = zaak,
                 taskId = taakId,
-                fileId = smartDocumentId,
+                file = downloadedFile,
                 title = title,
                 description = description,
                 informatieobjecttypeUuid = informatieobjecttypeUuid,
@@ -114,7 +117,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                     informatieobjecttype shouldBe informatieObjectType.url
                     bestandsnaam shouldBe downloadedFile.fileName
-                    formaat shouldBe "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    formaat shouldBe downloadedFile.outputFormat
                     inhoud shouldBe downloadedFile.document.data
                     bestandsomvang shouldBe downloadedFile.document.data?.decodedBase64StringLength()
                 }
@@ -169,6 +172,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val data = createData()
         val documentCreationAttendedResponse = createDocumentCreationAttendedResponse()
         val contextUrl = "https://example.com"
+        val documentCreationToken = UUID.randomUUID()
         val templateGroupName = "fakeTemplateGroupName"
         val templateName = "fakeTemplateName"
         val dataSlot = slot<Data>()
@@ -186,12 +190,16 @@ class DocumentCreationServiceTest : BehaviorSpec({
             smartDocumentsService.createDocumentAttended(capture(dataSlot), capture(smartDocumentSlot))
         } returns documentCreationAttendedResponse
         every {
-            smartDocumentsTemplatesService.getTemplateGroupName(documentCreationData.templateGroupId)
-        } returns templateGroupName
-        every {
-            smartDocumentsTemplatesService.getTemplateName(documentCreationData.templateId)
-        } returns templateName
+            smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = documentCreationData.templateGroupId,
+                templateId = documentCreationData.templateId
+            )
+        } returns Selection(
+            templateGroup = templateGroupName,
+            template = templateName
+        )
         every { configurationService.readContextUrl() } returns contextUrl
+        every { documentCreationUserStore.createToken(any()) } returns documentCreationToken
 
         `when`("the 'create document attended' method is called") {
             val documentCreationResponse = documentCreationService.createDocumentAttended(documentCreationData)
@@ -209,8 +217,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     selection.templateGroup shouldBe templateGroupName
                     selection.template shouldBe templateName
                     with(variables!!) {
-                        outputFormats.size shouldBe 1
-                        outputFormats[0].outputFormat shouldBe "docx"
+                        outputFormats shouldBe null
                         redirectMethod shouldBe "POST"
                         redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback" +
                             "/zaak/${zaak.uuid}" +
@@ -222,9 +229,78 @@ class DocumentCreationServiceTest : BehaviorSpec({
                                 Charsets.UTF_8
                             )}" +
                             "&templateId=${documentCreationData.templateId}" +
-                            "&templateGroupId=${documentCreationData.templateGroupId}"
+                            "&templateGroupId=${documentCreationData.templateGroupId}" +
+                            "&documentCreationToken=$documentCreationToken"
                     }
                 }
+            }
+        }
+    }
+
+    given("A mapped template group id that no longer exists in SmartDocuments") {
+        val zaak = createZaak()
+        val documentCreationData = createDocumentCreationDataAttended(zaak = zaak)
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val configurationException = SmartDocumentsConfigurationException(
+            "Template group with id ${documentCreationData.templateGroupId} no longer exists in SmartDocuments"
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            documentCreationDataService.createData(
+                loggedInUser,
+                documentCreationData.zaak,
+                documentCreationData.taskId
+            )
+        } returns data
+        every {
+            smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = documentCreationData.templateGroupId,
+                templateId = documentCreationData.templateId
+            )
+        } throws configurationException
+
+        `when`("the 'create document attended' method is called") {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                documentCreationService.createDocumentAttended(documentCreationData)
+            }
+
+            then("the error is propagated instead of falling back to a stale name") {
+                exception shouldBe configurationException
+            }
+        }
+    }
+
+    given("SmartDocuments is unreachable while resolving the current template names") {
+        val zaak = createZaak()
+        val documentCreationData = createDocumentCreationDataAttended(zaak = zaak)
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val smartDocumentsUnavailable = RuntimeException("SmartDocuments is unreachable")
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            documentCreationDataService.createData(
+                loggedInUser,
+                documentCreationData.zaak,
+                documentCreationData.taskId
+            )
+        } returns data
+        every {
+            smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = documentCreationData.templateGroupId,
+                templateId = documentCreationData.templateId
+            )
+        } throws smartDocumentsUnavailable
+
+        `when`("the 'create document attended' method is called") {
+            val exception = shouldThrow<RuntimeException> {
+                documentCreationService.createDocumentAttended(documentCreationData)
+            }
+
+            then("the error is propagated instead of falling back to a stale name") {
+                exception shouldBe smartDocumentsUnavailable
             }
         }
     }
@@ -238,8 +314,10 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val description = "description"
         val creationDate = ZonedDateTime.of(2024, 10, 7, 0, 0, 0, 0, ZoneOffset.UTC)
         val userName = "Full User Name"
+        val documentCreationToken = UUID.randomUUID()
 
         every { configurationService.readContextUrl() } returns contextUrl
+        every { documentCreationUserStore.createToken(any()) } returns documentCreationToken
 
         `when`("Document creation URL is requested for zaak") {
             val uri = documentCreationService.documentCreationCallbackUrl(
@@ -260,7 +338,8 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +
                     "&description=$description" +
                     "&templateId=$templateId" +
-                    "&templateGroupId=$templateGroupId"
+                    "&templateGroupId=$templateGroupId" +
+                    "&documentCreationToken=$documentCreationToken"
             }
         }
 
@@ -285,7 +364,8 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +
                     "&description=$description" +
                     "&templateId=$templateId" +
-                    "&templateGroupId=$templateGroupId"
+                    "&templateGroupId=$templateGroupId" +
+                    "&documentCreationToken=$documentCreationToken"
             }
         }
     }

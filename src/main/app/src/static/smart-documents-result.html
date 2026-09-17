@@ -118,7 +118,8 @@
         fill: var(--error-fill);
       }
 
-      .wizard-result.cancelled {
+      .wizard-result.cancelled,
+      .wizard-result.unsupported-output-format {
         background-color: var(--warning-bg);
         fill: var(--warning-fill);
       }
@@ -134,6 +135,7 @@
       .wizard-result.success > svg.checkmark,
       .wizard-result.failure > svg.exclamation,
       .wizard-result.cancelled > svg.exclamation,
+      .wizard-result.unsupported-output-format > svg.exclamation,
       .wizard-result.unknown > svg.exclamation {
         display: block;
       }
@@ -236,7 +238,12 @@
           const typeValue = getTypeValue(zaakValue, taakValue, language);
 
           // Validate and set finalResultValue
-          const VALID_RESULTS = ["success", "failure", "cancelled"];
+          const VALID_RESULTS = [
+            "success",
+            "failure",
+            "cancelled",
+            "unsupported-output-format",
+          ];
           const finalResultValue = VALID_RESULTS.includes(resultValue)
             ? resultValue
             : "unknown";

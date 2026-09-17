@@ -119,6 +119,7 @@ fun createZaaktypeCmmnConfiguration(
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
     defaultBehandelaarId: String? = null,
+    smartDocumentsEnabled: Boolean = false,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
     zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation()
@@ -134,6 +135,7 @@ fun createZaaktypeCmmnConfiguration(
         this.groepID = groupId
         this.caseDefinitionID = caseDefinitionId
         this.defaultBehandelaarId = defaultBehandelaarId
+        this.smartDocumentsEnabled = smartDocumentsEnabled
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
@@ -166,6 +168,8 @@ fun createZaaktypeBpmnConfiguration(
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
     zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters> = emptySet(),
     groupId: String? = null,
+    defaultBehandelaarId: String? = null,
+    smartDocumentsEnabled: Boolean = false,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
     bpmnProcessDefinitionKey: String? = null,
@@ -178,6 +182,8 @@ fun createZaaktypeBpmnConfiguration(
         this.productaanvraagtype = productaanvraagtype
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.groepID = groupId
+        this.defaultBehandelaarId = defaultBehandelaarId
+        this.smartDocumentsEnabled = smartDocumentsEnabled
         setZaakbeeindigParameters(zaaktypeCompletionParameters)
         val parameters = this
         this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
