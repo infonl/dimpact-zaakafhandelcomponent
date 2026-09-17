@@ -1672,8 +1672,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
                     }
                     with(zaakDataSlot.captured) {
-                        size shouldBe 4
-                        values.first() shouldBe "fakeValue" // aanvraaggegevens
+                        this["fakeSubKey"] shouldBe "fakeValue" // aanvraaggegevens
                         this[VAR_ZAAK_GROUP] shouldBe groupName
                         this[VAR_ZAAK_USER] shouldBe defaultBehandelaarId
                         this[VAR_ZAAK_COMMUNICATIEKANAAL] shouldBe communicatiekanaalNaam
