@@ -33,7 +33,10 @@ export class ZaakBetrokkenenService {
     this.zakenService.createBetrokkene(),
   );
 
-  initiatorGeselecteerd(zaak: Zaak, initiator: GeneratedType<"RestPersoon">) {
+  initiatorGeselecteerd(
+    zaak: Zaak,
+    initiator: GeneratedType<"RestPersoon" | "RestBedrijf">,
+  ) {
     this.sideActions.close();
 
     if (zaak.initiatorIdentificatie) {

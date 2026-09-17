@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2023 Atos
+  ~ SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -61,7 +61,7 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 label="identificatie"
-                [value]="adres.panden?.[0].identificatie"
+                [value]="adres.panden?.[0]?.identificatie"
               />
               <zac-static-text
                 label="bouwjaar"
