@@ -1,6 +1,6 @@
-# ZAC Process Automation Architecture
+# ZAC Business Process Automation Architecture
 
-The process automation architecture of ZAC is implemented using the embedded [Flowable](https://www.flowable.com/open-source) process automation engine, 
+The business process automation architecture of ZAC is implemented using the embedded [Flowable](https://www.flowable.com/open-source) business process automation engine, 
 and supports both the [CMMN](https://www.omg.org/spec/CMMN/1.1/) and [BPMN](https://www.omg.org/spec/BPMN/2.0/) standards. 
 
 ZAC supports one generic CMMN model to handle zaken. 
@@ -12,6 +12,31 @@ BPMN is used for custom process flows, typically used for more complex zaaktypes
 
 Every zaaktype which is to be handled in ZAC, needs to be configured to either use the generic CMMN model or a custom BPMN process definition.
 This is done using so called `zaakafhandelparameters` (also known as `CMMN` or `BPMN` zaaktype configurations).
+Once a zaaktype is configured through its `zaakafhandelparameters` as being either a CMMN or BPMN zaaktype in ZAC, it can never be changed.
+
+## Zaak life cycle
+
+Both flows run on the embedded Flowable engine, but differ in who sets the final zaak status.
+For a BPMN zaak, ZAC starts a Flowable *process instance*. For a CMMN zaak, ZAC starts a Flowable *case instance*.
+
+The ZAC CMMN model itself sets the zaak status in the ZGW zaak register once the CMMN case instance completes.
+For BPMN, this is not done by ZAC: the BPMN process definition itself is responsible for setting the zaak status in the ZGW zaak register once the process instance completes.
+Once a zaak is "afgehandeld" or "afgebroken" within ZAC, no case instance or process instance exists any more for that zaak, and the zaak is considered closed.
+
+A zaak can also be reopened after it was closed. Reopening a closed zaak does not involve Flowable at all: no new case instance or process instance is created.
+
+```mermaid
+flowchart TD
+    A[Zaak created] --> B{Zaaktype configuration}
+    B -->|CMMN| C[Flowable case instance: generic ZAC model]
+    B -->|BPMN| D[Flowable process instance: custom BPMN process definition]
+    C --> E[ZAC CMMN model sets zaak status in ZGW zaak register]
+    D --> F[BPMN process itself sets zaak status in ZGW zaak register]
+    E --> G[Zaak closed: no case or process instance exists]
+    F --> G
+    G -->|Zaak reopened| H[Zaak is reopened to be able to edit specific data only: no case or process instance created]
+    H --> G
+```
 
 ## Generic ZAC CMMN model
 
