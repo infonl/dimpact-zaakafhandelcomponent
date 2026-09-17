@@ -35,6 +35,7 @@ import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -1052,6 +1053,12 @@ describe(ZaakViewComponent.name, () => {
     ] as const;
 
     beforeEach(() => {
+      const configuratieService = TestBed.inject(ConfiguratieService);
+      testQueryClient.setQueryData(
+        configuratieService.readAllowedFileTypesQuery().queryKey,
+        [],
+      );
+
       mockActivatedRoute.data.next({ zaak: zaakWithEveryPanel });
       fixture.detectChanges();
     });
