@@ -425,6 +425,57 @@ class SearchRestServiceTest : BehaviorSpec({
                     """.trimIndent()
                 }
             }
+
+            `when`(
+                """the search endpoint is called to search for the uploaded document
+                    as a behandelaar authorised for the zaaktype of the (open) zaak the document belongs to"""
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/list",
+                    requestBodyAsString = """
+                    {
+                        "alleenMijnZaken": false,
+                        "alleenOpenstaandeZaken": false,
+                        "alleenAfgeslotenZaken": false,
+                        "alleenMijnTaken": false,
+                        "zoeken": { "DOCUMENT_TITEL": "$documentTitle" },
+                        "filters": {},
+                        "datums": {},
+                        "rows": 10,
+                        "page": 0,
+                        "type": "DOCUMENT"
+                    }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1,
+                )
+                then(
+                    """
+                    the response is successful and the returned document rights reflect that the zaak is open,
+                    since the document is not definitief and not vergrendeld
+                    """.trimMargin()
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                          "resultaten" : [ {
+                            "titel" : "$documentTitle",
+                            "rechten" : {
+                              "converteren": false,
+                              "lezen" : true,
+                              "ondertekenen" : true,
+                              "ontgrendelen" : false,
+                              "toevoegenNieuweVersie" : true,
+                              "vergrendelen" : true,
+                              "verwijderen" : true,
+                              "wijzigen" : true
+                            }
+                          } ]
+                        }
+                    """.trimIndent()
+                }
+            }
         }
     }
 

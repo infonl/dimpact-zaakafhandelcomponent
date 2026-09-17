@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "zaakafhandelcomponent.nginx.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "zaakafhandelcomponent.nginx.labels" . | nindent 4 }}
 spec:

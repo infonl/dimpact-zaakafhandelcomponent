@@ -4,10 +4,8 @@
  */
 package nl.info.zac.solr
 
-import jakarta.annotation.Resource
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.context.Initialized
-import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.event.Observes
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
@@ -45,18 +43,12 @@ class SolrDeployerService @Inject constructor(
         private const val WAIT_FOR_SOLR_SECONDS = 1L
     }
 
-    private lateinit var managedExecutor: ManagedExecutorService
     private lateinit var solrClient: SolrClient
     private lateinit var schemaUpdates: List<SolrSchemaUpdate>
 
     @Inject
     fun setSchemaUpdates(schemaUpdates: Instance<SolrSchemaUpdate>) {
         this.schemaUpdates = schemaUpdates.sortedBy { it.versie }
-    }
-
-    @Resource
-    fun setManagedExecutorService(managedExecutor: ManagedExecutorService) {
-        this.managedExecutor = managedExecutor
     }
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
@@ -72,7 +64,8 @@ class SolrDeployerService @Inject constructor(
                 schemaUpdates.drop(currentVersion)
                     .flatMap { it.teHerindexerenZoekObjectTypes }
                     .toSet()
-                    .forEach(::startReindexing)
+                    .takeIf { it.isNotEmpty() }
+                    ?.let(::startReindexing)
             }
         } catch (solrServerException: SolrServerException) {
             throw SolrDeploymentException("Failed to deploy Solr schema for core '$SOLR_CORE'", solrServerException)
@@ -138,7 +131,7 @@ class SolrDeployerService @Inject constructor(
         add(addField(name = VERSION_FIELD_PREFIX + version, type = STRING, indexed = false, stored = false))
     }
 
-    private fun startReindexing(type: ZoekObjectType) {
-        managedExecutor.submit { indexingService.reindex(type) }
+    private fun startReindexing(types: Set<ZoekObjectType>) {
+        indexingService.reindexAllAsync(types)
     }
 }

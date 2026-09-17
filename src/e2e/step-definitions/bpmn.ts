@@ -8,7 +8,6 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import path from "path";
 import { z } from "zod";
 import {
-  FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
@@ -75,6 +74,25 @@ async function documentGridRow(page: Page, gridKey: string, title: string) {
     }
   }
   throw new Error(`No row for document "${title}" in datagrid "${gridKey}"`);
+}
+
+// Material drops the click on a select that is still settling, and renders its
+// options in an overlay outside of the form.
+async function selectFirstOption(form: Locator, label: string) {
+  const select = form.getByRole("combobox", { name: label });
+  await expect(async () => {
+    await select.click();
+    await expect(select).toHaveAttribute("aria-expanded", "true", {
+      timeout: TEN_SECONDS_IN_MS,
+    });
+  }).toPass({ timeout: FORTY_SECONDS_IN_MS });
+
+  await form
+    .page()
+    .locator(".mat-mdc-select-panel")
+    .getByRole("option")
+    .first()
+    .click();
 }
 
 const e2eTestGroupAId = "test-group-a";
@@ -618,26 +636,26 @@ When(
     title: string,
   ) {
     await this.page.getByText("Document toevoegen").click();
-    await this.page.getByText("Bestandsnaam").click();
-    await this.page
-      .locator('input[type="file"]')
-      .setInputFiles(path.join(__dirname, "../testdata", `${title}.docx`));
-    await this.page.getByLabel("Documenttype").click();
-    await this.page
-      .locator(".mat-mdc-select-panel")
-      .getByRole("option")
-      .first()
-      .click();
-    await this.page.getByLabel("Status").click();
-    await this.page
-      .locator(".mat-mdc-select-panel")
-      .getByRole("option")
-      .first()
-      .click();
+    const addDocumentPanel = this.page.locator("zac-informatie-object-add");
+    await expect(addDocumentPanel).toBeVisible({
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+
+    // Until the allowed file types have been fetched the form rejects every file it is given.
+    const fileField = addDocumentPanel.locator('input[type="file"]');
+    await expect(fileField).not.toHaveAttribute("accept", "", {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+    await fileField.setInputFiles(
+      path.join(__dirname, "../testdata", `${title}.docx`),
+    );
+    await selectFirstOption(addDocumentPanel, "Documenttype");
+    await selectFirstOption(addDocumentPanel, "Status");
+
     await this.page
       .getByRole("button", { name: "Toevoegen", exact: true })
       .click();
-    await this.page.waitForTimeout(FIVE_SECONDS_IN_MS);
+    await expect(addDocumentPanel).toBeHidden({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
 

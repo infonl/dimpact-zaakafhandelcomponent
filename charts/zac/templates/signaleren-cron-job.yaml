@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
 spec:

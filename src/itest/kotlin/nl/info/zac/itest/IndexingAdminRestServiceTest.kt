@@ -21,9 +21,14 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import nl.info.zac.itest.util.newLogsSince
+import nl.info.zac.itest.util.reindexingFinishedRegex
+import nl.info.zac.itest.util.reindexingStartedRegex
+import nl.info.zac.itest.util.shouldContainLogLineMatching
+import nl.info.zac.itest.util.zacContainerLogs
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_ACCEPTED
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
@@ -66,6 +71,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
         )
 
         `when`("""the internal ZAC reindexing endpoint is called for type 'zaak'""") {
+            val logsBeforeReindex = zacContainerLogs()
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
                 headers = mapOf(
@@ -76,7 +82,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             then(
                 """the response is successful and at least one zaak is indexed"""
             ) {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(
@@ -100,8 +106,17 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
                 }
             }
+
+            and("the ZAC log reports that zaken reindexing started, finished and its reindex summary") {
+                eventually(10.seconds) {
+                    val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
+                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("ZAAK"))
+                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("ZAAK"))
+                }
+            }
         }
         `when`("""the reindexing endpoint is called for type 'task'""") {
+            val logsBeforeReindex = zacContainerLogs()
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren/TAAK",
                 headers = mapOf(
@@ -112,7 +127,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             then(
                 """the response is successful and at least one task is indexed"""
             ) {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(
@@ -136,8 +151,17 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
                 }
             }
+
+            and("the ZAC log reports that taken reindexing started, finished and its reindex summary") {
+                eventually(10.seconds) {
+                    val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
+                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("TAAK"))
+                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("TAAK"))
+                }
+            }
         }
         `when`("""the reindexing endpoint is called for type 'document'""") {
+            val logsBeforeReindex = zacContainerLogs()
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/internal/indexeren/herindexeren/DOCUMENT",
                 headers = mapOf(
@@ -148,7 +172,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             then(
                 """the response is successful and at least one document is indexed"""
             ) {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(
@@ -170,6 +194,68 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         testUser = BEHEERDER_1
                     )
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
+                }
+            }
+
+            and("the ZAC log reports that documenten reindexing started, finished and its reindex summary") {
+                eventually(10.seconds) {
+                    val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
+                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("DOCUMENT"))
+                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("DOCUMENT"))
+                }
+            }
+        }
+        `when`("""the internal ZAC "reindex everything" endpoint is called""") {
+            val logsBeforeReindex = zacContainerLogs()
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/internal/indexeren/herindexeren",
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+                ).toHeaders()
+            )
+            then(
+                """the response is successful and zaken, taken and documenten are all reindexed"""
+            ) {
+                response.code shouldBe HTTP_ACCEPTED
+                listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
+                    eventually(10.seconds) {
+                        val searchResponse = itestHttpClient.performPutRequest(
+                            url = "$ZAC_API_URI/zoeken/list",
+                            requestBodyAsString = """
+                               {
+                                "alleenMijnZaken": false,
+                                "alleenOpenstaandeZaken": false,
+                                "alleenAfgeslotenZaken": false,
+                                "alleenMijnTaken": false,
+                                "zoeken": {},
+                                "filters": {},
+                                "datums": {},
+                                "rows": 100,
+                                "page": 0,
+                                "type": "$zoekObjectType"
+                            }
+                            """.trimIndent(),
+                            testUser = BEHEERDER_1
+                        )
+                        JSONObject(searchResponse.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
+                    }
+                }
+            }
+
+            and("the ZAC log reports the complete reindexing process and the Solr index counts") {
+                eventually(10.seconds) {
+                    val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
+                    newLogs.shouldContainLogLineMatching(
+                        Regex("""Complete reindexing process started for object types: \[TAAK, ZAAK, DOCUMENT]""")
+                    )
+                    newLogs.shouldContainLogLineMatching(
+                        Regex("""Complete reindexing process finished for object types: \[TAAK, ZAAK, DOCUMENT]""")
+                    )
+                    listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
+                        newLogs.shouldContainLogLineMatching(reindexingStartedRegex(zoekObjectType))
+                        newLogs.shouldContainLogLineMatching(reindexingFinishedRegex(zoekObjectType))
+                    }
                 }
             }
         }

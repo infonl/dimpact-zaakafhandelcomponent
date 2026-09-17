@@ -16,10 +16,8 @@ import {
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
@@ -27,7 +25,6 @@ import moment from "moment";
 import { forkJoin } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { PolicyService } from "src/app/policy/policy.service";
-import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { UtilService } from "../../core/service/util.service";
@@ -43,9 +40,7 @@ import { ViewResourceUtil } from "../../locatie/view-resource.util";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
-import { TextIcon } from "../../shared/edit/text-icon";
 import { runMutation } from "../../shared/http/run-mutation";
-import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
@@ -65,17 +60,8 @@ import { ZakenService } from "../zaken.service";
 
 type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
 
-type ZaakDetailField = {
-  /** omitting this renders the field; only an explicit `false` hides it */
-  show?: boolean;
-  label: string;
-  value: string | null;
-  format?: "date";
-};
-
 @Component({
   templateUrl: "./zaak-view.component.html",
-  styleUrls: ["./zaak-view.component.less"],
   animations: [detailExpand],
   standalone: false,
 })
@@ -84,8 +70,6 @@ export class ZaakViewComponent
   implements AfterViewInit, OnDestroy
 {
   private readonly queryClient = inject(QueryClient);
-
-  readonly indicatiesLayout = IndicatiesLayout;
 
   private readonly zaakUuid = signal<string | undefined>(undefined);
 
@@ -115,34 +99,14 @@ export class ZaakViewComponent
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  bagObjectenDataSource = new MatTableDataSource<
-    GeneratedType<"RESTBAGObjectGegevens">
-  >();
+  bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[] = [];
   gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
-  bagObjectenColumns = [
-    "identificatie",
-    "type",
-    "omschrijving",
-    "actions",
-  ] as const;
-  gerelateerdeZaakColumns = [
-    "identificatie",
-    "zaaktypeOmschrijving",
-    "statustypeOmschrijving",
-    "startdatum",
-    "relatieType",
-  ] as const;
-  gerelateerdeZaakColumnsWithAction = [
-    ...this.gerelateerdeZaakColumns,
-    "actions",
-  ];
 
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
-  dateFieldIconMap = new Map<string, TextIcon>();
   viewInitialized = false;
 
   private zaakListener!: WebsocketListener;
-  protected zaakRollenListener!: WebsocketListener;
+  private zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
   private zaakTakenListener!: WebsocketListener;
 
@@ -251,7 +215,6 @@ export class ZaakViewComponent
       if (!zaak) return;
       this.invalidateZaakHistorie();
       this.setupMenu();
-      this.setDateFieldIconSet();
       ViewResourceUtil.actieveZaak = zaak;
     });
   }
@@ -268,121 +231,6 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakBesluitenListener);
     this.websocketService.removeListener(this.zaakRollenListener);
     this.websocketService.removeListener(this.zaakTakenListener);
-  }
-
-  protected zaakDetailFields(): ZaakDetailField[] {
-    const bronArchiefprocedure =
-      this.zaak.resultaat?.resultaattype?.bronArchiefprocedure;
-
-    const fields: ZaakDetailField[] = [
-      {
-        label: "status",
-        value: this.zaak.status?.naam ?? null,
-      },
-      {
-        label: "registratiedatum",
-        value: this.zaak.registratiedatum ?? null,
-        format: "date",
-      },
-      {
-        label: "resultaat",
-        value: this.zaak.resultaat?.resultaattype?.naam ?? null,
-      },
-      {
-        show: Boolean(this.zaak.einddatum),
-        label: "einddatum",
-        value: this.zaak.einddatum ?? null,
-        format: "date",
-      },
-      {
-        show: Boolean(this.zaak.startdatumBewaartermijn),
-        label: "startdatumBewaartermijn",
-        value: this.zaak.startdatumBewaartermijn ?? null,
-        format: "date",
-      },
-      {
-        show: Boolean(bronArchiefprocedure?.afleidingswijze),
-        label: "afleidingswijzeBrondatum",
-        value: this.afleidingswijzeBrondatumValue(
-          bronArchiefprocedure?.afleidingswijze,
-        ),
-      },
-      {
-        show: this.zaak.archiefNominatie === "VERNIETIGEN",
-        label: `archiefNominatie.datum.${this.zaak.archiefNominatie}`,
-        value: this.zaak.archiefActiedatum ?? null,
-        format: "date",
-      },
-      {
-        show: this.zaak.archiefNominatie === "BLIJVEND_BEWAREN",
-        label: "archiefNominatie",
-        value: String(
-          this.translate.instant(
-            `archiefNominatie.${this.zaak.archiefNominatie}`,
-          ),
-        ),
-      },
-    ];
-
-    return fields.filter(({ show }) => show !== false);
-  }
-
-  private afleidingswijzeBrondatumValue(
-    afleidingswijze?: GeneratedType<"AfleidingswijzeEnum"> | null,
-  ) {
-    if (!afleidingswijze) return null;
-    // Workaround: the value returned from the backend is lowercase and generated TypeScript types expect uppercase.
-    const afleidingswijzeBrondatum: string = afleidingswijze.toUpperCase();
-
-    if (afleidingswijzeBrondatum === "EIGENSCHAP") {
-      return (
-        this.zaak.resultaat?.resultaattype?.datumKenmerkOmschrijving ?? null
-      );
-    }
-
-    return String(
-      this.translate.instant(
-        `afleidingswijzeBrondatum.${afleidingswijzeBrondatum}`,
-      ),
-    );
-  }
-
-  private setDateFieldIconSet() {
-    this.dateFieldIconMap.set(
-      "einddatumGepland",
-      new TextIcon(
-        (control: FormControl) => {
-          return DateConditionals.isExceeded(
-            control.value,
-            this.zaak.einddatum,
-          );
-        },
-        "report_problem",
-        "warningVerlopen_icon",
-        this.zaak.einddatum
-          ? "msg.einddatum.overschreden"
-          : "msg.datum.overschreden",
-        "warning",
-      ),
-    );
-
-    this.dateFieldIconMap.set(
-      "uiterlijkeEinddatumAfdoening",
-      new TextIcon(
-        (control: FormControl) => {
-          return DateConditionals.isExceeded(
-            control.value,
-            this.zaak.einddatum,
-          );
-        },
-        "report_problem",
-        "errorVerlopen_icon",
-        this.zaak.einddatum
-          ? "msg.einddatum.overschreden"
-          : "msg.datum.overschreden",
-        "error",
-      ),
-    );
   }
 
   private createUserEventListenerPlanItemMenuItem(
@@ -1020,7 +868,7 @@ export class ZaakViewComponent
       this.gekoppeldeBagObjecten = bagObjecten
         .map((bg) => bg.zaakobject!)
         .filter(Boolean);
-      this.bagObjectenDataSource.data = bagObjecten;
+      this.bagObjecten = bagObjecten;
     });
   }
 
@@ -1369,9 +1217,5 @@ export class ZaakViewComponent
       Boolean(brpAllowed || kvkAllowed) &&
       !!this.betrokkenenQuery.data()?.length
     );
-  }
-
-  protected isAfterDate(datum: Date | moment.Moment | string) {
-    return DateConditionals.isExceeded(datum);
   }
 }

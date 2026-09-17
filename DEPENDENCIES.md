@@ -5,7 +5,7 @@ This document lists the Docker images and versions that the corresponding versio
 ## Core Dependencies
 
 - **postgres**: 17.11
-- **keycloak**: 26.7.2
+- **keycloak**: 26.7.3
 - **postgis**: 17-3.4
 - **redis**: 8.6.6
 - **solr**: 9.10.1-slim
@@ -15,7 +15,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **otel/opentelemetry-collector-contrib**: 0.159.0
 - **grafana/tempo**: 3.0.3
 - **prom/prometheus**: v3.14.0
-- **grafana/grafana**: 13.2.0
+- **grafana/grafana**: 13.2.1
 - **greenmail/standalone**: 2.1.13
 - **nginxinc/nginx-unprivileged**: 1.31.4
 

@@ -1,0 +1,75 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+-->
+
+@let bekijkenLabel = "actie.bagObject.bekijken" | translate;
+@let ontkoppelenLabel = "actie.bagObject.ontkoppelen" | translate;
+
+<div class="table-wrapper">
+  <table mat-table [dataSource]="dataSource" matSort>
+    <ng-container matColumnDef="identificatie">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ "identificatie" | translate }}
+      </th>
+      <td mat-cell *matCellDef="let bagObjectGegevens">
+        <read-more
+          [text]="bagObjectGegevens.bagObject.identificatie"
+          [maxLength]="20"
+        ></read-more>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ "type" | translate }}
+      </th>
+      <td mat-cell *matCellDef="let bagObjectGegevens">
+        {{
+          "objecttype." + bagObjectGegevens.bagObject.bagObjectType | translate
+        }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="omschrijving">
+      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        {{ "omschrijving" | translate }}
+      </th>
+      <td *matCellDef="let bagObjectGegevens" mat-cell>
+        {{ bagObjectGegevens.bagObject.omschrijving }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th *matHeaderCellDef mat-header-cell></th>
+      <td *matCellDef="let bagObjectGegevens" mat-cell>
+        <a
+          mat-icon-button
+          [routerLink]="[
+            '/bag-objecten',
+            bagObjectGegevens.bagObject.bagObjectType.toLowerCase(),
+            bagObjectGegevens.bagObject.identificatie,
+          ]"
+          (click)="$event.stopPropagation()"
+          [id]="
+            'bagObject_' + bagObjectGegevens.bagObject.identificatie + '_button'
+          "
+          [title]="bekijkenLabel"
+          [attr.aria-label]="bekijkenLabel"
+        >
+          <mat-icon>visibility</mat-icon>
+        </a>
+        @if (isOntkoppelenToegestaan()) {
+          <button
+            mat-icon-button
+            (click)="bagObjectVerwijderen.emit(bagObjectGegevens)"
+            [title]="ontkoppelenLabel"
+            [attr.aria-label]="ontkoppelenLabel"
+          >
+            <mat-icon>link_off</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="bagObjectenColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: bagObjectenColumns"></tr>
+  </table>
+</div>

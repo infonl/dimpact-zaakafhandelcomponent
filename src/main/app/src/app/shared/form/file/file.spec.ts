@@ -460,11 +460,30 @@ describe(ZacFile.name, () => {
       fixture.detectChanges();
     });
 
-    it("should display hint with file size and formats", () => {
-      const hintElement = fixture.nativeElement.querySelector("mat-hint");
-      expect(hintElement).toBeTruthy();
-      expect(hintElement.textContent).toContain("Max size: 5MB");
-      expect(hintElement.textContent).toContain("Formats: .txt, .pdf");
+    it("should display hint with file size and formats", async () => {
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const [hint] = await formField.getTextHints();
+      expect(hint).toContain("Max size: 5MB");
+      expect(hint).toContain("Formats: .txt, .pdf");
+    });
+  });
+
+  describe("Dismissing the operating system file picker", () => {
+    beforeEach(() => {
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
+      component.ngOnInit();
+      fixture.detectChanges();
+    });
+
+    it("should keep the native cancel event from reaching the surrounding form", () => {
+      const fileInput = component["fileInput"]()!.nativeElement;
+      const cancelListener = jest.fn();
+      fixture.nativeElement.addEventListener("cancel", cancelListener);
+
+      fileInput.dispatchEvent(new Event("cancel", { bubbles: true }));
+
+      expect(cancelListener).not.toHaveBeenCalled();
     });
   });
 });

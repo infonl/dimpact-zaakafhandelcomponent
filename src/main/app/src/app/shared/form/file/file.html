@@ -59,6 +59,7 @@
       type="file"
       [accept]="allowedFormats().join(',')"
       (change)="selectedFile($event)"
+      (cancel)="$event.stopPropagation()"
       #fileInput
     />
   </mat-form-field>
