@@ -4,8 +4,8 @@
 
 
 > **Colofon** <br>
-> Datum :05-08-2026 <br>
-> Versie :   1.9.1 <br>
+> Datum :17-09-2026 <br>
+> Versie :   1.9.2 <br>
 > Verandering : ZAC v5.6 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
@@ -41,6 +41,7 @@ Versiegeschiedenis:
 | 1.8   | ZAC v5.5 Handleiding, verwijderen impliciete applicatierol hiërarchie                                                                      |
 | 1.9   | ZAC v5.6 Handleiding, toevoeging voor brondatum zetten                                                                                     |
 | 1.9.1 | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
+| 1.9.2 | ZAC v5.6 Handleiding, toevoeging 'Ken aan mezelf toe' in zaken- en taken-werkvoorraad                                                      |
 
 <div style="page-break-after: always"></div>
 
@@ -258,6 +259,8 @@ Door te klikken op het oog icoon kan een item geopend worden, Ctrl + oog icoon o
 
 Met de werklijst 'Werkvoorraad-zaken' zijn alle lopende zaken van de gehele organisatie in een overzicht in te zien.
 
+Een behandelaar kan een zaak die is toegekend aan een groep waar de medewerker zelf in zit, en die of nog helemaal niet is toegekend aan een medewerker of is toegekend aan een andere medewerker in deze groep, aan zichzelf toekennen m.b.v. de 'Ken aan mezelf toe' knop in de zaken-werkvoorraad.
+
 **_Afgehandelde zaken_**
 
 Deze werklijst geeft inzicht in alle afgehandelde zaken van de organisatie. Een extra gegevenskolom waarin het resultaat wordt weergegeven is beschikbaar bij deze werklijst.
@@ -272,6 +275,8 @@ Alle door een gebruiker afgehandelde zaken zijn in te zien door de werklijst ‘
 **_Taken-werkvoorraad_**
 
 Met de werklijst 'Werkvoorraad-taken' zijn alle lopende taken van de organisatie in een overzicht in te zien. Van iedere taak is het zaaknummer en -informatie te zien van de zaak waar deze bij hoort.
+
+Een behandelaar kan een taak die is toegekend aan een groep waar de medewerker zelf in zit, en die of nog helemaal niet is toegekend aan een medewerker of is toegekend aan een andere medewerker in deze groep, aan zichzelf toekennen m.b.v. de 'Ken aan mezelf toe' knop in de taken-werkvoorraad.
 
 **_Mijn taken_**
 
