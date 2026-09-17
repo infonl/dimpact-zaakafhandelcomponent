@@ -41,7 +41,7 @@ Versiegeschiedenis:
 | 1.8   | ZAC v5.5 Handleiding, verwijderen impliciete applicatierol hiërarchie                                                                      |
 | 1.9   | ZAC v5.6 Handleiding, toevoeging voor brondatum zetten                                                                                     |
 | 1.9.1 | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
-| 1.9.2 | ZAC v5.6 Handleiding, toevoeging 'Ken aan mezelf toe' in zaken- en taken-werkvoorraad                                                      |
+| 1.9.2 | ZAC v5.6 Handleiding, toevoeging 'Ken aan mij toe' in zaken- en taken-werkvoorraad                                                      |
 
 <div style="page-break-after: always"></div>
 
@@ -276,7 +276,7 @@ Alle door een gebruiker afgehandelde zaken zijn in te zien door de werklijst ‘
 
 Met de werklijst 'Werkvoorraad-taken' zijn alle lopende taken van de organisatie in een overzicht in te zien. Van iedere taak is het zaaknummer en -informatie te zien van de zaak waar deze bij hoort.
 
-Een behandelaar kan een taak die is toegekend aan een groep waar de medewerker zelf in zit, en die of nog helemaal niet is toegekend aan een medewerker of is toegekend aan een andere medewerker in deze groep, aan zichzelf toekennen m.b.v. de 'Ken aan mezelf toe' knop in de taken-werkvoorraad.
+Een behandelaar kan een taak die is toegekend aan een groep waar de medewerker zelf in zit, en die of nog helemaal niet is toegekend aan een medewerker of is toegekend aan een andere medewerker in deze groep, aan zichzelf toekennen m.b.v. de 'Ken aan mij toe' knop in de taken-werkvoorraad.
 
 **_Mijn taken_**
 
