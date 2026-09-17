@@ -115,7 +115,7 @@ describe(buildZaakMenu.name, () => {
     it("hides the behandelaar actions on a procesgestuurde zaak", () => {
       const menu = buildZaakMenu(
         createZaak(
-          { isProcesGestuurd: true },
+          { isBpmn: true },
           { behandelen: true, versturenEmail: true },
         ),
         noPlanItems,
