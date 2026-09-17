@@ -1,0 +1,97 @@
+# Assignment of the integration test specs to the CI shards.
+#
+# Every Kotest spec under src/itest/kotlin has to be listed exactly once under a '[shard N]' header;
+# the build fails when a shard is selected and this file is out of date. Every CI shard starts its own
+# Docker Compose stack and runs only its own specs, so the shards should take about the same time.
+# Use the "Slowest specs" table of the timing report (build/reports/itest/timings.md, also in the CI job
+# summary) when adding or moving specs. Specs annotated with @Isolate run one by one before the other
+# specs of a shard, so spread them evenly over the shards.
+#
+# Run a single shard locally with: ./gradlew itest -PitestShard=1
+
+[shard 1]
+
+# specs annotated with @Isolate
+nl.info.zac.itest.ZaakRestServiceTest
+
+# other specs
+nl.info.zac.itest.bpmn.BpmnDelegateAuthorisationTest
+nl.info.zac.itest.bpmn.BpmnSendConfirmationEmailRestServiceTest
+nl.info.zac.itest.bpmn.BpmnUserGroupAssignTest
+nl.info.zac.itest.DetachedDocumentRestServiceTest
+nl.info.zac.itest.EnkelvoudigInformatieObjectRestServiceTest
+nl.info.zac.itest.EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest
+nl.info.zac.itest.InboxDocumentRestServiceTest
+nl.info.zac.itest.InboxProductaanvraagRestServiceTest
+nl.info.zac.itest.MailRestServiceTest
+nl.info.zac.itest.NotificationTest
+nl.info.zac.itest.StaticCacheFilterTest
+nl.info.zac.itest.TaskRestServiceTest
+nl.info.zac.itest.WebDavServletTest
+nl.info.zac.itest.ZaakBesluitRestServiceTest
+nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeHoofdzaakArchiveTest
+nl.info.zac.itest.ZaakRestServiceCompleteTest
+nl.info.zac.itest.ZaakRestServiceExtensionTest
+nl.info.zac.itest.ZaakRestServiceLinkParentChildZaken
+nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationRestServiceTest
+
+[shard 2]
+
+# specs annotated with @Isolate
+nl.info.zac.itest.IndexingAdminRestServiceTest
+nl.info.zac.itest.KlantRestServiceTest
+
+# other specs
+nl.info.zac.itest.AanvullendeInformatieTaskCompleteTest
+nl.info.zac.itest.AppContainerTest
+nl.info.zac.itest.BagRestServiceTest
+nl.info.zac.itest.bpmn.BpmnProcessDefinitionRestServiceTest
+nl.info.zac.itest.bpmn.BpmnSuspendResumeExtendRestServiceTest
+nl.info.zac.itest.bpmn.BpmnZaakRestServiceTest
+nl.info.zac.itest.CsvRestServiceTest
+nl.info.zac.itest.DocumentCreationRestServiceTest
+nl.info.zac.itest.HealthCheckRestServiceTest
+nl.info.zac.itest.IndexingRestServiceTest
+nl.info.zac.itest.LargeDocumentUploadTest
+nl.info.zac.itest.LoggingTest
+nl.info.zac.itest.NoteServiceTest
+nl.info.zac.itest.NotificationZaakUpdateWebSocketListenerTest
+nl.info.zac.itest.SearchRestServiceZaakspecifiekAutorisatieTest
+nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeAfgehandeldArchiveTest
+nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeIngangsdatumBesluitArchiveTest
+nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeTermijnArchiveTest
+nl.info.zac.itest.ZaakSuspendRestServiceTest
+
+[shard 3]
+
+# specs annotated with @Isolate
+nl.info.zac.itest.DataSourceConnectionValidationTest
+nl.info.zac.itest.MailtemplateBeheerRestServiceTest
+nl.info.zac.itest.MailtemplateKoppelingRestServiceTest
+nl.info.zac.itest.NotificationProductaanvraagCmmnTest
+nl.info.zac.itest.NotificationZaakDestroyTest
+nl.info.zac.itest.NotificationZaaktypeCompletionParametersTest
+nl.info.zac.itest.ReferenceTableRestServiceTest
+nl.info.zac.itest.SignaleringAdminRestServiceTest
+nl.info.zac.itest.SignaleringRestServiceTest
+nl.info.zac.itest.ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest
+
+# other specs
+nl.info.zac.itest.bpmn.BpmnSignDocumentRestServiceTest
+nl.info.zac.itest.ConfigurationRestServiceTest
+nl.info.zac.itest.EnkelvoudigInformatieObjectRestServiceHistorieTest
+nl.info.zac.itest.IdentityServiceTest
+nl.info.zac.itest.NotificationInformatieobjectDestroyTest
+nl.info.zac.itest.NotificationProductaanvraagBpmnTest
+nl.info.zac.itest.NotificationProductaanvraagIdempotencyTest
+nl.info.zac.itest.PlanItemsRestServiceTest
+nl.info.zac.itest.SearchRestServiceTest
+nl.info.zac.itest.TaskRestServiceCompleteTest
+nl.info.zac.itest.TaskRestServiceGoedkeurenTest
+nl.info.zac.itest.TaskRestServiceZaakspecifiekAutorisatieTest
+nl.info.zac.itest.ZaakKoppelenRestServiceTest
+nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest
+nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeVervaldatumBesluitArchiveTest
+nl.info.zac.itest.ZaakRestServiceHistoryTest
+nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest
+nl.info.zac.itest.ZaaktypeConfigurationRestServiceTest

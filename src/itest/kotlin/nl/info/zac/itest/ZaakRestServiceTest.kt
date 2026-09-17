@@ -10,6 +10,7 @@ import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -101,6 +102,7 @@ import kotlin.time.Duration.Companion.seconds
 const val ZAAK_OMSCHRIJVING_MAX_LENGTH = 80
 
 @Suppress("LargeClass")
+@Isolate
 class ZaakRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
