@@ -68,11 +68,15 @@ export class ZaakBrondatumZettenDialogComponent {
 
   protected brondatumLabel?: string | null;
 
+  private readonly zaakEinddatum = this.data.zaak.einddatum
+    ? moment(this.data.zaak.einddatum).startOf("day")
+    : null;
+
   form = this.formBuilder.group({
     brondatum: this.formBuilder.control<Moment | null>(null, [
-      this.brondatumNietVoorVandaag(),
+      this.brondatumNietVoorMinimum(),
       Validators.required,
-      Validators.min(moment().startOf("day").valueOf()),
+      Validators.min((this.zaakEinddatum ?? moment().startOf("day")).valueOf()),
     ]),
   });
 
@@ -103,14 +107,17 @@ export class ZaakBrondatumZettenDialogComponent {
     }
   }
 
-  private brondatumNietVoorVandaag(): ValidatorFn {
+  private brondatumNietVoorMinimum(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
-      if (!moment.isMoment(value) || value.isSameOrAfter(moment(), "day")) {
+      const minimum = this.zaakEinddatum ?? moment();
+      if (!moment.isMoment(value) || value.isSameOrAfter(minimum, "day")) {
         return null;
       }
       return FormHelper.CustomErrorMessage(
-        "msg.error.date.invalid.datum.brondatum-voor-vandaag",
+        this.zaakEinddatum
+          ? "msg.error.date.invalid.datum.brondatum-voor-einddatum"
+          : "msg.error.date.invalid.datum.brondatum-voor-vandaag",
         {
           label:
             this.brondatumLabel ||
