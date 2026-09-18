@@ -10,7 +10,9 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import nl.info.client.zgw.zrc.model.RolMedewerker
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.util.JsonbUtil
 import nl.info.client.klant.KlantClientService
@@ -346,8 +348,11 @@ class ProductaanvraagService @Inject constructor(
         val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
         val baseBpmnVariablesMap = getAanvraaggegevens(productaanvraagObject)
-        val zaakDataVariablesMap = zaaktypeBpmnConfiguration.groepID?.let { baseBpmnVariablesMap + mapOf(VAR_ZAAK_GROUP to it) }
-            ?: baseBpmnVariablesMap
+        val zaakDataVariablesMap = baseBpmnVariablesMap + buildMap {
+            zaaktypeBpmnConfiguration.groepID?.let { put(VAR_ZAAK_GROUP, it) }
+            zaaktypeBpmnConfiguration.defaultBehandelaarId?.let { put(VAR_ZAAK_USER, it) }
+            zaak.communicatiekanaalNaam?.let { put(VAR_ZAAK_COMMUNICATIEKANAAL, it) }
+        }
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         productaanvraagDocumentService.pairProductaanvraagWithZaak(
