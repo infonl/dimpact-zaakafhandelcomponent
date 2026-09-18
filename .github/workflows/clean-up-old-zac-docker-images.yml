@@ -14,7 +14,7 @@ permissions:
 jobs:
   # Remove all untagged (orphaned) container image versions
   clean-untagged:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     name: Delete untagged Docker images
     steps:
       - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
@@ -49,7 +49,7 @@ jobs:
   # matches the regex against the SHA256 digest (version name), not against the
   # image tags, so tag-based patterns never match.
   clean-tagged:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     name: Delete old Docker images, keep minor release versions
     steps:
       - name: Delete old tagged Docker images

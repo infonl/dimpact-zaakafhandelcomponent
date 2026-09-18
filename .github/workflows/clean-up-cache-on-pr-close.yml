@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   cleanup-branch-cache:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: Friedinger/DeleteBranchCaches@b4482bee8da523e175964cc328da4862593bec8e # v2.4.4
         with:
