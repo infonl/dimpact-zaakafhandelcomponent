@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.325](https://img.shields.io/badge/Version-1.0.325-informational?style=flat-square) ![AppVersion: 5.8](https://img.shields.io/badge/AppVersion-5.8-informational?style=flat-square)
+![Version: 1.0.326](https://img.shields.io/badge/Version-1.0.326-informational?style=flat-square) ![AppVersion: 5.8](https://img.shields.io/badge/AppVersion-5.8-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -37,6 +37,32 @@ And install zac:
 ```
 helm install my-release zac/zaakafhandelcomponent
 ```
+
+## Credentials
+
+Every credential ZAC needs is a chart value, except the Solr credentials that the Solr operator
+generates when the chart deploys Solr itself. The chart renders the values into one Kubernetes
+`Secret` named after the release, which the ZAC deployment reads through `envFrom`. There is no
+external secret store involved, so whoever installs the chart is responsible for supplying the values
+from their own secret management (for example a CI secret store) and for keeping them out of any
+values file that is committed.
+
+Two services ZAC talks to need credentials on both sides, and the chart keeps the two sides in step:
+
+| Service | User name and password | Where they come from |
+|---|---|---|
+| Office converter (Gotenberg) | `office_converter.username`, `office_converter.password` | Required. The chart stores them in the ZAC secret and injects them into both the Gotenberg container (`GOTENBERG_API_BASIC_AUTH_*`) and ZAC (`OFFICE_CONVERTER_*`), so the two can never drift apart. |
+| External Solr (`solr.url` set) | `solr.username`, `solr.password` | Required for an external Solr. The chart stores them in the ZAC secret and ZAC authenticates every Solr request with them. Configure the matching user in the `security.json` of that instance yourself. |
+| Solr deployed by the chart | none | The chart enables basic authentication on the `SolrCloud` resource and the Solr operator generates the credentials into the `<solrcloud>-solrcloud-security-bootstrap` secret. ZAC reads the `admin` account from that secret, so no Solr credential is a chart value. |
+
+Both services reject unauthenticated requests, and ZAC fails to start when its credentials are missing
+rather than falling back to unauthenticated requests.
+
+The Solr operator bootstraps the `security.json` once, when Solr has none yet, and does not update it
+afterwards. To change a Solr password, set it through the Solr security API as `admin` first and then
+update the bootstrap secret by hand. See
+[Managing the Solr search engine](https://github.com/infonl/dimpact-zaakafhandelcomponent/blob/main/docs/development/managingSolr.md)
+for the Solr details, including how to read the admin password for the Solr admin UI.
 
 ## Changes to the helm chart
 
@@ -212,6 +238,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.affinity | object | `{}` |  |
 | office_converter.containerPort | int | `3000` |  |
 | office_converter.enabled | bool | `true` |  |
+| office_converter.env.API_ENABLE_BASIC_AUTH | string | `"true"` |  |
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
@@ -219,6 +246,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
+| office_converter.password | string | `""` | Office converter basic authentication password. Required; the office converter rejects unauthenticated requests. |
 | office_converter.podAnnotations | object | `{}` |  |
 | office_converter.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | office_converter.replicas | int | `1` |  |
@@ -232,6 +260,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.service.type | string | `"ClusterIP"` |  |
 | office_converter.tolerations | list | `[]` |  |
 | office_converter.topologySpreadConstraints | list | `[]` |  |
+| office_converter.username | string | `""` | Office converter basic authentication user name. Required; the office converter rejects unauthenticated requests. |
 | opa.affinity | object | `{}` |  |
 | opa.autoscaling.enabled | bool | `false` |  |
 | opa.enabled | bool | `true` |  |
@@ -378,7 +407,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"zookeeper"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for zookeeper |
 | solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
+| solr.password | string | `""` | Solr basic authentication password. Required when `solr.url` points at an external Solr; ignored for the solr-operator managed Solr. |
 | solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
+| solr.username | string | `""` | Solr basic authentication user name. Required when `solr.url` points at an external Solr; configure the matching user in the `security.json` of that instance. Ignored for the solr-operator managed Solr, where the operator generates the credentials and ZAC uses the `admin` account from the operator's security bootstrap secret. |
 | tmpVolumeSize | string | `"4Gi"` | Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it. Note that the matching 4Gi ephemeral-storage request is a scheduling requirement: a node without that much free ephemeral storage, or a namespace whose quota does not allow it, will not schedule the pod. Lower all three together when the environment cannot spare it; the cost is fewer concurrent transfers of `maxFileSizeMB`, not a lower maximum document size. |
 | tolerations | list | `[]` | set toleration parameters |
 | topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |

@@ -28,12 +28,11 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.solr.SolrClientFactory
 import nl.info.zac.util.AllOpen
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.common.params.CursorMarkParams
-import org.eclipse.microprofile.config.ConfigProvider
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
@@ -69,7 +68,8 @@ class ReindexSupportService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService,
-    private val zgwApiService: ZgwApiService
+    private val zgwApiService: ZgwApiService,
+    solrClientFactory: SolrClientFactory
 ) {
     companion object {
         private const val SOLR_MAX_RESULTS = 100
@@ -81,9 +81,7 @@ class ReindexSupportService @Inject constructor(
 
     private val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
-    private val solrClient: SolrClient = Http2SolrClient.Builder(
-        "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/${IndexingService.SOLR_CORE}"
-    ).build()
+    private val solrClient: SolrClient = solrClientFactory.createSolrClient(IndexingService.SOLR_CORE)
 
     fun commit() {
         runTranslatingToIndexingException {

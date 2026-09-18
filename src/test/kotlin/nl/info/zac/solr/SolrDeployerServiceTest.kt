@@ -27,10 +27,14 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest.MultiUpdate
 
 class SolrDeployerServiceTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
-    val solrUrl = "https://example.com/solr"
+    val solrClientFactory = SolrClientFactory(
+        solrUrl = "https://example.com",
+        solrUsername = "fakeSolrUsername",
+        solrPassword = "fakeSolrPassword"
+    )
 
     val solrDeployerService = SolrDeployerService(
-        solrUrl,
+        solrClientFactory,
         indexingService,
     )
 

@@ -462,6 +462,13 @@ solr:
   url: ""
    # -- enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr)
   createZacCore: true
+   # -- Solr basic authentication user name. Required when `solr.url` points at an external Solr; configure the matching
+   # user in the `security.json` of that instance. Ignored for the solr-operator managed Solr, where the operator
+   # generates the credentials and ZAC uses the `admin` account from the operator's security bootstrap secret.
+  username: ""
+   # -- Solr basic authentication password. Required when `solr.url` points at an external Solr; ignored for the
+   # solr-operator managed Solr.
+  password: ""
 
 # It is recommended to use solr-operator to help provision a solr-cloud cluster,
 # you will have to configure the zac core seperately then.
@@ -662,9 +669,14 @@ office_converter:
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
+   # -- Office converter basic authentication user name. Required; the office converter rejects unauthenticated requests.
+  username: ""
+   # -- Office converter basic authentication password. Required; the office converter rejects unauthenticated requests.
+  password: ""
    # Gotenberg environment variables (see https://gotenberg.dev/docs/configuration)
   env:
     CHROMIUM_DISABLE_ROUTES: "true"
+    API_ENABLE_BASIC_AUTH: "true"
   resources:
      # We usually recommend not to specify default resources and to leave this as a conscious
      # choice for the user. This also increases chances charts run on environments with little

@@ -9,10 +9,10 @@ import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
+import nl.info.zac.solr.SolrClientFactory
 import nl.info.zac.util.AllOpen
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.request.SolrPing
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.health.HealthCheck
 import org.eclipse.microprofile.health.HealthCheckResponse
 import org.eclipse.microprofile.health.Readiness
@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 @ApplicationScoped
 @AllOpen
 class SolrReadinessHealthCheck @Inject constructor(
-    @ConfigProperty(name = "SOLR_URL") private val solrUrl: String
+    private val solrClientFactory: SolrClientFactory
 ) : HealthCheck {
 
     companion object {
@@ -34,7 +34,7 @@ class SolrReadinessHealthCheck @Inject constructor(
     @Synchronized
     private fun getSolrClient(): Http2SolrClient {
         if (solrClient == null) {
-            solrClient = Http2SolrClient.Builder("$solrUrl/solr/${SOLR_CORE}").build()
+            solrClient = solrClientFactory.createSolrClient(SOLR_CORE)
         }
         return solrClient ?: error("solrClient should have been initialized")
     }
