@@ -323,7 +323,7 @@ describe(ZaakViewComponent.name, () => {
       isHeropend: false,
       isOpgeschort: false,
       eerdereOpschorting: false,
-      isProcesGestuurd: false,
+      isBpmn: false,
     } satisfies GeneratedType<"RestZaak">;
 
     beforeEach(() => {
@@ -364,7 +364,7 @@ describe(ZaakViewComponent.name, () => {
         ...zaak.rechten,
         behandelen: true,
       },
-      isProcesGestuurd: false,
+      isBpmn: false,
     } satisfies GeneratedType<"RestZaak">;
 
     beforeEach(() => {
@@ -417,12 +417,12 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
-    describe("when isProcesGestuurd is true", () => {
+    describe("when isBpmn is true", () => {
       beforeEach(() => {
         mockActivatedRoute.data.next({
           zaak: {
             ...hervattenZaak,
-            isProcesGestuurd: true,
+            isBpmn: true,
           },
         });
       });
@@ -445,7 +445,7 @@ describe(ZaakViewComponent.name, () => {
         behandelen: true,
         versturenOntvangstbevestiging: true,
       },
-      isProcesGestuurd: false,
+      isBpmn: false,
       indicaties: ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
     } satisfies GeneratedType<"RestZaak">;
 
@@ -488,12 +488,12 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
-    describe("when isProcesGestuurd is true", () => {
+    describe("when isBpmn is true", () => {
       beforeEach(() => {
         mockActivatedRoute.data.next({
           zaak: {
             ...baseZaak,
-            isProcesGestuurd: true,
+            isBpmn: true,
           },
         });
         fixture.detectChanges();
@@ -746,7 +746,7 @@ describe(ZaakViewComponent.name, () => {
         ...zaak.rechten,
         behandelen: true,
       },
-      isProcesGestuurd: false,
+      isBpmn: false,
       isHeropend: false,
       isOpgeschort: false,
       eerdereOpschorting: false,

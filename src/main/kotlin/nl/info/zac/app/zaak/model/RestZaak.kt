@@ -64,11 +64,11 @@ data class RestZaak(
     var isOpgeschort: Boolean,
 
     /**
-     * Indicates whether the case is driven using a BPMN process or not.
-     * If not, it is in most cases driven by the ZAC CMMN model.
+     * Indicates whether the zaak's zaaktype is configured to be handled using a BPMN process.
+     * If not, it is configured to be handled using the ZAC CMMN model.
      */
-    @get:JsonbProperty("isProcesGestuurd")
-    var isProcesGestuurd: Boolean,
+    @get:JsonbProperty("isBpmn")
+    var isBpmn: Boolean,
 
     @get:JsonbProperty("isVerlengd")
     var isVerlengd: Boolean,
