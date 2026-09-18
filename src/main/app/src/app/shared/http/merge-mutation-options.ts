@@ -7,6 +7,7 @@ import type {
   CreateMutationOptions,
   DefaultError,
 } from "@tanstack/angular-query-experimental";
+import type { ZacMeta } from "./query-client";
 
 /**
  * Runs `first` and then `second`, or whichever of the two is defined. Returns
@@ -23,6 +24,28 @@ function chain<TArguments extends unknown[]>(
     await first(...args);
     await second(...args);
   };
+}
+
+/**
+ * Layers the `meta` of the overrides on top of that of the mutation, so that
+ * setting one key does not drop the others. A key both layers define can only
+ * take one value, so the outermost one wins and the caller is told which entry
+ * it silently replaced.
+ */
+function mergeMeta(base: ZacMeta | undefined, overrides: ZacMeta | undefined) {
+  if (!base || !overrides) return base ?? overrides;
+
+  for (const [key, baseValue] of Object.entries(base)) {
+    const overrideValue = overrides[key as keyof ZacMeta];
+    if (!(key in overrides) || overrideValue === baseValue) continue;
+
+    console.warn(
+      `mergeMutationOptions: meta.${key} of the overrides replaces that of the mutation`,
+      { mutation: baseValue, overrides: overrideValue },
+    );
+  }
+
+  return { ...base, ...overrides };
 }
 
 /**
@@ -56,6 +79,7 @@ export function mergeMutationOptions<
   return {
     ...base,
     ...overrides,
+    meta: mergeMeta(base.meta, overrides.meta),
     onMutate:
       baseOnMutate && overridesOnMutate
         ? async (variables, context) => {
@@ -66,6 +90,19 @@ export function mergeMutationOptions<
             );
 
             // there is no generic way to combine two contexts, so the outermost one wins
+            if (
+              baseOnMutateResult !== undefined &&
+              overridesOnMutateResult !== undefined
+            ) {
+              console.warn(
+                "mergeMutationOptions: the onMutate context of the overrides replaces that of the mutation",
+                {
+                  mutation: baseOnMutateResult,
+                  overrides: overridesOnMutateResult,
+                },
+              );
+            }
+
             return (overridesOnMutateResult ??
               baseOnMutateResult) as TOnMutateResult;
           }
