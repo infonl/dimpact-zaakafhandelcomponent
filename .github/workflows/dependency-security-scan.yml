@@ -32,7 +32,7 @@ env:
 jobs:
   npm-security-audit:
     name: NPM Security Audit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     outputs:
       vuln_total: ${{ steps.audit_main.outputs.vuln_total }}
@@ -119,7 +119,7 @@ jobs:
 
   gradle-security-audit:
     name: Gradle Security Audit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     outputs:
       vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
@@ -305,7 +305,7 @@ jobs:
 
   notify-slack:
     name: Notify Slack
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [npm-security-audit, gradle-security-audit]
     if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
 

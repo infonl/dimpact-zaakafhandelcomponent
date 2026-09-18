@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   paths-filter:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
@@ -56,7 +56,7 @@ jobs:
 
   analyze:
     name: Analyze
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: paths-filter
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' }}
     permissions:
@@ -99,7 +99,7 @@ jobs:
     needs:
       - analyze
       - paths-filter
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       checks: read

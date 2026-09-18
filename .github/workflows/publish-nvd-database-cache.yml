@@ -37,7 +37,7 @@ jobs:
   publish:
     name: Build and publish NVD database cache image
     # INFO runner as NVD download is heavily throttled from github IPs
-    runs-on: [Linux, X64, ubuntu-24.04]
+    runs-on: [Linux, X64, ubuntu-26.04]
     # Normal (incremental) runs finish in minutes. A seed run (seed_database=true)
     # performs a full cold NVD download, which - because the NVD API heavily and
     # unpredictably rate-limits CI egress IPs - can take many hours; it runs on a
