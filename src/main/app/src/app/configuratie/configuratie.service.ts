@@ -21,9 +21,6 @@ export class ConfiguratieService {
   private readonly basepath = "/rest/configuratie";
   private talen$?: Observable<GeneratedType<"RestTaal">[]>;
   private maxFileSizeMB$?: Observable<number>;
-  private allowedFileTypes$?: Observable<
-    GeneratedType<"RestAllowedFileType">[]
-  >;
   private gemeenteCode$?: Observable<string>;
   private gemeenteNaam$?: Observable<string>;
   private pabcIntegration$?: Observable<boolean>;
@@ -66,18 +63,11 @@ export class ConfiguratieService {
     return this.maxFileSizeMB$;
   }
 
-  readAllowedFileTypes(): Observable<GeneratedType<"RestAllowedFileType">[]> {
-    if (!this.allowedFileTypes$) {
-      this.allowedFileTypes$ = this.http
-        .get<
-          GeneratedType<"RestAllowedFileType">[]
-        >(`${this.basepath}/file-types`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.allowedFileTypes$;
+  readAllowedFileTypesQuery() {
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/configuratie/file-types"),
+      staleTime: "static", // deploy-time configuration, never refetch or invalidate
+    });
   }
 
   readGemeenteCode(): Observable<string> {
