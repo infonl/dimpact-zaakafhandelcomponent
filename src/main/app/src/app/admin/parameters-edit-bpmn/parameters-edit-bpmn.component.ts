@@ -75,6 +75,10 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   resultaattype?: GeneratedType<"RestResultaattype"> | null;
 };
 
+type ZaakbeeindigResultaatControl = FormControl<
+  GeneratedType<"RestResultaattype"> | null | undefined
+>;
+
 @Component({
   selector: "zac-parameters-edit-bpmn",
   templateUrl: "./parameters-edit-bpmn.component.html",
@@ -174,7 +178,8 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   protected zaakbeeindigParameters: RestPristineZaakbeeindigParameterFormData[] =
     [];
 
-  protected zaakbeeindigFormGroup = new FormGroup({});
+  protected zaakbeeindigFormGroup =
+    this.formBuilder.record<ZaakbeeindigResultaatControl>({});
 
   protected selection =
     new SelectionModel<RestPristineZaakbeeindigParameterFormData>(true);
@@ -396,13 +401,14 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     parameter: RestPristineZaakbeeindigParameterFormData,
     field: string,
   ) {
-    return this.zaakbeeindigFormGroup.get(
-      `${parameter.zaakbeeindigReden?.id}__${field}`,
-    );
+    return this.zaakbeeindigFormGroup.controls[
+      `${parameter.zaakbeeindigReden?.id}__${field}`
+    ];
   }
 
   private createZaakbeeindigForm() {
-    this.zaakbeeindigFormGroup = this.formBuilder.group({});
+    this.zaakbeeindigFormGroup =
+      this.formBuilder.record<ZaakbeeindigResultaatControl>({});
     this.addZaakbeeindigParameter(
       this.getZaaknietontvankelijkParameter(this.bpmnZaakafhandelParameters),
     );
