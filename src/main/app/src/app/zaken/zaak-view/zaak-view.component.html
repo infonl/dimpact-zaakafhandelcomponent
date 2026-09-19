@@ -166,7 +166,6 @@
         <zac-besluit-view
           *ngIf="zaak.besluiten?.length"
           [besluiten]="zaak.besluiten ?? []"
-          [result]="zaak.resultaat"
           [readonly]="!zaak.isOpen || !zaak.rechten.behandelen"
           (besluitWijzigen)="besluitWijzigen($event)"
         ></zac-besluit-view>
