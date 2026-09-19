@@ -69,9 +69,13 @@
                   </button>
                 }
               </div>
-              <zac-locatie-tonen
-                [currentLocation]="zaak().zaakgeometrie"
-              ></zac-locatie-tonen>
+              @defer (on viewport) {
+                <zac-locatie-tonen
+                  [currentLocation]="zaak().zaakgeometrie"
+                ></zac-locatie-tonen>
+              } @placeholder {
+                <div class="locatie-kaart-placeholder"></div>
+              }
             </div>
           </div>
         </mat-tab>
