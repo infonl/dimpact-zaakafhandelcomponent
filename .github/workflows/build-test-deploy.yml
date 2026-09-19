@@ -396,6 +396,16 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Pull the Docker Compose images in the background while the JDK, Gradle and the ZAC Docker image
+      # are being prepared, so that the integration tests do not have to wait for the pulls.
+      # The ZAC image is excluded because it is built below.
+      - name: Start pulling the Docker Compose images in the background
+        run: |
+          nohup docker compose --profile zac --profile itest pull --quiet --ignore-pull-failures \
+            $(docker compose --profile zac --profile itest config --services | grep --invert-match --line-regexp zac) \
+            < /dev/null > "$RUNNER_TEMP/compose-pull.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/compose-pull.pid"
+
       - name: Setup JDK
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
@@ -429,11 +439,38 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Wait for the Docker Compose images to be pulled
+        run: |
+          while kill -0 "$(cat "$RUNNER_TEMP/compose-pull.pid")" 2> /dev/null; do
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/compose-pull.log"
+
+      # The full integration test log (including the container logs) is written to a file that is uploaded
+      # as an artifact when the tests fail. The console only shows failed tests.
       - name: Run integration tests
         run: |
-          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
+          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -PitestLogFile=build/reports/itest/itest.log \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
-            itest --info
+            itest
+
+      - name: Publish integration test timings
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -f build/reports/itest/timings.md ]; then
+            tee --append "$GITHUB_STEP_SUMMARY" < build/reports/itest/timings.md
+          else
+            echo "No integration test timing report was generated" | tee --append "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload integration test log
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: integration-test-log
+          path: build/reports/itest/itest.log
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload integration test results to CodeCov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
@@ -468,17 +505,19 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Save Docker Image
+      # Push the tested image under its build number tag straight from this job. The 'push-docker-image' job
+      # then only adds the release tags in the registry, so the image never has to be saved, uploaded and loaded again.
+      - name: Docker Login
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
-        run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
-
-      - name: Upload ZAC Docker Image
-        if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
-          name: docker-image
-          path: docker-image.tar
-          retention-days: 1
+          registry: ${{ env.CONTAINER_REGISTRY_URL }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image with build number tag
+        if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
+        run: docker push ${ZAC_DOCKER_IMAGE}
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]
@@ -498,36 +537,29 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download Docker Image
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: docker-image
-
-      - name: Load Docker Image
-        run: docker load --input docker-image.tar
-
+      # The image was already pushed under its build number tag by the integration test job.
+      # 'docker buildx imagetools create' adds the other tags in the registry without pulling the image.
       - name: Tag Docker Image with 'latest' tag
         if: github.ref == 'refs/heads/main'
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
+        run: docker buildx imagetools create --tag ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest ${ZAC_DOCKER_IMAGE}
 
       - name: Tag Docker Image with version tag
         if: env.NEXT_VERSION != ''
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+        run: docker buildx imagetools create --tag ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION} ${ZAC_DOCKER_IMAGE}
 
       - name: Tag Docker Image with pinned dev build number tag
         if: ${{ env.RELEASE_TYPE == 'dev' }}
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}.${{ github.run_number }}
+        run: docker buildx imagetools create --tag ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}.${{ github.run_number }} ${ZAC_DOCKER_IMAGE}
 
       - name: Tag Docker Image with major and minor version tags
         if: ${{ env.NEXT_VERSION != '' && env.RELEASE_TYPE == 'release' }}
         run: |
           MAJOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 1)
           MINOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 2)
-          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}
-          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}.${MINOR_VERSION}
-
-      - name: Push Docker Image with all tags
-        run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
+          docker buildx imagetools create \
+            --tag ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION} \
+            --tag ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}.${MINOR_VERSION} \
+            ${ZAC_DOCKER_IMAGE}
 
   create-release:
     needs: [push-docker-image, determine-version]

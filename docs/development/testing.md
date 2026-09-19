@@ -37,6 +37,17 @@ To do this you will first need to do the following:
 Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
 then start up ZAC as Docker container and finally run the integration tests.
 
+### Integration test timings
+
+Every integration test run writes a timing report to `build/reports/itest/timings.md`: how long starting the
+Docker Compose stack, ZAC becoming healthy, the specs and the teardown took, when each container started and
+became ready, and the slowest specs. Use it to find out where the time goes before trying to speed things up.
+In CI the report is published in the job summary of the `build-docker-image-and-run-itests` job.
+
+CI runs the integration tests without `--info` and writes the full log, including the container logs, to
+`build/reports/itest/itest.log` (Gradle property `itestLogFile`). That file is uploaded as the
+`integration-test-log` artifact when the tests fail.
+
 ### Configuring Docker Compose containers start/stop behaviour
 
 Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests behaviour:
