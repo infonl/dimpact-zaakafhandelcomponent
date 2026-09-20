@@ -70,7 +70,7 @@
     "@angular/cli": "20.3.37",
     "@angular/compiler-cli": "20.3.31",
     "@angular/language-service": "20.3.31",
-    "@formio/core": "2.8.2",
+    "@formio/core": "2.8.3",
     "@testing-library/angular": "18.1.1",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
