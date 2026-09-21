@@ -193,6 +193,18 @@ For a ZAC admin the following user roles are required:
  - `beheerder`
  - `domein_elk_zaaktype`
 
+### Solr
+
+Solr requires basic authentication. See [Managing the Solr search engine](managingSolr.md) for the developer
+credentials and for how to change them.
+
+### Office converter (Gotenberg)
+
+The office converter converts office documents to PDF and requires basic authentication as well. The developer
+credentials are `zac` / `fakeOfficeConverterPassword`, which are the defaults for `OFFICE_CONVERTER_USERNAME` and
+`OFFICE_CONVERTER_PASSWORD` in the Docker Compose file. Override them in your `.env` file if needed; the same
+values are used to configure both the office converter container and ZAC.
+
 ### Open Klant
 
 Basic configuration required by ZAC is automatically imported into the Open Klant database from the Docker Compose file.

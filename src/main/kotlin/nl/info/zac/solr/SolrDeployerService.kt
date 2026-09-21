@@ -20,11 +20,9 @@ import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrServerException
-import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.request.SolrPing
 import org.apache.solr.client.solrj.request.schema.SchemaRequest
 import org.apache.solr.common.SolrException
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.IOException
 import java.time.Duration
 import java.util.logging.Logger
@@ -33,7 +31,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class SolrDeployerService @Inject constructor(
-    @ConfigProperty(name = "SOLR_URL") private val solrUrl: String,
+    private val solrClientFactory: SolrClientFactory,
     private val indexingService: IndexingService
 ) {
     companion object {
@@ -52,7 +50,7 @@ class SolrDeployerService @Inject constructor(
     }
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
-        solrClient = Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
+        solrClient = solrClientFactory.createSolrClient(SOLR_CORE)
         waitForSolrAvailability()
         try {
             val currentVersion = getCurrentVersion()

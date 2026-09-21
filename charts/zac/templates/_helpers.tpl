@@ -55,6 +55,42 @@ We truncate at 25 chars in order to provide space for the suffixes set by the so
 {{- end }}
 
 {{/*
+Name of the secret the Solr operator generates when it bootstraps security.json into the Solr it manages.
+It holds the random passwords of the "admin", "k8s-oper" and "solr" accounts under keys of the same name.
+*/}}
+{{- define "zaakafhandelcomponent.solrcloud.securityBootstrapSecretName" -}}
+{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-security-bootstrap
+{{- end }}
+
+{{/*
+The SOLR_USERNAME and SOLR_PASSWORD environment variables.
+For an external Solr (.Values.solr.url) they come from the ZAC secret. For the solr-operator managed Solr
+they are the "admin" account the operator generates into its security bootstrap secret.
+*/}}
+{{- define "zaakafhandelcomponent.solr.credentialsEnv" -}}
+{{- if .Values.solr.url }}
+- name: SOLR_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "zaakafhandelcomponent.fullname" . }}
+      key: SOLR_USERNAME
+- name: SOLR_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "zaakafhandelcomponent.fullname" . }}
+      key: SOLR_PASSWORD
+{{- else }}
+- name: SOLR_USERNAME
+  value: admin
+- name: SOLR_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "zaakafhandelcomponent.solrcloud.securityBootstrapSecretName" . }}
+      key: admin
+{{- end }}
+{{- end }}
+
+{{/*
 Create a default fully qualified name for opa.
 We truncate at 57 chars in order to provide space for the "-nginx" suffix
 */}}
