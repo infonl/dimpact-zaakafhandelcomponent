@@ -362,6 +362,9 @@ class ProductaanvraagService @Inject constructor(
         zaaktypeBpmnConfiguration.groepID?.let {
             assignZaakToGroup(zaak = zaak, groupName = it)
         }
+        zaaktypeBpmnConfiguration.defaultBehandelaarId?.let {
+            assignZaakToEmployee(zaak = zaak, employeeName = it)
+        }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         productaanvraagBetrokkeneService.addInitiatorAndBetrokkenenToZaak(
             productaanvraag = productaanvraagDimpact,

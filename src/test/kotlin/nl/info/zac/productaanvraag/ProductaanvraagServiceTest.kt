@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpSession
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolMedewerker
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
@@ -1602,6 +1603,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 name = "fakeGroupName",
             )
             val defaultBehandelaarId = "fakeGebruikersnaamMedewerker"
+            val defaultBehandelaarUser = createUser()
             val behandelaarRolType = createRolType(
                 zaakTypeUri = zaakType.url,
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
@@ -1634,7 +1636,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
             )
             val zaakDataSlot = slot<Map<String, Any>>()
-            val createdRolSlot = slot<Rol<*>>()
+            val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
@@ -1657,11 +1659,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot)) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupName) } returns group
+            every { identityService.readUser(defaultBehandelaarId) } returns defaultBehandelaarUser
             every {
                 ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns behandelaarRolType
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
-            every { zrcClientService.createRol(capture(createdRolSlot)) } returns mockk()
+            every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
 
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -1688,13 +1691,26 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
                     }
+                    with(roleToBeCreated.single { it.betrokkeneType == BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID }) {
+                        roltype shouldBe behandelaarRolType.url
+                        zaak shouldBe createdZaak.url
+                    }
+                }
+                and("the employee role should be created for the default behandelaar") {
+                    verify(exactly = 1) {
+                        zrcClientService.createRol(any<RolMedewerker>())
+                    }
+                    with(roleToBeCreated.single { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER }) {
+                        identificatienummer shouldBe defaultBehandelaarUser.id
+                        roltype shouldBe behandelaarRolType.url
+                        zaak shouldBe createdZaak.url
+                    }
                 }
                 and("the initiator betrokkene role should be added to the zaak") {
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolNatuurlijkPersoon>())
                     }
-                    with(createdRolSlot.captured) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+                    with(roleToBeCreated.single { it.betrokkeneType == BetrokkeneTypeEnum.NATUURLIJK_PERSOON }) {
                         identificatienummer shouldBe bsnNumber
                         roltype shouldBe rolTypeInitiator.url
                         zaak shouldBe createdZaak.url
