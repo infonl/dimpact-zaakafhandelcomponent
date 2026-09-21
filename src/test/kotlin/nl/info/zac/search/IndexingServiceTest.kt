@@ -34,7 +34,6 @@ import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -57,6 +56,8 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.createZaakToewijzing
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -76,7 +77,7 @@ private data class TestContext(
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
     val zrcClientService: ZrcClientService,
-    val zgwApiService: ZgwApiService,
+    val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
     val documentZoekObjectConverter: DocumentZoekObjectConverter,
     val indexingService: IndexingService,
     val testDispatcher: TestDispatcher
@@ -123,7 +124,7 @@ private fun setupContext(): TestContext {
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZgwApiService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val testDispatcher = StandardTestDispatcher()
     val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
 
@@ -132,7 +133,7 @@ private fun setupContext(): TestContext {
         zrcClientService,
         drcClientService,
         flowableTaskService,
-        zgwApiService,
+        zaakspecifiekeAutorisatieService,
         solrClientFactory
     )
     val zaakGedrevenReindexService = ZaakGedrevenReindexService(
@@ -164,11 +165,28 @@ private fun setupContext(): TestContext {
         drcClientService,
         flowableTaskService,
         zrcClientService,
-        zgwApiService,
+        zaakspecifiekeAutorisatieService,
         documentZoekObjectConverter,
         indexingService,
         testDispatcher
     )
+}
+
+private fun createZaakToewijzingWithBehandelaar(behandelaarId: String?) = createZaakToewijzing(
+    behandelaarRollen = listOfNotNull(
+        behandelaarId?.let {
+            createRolMedewerker(medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = it))
+        }
+    ),
+    isZaakspecifiekGeautoriseerd = true
+)
+
+private fun TestContext.stubZaakGeautoriseerdeMedewerkersLookup(
+    zaak: Zaak,
+    medewerkerId: String? = "fakeBehandelaarId"
+) {
+    every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns
+        createZaakToewijzingWithBehandelaar(medewerkerId)
 }
 
 private fun TestContext.stubZaakGeautoriseerdeMedewerkersLookup(
@@ -177,9 +195,7 @@ private fun TestContext.stubZaakGeautoriseerdeMedewerkersLookup(
 ) {
     val zaak = createZaak(uuid = zaakUUID)
     every { zrcClientService.readZaak(zaakUUID) } returns zaak
-    every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns medewerkerId?.let {
-        createRolMedewerker(medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = it))
-    }
+    stubZaakGeautoriseerdeMedewerkersLookup(zaak, medewerkerId)
 }
 
 @Suppress("LargeClass")
@@ -356,7 +372,7 @@ class IndexingServiceTest : BehaviorSpec({
             ) {
                 verify(exactly = 1) {
                     ctx.zrcClientService.readZaak(zaakUUID)
-                    ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any())
+                    ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(any(), any(), any())
                 }
             }
         }
@@ -376,9 +392,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
         )
-        every { ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
-        )
+        ctx.stubZaakGeautoriseerdeMedewerkersLookup(zaak)
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
         zaakInformatieobjecten.forEachIndexed { index, zaakInformatieobject ->
             every {
@@ -436,9 +450,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.zrcClientService.listZaakeigenschappen(otherZaakUUID) } returns listOf(
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "false")
         )
-        every { ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
-        )
+        ctx.stubZaakGeautoriseerdeMedewerkersLookup(zaak)
         ctx.stubZaakGeautoriseerdeMedewerkersLookup(otherZaakUUID, medewerkerId = "fakeOtherBehandelaarId")
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
         every {
@@ -527,7 +539,7 @@ class IndexingServiceTest : BehaviorSpec({
             then("the zaak's geautoriseerde medewerkers are resolved only once, shared by the zaak and its taak") {
                 verify(exactly = 1) {
                     ctx.zrcClientService.readZaak(zaakUUID)
-                    ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any())
+                    ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(any(), any(), any())
                 }
             }
         }
@@ -2288,7 +2300,7 @@ class IndexingServiceTest : BehaviorSpec({
             then("the zaak's geautoriseerde medewerkers are never resolved, since a zaak conversion knows them") {
                 verify(exactly = 0) {
                     ctx.zrcClientService.readZaak(any<UUID>())
-                    ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any())
+                    ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(any(), any(), any())
                 }
             }
         }
@@ -2305,13 +2317,9 @@ class IndexingServiceTest : BehaviorSpec({
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
         )
         every { ctx.zrcClientService.readZaak(zaakUUID) } returns zaak
-        every { ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returnsMany listOf(
-            createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeFirstMedewerkerId")
-            ),
-            createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeSecondMedewerkerId")
-            )
+        every { ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returnsMany listOf(
+            createZaakToewijzingWithBehandelaar("fakeFirstMedewerkerId"),
+            createZaakToewijzingWithBehandelaar("fakeSecondMedewerkerId")
         )
         every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } answers {
             observedMedewerkers += secondArg<(UUID) -> ZaakAutorisatieGegevens>()
@@ -2334,7 +2342,7 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 2) {
                     ctx.zrcClientService.listZaakeigenschappen(zaakUUID)
                     ctx.zrcClientService.readZaak(zaakUUID)
-                    ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any())
+                    ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(any(), any(), any())
                 }
             }
         }

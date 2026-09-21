@@ -33,6 +33,8 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
@@ -61,6 +63,7 @@ import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
+import nl.info.zac.app.zaak.exception.BetrokkeneCannotBeDeletedException
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
@@ -159,6 +162,15 @@ class ZaakRestService @Inject constructor(
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
 
+        /**
+         * A behandelaar is removed through the vrijgeven and toekennen endpoints and an individual
+         * zaakspecifieke autorisatie through its own endpoint, never as a betrokkene.
+         */
+        private val ROLTYPE_OMSCHRIJVINGEN_THAT_CANNOT_BE_DELETED_AS_BETROKKENE = setOf(
+            ROLTYPE_OMSCHRIJVING_BEHANDELAAR,
+            ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
+        )
+
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
         const val VESTIGING_IDENTIFICATIE_DELIMITER = "|"
     }
@@ -225,7 +237,14 @@ class ZaakRestService @Inject constructor(
         ).let(zgwApiService::createZaak)
 
         addInitiator(restZaak, zaak, zaakType)
-        updateZaakRoles(restZaak, zaak)
+        if (restZaak.groep != null || restZaak.behandelaar != null) {
+            zaakService.assignZaak(
+                zaak = zaak,
+                groupId = restZaak.groep?.id,
+                userName = restZaak.behandelaar?.id,
+                reason = AANMAKEN_ZAAK_REDEN
+            )
+        }
         startZaak(zaaktypeUUID, zaak, zaakType, restZaak)
 
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
@@ -587,19 +606,16 @@ class ZaakRestService @Inject constructor(
             currentBehandelaarId = currentBehandelaarId
         )
         requestedAssignment?.let { assertPolicy(zaakRechten.toekennen) }
-        if (isAlreadyZaakspecifiekGeautoriseerd) {
-            zaakspecifiekeAutorisatieService.assertBehandelaarNotReassigned(
-                requestedBehandelaarId = restZaakEditMetRedenGegevens.zaak.behandelaar?.id,
-                currentBehandelaarId = currentBehandelaarId
-            )
-        }
         val shouldBeMarkedZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
             zaakType = zaakType,
             requestedMarking = restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd,
             isAlreadyZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
-            behandelaarId = requestedAssignment?.behandelaarId ?: currentBehandelaarId,
+            behandelaarId = currentBehandelaarId ?: requestedAssignment?.behandelaarId,
             loggedInUser = loggedInUser
         )
+        if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
+            zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+        }
         requestedAssignment?.let {
             zaakService.assignZaak(
                 zaak = zaak,
@@ -613,9 +629,6 @@ class ZaakRestService @Inject constructor(
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
-        if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
-            zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(updatedZaak)
-        }
         applyZaakUpdateSideEffects(zaak, zaakType, updatedZaak, restZaakEditMetRedenGegevens.zaak)
         return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
     }
@@ -910,6 +923,9 @@ class ZaakRestService @Inject constructor(
 
     private fun removeBetrokkene(zaakRechten: ZaakRechten, betrokkene: Rol<*>, reden: String) {
         assertPolicy(zaakRechten.verwijderenBetrokkene)
+        if (betrokkene.omschrijving in ROLTYPE_OMSCHRIJVINGEN_THAT_CANNOT_BE_DELETED_AS_BETROKKENE) {
+            throw BetrokkeneCannotBeDeletedException()
+        }
         zrcClientService.deleteRol(betrokkene, reden)
     }
 
@@ -1041,26 +1057,6 @@ class ZaakRestService @Inject constructor(
             zaak = zaak,
             explanation = explanation?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN
         )
-    }
-
-    private fun updateZaakRoles(
-        restZaak: RestZaakCreateData,
-        zaak: Zaak
-    ) {
-        restZaak.groep?.let {
-            zrcClientService.updateRol(
-                zaak = zaak,
-                rol = zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
-                toelichting = AANMAKEN_ZAAK_REDEN
-            )
-        }
-        restZaak.behandelaar?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
     }
 
     private data class RequestedAssignment(val groupId: String, val behandelaarId: String?)

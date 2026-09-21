@@ -49,6 +49,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_CASE_CANNOT_HAVE_DUE_DATE("msg.error.case.cannot.have.due.date"),
     ERROR_CODE_ZAAK_WITH_BESLUIT_CANNOT_BE_TERMINATED("msg.error.zaak.has.besluit.cannot.be.terminated"),
     ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED("msg.error.case.betrokkene.not.allowed"),
+    ERROR_CODE_CASE_BETROKKENE_CANNOT_BE_DELETED("msg.error.case.betrokkene.cannot.be.deleted"),
     ERROR_CODE_CASE_EXPLANATION_REQUIRED("msg.error.case.explanation.required"),
     ERROR_CODE_SEARCH_INDEXING("msg.error.search.indexing.exception"),
     ERROR_CODE_SEARCH_SEARCH("msg.error.search.search.exception"),
@@ -72,7 +73,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_RELEASED(
         "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released"
     ),
-    ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED(
-        "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned"
+    ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND(
+        "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found"
     ),
 }

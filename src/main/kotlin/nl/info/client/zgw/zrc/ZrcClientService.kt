@@ -104,15 +104,6 @@ class ZrcClientService @Inject constructor(
         updateRollen(zaak, rollen, toelichting)
     }
 
-    fun deleteRol(zaak: Zaak, betrokkeneType: BetrokkeneTypeEnum?, toelichting: String?) {
-        val rollen = listRollen(zaak).toMutableList().apply {
-            firstOrNull { it.betrokkeneType == betrokkeneType }?.let { betrokkene ->
-                removeAll { it.equalBetrokkeneRol(betrokkene) }
-            }
-        }
-        updateRollen(zaak, rollen, toelichting)
-    }
-
     fun readRol(rolURI: URI): Rol<*> {
         validateZgwApiUri(rolURI, configurationService.readZgwApiClientMpRestUrl())
         return readRol(rolURI.extractUuid())
