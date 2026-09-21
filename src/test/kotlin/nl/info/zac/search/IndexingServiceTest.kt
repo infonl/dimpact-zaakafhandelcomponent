@@ -13,8 +13,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkConstructor
-import io.mockk.mockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
@@ -58,6 +56,7 @@ import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.solr.SolrClientFactory
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -66,7 +65,6 @@ import org.apache.solr.client.solrj.response.UpdateResponse
 import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
-import org.eclipse.microprofile.config.ConfigProvider
 import org.flowable.task.api.Task
 
 private data class TestContext(
@@ -113,15 +111,10 @@ private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
 }
 
 private fun setupContext(): TestContext {
-    val solrUrl = "http://localhost/fakeSolrUrl"
-    mockkStatic(ConfigProvider::class)
-    every {
-        ConfigProvider.getConfig().getValue("solr.url", String::class.java)
-    } returns solrUrl
-
     val solrClient = mockk<Http2SolrClient>()
-    mockkConstructor(Http2SolrClient.Builder::class)
-    every { anyConstructed<Http2SolrClient.Builder>().build() } returns solrClient
+    val solrClientFactory = mockk<SolrClientFactory> {
+        every { createSolrClient(any()) } returns solrClient
+    }
 
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
     val taakZoekObjectConverter = mockk<TaakZoekObjectConverter>()
@@ -139,7 +132,8 @@ private fun setupContext(): TestContext {
         zrcClientService,
         drcClientService,
         flowableTaskService,
-        zgwApiService
+        zgwApiService,
+        solrClientFactory
     )
     val zaakGedrevenReindexService = ZaakGedrevenReindexService(
         reindexSupportService,

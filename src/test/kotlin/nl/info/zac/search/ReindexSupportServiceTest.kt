@@ -10,8 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkConstructor
-import io.mockk.mockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import java.util.UUID
@@ -41,12 +39,12 @@ import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.solr.SolrClientFactory
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.client.solrj.response.UpdateResponse
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
-import org.eclipse.microprofile.config.ConfigProvider
 import org.flowable.task.api.Task
 
 private data class ReindexSupportServiceTestContext(
@@ -80,15 +78,10 @@ private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
 }
 
 private fun setupContext(): ReindexSupportServiceTestContext {
-    val solrUrl = "http://localhost/fakeSolrUrl"
-    mockkStatic(ConfigProvider::class)
-    every {
-        ConfigProvider.getConfig().getValue("solr.url", String::class.java)
-    } returns solrUrl
-
     val solrClient = mockk<Http2SolrClient>()
-    mockkConstructor(Http2SolrClient.Builder::class)
-    every { anyConstructed<Http2SolrClient.Builder>().build() } returns solrClient
+    val solrClientFactory = mockk<SolrClientFactory> {
+        every { createSolrClient(any()) } returns solrClient
+    }
 
     val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject>>>()
     val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>>()
@@ -102,7 +95,8 @@ private fun setupContext(): ReindexSupportServiceTestContext {
         zrcClientService,
         drcClientService,
         flowableTaskService,
-        zgwApiService
+        zgwApiService,
+        solrClientFactory
     )
 
     return ReindexSupportServiceTestContext(

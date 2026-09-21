@@ -37,13 +37,21 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.office_converter.containerPort }}
-          {{- with .Values.office_converter.env }}
           env:
-            {{- range $key, $value := . }}
+            - name: GOTENBERG_API_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zaakafhandelcomponent.fullname" . }}
+                  key: OFFICE_CONVERTER_USERNAME
+            - name: GOTENBERG_API_BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zaakafhandelcomponent.fullname" . }}
+                  key: OFFICE_CONVERTER_PASSWORD
+            {{- range $key, $value := .Values.office_converter.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-          {{- end }}
           resources:
             {{- toYaml .Values.office_converter.resources | nindent 12 }}
           volumeMounts:

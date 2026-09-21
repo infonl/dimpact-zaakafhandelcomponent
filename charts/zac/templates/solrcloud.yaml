@@ -54,6 +54,9 @@ spec:
     tag: {{ (index .Values "solr-operator").solr.image.tag }}
   solrJavaMem: {{ (index .Values "solr-operator").solr.javaMem }}
   solrLogLevel: {{ (index .Values "solr-operator").solr.logLevel }}
+  solrSecurity:
+    authenticationType: Basic
+    probesRequireAuth: true
   dataStorage:
     persistent:
       pvcTemplate:
