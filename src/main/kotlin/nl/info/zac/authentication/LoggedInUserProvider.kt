@@ -33,6 +33,12 @@ class LoggedInUserProvider @Inject constructor(
         private const val FALLBACK_ORIGIN_FRAMES = 3L
         private val ZAC_PACKAGES = listOf("nl.info.", "net.atos.")
 
+        /**
+         * Constant for the 'systeemrol_behandelaar_alle_zaaktypen' application role.
+         * Must match the role string used in the `systeemrolBehandelaarAlleZaaktypen` rule in `rollen.rego`.
+         */
+        private const val ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN = "systeemrol_behandelaar_alle_zaaktypen"
+
         /** Origins already reported, so a recurring fallback is logged once instead of on every call. */
         internal val loggedFallbackOrigins: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
@@ -46,13 +52,13 @@ class LoggedInUserProvider @Inject constructor(
          * Requests to these internal API calls are typically initiated from external systems or cron jobs.
          */
         val FUNCTIONEEL_GEBRUIKER = LoggedInUser(
-            "FG",
-            "",
-            "Functionele gebruiker",
-            "Functionele gebruiker",
-            null,
-            emptySet(),
-            emptySet()
+            id = "FG",
+            firstName = "",
+            lastName = "Functionele gebruiker",
+            displayName = "Functionele gebruiker",
+            email = null,
+            roles = emptySet(),
+            groupIds = emptySet()
         )
 
         /**
@@ -61,13 +67,14 @@ class LoggedInUserProvider @Inject constructor(
          * not fixed, so it is not named after one: the zaak records it in its toelichting instead.
          */
         val PRODUCTAANVRAAG_GEBRUIKER = LoggedInUser(
-            "PA",
-            "",
-            "Productaanvraag",
-            "Productaanvraag",
-            null,
-            emptySet(),
-            emptySet()
+            id = "PA",
+            firstName = "",
+            lastName = "Productaanvraag",
+            displayName = "Productaanvraag",
+            email = null,
+            roles = emptySet(),
+            groupIds = emptySet(),
+            overallRoles = setOf(ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN),
         )
 
         val systemUser: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }

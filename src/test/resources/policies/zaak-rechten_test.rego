@@ -90,6 +90,10 @@ test_lezen_missing_role_fails if {
     not lezen with input.user.key as "value"
 }
 
+test_lezen_systeemrol_behandelaar_alle_zaaktypen if {
+    lezen with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
 ##########
 # wijzigen
 ##########
@@ -147,6 +151,19 @@ test_wijzigen_missing_role_fails if {
     not wijzigen with input.user.key as "value"
 }
 
+test_wijzigen_systeemrol_behandelaar_alle_zaaktypen if {
+    wijzigen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_systeemrol_behandelaar_alle_zaaktypen_zaakspecifiek_geautoriseerd_without_flag if {
+    wijzigen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+}
+
 ###########
 # toekennen
 ###########
@@ -198,6 +215,12 @@ test_toekennen_missing_role_fails if {
     not toekennen with input.user.key as "value"
 }
 
+test_toekennen_systeemrol_behandelaar_alle_zaaktypen if {
+    toekennen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 ############
 # behandelen
 ############
@@ -223,6 +246,10 @@ test_behandelen_wrong_role_fails if {
 
 test_behandelen_missing_role_fails if {
     not behandelen with input.user.key as "value"
+}
+
+test_behandelen_systeemrol_behandelaar_alle_zaaktypen if {
+    behandelen with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
 }
 
 ##########
@@ -252,6 +279,10 @@ test_afbreken_missing_role_fails if {
     not afbreken with input.user.key as "value"
 }
 
+test_afbreken_systeemrol_behandelaar_alle_zaaktypen if {
+    afbreken with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
 ###########
 # heropenen
 ###########
@@ -271,6 +302,10 @@ test_heropenen_missing_role_fails if {
     not heropenen with input.user.key as "value"
 }
 
+test_heropenen_systeemrol_behandelaar_alle_zaaktypen_fails if {
+    not heropenen with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
 ###################
 # bekijken_zaakdata
 ###################
@@ -284,6 +319,10 @@ test_bekijken_zaakdata_wrong_role_fails if {
 
 test_bekijken_zaakdata_missing_role_fails if {
     not bekijken_zaakdata with input.user.key as "value"
+}
+
+test_bekijken_zaakdata_systeemrol_behandelaar_alle_zaaktypen_fails if {
+    not bekijken_zaakdata with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
 }
 
 #######################
@@ -328,6 +367,12 @@ test_wijzigen_doorlooptijd_missing_role_fails if {
 test_wijzigen_doorlooptijd_zaak_closed_fails if {
     not wijzigen_doorlooptijd
         with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_doorlooptijd_systeemrol_behandelaar_alle_zaaktypen if {
+    wijzigen_doorlooptijd
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
         with input.zaak.open as false
 }
 
@@ -414,6 +459,15 @@ test_verlengen_missing_role_fails if {
     not verlengen with input.user.key as "value"
 }
 
+test_verlengen_systeemrol_behandelaar_alle_zaaktypen if {
+    verlengen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+        with input.zaak.heropend as true
+        with input.zaak.opgeschort as true
+        with input.zaak.verlengd as true
+}
+
 ############
 # opschorten
 ############
@@ -481,6 +535,14 @@ test_opschorten_missing_role_fails if {
     not opschorten with input.user.key as "value"
 }
 
+test_opschorten_systeemrol_behandelaar_alle_zaaktypen if {
+    opschorten
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+        with input.zaak.heropend as true
+        with input.zaak.opgeschort as true
+}
+
 ###########
 # hervatten
 ###########
@@ -506,6 +568,10 @@ test_hervatten_wrong_role_fails if {
 
 test_hervatten_missing_role_fails if {
     not hervatten with input.user.key as "value"
+}
+
+test_hervatten_systeemrol_behandelaar_alle_zaaktypen if {
+    hervatten with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
 }
 
 ###################
@@ -547,6 +613,12 @@ test_creeren_document_wrong_role_fails if {
 
 test_creeren_document_missing_role_fails if {
     not creeren_document with input.user.key as "value"
+}
+
+test_creeren_document_systeemrol_behandelaar_alle_zaaktypen if {
+    creeren_document
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
 }
 
 ####################
@@ -595,6 +667,12 @@ test_toevoegen_document_missing_role_fails if {
     not toevoegen_document with input.user.key as "value"
 }
 
+test_toevoegen_document_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_document
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 ##########
 # koppelen
 ##########
@@ -640,6 +718,12 @@ test_koppelen_missing_role_fails if {
     not koppelen with input.user.key as "value"
 }
 
+test_koppelen_systeemrol_behandelaar_alle_zaaktypen if {
+    koppelen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 
 #################
 # versturen_email
@@ -682,6 +766,12 @@ test_versturen_email_missing_role_fails if {
     not versturen_email with input.user.key as "value"
 }
 
+test_versturen_email_systeemrol_behandelaar_alle_zaaktypen if {
+    versturen_email
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 ################################
 # versturen_ontvangstbevestiging
 ################################
@@ -721,6 +811,12 @@ test_versturen_ontvangstbevestiging_wrong_role_fails if {
 
 test_versturen_ontvangstbevestiging_missing_role_fails if {
     not versturen_ontvangstbevestiging with input.user.key as "value"
+}
+
+test_versturen_ontvangstbevestiging_systeemrol_behandelaar_alle_zaaktypen if {
+    versturen_ontvangstbevestiging
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
 }
 
 #############################
@@ -768,6 +864,12 @@ test_toevoegen_initiator_persoon_missing_role_fails if {
     not toevoegen_initiator_persoon with input.user.key as "value"
 }
 
+test_toevoegen_initiator_persoon_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_initiator_persoon
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 #############################
 # toevoegen_initiator_bedrijf
 #############################
@@ -811,6 +913,12 @@ test_toevoegen_initiator_bedrijf_wrong_role_fails if {
 
 test_toevoegen_initiator_bedrijf_missing_role_fails if {
     not toevoegen_initiator_bedrijf with input.user.key as "value"
+}
+
+test_toevoegen_initiator_bedrijf_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_initiator_bedrijf
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
 }
 
 #######################
@@ -858,6 +966,12 @@ test_verwijderen_initiator_missing_role_fails if {
     not verwijderen_initiator with input.user.key as "value"
 }
 
+test_verwijderen_initiator_systeemrol_behandelaar_alle_zaaktypen if {
+    verwijderen_initiator
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 ##############################
 # toevoegen_betrokkene_persoon
 ##############################
@@ -901,6 +1015,12 @@ test_toevoegen_betrokkene_persoon_wrong_role_fails if {
 
 test_toevoegen_betrokkene_persoon_missing_role_fails if {
     not toevoegen_betrokkene_persoon with input.user.key as "value"
+}
+
+test_toevoegen_betrokkene_persoon_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_betrokkene_persoon
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
 }
 
 ##############################
@@ -948,6 +1068,12 @@ test_toevoegen_betrokkene_bedrijf_missing_role_fails if {
     not toevoegen_betrokkene_bedrijf with input.user.key as "value"
 }
 
+test_toevoegen_betrokkene_bedrijf_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_betrokkene_bedrijf
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 ########################
 # verwijderen_betrokkene
 ########################
@@ -991,6 +1117,12 @@ test_verwijderen_betrokkene_wrong_role_fails if {
 
 test_verwijderen_betrokkene_missing_role_fails if {
     not verwijderen_betrokkene with input.user.key as "value"
+}
+
+test_verwijderen_betrokkene_systeemrol_behandelaar_alle_zaaktypen if {
+    verwijderen_betrokkene
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
 }
 
 ######################
@@ -1038,6 +1170,12 @@ test_toevoegen_bag_object_missing_role_fails if {
     not toevoegen_bag_object with input.user.key as "value"
 }
 
+test_toevoegen_bag_object_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_bag_object
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 ##############
 # starten_taak
 ##############
@@ -1077,6 +1215,12 @@ test_starten_taak_wrong_role_fails if {
 
 test_starten_taak_missing_role_fails if {
     not starten_taak with input.user.key as "value"
+}
+
+test_starten_taak_systeemrol_behandelaar_alle_zaaktypen if {
+    starten_taak
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
 }
 
 ####################
@@ -1152,6 +1296,14 @@ test_vastleggen_besluit_missing_role_fails if {
     not vastleggen_besluit with input.user.key as "value"
 }
 
+test_vastleggen_besluit_systeemrol_behandelaar_alle_zaaktypen if {
+    vastleggen_besluit
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+        with input.zaak.intake as true
+        with input.zaak.besloten as false
+}
+
 ########################
 # verlengen_doorlooptijd
 ########################
@@ -1193,6 +1345,12 @@ test_verlengen_doorlooptijd_missing_role_fails if {
     not verlengen_doorlooptijd with input.user.key as "value"
 }
 
+test_verlengen_doorlooptijd_systeemrol_behandelaar_alle_zaaktypen if {
+    verlengen_doorlooptijd
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
 ########################
 # wijzigen_locatie
 ########################
@@ -1223,6 +1381,12 @@ test_wijzigen_locatie_close_case_beheerder if {
 test_wijzigen_locatie_wrong_role_fails if {
     not wijzigen_locatie
         with input.user.rollen as [ "fakeRole" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_locatie_systeemrol_behandelaar_alle_zaaktypen if {
+    wijzigen_locatie
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
         with input.zaak.open as false
 }
 
@@ -1259,6 +1423,13 @@ test_brondatum_zetten_wrong_role_fails if {
 
 test_brondatum_zetten_missing_role_fails if {
     not brondatum_zetten with input.user.key as "value"
+}
+
+test_brondatum_zetten_systeemrol_behandelaar_alle_zaaktypen_fails if {
+    not brondatum_zetten
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+        with input.zaak.brondatumBepaald as false
 }
 
 ##################################
