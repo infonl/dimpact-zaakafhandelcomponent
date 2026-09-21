@@ -229,6 +229,30 @@ After the stack is up, you will still need to configure the following in the Ope
 - Create a **ZGW API group** at http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/ — same catalogue values.
 - Create a form with an **Objects API** or **ZGW** registration backend pointing to the group you just configured.
 
+### PostgreSQL Open Zaak database
+
+The Open Zaak database starts from a pre-migrated dump of the Open Zaak database schema:
+`scripts/docker-compose/imports/openzaak-database/00-restore-migrated-database.sql`.
+Postgres restores this dump when the `openzaak-database` container starts with an empty data directory,
+after which `init.sh` in the same folder inserts the ZAC test data (zaaktypes, applications, services and so on)
+from the SQL scripts in the `database` subfolder.
+Because the schema is already there, Open Zaak has no database migrations left to apply when it starts,
+which saves more than a minute on every fresh start of the stack and on every integration test run.
+
+The dump belongs to the Open Zaak version in `docker-compose.yaml`. After bumping that version,
+regenerate the dump and commit the result:
+
+```
+./scripts/docker-compose/regenerate-openzaak-database-dump.sh
+```
+
+The script starts Open Zaak on an empty database in a separate Docker Compose project, waits until it is healthy,
+dumps the database and removes the temporary containers again. It needs Docker Compose 2.24 or newer.
+Set `DOCKER_USE_ARM64_CONTAINERS=true` to use the arm64 images.
+
+Note that Postgres only restores the dump into an empty data directory, so an existing `openzaak-database-data`
+Docker volume keeps whatever schema it already had. See [Cleaning up](#cleaning-up) to start from scratch.
+
 ## Stopping
 
 1. Stop ZAC (only if you are running ZAC separately and not as part of the Docker Compose setup)
