@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Coordinate } from "ol/coordinate";
+import type { Coordinate } from "ol/coordinate";
 import { GeneratedType } from "../utils/generated-types";
 
 export class LocationUtil {
