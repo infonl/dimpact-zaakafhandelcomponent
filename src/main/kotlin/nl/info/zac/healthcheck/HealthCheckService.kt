@@ -21,6 +21,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.INITIATOR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.KLANTCONTACTER
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.MEDE_INITIATOR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORDINATOR
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
@@ -98,6 +99,7 @@ class HealthCheckService @Inject constructor(
                 controleerZaaktypeBesluittypeInrichting(it)
                 controleerZaaktypeRoltypeInrichting(it)
                 controleerZaaktypeInformatieobjecttypeInrichting(it)
+                controleerZaakspecifiekeAutorisatieInrichting(it)
                 controleerBrpInstellingenCorrect(it)
             }
         }
@@ -185,15 +187,23 @@ class HealthCheckService @Inject constructor(
                     BESLISSER,
                     KLANTCONTACTER,
                     ZAAKCOORDINATOR -> zaaktypeInrichtingscheck.isRolOverigeAanwezig = true
-                    BEHANDELAAR -> {
-                        if (it.omschrijving == ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR) {
+                    BEHANDELAAR -> when (it.omschrijving) {
+                        ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR ->
                             zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
-                        }
+                        ZgwApiService.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER ->
+                            zaaktypeInrichtingscheck.isZaakspecifiekeAutorisatieRoltypeAanwezig = true
                     }
                     INITIATOR -> zaaktypeInrichtingscheck.aantalInitiatorroltypen++
                 }
             }
         }
+    }
+
+    private fun controleerZaakspecifiekeAutorisatieInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
+        zaaktypeInrichtingscheck.isZaakspecifiekeAutorisatieEigenschapAanwezig = ztcClientService.findEigenschap(
+            zaaktype = zaaktypeInrichtingscheck.zaaktype.url,
+            eigenschap = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+        ) != null
     }
 
     private fun controleerZaaktypeInformatieobjecttypeInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) =
