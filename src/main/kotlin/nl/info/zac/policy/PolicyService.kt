@@ -12,7 +12,6 @@ import nl.info.zac.flowable.util.isOpen
 import nl.info.client.opa.model.RuleQuery
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -51,6 +50,7 @@ import nl.info.zac.search.model.zoekobject.isOpen
 import nl.info.zac.search.model.zoekobject.isZaakOpen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
 import java.util.logging.Logger
@@ -65,7 +65,7 @@ class PolicyService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
     private val zrcClientService: ZrcClientService,
-    private val zgwApiService: ZgwApiService
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
 ) {
     /**
      * Read 'overige' permissions.
@@ -248,7 +248,9 @@ class PolicyService @Inject constructor(
     }
 
     private fun Zaak.isGeautoriseerdeMedewerkerOf(userId: String) =
-        zgwApiService.findBehandelaarMedewerkerRoleForZaak(this)?.betrokkeneIdentificatie?.identificatie == userId
+        zaakspecifiekeAutorisatieService
+            .readZaakToewijzing(zaak = this, isZaakspecifiekGeautoriseerd = true)
+            .isGeautoriseerdeMedewerker(userId)
 
     fun readNotitieRechten(): NotitieRechten =
         evaluationClient.readNotitieRechten(
