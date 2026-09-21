@@ -7,6 +7,7 @@ package net.atos.zac.flowable
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
+import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.flowable.exception.VariableNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -18,7 +19,6 @@ import org.flowable.engine.RuntimeService
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -33,8 +33,6 @@ open class ZaakVariabelenService @Inject constructor(
 ) {
 
     companion object {
-        private val LOG = Logger.getLogger(ZaakVariabelenService::class.java.name)
-
         const val VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort"
         const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd"
         private const val VAR_ONTVANKELIJK = "ontvankelijk"
@@ -180,6 +178,7 @@ open class ZaakVariabelenService @Inject constructor(
     private fun findVariables(zaakUuid: UUID) =
         findCaseVariables(zaakUuid) ?: findProcessVariables(zaakUuid)
 
+    @Suppress("TooGenericExceptionThrown")
     private fun setVariable(zaakUuid: UUID, variableName: String, value: Any) =
         cmmnRuntimeService.createCaseInstanceQuery()
             .variableValueEquals(VAR_ZAAK_UUID, zaakUuid)
@@ -191,11 +190,9 @@ open class ZaakVariabelenService @Inject constructor(
                 .singleResult()?.let {
                     bpmnRuntimeService.setVariable(it.id, variableName, value)
                 }
-            ?: LOG.warning {
-                "No case or process instance found for zaak with UUID: '$zaakUuid'; " +
-                    "not updating variable '$variableName'"
-            }
+            ?: throw CaseOrProcessNotFoundException("No case or process instance found for zaak with UUID: '$zaakUuid'")
 
+    @Suppress("TooGenericExceptionThrown")
     private fun setVariables(zaakUuid: UUID, variables: Map<String, Any>) =
         cmmnRuntimeService.createCaseInstanceQuery()
             .caseInstanceBusinessKey(zaakUuid.toString())
@@ -207,10 +204,7 @@ open class ZaakVariabelenService @Inject constructor(
                 .singleResult()?.let {
                     bpmnRuntimeService.setVariables(it.id, variables)
                 }
-            ?: LOG.warning {
-                "No case or process instance found for zaak with UUID: '$zaakUuid'; " +
-                    "not updating variables ${variables.keys}"
-            }
+            ?: throw CaseOrProcessNotFoundException("No case or process instance found for zaak with UUID: '$zaakUuid'")
 
     private fun removeVariable(zaakUuid: UUID, variableName: String) {
         cmmnRuntimeService.createCaseInstanceQuery()

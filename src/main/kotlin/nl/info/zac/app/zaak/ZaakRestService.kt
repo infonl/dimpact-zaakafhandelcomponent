@@ -782,7 +782,7 @@ class ZaakRestService @Inject constructor(
         restZaak: RestZaakCreateData
     ) {
         restZaak.communicatiekanaal?.let {
-            if (zaakType.isConfiguredBPMNZaaktype()) {
+            if (zaakType.isConfiguredBPMNZaaktype() && bpmnService.isZaakProcessDriven(zaak.uuid)) {
                 updateCommunicationChannelZaakVariabele(zaak, it)
             }
         }

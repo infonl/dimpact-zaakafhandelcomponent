@@ -4,9 +4,11 @@
  */
 package net.atos.zac.flowable
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -355,9 +357,13 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                     .singleResult()
             } returns null
 
-            zaakVariabelenService.setZaakdata(zaakUuid, mapOf("a" to 1))
+            val exception = shouldThrow<RuntimeException> {
+                zaakVariabelenService.setZaakdata(zaakUuid, mapOf("a" to 1))
+            }
 
-            then("no exception should be thrown") {}
+            then("error message should contain zaak UUID") {
+                exception.message shouldContain zaakUuid.toString()
+            }
         }
 
         `when`("expected suspend days is set") {
@@ -368,9 +374,13 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                     .singleResult()
             } returns null
 
-            zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUuid, 1)
+            val exception = shouldThrow<RuntimeException> {
+                zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUuid, 1)
+            }
 
-            then("no exception should be thrown") {}
+            then("error message should contain zaak UUID") {
+                exception.message shouldContain zaakUuid.toString()
+            }
         }
 
         `when`("removing suspend days") {
