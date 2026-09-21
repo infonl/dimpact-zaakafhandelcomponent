@@ -7,7 +7,11 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import {
+  ComponentFixture,
+  DeferBlockState,
+  TestBed,
+} from "@angular/core/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -244,6 +248,16 @@ describe(ZaakDetailsCardComponent.name, () => {
       await openTab(/locatie/);
 
       expect(locatieEditButton()).toBeNull();
+    });
+
+    it("renders the map once the deferred block on the locatie tab completes", async () => {
+      renderCard({ zaak: zaakOpLocatie(false) });
+      await openTab(/locatie/);
+
+      const [mapBlock] = await fixture.getDeferBlocks();
+      await mapBlock.render(DeferBlockState.Complete);
+
+      expect(screen().getByText("zaak.locatie.adres")).toBeInTheDocument();
     });
   });
 
