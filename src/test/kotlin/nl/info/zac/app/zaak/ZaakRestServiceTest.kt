@@ -96,6 +96,8 @@ import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.createRESTGeometry
 import nl.info.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.createRestDetachDocumentData
+import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
+import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaak
@@ -711,6 +713,75 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                     then("an exception is thrown") {
                         exception.errorCode shouldNotBe null
+                    }
+                }
+        }
+            }
+
+        context("Creating a zaak with a behandelaar that is not a member of the group") {
+            given("zaak input data with a groep and a behandelaar that is not a member of it") {
+                val bsn = "12345678"
+                val zaakTypeUUID = UUID.randomUUID()
+                val zaakType = createZaakType(
+                    omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
+                    uri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+                )
+                val zaak = createZaak(zaaktypeUri = zaakType.url)
+                val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+                val restZaakCreateData = createRestZaakCreateData(
+                    restZaakType = RestZaaktype(uuid = zaakTypeUUID),
+                    restGroup = createRestGroup(id = "fakeGroupId"),
+                    behandelaar = createRestUser(id = "fakeBehandelaarId")
+                )
+                val restZaakAanmaakGegevens = RestZaakAanmaakGegevens(zaak = restZaakCreateData)
+                val loggedInUser = createLoggedInUser()
+
+                every { loggedInUserInstance.get() } returns loggedInUser
+                every { zaakService.readZaakTypeByUUID(zaakTypeUUID) } returns zaakType
+                every {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                } returns zaaktypeCmmnConfiguration
+                every {
+                    policyService.readOverigeRechten(zaakType.omschrijving)
+                } returns createOverigeRechtenAllDeny(startenZaak = true)
+                every {
+                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
+                every { configurationService.readBronOrganisatie() } returns "fakeBronOrganisatie"
+                every {
+                    configurationService.readVerantwoordelijkeOrganisatie()
+                } returns "fakeVerantwoordelijkeOrganisatie"
+                every { zgwApiService.createZaak(any()) } returns zaak
+                every {
+                    identificationService.replaceKeyWithBsn(restZaakCreateData.initiatorIdentificatie!!.temporaryPersonId!!)
+                } returns bsn
+                every {
+                    zaakService.addInitiatorToZaak(
+                        identificationType = restZaakCreateData.initiatorIdentificatie!!.type,
+                        identification = bsn,
+                        zaak = zaak,
+                        explanation = "Aanmaken zaak"
+                    )
+                } just runs
+                every {
+                    zaakService.assignZaak(
+                        zaak = zaak,
+                        groupId = "fakeGroupId",
+                        userName = "fakeBehandelaarId",
+                        reason = "Aanmaken zaak"
+                    )
+                } throws UserNotInGroupException()
+
+                `when`("zaak creation is attempted") {
+                    shouldThrow<UserNotInGroupException> {
+                        zaakRestService.createZaak(restZaakAanmaakGegevens)
+                    }
+
+                    then("the zaak has already been created in the zaakregister") {
+                        verify(exactly = 1) { zgwApiService.createZaak(any()) }
+                    }
+                    and("no CMMN case is started for it, leaving a zaak without a process") {
+                        verify(exactly = 0) { cmmnService.startCase(any(), any(), any(), any()) }
                     }
                 }
             }

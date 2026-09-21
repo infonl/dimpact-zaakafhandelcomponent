@@ -741,6 +741,73 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         given(
             """
+            a productaanvraag-dimpact object for which a zaaktypeBpmnConfiguration exists
+            with a default behandelaar that is not a member of the default group
+            """
+        ) {
+            clearAllMocks()
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val groupId = "fakeGroupId"
+            val defaultBehandelaarId = "fakeDefaultBehandelaarId"
+            val zaakType = createZaakType()
+            val createdZaak = createZaak()
+            val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+            val bpmnConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeUUID = zaakTypeUUID,
+                groupId = groupId,
+                defaultBehandelaarId = defaultBehandelaarId,
+                bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
+            )
+            val formulierBron = createBron()
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to formulierBron,
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
+                    )
+                )
+            )
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns emptyList()
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns bpmnConfiguration
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { zgwApiService.createZaak(any()) } returns createdZaak
+            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every {
+                zaakService.assignZaak(
+                    zaak = createdZaak,
+                    groupId = groupId,
+                    userName = defaultBehandelaarId,
+                    reason = null
+                )
+            } throws UserNotInGroupException()
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then("the zaak is created but no BPMN process is started for it") {
+                    verify(exactly = 1) { zgwApiService.createZaak(any()) }
+                    verify(exactly = 0) { bpmnService.startProcess(any(), any(), any(), any()) }
+                }
+                and("the productaanvraag is never marked as done, so the zaak stays without a process") {
+                    verify(exactly = 0) { productaanvraagClaimRepository.markDone(any()) }
+                }
+            }
+        }
+
+        given(
+            """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
             containing a betrokkene with role initiator and type vestiging with an invalid kvk nummer
             and zaaktypeCmmnConfiguration that have the KVK koppeling enabled 

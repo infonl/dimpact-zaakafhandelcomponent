@@ -58,6 +58,7 @@ import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerR
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
@@ -811,6 +812,65 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
+
+        given(
+            """
+            two zaakspecifiek geautoriseerde zaken whose zaaktype does not define the
+            zaakspecifiek geautoriseerde medewerker roltype
+            """
+        ) {
+            val zaaktypeUUID = UUID.randomUUID()
+            val zaaktype = createZaakType(uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID"))
+            val firstZaak = createZaak(zaaktypeUri = zaaktype.url)
+            val secondZaak = createZaak(zaaktypeUri = zaaktype.url)
+            val user = createUser(id = "fakeUserId")
+            val group = createGroup(id = "fakeGroupId")
+            val previousBehandelaarRol = createRolMedewerker()
+            listOf(firstZaak, secondZaak).forEach {
+                every { zrcClientService.readZaak(it.uuid) } returns it
+            }
+            every { zaakspecifiekeAutorisatieService.readZaakToewijzing(firstZaak) } returns createZaakToewijzing(
+                behandelaarRollen = listOf(previousBehandelaarRol),
+                isZaakspecifiekGeautoriseerd = true
+            )
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(any(), user.id) } just runs
+            every {
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
+                    zaak = any(),
+                    medewerker = any(),
+                    reason = explanation,
+                    zaakspecifiekGeautoriseerdeMedewerkers = any()
+                )
+            } throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException("fakeMessage")
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
+            every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
+            every { identityService.readUser(user.id) } returns user
+            every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
+            } returns listOf(createPabcGroupRepresentation(name = group.name, description = group.description))
+
+            `when`("the zaken are assigned to the group and the user") {
+                shouldThrow<ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException> {
+                    zaakService.assignZaken(
+                        zaakUUIDs = listOf(firstZaak.uuid, secondZaak.uuid),
+                        explanation = explanation,
+                        group = group,
+                        user = user,
+                        screenEventResourceId = screenEventResourceId
+                    )
+                }
+
+                then("the batch is aborted, so the second zaak is never assigned") {
+                    verify(exactly = 0) { zrcClientService.updateRol(secondZaak, any(), explanation) }
+                }
+                and("no 'zaken verdelen' screen event reports the batch as finished") {
+                    verify(exactly = 0) {
+                        eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(screenEventResourceId))
+                    }
+                }
+            }
+        }
         given("one open and one closed zaak, a group that is authorised for their zaaktype and a user") {
             val zaaktypeUUID = UUID.randomUUID()
             val zaaktype = createZaakType(uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID"))
