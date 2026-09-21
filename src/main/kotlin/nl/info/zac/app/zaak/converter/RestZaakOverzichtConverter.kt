@@ -74,8 +74,8 @@ class RestZaakOverzichtConverter @Inject constructor(
     private fun getBehandelaarForZaak(
         zaak: Zaak
     ): RestUser? = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-        ?.betrokkeneIdentificatie
-        ?.let { userConverter.convertUserId(it.identificatie) }
+        ?.identificatienummer
+        ?.let(userConverter::convertUserId)
 
     private fun getGroupForZaak(
         zaak: Zaak

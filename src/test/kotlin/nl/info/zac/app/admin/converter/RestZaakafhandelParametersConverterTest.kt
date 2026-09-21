@@ -9,17 +9,22 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
+import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.ZtcClientService.Companion.ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM
 import nl.info.client.zgw.ztc.model.createEigenschap
 import nl.info.client.zgw.ztc.model.createResultaatType
+import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
@@ -30,6 +35,7 @@ import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaakbeeindigParameter
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import java.time.LocalDate
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
@@ -39,15 +45,27 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
+    val zgwApiService = mockk<ZgwApiService>()
+    val zaakspecifiekeAutorisatieService = ZaakspecifiekeAutorisatieService(
+        zrcClientService = mockk(),
+        ztcClientService = ztcClientService,
+        zgwApiService = zgwApiService,
+        indexingService = mockk()
+    )
 
     val restZaaktypeConfigurationConverter = RestZaaktypeConfigurationConverter(
-        caseDefinitionConverter,
-        zaakbeeindigParameterConverter,
-        restHumanTaskParametersConverter,
-        ztcClientService,
-        zaaktypeCmmnConfigurationService,
-        smartDocumentsService
+        caseDefinitionConverter = caseDefinitionConverter,
+        zaakbeeindigParameterConverter = zaakbeeindigParameterConverter,
+        humanTaskParametersConverter = restHumanTaskParametersConverter,
+        ztcClientService = ztcClientService,
+        zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationService,
+        smartDocumentsService = smartDocumentsService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
+
+    afterEach {
+        checkUnnecessaryStub()
+    }
 
     given("ZaakafhandelParameters CMMN with minimal content") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -72,7 +90,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 true
             )
         } returns null
-        every { ztcClientService.findEigenschap(zaakType.url, ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM) } returns null
+        every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns null
 
         `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
@@ -182,7 +200,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeBpmnConfiguration.getZaakbeeindigParameters())
         } returns listOf(restZaakbeeindigParameter)
         every { smartDocumentsService.isEnabled() } returns true
-        every { ztcClientService.findEigenschap(zaakType.url, ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM) } returns null
+        every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns null
 
         `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
@@ -219,7 +237,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
     }
 
-    given("a zaaktype that has the 'ZAAK_GEAUTORISEERD' eigenschap") {
+    given("a zaaktype that has both the 'ZAAK_GEAUTORISEERD' eigenschap and the zaakspecifiek geautoriseerde medewerker roltype") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val zaakType = createZaakType()
         val resultaatType = createResultaatType()
@@ -235,8 +253,13 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every {
             caseDefinitionConverter.convertToRESTCaseDefinition(zaaktypeCmmnConfiguration.caseDefinitionID, true)
         } returns null
-        every { ztcClientService.findEigenschap(zaakType.url, ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM) } returns
-            createEigenschap(naam = ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM)
+        every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns
+            createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+        every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaakType.url) } returns createRolType(
+            omschrijving = ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR,
+            zaakTypeUri = zaakType.url
+        )
 
         `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
@@ -246,6 +269,38 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
             then("the zaaktype configuration is marked as 'zaakspecifiek autoriseerbaar'") {
                 restZaakafhandelParameters.zaakspecifiekAutoriseerbaar shouldBe true
+            }
+        }
+    }
+
+    given("a zaaktype that has the 'ZAAK_GEAUTORISEERD' eigenschap but no zaakspecifiek geautoriseerde medewerker roltype") {
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+        val zaakType = createZaakType()
+        val resultaatType = createResultaatType()
+
+        every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
+        every {
+            ztcClientService.readResultaattype(zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!)
+        } returns resultaatType
+        every {
+            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
+        } returns emptyList()
+        every { smartDocumentsService.isEnabled() } returns true
+        every {
+            caseDefinitionConverter.convertToRESTCaseDefinition(zaaktypeCmmnConfiguration.caseDefinitionID, true)
+        } returns null
+        every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns
+            createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+        every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaakType.url) } returns null
+
+        `when`("converted to REST representation") {
+            val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
+                zaaktypeCmmnConfiguration,
+                true
+            )
+
+            then("the zaaktype configuration is not marked as 'zaakspecifiek autoriseerbaar'") {
+                restZaakafhandelParameters.zaakspecifiekAutoriseerbaar shouldBe false
             }
         }
     }

@@ -13,6 +13,7 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
@@ -64,6 +65,66 @@ class TaskRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             }
         }
         `when`("the task is read by a user holding the zaakspecifiek_autorisatie_behandelaar role") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/taken/$taskId",
+                testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+            )
+            then("the response should be a 200 HTTP response") {
+                response.code shouldBe HTTP_OK
+            }
+        }
+    }
+
+    given(
+        """
+        A CMMN zaak of a zaaktype that supports zaakspecifieke autorisatie has a task started for it,
+        is assigned to a behandelaar without the zaakspecifiek_geautoriseerd application role, is marked
+        as zaakspecifiek geautoriseerd, and is then handed over to a behandelaar of another group
+        """
+    ) {
+        val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1,
+            behandelaarId = BEHANDELAAR_1.username,
+            behandelaarName = BEHANDELAAR_1.displayName
+        )
+        val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
+            zaakUuid = zaakUuid,
+            zaakIdentificatie = zaakIdentificatie,
+            fatalDate = LocalDate.now().plusWeeks(1),
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1
+        )
+        openZaakClient.createZaakeigenschap(
+            zaakUUID = zaakUuid,
+            zaaktypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            eigenschapNaam = "ZAAK_GEAUTORISEERD",
+            waarde = "true"
+        )
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/toekennen",
+            requestBodyAsString = """
+                {
+                    "zaakUUID": "$zaakUuid",
+                    "groepId": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
+                    "behandelaarGebruikersnaam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
+                    "reden": "fakeHandoverReason"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        ).code shouldBe HTTP_OK
+
+        `when`("the task is read by the behandelaar the zaak was taken away from") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/taken/$taskId",
+                testUser = BEHANDELAAR_1
+            )
+            then("the response should be a 200 HTTP response") {
+                response.code shouldBe HTTP_OK
+            }
+        }
+        `when`("the task is read by the new behandelaar") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/taken/$taskId",
                 testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1

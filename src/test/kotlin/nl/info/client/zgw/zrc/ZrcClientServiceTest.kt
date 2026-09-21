@@ -30,7 +30,6 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.ZaakUuid
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.zac.configuration.ConfigurationService
 import java.net.ConnectException
 import java.util.UUID
@@ -220,32 +219,6 @@ class ZrcClientServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
                     zrcClient.rolCreate(newRole)
-                }
-            }
-        }
-    }
-
-    given("A zaak with existing roles") {
-        val zaak = createZaak()
-        val medewerkerRole1 = createRolMedewerkerForReads()
-        val medewerkerRole2 = createRolMedewerkerForReads()
-        val organisatorischeEenheidRol = createRolOrganisatorischeEenheidForReads()
-        val existingRoles = listOf(medewerkerRole1, medewerkerRole2, organisatorischeEenheidRol)
-        val description = "fakeDescription"
-        every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
-        every { zrcClient.rolDelete(any()) } just Runs
-        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(description, any()) } answers { secondArg<() -> Any?>()() }
-
-        `when`("deleteRol is called for betrokkeneType 'Medewerker'") {
-            zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, description)
-
-            then("it should remove only the first role of the matching betrokkene type") {
-                verify(exactly = 1) {
-                    zrcClient.rolDelete(medewerkerRole1.uuid!!)
-                }
-                verify(exactly = 0) {
-                    zrcClient.rolDelete(medewerkerRole2.uuid!!)
-                    zrcClient.rolDelete(organisatorischeEenheidRol.uuid!!)
                 }
             }
         }

@@ -12,14 +12,13 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import nl.info.zac.flowable.util.taakStatus
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -33,21 +32,11 @@ class TaakZoekObjectConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
-    private val zgwApiService: ZgwApiService
+    private val reindexSupportService: ReindexSupportService
 ) : AbstractZoekObjectConverter<TaakZoekObject>() {
 
     override fun convert(id: String): TaakZoekObject =
-        convert(id) { zaakUUID ->
-            ZaakAutorisatieGegevens(
-                isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-            ) {
-                listOfNotNull(
-                    zgwApiService.findBehandelaarMedewerkerRoleForZaak(zrcClientService.readZaak(zaakUUID))
-                        ?.betrokkeneIdentificatie
-                        ?.identificatie
-                )
-            }
-        }
+        convert(id, reindexSupportService::zaakAutorisatieGegevens)
 
     /**
      * Converts [id], looking up the zaak-level data through [zaakAutorisatieGegevens] instead of always

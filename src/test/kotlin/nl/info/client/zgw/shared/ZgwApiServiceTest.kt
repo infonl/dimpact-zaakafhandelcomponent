@@ -6,6 +6,8 @@ package nl.info.client.zgw.shared
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
@@ -15,12 +17,14 @@ import io.mockk.slot
 import io.mockk.verify
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.createGebruiksrechten
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -33,10 +37,13 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
+import nl.info.client.zgw.ztc.model.createBehandelaarRolType
 import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
+import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.Eigenschap
@@ -424,6 +431,240 @@ class ZgwApiServiceTest : BehaviorSpec({
 
                 then("no group is returned and no additional role list HTTP call is made") {
                     group shouldBe null
+                    verify(exactly = 0) { zrcClientService.listRollen(any<RolListParameters>()) }
+                }
+            }
+        }
+    }
+
+    context("Reading the behandelaar roltype of a zaaktype") {
+        given("a zaaktype that defines the behandelaar roltype") {
+            val zaakType = createZaakType()
+            val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaakType.url)
+            every {
+                ztcClientService.readRoltype(
+                    zaakType.url,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+                )
+            } returns behandelaarRolType
+
+            `when`("the behandelaar roltype is read") {
+                val rolType = zgwApiService.readBehandelaarRoltype(zaakType.url)
+
+                then("the roltype carrying the behandelaar omschrijving is returned") {
+                    rolType shouldBe behandelaarRolType
+                }
+            }
+        }
+
+        given("a zaaktype that does not define the behandelaar roltype") {
+            val zaakType = createZaakType()
+            every {
+                ztcClientService.readRoltype(
+                    zaakType.url,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+                )
+            } throws RoltypeNotFoundException("fakeRoltypeNotFoundMessage")
+
+            `when`("the behandelaar roltype is read") {
+                val roltypeNotFoundException = shouldThrow<RoltypeNotFoundException> {
+                    zgwApiService.readBehandelaarRoltype(zaakType.url)
+                }
+
+                then("the caller is told that the zaaktype has no behandelaar roltype") {
+                    roltypeNotFoundException.message shouldBe "fakeRoltypeNotFoundMessage"
+                }
+            }
+        }
+    }
+
+    context("Finding the zaakspecifiek geautoriseerde medewerker roltype of a zaaktype") {
+        given("a zaaktype defining both the behandelaar and the zaakspecifiek geautoriseerde medewerker roltype") {
+            val zaak = createZaak()
+            val zaakspecifiekGeautoriseerdeMedewerkerRolType =
+                createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(
+                createBehandelaarRolType(zaakTypeUri = zaak.zaaktype),
+                zaakspecifiekGeautoriseerdeMedewerkerRolType
+            )
+
+            `when`("the zaakspecifiek geautoriseerde medewerker roltype is requested") {
+                val rolType = zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
+
+                then("it is told apart from the behandelaar roltype by its omschrijving") {
+                    rolType shouldBe zaakspecifiekGeautoriseerdeMedewerkerRolType
+                }
+            }
+        }
+
+        given("a zaaktype that is not zaakspecifiek autoriseerbaar and only defines the behandelaar roltype") {
+            val zaak = createZaak()
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(createBehandelaarRolType(zaakTypeUri = zaak.zaaktype))
+
+            `when`("the zaakspecifiek geautoriseerde medewerker roltype is requested") {
+                val rolType = zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
+
+                then("no roltype is found") {
+                    rolType shouldBe null
+                }
+            }
+        }
+    }
+
+    context("Listing the zaakspecifiek geautoriseerde medewerkers of a zaak") {
+        given("pre-fetched rollen holding an individually authorised medewerker, a behandelaar and a groep") {
+            val zaak = createZaak()
+            val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
+            val zaakspecifiekGeautoriseerdeMedewerkerRolType =
+                createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
+            val zaakspecifiekGeautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = zaakspecifiekGeautoriseerdeMedewerkerRolType,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(
+                    identificatie = "fakeGeautoriseerdeMedewerkerId"
+                )
+            )
+            val rollen = listOf(
+                createRolOrganisatorischeEenheid(zaakURI = zaak.url, rolType = behandelaarRolType),
+                createRolMedewerker(zaakURI = zaak.url, rolType = behandelaarRolType),
+                zaakspecifiekGeautoriseerdeMedewerkerRol
+            )
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(behandelaarRolType, zaakspecifiekGeautoriseerdeMedewerkerRolType)
+
+            `when`("the individually authorised medewerkers are listed from the pre-fetched rollen") {
+                val rolMedewerkers =
+                    zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+
+                then("only the medewerker holding that roltype is returned") {
+                    rolMedewerkers shouldContainExactly listOf(zaakspecifiekGeautoriseerdeMedewerkerRol)
+                }
+
+                and("the rollen of the zaak are not fetched again") {
+                    verify(exactly = 0) { zrcClientService.listRollen(any<RolListParameters>()) }
+                }
+            }
+        }
+
+        given("a zaak with an individually authorised medewerker whose rollen are not pre-fetched") {
+            val zaak = createZaak()
+            val zaakspecifiekGeautoriseerdeMedewerkerRolType =
+                createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
+            val zaakspecifiekGeautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = zaakspecifiekGeautoriseerdeMedewerkerRolType
+            )
+            val rolListParametersSlot = slot<RolListParameters>()
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(zaakspecifiekGeautoriseerdeMedewerkerRolType)
+            every {
+                zrcClientService.listRollen(capture(rolListParametersSlot))
+            } returns Results(listOf(zaakspecifiekGeautoriseerdeMedewerkerRol), 1)
+
+            `when`("the individually authorised medewerkers are listed") {
+                val rolMedewerkers = zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak)
+
+                then("they are fetched for that roltype and for medewerker betrokkenen only") {
+                    rolMedewerkers shouldContainExactly listOf(zaakspecifiekGeautoriseerdeMedewerkerRol)
+                    with(rolListParametersSlot.captured) {
+                        this.zaak shouldBe zaak.url
+                        roltype shouldBe zaakspecifiekGeautoriseerdeMedewerkerRolType.url
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER.toString()
+                    }
+                }
+            }
+        }
+
+        given("a zaak whose zaaktype has no zaakspecifiek geautoriseerde medewerker roltype") {
+            val zaak = createZaak()
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(createBehandelaarRolType(zaakTypeUri = zaak.zaaktype))
+
+            `when`("the individually authorised medewerkers are listed") {
+                val rolMedewerkers = zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak)
+
+                then("no medewerkers are returned and no rollen are fetched") {
+                    rolMedewerkers.shouldBeEmpty()
+                    verify(exactly = 0) { zrcClientService.listRollen(any<RolListParameters>()) }
+                }
+            }
+        }
+    }
+
+    context("Listing the behandelaar medewerkers of a zaak") {
+        given("pre-fetched rollen holding one behandelaar medewerker, a groep and an individually authorised medewerker") {
+            val zaak = createZaak()
+            val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
+            val zaakspecifiekGeautoriseerdeMedewerkerRolType =
+                createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
+            val behandelaarRol = createRolMedewerker(zaakURI = zaak.url, rolType = behandelaarRolType)
+            val rollen = listOf(
+                createRolOrganisatorischeEenheid(zaakURI = zaak.url, rolType = behandelaarRolType),
+                behandelaarRol,
+                createRolMedewerker(zaakURI = zaak.url, rolType = zaakspecifiekGeautoriseerdeMedewerkerRolType)
+            )
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(behandelaarRolType, zaakspecifiekGeautoriseerdeMedewerkerRolType)
+
+            `when`("the behandelaar medewerkers are listed from the pre-fetched rollen") {
+                val rolMedewerkers = zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen)
+
+                then("neither the groep nor the individually authorised medewerker is mistaken for a behandelaar") {
+                    rolMedewerkers shouldContainExactly listOf(behandelaarRol)
+                }
+            }
+        }
+
+        given("a zaak that was given two behandelaar medewerker rollen outside ZAC") {
+            val zaak = createZaak()
+            val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
+            val firstBehandelaarRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = behandelaarRolType,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId1")
+            )
+            val secondBehandelaarRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = behandelaarRolType,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId2")
+            )
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(behandelaarRolType)
+            every {
+                zrcClientService.listRollen(any<RolListParameters>())
+            } returns Results(listOf(firstBehandelaarRol, secondBehandelaarRol), 2)
+
+            `when`("the behandelaar medewerkers are listed") {
+                val rolMedewerkers = zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak)
+
+                then("both rollen are returned so that the zaak can still be reassigned") {
+                    rolMedewerkers shouldContainExactly listOf(firstBehandelaarRol, secondBehandelaarRol)
+                }
+            }
+        }
+
+        given("a zaak whose zaaktype has no behandelaar roltype") {
+            val zaak = createZaak()
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns emptyList()
+
+            `when`("the behandelaar medewerkers are listed") {
+                val rolMedewerkers = zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak)
+
+                then("no medewerkers are returned and no rollen are fetched") {
+                    rolMedewerkers.shouldBeEmpty()
                     verify(exactly = 0) { zrcClientService.listRollen(any<RolListParameters>()) }
                 }
             }

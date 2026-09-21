@@ -608,6 +608,11 @@ For example:
     </serviceTask>
 ```
 
+A zaak that is zaakspecifiek geautoriseerd cannot be released, so leaving `behandelaarGebruikersnaam` empty
+makes the service task fail: completing the task is rolled back and the user is shown a Dutch error message.
+Assigning a different behandelaar is allowed. The previous behandelaar then automatically keeps access to the
+zaak as a zaakspecifiek geautoriseerde medewerker.
+
 #### Assigning zaak's default group/user to a task
 
 The following BPMN-specific variables can be used in expressions in the BPMN process:
