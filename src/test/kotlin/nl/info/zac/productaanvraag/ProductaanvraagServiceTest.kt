@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -735,6 +736,72 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                             any()
                         )
                     }
+                }
+            }
+        }
+
+        given(
+            """
+            a productaanvraag-dimpact object for which a zaaktypeCmmnConfiguration exists with a default
+            behandelaar that is not a member of the default group, where the claim is observed on its own
+            """
+        ) {
+            clearAllMocks()
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val groupId = "fakeGroupId"
+            val defaultBehandelaarId = "fakeDefaultBehandelaarId"
+            val zaakType = createZaakType()
+            val createdZaak = createZaak()
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeUUID = zaakTypeUUID,
+                groupId = groupId,
+                defaultBehandelaarId = defaultBehandelaarId
+            )
+            val formulierBron = createBron()
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to formulierBron,
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
+                    )
+                )
+            )
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns listOf(zaaktypeCmmnConfiguration)
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { zgwApiService.createZaak(any()) } returns createdZaak
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfiguration
+            every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
+            every { zrcClientService.createZaakobject(any()) } returns createZaakobjectProductaanvraag()
+            every {
+                zaakService.assignZaak(
+                    zaak = createdZaak,
+                    groupId = groupId,
+                    userName = defaultBehandelaarId,
+                    reason = null
+                )
+            } throws UserNotInGroupException()
+
+            `when`("the productaanvraag is handled") {
+                clearMocks(productaanvraagClaimRepository, answers = false)
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then("the productaanvraag is marked as done even though the intake did not complete") {
+                    verify(exactly = 1) { productaanvraagClaimRepository.markDone(productAanvraagORObject.uuid) }
                 }
             }
         }

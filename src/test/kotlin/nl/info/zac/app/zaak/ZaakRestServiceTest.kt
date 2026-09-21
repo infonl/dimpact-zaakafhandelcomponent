@@ -2002,6 +2002,69 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
+
+        given(
+            """
+            an unmarked zaak with a behandelaar and one update that marks the zaak and moves it to another
+            groep without naming a behandelaar, whose current behandelaar is not a member of that groep
+            """
+        ) {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeCurrentBehandelaarId")
+            val restGroup = createRestGroup(id = "fakeNewGroupId")
+            val currentBehandelaarRol = createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeCurrentBehandelaarId")
+            )
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = null,
+                restGroup = restGroup,
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(zaak) } returns false
+            every { zgwApiService.findGroepForZaak(zaak) } returns null
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns currentBehandelaarRol
+            every {
+                zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
+                    zaakType = zaakType,
+                    requestedMarking = true,
+                    isAlreadyZaakspecifiekGeautoriseerd = false,
+                    behandelaarId = "fakeCurrentBehandelaarId",
+                    loggedInUser = loggedInUser
+                )
+            } returns true
+            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) } just runs
+            every {
+                zaakService.assignZaak(zaak, restGroup.id, "fakeCurrentBehandelaarId", changeDescription)
+            } throws UserNotInGroupException()
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+
+            `when`("the update is requested") {
+                shouldThrow<UserNotInGroupException> {
+                    zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+                }
+
+                then("the groep membership of the current behandelaar is not validated up front") {
+                    verify(exactly = 0) { identityService.validateIfUserIsInGroup(any(), any()) }
+                }
+                and("the zaak has already been marked, while the update itself is not applied") {
+                    verify(exactly = 1) { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) }
+                    verify(exactly = 0) { zrcClientService.patchZaak(zaak.uuid, any(), any()) }
+                }
+            }
+        }
+
         given("an unmarked zaak whose behandelaar marks it and hands it to another behandelaar in one update") {
             val changeDescription = "change description"
             val zaak = createZaak()
