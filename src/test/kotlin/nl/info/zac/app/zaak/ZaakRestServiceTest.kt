@@ -1843,6 +1843,12 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten, loggedInUser) } returns patchedRestZaak
             every {
+                identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
+            } just runs
+            every {
+                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, any())
+            } returns emptyList()
+            every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns zaaktypeBpmnConfiguration
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
