@@ -1603,7 +1603,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 name = "fakeGroupName",
             )
             val defaultBehandelaarId = "fakeGebruikersnaamMedewerker"
-            val fakeGebruikersnaamMedewerker = createUser()
+            val defaultBehandelaarUser = createUser()
             val behandelaarRolType = createRolType(
                 zaakTypeUri = zaakType.url,
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
@@ -1659,7 +1659,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot)) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupName) } returns group
-            every { identityService.readUser(defaultBehandelaarId) } returns fakeGebruikersnaamMedewerker
+            every { identityService.readUser(defaultBehandelaarId) } returns defaultBehandelaarUser
             every {
                 ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns behandelaarRolType
@@ -1691,8 +1691,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
                     }
-                    with(roleToBeCreated[0]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                    with(roleToBeCreated.single { it.betrokkeneType == BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID }) {
                         roltype shouldBe behandelaarRolType.url
                         zaak shouldBe createdZaak.url
                     }
@@ -1701,9 +1700,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolMedewerker>())
                     }
-                    with(roleToBeCreated[1]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
-                        identificatienummer shouldBe fakeGebruikersnaamMedewerker.id
+                    with(roleToBeCreated.single { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER }) {
+                        identificatienummer shouldBe defaultBehandelaarUser.id
                         roltype shouldBe behandelaarRolType.url
                         zaak shouldBe createdZaak.url
                     }
@@ -1712,8 +1710,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolNatuurlijkPersoon>())
                     }
-                    with(roleToBeCreated[2]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+                    with(roleToBeCreated.single { it.betrokkeneType == BetrokkeneTypeEnum.NATUURLIJK_PERSOON }) {
                         identificatienummer shouldBe bsnNumber
                         roltype shouldBe rolTypeInitiator.url
                         zaak shouldBe createdZaak.url
