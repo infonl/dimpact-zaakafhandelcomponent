@@ -83,18 +83,6 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   resultaattype?: GeneratedType<"RestResultaattype"> | null;
 };
 
-type StatusMailOption = GeneratedType<"ZaakafhandelparametersStatusMailOption">;
-
-type ZaakbeeindigResultaatControl = FormControl<
-  GeneratedType<"RestResultaattype"> | null | undefined
->;
-
-type MailFormControls = {
-  intakeMail: FormControl<StatusMailOption | null | undefined>;
-  afrondenMail: FormControl<StatusMailOption | null | undefined>;
-  [key: string]: AbstractControl;
-};
-
 @Component({
   selector: "zac-parameters-edit-cmmn",
   templateUrl: "./parameters-edit-cmmn.component.html",
@@ -217,9 +205,17 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   humanTasksFormGroup = new FormGroup({});
   userEventListenersFormGroup = new FormGroup({});
-  mailFormGroup = this.formBuilder.group<MailFormControls>({
-    intakeMail: this.formBuilder.control<StatusMailOption | null>(null),
-    afrondenMail: this.formBuilder.control<StatusMailOption | null>(null),
+  mailFormGroup = this.formBuilder.group<{
+    intakeMail: FormControl<
+      GeneratedType<"ZaakafhandelparametersStatusMailOption"> | null | undefined
+    >;
+    afrondenMail: FormControl<
+      GeneratedType<"ZaakafhandelparametersStatusMailOption"> | null | undefined
+    >;
+    [key: string]: AbstractControl;
+  }>({
+    intakeMail: this.formBuilder.control(null),
+    afrondenMail: this.formBuilder.control(null),
   });
   brpProtocoleringFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
@@ -227,8 +223,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     verwerkingregisterWaarde: new FormControl(""),
   });
 
-  protected zaakbeeindigFormGroup =
-    this.formBuilder.record<ZaakbeeindigResultaatControl>({});
+  protected zaakbeeindigFormGroup = this.formBuilder.record<
+    FormControl<GeneratedType<"RestResultaattype"> | null | undefined>
+  >({});
   protected betrokkeneKoppelingen = new FormGroup({
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
@@ -579,7 +576,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private createMailForm() {
-    this.mailFormGroup = this.formBuilder.group<MailFormControls>(
+    this.mailFormGroup = this.formBuilder.group(
       {
         intakeMail: this.formBuilder.control(this.parameters.intakeMail, [
           Validators.required,
@@ -604,8 +601,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private createZaakbeeindigForm() {
-    this.zaakbeeindigFormGroup =
-      this.formBuilder.record<ZaakbeeindigResultaatControl>({});
+    this.zaakbeeindigFormGroup = this.formBuilder.record<
+      FormControl<GeneratedType<"RestResultaattype"> | null | undefined>
+    >({});
     this.addZaakbeeindigParameter(
       this.getZaaknietontvankelijkParameter(this.parameters),
     );

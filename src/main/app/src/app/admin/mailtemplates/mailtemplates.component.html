@@ -124,9 +124,9 @@
                         : {
                             zaaktype:
                               koppeling.zaakafhandelParameters?.zaaktype
-                                ?.omschrijving,
+                                .omschrijving,
                             versie:
-                              koppeling.zaakafhandelParameters?.zaaktype?.uuid,
+                              koppeling.zaakafhandelParameters?.zaaktype.uuid,
                           };
                   <div [title]="koppelingLabel">{{ koppelingLabel }}</div>
                 }
