@@ -29,18 +29,6 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-/**
- * Verifies that once a zaak of a zaaktype that supports zaakspecifieke autorisatie is marked as
- * zaakspecifiek geautoriseerd, and the search index is refreshed to reflect that, the zaak (and its
- * task and document) disappear from werklijst/zoekresultaat searches for a behandelaar who lacks the
- * zaakspecifiek_geautoriseerd application role - asserted by the polling loop that waits for reindexing
- * to finish, since there is no other signal to poll for - while remaining visible, with correct
- * rechten, for a behandelaar who holds it.
- *
- * Also verifies the exception to that rule: the zaak's own behandelaar keeps seeing the zaak, its task
- * and its document without holding the zaakspecifiek_geautoriseerd role at all, and keeps doing so after
- * the zaak has been handed over to another behandelaar.
- */
 class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
