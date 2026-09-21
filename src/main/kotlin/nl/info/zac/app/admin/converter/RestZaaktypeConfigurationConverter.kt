@@ -12,8 +12,6 @@ import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.conve
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.ZtcClientService.Companion.ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM
-import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
@@ -35,6 +33,7 @@ import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import java.time.ZonedDateTime
 
 @AllOpen
@@ -47,6 +46,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     val ztcClientService: ZtcClientService,
     val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     val smartDocumentsService: SmartDocumentsService,
+    val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
 ) {
     @Suppress("LongMethod")
     fun toRestZaaktypeConfiguration(
@@ -57,7 +57,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         val restZaaktypeConfiguration = RestZaaktypeConfiguration(
             id = zaaktypeCmmnConfiguration.id,
             zaaktype = zaaktype.toRestZaaktypeOverzicht(),
-            zaakspecifiekAutoriseerbaar = zaaktype.isZaakspecifiekAutoriseerbaar(),
+            zaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(zaaktype),
             defaultGroepId = zaaktypeCmmnConfiguration.groepID,
             defaultBehandelaarId = zaaktypeCmmnConfiguration.defaultBehandelaarId,
             einddatumGeplandWaarschuwing = zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing,
@@ -158,7 +158,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         val restZaaktypeConfiguration = RestZaaktypeConfiguration(
             id = zaaktypeBpmnConfiguration.id,
             zaaktype = zaaktype.toRestZaaktypeOverzicht(),
-            zaakspecifiekAutoriseerbaar = zaaktype.isZaakspecifiekAutoriseerbaar(),
+            zaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(zaaktype),
             defaultGroepId = zaaktypeBpmnConfiguration.groepID,
             creatiedatum = zaaktypeBpmnConfiguration.creatiedatum,
             productaanvraagtype = zaaktypeBpmnConfiguration.productaanvraagtype,
@@ -176,12 +176,6 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         )
         return restZaaktypeConfiguration
     }
-
-    private fun ZaakType.isZaakspecifiekAutoriseerbaar() =
-        ztcClientService.findEigenschap(
-            zaaktype = getUrl(),
-            eigenschap = ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM
-        ) != null
 
     private fun RestZaaktypeConfiguration.addRelatedData(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) {
         this.caseDefinition?.let { caseDefinition ->

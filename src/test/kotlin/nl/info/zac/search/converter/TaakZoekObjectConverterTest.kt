@@ -16,11 +16,7 @@ import io.mockk.verify
 import java.util.UUID
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
-import nl.info.client.zgw.model.createMedewerkerIdentificatie
-import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakEigenschap
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -28,6 +24,8 @@ import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.search.ReindexSupportService
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import org.flowable.identitylink.api.IdentityLinkInfo
@@ -40,14 +38,14 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZgwApiService>()
+    val reindexSupportService = mockk<ReindexSupportService>()
 
     val taakZoekObjectConverter = TaakZoekObjectConverter(
         identityService = identityService,
         flowableTaskService = flowableTaskService,
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
-        zgwApiService = zgwApiService
+        reindexSupportService = reindexSupportService
     )
 
     mockkStatic(TaakVariabelenService::class)
@@ -102,11 +100,12 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
-            every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
-                createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
-            )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeZaakBehandelaarId")
+            every { reindexSupportService.zaakAutorisatieGegevens(zaakUUID) } returns createZaakAutorisatieGegevens(
+                isZaakspecifiekGeautoriseerd = true,
+                geautoriseerdeMedewerkers = listOf(
+                    "fakeZaakBehandelaarId",
+                    "fakeZaakspecifiekGeautoriseerdeMedewerkerId"
+                )
             )
 
             every { taskInfo.name } returns "fakeTaskName"
@@ -149,8 +148,15 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.getStatus() shouldBe TaakStatus.TOEGEKEND
                 }
 
-                and("the behandelaar of the zaak the taak belongs to is recorded separately from the taak's own") {
-                    taakZoekObject.zaakGeautoriseerdeMedewerkers shouldBe listOf("fakeZaakBehandelaarId")
+                and(
+                    "every geautoriseerde medewerker of the zaak the taak belongs to is recorded separately " +
+                        "from the taak's own behandelaar, so that a medewerker holding only the " +
+                        "'Zaakspecifiek geautoriseerde medewerker' rol can find the taak"
+                ) {
+                    taakZoekObject.zaakGeautoriseerdeMedewerkers shouldBe listOf(
+                        "fakeZaakBehandelaarId",
+                        "fakeZaakspecifiekGeautoriseerdeMedewerkerId"
+                    )
                 }
             }
         }
@@ -168,7 +174,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
-            every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
+            every { reindexSupportService.zaakAutorisatieGegevens(zaakUUID) } returns ZaakAutorisatieGegevens(
+                isZaakspecifiekGeautoriseerd = false
+            ) {
+                error("the geautoriseerde medewerkers of a zaak that is not zaakspecifiek geautoriseerd are never resolved")
+            }
 
             every { taskInfo.name } returns "fakeTaskName"
             every { taskInfo.description } returns null
@@ -191,12 +201,8 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.getStatus() shouldBe TaakStatus.NIET_TOEGEKEND
                 }
 
-                and(
-                    "no geautoriseerde medewerkers are recorded, and the zaak's rollen are never read to " +
-                        "resolve them, because the zaak is not zaakspecifiek geautoriseerd"
-                ) {
+                and("no geautoriseerde medewerkers are recorded, because the zaak is not zaakspecifiek geautoriseerd") {
                     taakZoekObject.zaakGeautoriseerdeMedewerkers shouldBe emptyList()
-                    verify(exactly = 0) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any()) }
                 }
             }
         }
