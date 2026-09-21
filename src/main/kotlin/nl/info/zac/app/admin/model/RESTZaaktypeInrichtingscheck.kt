@@ -4,6 +4,8 @@
  */
 package nl.info.zac.app.admin.model
 
+import jakarta.json.bind.annotation.JsonbProperty
+
 data class RESTZaaktypeInrichtingscheck(
     var zaaktype: RestZaaktypeOverzicht,
     var statustypeIntakeAanwezig: Boolean = false,
@@ -21,5 +23,15 @@ data class RESTZaaktypeInrichtingscheck(
     var resultaattypesMetVerplichtBesluit: MutableList<String?>? = null,
     var zaakafhandelParametersValide: Boolean = false,
     var brpInstellingenCorrect: Boolean = false,
+
+    @get:JsonbProperty("isZaakspecifiekeAutorisatieEigenschapAanwezig")
+    var isZaakspecifiekeAutorisatieEigenschapAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isZaakspecifiekeAutorisatieRoltypeAanwezig")
+    var isZaakspecifiekeAutorisatieRoltypeAanwezig: Boolean = false,
+
+    @get:JsonbProperty("heeftWaarschuwingen")
+    var heeftWaarschuwingen: Boolean = false,
+
     var valide: Boolean = false
 )
