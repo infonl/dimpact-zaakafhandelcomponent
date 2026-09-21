@@ -8,6 +8,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_1_BRON_KENMERK
@@ -97,6 +99,11 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OBJECT_PRODUCTAANVRAAG_BPMN_1_BRON_KENMERK'."
                         zaakProductaanvraagUuid = getString("uuid").let(UUID::fromString)
+                        with(getJSONObject("zaakdata")) {
+                            getString("zaakBehandelaar") shouldBe BEHANDELAAR_1.username
+                            getString("zaakCommunicatiekanaal") shouldBe "E-formulier"
+                            getString("zaakGroep") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                        }
                     }
                 }
             }

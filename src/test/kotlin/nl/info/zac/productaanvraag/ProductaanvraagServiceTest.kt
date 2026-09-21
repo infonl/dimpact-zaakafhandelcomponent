@@ -23,6 +23,9 @@ import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
@@ -1588,7 +1591,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val productAanvraagType = "productaanvraag"
             val zaakType = createZaakType()
             val zaakTypeUUID = zaakType.url.extractUuid()
-            val createdZaak = createZaak()
+            val communicatiekanaalNaam = "fakeCommunicatiekanaalNaam"
+            val createdZaak = createZaak().apply { this.communicatiekanaalNaam = communicatiekanaalNaam }
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val formulierBron = createBron()
@@ -1597,6 +1601,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 id = groupName,
                 name = "fakeGroupName",
             )
+            val defaultBehandelaarId = "fakeGebruikersnaamMedewerker"
             val behandelaarRolType = createRolType(
                 zaakTypeUri = zaakType.url,
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
@@ -1625,6 +1630,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val bpmnConfiguration = createZaaktypeBpmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
                 groupId = group.name,
+                defaultBehandelaarId = defaultBehandelaarId,
                 bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
             )
             val zaakDataSlot = slot<Map<String, Any>>()
@@ -1666,9 +1672,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
                     }
                     with(zaakDataSlot.captured) {
-                        size shouldBe 2
-                        values.first() shouldBe "fakeValue" // aanvraaggegevens
-                        values.last() shouldBe groupName
+                        this["fakeSubKey"] shouldBe "fakeValue" // aanvraaggegevens
+                        this[VAR_ZAAK_GROUP] shouldBe groupName
+                        this[VAR_ZAAK_USER] shouldBe defaultBehandelaarId
+                        this[VAR_ZAAK_COMMUNICATIEKANAAL] shouldBe communicatiekanaalNaam
                     }
                 }
                 and("and the productaanvraag and documents should be paired") {
