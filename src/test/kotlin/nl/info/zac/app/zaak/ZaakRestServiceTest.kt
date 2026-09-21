@@ -783,6 +783,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     and("no CMMN case is started for it, leaving a zaak without a process") {
                         verify(exactly = 0) { cmmnService.startCase(any(), any(), any(), any()) }
                     }
+                    and("DESIRED, fails until fixed: the groep membership is rejected before the zaak is created") {
+                        verify(exactly = 0) { zgwApiService.createZaak(any()) }
+                    }
                 }
             }
         }
@@ -2061,6 +2064,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 and("the zaak has already been marked, while the update itself is not applied") {
                     verify(exactly = 1) { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) }
                     verify(exactly = 0) { zrcClientService.patchZaak(zaak.uuid, any(), any()) }
+                }
+                and("DESIRED, fails until fixed: a rejected update leaves the zaak unmarked") {
+                    verify(exactly = 0) { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) }
                 }
             }
         }

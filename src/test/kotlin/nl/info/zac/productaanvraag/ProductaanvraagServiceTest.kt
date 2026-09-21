@@ -803,6 +803,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 then("the productaanvraag is marked as done even though the intake did not complete") {
                     verify(exactly = 1) { productaanvraagClaimRepository.markDone(productAanvraagORObject.uuid) }
                 }
+                and("DESIRED, fails until fixed: the incomplete intake is left unclaimed so it can be retried") {
+                    verify(exactly = 0) { productaanvraagClaimRepository.markDone(productAanvraagORObject.uuid) }
+                }
             }
         }
 
@@ -869,6 +872,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
                 and("the productaanvraag is never marked as done, so the zaak stays without a process") {
                     verify(exactly = 0) { productaanvraagClaimRepository.markDone(any()) }
+                }
+                and("DESIRED, fails until fixed: the BPMN process is started for the created zaak") {
+                    verify(exactly = 1) { bpmnService.startProcess(any(), any(), any(), any()) }
                 }
             }
         }

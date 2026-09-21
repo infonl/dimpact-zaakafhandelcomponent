@@ -869,6 +869,11 @@ class ZaakServiceTest : BehaviorSpec({
                         eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(screenEventResourceId))
                     }
                 }
+                and("DESIRED, fails until fixed: the batch finishes and reports itself as updated") {
+                    verify(exactly = 1) {
+                        eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(screenEventResourceId))
+                    }
+                }
             }
         }
         given("one open and one closed zaak, a group that is authorised for their zaaktype and a user") {
