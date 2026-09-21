@@ -30,7 +30,7 @@ concurrency:
 jobs:
   lockfile-lint:
     name: Lockfile Lint
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       matrix:
         include:
@@ -53,7 +53,7 @@ jobs:
 
   audit-signatures:
     name: Audit Signatures
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       matrix:
         include:
