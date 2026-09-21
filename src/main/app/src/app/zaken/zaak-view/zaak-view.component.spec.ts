@@ -409,7 +409,7 @@ describe(ZaakViewComponent.name, () => {
       isHeropend: false,
       isOpgeschort: false,
       eerdereOpschorting: false,
-      isBpmn: false,
+      isProcesGestuurd: false,
     } satisfies GeneratedType<"RestZaak">;
 
     beforeEach(() => {

@@ -183,7 +183,7 @@ fun createRestZaak(
     isInIntakeFase = true,
     isOpen = isOpen,
     isOpgeschort = true,
-    isBpmn = false,
+    isProcesGestuurd = false,
     isVerlengd = true,
     isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
     kenmerken = listOf(createRESTZaakKenmerk()),

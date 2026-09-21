@@ -124,7 +124,7 @@ function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
   const menu: MenuItem[] = [];
   const open = () => handlers.openSideAction();
 
-  if (zaak.rechten.behandelen && !zaak.isBpmn) {
+  if (zaak.rechten.behandelen && !zaak.isProcesGestuurd) {
     if (
       zaak.rechten.versturenOntvangstbevestiging &&
       !zaak.heeftOntvangstbevestigingVerstuurd
@@ -162,7 +162,7 @@ function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
     zaak.rechten.behandelen &&
     !zaak.isInIntakeFase &&
     zaak.isBesluittypeAanwezig &&
-    !zaak.isBpmn
+    !zaak.isProcesGestuurd
   ) {
     menu.push(new ButtonMenuItem("actie.besluit.vastleggen", open, "gavel"));
   }
@@ -201,7 +201,7 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
     zaak.zaaktype.opschortingMogelijk &&
     !zaak.isHeropend &&
     !zaak.isOpgeschort &&
-    !zaak.isBpmn &&
+    !zaak.isProcesGestuurd &&
     !zaak.eerdereOpschorting
   ) {
     actionMenuItems.push(
@@ -220,7 +220,7 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
     !zaak.duurVerlenging &&
     !zaak.isHeropend &&
     !zaak.isOpgeschort &&
-    !zaak.isBpmn
+    !zaak.isProcesGestuurd
   ) {
     actionMenuItems.push(
       new ButtonMenuItem(
@@ -231,7 +231,7 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
     );
   }
 
-  if (zaak.isOpgeschort && zaak.rechten.behandelen && !zaak.isBpmn) {
+  if (zaak.isOpgeschort && zaak.rechten.behandelen && !zaak.isProcesGestuurd) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.hervatten",

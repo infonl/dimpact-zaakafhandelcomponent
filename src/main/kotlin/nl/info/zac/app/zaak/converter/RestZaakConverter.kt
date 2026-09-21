@@ -7,13 +7,10 @@ package nl.info.zac.app.zaak.converter
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTIGING_VERSTUURD
-import nl.info.zac.admin.ZaaktypeConfigurationService
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
-import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -69,8 +66,7 @@ class RestZaakConverter @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BpmnService,
     private val identificationService: IdentificationService,
-    private val klantClientService: KlantClientService,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
+    private val klantClientService: KlantClientService
 ) {
     fun toRestZaak(
         zaak: Zaak,
@@ -112,8 +108,6 @@ class RestZaakConverter @Inject constructor(
         val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
         val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
-        val isBpmn = zaaktypeConfigurationService.readZaaktypeConfiguration(zaakType.url.extractUuid())
-            ?.getConfigurationType() == BPMN
         return RestZaak(
             archiefActiedatum = zaak.archiefactiedatum,
             archiefNominatie = zaak.archiefnominatie?.name,
@@ -150,7 +144,7 @@ class RestZaakConverter @Inject constructor(
             isInIntakeFase = statustype.isIntake() || statustype.isWachtOpAanvullendeInformatie(),
             isOpen = zaak.isOpen(),
             isOpgeschort = zaak.isOpgeschort(),
-            isBpmn = isBpmn,
+            isProcesGestuurd = bpmnProcessDefinition != null,
             isVerlengd = zaak.isVerlengd(),
             isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
             kenmerken = zaak.kenmerken?.map { RestZaakKenmerk(it.kenmerk, it.bron) },

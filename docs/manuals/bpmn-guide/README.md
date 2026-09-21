@@ -1074,7 +1074,7 @@ for `false` — because a form rarely wants to say "true", it wants to say what 
 
 ```
 {{ ZAC_opmaakBoolean(zaak.isOpen, "Open", "Gesloten") }}                →  Open
-{{ ZAC_opmaakBoolean(zaak.isBpmn, "Procesgestuurd", "Zaakgestuurd") }}
+{{ ZAC_opmaakBoolean(zaak.isProcesGestuurd, "Procesgestuurd", "Zaakgestuurd") }}
                                                                         →  Procesgestuurd
 {{ ZAC_opmaakBoolean(zaak.isHeropend, "Heropend") }}                    →  Nee
 {{ ZAC_opmaakBoolean(zaak.isOpen, "actie.ja", "actie.nee") }}           →  Ja

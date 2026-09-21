@@ -260,7 +260,7 @@ describe(CaseDetailsEditComponent.name, () => {
       expect(await dateInputs[2].isDisabled()).toBe(true); // uiterlijkeEinddatumAfdoening
     });
 
-    it("should not disable date controls when wijzigen and wijzigenDoorlooptijd are allowed, regardless of isBpmn", async () => {
+    it("should not disable date controls when wijzigen and wijzigenDoorlooptijd are allowed, regardless of isProcesGestuurd", async () => {
       // Arrange
       renderComponent({
         rechten: {
@@ -270,7 +270,7 @@ describe(CaseDetailsEditComponent.name, () => {
         } as Partial<
           GeneratedType<"RestZaakRechten">
         > as unknown as GeneratedType<"RestZaakRechten">,
-        isBpmn: true,
+        isProcesGestuurd: true,
       });
 
       // Act

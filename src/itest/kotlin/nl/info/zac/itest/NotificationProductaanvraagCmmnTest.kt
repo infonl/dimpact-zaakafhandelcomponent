@@ -147,7 +147,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                             // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
-                            getBoolean("isBpmn") shouldBe false
+                            getBoolean("isProcesGestuurd") shouldBe false
                             getString("communicatiekanaal") shouldBe "E-formulier"
                             getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
@@ -285,7 +285,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                             // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
-                            getBoolean("isBpmn") shouldBe false
+                            getBoolean("isProcesGestuurd") shouldBe false
                             getString("communicatiekanaal") shouldBe "E-formulier"
                             getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
@@ -381,7 +381,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_CMMN_TEST_3_UUID.toString()
                             getJSONObject("status").getString("naam") shouldBe "Intake"
                             getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
-                            getBoolean("isBpmn") shouldBe false
+                            getBoolean("isProcesGestuurd") shouldBe false
                             getString("communicatiekanaal") shouldBe "E-formulier"
                             getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_5_OMSCHRIJVING
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
@@ -473,7 +473,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                             // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
-                            getBoolean("isBpmn") shouldBe false
+                            getBoolean("isProcesGestuurd") shouldBe false
                             getString("communicatiekanaal") shouldBe "E-formulier"
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                                 "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK'."
@@ -563,7 +563,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_CMMN_TEST_3_UUID.toString()
                             getJSONObject("status").getString("naam") shouldBe "Intake"
                             getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
-                            getBoolean("isBpmn") shouldBe false
+                            getBoolean("isProcesGestuurd") shouldBe false
                             getString("communicatiekanaal") shouldBe "E-formulier"
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                                 "met kenmerk '$OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK'."
@@ -717,7 +717,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                             // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
-                            getBoolean("isBpmn") shouldBe false
+                            getBoolean("isProcesGestuurd") shouldBe false
                             getString("communicatiekanaal") shouldBe "E-formulier"
                             getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +

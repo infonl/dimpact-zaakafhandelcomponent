@@ -91,7 +91,7 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_1_UUID.toString()
                         getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
                         getBoolean("isOpen") shouldBe true
-                        getBoolean("isBpmn") shouldBe true
+                        getBoolean("isProcesGestuurd") shouldBe true
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
