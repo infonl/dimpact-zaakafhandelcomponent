@@ -208,14 +208,6 @@ fun createRestZaak(
     zaaktype = restZaakType
 )
 
-fun createRestZaakDataUpdate(
-    uuid: UUID = UUID.randomUUID(),
-    zaakData: Map<String, Any> = createZaakData()
-) = RestZaakDataUpdate(
-    uuid = uuid,
-    zaakdata = zaakData
-)
-
 @Suppress("LongParameterList")
 fun createRestZaakCreateData(
     description: String = "fakeDescription",

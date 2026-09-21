@@ -177,11 +177,7 @@
     }
     @if (activeAction === "actie.zaakdata.bekijken") {
       @defer (on immediate) {
-        <zac-zaakdata
-          [readonly]="true"
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-        ></zac-zaakdata>
+        <zac-zaakdata [sideNav]="actionsSidenav" [zaak]="zaak"></zac-zaakdata>
       }
     }
     @if (activeAction === "actie.procesverloop.bekijken") {

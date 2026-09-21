@@ -53,12 +53,10 @@ describe(ZaakdataComponent.name, () => {
 
   const setup = (
     zaak: GeneratedType<"RestZaak"> = makeZaak(),
-    readonly = false,
     sideNav: MatDrawer = makeSideNav(),
   ) => {
     fixture = TestBed.createComponent(ZaakdataComponent);
     fixture.componentRef.setInput("zaak", zaak);
-    fixture.componentRef.setInput("readonly", readonly);
     fixture.componentRef.setInput("sideNav", sideNav);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -92,22 +90,10 @@ describe(ZaakdataComponent.name, () => {
       queryKey: ["procesvariabelen"],
       queryFn: async () => [],
     } as never);
-    jest.spyOn(zakenService, "updateZaakdata").mockReturnValue({
-      mutationKey: ["updateZaakdata"],
-      mutationFn: jest.fn().mockResolvedValue(undefined),
-    } as never);
   });
 
-  it("shows wijzigen title when not readonly", async () => {
-    setup(makeZaak(), false);
-    const toolbar = await loader.getHarness(MatToolbarHarness);
-    expect(await (await toolbar.host()).text()).toContain(
-      "actie.zaakdata.wijzigen",
-    );
-  });
-
-  it("shows bekijken title when readonly", async () => {
-    setup(makeZaak(), true);
+  it("shows bekijken title", async () => {
+    setup();
     const toolbar = await loader.getHarness(MatToolbarHarness);
     expect(await (await toolbar.host()).text()).toContain(
       "actie.zaakdata.bekijken",
@@ -116,7 +102,7 @@ describe(ZaakdataComponent.name, () => {
 
   it("calls sideNav close when close button is clicked", async () => {
     const sideNav = makeSideNav();
-    setup(makeZaak(), false, sideNav);
+    setup(makeZaak(), sideNav);
     const closeButton = await loader.getHarness(
       MatButtonHarness.with({ selector: "mat-toolbar button" }),
     );
@@ -124,30 +110,12 @@ describe(ZaakdataComponent.name, () => {
     expect(sideNav.close).toHaveBeenCalled();
   });
 
-  it("hides save and cancel buttons when readonly", async () => {
-    setup(makeZaak(), true);
+  it("has no save/cancel buttons", async () => {
+    setup();
     const buttons = await loader.getAllHarnesses(
       MatButtonHarness.with({ selector: "mat-action-row button" }),
     );
     expect(buttons).toHaveLength(0);
-  });
-
-  it("shows save and cancel buttons when not readonly", async () => {
-    setup(makeZaak(), false);
-    const buttons = await loader.getAllHarnesses(
-      MatButtonHarness.with({ selector: "mat-action-row button" }),
-    );
-    expect(buttons).toHaveLength(2);
-  });
-
-  it("calls sideNav close when cancel button is clicked", async () => {
-    const sideNav = makeSideNav();
-    setup(makeZaak(), false, sideNav);
-    const buttons = await loader.getAllHarnesses(
-      MatButtonHarness.with({ selector: "mat-action-row button" }),
-    );
-    await buttons[1].click();
-    expect(sideNav.close).toHaveBeenCalled();
   });
 
   const setupWithForm = (zaak: GeneratedType<"RestZaak">) => {
@@ -187,21 +155,6 @@ describe(ZaakdataComponent.name, () => {
       expect(await (await icons[2].host()).hasClass("copy-icon--sm")).toBe(
         false,
       );
-    });
-  });
-
-  describe("double-submit guard", () => {
-    it("keeps the save button disabled after a successful save", async () => {
-      setupWithForm(makeZaak());
-
-      fixture.componentInstance["formSubmit"]();
-      await new Promise(requestAnimationFrame);
-      fixture.detectChanges();
-
-      const [saveButton] = await loader.getAllHarnesses(
-        MatButtonHarness.with({ selector: "mat-action-row button" }),
-      );
-      expect(await saveButton.isDisabled()).toBe(true);
     });
   });
 });

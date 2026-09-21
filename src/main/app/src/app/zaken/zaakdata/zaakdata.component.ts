@@ -4,8 +4,8 @@
  */
 
 import { ClipboardModule } from "@angular/cdk/clipboard";
-import { KeyValuePipe, NgIf, NgTemplateOutlet } from "@angular/common";
-import { Component, effect, inject, input, output } from "@angular/core";
+import { KeyValuePipe, NgTemplateOutlet } from "@angular/common";
+import { Component, effect, inject, input } from "@angular/core";
 import {
   AbstractControl,
   FormArray,
@@ -14,7 +14,7 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { MatButton, MatIconButton } from "@angular/material/button";
+import { MatIconButton } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -26,7 +26,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "../../shared/form/input/input";
-import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -36,13 +35,11 @@ import { ZakenService } from "../zaken.service";
   styleUrl: "./zaakdata.component.less",
   standalone: true,
   imports: [
-    NgIf,
     NgTemplateOutlet,
     KeyValuePipe,
     ReactiveFormsModule,
     MatToolbarModule,
     MatIconModule,
-    MatButton,
     MatIconButton,
     MatDividerModule,
     MatExpansionModule,
@@ -60,24 +57,11 @@ export class ZaakdataComponent {
 
   protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
   protected readonly sideNav = input.required<MatDrawer>();
-  protected readonly readonly = input<boolean>(false);
-
-  protected readonly dataChanged = output();
 
   protected readonly form = this.formBuilder.group({});
 
   protected readonly procesVariabeleQuery = injectQuery(() =>
     this.zakenService.listProcesVariabelen(),
-  );
-
-  protected readonly updateZaakDataMutation = injectMutation(
-    () => this.zakenService.updateZaakdata(),
-    {
-      onSuccess: async () => {
-        this.dataChanged.emit();
-        void this.sideNav().close();
-      },
-    },
   );
 
   constructor() {
@@ -87,14 +71,7 @@ export class ZaakdataComponent {
       if (!zaakData || !procesVariabele) return;
 
       this.buildForm(zaakData, this.form);
-      if (this.readonly()) this.form.disable();
-    });
-  }
-
-  formSubmit() {
-    this.updateZaakDataMutation.mutate({
-      uuid: this.zaak().uuid,
-      zaakdata: this.form.value,
+      this.form.disable();
     });
   }
 
