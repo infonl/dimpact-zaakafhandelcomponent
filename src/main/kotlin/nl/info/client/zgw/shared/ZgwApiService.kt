@@ -316,7 +316,7 @@ class ZgwApiService @Inject constructor(
      *
      * @throws nl.info.client.zgw.ztc.exception.RoltypeNotFoundException if the zaaktype does not define it
      */
-    fun readBehandelaarRoltype(zaaktypeURI: URI): RolType =
+    fun readBehandelaarRoltype(zaaktypeURI: URI) =
         ztcClientService.readRoltype(
             zaaktypeURI,
             OmschrijvingGeneriekEnum.BEHANDELAAR,
@@ -327,7 +327,7 @@ class ZgwApiService @Inject constructor(
      * Find the [RolType] that ZAC uses for a medewerker that is individually authorised for a zaak.
      * A zaaktype only has this role type when it is configured to be zaakspecifiek autoriseerbaar.
      */
-    fun findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaaktypeURI: URI): RolType? =
+    fun findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaaktypeURI: URI) =
         ztcClientService.findRoltypen(zaaktypeURI, OmschrijvingGeneriekEnum.BEHANDELAAR)
             .firstOrNull { it.omschrijving == ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
 

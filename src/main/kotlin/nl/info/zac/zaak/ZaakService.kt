@@ -189,16 +189,16 @@ class ZaakService @Inject constructor(
                 groupId?.let { identityService.validateIfUserIsInGroup(userNameToAssign, it) }
                 identityService.readUser(userNameToAssign)
             }
-            val behandelaarChanged = changeBehandelaar(zaak, zaakToewijzing, user, reason)
+            val isBehandelaarChanged = changeBehandelaar(zaak, zaakToewijzing, user, reason)
 
             val group = groupId?.let(identityService::readGroup)
-            val groupAssigned = group != null && assignGroup(zaak, zaakToewijzing, group, reason)
+            val isGroupAssigned = group != null && assignGroup(zaak, zaakToewijzing, group, reason)
 
             changeZaakDataAssignment(zaak.uuid, group, user)
 
-            if (behandelaarChanged || groupAssigned) {
+            if (isBehandelaarChanged || isGroupAssigned) {
                 indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
-                if (behandelaarChanged) {
+                if (isBehandelaarChanged) {
                     zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak)
                 }
             }
@@ -381,7 +381,7 @@ class ZaakService @Inject constructor(
         zaakToewijzing: ZaakToewijzing,
         group: Group,
         reason: String?
-    ): Boolean =
+    ) =
         if (zaakToewijzing.groepId != group.name) {
             // if the zaak is not already assigned to the requested group, assign it to this group
             zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), reason)
@@ -404,12 +404,12 @@ class ZaakService @Inject constructor(
         reason: String?
     ): Boolean {
         val behandelaarRollen = zaakToewijzing.behandelaarRollen
-        val behandelaarIsUnchanged = if (user == null) {
+        val isBehandelaarUnchanged = if (user == null) {
             behandelaarRollen.isEmpty()
         } else {
             behandelaarRollen.size == 1 && zaakToewijzing.behandelaarId == user.id
         }
-        if (behandelaarIsUnchanged) return false
+        if (isBehandelaarUnchanged) return false
 
         if (zaakToewijzing.isZaakspecifiekGeautoriseerd) {
             behandelaarRollen

@@ -26,12 +26,6 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-/**
- * Verifies that a zaakspecifiek geautoriseerde BPMN zaak that is reassigned by the process itself -
- * through the `UpdateZaakAssignmentDelegate` service task of the integration test process definition,
- * rather than through the ZAC 'toekennen' endpoint - leaves the behandelaar it replaces with access to
- * the zaak.
- */
 class BpmnZaakspecifiekAutorisatieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
