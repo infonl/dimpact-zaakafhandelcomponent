@@ -406,7 +406,8 @@ services:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
     entrypoint: [ "opa", "test", "/home/policies", "/home/tests" ]
-    profiles: [ "itest" ]
+    # The policy tests are unit tests and run in the backend unit test job, not in the integration test stack
+    profiles: [ "opa-tests" ]
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
