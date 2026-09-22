@@ -53,6 +53,11 @@ class HumanTaskReferentieTabel() {
     @Column(name = "veld", nullable = false)
     var veld: String? = null
 
+    fun copyForNewHumantask() = HumanTaskReferentieTabel().apply {
+        veld = this@HumanTaskReferentieTabel.veld
+        tabel = this@HumanTaskReferentieTabel.tabel
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other !is HumanTaskReferentieTabel) return false
         return tabel == other.tabel && veld == other.veld
