@@ -206,17 +206,25 @@ describe(buildZaakMenu.name, () => {
       const zaak = createZaak({ zaakdata: { fakeKey: "fakeValue" } }, rechten);
 
       expect(
-        titles(buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, true)),
+        titles(
+          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, true),
+        ),
       ).toContain("actie.zaakdata.archief");
       expect(
-        titles(buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, true)),
+        titles(
+          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, true),
+        ),
       ).not.toContain("actie.zaakdata.bekijken");
 
       expect(
-        titles(buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, false)),
+        titles(
+          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, false),
+        ),
       ).toContain("actie.zaakdata.bekijken");
       expect(
-        titles(buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, false)),
+        titles(
+          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, false),
+        ),
       ).not.toContain("actie.zaakdata.archief");
     });
 
