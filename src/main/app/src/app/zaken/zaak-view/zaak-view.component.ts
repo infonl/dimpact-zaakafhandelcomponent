@@ -212,6 +212,13 @@ export class ZaakViewComponent
     this.policyService.readBrpRechten(),
   );
 
+  protected readonly isArchief = computed(() => {
+    const zaak = this.zaak;
+    if (!zaak.isOpen) return true;
+    const isBpmnZaaktype = !zaak.zaaktype.zaakafhandelparameters?.caseDefinition;
+    return isBpmnZaaktype && !zaak.isProcesGestuurd;
+  });
+
   protected readonly betrokkenenQuery = injectQuery(() =>
     this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak.uuid),
   );

@@ -54,10 +54,12 @@ describe(ZaakdataComponent.name, () => {
   const setup = (
     zaak: GeneratedType<"RestZaak"> = makeZaak(),
     sideNav: MatDrawer = makeSideNav(),
+    isArchief = false,
   ) => {
     fixture = TestBed.createComponent(ZaakdataComponent);
     fixture.componentRef.setInput("zaak", zaak);
     fixture.componentRef.setInput("sideNav", sideNav);
+    fixture.componentRef.setInput("isArchief", isArchief);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
     return { fixture, component: fixture.componentInstance, sideNav };
@@ -97,6 +99,14 @@ describe(ZaakdataComponent.name, () => {
     const toolbar = await loader.getHarness(MatToolbarHarness);
     expect(await (await toolbar.host()).text()).toContain(
       "actie.zaakdata.bekijken",
+    );
+  });
+
+  it("shows archief title when the zaakdata is archived", async () => {
+    setup(makeZaak(), makeSideNav(), true);
+    const toolbar = await loader.getHarness(MatToolbarHarness);
+    expect(await (await toolbar.host()).text()).toContain(
+      "actie.zaakdata.archief",
     );
   });
 

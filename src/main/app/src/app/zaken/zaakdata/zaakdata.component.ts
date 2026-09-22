@@ -57,6 +57,7 @@ export class ZaakdataComponent {
 
   protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
   protected readonly sideNav = input.required<MatDrawer>();
+  protected readonly isArchief = input.required<boolean>();
 
   protected readonly form = this.formBuilder.group({});
 

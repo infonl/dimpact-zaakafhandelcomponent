@@ -5,7 +5,12 @@
 
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>folder_copy</mat-icon>
-  <h3 class="flex-grow-1">{{ "actie.zaakdata.bekijken" | translate }}</h3>
+  <h3 class="flex-grow-1">
+    {{
+      (isArchief() ? "actie.zaakdata.archief" : "actie.zaakdata.bekijken")
+        | translate
+    }}
+  </h3>
   <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
