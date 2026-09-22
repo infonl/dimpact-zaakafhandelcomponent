@@ -6,7 +6,7 @@
 # Local load test script for ZAC.
 #
 # Uploads a BPMN process definition and form.io task forms to ZAC, creates
-# zaakafhandelparameters for all 7 zaaktypes in Open Zaak (3 CMMN, 4 BPMN),
+# zaakafhandelparameters for all 8 zaaktypes in Open Zaak (4 CMMN, 4 BPMN),
 # then creates a user-specified number of zaken distributed across all zaaktypes.
 #
 # HTTP/auth lives in zac_client.py, the zaaktype/document catalogue and the single-item
@@ -45,9 +45,6 @@ _SCRIPT_DIR = pathlib.Path(__file__).parent
 # ---------------------------------------------------------------------------
 # Constants — sourced from src/itest/kotlin/nl/info/zac/itest/config/
 # ---------------------------------------------------------------------------
-
-# Niet-ontvankelijk resultaattype shared by all CMMN zaaktypes
-CMMN_NIET_ONTVANKELIJK_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
 
 # Stamped on every zaak this script creates, to tell them apart from create-zaak.py's
 ZAAK_OMSCHRIJVING_PREFIX = "load-test-zaak"
@@ -306,9 +303,9 @@ def _cmmn_body(zaaktype: dict) -> dict:
             "archiefNominatie": "VERNIETIGEN",
             "archiefTermijn": "5 jaren",
             "besluitVerplicht": False,
-            "id": CMMN_NIET_ONTVANKELIJK_UUID,
-            "naam": "Geweigerd",
-            "naamGeneriek": "Geweigerd",
+            "id": zaaktype["niet_ontvankelijk_uuid"],
+            "naam": zaaktype["niet_ontvankelijk_naam"],
+            "naamGeneriek": zaaktype["niet_ontvankelijk_naam"],
             "toelichting": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het "
             "doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
             "vervaldatumBesluitVerplicht": False,
@@ -446,7 +443,7 @@ def _merge_existing_ids(desired: dict, existing: dict) -> dict:
 
 
 def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
-    """Create zaakafhandelparameters for all 7 zaaktypes (3 CMMN, 4 BPMN)."""
+    """Create zaakafhandelparameters for all 8 zaaktypes (4 CMMN, 4 BPMN)."""
     print("\n=== Creating zaakafhandelparameters ===")
 
     for zaaktype in zac_testdata.CMMN_ZAAKTYPES:
@@ -496,7 +493,7 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
 
 
 def create_zaken(n: int, token_manager: zac_client.TokenManager, zac_url: str, concurrency: int) -> list[dict]:
-    """Create n zaken, distributed round-robin across all 7 zaaktypes."""
+    """Create n zaken, distributed round-robin across all 8 zaaktypes."""
     print(f"\n=== Creating {n} zaken (concurrency={concurrency}) ===")
     results = []
     completed = 0
@@ -577,7 +574,7 @@ def upload_documents_to_zaken(
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="ZAC local load & performance test script. "
-        "Uploads a BPMN process definition, creates zaakafhandelparameters for all 7 zaaktypes, "
+        "Uploads a BPMN process definition, creates zaakafhandelparameters for all 8 zaaktypes, "
         "then creates N zaken."
     )
     parser.add_argument(

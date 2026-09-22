@@ -10,6 +10,7 @@ import {
   Input,
   OnDestroy,
   Output,
+  computed,
   inject,
 } from "@angular/core";
 import {
@@ -22,6 +23,7 @@ import { MatButton, MatIconButton } from "@angular/material/button";
 import { MatDivider } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIcon } from "@angular/material/icon";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
@@ -201,6 +203,30 @@ export class ZaakLinkComponent implements OnDestroy {
       },
     );
   }
+
+  private readonly caseRelationType = toSignal(
+    this.form.controls.caseRelationType.valueChanges,
+    { initialValue: this.form.controls.caseRelationType.value },
+  );
+
+  protected readonly ownZaakBlockedReason = computed(() => {
+    switch (this.caseRelationType()?.value) {
+      case "HOOFDZAAK":
+        if (this.zaak.isDeelzaak) {
+          return "zaak.koppelen.geblokkeerd.al-deelzaak-van-andere-zaak";
+        }
+        if (this.zaak.isHoofdzaak) {
+          return "zaak.koppelen.geblokkeerd.heeft-al-deelzaken";
+        }
+        return null;
+      case "DEELZAAK":
+        return this.zaak.isDeelzaak
+          ? "zaak.koppelen.geblokkeerd.is-zelf-deelzaak"
+          : null;
+      default:
+        return null;
+    }
+  });
 
   protected rowDisabled(
     row: GeneratedType<"RestZaakKoppelenZoekObject">,

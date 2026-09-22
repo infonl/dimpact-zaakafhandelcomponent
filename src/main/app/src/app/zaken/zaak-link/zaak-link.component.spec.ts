@@ -180,6 +180,59 @@ describe(ZaakLinkComponent.name, () => {
     expect(screen.getByText(hint)).toBeVisible();
   });
 
+  it.each([
+    ["HOOFDZAAK", "zaak.koppelen.geblokkeerd.al-deelzaak-van-andere-zaak"],
+    ["DEELZAAK", "zaak.koppelen.geblokkeerd.is-zelf-deelzaak"],
+  ])(
+    "replaces the search form with an explanation when the zaak is itself a deelzaak and %s is chosen",
+    async (relationType, blockedReason) => {
+      await setup({ isDeelzaak: true });
+
+      await chooseRelationType(relationType);
+
+      expect(screen.getByText(blockedReason)).toBeVisible();
+      expect(
+        screen.queryByRole("button", { name: "actie.zoeken" }),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it("replaces the search form with an explanation when the zaak already has deelzaken and HOOFDZAAK is chosen", async () => {
+    await setup({ isHoofdzaak: true });
+
+    await chooseRelationType("HOOFDZAAK");
+
+    expect(
+      screen.getByText("zaak.koppelen.geblokkeerd.heeft-al-deelzaken"),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "actie.zoeken" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("still searches for a GERELATEERD link when the zaak is a deelzaak that has deelzaken of its own", async () => {
+    const { zaak } = await setup({ isDeelzaak: true, isHoofdzaak: true });
+    const search = findLinkableZaken([
+      makeFakeSearchResult({ identificatie: "ZAAK-2026-002" }),
+    ]);
+
+    await chooseRelationType("GERELATEERD");
+    await clickSearch();
+
+    expect(search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        zaakUuid: zaak.uuid,
+        relationType: "GERELATEERD",
+      }),
+    );
+    expect(
+      screen.getByRole("row", { name: /ZAAK-2026-002/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("zaak.koppelen.geblokkeerd.is-zelf-deelzaak"),
+    ).not.toBeInTheDocument();
+  });
+
   it("searches for linkable zaken with the entered criteria", async () => {
     const { zaak } = await setup();
     const search = findLinkableZaken([makeFakeSearchResult()]);

@@ -37,7 +37,13 @@ INFORMATIEOBJECTTYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
 # (5-setup-zaaktype-test-1.sql). All other zaaktypes reuse the shared UUID from zaaktype-test-3.
 BIJLAGE_UUID_BY_ZAAKTYPE = {
     "8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a": "4a689f8a-11d3-4ddd-ae26-00fb258305a5",
+    # Test zaaktype 4 links only its own informatieobjecttype, not the shared bijlage one
+    "4f46d270-c4d8-4cfe-a3a1-cb86ae102656": "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
 }
+
+# Niet-ontvankelijk resultaattype defined by zaaktype-test-3's Open Zaak setup and reused
+# by the other zaaktypes that have one.
+SHARED_NIET_ONTVANKELIJK_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
 
 CMMN_ZAAKTYPES = [
     {
@@ -46,6 +52,8 @@ CMMN_ZAAKTYPES = [
         "description": "Test zaaktype 1",
         "productaanvraagtype": "productaanvraag-type-3",
         "domein": "domein_test_2",
+        "niet_ontvankelijk_uuid": SHARED_NIET_ONTVANKELIJK_UUID,
+        "niet_ontvankelijk_naam": "Geweigerd",
     },
     {
         "uuid": "fd2bf643-c98a-4b00-b2b3-9ae0c41ed425",
@@ -53,6 +61,8 @@ CMMN_ZAAKTYPES = [
         "description": "Test zaaktype 2",
         "productaanvraagtype": "productaanvraag-type-2",
         "domein": "domein_test_1",
+        "niet_ontvankelijk_uuid": SHARED_NIET_ONTVANKELIJK_UUID,
+        "niet_ontvankelijk_naam": "Geweigerd",
     },
     {
         "uuid": "448356ff-dcfb-4504-9501-7fe929077c4f",
@@ -60,6 +70,19 @@ CMMN_ZAAKTYPES = [
         "description": "Test zaaktype 3",
         "productaanvraagtype": "productaanvraag-type-1",
         "domein": None,
+        "niet_ontvankelijk_uuid": SHARED_NIET_ONTVANKELIJK_UUID,
+        "niet_ontvankelijk_naam": "Geweigerd",
+    },
+    {
+        "uuid": "4f46d270-c4d8-4cfe-a3a1-cb86ae102656",
+        "identificatie": "test-zaaktype-4",
+        "description": "Test zaaktype 4",
+        "productaanvraagtype": "productaanvraag-type-4",
+        "domein": None,
+        # This zaaktype has no 'Geweigerd' resultaattype; its 'Niet opgelegd' one serves the
+        # same purpose in the zaakafhandelparameters.
+        "niet_ontvankelijk_uuid": "629af8ed-d09b-46a9-961d-72054dc93dcd",
+        "niet_ontvankelijk_naam": "Niet opgelegd",
     },
 ]
 
