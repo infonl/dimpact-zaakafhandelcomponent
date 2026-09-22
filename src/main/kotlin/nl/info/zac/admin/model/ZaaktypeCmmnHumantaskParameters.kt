@@ -82,9 +82,12 @@ class ZaaktypeCmmnHumantaskParameters :
     fun getReferentieTabellen(): List<HumanTaskReferentieTabel> =
         Collections.unmodifiableList(referentieTabellen)
 
+    // humantask_referentie_tabel has one non-nullable FK to its human task, so adopting a coupling that
+    // still belongs to another human task moves it there instead of duplicating it
     fun setReferentieTabellen(value: List<HumanTaskReferentieTabel>) {
-        this.referentieTabellen.clear()
-        value.forEach { addReferentieTabel(it) }
+        val copies = value.map { it.copyForNewHumantask() }
+        referentieTabellen.clear()
+        copies.forEach { addReferentieTabel(it) }
     }
 
     private fun addReferentieTabel(referentieTabel: HumanTaskReferentieTabel): Boolean {
@@ -121,7 +124,10 @@ class ZaaktypeCmmnHumantaskParameters :
         formulierDefinitieID = changes.formulierDefinitieID
         groepID = changes.groepID
         doorlooptijd = changes.doorlooptijd
-        referentieTabellen = changes.referentieTabellen
+        // assigning the collection itself would detach the one Hibernate manages for this entity
+        if (referentieTabellen != changes.referentieTabellen) {
+            setReferentieTabellen(changes.getReferentieTabellen())
+        }
     }
 
     override fun resetId(): ZaaktypeCmmnHumantaskParameters {
