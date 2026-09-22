@@ -26,13 +26,13 @@ import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
-import nl.info.zac.flowable.util.isCmmnTask
-import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createTaakRechten
 import nl.info.zac.policy.output.createTaakRechtenAllDeny
+import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
+import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
 
@@ -52,11 +52,9 @@ class RestTaskConverterTest : BehaviorSpec({
     )
 
     mockkStatic(TaakVariabelenService::class)
-    mockkStatic("nl.info.zac.flowable.util.TaskUtilKt")
 
     afterSpec {
         unmockkStatic(TaakVariabelenService::class)
-        unmockkStatic("nl.info.zac.flowable.util.TaskUtilKt")
     }
 
     afterEach { checkUnnecessaryStub() }
@@ -67,8 +65,8 @@ class RestTaskConverterTest : BehaviorSpec({
         val fakeZaaktypeOmschrijving = "fakeZaaktypeOmschrijving"
         val taskDefinitionKey = "fakePlanItemDefinitionID"
 
-        given("a CMMN task with full read access") {
-            val taskInfo = mockk<TaskInfo>()
+        given("a CMMN task with full read access, assigned to a behandelaar") {
+            val taskInfo = mockk<Task>()
             val taakRechten = createTaakRechten()
             val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
             val humanTaskParameters = createHumanTaskParameters(
@@ -84,8 +82,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-            every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
-            every { taskInfo.isCmmnTask() } returns true
+            every { taskInfo.scopeType } returns ScopeTypes.CMMN
 
             every { taskInfo.id } returns "fakeTaskId"
             every { taskInfo.name } returns "fakeTaskName"
@@ -107,14 +104,14 @@ class RestTaskConverterTest : BehaviorSpec({
             `when`("convert is called") {
                 val restTask = restTaskConverter.convert(taskInfo)
 
-                then("basic fields are mapped correctly") {
+                then("basic fields are mapped correctly, including the assigned status") {
                     restTask.id shouldBe "fakeTaskId"
                     restTask.naam shouldBe "fakeTaskName"
                     restTask.zaakUuid shouldBe zaakUUID
                     restTask.zaakIdentificatie shouldBe "fakeZaakIdentificatie"
                     restTask.zaaktypeUUID shouldBe zaaktypeUUID
                     restTask.toelichting shouldBe "fakeToelichting"
-                    restTask.status shouldBe TaakStatus.NIET_TOEGEKEND
+                    restTask.status shouldBe TaakStatus.TOEGEKEND
                 }
 
                 then("CMMN formulier definition id is set") {
@@ -124,8 +121,8 @@ class RestTaskConverterTest : BehaviorSpec({
             }
         }
 
-        given("a BPMN task with full read access") {
-            val taskInfo = mockk<TaskInfo>()
+        given("a BPMN task with full read access, unassigned and outside CMMN scope") {
+            val taskInfo = mockk<Task>()
             val taakRechten = createTaakRechten()
             val fakeFormioFormulier = mockk<JsonObject>()
             val processDefinitionId = "fakeProcessDefinitionId"
@@ -138,8 +135,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-            every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
-            every { taskInfo.isCmmnTask() } returns false
+            every { taskInfo.scopeType } returns null
 
             every { taskInfo.id } returns "fakeBpmnTaskId"
             every { taskInfo.name } returns "fakeBpmnTaskName"
@@ -161,6 +157,7 @@ class RestTaskConverterTest : BehaviorSpec({
                 then("formio formulier is set and formulierDefinitieId is null") {
                     restTask.formioFormulier shouldBe fakeFormioFormulier
                     restTask.formulierDefinitieId.shouldBeNull()
+                    restTask.status shouldBe TaakStatus.NIET_TOEGEKEND
                 }
 
                 and("no reference tables are offered because the formio form carries its own options") {
@@ -170,7 +167,7 @@ class RestTaskConverterTest : BehaviorSpec({
         }
 
         given("a CMMN advies task whose human task is coupled to the ADVIES reference table") {
-            val taskInfo = mockk<TaskInfo>()
+            val taskInfo = mockk<Task>()
             val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
             val humanTaskParameters = createHumanTaskParameters(
                 planItemDefinitionID = taskDefinitionKey,
@@ -196,8 +193,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-            every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
-            every { taskInfo.isCmmnTask() } returns true
+            every { taskInfo.scopeType } returns ScopeTypes.CMMN
 
             every { taskInfo.id } returns "fakeAdviesTaskId"
             every { taskInfo.name } returns "Advies intern"
@@ -224,7 +220,7 @@ class RestTaskConverterTest : BehaviorSpec({
             }
         }
 
-        given("a task with no read access") {
+        given("a completed (non-Task) task with no read access") {
             val taskInfo = mockk<TaskInfo>()
             val taakRechten = createTaakRechtenAllDeny()
 
@@ -232,8 +228,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
             every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
             every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
-            every { taskInfo.isCmmnTask() } returns false
+            every { taskInfo.scopeType } returns null
 
             every { taskInfo.id } returns "fakeTaskId"
             every { taskInfo.name } returns "fakeTaskName"
@@ -246,7 +241,8 @@ class RestTaskConverterTest : BehaviorSpec({
             `when`("convert is called") {
                 val restTask = restTaskConverter.convert(taskInfo)
 
-                then("sensitive fields are null") {
+                then("the status is derived as AFGEROND and sensitive fields are null") {
+                    restTask.status shouldBe TaakStatus.AFGEROND
                     restTask.toelichting.shouldBeNull()
                     restTask.creatiedatumTijd.shouldBeNull()
                     restTask.toekenningsdatumTijd.shouldBeNull()
@@ -280,8 +276,7 @@ class RestTaskConverterTest : BehaviorSpec({
                 every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
                 every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
                 every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-                every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
-                every { taskInfo.isCmmnTask() } returns true
+                every { taskInfo.scopeType } returns ScopeTypes.CMMN
                 every { taskInfo.id } returns "fakeId"
                 every { taskInfo.name } returns "fakeName"
                 every { taskInfo.assignee } returns null
