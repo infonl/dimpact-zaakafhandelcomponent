@@ -194,7 +194,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.6.6@sha256:51d21cdd406d5cee4e4b2c002310dd413b2c5a87b0f4c36d30fcbb7684a00541
+    image: redis:8.6.7@sha256:7dc197ef2b542b872622b6711345a8cb3e705e737f868f1fdc0c57050e928c32
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -315,7 +315,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202609171305@sha256:57bf805e61331bde5b54f866f7771c22d97055dd7770c02b9cd71c3c31bedffb
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202609211606@sha256:bee52a2a2139727f76812b825875c29575cd3ed6580013ead09dafeb77de8911
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010

@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
-    "@types/node": "24.13.5",
+    "@types/node": "24.13.6",
     "multiple-cucumber-html-reporter": "4.3.0",
     "dotenv": "17.4.2",
     "playwright-bdd": "9.2.1",

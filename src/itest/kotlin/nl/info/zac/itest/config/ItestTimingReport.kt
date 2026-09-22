@@ -8,6 +8,7 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.model.Frame
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.listeners.AfterSpecListener
 import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
@@ -58,7 +59,9 @@ object ItestTimingReport : BeforeSpecListener, AfterSpecListener {
         "greenmail" to Regex("Starting GreenMail API server")
     )
 
+    private val shard: String? = System.getProperty("zac.itest.shard")
     private val phases = LinkedHashMap<String, Instant>()
+    private val isolatedSpecs = ConcurrentHashMap.newKeySet<String>()
     private val specStartTimes = ConcurrentHashMap<String, Instant>()
     private val specDurations = ConcurrentHashMap<String, Duration>()
     private var containerTimings = emptyList<ContainerTiming>()
@@ -71,6 +74,9 @@ object ItestTimingReport : BeforeSpecListener, AfterSpecListener {
 
     override suspend fun beforeSpec(spec: Spec) {
         specStartTimes[spec.specName()] = Instant.now()
+        if (spec::class.java.isAnnotationPresent(Isolate::class.java)) {
+            isolatedSpecs.add(spec.specName())
+        }
         synchronized(phases) {
             if (PHASE_FIRST_SPEC_STARTED !in phases) {
                 phases[PHASE_FIRST_SPEC_STARTED] = Instant.now()
@@ -149,7 +155,7 @@ object ItestTimingReport : BeforeSpecListener, AfterSpecListener {
         val phaseSnapshot = synchronized(phases) { LinkedHashMap(phases) }
         val runStart = phaseSnapshot.values.firstOrNull() ?: Instant.now()
         return buildString {
-            appendLine("## Integration test timings")
+            appendLine("## Integration test timings${shard?.let { " (shard $it)" }.orEmpty()}")
             appendLine()
             appendPhaseTable(phaseSnapshot, runStart)
             appendContainerTable(runStart)
@@ -192,17 +198,25 @@ object ItestTimingReport : BeforeSpecListener, AfterSpecListener {
         val slowestSpecs = specDurations.entries
             .sortedByDescending { it.value }
             .take(NUMBER_OF_SLOWEST_SPECS)
-        val totalSpecDuration = specDurations.values.fold(Duration.ZERO, Duration::plus)
+        val summedSpecDuration = specDurations.values.fold(Duration.ZERO, Duration::plus)
+        val wallClockSpecDuration = synchronized(phases) {
+            phases[PHASE_FIRST_SPEC_STARTED]?.let { firstSpecStarted ->
+                phases[PHASE_LAST_SPEC_FINISHED]?.let { lastSpecFinished ->
+                    Duration.between(firstSpecStarted, lastSpecFinished)
+                }
+            }
+        }
         appendLine()
         appendLine(
-            "### Slowest specs (${slowestSpecs.size} of ${specDurations.size}, " +
-                "all specs together took ${totalSpecDuration.format()})"
+            "### Slowest specs (${slowestSpecs.size} of ${specDurations.size}, ${isolatedSpecs.size} isolated; " +
+                "the specs took ${wallClockSpecDuration?.format() ?: "-"} on the clock, " +
+                "${summedSpecDuration.format()} summed)"
         )
         appendLine()
-        appendLine("| Spec | Duration |")
-        appendLine("|---|---|")
+        appendLine("| Spec | Duration | Isolated |")
+        appendLine("|---|---|---|")
         slowestSpecs.forEach { (specName, duration) ->
-            appendLine("| $specName | ${duration.format()} |")
+            appendLine("| $specName | ${duration.format()} | ${if (specName in isolatedSpecs) "yes" else "-"} |")
         }
     }
 

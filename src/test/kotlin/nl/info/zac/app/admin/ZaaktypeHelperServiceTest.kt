@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.admin
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -12,6 +13,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -23,6 +25,10 @@ import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
+import nl.info.zac.admin.model.createHumanTaskParameters
+import nl.info.zac.admin.model.createHumanTaskReferentieTabel
+import nl.info.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -64,7 +70,10 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
             createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattype = it)
         },
         ZaaktypeConfigurationUnderTest("BPMN") {
-            createZaaktypeBpmnConfiguration(nietOntvankelijkResultaattype = it)
+            createZaaktypeBpmnConfiguration(
+                nietOntvankelijkResultaattype = it,
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            )
         }
     ).forEach { (configurationType, createZaaktypeConfiguration) ->
         context("mapZaakbeeindigGegevens of a $configurationType zaaktype configuration") {
@@ -318,7 +327,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
             }
         }
 
-        context("copySharedConfigurationData of a $configurationType zaaktype configuration") {
+        context("copyConfigurationData of a $configurationType zaaktype configuration") {
             given("a previous configuration with the settings that both configuration types have in common") {
                 val previousToegekendUuid = UUID.randomUUID()
                 val previousNietOntvankelijkUuid = UUID.randomUUID()
@@ -367,7 +376,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 val newZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID())
 
                 `when`("the shared configuration data is copied onto the new configuration") {
-                    zaaktypeHelperService.copySharedConfigurationData(
+                    zaaktypeHelperService.copyConfigurationData(
                         previousZaaktypeConfiguration,
                         newZaaktypeConfiguration,
                         newZaaktype
@@ -403,6 +412,124 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                         newZaaktypeConfiguration.creatiedatum!! shouldNotBeBefore
                             previousZaaktypeConfiguration.creatiedatum!!
                     }
+                }
+            }
+        }
+    }
+
+    context("copyConfigurationData of a CMMN zaaktype configuration") {
+        given("a previous configuration whose human task is coupled to the ADVIES reference table") {
+            val newZaaktype = createZaakType(resultTypes = emptyList())
+            val adviesReferenceTable = createReferenceTable(
+                code = "ADVIES",
+                name = "Advies",
+                isSystemReferenceTable = true,
+                values = mutableListOf(
+                    createReferenceTableValue(id = 1L, name = "Positief"),
+                    createReferenceTableValue(id = 2L, name = "Negatief")
+                )
+            )
+            val previousZaaktypeConfiguration = createZaaktypeCmmnConfiguration(
+                caseDefinitionId = "fakeCaseDefinitionId"
+            ).apply {
+                nietOntvankelijkResultaattype = null
+                setHumanTaskParametersCollection(
+                    setOf(
+                        createHumanTaskParameters(
+                            zaaktypeCmmnConfiguration = this,
+                            formulierDefinitieID = "ADVIES",
+                            planItemDefinitionID = "ADVIES",
+                            referenceTables = listOf(
+                                createHumanTaskReferentieTabel(
+                                    referenceTable = adviesReferenceTable,
+                                    field = "ADVIES"
+                                )
+                            )
+                        )
+                    )
+                )
+            }
+            val previousHumanTaskParameters =
+                previousZaaktypeConfiguration.getHumanTaskParametersCollection().single()
+            val previousReferentieTabel = previousHumanTaskParameters.getReferentieTabellen().single()
+            val newZaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+
+            `when`("the configuration data is copied onto the configuration of the new zaaktype version") {
+                zaaktypeHelperService.copyConfigurationData(
+                    previousZaaktypeConfiguration,
+                    newZaaktypeConfiguration,
+                    newZaaktype
+                )
+
+                then("the new configuration is coupled to the same reference table") {
+                    with(newZaaktypeConfiguration.getHumanTaskParametersCollection().single()) {
+                        planItemDefinitionID shouldBe "ADVIES"
+                        with(getReferentieTabellen().single()) {
+                            veld shouldBe "ADVIES"
+                            tabel shouldBeSameInstanceAs adviesReferenceTable
+                        }
+                    }
+                }
+
+                and("the previous configuration keeps its own coupling, so its zaken keep their advies options") {
+                    previousHumanTaskParameters.getReferentieTabellen()
+                        .single() shouldBeSameInstanceAs previousReferentieTabel
+                    previousReferentieTabel.humantask shouldBeSameInstanceAs previousHumanTaskParameters
+                }
+
+                and("the coupling of the new configuration is a new, unsaved record of its own human task") {
+                    val newHumanTaskParameters = newZaaktypeConfiguration.getHumanTaskParametersCollection().single()
+                    with(newHumanTaskParameters.getReferentieTabellen().single()) {
+                        this shouldNotBeSameInstanceAs previousReferentieTabel
+                        id.shouldBeNull()
+                        humantask shouldBeSameInstanceAs newHumanTaskParameters
+                    }
+                }
+            }
+        }
+    }
+
+    context("copyConfigurationData of a BPMN zaaktype configuration") {
+        given("a previous configuration with a BPMN process definition key") {
+            val newZaaktype = createZaakType(resultTypes = emptyList())
+            val previousZaaktypeConfiguration = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            ).apply { nietOntvankelijkResultaattype = null }
+            val newZaaktypeConfiguration = createZaaktypeBpmnConfiguration()
+
+            `when`("the configuration data is copied onto the configuration of the new zaaktype version") {
+                zaaktypeHelperService.copyConfigurationData(
+                    previousZaaktypeConfiguration,
+                    newZaaktypeConfiguration,
+                    newZaaktype
+                )
+
+                then("the BPMN process definition key is carried over") {
+                    newZaaktypeConfiguration.bpmnProcessDefinitionKey shouldBe "fakeBpmnProcessDefinitionKey"
+                }
+            }
+        }
+    }
+
+    context("copyConfigurationData onto a configuration of a different type") {
+        given("a CMMN previous configuration and a BPMN new configuration") {
+            val newZaaktype = createZaakType(resultTypes = emptyList())
+            val previousZaaktypeConfiguration =
+                createZaaktypeCmmnConfiguration().apply { nietOntvankelijkResultaattype = null }
+            val newZaaktypeConfiguration = createZaaktypeBpmnConfiguration()
+
+            `when`("the configuration data is copied") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                    zaaktypeHelperService.copyConfigurationData(
+                        previousZaaktypeConfiguration,
+                        newZaaktypeConfiguration,
+                        newZaaktype
+                    )
+                }
+
+                then("the copy is refused") {
+                    illegalArgumentException.message shouldBe
+                        "Cannot copy a CMMN zaaktype configuration onto a BPMN zaaktype configuration"
                 }
             }
         }
