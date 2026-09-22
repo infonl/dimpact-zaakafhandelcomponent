@@ -215,9 +215,9 @@ export class ZaakViewComponent
 
   protected readonly isArchief = computed(() => {
     const zaak = this.zaak;
-    if (!zaak.isOpen) return true;
     const isBpmnZaaktype = !zaak.zaaktype.zaakafhandelparameters?.caseDefinition;
-    return isBpmnZaaktype && !zaak.isProcesGestuurd;
+    if (isBpmnZaaktype) return !zaak.isProcesGestuurd;
+    return !zaak.isOpen || !!zaak.isHeropend;
   });
 
   protected readonly betrokkenenQuery = injectQuery(() =>
