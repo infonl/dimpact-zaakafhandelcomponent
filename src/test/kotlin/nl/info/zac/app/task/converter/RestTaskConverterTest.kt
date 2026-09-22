@@ -15,7 +15,6 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import jakarta.json.JsonObject
 import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.util.TaskUtil
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
@@ -27,6 +26,8 @@ import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
+import nl.info.zac.flowable.util.isCmmnTask
+import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createTaakRechten
 import nl.info.zac.policy.output.createTaakRechtenAllDeny
@@ -51,11 +52,11 @@ class RestTaskConverterTest : BehaviorSpec({
     )
 
     mockkStatic(TaakVariabelenService::class)
-    mockkStatic(TaskUtil::class)
+    mockkStatic("nl.info.zac.flowable.util.TaskUtilKt")
 
     afterSpec {
         unmockkStatic(TaakVariabelenService::class)
-        unmockkStatic(TaskUtil::class)
+        unmockkStatic("nl.info.zac.flowable.util.TaskUtilKt")
     }
 
     afterEach { checkUnnecessaryStub() }
@@ -83,8 +84,8 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
-            every { TaskUtil.isCmmnTask(taskInfo) } returns true
+            every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
+            every { taskInfo.isCmmnTask() } returns true
 
             every { taskInfo.id } returns "fakeTaskId"
             every { taskInfo.name } returns "fakeTaskName"
@@ -137,8 +138,8 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
-            every { TaskUtil.isCmmnTask(taskInfo) } returns false
+            every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
+            every { taskInfo.isCmmnTask() } returns false
 
             every { taskInfo.id } returns "fakeBpmnTaskId"
             every { taskInfo.name } returns "fakeBpmnTaskName"
@@ -195,8 +196,8 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
-            every { TaskUtil.isCmmnTask(taskInfo) } returns true
+            every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
+            every { taskInfo.isCmmnTask() } returns true
 
             every { taskInfo.id } returns "fakeAdviesTaskId"
             every { taskInfo.name } returns "Advies intern"
@@ -231,8 +232,8 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
             every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
             every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
-            every { TaskUtil.isCmmnTask(taskInfo) } returns false
+            every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
+            every { taskInfo.isCmmnTask() } returns false
 
             every { taskInfo.id } returns "fakeTaskId"
             every { taskInfo.name } returns "fakeTaskName"
@@ -279,8 +280,8 @@ class RestTaskConverterTest : BehaviorSpec({
                 every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
                 every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
                 every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-                every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
-                every { TaskUtil.isCmmnTask(taskInfo) } returns true
+                every { taskInfo.taakStatus() } returns TaakStatus.NIET_TOEGEKEND
+                every { taskInfo.isCmmnTask() } returns true
                 every { taskInfo.id } returns "fakeId"
                 every { taskInfo.name } returns "fakeName"
                 every { taskInfo.assignee } returns null

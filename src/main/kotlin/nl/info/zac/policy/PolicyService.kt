@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.util.TaskUtil
+import nl.info.zac.flowable.util.isOpen
 import nl.info.client.opa.model.RuleQuery
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -212,7 +212,7 @@ class PolicyService @Inject constructor(
         val zaakUUID = TaakVariabelenService.readZaakUUID(taskInfo)
         val zaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
         val taakData = TaakData(
-            open = TaskUtil.isOpen(taskInfo),
+            open = taskInfo.isOpen(),
             zaaktype = zaaktypeOmschrijving,
             zaakspecifiekGeautoriseerd = zaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = zaakspecifiekGeautoriseerd &&

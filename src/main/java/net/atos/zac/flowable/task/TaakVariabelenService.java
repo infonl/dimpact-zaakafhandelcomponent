@@ -6,7 +6,7 @@
 package net.atos.zac.flowable.task;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.*;
-import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
+import static nl.info.zac.flowable.util.TaskUtilKt.isCmmnTask;
 
 import java.util.*;
 
