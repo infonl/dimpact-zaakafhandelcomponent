@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -38,6 +39,7 @@ private const val ZAAKTYPE_TEST_3_RESULTAATTYPE_VERLEEND_UUID = "2b774ae4-68b0-4
 /** Resultaattype of zaaktype test 3 whose omschrijving does not occur in any of the zaaktypes under test. */
 private const val ZAAKTYPE_TEST_3_RESULTAATTYPE_EIGENSCHAP_UUID = "ce19f9dc-efd7-4f6a-a95f-7b22f5ab9a09"
 
+@Isolate
 class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zaaktypeCmmnConfigurationUri = "$ZAC_API_URI/zaakafhandelparameters"
