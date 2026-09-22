@@ -107,7 +107,7 @@ export class ZaakLinkComponent implements OnDestroy {
     caseRelationOption("DEELZAAK"),
     caseRelationOption("HOOFDZAAK"),
     caseRelationOption("GERELATEERD"),
-  ] as const;
+  ];
 
   protected readonly form = this.formBuilder.group({
     caseRelationType: new FormControl<
