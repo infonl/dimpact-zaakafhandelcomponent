@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.launch
+import nl.info.client.pabc.ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
 import java.io.Serial
@@ -32,12 +33,6 @@ class LoggedInUserProvider @Inject constructor(
         private const val MAX_LOGGED_FALLBACK_ORIGINS = 100
         private const val FALLBACK_ORIGIN_FRAMES = 3L
         private val ZAC_PACKAGES = listOf("nl.info.", "net.atos.")
-
-        /**
-         * Constant for the 'systeemrol_behandelaar_alle_zaaktypen' application role.
-         * Must match the role string used in the `systeemrolBehandelaarAlleZaaktypen` rule in `rollen.rego`.
-         */
-        private const val ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN = "systeemrol_behandelaar_alle_zaaktypen"
 
         /** Origins already reported, so a recurring fallback is logged once instead of on every call. */
         internal val loggedFallbackOrigins: MutableSet<String> = ConcurrentHashMap.newKeySet()
