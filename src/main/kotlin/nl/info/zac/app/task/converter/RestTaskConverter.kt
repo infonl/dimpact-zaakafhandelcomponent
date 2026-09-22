@@ -12,7 +12,8 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
-import net.atos.zac.flowable.util.TaskUtil
+import nl.info.zac.flowable.util.isCmmnTask
+import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.util.time.convertToZonedDateTime
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
@@ -45,7 +46,7 @@ class RestTaskConverter @Inject constructor(
         val restTask = RestTask(
             id = taskInfo.id,
             naam = taskInfo.name,
-            status = TaskUtil.getTaakStatus(taskInfo),
+            status = taskInfo.taakStatus(),
             zaakUuid = readZaakUUID(taskInfo),
             zaakIdentificatie = readZaakIdentificatie(taskInfo),
             rechten = restTaakRechten,
@@ -92,7 +93,7 @@ class RestTaskConverter @Inject constructor(
             },
             tabellen = HashMap()
         )
-        if (TaskUtil.isCmmnTask(taskInfo)) {
+        if (taskInfo.isCmmnTask()) {
             convertFormulierDefinitieEnReferentieTabellen(
                 restTask,
                 readZaaktypeUUID(taskInfo),
