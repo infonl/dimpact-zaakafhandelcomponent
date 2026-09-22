@@ -538,7 +538,7 @@ jobs:
   build-docker-image-and-run-itests:
     needs: [itest-shard]
     if: ${{ !cancelled() && needs.itest-shard.result != 'skipped' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
       - name: Download integration test results of all shards
