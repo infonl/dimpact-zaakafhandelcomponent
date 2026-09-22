@@ -142,7 +142,7 @@ Notes:
   Taak, Document, Werklijst, Notitie, Overige or BRP policies, so this role grants no rights there. Within
   *Zaak rechten* it grants no `heropenen`, `bekijkenZaakdata` or `zetten_brondatum` rights either - those
   remain recordmanager/beheerder-only. Where it is granted, the right is unconditional: unlike every other
-  role, it ignores the zaak's open/closed state, the zaaktype restriction, and zaakspecifiek geautorisatie.
+  role, it ignores the zaak's open/closed state, the zaaktype restriction, and zaakspecifieke autorisatie.
   This role is not assigned to employees; it is hardcoded to the internal productaanvraag system user (see
   the roles table above), so that ZAC can process a zaak created from a productaanvraag regardless of its
   zaaktype or current status.
