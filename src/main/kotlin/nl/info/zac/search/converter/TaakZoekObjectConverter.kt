@@ -11,7 +11,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
-import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
+import nl.info.zac.flowable.util.taakStatus
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -90,7 +90,7 @@ class TaakZoekObjectConverter @Inject constructor(
             toekenningsdatum = taskInfo.claimTime
             fataledatum = taskInfo.dueDate
             toelichting = taskInfo.description
-            setStatus(getTaakStatus(taskInfo))
+            setStatus(taskInfo.taakStatus())
             zaaktypeIdentificatie = zaaktype.identificatie
             zaaktypeOmschrijving = zaaktype.omschrijving
             zaaktypeUuid = zaaktype.url.extractUuid().toString()

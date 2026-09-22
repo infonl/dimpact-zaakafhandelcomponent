@@ -32,7 +32,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.task.TaakVariabelenService.isZaakHervatten
 import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
-import net.atos.zac.flowable.util.TaskUtil
+import nl.info.zac.flowable.util.isOpen
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.util.time.convertToDate
@@ -140,7 +140,7 @@ class TaskRestService @Inject constructor(
             assertPolicy(policyService.readTaakRechten(task).lezen)
             deleteSignaleringen(task)
             val restTask = restTaskConverter.convert(task)
-            if (TaskUtil.isOpen(task)) {
+            if (task.isOpen()) {
                 restTask.formioFormulier?.let {
                     restTask.formioFormulier = bpmnTaskFormRuntimeService.renderFormioFormulier(restTask)
                     addZaakdata(restTask)
@@ -154,7 +154,7 @@ class TaskRestService @Inject constructor(
     @Path("taakdata")
     fun updateTaskData(restTask: RestTask): RestTask {
         flowableTaskService.readOpenTask(restTask.id).let {
-            assertPolicy(TaskUtil.isOpen(it) && policyService.readTaakRechten(it).wijzigen)
+            assertPolicy(it.isOpen() && policyService.readTaakRechten(it).wijzigen)
             taakVariabelenService.setTaskData(it, restTask.taakdata)
             taakVariabelenService.setTaskinformation(it, restTask.taakinformatie)
             val updatedTask = updateDescriptionAndDueDate(restTask)
@@ -217,7 +217,7 @@ class TaskRestService @Inject constructor(
     @Path("toekennen")
     fun assignTask(restTaskAssignData: RestTaskAssignData) {
         val task = flowableTaskService.readOpenTask(restTaskAssignData.taakId)
-        assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).toekennen)
+        assertPolicy(task.isOpen() && policyService.readTaakRechten(task).toekennen)
         taskService.assignOrReleaseTask(
             restTaskAssignData,
             task,
@@ -234,7 +234,7 @@ class TaskRestService @Inject constructor(
     @Path("complete")
     fun completeTask(restTask: RestTask): RestTask {
         val openTask = flowableTaskService.readOpenTask(restTask.id)
-        assertPolicy(TaskUtil.isOpen(openTask) && policyService.readTaakRechten(openTask).wijzigen)
+        assertPolicy(openTask.isOpen() && policyService.readTaakRechten(openTask).wijzigen)
 
         val loggedInUserId = loggedInUserInstance.get().id
         // Assigning bumps the task revision, so continue with the task as returned by the assignment.
@@ -322,7 +322,7 @@ class TaskRestService @Inject constructor(
 
     private fun assignLoggedInUserToTask(restTaskAssignData: RestTaskAssignData): Task {
         val task = flowableTaskService.readOpenTask(restTaskAssignData.taakId)
-        assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).toekennen)
+        assertPolicy(task.isOpen() && policyService.readTaakRechten(task).toekennen)
         taskService.assignTaskToUser(
             taskId = task.id,
             assignee = loggedInUserInstance.get().id,

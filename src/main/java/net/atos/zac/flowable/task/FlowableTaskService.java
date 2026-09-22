@@ -6,8 +6,8 @@
 package net.atos.zac.flowable.task;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
-import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
 import static net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY;
+import static nl.info.zac.flowable.util.TaskUtilKt.isCmmnTask;
 
 import java.util.ArrayList;
 import java.util.Calendar;
