@@ -15,6 +15,11 @@
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
+@if (isArchief()) {
+  <p class="archief-toelichting">
+    {{ "msg.zaakdata.archief.toelichting" | translate }}
+  </p>
+}
 <mat-divider></mat-divider>
 
 <form [formGroup]="form" class="mt-2">

@@ -976,6 +976,7 @@
   "msg.zaak.relaties": "Van {{aantal}} zaken",
   "msg.zaak.toegekend": "De zaak is toegekend aan {{behandelaar}}",
   "msg.zaak.vrijgegeven": "De zaak is vrijgegeven",
+  "msg.zaakdata.archief.toelichting": "Deze zaakdata is gearchiveerd en kan afwijken van de actuele zaakgegevens, bijvoorbeeld het communicatiekanaal.",
   "msg.zaak.verlengen": "Geef aan wat de duur van de verlenging is.",
   "msg.zaakafhandelparameters.opgeslagen": "De zaakafhandelparameters zijn opgeslagen",
   "msg.zaakafhandelparameters.productaanvraagtype": "Dit veld moet uniek zijn over alle zaaktypes",
