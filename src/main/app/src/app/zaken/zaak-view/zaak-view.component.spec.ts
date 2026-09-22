@@ -394,6 +394,59 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("isArchief", () => {
+    const cmmnZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
+      ...zaak.zaaktype,
+      zaakafhandelparameters: fromPartial<
+        GeneratedType<"RestZaaktypeConfiguration">
+      >({
+        caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
+          key: "fakeCaseDefinitionKey",
+        }),
+      }),
+    });
+
+    const cases: [string, Partial<GeneratedType<"RestZaak">>, boolean][] = [
+      [
+        "marks a BPMN zaak with a live process as not archief",
+        { zaaktype: zaak.zaaktype, isProcesGestuurd: true },
+        false,
+      ],
+      [
+        "marks a BPMN zaak without a live process as archief",
+        { zaaktype: zaak.zaaktype, isProcesGestuurd: false },
+        true,
+      ],
+      [
+        "marks an open CMMN zaak that was never reopened as not archief",
+        { zaaktype: cmmnZaaktype, isOpen: true, isHeropend: false },
+        false,
+      ],
+      [
+        "marks a closed CMMN zaak as archief",
+        { zaaktype: cmmnZaaktype, isOpen: false },
+        true,
+      ],
+      [
+        "marks a reopened CMMN zaak as archief",
+        { zaaktype: cmmnZaaktype, isOpen: true, isHeropend: true },
+        true,
+      ],
+    ];
+
+    it.each(cases)("%s", (_description, zaakFields, expectedIsArchief) => {
+      mockActivatedRoute.data.next({
+        zaak: fromPartial<GeneratedType<"RestZaak">>({
+          ...zaak,
+          ...zaakFields,
+        }),
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["isArchief"]()).toBe(expectedIsArchief);
+    });
+  });
+
   describe("side effects on zaak changes", () => {
     const opschortbareZaak = {
       ...zaak,

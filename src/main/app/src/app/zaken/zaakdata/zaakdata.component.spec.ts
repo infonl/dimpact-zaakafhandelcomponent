@@ -25,6 +25,7 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { within } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -108,6 +109,26 @@ describe(ZaakdataComponent.name, () => {
     expect(await (await toolbar.host()).text()).toContain(
       "actie.zaakdata.archief",
     );
+  });
+
+  it("shows the archief toelichting when the zaakdata is archived", () => {
+    setup(makeZaak(), makeSideNav(), true);
+
+    expect(
+      within(fixture.nativeElement as HTMLElement).getByText(
+        "msg.zaakdata.archief.toelichting",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("does not show the archief toelichting when the zaakdata is not archived", () => {
+    setup();
+
+    expect(
+      within(fixture.nativeElement as HTMLElement).queryByText(
+        "msg.zaakdata.archief.toelichting",
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it("calls sideNav close when close button is clicked", async () => {

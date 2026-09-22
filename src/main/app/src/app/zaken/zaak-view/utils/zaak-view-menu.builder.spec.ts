@@ -204,26 +204,57 @@ describe(buildZaakMenu.name, () => {
     it("labels the zaakdata button as archief when the zaakdata is archived", () => {
       const rechten = { bekijkenZaakdata: true };
       const zaak = createZaak({ zaakdata: { fakeKey: "fakeValue" } }, rechten);
+      const hasBrpSearchRight = false;
+      const isArchief = true;
+      const isNotArchief = false;
 
       expect(
         titles(
-          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, true),
+          buildZaakMenu(
+            zaak,
+            noPlanItems,
+            handlers,
+            dialogs,
+            hasBrpSearchRight,
+            isArchief,
+          ),
         ),
       ).toContain("actie.zaakdata.archief");
       expect(
         titles(
-          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, true),
+          buildZaakMenu(
+            zaak,
+            noPlanItems,
+            handlers,
+            dialogs,
+            hasBrpSearchRight,
+            isArchief,
+          ),
         ),
       ).not.toContain("actie.zaakdata.bekijken");
 
       expect(
         titles(
-          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, false),
+          buildZaakMenu(
+            zaak,
+            noPlanItems,
+            handlers,
+            dialogs,
+            hasBrpSearchRight,
+            isNotArchief,
+          ),
         ),
       ).toContain("actie.zaakdata.bekijken");
       expect(
         titles(
-          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, false),
+          buildZaakMenu(
+            zaak,
+            noPlanItems,
+            handlers,
+            dialogs,
+            hasBrpSearchRight,
+            isNotArchief,
+          ),
         ),
       ).not.toContain("actie.zaakdata.archief");
     });
