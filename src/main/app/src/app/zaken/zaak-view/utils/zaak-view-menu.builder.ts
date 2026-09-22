@@ -67,10 +67,11 @@ export function buildZaakMenu(
   handlers: ZaakMenuHandlers,
   dialogs: ZaakMenuDialogs,
   hasBrpSearchRight: boolean,
+  isArchief = false,
 ): MenuItem[] {
   const menu: MenuItem[] = [
     new HeaderMenuItem("zaak"),
-    ...zaakMenuItems(zaak, handlers),
+    ...zaakMenuItems(zaak, handlers, isArchief),
   ];
 
   if (!planItems) return menu;
@@ -120,7 +121,11 @@ export function buildZaakMenu(
   return menu;
 }
 
-function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
+function zaakMenuItems(
+  zaak: Zaak,
+  handlers: ZaakMenuHandlers,
+  isArchief: boolean,
+) {
   const menu: MenuItem[] = [];
   const open = () => handlers.openSideAction();
 
@@ -169,7 +174,11 @@ function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
 
   if (hasZaakData(zaak) && zaak.rechten.bekijkenZaakdata) {
     menu.push(
-      new ButtonMenuItem("actie.zaakdata.bekijken", open, "folder_copy"),
+      new ButtonMenuItem(
+        isArchief ? "actie.zaakdata.archief" : "actie.zaakdata.bekijken",
+        open,
+        "folder_copy",
+      ),
     );
   }
 

@@ -181,6 +181,7 @@ export class ZaakViewComponent
       this.menuHandlers,
       this.dialogs,
       this.hasBrpSearchRight(),
+      this.isArchief(),
     );
   });
 
