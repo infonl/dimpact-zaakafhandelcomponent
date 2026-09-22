@@ -164,3 +164,5 @@ data class DocumentZoekObject(
         }
     }
 }
+
+fun DocumentZoekObject.isZaakOpen() = !isZaakAfgehandeld

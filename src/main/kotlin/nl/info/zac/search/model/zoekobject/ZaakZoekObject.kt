@@ -147,14 +147,14 @@ data class ZaakZoekObject(
     var zaakGeautoriseerdeMedewerkers: List<String>? = null
 ) : ZoekObject {
     companion object {
-        const val AFGEHANDELD_FIELD: String = "zaak_afgehandeld"
-        const val BEHANDELAAR_ID_FIELD: String = "zaak_behandelaarGebruikersnaam"
-        const val EINDSTATUS_FIELD: String = "zaak_statusEindstatus"
-        const val OMSCHRIJVING_FIELD: String = "zaak_omschrijving"
-        const val TOELICHTING_FIELD: String = "zaak_toelichting"
-        const val ZAAK_BETROKKENE_PREFIX: String = "zaak_betrokkene_"
-        const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "zaak_zaakspecifiekGeautoriseerd"
-        const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD: String = "zaak_zaakGeautoriseerdeMedewerkers"
+        const val AFGEHANDELD_FIELD = "zaak_afgehandeld"
+        const val BEHANDELAAR_ID_FIELD = "zaak_behandelaarGebruikersnaam"
+        const val EINDSTATUS_FIELD = "zaak_statusEindstatus"
+        const val OMSCHRIJVING_FIELD = "zaak_omschrijving"
+        const val TOELICHTING_FIELD = "zaak_toelichting"
+        const val ZAAK_BETROKKENE_PREFIX = "zaak_betrokkene_"
+        const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD = "zaak_zaakspecifiekGeautoriseerd"
+        const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD = "zaak_zaakGeautoriseerdeMedewerkers"
     }
 
     override fun getObjectId() = id
@@ -206,3 +206,5 @@ data class ZaakZoekObject(
         }
     }
 }
+
+fun ZaakZoekObject.isOpen() = !isAfgehandeld
