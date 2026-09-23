@@ -9,13 +9,13 @@ required follow-up changes to bring logging in line with GDPR/AVG requirements �
 
 ZAC's logging draws a hard line between server errors and client errors. Server errors (5xx) are always
 logged at `SEVERE`, with enough context (typically the zaak UUID/identificatie, not personal data) to
-troubleshoot without needing to reproduce the failure. Client errors (4xx) are, with few exceptions, logged
-at `FINE` — effectively suppressed in production, since these represent expected/handled conditions (bad
-input, conflicts, forbidden access) rather than defects. The broader intent is that logs should be a signal 
+troubleshoot without needing to reproduce the failure. Client errors (4xx) are either not logged at all, or logged
+at log level `FINE` — i.e. not logged at all in production by design, since these represent expected/handled conditions
+(bad input, conflicts, forbidden access) rather than defects. The broader intent is that logs should be a signal 
 of things the operator needs to act on, not a record of every client mistake.
 
 Beyond errors, ZAC also logs some normal, non-error events purely for troubleshooting purposes — e.g.
-`UserPrincipalFilter` logging `User logged in: ...` at `INFO` on every new session, so a support engineer
+`UserPrincipalFilter` logging `User logged in: ...` at log level `INFO` on every new session, so a support engineer
 can trace what a user's session looked like without an error having occurred.
 
 Separately, ZAC performs a form of audit logging specific to BRP requests, distinct from its regular
