@@ -60,7 +60,11 @@ import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.model.canBeHoofdzaakFor
 import nl.info.zac.zaak.model.canBeRelatedTo
 import nl.info.zac.zaak.model.canBeUnlinkedFromDeelzaak
+import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import nl.info.zac.zaak.model.canBeUnlinkedFromRelatedZaak
+import nl.info.zac.zaak.model.gerelateerdNotLinkableReason
+import nl.info.zac.zaak.model.hoofdzaakDeelzaakNotLinkableReason
+import nl.info.zac.zaak.model.statusNotLinkableReason
 import nl.info.zac.zaak.model.toZaakLinkData
 import java.net.URI
 import java.util.UUID
@@ -268,40 +272,42 @@ class ZaakKoppelenRestService @Inject constructor(
             searchResults.items.map {
                 val zaakZoekObject = it as ZaakZoekObject
                 zaakZoekObject.toRestZaakKoppelenZoekObject(
-                    isLinkableTo(koppelData, zaaktype, zaakZoekObject, relationType),
+                    notLinkableReason(koppelData, zaaktype, zaakZoekObject, relationType),
                 )
             },
             searchResults.count
         )
     }
 
-
-
-
-    private fun isLinkableTo(
+    private fun notLinkableReason(
         sourceZaak: ZaakLinkData,
         sourceZaaktype: ZaakType,
         targetZaak: ZaakZoekObject,
-        relationType: RelatieType): Boolean =
-        when (relationType) {
+        relationType: RelatieType
+    ): ZaakNotLinkableReason? {
+        val targetZaakLinkData = targetZaak.toZaakLinkData()
+        return when (relationType) {
             // "The case you are searching for here will become the main case"
-            RelatieType.HOOFDZAAK -> targetZaak.toZaakLinkData().canBeHoofdzaakFor(
-                deelzaak = sourceZaak,
-                allowedDeelzaaktypes = ztcClientService
-                    .readZaaktype(UUID.fromString(targetZaak.zaaktypeUuid))
-                    .getDeelzaaktypenSet()
-            )
-            RelatieType.DEELZAAK -> sourceZaak.canBeHoofdzaakFor(
-                deelzaak = targetZaak.toZaakLinkData(),
-                allowedDeelzaaktypes = sourceZaaktype.getDeelzaaktypenSet()
-            )
-            RelatieType.GERELATEERD -> sourceZaak.canBeRelatedTo(targetZaak.toZaakLinkData())
+            RelatieType.HOOFDZAAK -> sourceZaak.statusNotLinkableReason(targetZaakLinkData)
+                ?: targetZaakLinkData.hoofdzaakDeelzaakNotLinkableReason(
+                    deelzaak = sourceZaak,
+                    allowedDeelzaaktypes = ztcClientService
+                        .readZaaktype(UUID.fromString(targetZaak.zaaktypeUuid))
+                        .getDeelzaaktypenSet()
+                )
+            RelatieType.DEELZAAK -> sourceZaak.statusNotLinkableReason(targetZaakLinkData)
+                ?: sourceZaak.hoofdzaakDeelzaakNotLinkableReason(
+                    deelzaak = targetZaakLinkData,
+                    allowedDeelzaaktypes = sourceZaaktype.getDeelzaaktypenSet()
+                )
+            RelatieType.GERELATEERD -> sourceZaak.gerelateerdNotLinkableReason(targetZaakLinkData)
             else -> throw IllegalArgumentException(
                 "RelatieType $relationType cannot be used for linking zaken"
             )
         }
+    }
 
-    private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(linkable: Boolean) =
+    private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(notLinkableReason: ZaakNotLinkableReason?) =
         RestZaakKoppelenZoekObject(
             id = getObjectId(),
             type = ZoekObjectType.ZAAK,
@@ -309,7 +315,8 @@ class ZaakKoppelenRestService @Inject constructor(
             omschrijving = omschrijving,
             zaaktypeOmschrijving = zaaktypeOmschrijving,
             statustypeOmschrijving = statustypeOmschrijving,
-            isKoppelbaar = linkable,
+            isKoppelbaar = notLinkableReason == null,
+            notLinkableReason = notLinkableReason,
         )
 
     private fun addGerelateerdeZaak(

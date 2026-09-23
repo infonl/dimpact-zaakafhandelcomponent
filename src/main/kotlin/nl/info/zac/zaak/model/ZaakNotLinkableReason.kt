@@ -1,0 +1,17 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package nl.info.zac.zaak.model
+
+enum class ZaakNotLinkableReason {
+    FOUND_ZAAK_AFGEHANDELD,
+    FOUND_ZAAK_OPEN,
+    FOUND_ZAAK_IS_DEELZAAK_SO_NO_HOOFDZAAK,
+    FOUND_ZAAK_ALREADY_DEELZAAK,
+    FOUND_ZAAK_HAS_DEELZAKEN,
+    ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK,
+    NO_KOPPELEN_RIGHT,
+    NO_LEZEN_RIGHT
+}

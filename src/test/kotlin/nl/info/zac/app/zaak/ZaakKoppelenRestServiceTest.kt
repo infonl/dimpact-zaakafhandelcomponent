@@ -51,6 +51,7 @@ import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -129,6 +130,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
                     statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
+                    notLinkableReason shouldBe null
                 }
             }
 
@@ -170,6 +172,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
                     statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
+                    notLinkableReason shouldBe null
                 }
             }
 
@@ -211,6 +214,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
                     statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
+                    notLinkableReason shouldBe null
                 }
             }
 
@@ -221,6 +225,60 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaakService.readZaakTypeByZaak(sourceZaak)
                     policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
+                }
+            }
+        }
+    }
+
+    given("A source zaak which is still open and a target zaak which is already closed") {
+        val sourceZaak = createZaak(archiefnominatie = null)
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+        )
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+        val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply {
+            deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+        }
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.search(any()) } returns zoekResultaat
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        `when`("findLinkableZaken with DEELZAAK is called") {
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                sourceZaak.uuid,
+                createRestFindLinkableZakenRequest(
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.DEELZAAK
+                )
+            )
+
+            then("the zaak is returned but cannot be linked because it is closed") {
+                with(result.results.first()) {
+                    isKoppelbaar shouldBe false
+                    notLinkableReason shouldBe ZaakNotLinkableReason.FOUND_ZAAK_AFGEHANDELD
+                }
+            }
+        }
+
+        `when`("findLinkableZaken with GERELATEERD is called") {
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                sourceZaak.uuid,
+                createRestFindLinkableZakenRequest(
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.GERELATEERD
+                )
+            )
+
+            then("the zaak can still be related because the status does not block relating") {
+                with(result.results.first()) {
+                    isKoppelbaar shouldBe true
+                    notLinkableReason shouldBe null
                 }
             }
         }

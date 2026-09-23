@@ -32,16 +32,14 @@ fun Zaak.toZaakLinkData(rechten: ZaakRechten) = ZaakLinkData(
 )
 
 fun ZaakLinkData.canBeRelatedTo(to: ZaakLinkData): Boolean =
-    allowGerelateerd(this, to)
+    gerelateerdNotLinkableReason(to) == null
 
 fun ZaakLinkData.canBeHoofdzaakFor(
     deelzaak: ZaakLinkData,
     allowedDeelzaaktypes: Set<UUID>
 ): Boolean =
-    allowHoofdAndDeelzaak(this, deelzaak) &&
-        canBeHoofdzaak(this) &&
-        canBeNewDeelzaak(deelzaak) &&
-        allowedDeelzaaktypes.contains(deelzaak.zaaktypeUUID)
+    statusNotLinkableReason(deelzaak) == null &&
+        hoofdzaakDeelzaakNotLinkableReason(deelzaak, allowedDeelzaaktypes) == null
 
 fun ZaakLinkData.canBeUnlinkedFromDeelzaak(deelzaak: ZaakLinkData) =
     allowHoofdAndDeelzaak(this, deelzaak)
@@ -49,14 +47,35 @@ fun ZaakLinkData.canBeUnlinkedFromDeelzaak(deelzaak: ZaakLinkData) =
 fun ZaakLinkData.canBeUnlinkedFromRelatedZaak(to: ZaakLinkData) =
     allowGerelateerd(this, to)
 
+/**
+ * The reason is worded from the perspective of the zaak the user is currently looking at (the receiver)
+ * and the zaak they found (the parameter), so it cannot be expressed in terms of hoofdzaak and deelzaak.
+ */
+fun ZaakLinkData.statusNotLinkableReason(foundZaak: ZaakLinkData): ZaakNotLinkableReason? = when {
+    isOpen && !foundZaak.isOpen -> ZaakNotLinkableReason.FOUND_ZAAK_AFGEHANDELD
+    !isOpen && foundZaak.isOpen -> ZaakNotLinkableReason.FOUND_ZAAK_OPEN
+    else -> null
+}
+
+fun ZaakLinkData.hoofdzaakDeelzaakNotLinkableReason(
+    deelzaak: ZaakLinkData,
+    allowedDeelzaaktypes: Set<UUID>
+): ZaakNotLinkableReason? = when {
+    isDeelzaak -> ZaakNotLinkableReason.FOUND_ZAAK_IS_DEELZAAK_SO_NO_HOOFDZAAK
+    deelzaak.isDeelzaak -> ZaakNotLinkableReason.FOUND_ZAAK_ALREADY_DEELZAAK
+    deelzaak.isHoofdzaak -> ZaakNotLinkableReason.FOUND_ZAAK_HAS_DEELZAKEN
+    !allowedDeelzaaktypes.contains(deelzaak.zaaktypeUUID) -> ZaakNotLinkableReason.ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK
+    !koppelen || !deelzaak.koppelen -> ZaakNotLinkableReason.NO_KOPPELEN_RIGHT
+    else -> null
+}
+
+fun ZaakLinkData.gerelateerdNotLinkableReason(to: ZaakLinkData): ZaakNotLinkableReason? = when {
+    !koppelen || !to.lezen -> ZaakNotLinkableReason.NO_LEZEN_RIGHT
+    else -> null
+}
+
 private fun allowGerelateerd(from: ZaakLinkData, to: ZaakLinkData) =
     from.koppelen && to.lezen
 
 private fun allowHoofdAndDeelzaak(hoofdzaak: ZaakLinkData, deelzaak: ZaakLinkData) =
     hoofdzaak.koppelen && deelzaak.koppelen && hoofdzaak.isOpen == deelzaak.isOpen
-
-// a hoofdzaak CANNOT be a deelzaak, no tree-like hierarchy is allowed
-private fun canBeHoofdzaak(zaak: ZaakLinkData): Boolean = !zaak.isDeelzaak
-
-// a deelzaak CANNOT be a deelzaak to multiple hoofdzaken, and CANNOT be a hoofdzaak itself
-private fun canBeNewDeelzaak(zaak: ZaakLinkData): Boolean = !zaak.isDeelzaak && !zaak.isHoofdzaak

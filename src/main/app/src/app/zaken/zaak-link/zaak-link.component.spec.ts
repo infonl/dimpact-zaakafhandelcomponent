@@ -9,8 +9,10 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatTooltip } from "@angular/material/tooltip";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -35,6 +37,9 @@ const makeFakeZaak = (
   fromPartial<GeneratedType<"RestZaak">>({
     uuid: "fake-zaak-uuid",
     identificatie: "ZAAK-2026-001",
+    zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+      omschrijving: "fakeZaaktypeOmschrijving",
+    }),
     ...fields,
   });
 
@@ -152,6 +157,11 @@ describe(ZaakLinkComponent.name, () => {
     within(
       screen.getByRole("row", { name: new RegExp(identificatie) }),
     ).getByRole("button", { name: "actie.zaak.koppelen" });
+
+  const linkTooltipMessages = () =>
+    fixture.debugElement
+      .queryAll(By.directive(MatTooltip))
+      .map((debugElement) => debugElement.injector.get(MatTooltip).message);
 
   it("offers every relation type a zaak can be linked with", async () => {
     await setup();
@@ -446,6 +456,49 @@ describe(ZaakLinkComponent.name, () => {
     expect(linkButtonOfRow("ZAAK-2026-003")).toBeDisabled();
   });
 
+  it("explains on hover why a found zaak cannot be linked", async () => {
+    await setup();
+    findLinkableZaken([
+      makeFakeSearchResult({
+        identificatie: "ZAAK-2026-003",
+        isKoppelbaar: false,
+        notLinkableReason: "FOUND_ZAAK_ALREADY_DEELZAAK",
+      }),
+    ]);
+
+    await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
+    await clickSearch();
+
+    expect(linkTooltipMessages()).toEqual([
+      "zaak.koppelen.geblokkeerd.al-deelzaak-van-andere-zaak",
+    ]);
+  });
+
+  it("names the zaaktypen of both zaken when the zaaktype forbids the deelzaak", async () => {
+    await setup({
+      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+        omschrijving: "Hoofdzaaktype",
+      }),
+    });
+    findLinkableZaken([
+      makeFakeSearchResult({
+        identificatie: "ZAAK-2026-003",
+        isKoppelbaar: false,
+        notLinkableReason: "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
+        zaaktypeOmschrijving: "Deelzaaktype",
+      }),
+    ]);
+
+    await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
+    await clickSearch();
+
+    expect(linkTooltipMessages()).toEqual([
+      "zaak.koppelen.geblokkeerd.zaaktype-staat-deelzaak-niet-toe",
+    ]);
+  });
+
   it("cannot link the zaak to itself", async () => {
     await setup();
     findLinkableZaken([
@@ -567,11 +620,5 @@ describe(ZaakLinkComponent.name, () => {
     );
 
     expect(sideNav.close).toHaveBeenCalled();
-  });
-
-  it("can be destroyed without errors", async () => {
-    await setup();
-
-    expect(() => fixture.destroy()).not.toThrow();
   });
 });

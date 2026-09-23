@@ -6,6 +6,7 @@ package nl.info.zac.app.search.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.zaak.model.ZaakNotLinkableReason
 
 data class RestZaakKoppelenZoekObject(
     override val id: String? = null,
@@ -16,7 +17,8 @@ data class RestZaakKoppelenZoekObject(
     val zaaktypeOmschrijving: String? = null,
     val statustypeOmschrijving: String? = null,
     @get:JsonbProperty("isKoppelbaar")
-    val isKoppelbaar: Boolean = false
+    val isKoppelbaar: Boolean = false,
+    val notLinkableReason: ZaakNotLinkableReason? = null
 ) : AbstractRestZoekObject(id, type, identificatie)
 
 fun RestZaakZoekObject.toRestZaakKoppelenZoekObject(documentLinkable: Boolean) =

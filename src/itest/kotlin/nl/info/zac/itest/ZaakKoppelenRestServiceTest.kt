@@ -96,6 +96,54 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
+        `when`(
+            """
+            searching for a HOOFDZAAK linkable zaken on the first created zaak for the
+            'to be linked' zaak identifier
+            """.trimIndent()
+        ) {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken",
+                requestBodyAsString = """
+                    {
+                      "zoekZaakIdentifier": "$teKoppelenZaakIdentification",
+                      "relationType": "HOOFDZAAK",
+                      "rows": $ROWS_DEFAULT,
+                      "page": $PAGE_DEFAULT
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then(
+                """
+                it returns the 'to be linked' zaak as not linkable because its zaaktype does not allow
+                deelzaken of the zaaktype of the first created zaak
+                """.trimIndent()
+            ) {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringOrder """
+                    {
+                      "foutmelding" : "",
+                      "resultaten" : [ {
+                        "id" : "$teKoppelenZaakUuid",
+                        "identificatie" : "$teKoppelenZaakIdentification",
+                        "isKoppelbaar" : false,
+                        "notLinkableReason" : "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
+                        "omschrijving" : "$toBeLinkedZaakDescription",
+                        "statustypeOmschrijving" : "Intake",
+                        "type" : "ZAAK",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
+                      } ],
+                      "totaal" : 1,
+                      "filters" : { }
+                    }
+                """.trimIndent()
+            }
+        }
+
         `when`("link the first created zaak as hoofdzaak to the 'to be linked' created zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",

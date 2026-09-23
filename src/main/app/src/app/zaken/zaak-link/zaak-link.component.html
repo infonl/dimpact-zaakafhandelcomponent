@@ -152,17 +152,21 @@
       <ng-container matColumnDef="acties" stickyEnd>
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row" class="text-right">
-          <button
-            mat-icon-button
-            color="primary"
-            title="{{ 'actie.zaak.koppelen' | translate }}"
-            [disabled]="rowDisabled(row) || isLinking(row)"
-            (click)="selectCase(row)"
+          <div
+            [matTooltip]="rowTooltipKey(row) | translate: rowTooltipParams(row)"
           >
-            <mat-icon [class.disabled]="rowDisabled(row) || isLinking(row)"
-              >account_tree</mat-icon
+            <button
+              mat-icon-button
+              color="primary"
+              [attr.aria-label]="'actie.zaak.koppelen' | translate"
+              [disabled]="rowDisabled(row) || isLinking(row)"
+              (click)="selectCase(row)"
             >
-          </button>
+              <mat-icon [class.disabled]="rowDisabled(row) || isLinking(row)"
+                >account_tree</mat-icon
+              >
+            </button>
+          </div>
         </td>
       </ng-container>
 

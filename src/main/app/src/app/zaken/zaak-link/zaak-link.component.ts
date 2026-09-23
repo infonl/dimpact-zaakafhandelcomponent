@@ -28,6 +28,7 @@ import { MatIcon } from "@angular/material/icon";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableModule } from "@angular/material/table";
+import { MatTooltip } from "@angular/material/tooltip";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
@@ -41,6 +42,25 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZakenService } from "../zaken.service";
+
+const NOT_LINKABLE_REASON_KEYS: Record<
+  GeneratedType<"ZaakNotLinkableReason">,
+  string
+> = {
+  FOUND_ZAAK_AFGEHANDELD:
+    "zaak.koppelen.geblokkeerd.afgehandelde-zaak-niet-aan-lopende-zaak",
+  FOUND_ZAAK_OPEN:
+    "zaak.koppelen.geblokkeerd.lopende-zaak-niet-aan-afgehandelde-zaak",
+  FOUND_ZAAK_IS_DEELZAAK_SO_NO_HOOFDZAAK:
+    "zaak.koppelen.geblokkeerd.is-zelf-deelzaak",
+  FOUND_ZAAK_ALREADY_DEELZAAK:
+    "zaak.koppelen.geblokkeerd.al-deelzaak-van-andere-zaak",
+  FOUND_ZAAK_HAS_DEELZAKEN: "zaak.koppelen.geblokkeerd.heeft-al-deelzaken",
+  ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK:
+    "zaak.koppelen.geblokkeerd.zaaktype-staat-deelzaak-niet-toe",
+  NO_KOPPELEN_RIGHT: "zaak.koppelen.geblokkeerd.geen-koppelrecht",
+  NO_LEZEN_RIGHT: "zaak.koppelen.geblokkeerd.geen-leesrecht",
+};
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ({
@@ -69,6 +89,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
     ZacAutoComplete,
     DateRangeFilterComponent,
     EmptyPipe,
+    MatTooltip,
   ],
 })
 export class ZaakLinkComponent {
@@ -184,6 +205,7 @@ export class ZaakLinkComponent {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    if (this.rowDisabled(row)) return;
     if (this.koppelZaakMutation.isPending()) return;
     if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
@@ -222,12 +244,12 @@ export class ZaakLinkComponent {
     } = this.formValue();
     return Boolean(
       caseNumberToSearchFor ||
-        caseDescriptionToSearchFor ||
-        caseTypeToSearchFor ||
-        this.startdatum().van ||
-        this.startdatum().tot ||
-        this.einddatum().van ||
-        this.einddatum().tot,
+      caseDescriptionToSearchFor ||
+      caseTypeToSearchFor ||
+      this.startdatum().van ||
+      this.startdatum().tot ||
+      this.einddatum().van ||
+      this.einddatum().tot,
     );
   });
 
@@ -261,6 +283,26 @@ export class ZaakLinkComponent {
     row: GeneratedType<"RestZaakKoppelenZoekObject">,
   ): boolean {
     return !row.isKoppelbaar || row.identificatie === this.zaak().identificatie;
+  }
+
+  protected rowTooltipKey(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    const reason = row.notLinkableReason;
+    return reason ? NOT_LINKABLE_REASON_KEYS[reason] : "actie.zaak.koppelen";
+  }
+
+  protected rowTooltipParams(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    const isCurrentZaakHoofdzaak =
+      this.form.controls.caseRelationType.value?.value === "DEELZAAK";
+    const currentZaaktype = this.zaak().zaaktype.omschrijving;
+    return {
+      zaaktype: row.zaaktypeOmschrijving,
+      hoofdzaakZaaktype: isCurrentZaakHoofdzaak
+        ? currentZaaktype
+        : row.zaaktypeOmschrijving,
+      deelzaakZaaktype: isCurrentZaakHoofdzaak
+        ? row.zaaktypeOmschrijving
+        : currentZaaktype,
+    };
   }
 
   protected isLinking(
