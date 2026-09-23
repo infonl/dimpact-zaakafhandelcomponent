@@ -9,6 +9,14 @@ You can run them separately using the following command:
 ./gradlew test --info
 ```
 
+In CI the backend and the frontend unit tests run as two jobs at the same time, and the frontend suite is
+split over two Jest shards. A small `run-unit-tests` job combines their results into the single
+`unit-test-results` check. Run one frontend shard locally with:
+
+```shell
+cd src/main/app && npm run test:report -- --shard=1/2
+```
+
 ## Integration tests
 
 Our integration are written as [Kotest](https://kotest.io/) tests, and use the [TestContainers framework](https://testcontainers.com/) together
@@ -226,11 +234,12 @@ This contains the details on how to run ACT tests.
 
 ## Open Policy Agent (OPA) Rego Tests
 
-The tests are part of the integration tests profile and run automatically via Docker Compose. 
+The policies are unit tested with OPA's own test runner. The tests run in the backend unit test job of the
+CI pipeline, not in the integration test stack, so the integration test shards no longer wait for them.
 
-To have a single run of the OPA Tests you can use the following command:
+To run them yourself, use the Docker Compose service that the pipeline uses:
 ```shell
-docker run -it -v ./src/test/resources/policies:/home/tests -v ./src/main/resources/policies:/home/policies docker.io/openpolicyagent/opa:1.3.0 test /home/policies /home/tests
+docker compose --profile opa-tests run --rm --no-deps opa-tests
 ```
 
 There are several useful flags that can be used to develop and debug [tests with OPA](https://www.openpolicyagent.org/docs/latest/policy-testing/).
