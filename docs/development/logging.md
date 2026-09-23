@@ -7,29 +7,18 @@ required follow-up changes to bring logging in line with GDPR/AVG requirements �
 
 ## Logging philosophy
 
-ZAC's logging draws a hard line between server errors and client errors. Server errors (5xx) are always
-logged at `SEVERE`, with enough context (typically the zaak UUID/identificatie, not personal data) to
-troubleshoot without needing to reproduce the failure. Client errors (4xx) are either not logged at all, or logged
-at log level `FINE` — i.e. not logged at all in production by design, since these represent expected/handled conditions
-(bad input, conflicts, forbidden access) rather than defects. The broader intent is that logs should be a signal 
-of things the operator needs to act on, not a record of every client mistake.
+ZAC's logging draws a hard line between server errors and client errors:
 
-Beyond errors, ZAC also logs some normal, non-error events purely for troubleshooting purposes — e.g.
-`UserPrincipalFilter` logging `User logged in: ...` at log level `INFO` on every new session, so a support engineer
-can trace what a user's session looked like without an error having occurred.
+* Server errors (5xx) are always logged at `SEVERE`, with enough context (typically the zaak UUID/identificatie, not personal data) to 
+troubleshoot without needing to reproduce the failure. 
 
-Separately, ZAC has two independent, unrelated mechanisms around BRP requests:
+* Client errors (4xx) are either not logged at all, or logged at log level `FINE` — i.e. not logged at all in production by design, 
+since these represent expected/handled conditions (bad input, conflicts, forbidden access) rather than defects. 
 
-- **BRP audit headers** — the actual audit mechanism. When `BRP_PROTOCOLLERING_ENABLED` is enabled,
-  ZAC attaches HTTP headers to the outgoing BRP request itself — doelbinding (purpose of use),
-  verwerkingregister, the requesting user, origin OIN, and toepassing — so the BRP system's own audit
-  trail records who queried what data and why. This is legally required for BRP access, and is enforced
-  via request headers to the BRP API, not via ZAC's own log files.
-- **BRP payload logging** — an unrelated, ZAC-local diagnostic log of the full `PersonenQuery` request
-  and `PersonenQueryResponse` in `queryPersonen`, gated by its own `BRP_LOG_LEVEL` setting, which
-  defaults to `OFF`. This is not enabled by, and has nothing to do with,
-  BRP protocollering — it is a separate opt-in that, when turned on, logs BSNs and other BRP person data
-  to ZAC's own logs (see [Personal data in logs](#personal-data-in-logs) below).
+The broader intent is that errors in the ZAC log should be a signal of things the operator needs to act on, not a record of every client mistake.
+
+Beyond errors, ZAC also logs some normal, non-error events purely for troubleshooting purposes.
+For some of these events the log level is configurable, for others it is not.
 
 ## Backend
 
