@@ -9,7 +9,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.DockerComposeStack
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
-import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import okhttp3.Headers
@@ -21,6 +20,8 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
+
+private const val FAKE_RESOURCE_URL = "https://example.com/fakeResourceUrl"
 
 /**
  * This test tests the productaanvraag flow in ZAC which starts with a received productaanvraag notification.
@@ -66,8 +67,8 @@ class NotificationTest : BehaviorSpec({
                     mapOf(
                         "kanaal" to "zaaktypen",
                         "resource" to "zaaktype",
-                        "resourceUrl" to "https://example.com/fakeResourceUrl",
-                        "hoofdObject" to "https://example.com/fakeResourceUrl",
+                        "resourceUrl" to FAKE_RESOURCE_URL,
+                        "hoofdObject" to FAKE_RESOURCE_URL,
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
@@ -80,9 +81,7 @@ class NotificationTest : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
 
                 Wait.forLogMessage(
-                    ".* Failed to handle notification 'null ZAAKTYPE CREATE' .*" +
-                        "java.lang.RuntimeException: URI 'https://example.com/fakeResourceUrl' does not " +
-                        "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': '$OPEN_ZAAK_BASE_URI/' .*",
+                    ".*Failed to handle notification .*resourceUrl=$FAKE_RESOURCE_URL.* in handler 'zaaktype'.*",
                     1
                 ).withStartupTimeout(30.seconds.toJavaDuration())
                     .waitUntilReady(DockerComposeStack.readContainerOfService(ZAC_CONTAINER_SERVICE_NAME))

@@ -93,6 +93,7 @@ import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.containers.wait.strategy.WaitStrategy
+import org.testcontainers.utility.LogUtils
 import java.io.File
 import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -137,6 +138,18 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private val dockerComposeOverrideEnvironment = mapOf("ZAC_DOCKER_IMAGE" to zacDockerImage)
 
         /**
+         * The container logs of these services end up in the integration test log, which is what a failing
+         * run is debugged from. They are attached to the containers the tests start themselves as well as
+         * to the containers of a stack that was started for them.
+         */
+        private val composeLogConsumers = mapOf(
+            "solr" to containerLogConsumer("SOLR"),
+            "keycloak" to containerLogConsumer("KEYCLOAK"),
+            "openzaak-app.local" to containerLogConsumer("OPENZAAK"),
+            ZAC_CONTAINER_SERVICE_NAME to containerLogConsumer("ZAC")
+        )
+
+        /**
          * Waiting for these log lines is what tells the integration tests that the containers that have no
          * health check of their own are ready. They are applied to the containers the tests start themselves
          * as well as to the containers of a stack that was started for them.
@@ -151,6 +164,10 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             "greenmail" to Wait.forLogMessage(".*Starting GreenMail API server.*", 1)
                 .withStartupTimeout(2.minutes.toJavaDuration())
         )
+
+        @Suppress("UNCHECKED_CAST")
+        private fun containerLogConsumer(prefix: String) =
+            Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(prefix)
     }
 
     private var dockerComposeContainer: ComposeContainer? = null
@@ -210,6 +227,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                     "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
                 }
                 waitUntilExternallyStartedContainersAreReady()
+                followExternallyStartedContainerLogs()
             }
             ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
 
@@ -260,6 +278,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             eventually(externallyStartedContainerLookup) {
                 DockerComposeStack.readContainerOfService(serviceName)
             }.let(waitStrategy::waitUntilReady)
+        }
+
+    private fun followExternallyStartedContainerLogs() =
+        composeLogConsumers.forEach { (serviceName, logConsumer) ->
+            DockerComposeStack.findContainerOfService(serviceName)?.let {
+                LogUtils.followOutput(DockerComposeStack.dockerClient, it.containerId, logConsumer)
+            }
         }
 
     override suspend fun afterProject() {
@@ -318,31 +343,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 "--profile itest",
                 "--env-file $COMPOSE_ENV_FILE"
             )
-            .withLogConsumer(
-                "solr",
-                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "SOLR"
-                )
-            )
-            .withLogConsumer(
-                "keycloak",
-                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "KEYCLOAK"
-                )
-            )
-            .withLogConsumer(
-                "openzaak-app.local",
-                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "OPENZAAK"
-                )
-            )
-            .withLogConsumer(
-                ZAC_CONTAINER_SERVICE_NAME,
-                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "ZAC"
-                )
-            )
             .apply {
+                composeLogConsumers.forEach { (serviceName, logConsumer) -> withLogConsumer(serviceName, logConsumer) }
                 composeWaitStrategies.forEach { (serviceName, waitStrategy) -> waitingFor(serviceName, waitStrategy) }
             }
     }
