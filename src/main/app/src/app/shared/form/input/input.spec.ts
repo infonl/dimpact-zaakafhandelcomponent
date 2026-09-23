@@ -339,7 +339,7 @@ describe(ZacInput.name, () => {
       await input.setValue("Test description");
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain("16 / 100");
+      expect(screen.getByText("16 / 100")).toBeInTheDocument();
     });
 
     it("should not show character counter when maxlength is not set", async () => {
@@ -351,7 +351,7 @@ describe(ZacInput.name, () => {
       await input.setValue("Test description");
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).not.toContain("/");
+      expect(screen.queryByText(/\d+ \/ \d+/)).not.toBeInTheDocument();
     });
   });
 

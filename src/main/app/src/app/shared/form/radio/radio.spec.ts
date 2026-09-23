@@ -120,7 +120,7 @@ describe(ZacRadio.name, () => {
       componentRef.setInput("options", [optionA]);
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain("*");
+      expect(screen.getByText(/choice/i)).toHaveTextContent("*");
     });
 
     it("does not show asterisk when control is not required", () => {
@@ -129,7 +129,7 @@ describe(ZacRadio.name, () => {
       componentRef.setInput("options", [optionA]);
       fixture.detectChanges();
 
-      expect(screen.getByText(/choice/i).textContent).not.toContain("*");
+      expect(screen.getByText(/choice/i)).not.toHaveTextContent("*");
     });
   });
 

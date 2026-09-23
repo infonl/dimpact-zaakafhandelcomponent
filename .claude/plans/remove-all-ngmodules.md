@@ -255,7 +255,7 @@ Step 4 cleared `shared/form/input`, `shared/form/radio` and `klanten/bedrijfsgeg
 ## Step 4 — `PipesModule` — DONE
 
 Removed from `shared/shared.module.ts` (imports + exports), from
-`shared/indicaties/informatie-object-indicaties` and from 12 specs; file deleted. 14 -> 13 modules.
+`shared/indicaties/informatie-object-indicaties` and from 11 specs; file deleted. 11 -> 10 modules.
 `Initial total` 444.27 -> 443.64 kB on a single commit base (**−0.6 kB**).
 
 Note for `informatie-object-indicaties`: it keeps its `import { DatumPipe }` after the barrel is
