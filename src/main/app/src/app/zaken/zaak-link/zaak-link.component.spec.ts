@@ -302,7 +302,7 @@ describe(ZaakLinkComponent.name, () => {
     await setup();
 
     await chooseRelationType("DEELZAAK");
-    await fillDateRange("startdatum", "01-01-2026", "31-01-2026");
+    await fillDateRange("Startdatum", "01-01-2026", "31-01-2026");
     fixture.detectChanges();
 
     expect(screen.getByRole("button", { name: "actie.zoeken" })).toBeEnabled();

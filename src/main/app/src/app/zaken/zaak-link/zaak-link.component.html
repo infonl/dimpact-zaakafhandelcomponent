@@ -62,7 +62,7 @@
           label="zaaktype"
           class="col-12 col-md-6"
           [form]="form"
-          [options]="caseTypes"
+          [options]="caseTypes()"
           [optionDisplayValue]="'omschrijving'"
         />
         <zac-input
@@ -92,7 +92,9 @@
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="!form.valid || !hasSearchCriteria() || loading"
+          [disabled]="
+            !form.valid || !hasSearchCriteria() || casesQuery.isFetching()
+          "
         >
           {{ "actie.zoeken" | translate }}
         </button>
@@ -105,8 +107,8 @@
 </form>
 
 <div class="table-wrapper">
-  @if (!ownZaakBlockedReason() && hasSearched && cases.data.length > 0) {
-    <table mat-table [dataSource]="cases">
+  @if (!ownZaakBlockedReason() && hasSearched() && cases().length > 0) {
+    <table mat-table [dataSource]="cases()">
       <ng-container matColumnDef="identificatie">
         <th *matHeaderCellDef mat-header-cell>
           {{ "zaak.identificatie" | translate }}
@@ -166,18 +168,18 @@
   }
   @if (
     !ownZaakBlockedReason() &&
-    hasSearched &&
-    !loading &&
-    cases.data.length === 0
+    hasSearched() &&
+    !casesQuery.isFetching() &&
+    cases().length === 0
   ) {
     <p class="feedback flex-row justify-center">
       {{ "msg.geen.gegevens.gevonden" | translate }}
     </p>
   }
-  @if (loading) {
+  @if (casesQuery.isFetching()) {
     <p>{{ "msg.loading" | translate }}</p>
   }
-  @if (!loading && cases.data.length > 0 && totalCases > 10) {
+  @if (!casesQuery.isFetching() && cases().length > 0 && totalCases() > 10) {
     <p class="feedback">
       <mat-divider class="mat-divider-wrapper"></mat-divider>
       {{ "msg.zaak.koppelen.meer-dan-10-gevonden" | translate }}

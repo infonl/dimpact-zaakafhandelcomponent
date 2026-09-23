@@ -7,9 +7,9 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnDestroy,
   Output,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -26,11 +26,10 @@ import { MatDivider } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIcon } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Subject, takeUntil } from "rxjs";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
 import { ZacInput } from "src/app/shared/form/input/input";
@@ -40,8 +39,11 @@ import { DateRangeFilterComponent } from "src/app/shared/table-zoek-filters/date
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
 import { ZakenService } from "../zaken.service";
+
+type FindLinkableZakenParams = Parameters<
+  ZoekenService["findLinkableZaken"]
+>[0];
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ({
@@ -71,7 +73,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
     EmptyPipe,
   ],
 })
-export class ZaakLinkComponent implements OnDestroy {
+export class ZaakLinkComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() zaakLinked = new EventEmitter<void>();
@@ -85,12 +87,27 @@ export class ZaakLinkComponent implements OnDestroy {
     this.zakenService.koppelZaakMutation(),
   );
 
-  private ngDestroy = new Subject<void>();
+  private readonly searchParams = signal<FindLinkableZakenParams | null>(null);
 
-  protected cases = new MatTableDataSource<
-    GeneratedType<"RestZaakKoppelenZoekObject">
-  >();
-  protected totalCases = 0;
+  protected readonly casesQuery = injectQuery(() => {
+    const searchParams = this.searchParams();
+    if (!searchParams) {
+      return {
+        queryKey: ["koppelbare-zaken", "nog-niet-gezocht"],
+        enabled: false,
+      };
+    }
+    return this.zoekenService.findLinkableZaken(searchParams);
+  });
+
+  protected readonly cases = computed(
+    () => this.casesQuery.data()?.resultaten ?? [],
+  );
+  protected readonly totalCases = computed(
+    () => this.casesQuery.data()?.totaal ?? 0,
+  );
+  protected readonly hasSearched = computed(() => this.searchParams() !== null);
+
   protected readonly caseColumns = [
     "identificatie",
     "zaaktypeOmschrijving",
@@ -98,8 +115,6 @@ export class ZaakLinkComponent implements OnDestroy {
     "omschrijving",
     "acties",
   ] as const;
-  protected loading = false;
-  protected hasSearched = false;
 
   protected caseRelationOptionsList = [
     caseRelationOption("DEELZAAK"),
@@ -120,7 +135,12 @@ export class ZaakLinkComponent implements OnDestroy {
     ),
   });
 
-  protected caseTypes = this.zakenService.listZaaktypesToLink();
+  private readonly caseTypesQuery = injectQuery(() =>
+    this.zakenService.listZaaktypesToLinkQuery(),
+  );
+  protected readonly caseTypes = computed(
+    () => this.caseTypesQuery.data() ?? [],
+  );
 
   protected readonly startdatum = signal<GeneratedType<"RestDatumRange">>({
     van: null,
@@ -131,14 +151,15 @@ export class ZaakLinkComponent implements OnDestroy {
     tot: null,
   });
 
-  private readonly queryClient = inject(QueryClient);
-
   constructor() {
-    this.form.controls.caseRelationType.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe(() => {
-        this.clearSearchResult();
-      });
+    effect(() => {
+      this.caseRelationType();
+      this.clearSearchResult();
+    });
+
+    effect(() => {
+      this.utilService.setLoading(this.casesQuery.isFetching());
+    });
   }
 
   protected searchCases() {
@@ -151,31 +172,14 @@ export class ZaakLinkComponent implements OnDestroy {
 
     if (!caseRelationType?.value) return;
 
-    this.loading = true;
-    this.utilService.setLoading(true);
-    runQuery(
-      this.queryClient,
-      this.zoekenService.findLinkableZaken({
-        zaakUuid: this.zaak().uuid,
-        zoekZaakIdentifier: caseNumberToSearchFor,
-        zoekZaakOmschrijving: caseDescriptionToSearchFor,
-        zoekZaakTypeOmschrijving: caseTypeToSearchFor?.omschrijving,
-        relationType: caseRelationType.value,
-        startdatum: { ...this.startdatum() },
-        einddatum: { ...this.einddatum() },
-      }),
-    ).subscribe({
-      next: (result) => {
-        this.cases.data = result.resultaten ?? [];
-        this.totalCases = result.totaal ?? 0;
-        this.hasSearched = true;
-        this.loading = false;
-        this.utilService.setLoading(false);
-      },
-      error: () => {
-        this.loading = false;
-        this.utilService.setLoading(false);
-      },
+    this.searchParams.set({
+      zaakUuid: this.zaak().uuid,
+      zoekZaakIdentifier: caseNumberToSearchFor,
+      zoekZaakOmschrijving: caseDescriptionToSearchFor,
+      zoekZaakTypeOmschrijving: caseTypeToSearchFor?.omschrijving,
+      relationType: caseRelationType.value,
+      startdatum: { ...this.startdatum() },
+      einddatum: { ...this.einddatum() },
     });
   }
 
@@ -281,15 +285,6 @@ export class ZaakLinkComponent implements OnDestroy {
   }
 
   protected clearSearchResult() {
-    this.cases.data = [];
-    this.totalCases = 0;
-    this.hasSearched = false;
-    this.loading = false;
-    this.utilService.setLoading(false);
-  }
-
-  ngOnDestroy() {
-    this.ngDestroy.next();
-    this.ngDestroy.complete();
+    this.searchParams.set(null);
   }
 }
