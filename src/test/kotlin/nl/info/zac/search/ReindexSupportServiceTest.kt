@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.ws.rs.ProcessingException
 import java.util.UUID
 import java.util.logging.Handler
 import java.util.logging.LogRecord
@@ -28,6 +29,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
@@ -370,6 +372,43 @@ class ReindexSupportServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(zaakZoekObject))
                 }
                 summary shouldBe ReindexSummary(successCount = 1, skippedCount = 0, totalCount = 1)
+            }
+        }
+    }
+
+    given("reindexAllZaken with a zaak whose zaakgeometrie is unsupported") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val zaakZoekObjectConverter = mockk<AbstractZoekObjectConverter<out ZoekObject>>()
+
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(listOf(ZaakUuid(zaak.uuid)), 1)
+        every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns zaakZoekObjectConverter
+        every { zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } throws
+            ZaakGeometrieNotSupportedException(
+                "Zaak '${zaak.uuid}' has an unsupported zaakgeometrie type. Only 'Point' zaakgeometrie is supported.",
+                ProcessingException("fake JSON-B deserialization failure")
+            )
+
+        `when`("reindexAllZaken is called") {
+            val summary = ctx.reindexSupportService.reindexAllZaken()
+
+            then("the zaak is not added to the Solr index") {
+                verify(exactly = 0) { ctx.solrClient.addBeans(any<Collection<*>>()) }
+            }
+
+            then("the reindex still completes, reporting the zaak as neither successful nor skipped") {
+                summary shouldBe ReindexSummary(successCount = 0, skippedCount = 0, totalCount = 1)
             }
         }
     }

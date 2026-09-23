@@ -16,6 +16,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
+import jakarta.ws.rs.ProcessingException
 import java.io.IOException
 import java.net.URI
 import java.util.UUID
@@ -38,6 +39,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -1439,6 +1441,47 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the return value reports that indexing the zaak itself failed") {
                 zaakIndexed shouldBe false
+            }
+        }
+    }
+
+    given("A zaak with an open taak, where converting the zaak itself fails because its zaakgeometrie is unsupported") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val taakZoekObject = createTaakZoekObject()
+
+        every { ctx.zaakZoekObjectConverter.convert(zaakUUID.toString(), any()) } throws
+            ZaakGeometrieNotSupportedException(
+                "Zaak '$zaakUUID' has an unsupported zaakgeometrie type. Only 'Point' zaakgeometrie is supported.",
+                ProcessingException("fake JSON-B deserialization failure")
+            )
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } returns taakZoekObject
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(openTask)
+        every { ctx.solrClient.addBeans(listOf(taakZoekObject)) } returns UpdateResponse()
+
+        `when`("addOrUpdateZaak is called") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+            }
+
+            then("the zaak itself is not added to the Solr index, only its taak is") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(any<Collection<*>>())
+                }
+            }
+
+            then("the zaak's open taak is still indexed despite the zaak itself failing to convert") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(taakZoekObject))
+                }
+            }
+
+            then("the unsupported zaakgeometrie failure is logged instead of being thrown to the caller") {
+                logRecords.any {
+                    it.message == "[ZAAK] Error during indexing" &&
+                        it.thrown?.cause is ZaakGeometrieNotSupportedException
+                } shouldBe true
             }
         }
     }

@@ -13,6 +13,8 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.json.bind.JsonbException
+import jakarta.ws.rs.ProcessingException
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
@@ -25,8 +27,10 @@ import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.zac.configuration.ConfigurationService
+import java.net.ConnectException
 import java.util.UUID
 
 class ZrcClientServiceTest : BehaviorSpec({
@@ -54,6 +58,65 @@ class ZrcClientServiceTest : BehaviorSpec({
 
             then("it should return the corresponding zaak") {
                 result shouldBe expectedZaak
+            }
+        }
+    }
+
+    given("A zaak whose zaakgeometrie cannot be deserialized because it is not a Point") {
+        val zaakUUID = UUID.randomUUID()
+        val jsonbException = JsonbException(
+            "Unable to deserialize property 'zaakgeometrie' because of: Unable to deserialize property " +
+                "'coordinates' because of: Incorrect position for processing type: class java.math.BigDecimal."
+        )
+        val processingException = ProcessingException(jsonbException)
+        every { zrcClient.zaakRead(zaakUUID) } throws processingException
+
+        `when`("readZaak is called") {
+            val zaakGeometrieNotSupportedException = shouldThrow<ZaakGeometrieNotSupportedException> {
+                zrcClientService.readZaak(zaakUUID)
+            }
+
+            then("it should throw an exception identifying the zaak and the unsupported zaakgeometrie") {
+                zaakGeometrieNotSupportedException.message shouldBe
+                    "Zaak '$zaakUUID' has an unsupported zaakgeometrie type. Only 'Point' zaakgeometrie is supported."
+                zaakGeometrieNotSupportedException.cause shouldBe processingException
+            }
+        }
+    }
+
+    given("A ZRC client call that fails for a reason unrelated to zaakgeometrie deserialization") {
+        val zaakUUID = UUID.randomUUID()
+        val processingException = ProcessingException(ConnectException("Connection refused"))
+        every { zrcClient.zaakRead(zaakUUID) } throws processingException
+
+        `when`("readZaak is called") {
+            val exception = shouldThrow<ProcessingException> {
+                zrcClientService.readZaak(zaakUUID)
+            }
+
+            then("it should propagate the original exception unchanged") {
+                exception shouldBe processingException
+            }
+        }
+    }
+
+    given("Zaken are listed by identificatie and the matching zaak has an unsupported zaakgeometrie") {
+        val identificatie = "fakeZaakIdentificatie123"
+        val jsonbException = JsonbException(
+            "Unable to deserialize property 'zaakgeometrie' because of: Unable to deserialize property " +
+                "'coordinates' because of: Incorrect position for processing type: class java.math.BigDecimal."
+        )
+        val processingException = ProcessingException(jsonbException)
+        every { zrcClient.zaakList(any()) } throws processingException
+
+        `when`("readZaakByID is called") {
+            val zaakGeometrieNotSupportedException = shouldThrow<ZaakGeometrieNotSupportedException> {
+                zrcClientService.readZaakByID(identificatie)
+            }
+
+            then("it should throw an exception identifying the zaak identificatie and the unsupported zaakgeometrie") {
+                zaakGeometrieNotSupportedException.message shouldBe
+                    "Zaak '$identificatie' has an unsupported zaakgeometrie type. Only 'Point' zaakgeometrie is supported."
             }
         }
     }
