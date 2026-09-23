@@ -120,7 +120,7 @@ export class ZaakLinkComponent {
     caseRelationOption("DEELZAAK"),
     caseRelationOption("HOOFDZAAK"),
     caseRelationOption("GERELATEERD"),
-  ];
+  ] as const;
 
   protected readonly form = this.formBuilder.group({
     caseRelationType: new FormControl<

@@ -126,7 +126,7 @@ export class MultiInputFormField<
   ) => boolean,
 > extends SingleInputFormField<Form, Key, Option> {
   public readonly options = input.required<
-    Array<Option> | Observable<Array<Option>>
+    ReadonlyArray<Option> | Observable<ReadonlyArray<Option>>
   >();
   public readonly optionDisplayValue = input<OptionDisplayValue>();
   protected readonly compare = input<Compare>();
@@ -146,7 +146,7 @@ export class MultiInputFormField<
           options instanceof Observable
             ? await lastValueFrom(options.pipe(takeUntil(this.destroy$)))
             : options;
-        this.availableOptions.set(result);
+        this.availableOptions.set([...result]);
       } finally {
         this.isLoading.set(false);
       }
