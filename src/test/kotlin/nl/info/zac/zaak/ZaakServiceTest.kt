@@ -70,6 +70,7 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.createZaakToewijzing
 
 @Suppress("LargeClass")
@@ -101,6 +102,69 @@ class ZaakServiceTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    context("Reading a zaak assignment") {
+        given("a user that is a member of the group") {
+            val user = createUser(id = "fakeUserId")
+            val group = createGroup(id = "fakeGroupId")
+            every { identityService.validateIfUserIsInGroup("fakeUserId", "fakeGroupId") } just runs
+            every { identityService.readUser("fakeUserId") } returns user
+            every { identityService.readGroup("fakeGroupId") } returns group
+
+            `when`("the zaak assignment is read") {
+                val zaakAssignment = zaakService.readZaakAssignment(groupId = "fakeGroupId", userName = "fakeUserId")
+
+                then("it holds the group and the user") {
+                    zaakAssignment shouldBe ZaakAssignment(group = group, user = user)
+                }
+                and("no zaak is changed") {
+                    verify(exactly = 0) {
+                        zrcClientService.createRol(any(), any())
+                        zrcClientService.updateRol(any(), any(), any())
+                        zrcClientService.deleteRol(any<Rol<*>>(), any())
+                    }
+                }
+            }
+        }
+
+        given("a user that is not a member of the group") {
+            every {
+                identityService.validateIfUserIsInGroup("fakeUserId", "fakeGroupId")
+            } throws UserNotInGroupException()
+
+            `when`("the zaak assignment is read") {
+                val userNotInGroupException = shouldThrow<UserNotInGroupException> {
+                    zaakService.readZaakAssignment(groupId = "fakeGroupId", userName = "fakeUserId")
+                }
+
+                then("it is refused with its own error code") {
+                    userNotInGroupException.errorCode shouldBe ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
+                }
+                and("neither the user nor the group is read") {
+                    verify(exactly = 0) {
+                        identityService.readUser(any())
+                        identityService.readGroup(any())
+                    }
+                }
+            }
+        }
+
+        given("a group and an empty user name") {
+            val group = createGroup(id = "fakeGroupId")
+            every { identityService.readGroup("fakeGroupId") } returns group
+
+            `when`("the zaak assignment is read") {
+                val zaakAssignment = zaakService.readZaakAssignment(groupId = "fakeGroupId", userName = "")
+
+                then("it holds the group and no user, so that the behandelaar is removed") {
+                    zaakAssignment shouldBe ZaakAssignment(group = group, user = null)
+                }
+                and("the membership of the empty user is not validated") {
+                    verify(exactly = 0) { identityService.validateIfUserIsInGroup(any(), any()) }
+                }
+            }
+        }
     }
 
     context("Assigning a zaak") {
