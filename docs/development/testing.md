@@ -239,7 +239,7 @@ CI pipeline, not in the integration test stack, so the integration test shards n
 
 To run them yourself, use the Docker Compose service that the pipeline uses:
 ```shell
-docker compose --profile opa-tests run --rm opa-tests
+docker compose --profile opa-tests run --rm --no-deps opa-tests
 ```
 
 There are several useful flags that can be used to develop and debug [tests with OPA](https://www.openpolicyagent.org/docs/latest/policy-testing/).

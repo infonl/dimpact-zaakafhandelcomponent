@@ -359,6 +359,7 @@ jobs:
 
       - name: Upload backend unit test coverage report to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: backendunittests
@@ -427,6 +428,7 @@ jobs:
       # Codecov merges the partial coverage reports of the shards into one report per commit
       - name: Upload frontend unit test coverage report to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: frontendunittests
@@ -601,11 +603,13 @@ jobs:
           path: build
 
       - name: Generate JaCoCo integration test code coverage report
+        if: ${{ !cancelled() }}
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       # Codecov merges the partial coverage reports of the shards into one report per commit
       - name: Upload integration test coverage report to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ !cancelled() }}
         with:
           flags: integrationtests
         env:
