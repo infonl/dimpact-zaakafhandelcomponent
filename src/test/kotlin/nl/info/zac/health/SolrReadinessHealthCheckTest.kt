@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
+import nl.info.zac.solr.SolrClientFactory
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -19,16 +20,16 @@ import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.eclipse.microprofile.health.HealthCheckResponse
 
 class SolrReadinessHealthCheckTest : BehaviorSpec({
-    val solrUrl = "http://localhost:8983"
+    lateinit var solrClientFactory: SolrClientFactory
     lateinit var solrClient: SolrClient
     lateinit var solrPing: SolrPing
     lateinit var solrPingResponse: SolrPingResponse
 
     beforeTest {
-        // Initialize the mock SolrClient
-        mockkConstructor(Http2SolrClient.Builder::class)
         solrClient = mockk<Http2SolrClient>(relaxed = true)
-        every { anyConstructed<Http2SolrClient.Builder>().build() } returns solrClient
+        solrClientFactory = mockk<SolrClientFactory> {
+            every { createSolrClient(any()) } returns solrClient
+        }
 
         // Initialize the mock SolrPing and mock SolrPingResponse
         mockkConstructor(SolrPing::class)
@@ -47,7 +48,7 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
     given("Solr is available and returns status 0") {
         `when`("the health check is called") {
             every { solrPingResponse.status } returns 0
-            val response = SolrReadinessHealthCheck(solrUrl).call()
+            val response = SolrReadinessHealthCheck(solrClientFactory).call()
 
             then("the health check should return UP status") {
                 response.status shouldBe HealthCheckResponse.Status.UP
@@ -65,7 +66,7 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
         listOf(1, -1).forEach { status ->
             `when`("the health check is called with non-zero status $status") {
                 every { solrPingResponse.status } returns status
-                val response = SolrReadinessHealthCheck(solrUrl).call()
+                val response = SolrReadinessHealthCheck(solrClientFactory).call()
 
                 then("the health check should return DOWN status") {
                     response.status shouldBe HealthCheckResponse.Status.DOWN
@@ -88,7 +89,7 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
         ).forEach { err ->
             `when`("the health check is called and error ${err.javaClass.simpleName} is thrown") {
                 every { solrPingResponse.status } throws err
-                val response = SolrReadinessHealthCheck(solrUrl).call()
+                val response = SolrReadinessHealthCheck(solrClientFactory).call()
 
                 then("the health check should return DOWN status with error") {
                     response.status shouldBe HealthCheckResponse.Status.DOWN

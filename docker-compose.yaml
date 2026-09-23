@@ -194,7 +194,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.6.6@sha256:51d21cdd406d5cee4e4b2c002310dd413b2c5a87b0f4c36d30fcbb7684a00541
+    image: redis:8.6.7@sha256:7dc197ef2b542b872622b6711345a8cb3e705e737f868f1fdc0c57050e928c32
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -284,11 +284,15 @@ services:
       - "8983:8983"
     volumes:
       - solr-data:/var/solr
+      - ./scripts/docker-compose/imports/solr/security.json:/opt/zac/solr-security.json:ro
     # run as root to change the permissions of the solr folder
     user: root
-    # Change permissions of the solr folder, create the 'zac' core and start solr
+    # Install the security configuration that enables basic authentication, change permissions of the
+    # solr folder, create the 'zac' core and start solr
     command: bash -c "
-      chown -R 8983:8983 /var/solr
+      mkdir -p /var/solr/data
+      && cp /opt/zac/solr-security.json /var/solr/data/security.json
+      && chown -R 8983:8983 /var/solr
       && runuser -u solr -- solr-precreate zac"
 
   # Open Policy Agent (OPA)
@@ -311,7 +315,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202609170854@sha256:1ceeaba2a008c315aa64b5ca9c292f371ad776932d25f498fc7af9ee25f4f0c8
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202609211606@sha256:bee52a2a2139727f76812b825875c29575cd3ed6580013ead09dafeb77de8911
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -411,6 +415,10 @@ services:
     command:
       - "gotenberg"
       - "--chromium-disable-routes=true"
+      - "--api-enable-basic-auth=true"
+    environment:
+      - GOTENBERG_API_BASIC_AUTH_USERNAME=${OFFICE_CONVERTER_USERNAME:-zac}
+      - GOTENBERG_API_BASIC_AUTH_PASSWORD=${OFFICE_CONVERTER_PASSWORD:-fakeOfficeConverterPassword}
     ports:
       - "8083:3000"
 
@@ -481,7 +489,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.13@sha256:3df66b7edd01c8a301343ca5e3601d8674760d4708655573560c24745e624fb2
+    image: greenmail/standalone:2.1.14@sha256:1ef95a966418cd09b7ea91d504d8c0826bbe7a2f6e679a75c601a831587c1626
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -841,6 +849,8 @@ services:
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:3000
+      - OFFICE_CONVERTER_USERNAME=${OFFICE_CONVERTER_USERNAME:-zac}
+      - OFFICE_CONVERTER_PASSWORD=${OFFICE_CONVERTER_PASSWORD:-fakeOfficeConverterPassword}
       - OBJECTS_API_CLIENT_MP_REST_URL=http://open-object.local:8000
       - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-500}
@@ -862,6 +872,8 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD:-fakeMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
+      - SOLR_USERNAME=${SOLR_USERNAME:-zac}
+      - SOLR_PASSWORD=${SOLR_PASSWORD:-fakeSolrPassword}
       # Turn off the MicroProfile Open Telemetry subsystem by default because it is not always necessary.
       # Typically, when using the Docker Compose profile 'metrics' you want to set this to 'false'.
       - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
@@ -918,7 +930,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.5.8@sha256:1050b6dd1554ff6f620390870fbb2056157d792e75b9fe6e965371a2ae84f41a
+    image: openformulieren/open-forms:3.5.9@sha256:9ec62a4f955e501f4081b772d5caa0ed04a9ebca8dfdf13fe5b123d2fef2bf22
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1035,7 +1047,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.5.8@sha256:1050b6dd1554ff6f620390870fbb2056157d792e75b9fe6e965371a2ae84f41a
+    image: openformulieren/open-forms:3.5.9@sha256:9ec62a4f955e501f4081b772d5caa0ed04a9ebca8dfdf13fe5b123d2fef2bf22
     # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1062,7 +1074,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.5.8@sha256:1050b6dd1554ff6f620390870fbb2056157d792e75b9fe6e965371a2ae84f41a
+    image: openformulieren/open-forms:3.5.9@sha256:9ec62a4f955e501f4081b772d5caa0ed04a9ebca8dfdf13fe5b123d2fef2bf22
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1090,7 +1102,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.5.8@sha256:1050b6dd1554ff6f620390870fbb2056157d792e75b9fe6e965371a2ae84f41a
+    image: openformulieren/open-forms:3.5.9@sha256:9ec62a4f955e501f4081b772d5caa0ed04a9ebca8dfdf13fe5b123d2fef2bf22
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."

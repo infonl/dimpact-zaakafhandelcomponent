@@ -193,6 +193,18 @@ For a ZAC admin the following user roles are required:
  - `beheerder`
  - `domein_elk_zaaktype`
 
+### Solr
+
+Solr requires basic authentication. See [Managing the Solr search engine](managingSolr.md) for the developer
+credentials and for how to change them.
+
+### Office converter (Gotenberg)
+
+The office converter converts office documents to PDF and requires basic authentication as well. The developer
+credentials are `zac` / `fakeOfficeConverterPassword`, which are the defaults for `OFFICE_CONVERTER_USERNAME` and
+`OFFICE_CONVERTER_PASSWORD` in the Docker Compose file. Override them in your `.env` file if needed; the same
+values are used to configure both the office converter container and ZAC.
+
 ### Open Klant
 
 Basic configuration required by ZAC is automatically imported into the Open Klant database from the Docker Compose file.
@@ -216,6 +228,30 @@ After the stack is up, you will still need to configure the following in the Ope
 - Create an **Objects API group** at http://localhost:8007/admin/registrations_objects_api/objectsapigroupconfig/add/ — select the pre-configured services and fill in the catalogue domain and RSIN from your local Open Zaak instance.
 - Create a **ZGW API group** at http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/ — same catalogue values.
 - Create a form with an **Objects API** or **ZGW** registration backend pointing to the group you just configured.
+
+### PostgreSQL Open Zaak database
+
+The Open Zaak database starts from a pre-migrated dump of the Open Zaak database schema:
+`scripts/docker-compose/imports/openzaak-database/00-restore-migrated-database.sql`.
+Postgres restores this dump when the `openzaak-database` container starts with an empty data directory,
+after which `init.sh` in the same folder inserts the ZAC test data (zaaktypes, applications, services and so on)
+from the SQL scripts in the `database` subfolder.
+Because the schema is already there, Open Zaak has no database migrations left to apply when it starts,
+which saves more than a minute on every fresh start of the stack and on every integration test run.
+
+The dump belongs to the Open Zaak version in `docker-compose.yaml`. After bumping that version,
+regenerate the dump and commit the result:
+
+```
+./scripts/docker-compose/regenerate-openzaak-database-dump.sh
+```
+
+The script starts Open Zaak on an empty database in a separate Docker Compose project, waits until it is healthy,
+dumps the database and removes the temporary containers again. It needs Docker Compose 2.24 or newer.
+Set `DOCKER_USE_ARM64_CONTAINERS=true` to use the arm64 images.
+
+Note that Postgres only restores the dump into an empty data directory, so an existing `openzaak-database-data`
+Docker volume keeps whatever schema it already had. See [Cleaning up](#cleaning-up) to start from scratch.
 
 ## Stopping
 

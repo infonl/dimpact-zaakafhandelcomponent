@@ -9,6 +9,75 @@ The ZAC Solr index contains the following ZAC object types:
 - tasks
 - documents
 
+## Solr authentication
+
+Solr rejects unauthenticated requests. It uses the
+[Solr basic authentication plugin](https://solr.apache.org/guide/solr/latest/deployment-guide/basic-authentication-plugin.html),
+configured through a `security.json` file, and ZAC authenticates every request it makes to Solr with the
+credentials from the `SOLR_USERNAME` and `SOLR_PASSWORD` environment variables.
+ZAC fails to start when these are not set.
+
+### Local Docker Compose setup
+
+The local Solr container installs [security.json](../../scripts/docker-compose/imports/solr/security.json)
+on startup. It contains the developer credentials `zac` / `fakeSolrPassword`, which are also the defaults for
+`SOLR_USERNAME` and `SOLR_PASSWORD` in [docker-compose.yaml](../../docker-compose.yaml).
+Use the same credentials to log in to the Solr admin UI on http://localhost:8983.
+
+To use different credentials, set `SOLR_USERNAME` and `SOLR_PASSWORD` in your `.env` file and replace the
+`credentials` and `user-role` entries in `security.json`. Solr does not store the password itself but
+`base64(sha256(sha256(salt + password)))` followed by a space and `base64(salt)`, which you can generate with:
+
+```shell
+python3 -c "
+import base64, hashlib, os
+salt = os.urandom(32)
+password = b'yourPassword'
+print(base64.b64encode(hashlib.sha256(hashlib.sha256(salt + password).digest()).digest()).decode() + ' ' + base64.b64encode(salt).decode())
+"
+```
+
+### Kubernetes setup
+
+There are two ways to run Solr in Kubernetes, and they get their credentials differently.
+
+#### External Solr (`solr.url` set)
+
+Set `solr.username` and `solr.password` in the Helm values. They end up in the ZAC Kubernetes secret,
+and ZAC authenticates every Solr request with them. Configure the matching user in the `security.json`
+of that Solr instance yourself.
+
+#### Solr deployed by the chart through the Solr operator
+
+No Solr credentials are configured at all. The chart enables basic authentication on the `SolrCloud`
+resource (`solrSecurity.authenticationType: Basic`) and the Solr operator bootstraps a `security.json`
+with three accounts and random passwords:
+
+| Account | Role | Used by |
+|---|---|---|
+| `admin` | `admin`: everything, including the schema, the index and creating the `zac` collection | ZAC and its init container |
+| `k8s-oper` | `k8s`: probes, metrics, cluster status and replica management | the Solr operator and the pod probes |
+| `solr` | `users`: read-only access | nobody; it exists because the operator creates it |
+
+The operator writes the passwords to the secret `<solrcloud>-solrcloud-security-bootstrap`, under keys
+named after the accounts. The chart points `SOLR_PASSWORD` of the ZAC container and its init container
+at the `admin` key of that secret, and sets `SOLR_USERNAME` to `admin`. Every other request is rejected
+(`blockUnknown` is on), including the liveness and readiness probes, which therefore run as `k8s-oper`
+(`probesRequireAuth`).
+
+To log in to the Solr admin UI, read the admin password from the cluster:
+
+```shell
+kubectl get secret <solrcloud>-solrcloud-security-bootstrap -o jsonpath='{.data.admin}' | base64 --decode
+```
+
+The operator bootstraps the `security.json` only when ZooKeeper has none yet, and it never updates it
+afterwards. To change a password, set it through the
+[Solr security API](https://solr.apache.org/guide/solr/latest/deployment-guide/basic-authentication-plugin.html#editing-basic-authentication-plugin-configuration)
+as `admin` first, and then put the new password in the bootstrap secret by hand so that ZAC, which
+reads it from there, keeps working. The same holds for `k8s-oper`, whose password also lives in the
+`<solrcloud>-solrcloud-basic-auth` secret the operator reads.
+
 ## Update the Solr search index manually
 
 When running ZAC locally (and not in Kubernetes) the ZAC Solr search index is not automatically regularly updated.

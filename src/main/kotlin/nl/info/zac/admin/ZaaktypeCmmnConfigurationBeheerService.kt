@@ -15,11 +15,6 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.PRODUCTAANVRAAGTYPE_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
@@ -172,10 +167,10 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
         } else {
             val previousZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktype.omschrijving)
-            mapPreviousZaaktypeCmmnConfigurationData(
+            zaaktypeHelperService.copyConfigurationData(
+                previousZaaktypeCmmnConfiguration,
                 zaaktypeCmmnConfiguration,
-                zaaktype,
-                previousZaaktypeCmmnConfiguration
+                zaaktype
             )
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
 
@@ -221,34 +216,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         }
     }
 
-    private fun mapPreviousZaaktypeCmmnConfigurationData(
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        zaaktype: ZaakType,
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) {
-        zaaktypeHelperService.copySharedConfigurationData(
-            previousZaaktypeCmmnConfiguration,
-            zaaktypeCmmnConfiguration,
-            zaaktype
-        )
-        zaaktypeCmmnConfiguration.apply {
-            caseDefinitionID = previousZaaktypeCmmnConfiguration.caseDefinitionID
-            einddatumGeplandWaarschuwing = previousZaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing.takeIf {
-                zaaktype.isServicenormAvailable()
-            }
-            uiterlijkeEinddatumAfdoeningWaarschuwing =
-                previousZaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
-            intakeMail = previousZaaktypeCmmnConfiguration.intakeMail
-            afrondenMail = previousZaaktypeCmmnConfiguration.afrondenMail
-        }
-
-        mapHumanTaskParameters(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapUserEventListenerParameters(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapMailtemplateKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapZaakAfzenders(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-    }
-
     private fun currentZaaktypeCmmnConfiguration(zaaktypeUuid: UUID): ZaaktypeCmmnConfiguration? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaaktypeCmmnConfiguration::class.java)
@@ -272,75 +239,4 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             ?: throw ZaaktypeConfigurationNotFoundException("Zaaktype with description '$zaaktypeDescription' not found")
     }
 
-    /**
-     * Kopieren van de HumanTaskParameters van de oude ZaaktypeCmmnConfiguration naar de nieuw ZaaktypeCmmnConfiguration
-     *
-     * @param previousZaaktypeCmmnConfiguration bron
-     * @param newZaaktypeCmmnConfiguration bestemming
-     */
-    private fun mapHumanTaskParameters(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.getHumanTaskParametersCollection().map {
-        ZaaktypeCmmnHumantaskParameters().apply {
-            doorlooptijd = it.doorlooptijd
-            actief = it.actief
-            setFormulierDefinitieID(it.getFormulierDefinitieID())
-            planItemDefinitionID = it.planItemDefinitionID
-            groepID = it.groepID
-            setReferentieTabellen(it.getReferentieTabellen())
-        }
-    }.toSet().let(newZaaktypeCmmnConfiguration::setHumanTaskParametersCollection)
-
-    /**
-     * Kopieren van de UserEventListenerParameters van de oude ZaaktypeCmmnConfiguration naar de nieuw
-     * ZaaktypeCmmnConfiguration
-     *
-     * @param previousZaaktypeCmmnConfiguration bron
-     * @param newZaaktypeCmmnConfiguration bestemming
-     */
-    private fun mapUserEventListenerParameters(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.getUserEventListenerParametersCollection().map {
-        ZaaktypeCmmnUsereventlistenerParameters().apply {
-            planItemDefinitionID = it.planItemDefinitionID
-            toelichting = it.toelichting
-        }
-    }.toSet().let(newZaaktypeCmmnConfiguration::setUserEventListenerParametersCollection)
-
-    private fun mapMailtemplateKoppelingen(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.getMailtemplateKoppelingen().map {
-        ZaaktypeCmmnMailtemplateParameters().apply {
-            mailTemplate = it.mailTemplate
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-        }
-    }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
-
-    private fun mapZaakAfzenders(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.getZaakAfzenders().map {
-        ZaaktypeCmmnZaakafzenderParameters().apply {
-            defaultMail = it.defaultMail
-            mail = it.mail
-            replyTo = it.replyTo
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-        }
-    }.let(newZaaktypeCmmnConfiguration::setZaakAfzenders)
-
-    private fun mapAutomaticEmailConfirmation(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = newZaaktypeCmmnConfiguration.apply {
-        zaaktypeCmmnEmailParameters = ZaaktypeCmmnEmailParameters().apply {
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-            enabled = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.enabled ?: false
-            templateName = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
-            emailSender = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
-            emailReply = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
-        }
-    }
 }

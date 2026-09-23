@@ -40,10 +40,12 @@ spec:
           {{- toYaml .Values.initContainer.securityContext | nindent 10 }}
         resources:
           {{- toYaml .Values.initContainer.resources | nindent 10 }}
+        env:
+          {{- include "zaakafhandelcomponent.solr.credentialsEnv" . | nindent 10 }}
         {{- if .Values.solr.url }}
-        command: ["sh","-c","curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
+        command: ["sh","-c","curl -sf -k -u \"$SOLR_USERNAME:$SOLR_PASSWORD\" '{{ .Values.solr.url }}/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k -u \"$SOLR_USERNAME:$SOLR_PASSWORD\" '{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
         {{- else }}
-        command: ["sh","-c","curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
+        command: ["sh","-c","curl -sf -k -u \"$SOLR_USERNAME:$SOLR_PASSWORD\" 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k -u \"$SOLR_USERNAME:$SOLR_PASSWORD\" 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
         {{- end }}
       {{- end }}
       {{- if and .Values.opa.enabled (not .Values.opa.sidecar) }}
@@ -102,6 +104,10 @@ spec:
           {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if not .Values.solr.url }}
+          env:
+            {{- include "zaakafhandelcomponent.solr.credentialsEnv" . | nindent 12 }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "zaakafhandelcomponent.fullname" . }}

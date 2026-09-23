@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.util.TaskUtil
+import nl.info.zac.flowable.util.isOpen
 import nl.info.client.opa.model.RuleQuery
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -24,7 +24,6 @@ import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.app.task.model.TaakStatus.AFGEROND
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
@@ -48,6 +47,8 @@ import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
+import nl.info.zac.search.model.zoekobject.isOpen
+import nl.info.zac.search.model.zoekobject.isZaakOpen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -119,7 +120,7 @@ class PolicyService @Inject constructor(
 
     fun readZaakRechtenForZaakZoekObject(zaakZoekObject: ZaakZoekObject): ZaakRechten {
         val zaakData = ZaakData(
-            open = !zaakZoekObject.isAfgehandeld,
+            open = zaakZoekObject.isOpen(),
             zaaktype = zaakZoekObject.zaaktypeOmschrijving,
             opgeschort = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.OPSCHORTING),
             verlengd = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.VERLENGD),
@@ -183,7 +184,7 @@ class PolicyService @Inject constructor(
             definitief = StatusEnum.DEFINITIEF == enkelvoudigInformatieobject.getStatus(),
             vergrendeld = enkelvoudigInformatieobject.isIndicatie(DocumentIndicatie.VERGRENDELD),
             vergrendeldDoor = enkelvoudigInformatieobject.vergrendeldDoorGebruikersnaam,
-            zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld,
+            zaakOpen = enkelvoudigInformatieobject.isZaakOpen(),
             zaaktype = enkelvoudigInformatieobject.zaaktypeOmschrijving,
             ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null,
             zaakspecifiekGeautoriseerd = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd,
@@ -212,7 +213,7 @@ class PolicyService @Inject constructor(
         val zaakUUID = TaakVariabelenService.readZaakUUID(taskInfo)
         val zaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
         val taakData = TaakData(
-            open = TaskUtil.isOpen(taskInfo),
+            open = taskInfo.isOpen(),
             zaaktype = zaaktypeOmschrijving,
             zaakspecifiekGeautoriseerd = zaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = zaakspecifiekGeautoriseerd &&
@@ -230,7 +231,7 @@ class PolicyService @Inject constructor(
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
         val taakData = TaakData(
-            open = taakZoekObject.getStatus()?.let { it != AFGEROND } ?: false,
+            open = taakZoekObject.isOpen(),
             zaaktype = taakZoekObject.zaaktypeOmschrijving,
             zaakspecifiekGeautoriseerd = taakZoekObject.isZaakspecifiekGeautoriseerd,
             loggedInUserIsGeautoriseerdeMedewerker = taakZoekObject.isZaakspecifiekGeautoriseerd &&

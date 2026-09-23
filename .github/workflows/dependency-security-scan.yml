@@ -32,7 +32,7 @@ env:
 jobs:
   npm-security-audit:
     name: NPM Security Audit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     outputs:
       vuln_total: ${{ steps.audit_main.outputs.vuln_total }}
@@ -111,7 +111,7 @@ jobs:
           echo "🔒 [Security Tab](${{ github.server_url }}/${{ github.repository }}/security/code-scanning)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload npm audit SARIF results (main app)
-        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
+        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
         if: always() && hashFiles('src/main/app/npm-audit-main.sarif') != ''
         with:
           sarif_file: src/main/app/npm-audit-main.sarif
@@ -119,7 +119,7 @@ jobs:
 
   gradle-security-audit:
     name: Gradle Security Audit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     outputs:
       vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
@@ -297,7 +297,7 @@ jobs:
           EOF
 
       - name: Upload SARIF results to GitHub Security
-        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
+        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
         if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
         with:
           sarif_file: build/reports/dependency-check-report.sarif
@@ -305,7 +305,7 @@ jobs:
 
   notify-slack:
     name: Notify Slack
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [npm-security-audit, gradle-security-audit]
     if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
 
