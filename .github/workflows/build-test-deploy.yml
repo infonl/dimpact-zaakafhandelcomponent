@@ -334,8 +334,7 @@ jobs:
           -x npmInstall \
           test jacocoTestReport --info
 
-      # The OPA policy tests are unit tests of the authorisation policies. They used to run as a one-shot
-      # container inside every integration test stack, which made all shards wait for them three times over.
+      # The OPA policy tests are unit tests of the authorisation policies, so they run here and not in the integration test stack.
       - name: Run OPA policy tests
         if: ${{ !cancelled() }}
         run: docker compose --profile opa-tests run --rm --no-deps opa-tests
@@ -530,10 +529,7 @@ jobs:
           name: zac-jar
           path: target
 
-      # The image is the Temurin base image plus the bootable JAR that the 'build' job produced, and that
-      # JAR layer changes with every commit, so there is next to nothing for a layer cache to hit. The
-      # Docker CLI on the runner builds it in about 20 seconds; installing a separate Buildx builder to
-      # read and write the GitHub Actions cache took longer than the build itself.
+      # No layer cache: the JAR layer changes with every commit, so a cache would hardly ever hit.
       - name: Build Docker image
         run: |
           docker build \

@@ -406,7 +406,7 @@ services:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
     entrypoint: [ "opa", "test", "/home/policies", "/home/tests" ]
-    # The policy tests are unit tests and run in the backend unit test job, not in the integration test stack
+    # The policy tests are unit tests; the 'backend-unit-tests' job of the build-test-deploy GitHub workflow runs them, not the integration test stack
     profiles: [ "opa-tests" ]
 
   office-converter:
