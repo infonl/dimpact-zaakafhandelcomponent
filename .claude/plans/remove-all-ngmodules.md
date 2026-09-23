@@ -1,8 +1,7 @@
 /*
-
-- SPDX-FileCopyrightText: 2026 INFO.nl
-- SPDX-License-Identifier: EUPL-1.2+
-  */
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 
 # Remove all 18 NgModules
 
@@ -29,11 +28,11 @@ the PZ-12707 PR (step 3) and the last 0.6 kB in step 4.
 **These figures are only comparable within the step that measured them.** Main moves underneath
 the branch, so an absolute `Initial total` goes stale as soon as it is merged — the same branch
 measured 459.77 kB after a later merge of main, with the step-4 delta unchanged. Always measure
-before and after _on the same commit base_ and record the delta; treat the absolutes as dated.
+before and after *on the same commit base* and record the delta; treat the absolutes as dated.
 
 **Ordering criterion: measured bundle payoff.** An NgModule's `exports` are a live edge that
 never tree-shakes; its `imports` are shaken away when nothing uses them. So the barrels only
-cost what they _export_, and step 3 — the single export line that anchored ngx-editor — was the
+cost what they *export*, and step 3 — the single export line that anchored ngx-editor — was the
 biggest measured win. Step 5 (`MaterialModule`) is the one remaining step expected to pay; step 4
 confirmed the rest of the pattern: a barrel whose exports every consumer already imports directly
 is worth ~0. Everything else is bookkeeping toward zero `@NgModule`, ordered by risk, not payoff.
@@ -44,18 +43,18 @@ Initial total: 2.48 MB raw / 520.97 kB transfer. Full build across all 112 chunk
 7.22 MB raw / ~1.72 MB transfer. Source-map attribution of the largest initial
 chunk (1.54 MB raw / 297 kB transfer), by original source size:
 
-| Source                                 | Size       |
-| -------------------------------------- | ---------- |
-| `@angular/material`                    | 1727 kB    |
-| `@angular/core`                        | 1720 kB    |
-| `@angular/cdk`                         | 657 kB     |
-| `@angular/common` + `router` + `forms` | 989 kB     |
-| TanStack + rxjs + ngx-translate        | 212 kB     |
-| **own app code**                       | **~45 kB** |
+| Source | Size |
+|---|---|
+| `@angular/material` | 1727 kB |
+| `@angular/core` | 1720 kB |
+| `@angular/cdk` | 657 kB |
+| `@angular/common` + `router` + `forms` | 989 kB |
+| TanStack + rxjs + ngx-translate | 212 kB |
+| **own app code** | **~45 kB** |
 
 What this attribution got wrong, corrected on 2026-09-16: it was read as "only ~45 kB of own
 code is left, so nothing is left to win". That conclusion does not follow. The win was never in
-own code — it is in _vendor_ code that own code keeps eagerly reachable. Cutting one export edge
+own code — it is in *vendor* code that own code keeps eagerly reachable. Cutting one export edge
 moved 77 kB of ngx-editor out of the initial bundle without touching a single line of own app
 code. Read the attribution as a map of what the barrels are anchoring, not as a floor.
 
@@ -75,28 +74,28 @@ configured to compress, so a local run on :8080 ships the full raw size.
 
 ### The 18 modules
 
-| ✓   | Module                                                         | Kind                       | Step | Bundle gain                         |
-| --- | -------------------------------------------------------------- | -------------------------- | ---- | ----------------------------------- |
-| [x] | `zaken/zaken-routing.module.ts`                                | routing (eager `forChild`) | 1    | −134 kB with 1b                     |
-| [x] | `zaken/zaken.module.ts`                                        | container                  | 1b   | (same)                              |
-| [x] | `klanten/klanten-routing.module.ts`                            | routing (eager `forChild`) | 1b   | (same)                              |
-| [x] | `klanten/klanten.module.ts`                                    | container                  | 1b   | (same)                              |
-| [x] | `fout-afhandeling/fout-afhandeling-routing.module.ts`          | routing (eager `forChild`) | 2    | none (0.4 kB)                       |
-| [x] | `informatie-objecten/informatie-objecten-routing.module.ts`    | routing (eager `forChild`) | 2    | −18 kB with the container           |
-| [x] | `informatie-objecten/informatie-objecten.module.ts`            | container + provider       | 2    | (same)                              |
-| [ ] | `shared/material/material.module.ts`                           | barrel                     | 5    | not yet measured                    |
-| [ ] | `shared/material-form-builder/material-form-builder.module.ts` | barrel                     | 6    | **−77 kB** already banked in step 3 |
-| [ ] | `shared/shared.module.ts`                                      | barrel                     | 7    | not yet measured                    |
-| [x] | `shared/pipes/pipes.module.ts`                                 | barrel                     | 4    | −0.6 kB (measured)                  |
-| [ ] | `taken/taken-routing.module.ts`                                | routing (lazy)             | 8    | none                                |
-| [ ] | `taken/taken.module.ts`                                        | container                  | 8    | none                                |
-| [ ] | `documenten/documenten-routing.module.ts`                      | routing (lazy)             | 8    | none                                |
-| [ ] | `productaanvragen/productaanvragen-routing.module.ts`          | routing (lazy)             | 8    | none                                |
-| [ ] | `app-routing.module.ts`                                        | root routing               | 9    | none                                |
-| [ ] | `app.module.ts`                                                | root                       | 10   | none                                |
-| [ ] | `core/core.module.ts`                                          | providers                  | 10   | none                                |
+| ✓ | Module | Kind | Step | Bundle gain |
+|---|---|---|---|---|
+| [x] | `zaken/zaken-routing.module.ts` | routing (eager `forChild`) | 1 | −134 kB with 1b |
+| [x] | `zaken/zaken.module.ts` | container | 1b | (same) |
+| [x] | `klanten/klanten-routing.module.ts` | routing (eager `forChild`) | 1b | (same) |
+| [x] | `klanten/klanten.module.ts` | container | 1b | (same) |
+| [x] | `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | 2 | none (0.4 kB) |
+| [x] | `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 | −18 kB with the container |
+| [x] | `informatie-objecten/informatie-objecten.module.ts` | container + provider | 2 | (same) |
+| [ ] | `shared/material/material.module.ts` | barrel | 5 | not yet measured |
+| [ ] | `shared/material-form-builder/material-form-builder.module.ts` | barrel | 6 | **−77 kB** already banked in step 3 |
+| [ ] | `shared/shared.module.ts` | barrel | 7 | not yet measured |
+| [x] | `shared/pipes/pipes.module.ts` | barrel | 4 | −0.6 kB (measured) |
+| [ ] | `taken/taken-routing.module.ts` | routing (lazy) | 8 | none |
+| [ ] | `taken/taken.module.ts` | container | 8 | none |
+| [ ] | `documenten/documenten-routing.module.ts` | routing (lazy) | 8 | none |
+| [ ] | `productaanvragen/productaanvragen-routing.module.ts` | routing (lazy) | 8 | none |
+| [ ] | `app-routing.module.ts` | root routing | 9 | none |
+| [ ] | `app.module.ts` | root | 10 | none |
+| [ ] | `core/core.module.ts` | providers | 10 | none |
 
-### Key finding (steps 1–2, now resolved): four modules only _looked_ lazy
+### Key finding (steps 1–2, now resolved): four modules only *looked* lazy
 
 `zaken`, `klanten`, `informatie-objecten` and `fout-afhandeling` used
 `RouterModule.forChild(...)` but are reached eagerly through
@@ -106,7 +105,7 @@ them — the only six in the app are `taken`, `admin`, `bag-objecten`,
 
 Consequence: their routes self-register into the root config at startup, which is
 why each carries its own `path: "zaken"` / `"persoon"` / `"informatie-objecten"`
-prefix _inside_ the array. Giving them real mount points is what steps 1–2 did, for −152 kB.
+prefix *inside* the array. Giving them real mount points is what steps 1–2 did, for −152 kB.
 All four now have a real `loadChildren` mount point; the check itself stays relevant for any
 module still to be deleted.
 
@@ -115,7 +114,7 @@ module still to be deleted.
 - One step per PR. Steps are ordered; do not skip ahead.
 - No behaviour change in any step but 10. Any route that resolves today resolves after.
 - Absolute URLs must be identical before and after. Moving a path segment from a
-  child array to a mount point is a refactor of _where_ the prefix is declared,
+  child array to a mount point is a refactor of *where* the prefix is declared,
   never of the resulting URL.
 - Gate every step on: `ng test`, `tsc --project .`, `ng lint`, and a production build with a
   before/after `Initial total`. (`tsconfig.app.json` is `strict: false` — the real type gate is
@@ -162,7 +161,6 @@ AppModule`. `KlantenModule`'s **only** importer in the app was `ZakenModule`, so
 dropped both routes with no compile error and no test failure.
 
 Done:
-
 - `klanten-routing.module.ts` -> `klanten/klanten.routes.ts` (`PERSOON_ROUTES`, `BEDRIJF_ROUTES`),
   two `loadChildren` mount points. Duplicate `:temporaryPersonId` order preserved; repeated
   `ErrorCardComponent` `data` extracted to a `PERSOON_GEEN_DATA` const.
@@ -210,11 +208,11 @@ Result: 538.75 kB -> 520.80 kB initial transfer.
 
 **The rule this step is built on:** an NgModule's `exports` are a live edge that never
 tree-shakes; its `imports` are shaken away once nothing uses them. So a barrel costs only what
-it _exports_ — and `AppModule -> SharedModule -> MaterialModule / MaterialFormBuilderModule`
+it *exports* — and `AppModule -> SharedModule -> MaterialModule / MaterialFormBuilderModule`
 is what keeps Material eager. That remaining edge is cut in steps 5 and 6, where those barrels
 are dissolved; it is the last place a bundle win is expected.
 
-`MaterialFormBuilderModule` imported `NgxEditorModule` _and_ exported `ZacHtmlEditor`, so every
+`MaterialFormBuilderModule` imported `NgxEditorModule` *and* exported `ZacHtmlEditor`, so every
 first paint carried the whole WYSIWYG editor. It is used on four lazy screens only: mail-create,
 ontvangstbevestiging, admin/mailtemplate, and the `htmlEditor` field type in taakformulieren.
 
@@ -224,12 +222,12 @@ components import `ZacHtmlEditor` directly. Measured on `main` after #7075: **52
 
 Both edges matter, and not equally:
 
-| Change                                                    | Initial transfer | ngx-editor  |
-| --------------------------------------------------------- | ---------------- | ----------- |
-| baseline                                                  | 520.97 kB        | eager       |
-| `NgxEditorModule` out of `imports` only                   | 521.02 kB        | still eager |
-| `ZacHtmlEditor` + `ZacComposedForm` out of `exports` only | −19.9 kB *       | still eager |
-| both                                                      | **444.27 kB**    | lazy        |
+| Change | Initial transfer | ngx-editor |
+|---|---|---|
+| baseline | 520.97 kB | eager |
+| `NgxEditorModule` out of `imports` only | 521.02 kB | still eager |
+| `ZacHtmlEditor` + `ZacComposedForm` out of `exports` only | −19.9 kB * | still eager |
+| both | **444.27 kB** | lazy |
 
 \* measured on the pre-#7075 tree (538.67 -> 518.80 kB); the delta carries over, the absolute
 number does not.
@@ -268,7 +266,7 @@ A pipe import is not always a template import.
 `datum` / `dagen` / `location` / `bestandsomvang` already listed the pipe in their own `imports`
 array, so the barrel's `exports` edge fed nobody. Likewise the 12 specs: a standalone component
 carries its own `imports`, so a spec that imports the component under test gets the pipes
-transitively — a spec needs a pipe directly only when the _spec's own_ inline template uses it,
+transitively — a spec needs a pipe directly only when the *spec's own* inline template uses it,
 and none did. Check both before assuming a barrel removal requires touching consumers.
 
 Verification that makes this safe to repeat for steps 5-7: an AOT production build hard-errors on
@@ -285,7 +283,7 @@ doing it:
 - `testing-library/no-node-access` is an error too, so `.closest()` / `.parentElement` are not an
   escape from `querySelector`. Where a component renders an unassociated `<label>` (as
   `zac-static-text` does) there is no role or label association to query at all; assert on the
-  presence and absence of the distinct _values_ instead of reaching for the field element.
+  presence and absence of the distinct *values* instead of reaching for the field element.
 - A vacuous assertion tends to hide inside a banned query. `input.spec.ts` asserted that
   `span[matSuffix]` existed — an element the template always renders, with nothing projected into
   it, so the test could not fail. Migrating it meant writing the test it was supposed to be: a
@@ -302,6 +300,7 @@ in the production build: `mat-mdc-table`, `mat-calendar`, `mat-datepicker`, `mat
 sidenav, icon, button, menu, dialog and snackbar. Not yet quantified — probing costs the same
 work as doing the step, because the build does not complete until the consumers are fixed.
 Measure `Initial total` before and after.
+
 
 - `fout-afhandeling/dialog/fout-detailed-dialog.component.ts`
 - `shared/indicaties/{besluit,informatie-object,persoon,zaak}-indicaties`
@@ -338,7 +337,7 @@ exports are ~20 standalone components that consumers list directly instead.
 ## Step 8 — `loadChildren` targets: NgModule -> `Routes` (`taken`, `documenten`, `productaanvragen`)
 
 All three already hang off a `loadChildren` in `app-routing.module.ts`, so they are lazy today.
-Only the _shape_ of the import target changes: it resolves to an NgModule instead of a plain
+Only the *shape* of the import target changes: it resolves to an NgModule instead of a plain
 `Routes` array. No loading behaviour changes; this is what finally removes the modules.
 
 - **`taken`** — the mount point imports `TakenModule`, not `TakenRoutingModule`. Pointing it at
