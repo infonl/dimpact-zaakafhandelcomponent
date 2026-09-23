@@ -92,10 +92,16 @@
           mat-raised-button
           color="primary"
           type="submit"
+          class="flex-row gap-8"
           [disabled]="
             !form.valid || !hasSearchCriteria() || casesQuery.isFetching()
           "
         >
+          @if (casesQuery.isFetching()) {
+            <mat-icon>
+              <mat-spinner diameter="18"></mat-spinner>
+            </mat-icon>
+          }
           {{ "actie.zoeken" | translate }}
         </button>
         <button mat-raised-button type="button" (click)="reset()">

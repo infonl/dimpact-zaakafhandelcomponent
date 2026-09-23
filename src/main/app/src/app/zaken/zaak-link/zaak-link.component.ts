@@ -25,6 +25,7 @@ import { MatButton, MatIconButton } from "@angular/material/button";
 import { MatDivider } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIcon } from "@angular/material/icon";
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
@@ -62,6 +63,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
     MatToolbar,
     MatIconButton,
     MatIcon,
+    MatProgressSpinner,
     MatDivider,
     MatButton,
     MatTableModule,
