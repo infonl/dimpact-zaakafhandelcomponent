@@ -106,7 +106,7 @@
 
 <div class="table-wrapper">
   @if (!ownZaakBlockedReason() && hasSearched && cases.data.length > 0) {
-    <table mat-table [dataSource]="cases" matSort>
+    <table mat-table [dataSource]="cases">
       <ng-container matColumnDef="identificatie">
         <th *matHeaderCellDef mat-header-cell>
           {{ "zaak.identificatie" | translate }}

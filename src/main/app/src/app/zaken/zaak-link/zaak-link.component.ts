@@ -26,7 +26,6 @@ import { MatDivider } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIcon } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
-import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
@@ -64,7 +63,6 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
     MatDivider,
     MatButton,
     MatTableModule,
-    MatSortModule,
     MatExpansionModule,
     ZacSelect,
     ZacInput,
