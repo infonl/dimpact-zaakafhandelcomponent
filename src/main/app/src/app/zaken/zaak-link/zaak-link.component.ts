@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -57,8 +56,6 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   styleUrls: ["./zaak-link.component.less"],
   standalone: true,
   imports: [
-    NgClass,
-    NgIf,
     ReactiveFormsModule,
     TranslateModule,
     MatToolbar,

@@ -20,7 +20,9 @@
   <fieldset>
     <legend>
       <p>
-        {{ "zaak.koppelen.uitleg" | translate: { zaakID: zaak().identificatie } }}
+        {{
+          "zaak.koppelen.uitleg" | translate: { zaakID: zaak().identificatie }
+        }}
       </p>
     </legend>
     <zac-select
@@ -147,8 +149,7 @@
             [disabled]="rowDisabled(row) || isLinking(row)"
             (click)="selectCase(row)"
           >
-            <mat-icon
-              [ngClass]="{ disabled: rowDisabled(row) || isLinking(row) }"
+            <mat-icon [class.disabled]="rowDisabled(row) || isLinking(row)"
               >account_tree</mat-icon
             >
           </button>
@@ -159,23 +160,29 @@
       <tr
         mat-row
         *matRowDef="let row; columns: caseColumns"
-        [ngClass]="{ disabled: rowDisabled(row) }"
+        [class.disabled]="rowDisabled(row)"
       ></tr>
     </table>
   }
-  @if (!ownZaakBlockedReason() && hasSearched && !loading && cases.data.length === 0) {
+  @if (
+    !ownZaakBlockedReason() &&
+    hasSearched &&
+    !loading &&
+    cases.data.length === 0
+  ) {
     <p class="feedback flex-row justify-center">
       {{ "msg.geen.gegevens.gevonden" | translate }}
     </p>
   }
-  <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
-  <p
-    *ngIf="!loading && cases.data.length > 0 && totalCases > 10"
-    class="feedback"
-  >
-    <mat-divider class="mat-divider-wrapper"></mat-divider>
-    {{ "msg.zaak.koppelen.meer-dan-10-gevonden" | translate }}
-  </p>
+  @if (loading) {
+    <p>{{ "msg.loading" | translate }}</p>
+  }
+  @if (!loading && cases.data.length > 0 && totalCases > 10) {
+    <p class="feedback">
+      <mat-divider class="mat-divider-wrapper"></mat-divider>
+      {{ "msg.zaak.koppelen.meer-dan-10-gevonden" | translate }}
+    </p>
+  }
   <mat-action-row class="px-3">
     <button mat-raised-button (click)="close()">
       {{ "actie.annuleren" | translate }}
