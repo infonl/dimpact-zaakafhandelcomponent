@@ -6,6 +6,7 @@ package nl.info.zac.authentication
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -23,6 +24,7 @@ import nl.info.client.pabc.ENTITY_TYPE_GEMEENTE
 import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
+import nl.info.client.pabc.ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
 import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.identity.model.getFullName
@@ -332,6 +334,56 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     with(loggedInUserSlot.captured) {
                         overallRoles shouldContainAll overallRoleNames
                         overallRoles.none { it in entityTypeRoleNames } shouldBe true
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            User details in the OIDC token in the security context and
+            PABC authorisation mappings contain an overall role of 'systeemrol_behandelaar_alle_zaaktypen'
+            for a regular user's functional role
+            """
+        ) {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                        "preferred_username": "fakeUserName",
+                        "realm_access": {
+                            "roles": [ "fakeFunctionalRole" ]
+                        }
+                    }
+                    """.trimMargin(),
+                    null
+                )
+            )
+            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
+            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            every { httpSession.getAttribute("logged-in-user") } returns null
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { filterChain.doFilter(any(), any()) } just runs
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = null,
+                        roleNames = listOf(ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN, "fakeOverallRole")
+                    )
+                )
+            }
+
+            `when`("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                then("the systeemrol behandelaar alle zaaktypen role is not added to the overall roles") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    with(loggedInUserSlot.captured) {
+                        overallRoles shouldContainAll setOf("fakeOverallRole")
+                        overallRoles shouldNotContain ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
                     }
                 }
             }
