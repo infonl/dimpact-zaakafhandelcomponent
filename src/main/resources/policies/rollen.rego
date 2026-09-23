@@ -34,3 +34,7 @@ brpZoeken := {
 zaakspecifiekGeautoriseerd := {
     "rol": "zaakspecifiek_geautoriseerd"
 }
+
+systeemrolBehandelaarAlleZaaktypen := {
+    "rol": "systeemrol_behandelaar_alle_zaaktypen"
+}

@@ -6,10 +6,13 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.ints.shouldBeAtLeast
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_1_BRON_KENMERK
@@ -24,7 +27,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
+import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
@@ -138,6 +143,22 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                       "type" : "NATUURLIJK_PERSOON"
                     } ]
                     """.trimIndent()
+                }
+
+                and("the send email service task sent an email to show that the functional user has permission to do so") {
+                    val receivedMailsResponse = itestHttpClient.performGetRequest(
+                        url = "${ItestConfiguration.GREENMAIL_API_URI}/user/productaanvraag-test-1@example.com/messages/",
+                        testUser = BEHANDELAAR_1
+                    )
+                    receivedMailsResponse.code shouldBe HttpURLConnection.HTTP_OK
+
+                    val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                    with(receivedMails) {
+                        length() shouldBeAtLeast 1
+                        with(getJSONObject(0)) {
+                            getString("subject") shouldContain "Ontvangstbevestiging van zaak ZAAK-"
+                        }
+                    }
                 }
             }
         }
