@@ -181,7 +181,7 @@ export class ZaakViewComponent
       this.menuHandlers,
       this.dialogs,
       this.hasBrpSearchRight(),
-      this.isArchief(),
+      this.zaak.isZaakdataGearchiveerd!,
     );
   });
 
@@ -212,14 +212,6 @@ export class ZaakViewComponent
   protected readonly brpRechtenQuery = injectQuery(() =>
     this.policyService.readBrpRechten(),
   );
-
-  protected readonly isArchief = computed(() => {
-    const zaak = this.zaak;
-    const isBpmnZaaktype =
-      !zaak.zaaktype.zaakafhandelparameters?.caseDefinition;
-    if (isBpmnZaaktype) return !zaak.isProcesGestuurd;
-    return !zaak.isOpen || !!zaak.isHeropend;
-  });
 
   protected readonly betrokkenenQuery = injectQuery(() =>
     this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak.uuid),

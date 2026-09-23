@@ -7,7 +7,7 @@
   <mat-icon>folder_copy</mat-icon>
   <h3 class="flex-grow-1">
     {{
-      (isArchief() ? "actie.zaakdata.archief" : "actie.zaakdata.bekijken")
+      (zaak().isZaakdataGearchiveerd ? "actie.zaakdata.archief" : "actie.zaakdata.bekijken")
         | translate
     }}
   </h3>
@@ -15,7 +15,7 @@
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
-@if (isArchief()) {
+@if (zaak().isZaakdataGearchiveerd) {
   <p class="archief-toelichting">
     {{ "msg.zaakdata.archief.toelichting" | translate }}
   </p>
