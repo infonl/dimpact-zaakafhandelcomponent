@@ -58,7 +58,7 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.identity.exception.UserNotInGroupException
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.createBron
@@ -78,6 +78,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakService = mockk<ZaakService>()
+    val identityService = mockk<IdentityService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val inboxDocumentService = mockk<InboxDocumentService>()
@@ -103,6 +104,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         zgwApiService = zgwApiService,
         ztcClientService = ztcClientService,
         zaakService = zaakService,
+        identityService = identityService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
         inboxDocumentService = inboxDocumentService,
@@ -707,14 +709,19 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every { identityService.isUserInGroup(defaultBehandelaarId, groupId) } returns false
             every {
-                zaakService.assignZaak(
-                    zaak = createdZaak,
-                    groupId = groupId,
-                    userName = defaultBehandelaarId,
-                    reason = null
+                zaakService.assignZaak(zaak = createdZaak, groupId = groupId, userName = null, reason = null)
+            } just runs
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
+            every {
+                productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                    createdZaak,
+                    null,
+                    null,
+                    zaaktypeCmmnConfiguration
                 )
-            } throws UserNotInGroupException()
+            } just runs
 
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -725,16 +732,97 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
                     }
                 }
-                and("the rejected assignment stops the remainder of the intake without failing the caller") {
-                    verify(exactly = 0) {
-                        zrcClientService.createRol(any())
-                        productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                            any(),
-                            any(),
-                            any(),
-                            any()
-                        )
+                and("the zaak is assigned to the default group only") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaak(zaak = createdZaak, groupId = groupId, userName = null, reason = null)
                     }
+                }
+                and("the intake completes and the productaanvraag is marked as done") {
+                    verify(exactly = 1) {
+                        productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                            createdZaak,
+                            null,
+                            null,
+                            zaaktypeCmmnConfiguration
+                        )
+                        productaanvraagClaimRepository.markDone(productAanvraagORObject.uuid)
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            a productaanvraag-dimpact object for which a zaaktypeBpmnConfiguration exists
+            with a default behandelaar that is not a member of the default group
+            """
+        ) {
+            clearAllMocks()
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val groupId = "fakeGroupId"
+            val defaultBehandelaarId = "fakeDefaultBehandelaarId"
+            val zaakType = createZaakType()
+            val createdZaak = createZaak()
+            val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+            val bpmnConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeUUID = zaakTypeUUID,
+                groupId = groupId,
+                defaultBehandelaarId = defaultBehandelaarId,
+                bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
+            )
+            val formulierBron = createBron()
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to formulierBron,
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
+                    )
+                )
+            )
+            val zaakDataSlot = slot<Map<String, Any>>()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns emptyList()
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns bpmnConfiguration
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { zgwApiService.createZaak(any()) } returns createdZaak
+            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every { identityService.isUserInGroup(defaultBehandelaarId, groupId) } returns false
+            every {
+                zaakService.assignZaak(zaak = createdZaak, groupId = groupId, userName = null, reason = null)
+            } just runs
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
+            every {
+                bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot))
+            } just runs
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then("the zaak is assigned to the default group only") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaak(zaak = createdZaak, groupId = groupId, userName = null, reason = null)
+                    }
+                }
+                and("the BPMN process is started for the group without the default behandelaar") {
+                    verify(exactly = 1) {
+                        bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
+                    }
+                    zaakDataSlot.captured[VAR_ZAAK_GROUP] shouldBe groupId
+                    zaakDataSlot.captured.containsKey(VAR_ZAAK_USER) shouldBe false
+                }
+                and("the intake completes and the productaanvraag is marked as done") {
+                    verify(exactly = 1) { productaanvraagClaimRepository.markDone(productAanvraagORObject.uuid) }
                 }
             }
         }
@@ -1728,6 +1816,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } just runs
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
+            every { identityService.isUserInGroup(defaultBehandelaarId, group.name) } returns true
 
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
