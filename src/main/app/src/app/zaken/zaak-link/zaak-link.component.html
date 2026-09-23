@@ -20,7 +20,7 @@
   <fieldset>
     <legend>
       <p>
-        {{ "zaak.koppelen.uitleg" | translate: { zaakID: zaak.identificatie } }}
+        {{ "zaak.koppelen.uitleg" | translate: { zaakID: zaak().identificatie } }}
       </p>
     </legend>
     <zac-select
@@ -46,8 +46,8 @@
           @case ("DEELZAAK") {
             <p>{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</p>
           }
-          @default {
-            <p></p>
+          @case ("GERELATEERD") {
+            <p>{{ "zaak.koppelen.hint.gerelateerd" | translate }}</p>
           }
         }
         <zac-input
@@ -73,13 +73,15 @@
             class="col-6"
             [showLabel]="true"
             label="startdatum"
-            [range]="startdatum"
+            [range]="startdatum()"
+            (changed)="dateRangeChanged($event, startdatum)"
           />
           <zac-date-range-filter
             class="col-6"
             [showLabel]="true"
             label="einddatum"
-            [range]="einddatum"
+            [range]="einddatum()"
+            (changed)="dateRangeChanged($event, einddatum)"
           />
         </div>
       </fieldset>
@@ -88,11 +90,11 @@
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="!form.valid || loading"
+          [disabled]="!form.valid || !hasSearchCriteria() || loading"
         >
           {{ "actie.zoeken" | translate }}
         </button>
-        <button mat-raised-button (click)="reset()">
+        <button mat-raised-button type="button" (click)="reset()">
           {{ "actie.wissen" | translate }}
         </button>
       </fieldset>
@@ -101,7 +103,7 @@
 </form>
 
 <div class="table-wrapper">
-  @if (!ownZaakBlockedReason()) {
+  @if (!ownZaakBlockedReason() && hasSearched && cases.data.length > 0) {
     <table mat-table [dataSource]="cases" matSort>
       <ng-container matColumnDef="identificatie">
         <th *matHeaderCellDef mat-header-cell>
@@ -161,13 +163,18 @@
       ></tr>
     </table>
   }
+  @if (!ownZaakBlockedReason() && hasSearched && !loading && cases.data.length === 0) {
+    <p class="feedback flex-row justify-center">
+      {{ "msg.geen.gegevens.gevonden" | translate }}
+    </p>
+  }
   <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
   <p
     *ngIf="!loading && cases.data.length > 0 && totalCases > 10"
     class="feedback"
   >
     <mat-divider class="mat-divider-wrapper"></mat-divider>
-    {{ "msg.zaak.koppelem.meer-dan-10-gevonden" | translate }}
+    {{ "msg.zaak.koppelen.meer-dan-10-gevonden" | translate }}
   </p>
   <mat-action-row class="px-3">
     <button mat-raised-button (click)="close()">

@@ -12,6 +12,8 @@ import {
   Output,
   computed,
   inject,
+  input,
+  signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import {
@@ -75,7 +77,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ],
 })
 export class ZaakLinkComponent implements OnDestroy {
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
+  readonly zaak = input.required<GeneratedType<"RestZaak">>();
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() zaakLinked = new EventEmitter<void>();
 
@@ -102,6 +104,7 @@ export class ZaakLinkComponent implements OnDestroy {
     "acties",
   ] as const;
   protected loading = false;
+  protected hasSearched = false;
 
   protected caseRelationOptionsList = [
     caseRelationOption("DEELZAAK"),
@@ -113,9 +116,7 @@ export class ZaakLinkComponent implements OnDestroy {
     caseRelationType: new FormControl<
       (typeof this.caseRelationOptionsList)[number] | null
     >(null, [Validators.required]),
-    caseNumberToSearchFor: new FormControl<string>("", [
-      Validators.minLength(2),
-    ]),
+    caseNumberToSearchFor: new FormControl<string>(""),
     caseDescriptionToSearchFor: new FormControl<string>("", [
       Validators.minLength(2),
     ]),
@@ -126,8 +127,14 @@ export class ZaakLinkComponent implements OnDestroy {
 
   protected caseTypes = this.zakenService.listZaaktypesToLink();
 
-  startdatum: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
-  einddatum: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
+  protected readonly startdatum = signal<GeneratedType<"RestDatumRange">>({
+    van: null,
+    tot: null,
+  });
+  protected readonly einddatum = signal<GeneratedType<"RestDatumRange">>({
+    van: null,
+    tot: null,
+  });
 
   private readonly queryClient = inject(QueryClient);
 
@@ -154,24 +161,19 @@ export class ZaakLinkComponent implements OnDestroy {
     runQuery(
       this.queryClient,
       this.zoekenService.findLinkableZaken({
-        zaakUuid: this.zaak.uuid,
+        zaakUuid: this.zaak().uuid,
         zoekZaakIdentifier: caseNumberToSearchFor,
         zoekZaakOmschrijving: caseDescriptionToSearchFor,
         zoekZaakTypeOmschrijving: caseTypeToSearchFor?.omschrijving,
         relationType: caseRelationType.value,
-        startdatum: {
-          van: this.startdatum?.van,
-          tot: this.startdatum?.tot,
-        },
-        einddatum: {
-          van: this.einddatum?.van,
-          tot: this.einddatum?.tot,
-        },
+        startdatum: { ...this.startdatum() },
+        einddatum: { ...this.einddatum() },
       }),
     ).subscribe({
       next: (result) => {
         this.cases.data = result.resultaten ?? [];
         this.totalCases = result.totaal ?? 0;
+        this.hasSearched = true;
         this.loading = false;
         this.utilService.setLoading(false);
       },
@@ -188,7 +190,7 @@ export class ZaakLinkComponent implements OnDestroy {
 
     this.koppelZaakMutation.mutate(
       {
-        zaakUuid: this.zaak.uuid,
+        zaakUuid: this.zaak().uuid,
         teKoppelenZaakUuid: row.id,
         relatieType: this.form.controls.caseRelationType.value.value,
       },
@@ -209,18 +211,46 @@ export class ZaakLinkComponent implements OnDestroy {
     { initialValue: this.form.controls.caseRelationType.value },
   );
 
+  private readonly formValue = toSignal(this.form.valueChanges, {
+    initialValue: this.form.getRawValue(),
+  });
+
+  protected readonly hasSearchCriteria = computed(() => {
+    const {
+      caseNumberToSearchFor,
+      caseDescriptionToSearchFor,
+      caseTypeToSearchFor,
+    } = this.formValue();
+    return Boolean(
+      caseNumberToSearchFor ||
+      caseDescriptionToSearchFor ||
+      caseTypeToSearchFor ||
+      this.startdatum().van ||
+      this.startdatum().tot ||
+      this.einddatum().van ||
+      this.einddatum().tot,
+    );
+  });
+
+  protected dateRangeChanged(
+    range: ReturnType<typeof this.startdatum>,
+    target: typeof this.startdatum,
+  ) {
+    target.set({ ...range });
+  }
+
   protected readonly ownZaakBlockedReason = computed(() => {
     switch (this.caseRelationType()?.value) {
       case "HOOFDZAAK":
-        if (this.zaak.isDeelzaak) {
+        if (this.zaak().isDeelzaak) {
           return "zaak.koppelen.geblokkeerd.al-deelzaak-van-andere-zaak";
         }
-        if (this.zaak.isHoofdzaak) {
+        if (this.zaak().isHoofdzaak) {
           return "zaak.koppelen.geblokkeerd.heeft-al-deelzaken";
         }
         return null;
       case "DEELZAAK":
-        return this.zaak.isDeelzaak
+        return this.zaak().isDeelzaak
           ? "zaak.koppelen.geblokkeerd.is-zelf-deelzaak"
           : null;
       default:
@@ -231,7 +261,7 @@ export class ZaakLinkComponent implements OnDestroy {
   protected rowDisabled(
     row: GeneratedType<"RestZaakKoppelenZoekObject">,
   ): boolean {
-    return !row.isKoppelbaar || row.identificatie === this.zaak.identificatie;
+    return !row.isKoppelbaar || row.identificatie === this.zaak().identificatie;
   }
 
   protected isLinking(
@@ -250,14 +280,15 @@ export class ZaakLinkComponent implements OnDestroy {
 
   protected reset() {
     this.form.reset();
-    this.startdatum = { van: null, tot: null };
-    this.einddatum = { van: null, tot: null };
+    this.startdatum.set({ van: null, tot: null });
+    this.einddatum.set({ van: null, tot: null });
     this.clearSearchResult();
   }
 
   protected clearSearchResult() {
     this.cases.data = [];
     this.totalCases = 0;
+    this.hasSearched = false;
     this.loading = false;
     this.utilService.setLoading(false);
   }
