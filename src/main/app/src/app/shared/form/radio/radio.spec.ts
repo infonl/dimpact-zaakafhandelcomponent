@@ -21,6 +21,7 @@ import {
 } from "@angular/material/radio/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { ZacRadio } from "./radio";
 
 interface TestOption {
@@ -108,9 +109,7 @@ describe(ZacRadio.name, () => {
     });
 
     it("renders a label for the group", () => {
-      const label: HTMLElement =
-        fixture.nativeElement.querySelector("mat-label");
-      expect(label).not.toBeNull();
+      expect(screen.getByText(/choice/i)).toBeInTheDocument();
     });
   });
 
@@ -130,9 +129,7 @@ describe(ZacRadio.name, () => {
       componentRef.setInput("options", [optionA]);
       fixture.detectChanges();
 
-      const label: HTMLElement =
-        fixture.nativeElement.querySelector("mat-label");
-      expect(label.textContent).not.toContain("*");
+      expect(screen.getByText(/choice/i).textContent).not.toContain("*");
     });
   });
 

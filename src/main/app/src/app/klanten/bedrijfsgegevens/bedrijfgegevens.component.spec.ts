@@ -24,6 +24,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
@@ -228,10 +229,7 @@ describe(BedrijfsgegevensComponent.name, () => {
     });
 
     it("renders the bedrijf type from bedrijfQuery data, not the identificatieType", () => {
-      const typeField: HTMLElement = fixture.nativeElement.querySelector(
-        'zac-static-text[label="type"]',
-      );
-      expect(typeField?.textContent).toContain("fakeType1");
+      expect(screen.getByText("fakeType1")).toBeInTheDocument();
     });
   });
 
@@ -261,11 +259,8 @@ describe(BedrijfsgegevensComponent.name, () => {
       await sleep();
       fixture.detectChanges();
 
-      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
-        'zac-static-text[label="telefoonnummer"]',
-      );
-      expect(telefoonField?.textContent).toContain("0612345678");
-      expect(telefoonField?.textContent).not.toContain("0299123456");
+      expect(screen.getByText("0612345678")).toBeInTheDocument();
+      expect(screen.queryByText("0299123456")).not.toBeInTheDocument();
     });
 
     it("renders the zaak-specific emailAddress when set, overriding the bedrijf emailadres", async () => {
@@ -285,11 +280,8 @@ describe(BedrijfsgegevensComponent.name, () => {
       await sleep();
       fixture.detectChanges();
 
-      const emailField: HTMLElement = fixture.nativeElement.querySelector(
-        'zac-static-text[label="emailadres"]',
-      );
-      expect(emailField?.textContent).toContain("zaak@example.com");
-      expect(emailField?.textContent).not.toContain("bedrijf@example.com");
+      expect(screen.getByText("zaak@example.com")).toBeInTheDocument();
+      expect(screen.queryByText("bedrijf@example.com")).not.toBeInTheDocument();
     });
 
     it("falls back to the bedrijf telefoonnummer and emailadres when zaakSpecificContactDetails is absent", async () => {
@@ -302,14 +294,8 @@ describe(BedrijfsgegevensComponent.name, () => {
       await sleep();
       fixture.detectChanges();
 
-      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
-        'zac-static-text[label="telefoonnummer"]',
-      );
-      const emailField: HTMLElement = fixture.nativeElement.querySelector(
-        'zac-static-text[label="emailadres"]',
-      );
-      expect(telefoonField?.textContent).toContain("0299123456");
-      expect(emailField?.textContent).toContain("bedrijf@example.com");
+      expect(screen.getByText("0299123456")).toBeInTheDocument();
+      expect(screen.getByText("bedrijf@example.com")).toBeInTheDocument();
     });
 
     it("falls back per-field to bedrijf data when only one zaak-specific contact value is set", async () => {
@@ -333,14 +319,8 @@ describe(BedrijfsgegevensComponent.name, () => {
       await sleep();
       fixture.detectChanges();
 
-      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
-        'zac-static-text[label="telefoonnummer"]',
-      );
-      const emailField: HTMLElement = fixture.nativeElement.querySelector(
-        'zac-static-text[label="emailadres"]',
-      );
-      expect(telefoonField?.textContent).toContain("0612345678");
-      expect(emailField?.textContent).toContain("bedrijf@example.com");
+      expect(screen.getByText("0612345678")).toBeInTheDocument();
+      expect(screen.getByText("bedrijf@example.com")).toBeInTheDocument();
     });
 
     it("shows the aanvraagspecifiek hint when telephoneNumber comes from contact details", async () => {
@@ -360,14 +340,9 @@ describe(BedrijfsgegevensComponent.name, () => {
       await sleep();
       fixture.detectChanges();
 
-      const hints: HTMLElement[] = Array.from(
-        fixture.nativeElement.querySelectorAll(".hint"),
-      );
       expect(
-        hints.some((h) =>
-          h.textContent?.includes("initiator.aanvraagspecifiek-telefoonnummer"),
-        ),
-      ).toBe(true);
+        screen.getByText("initiator.aanvraagspecifiek-telefoonnummer"),
+      ).toBeInTheDocument();
     });
 
     it("shows the aanvraagspecifiek hint when emailAddress comes from contact details", async () => {
@@ -387,14 +362,9 @@ describe(BedrijfsgegevensComponent.name, () => {
       await sleep();
       fixture.detectChanges();
 
-      const hints: HTMLElement[] = Array.from(
-        fixture.nativeElement.querySelectorAll(".hint"),
-      );
       expect(
-        hints.some((h) =>
-          h.textContent?.includes("initiator.aanvraagspecifiek-emailadres"),
-        ),
-      ).toBe(true);
+        screen.getByText("initiator.aanvraagspecifiek-emailadres"),
+      ).toBeInTheDocument();
     });
 
     it("does not show any aanvraagspecifiek hint when no zaak-specific contact details are set", async () => {
@@ -407,7 +377,12 @@ describe(BedrijfsgegevensComponent.name, () => {
       await sleep();
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector(".hint")).toBeNull();
+      expect(
+        screen.queryByText("initiator.aanvraagspecifiek-telefoonnummer"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("initiator.aanvraagspecifiek-emailadres"),
+      ).not.toBeInTheDocument();
     });
   });
 

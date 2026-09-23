@@ -20,6 +20,7 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { render, screen } from "@testing-library/angular";
 import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../material/material.module";
 import { ZacInput } from "./input";
@@ -397,11 +398,30 @@ describe(ZacInput.name, () => {
       const hints = await formField.getTextHints();
       expect(hints.length).toBeGreaterThanOrEqual(1);
     });
+  });
+});
 
-    it("should project suffix content", () => {
-      expect(
-        fixture.nativeElement.querySelector("span[matSuffix]"),
-      ).toBeTruthy();
-    });
+describe(`${ZacInput.name} content projection into the suffix slot`, () => {
+  it("should project suffix content", async () => {
+    await render(
+      `<zac-input [form]="form" key="name"><button type="button">Zoeken</button></zac-input>`,
+      {
+        imports: [
+          ZacInput,
+          ReactiveFormsModule,
+          MaterialModule,
+          TranslateModule.forRoot(),
+          MaterialFormBuilderModule,
+          NoopAnimationsModule,
+        ],
+        componentProperties: {
+          form: new FormGroup({
+            name: new FormControl<string | null>(null, { nonNullable: true }),
+          }),
+        },
+      },
+    );
+
+    expect(screen.getByRole("button", { name: "Zoeken" })).toBeInTheDocument();
   });
 });
