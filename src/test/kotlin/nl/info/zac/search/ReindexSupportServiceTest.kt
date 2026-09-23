@@ -308,7 +308,9 @@ class ReindexSupportServiceTest : BehaviorSpec({
         every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
         )
-        every { ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns createZaakToewijzing(
+        every {
+            ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+        } returns createZaakToewijzing(
             behandelaarRollen = listOf(
                 createRolMedewerker(
                     medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
@@ -335,6 +337,10 @@ class ReindexSupportServiceTest : BehaviorSpec({
             then("the zaak is not read again, since the caller already provided it") {
                 verify(exactly = 0) { ctx.zrcClientService.readZaak(zaak.uuid) }
             }
+
+            then("the zaakspecifieke autorisatie of the zaak is read only once") {
+                verify(exactly = 1) { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) }
+            }
         }
     }
 
@@ -345,7 +351,9 @@ class ReindexSupportServiceTest : BehaviorSpec({
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
         )
         every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns createZaakToewijzing(
+        every {
+            ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+        } returns createZaakToewijzing(
             zaakspecifiekGeautoriseerdeMedewerkers = listOf(
                 createRolMedewerker(
                     medewerkerIdentificatie = createMedewerkerIdentificatie(

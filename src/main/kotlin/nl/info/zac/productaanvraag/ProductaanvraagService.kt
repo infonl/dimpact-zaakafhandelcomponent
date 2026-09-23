@@ -33,6 +33,7 @@ import nl.info.zac.authentication.runAsLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
@@ -61,6 +62,7 @@ class ProductaanvraagService @Inject constructor(
     private val zgwApiService: ZgwApiService,
     private val ztcClientService: ZtcClientService,
     private val zaakService: ZaakService,
+    private val identityService: IdentityService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val inboxDocumentService: InboxDocumentService,
@@ -138,6 +140,21 @@ class ProductaanvraagService @Inject constructor(
             JsonbUtil.JSONB.toJson(productaanvraagObject.record.data),
             ProductaanvraagDimpact::class.java
         )
+
+    /**
+     * A default behandelaar that is no longer a member of the default group is a stale configuration. It must not
+     * stop the intake, so the zaak is then assigned to the group only.
+     */
+    private fun findValidDefaultBehandelaarId(groupId: String?, defaultBehandelaarId: String?, zaak: Zaak): String? {
+        if (defaultBehandelaarId == null || groupId == null || identityService.isUserInGroup(defaultBehandelaarId, groupId)) {
+            return defaultBehandelaarId
+        }
+        LOG.warning {
+            "Default behandelaar '$defaultBehandelaarId' is not a member of default group '$groupId'. " +
+                "Therefore zaak with UUID '${zaak.uuid}' is assigned to the group only."
+        }
+        return null
+    }
 
     private fun assignZaak(zaak: Zaak, groupId: String?, behandelaarId: String?) {
         if (groupId == null && behandelaarId == null) return
@@ -302,10 +319,15 @@ class ProductaanvraagService @Inject constructor(
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
+        val behandelaarId = findValidDefaultBehandelaarId(
+            groupId = zaaktypeBpmnConfiguration.groepID,
+            defaultBehandelaarId = zaaktypeBpmnConfiguration.defaultBehandelaarId,
+            zaak = zaak
+        )
         val baseBpmnVariablesMap = getAanvraaggegevens(productaanvraagObject)
         val zaakDataVariablesMap = baseBpmnVariablesMap + buildMap {
             zaaktypeBpmnConfiguration.groepID?.let { put(VAR_ZAAK_GROUP, it) }
-            zaaktypeBpmnConfiguration.defaultBehandelaarId?.let { put(VAR_ZAAK_USER, it) }
+            behandelaarId?.let { put(VAR_ZAAK_USER, it) }
             zaak.communicatiekanaalNaam?.let { put(VAR_ZAAK_COMMUNICATIEKANAAL, it) }
         }
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
@@ -317,7 +339,7 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(
             zaak = zaak,
             groupId = zaaktypeBpmnConfiguration.groepID,
-            behandelaarId = zaaktypeBpmnConfiguration.defaultBehandelaarId
+            behandelaarId = behandelaarId
         )
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         productaanvraagBetrokkeneService.addInitiatorAndBetrokkenenToZaak(
@@ -373,7 +395,11 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(
             zaak = zaak,
             groupId = zaaktypeCmmnConfiguration.groepID,
-            behandelaarId = zaaktypeCmmnConfiguration.defaultBehandelaarId
+            behandelaarId = findValidDefaultBehandelaarId(
+                groupId = zaaktypeCmmnConfiguration.groepID,
+                defaultBehandelaarId = zaaktypeCmmnConfiguration.defaultBehandelaarId,
+                zaak = zaak
+            )
         )
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         productaanvraagBetrokkeneService.addInitiatorAndBetrokkenenToZaak(

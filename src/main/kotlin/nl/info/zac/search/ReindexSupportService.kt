@@ -326,12 +326,15 @@ class ReindexSupportService @Inject constructor(
         zaakAutorisatieGegevens(zaakUUID) { zrcClientService.readZaak(zaakUUID) }
 
     private fun zaakAutorisatieGegevens(zaakUUID: UUID, zaakSupplier: () -> Zaak) =
-        ZaakAutorisatieGegevens(
-            isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-        ) {
-            zaakspecifiekeAutorisatieService.readZaakToewijzing(zaakSupplier())
-                .geautoriseerdeMedewerkerIds
-                .toList()
+        zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID).let { isZaakspecifiekGeautoriseerd ->
+            ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd) {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(
+                    zaak = zaakSupplier(),
+                    isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
+                )
+                    .geautoriseerdeMedewerkerIds
+                    .toList()
+            }
         }
 
     internal fun reindexAllZaken(): ReindexSummary? {

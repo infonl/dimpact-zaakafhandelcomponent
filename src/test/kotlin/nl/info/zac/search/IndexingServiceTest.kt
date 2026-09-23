@@ -187,7 +187,9 @@ private fun TestContext.stubZaakGeautoriseerdeMedewerkersLookup(
     zaak: Zaak,
     medewerkerId: String? = "fakeBehandelaarId"
 ) {
-    every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns
+    every {
+        zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = any())
+    } returns
         createZaakToewijzingWithBehandelaar(medewerkerId)
 }
 
@@ -2360,7 +2362,9 @@ class IndexingServiceTest : BehaviorSpec({
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
         )
         every { ctx.zrcClientService.readZaak(zaakUUID) } returns zaak
-        every { ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returnsMany listOf(
+        every {
+            ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = any())
+        } returnsMany listOf(
             createZaakToewijzingWithBehandelaar("fakeFirstMedewerkerId"),
             createZaakToewijzingWithBehandelaar("fakeSecondMedewerkerId")
         )
