@@ -91,7 +91,7 @@ describe(FormioWrapperComponent.name, () => {
 
       component.ngOnChanges(submitPendingChange(true, false));
 
-      expect(listener).toHaveBeenCalledWith(true);
+      expect(listener).toHaveBeenCalledWith({});
     });
 
     it("should keep the button held while the submit is still running", () => {

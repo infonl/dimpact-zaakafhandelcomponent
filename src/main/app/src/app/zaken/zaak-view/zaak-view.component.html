@@ -27,121 +27,172 @@
     #actionsSidenav
     mode="over"
     position="end"
-    [ngSwitch]="sideActions.activeAction()"
     class="side-nav-container"
     (closedStart)="sideActions.clear()"
   >
-    <zac-klant-koppel
-      *ngSwitchCase="'actie.initiator.koppelen'"
-      [sideNav]="actionsSidenav"
-      (klantGegevens)="initiatorGeselecteerd($event.klant)"
-      [initiator]="true"
-      [allowBedrijf]="allowBedrijf()"
-      [allowPersoon]="allowPersoon()"
-      [zaaktypeUUID]="zaak.zaaktype.uuid"
-    ></zac-klant-koppel>
-    <zac-klant-koppel
-      *ngSwitchCase="'actie.betrokkene.koppelen'"
-      (klantGegevens)="betrokkeneGeselecteerd($event)"
-      [sideNav]="actionsSidenav"
-      [zaaktypeUUID]="zaak.zaaktype.uuid"
-      [allowBedrijf]="allowBedrijf()"
-      [allowPersoon]="allowPersoon()"
-    ></zac-klant-koppel>
-    <zac-bag-zoek
-      *ngSwitchCase="'actie.bagObject.koppelen'"
-      [gekoppeldeBagObjecten]="gekoppeldeBagObjecten"
-      [sideNav]="actionsSidenav"
-      (bagObject)="adresGeselecteerd($event)"
-    ></zac-bag-zoek>
-    <zac-case-details-edit
-      *ngSwitchCase="'actie.zaak.wijzigen'"
-      [zaak]="zaak"
-      [loggedInUser]="loggedInUser.data()!"
-      [sideNav]="actionsSidenav"
-    ></zac-case-details-edit>
-    <zac-case-location-edit
-      *ngSwitchCase="'actie.zaak.locatie.koppelen'"
-      [zaak]="zaak"
-      [sideNav]="actionsSidenav"
-      (locatie)="locationSelected()"
-    ></zac-case-location-edit>
-    <zac-informatie-object-create-attended
-      *ngSwitchCase="'actie.document.maken'"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-      (document)="documentCreated()"
-    ></zac-informatie-object-create-attended>
-    <zac-informatie-object-add
-      *ngSwitchCase="'actie.document.toevoegen'"
-      [sideNav]="actionsSidenav"
-      [zaakUuid]="zaak!.uuid"
-      (document)="documentToegevoegd()"
-    ></zac-informatie-object-add>
-    <zac-informatie-verzenden
-      *ngSwitchCase="'actie.document.verzenden'"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-      (documentSent)="documentSent()"
-    ></zac-informatie-verzenden>
-    <zac-human-task-do
-      *ngSwitchCase="sideActions.actiefPlanItem()?.naam ?? 'none'"
-      (done)="taakGestart()"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-      [planItem]="sideActions.actiefPlanItem()"
-    ></zac-human-task-do>
-    <zac-mail-create
-      *ngSwitchCase="'actie.mail.versturen'"
-      (mailVerstuurd)="mailVerstuurd($event)"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-    ></zac-mail-create>
-    <zac-ontvangstbevestiging
-      *ngSwitchCase="'actie.ontvangstbevestiging.versturen'"
-      (ontvangstBevestigd)="ontvangstBevestigd($event)"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-    ></zac-ontvangstbevestiging>
-    <zac-besluit-create
-      *ngSwitchCase="'actie.besluit.vastleggen'"
-      (besluitVastgelegd)="besluitVastgelegd()"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-    ></zac-besluit-create>
-    <zac-besluit-edit
-      *ngSwitchCase="'actie.besluit.wijzigen'"
-      (besluitGewijzigd)="besluitVastgelegd()"
-      [sideNav]="actionsSidenav"
-      [besluit]="teWijzigenBesluit"
-      [zaak]="zaak"
-    ></zac-besluit-edit>
-    <zac-informatie-object-link
-      *ngSwitchCase="'actie.document.verplaatsen'"
-      actionLabel="actie.document.verplaatsen"
-      [infoObject]="documentToMove"
-      [sideNav]="actionsSidenav"
-      [source]="zaak.identificatie"
-      (informationObjectLinked)="updateDocumentList()"
-    />
-    <zac-zaak-link
-      *ngSwitchCase="'actie.zaak.koppelen'"
-      [zaak]="zaak"
-      [sideNav]="actionsSidenav"
-      (zaakLinked)="zaakLinked()"
-    ></zac-zaak-link>
-    <zac-zaakdata
-      *ngSwitchCase="'actie.zaakdata.bekijken'"
-      [readonly]="true"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-    ></zac-zaakdata>
-    <zac-zaak-process-flow
-      *ngSwitchCase="'actie.procesverloop.bekijken'"
-      class="flex-col flex-fill-col"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-    ></zac-zaak-process-flow>
+    @let activeAction = sideActions.activeAction();
+    @if (activeAction === "actie.initiator.koppelen") {
+      @defer (on immediate) {
+        <zac-klant-koppel
+          [sideNav]="actionsSidenav"
+          (klantGegevens)="initiatorGeselecteerd($event.klant)"
+          [initiator]="true"
+          [allowBedrijf]="allowBedrijf()"
+          [allowPersoon]="allowPersoon()"
+          [zaaktypeUUID]="zaak.zaaktype.uuid"
+        ></zac-klant-koppel>
+      }
+    }
+    @if (activeAction === "actie.betrokkene.koppelen") {
+      @defer (on immediate) {
+        <zac-klant-koppel
+          (klantGegevens)="betrokkeneGeselecteerd($event)"
+          [sideNav]="actionsSidenav"
+          [zaaktypeUUID]="zaak.zaaktype.uuid"
+          [allowBedrijf]="allowBedrijf()"
+          [allowPersoon]="allowPersoon()"
+        ></zac-klant-koppel>
+      }
+    }
+    @if (activeAction === "actie.bagObject.koppelen") {
+      @defer (on immediate) {
+        <zac-bag-zoek
+          [gekoppeldeBagObjecten]="gekoppeldeBagObjecten"
+          [sideNav]="actionsSidenav"
+          (bagObject)="adresGeselecteerd($event)"
+        ></zac-bag-zoek>
+      }
+    }
+    @if (activeAction === "actie.zaak.wijzigen") {
+      @defer (on immediate) {
+        <zac-case-details-edit
+          [zaak]="zaak"
+          [loggedInUser]="loggedInUser.data()!"
+          [sideNav]="actionsSidenav"
+        ></zac-case-details-edit>
+      }
+    }
+    @if (activeAction === "actie.zaak.locatie.koppelen") {
+      @defer (on immediate) {
+        <zac-case-location-edit
+          [zaak]="zaak"
+          [sideNav]="actionsSidenav"
+          (locatie)="locationSelected()"
+        ></zac-case-location-edit>
+      }
+    }
+    @if (activeAction === "actie.document.maken") {
+      @defer (on immediate) {
+        <zac-informatie-object-create-attended
+          [sideNav]="actionsSidenav"
+          [zaak]="zaak"
+          (document)="documentCreated()"
+        ></zac-informatie-object-create-attended>
+      }
+    }
+    @if (activeAction === "actie.document.toevoegen") {
+      @defer (on immediate) {
+        <zac-informatie-object-add
+          [sideNav]="actionsSidenav"
+          [zaakUuid]="zaak!.uuid"
+          (document)="documentToegevoegd()"
+        ></zac-informatie-object-add>
+      }
+    }
+    @if (activeAction === "actie.document.verzenden") {
+      @defer (on immediate) {
+        <zac-informatie-verzenden
+          [sideNav]="actionsSidenav"
+          [zaak]="zaak"
+          (documentSent)="documentSent()"
+        ></zac-informatie-verzenden>
+      }
+    }
+    @if (activeAction === (sideActions.actiefPlanItem()?.naam ?? "none")) {
+      @defer (on immediate) {
+        <zac-human-task-do
+          (done)="taakGestart()"
+          [sideNav]="actionsSidenav"
+          [zaak]="zaak"
+          [planItem]="sideActions.actiefPlanItem()"
+        ></zac-human-task-do>
+      }
+    }
+    @if (activeAction === "actie.mail.versturen") {
+      @defer (on immediate) {
+        <zac-mail-create
+          (mailVerstuurd)="mailVerstuurd($event)"
+          [sideNav]="actionsSidenav"
+          [zaak]="zaak"
+        ></zac-mail-create>
+      }
+    }
+    @if (activeAction === "actie.ontvangstbevestiging.versturen") {
+      @defer (on immediate) {
+        <zac-ontvangstbevestiging
+          (ontvangstBevestigd)="ontvangstBevestigd($event)"
+          [sideNav]="actionsSidenav"
+          [zaak]="zaak"
+        ></zac-ontvangstbevestiging>
+      }
+    }
+    @if (activeAction === "actie.besluit.vastleggen") {
+      @defer (on immediate) {
+        <zac-besluit-create
+          (besluitVastgelegd)="besluitVastgelegd()"
+          [sideNav]="actionsSidenav"
+          [zaak]="zaak"
+        ></zac-besluit-create>
+      }
+    }
+    @if (activeAction === "actie.besluit.wijzigen") {
+      @defer (on immediate) {
+        <zac-besluit-edit
+          (besluitGewijzigd)="besluitVastgelegd()"
+          [sideNav]="actionsSidenav"
+          [besluit]="teWijzigenBesluit"
+          [zaak]="zaak"
+        ></zac-besluit-edit>
+      }
+    }
+    @if (activeAction === "actie.document.verplaatsen") {
+      @defer (on immediate) {
+        <zac-informatie-object-link
+          actionLabel="actie.document.verplaatsen"
+          [infoObject]="documentToMove"
+          [sideNav]="actionsSidenav"
+          [source]="zaak.identificatie"
+          (informationObjectLinked)="updateDocumentList()"
+        />
+      }
+    }
+    @if (activeAction === "actie.zaak.koppelen") {
+      @defer (on immediate) {
+        <zac-zaak-link
+          [zaak]="zaak"
+          [sideNav]="actionsSidenav"
+          (zaakLinked)="zaakLinked()"
+        ></zac-zaak-link>
+      }
+    }
+    @if (activeAction === "actie.zaakdata.bekijken") {
+      @defer (on immediate) {
+        <zac-zaakdata
+          [readonly]="true"
+          [sideNav]="actionsSidenav"
+          [zaak]="zaak"
+        ></zac-zaakdata>
+      }
+    }
+    @if (activeAction === "actie.procesverloop.bekijken") {
+      @defer (on immediate) {
+        <zac-zaak-process-flow
+          class="flex-col flex-fill-col"
+          [sideNav]="actionsSidenav"
+          [zaak]="zaak"
+        ></zac-zaak-process-flow>
+      }
+    }
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-12">

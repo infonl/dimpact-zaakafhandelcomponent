@@ -150,6 +150,10 @@ describe(InformatieObjectViewComponent.name, () => {
 
     const configuratieService = TestBed.inject(ConfiguratieService);
     jest.spyOn(configuratieService, "listTalen").mockReturnValue(of([]));
+    testQueryClient.setQueryData(
+      configuratieService.readAllowedFileTypesQuery().queryKey,
+      [],
+    );
 
     const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
     jest

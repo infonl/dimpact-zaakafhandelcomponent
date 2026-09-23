@@ -1782,6 +1782,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns zaaktypeBpmnConfiguration
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("zaak final date is set to a later date") {
@@ -1807,6 +1808,58 @@ class ZaakRestServiceTest : BehaviorSpec({
                 and("screen event signals are sent") {
                     verify(exactly = 3) {
                         eventingService.send(any<ScreenEvent>())
+                    }
+                }
+            }
+        }
+
+        given("a BPMN zaak whose process has already ended, with a new communication channel") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType(servicenorm = "P10D")
+            val zaakRechten = createZaakRechten()
+            val restZaakCreateData = createRestZaakCreateData()
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+            val patchedZaak = createZaak()
+            val patchedRestZaak = createRestZaak()
+            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
+            val loggedInUser = createLoggedInUser()
+
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
+            } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(zaak) } returns false
+            every {
+                zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(zaakType, any(), false, any(), loggedInUser)
+            } returns false
+            every { zgwApiService.findGroepForZaak(zaak) } returns createRolOrganisatorischeEenheid(
+                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(identificatie = "fakeId")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { zaakService.assignZaak(any(), any(), any(), any()) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten, loggedInUser) } returns patchedRestZaak
+            every {
+                identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
+            } just runs
+            every {
+                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, any())
+            } returns emptyList()
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns zaaktypeBpmnConfiguration
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the zaak is updated") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the communication channel is not synced to the process, because there is no live process to sync to") {
+                    verify(exactly = 0) {
+                        zaakVariabelenService.setCommunicationChannel(any(), any())
                     }
                 }
             }

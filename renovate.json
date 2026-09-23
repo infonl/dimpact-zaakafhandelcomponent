@@ -595,6 +595,9 @@
         "docker"
       ],
       "allowedVersions": "< 1.30.0",
+      "prBodyNotes": [
+        "After merging the Docker Compose change, regenerate the pre-migrated Open Zaak database dump by running `scripts/docker-compose/regenerate-openzaak-database-dump.sh` and commit the result, so that Open Zaak keeps starting without pending database migrations."
+      ],
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]

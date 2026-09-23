@@ -16,6 +16,7 @@ import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.bag.BagClientService
 import nl.info.client.brp.BrpClientService
+import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
 import nl.info.client.klant.KlantClientService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
@@ -33,6 +34,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRP_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRP_TEMPORARY_PERSON_ID_EXPIRED
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
@@ -83,6 +85,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun toResponse(exception: Exception): Response =
         when (exception) {
+            is BrpTemporaryPersonIdNotCachedException -> generateResponse(
+                responseStatus = Response.Status.GONE,
+                errorCode = ERROR_CODE_BRP_TEMPORARY_PERSON_ID_EXPIRED,
+                exception = exception,
+                logLevel = Level.FINE
+            )
             is WebApplicationException if
             Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
                 createResponse(exception)

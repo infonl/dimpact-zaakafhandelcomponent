@@ -4,15 +4,22 @@
  */
 package nl.info.zac.itest.config
 
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.exception.ConflictException
+import com.github.dockerjava.api.exception.NotFoundException
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.extensions.Extension
 import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.SpecExecutionOrder
+import io.kotest.engine.concurrency.ConcurrencyOrder
+import io.kotest.engine.concurrency.SpecExecutionMode
+import io.kotest.engine.coroutines.ThreadPerSpecCoroutineContextFactory
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
@@ -91,6 +98,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KE
 import okhttp3.Headers
 import org.json.JSONObject
 import org.slf4j.Logger
+import org.testcontainers.DockerClientFactory
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
@@ -117,13 +125,18 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
         private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
         private const val DOCKER_USE_ARM64_CONTAINERS_ENV_VAR = "DOCKER_USE_ARM64_CONTAINERS"
+        private const val COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
+        private const val SPEC_CONCURRENCY_SYSTEM_PROPERTY = "zac.itest.specConcurrency"
+        private const val DEFAULT_SPEC_CONCURRENCY = 3
 
         private val logger = KotlinLogging.logger {}
+        private val dockerClient: DockerClient by lazy { DockerClientFactory.instance().client() }
         private val itestHttpClient = ItestHttpClient()
         private val zacClient = ZacClient()
         private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
         private val skipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
         private val skipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
+        private val specConcurrency = System.getProperty(SPEC_CONCURRENCY_SYSTEM_PROPERTY)?.toInt() ?: DEFAULT_SPEC_CONCURRENCY
 
         // All variables below have to be overridable in the docker-compose.yaml file
         private val dockerComposeOverrideEnvironment = mapOf(
@@ -169,24 +182,45 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     override val specExecutionOrder = SpecExecutionOrder.Random
 
     /**
-     * Purge GreenMail's email store before each spec to prevent emails sent by one spec
-     * from leaking into another spec's assertions.
+     * Run the specs concurrently against the shared Docker Compose stack, each spec on its own thread.
+     * Specs that touch global state (mail, reindexing, container logs, admin jobs, shared configuration)
+     * carry Kotest's `@Isolate` annotation and run one by one before the concurrent specs.
+     * The number of concurrent specs can be overridden with the `zac.itest.specConcurrency` system property.
+     */
+    override val specExecutionMode = SpecExecutionMode.LimitedConcurrency(specConcurrency)
+
+    override val concurrencyOrder = ConcurrencyOrder.IsolateFirst
+
+    override val coroutineDispatcherFactory = ThreadPerSpecCoroutineContextFactory
+
+    /**
+     * Purge GreenMail's email store before each isolated spec, so that a spec that asserts on mail sent to
+     * a shared mailbox starts from an empty store. Isolated specs run one by one, so this never removes mail
+     * that a running spec still needs. A spec that asserts on mail while running concurrently has to use
+     * recipient addresses that no other spec uses.
      */
     override val extensions: List<Extension> = listOf(
+        ItestTimingReport,
         object : BeforeSpecListener {
             override suspend fun beforeSpec(spec: Spec) {
-                logger.info { "Purging GreenMail email store before spec '${spec::class.simpleName}'" }
-                itestHttpClient.performDeleteRequest(url = "$GREENMAIL_API_URI/service")
+                if (spec::class.java.isAnnotationPresent(Isolate::class.java)) {
+                    logger.info { "Purging GreenMail email store before isolated spec '${spec::class.simpleName}'" }
+                    itestHttpClient.performDeleteRequest(url = "$GREENMAIL_API_URI/service")
+                }
             }
         }
     )
 
     override suspend fun beforeProject() {
-        logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
+        ItestTimingReport.markPhase(ItestTimingReport.PHASE_RUN_STARTED)
+        logger.info {
+            "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
+        }
         try {
             if (!skipDockerComposeStart) {
                 dockerComposeContainer = createDockerComposeContainer()
                 dockerComposeContainer.start()
+                ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
                 logger.info { "Started ZAC Docker Compose containers" }
             } else {
                 logger.warn {
@@ -206,6 +240,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                     url = KEYCLOAK_HEALTH_READY_URL
                 ).code shouldBe HTTP_OK
             }
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_KEYCLOAK_HEALTHY)
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
             eventually(60.seconds) {
@@ -217,9 +252,11 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                     JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
                 }
             }
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
             logger.info { "ZAC is healthy" }
             if (!skipDockerComposeStart) {
                 createTestSetupData()
+                ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
             }
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker Compose containers" }
@@ -236,10 +273,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 }
                 return
             }
+            val composeProjectName = findComposeProjectName()
+            composeProjectName?.let { ItestTimingReport.collectContainerTimings(dockerClient, it) }
             if (skipContainerCleanup) {
                 logger.warn {
                     "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
                 }
+                ItestTimingReport.writeReport()
                 Runtime.getRuntime().halt(0)
             }
 
@@ -254,11 +294,38 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                     .exec()
                 logger.info { "Stopped ZAC Docker container" }
             }
-            // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_STOPPED)
+            // the other containers hold no state worth preserving, so kill them instead of waiting
+            // for each of them to handle a stop signal, and then let Docker Compose remove them
+            composeProjectName?.let(::killRunningContainers)
             dockerComposeContainer.withOptions("--profile itest").stop()
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_REMOVED)
         } finally {
             emptyEnvFile?.delete()
+            ItestTimingReport.writeReport()
         }
+    }
+
+    private fun findComposeProjectName() =
+        listOf(ZAC_CONTAINER_SERVICE_NAME, "keycloak", "solr").firstNotNullOfOrNull { serviceName ->
+            dockerComposeContainer.getContainerByServiceName(serviceName).getOrNull()
+                ?.containerInfo?.config?.labels?.get(COMPOSE_PROJECT_LABEL)
+        }
+
+    private fun killRunningContainers(composeProjectName: String) {
+        dockerClient.listContainersCmd()
+            .withLabelFilter(mapOf(COMPOSE_PROJECT_LABEL to composeProjectName))
+            .exec()
+            .forEach { container ->
+                try {
+                    dockerClient.killContainerCmd(container.id).exec()
+                } catch (conflictException: ConflictException) {
+                    logger.debug { "Container '${container.id}' was no longer running: ${conflictException.message}" }
+                } catch (notFoundException: NotFoundException) {
+                    logger.debug { "Container '${container.id}' was already removed: ${notFoundException.message}" }
+                }
+            }
+        logger.info { "Killed the remaining Docker Compose containers of project '$composeProjectName'" }
     }
 
     @Suppress("UNCHECKED_CAST", "LongMethod")
@@ -311,11 +378,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
                     "ZAC"
                 )
-            )
-            .waitingFor(
-                "opa-tests",
-                OneShotStartupWaitStrategy()
-                    .withStartupTimeout(10.seconds.toJavaDuration())
             )
             .waitingFor(
                 "openzaak-app.local",

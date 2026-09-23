@@ -119,6 +119,10 @@ describe(ZaakLinkComponent.name, () => {
         ) as never,
       );
 
+  const enterSearchCriterion = async () => {
+    await user.type(screen.getByLabelText("Zaak.identificatie"), "ZAAK-2026");
+  };
+
   const clickSearch = async () => {
     await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
     await sleep();
@@ -172,12 +176,82 @@ describe(ZaakLinkComponent.name, () => {
   it.each([
     ["HOOFDZAAK", "zaak.koppelen.hint.hoofdzaak-aan-deelzaak"],
     ["DEELZAAK", "zaak.koppelen.hint.deelzaak-aan-hoofdzaak"],
+    ["GERELATEERD", "zaak.koppelen.hint.gerelateerd"],
   ])("explains what linking a %s means", async (relationType, hint) => {
     await setup();
 
     await chooseRelationType(relationType);
 
     expect(screen.getByText(hint)).toBeVisible();
+  });
+
+  it.each([
+    ["HOOFDZAAK", "zaak.koppelen.geblokkeerd.al-deelzaak-van-andere-zaak"],
+    ["DEELZAAK", "zaak.koppelen.geblokkeerd.is-zelf-deelzaak"],
+  ])(
+    "replaces the search form with an explanation when the zaak is itself a deelzaak and %s is chosen",
+    async (relationType, blockedReason) => {
+      await setup({ isDeelzaak: true });
+
+      await chooseRelationType(relationType);
+
+      expect(screen.getByText(blockedReason)).toBeVisible();
+      expect(
+        screen.queryByRole("button", { name: "actie.zoeken" }),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it("blocks the search as soon as the zaak gains deelzaken while the panel is open", async () => {
+    await setup({ isHoofdzaak: false });
+
+    await chooseRelationType("HOOFDZAAK");
+    await fixture.componentRef.setInput(
+      "zaak",
+      makeFakeZaak({ isHoofdzaak: true }),
+    );
+    fixture.detectChanges();
+
+    expect(
+      screen.getByText("zaak.koppelen.geblokkeerd.heeft-al-deelzaken"),
+    ).toBeVisible();
+  });
+
+  it("replaces the search form with an explanation when the zaak already has deelzaken and HOOFDZAAK is chosen", async () => {
+    await setup({ isHoofdzaak: true });
+
+    await chooseRelationType("HOOFDZAAK");
+
+    expect(
+      screen.getByText("zaak.koppelen.geblokkeerd.heeft-al-deelzaken"),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "actie.zoeken" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("still searches for a GERELATEERD link when the zaak is a deelzaak that has deelzaken of its own", async () => {
+    const { zaak } = await setup({ isDeelzaak: true, isHoofdzaak: true });
+    const search = findLinkableZaken([
+      makeFakeSearchResult({ identificatie: "ZAAK-2026-002" }),
+    ]);
+
+    await chooseRelationType("GERELATEERD");
+    await enterSearchCriterion();
+    await clickSearch();
+
+    expect(search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        zaakUuid: zaak.uuid,
+        relationType: "GERELATEERD",
+      }),
+    );
+    expect(
+      screen.getByRole("row", { name: /ZAAK-2026-002/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("zaak.koppelen.geblokkeerd.is-zelf-deelzaak"),
+    ).not.toBeInTheDocument();
   });
 
   it("searches for linkable zaken with the entered criteria", async () => {
@@ -211,11 +285,71 @@ describe(ZaakLinkComponent.name, () => {
     });
   });
 
+  it("cannot be searched until at least one criterion is entered", async () => {
+    await setup();
+
+    await chooseRelationType("DEELZAAK");
+
+    expect(screen.getByRole("button", { name: "actie.zoeken" })).toBeDisabled();
+
+    await enterSearchCriterion();
+    fixture.detectChanges();
+
+    expect(screen.getByRole("button", { name: "actie.zoeken" })).toBeEnabled();
+  });
+
+  it("counts a date range as a criterion of its own", async () => {
+    await setup();
+
+    await chooseRelationType("DEELZAAK");
+    await fillDateRange("Startdatum", "01-01-2026", "31-01-2026");
+    fixture.detectChanges();
+
+    expect(screen.getByRole("button", { name: "actie.zoeken" })).toBeEnabled();
+  });
+
+  it("shows no results table before a search was done", async () => {
+    await setup();
+
+    await chooseRelationType("DEELZAAK");
+
+    expect(screen.queryByRole("table")).toBeNull();
+    expect(screen.queryByText("msg.geen.gegevens.gevonden")).toBeNull();
+  });
+
+  it("reports that no zaken were found when the search comes back empty", async () => {
+    await setup();
+    findLinkableZaken([]);
+
+    await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
+    await clickSearch();
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+    expect(screen.queryByRole("table")).toBeNull();
+  });
+
+  it("does not search again when the search fields are cleared", async () => {
+    await setup();
+    const findLinkableZakenSpy = findLinkableZaken([makeFakeSearchResult()]);
+
+    await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
+    await clickSearch();
+    findLinkableZakenSpy.mockClear();
+
+    await user.click(screen.getByRole("button", { name: "actie.wissen" }));
+    await sleep();
+
+    expect(findLinkableZakenSpy).not.toHaveBeenCalled();
+  });
+
   it("shows the zaken that were found", async () => {
     await setup();
     findLinkableZaken([makeFakeSearchResult()]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
 
     expect(screen.getByRole("row", { name: /ZAAK-2026-002/ })).toBeVisible();
@@ -232,6 +366,7 @@ describe(ZaakLinkComponent.name, () => {
     );
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
 
     expect(screen.queryByText("msg.loading")).toBeNull();
@@ -247,10 +382,11 @@ describe(ZaakLinkComponent.name, () => {
     );
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
 
     expect(
-      screen.getByText("msg.zaak.koppelem.meer-dan-10-gevonden"),
+      screen.getByText("msg.zaak.koppelen.meer-dan-10-gevonden"),
     ).toBeVisible();
   });
 
@@ -259,10 +395,11 @@ describe(ZaakLinkComponent.name, () => {
     findLinkableZaken([makeFakeSearchResult()]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
 
     expect(
-      screen.queryByText("msg.zaak.koppelem.meer-dan-10-gevonden"),
+      screen.queryByText("msg.zaak.koppelen.meer-dan-10-gevonden"),
     ).toBeNull();
   });
 
@@ -271,6 +408,7 @@ describe(ZaakLinkComponent.name, () => {
     findLinkableZaken([makeFakeSearchResult()]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
     await chooseRelationType("HOOFDZAAK");
     fixture.detectChanges();
@@ -283,6 +421,7 @@ describe(ZaakLinkComponent.name, () => {
     findLinkableZaken([makeFakeSearchResult()]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
     await user.click(screen.getByRole("button", { name: "actie.wissen" }));
     fixture.detectChanges();
@@ -301,6 +440,7 @@ describe(ZaakLinkComponent.name, () => {
     ]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
 
     expect(linkButtonOfRow("ZAAK-2026-003")).toBeDisabled();
@@ -313,6 +453,7 @@ describe(ZaakLinkComponent.name, () => {
     ]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
 
     expect(linkButtonOfRow("ZAAK-2026-001")).toBeDisabled();
@@ -323,6 +464,7 @@ describe(ZaakLinkComponent.name, () => {
     findLinkableZaken([makeFakeSearchResult()]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
     await user.click(linkButtonOfRow("ZAAK-2026-002"));
     await sleep();
@@ -352,6 +494,7 @@ describe(ZaakLinkComponent.name, () => {
     findLinkableZaken([makeFakeSearchResult()]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
     await user.click(linkButtonOfRow("ZAAK-2026-002"));
     await sleep();
@@ -378,6 +521,7 @@ describe(ZaakLinkComponent.name, () => {
     ]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
     await user.click(linkButtonOfRow("ZAAK-2026-002"));
     await sleep();
@@ -396,6 +540,7 @@ describe(ZaakLinkComponent.name, () => {
     findLinkableZaken([makeFakeSearchResult({ id: undefined })]);
 
     await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
     await clickSearch();
     await user.click(linkButtonOfRow("ZAAK-2026-002"));
     await sleep();

@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -123,10 +123,10 @@
                       | translate
                         : {
                             zaaktype:
-                              koppeling.zaakafhandelParameters.zaaktype
+                              koppeling.zaakafhandelParameters?.zaaktype
                                 .omschrijving,
                             versie:
-                              koppeling.zaakafhandelParameters.zaaktype.uuid,
+                              koppeling.zaakafhandelParameters?.zaaktype.uuid,
                           };
                   <div [title]="koppelingLabel">{{ koppelingLabel }}</div>
                 }

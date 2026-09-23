@@ -46,6 +46,15 @@ const val ROLE_NAME_BRP_ZOEKEN = "brp_zoeken"
  */
 const val ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD = "zaakspecifiek_geautoriseerd"
 
+/**
+ * Constant for the PABC application role name 'systeemrol_behandelaar_alle_zaaktypen'.
+ * Must match the role string used in the `systeemrolBehandelaarAlleZaaktypen` rule in `rollen.rego`.
+ * Reserved for the hardcoded [nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER] and
+ * [nl.info.zac.authentication.LoggedInUserProvider.Companion.PRODUCTAANVRAAG_GEBRUIKER] system users; PABC must
+ * never be allowed to grant it to a real user.
+ */
+const val ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN = "systeemrol_behandelaar_alle_zaaktypen"
+
 @RegisterRestClient(configKey = "PABC-API-Client")
 @RegisterClientHeaders(PabcClientHeadersFactory::class)
 @Path("/api/v1")
