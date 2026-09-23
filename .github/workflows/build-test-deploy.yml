@@ -372,11 +372,21 @@ jobs:
           flags: frontendunittests
           directory: ./src/main/app/coverage
 
-  build-docker-image-and-run-itests:
+  # Every shard builds the ZAC Docker image, starts its own Docker Compose stack and runs the specs
+  # that 'src/itest/itest-shards.txt' assigns to it. The 'build-docker-image-and-run-itests' job below
+  # combines the results of all shards.
+  itest-shard:
     needs: [build, paths-filter, determine-version]
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-26.04
     timeout-minutes: 30
+    strategy:
+      # let the other shards finish so that all failures show up in one run
+      fail-fast: false
+      matrix:
+        # every shard uploads its own coverage report, so update 'after_n_builds' in codecov.yml
+        # when the number of shards changes
+        shard: [1, 2, 3]
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
       BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
@@ -424,6 +434,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
+      # All shards build the same image from the same JAR; only the first shard writes the layer cache
       - name: Build Docker image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
@@ -437,7 +448,7 @@ jobs:
           push: false
           # use GitHub Actions cache to speed up the build
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: ${{ matrix.shard == 1 && 'type=gha,mode=max' || '' }}
 
       - name: Wait for the Docker Compose images to be pulled
         run: |
@@ -450,7 +461,8 @@ jobs:
       # as an artifact when the tests fail. The console only shows failed tests.
       - name: Run integration tests
         run: |
-          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -PitestLogFile=build/reports/itest/itest.log \
+          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -PitestShard=${{ matrix.shard }} \
+            -PitestLogFile=build/reports/itest/itest.log \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest
 
@@ -467,7 +479,7 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: integration-test-log
+          name: integration-test-log-shard-${{ matrix.shard }}
           path: build/reports/itest/itest.log
           if-no-files-found: ignore
           retention-days: 7
@@ -479,13 +491,15 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           report_type: "test_results"
 
-      - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+      # The test results of all shards are published together by the 'build-docker-image-and-run-itests' job
+      - name: Upload integration test results
         if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          check_name: integration-test-results
-          files: |
-            build/test-results/itest/**/*.xml
+          name: integration-test-results-shard-${{ matrix.shard }}
+          path: build/test-results/itest/**/*.xml
+          if-no-files-found: ignore
+          retention-days: 1
 
       # JaCoCo requires our Java class files to be able to generate a report
       # so download the Gradle build artefacts uploaded by the build job
@@ -498,6 +512,7 @@ jobs:
       - name: Generate JaCoCo integration test code coverage report
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
+      # Codecov merges the partial coverage reports of the shards into one report per commit
       - name: Upload integration test coverage report to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
@@ -505,10 +520,11 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      # Push the tested image under its build number tag straight from this job. The 'push-docker-image' job
+      # Push the tested image under its build number tag straight from the first shard. The 'push-docker-image' job
       # then only adds the release tags in the registry, so the image never has to be saved, uploaded and loaded again.
+      # The release tags are only added when all shards have passed.
       - name: Docker Login
-        if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
+        if: ${{ matrix.shard == 1 && (github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')) }}
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_URL }}
@@ -516,8 +532,36 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Docker image with build number tag
-        if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
+        if: ${{ matrix.shard == 1 && (github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')) }}
         run: docker push ${ZAC_DOCKER_IMAGE}
+
+  # Combines the results of the integration test shards into the single 'integration-test-results' check.
+  # This job is a required status check on the main branch, so keep its name.
+  build-docker-image-and-run-itests:
+    needs: [itest-shard]
+    if: ${{ !cancelled() && needs.itest-shard.result != 'skipped' }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - name: Download integration test results of all shards
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: integration-test-results-shard-*
+          path: build/test-results/itest
+          merge-multiple: true
+
+      - name: Publish integration test results
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        with:
+          check_name: integration-test-results
+          files: |
+            build/test-results/itest/**/*.xml
+
+      - name: Fail when an integration test shard failed
+        if: ${{ needs.itest-shard.result != 'success' }}
+        run: |
+          echo "The integration test shards finished with result '${{ needs.itest-shard.result }}'"
+          exit 1
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]

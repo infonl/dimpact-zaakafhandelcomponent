@@ -20,6 +20,7 @@ import nl.info.client.zgw.shared.model.createFieldValidationError
 import nl.info.client.zgw.shared.model.createValidationZgwError
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.bag.BagClientService
+import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
 import nl.info.client.klant.KlantClientService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
@@ -166,6 +167,23 @@ class RestExceptionMapperTest : BehaviorSpec({
                 then("it should return the ZTC server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.ztc.client.exception")
                     verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("A BrpTemporaryPersonIdNotCachedException exception") {
+            val exception = BrpTemporaryPersonIdNotCachedException("Geen persoon gevonden voor id 'fakeUuid'")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return the temporary person id expired error code, no exception message, and a Gone status") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.brp.temporary.person.id.expired",
+                        expectedStatus = HttpStatus.SC_GONE
+                    )
+                    verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
                 }
             }
         }

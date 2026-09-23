@@ -10,6 +10,7 @@ import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -107,6 +108,7 @@ import java.util.UUID
 private const val HEADER_ZAAK_ID = "X-ZAAKTYPE-UUID"
 
 @Suppress("LongParameterList", "LargeClass", "MagicNumber")
+@Isolate
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)

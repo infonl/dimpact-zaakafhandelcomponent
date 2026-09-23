@@ -97,12 +97,50 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
     expect(submitButton()).toBeEnabled();
   });
 
-  it("refuses a brondatum before today", async () => {
+  it("refuses a brondatum before today when the zaak has no einddatum", async () => {
     await setup({ planItemToHandle: planItem });
 
     await fillInBrondatum(moment().subtract(1, "day"));
 
     expect(submitButton()).toBeDisabled();
+  });
+
+  describe("given a zaak that was closed in the past", () => {
+    const einddatum = moment().subtract(10, "days");
+    const closedZaak = fromPartial<GeneratedType<"RestZaak">>({
+      ...zaak,
+      einddatum: einddatum.format("YYYY-MM-DD"),
+    });
+
+    it("allows a brondatum in the past on the einddatum of the zaak", async () => {
+      await setup({ zaakToHandle: closedZaak, planItemToHandle: planItem });
+
+      await fillInBrondatum(einddatum.clone());
+
+      expect(submitButton()).toBeEnabled();
+    });
+
+    it("allows a brondatum in the past after the einddatum of the zaak", async () => {
+      await setup({ zaakToHandle: closedZaak, planItemToHandle: planItem });
+
+      await fillInBrondatum(einddatum.clone().add(1, "day"));
+
+      expect(submitButton()).toBeEnabled();
+    });
+
+    it("refuses a brondatum before the einddatum of the zaak", async () => {
+      await setup({ zaakToHandle: closedZaak, planItemToHandle: planItem });
+
+      await fillInBrondatum(einddatum.clone().subtract(1, "day"));
+      await user.tab();
+
+      expect(submitButton()).toBeDisabled();
+      expect(
+        await screen.findByText(
+          "msg.error.date.invalid.datum.brondatum-voor-einddatum",
+        ),
+      ).toBeVisible();
+    });
   });
 
   it("closes the dialog when the cancel button is clicked", async () => {

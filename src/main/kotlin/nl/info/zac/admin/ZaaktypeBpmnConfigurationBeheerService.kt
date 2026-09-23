@@ -172,8 +172,7 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
             ZaaktypeBpmnConfiguration().apply {
                 this.zaaktypeUuid = zaaktypeUuid
                 zaaktypeOmschrijving = zaaktype.omschrijving
-                bpmnProcessDefinitionKey = previousConfiguration.bpmnProcessDefinitionKey
-                zaaktypeHelperService.copySharedConfigurationData(previousConfiguration, this, zaaktype)
+                zaaktypeHelperService.copyConfigurationData(previousConfiguration, this, zaaktype)
             }.run(::storeConfiguration)
 
             smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
