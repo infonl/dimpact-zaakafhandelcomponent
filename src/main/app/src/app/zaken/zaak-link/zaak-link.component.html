@@ -185,7 +185,7 @@
   @if (casesQuery.isFetching()) {
     <p>{{ "msg.loading" | translate }}</p>
   }
-  @if (!casesQuery.isFetching() && cases().length > 0 && totalCases() > 10) {
+  @if (!casesQuery.isFetching() && totalCases() > 10) {
     <p class="feedback">
       <mat-divider class="mat-divider-wrapper"></mat-divider>
       {{ "msg.zaak.koppelen.meer-dan-10-gevonden" | translate }}
