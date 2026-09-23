@@ -430,6 +430,19 @@ class ZaakLinkDataTest : BehaviorSpec({
             }
         }
 
+        given("a current zaak the user has no koppelen rights on and a readable found zaak") {
+            val zaak = createZaakLinkData(koppelen = false)
+            val foundZaak = createZaakLinkData(lezen = true)
+
+            `when`("the reason is determined") {
+                val reason = zaak.gerelateerdNotLinkableReason(foundZaak)
+
+                then("the missing koppelen right on the current zaak blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.NO_KOPPELEN_RIGHT
+                }
+            }
+        }
+
         given("a found zaak the user can read but has no koppelen rights on") {
             val zaak = createZaakLinkData(koppelen = true)
             val foundZaak = createZaakLinkData(lezen = true, koppelen = false)

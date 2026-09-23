@@ -152,26 +152,19 @@
       <ng-container matColumnDef="acties" stickyEnd>
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row" class="text-right">
-          <div
-            [matTooltip]="
-              (row.nietKoppelbaarReden
-                ? 'zaak.koppelen.niet-koppelbaar.' + row.nietKoppelbaarReden
-                : 'actie.zaak.koppelen'
-              ) | translate: rowTooltipParams(row)
-            "
+          <button
+            mat-icon-button
+            color="primary"
+            disabledInteractive
+            [attr.aria-label]="'actie.zaak.koppelen' | translate"
+            [matTooltip]="rowTooltip(row) | translate: rowTooltipParams(row)"
+            [disabled]="linkButtonDisabled(row)"
+            (click)="selectCase(row)"
           >
-            <button
-              mat-icon-button
-              color="primary"
-              [attr.aria-label]="'actie.zaak.koppelen' | translate"
-              [disabled]="rowDisabled(row) || isLinking(row)"
-              (click)="selectCase(row)"
+            <mat-icon [class.disabled]="linkButtonDisabled(row)"
+              >account_tree</mat-icon
             >
-              <mat-icon [class.disabled]="rowDisabled(row) || isLinking(row)"
-                >account_tree</mat-icon
-              >
-            </button>
-          </div>
+          </button>
         </td>
       </ng-container>
 
@@ -179,7 +172,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: caseColumns"
-        [class.disabled]="rowDisabled(row)"
+        [class.disabled]="!row.isKoppelbaar"
       ></tr>
     </table>
   }

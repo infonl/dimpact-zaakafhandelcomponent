@@ -11,8 +11,6 @@ import {
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
-import { MatTooltip } from "@angular/material/tooltip";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -179,11 +177,6 @@ describe(ZaakLinkComponent.name, () => {
     });
     translateService.use("nl");
   };
-
-  const linkTooltipMessages = () =>
-    fixture.debugElement
-      .queryAll(By.directive(MatTooltip))
-      .map((debugElement) => debugElement.injector.get(MatTooltip).message);
 
   it("offers every relation type a zaak can be linked with", async () => {
     await setup();
@@ -475,11 +468,14 @@ describe(ZaakLinkComponent.name, () => {
     await enterSearchCriterion();
     await clickSearch();
 
-    expect(linkButtonOfRow("ZAAK-2026-003")).toBeDisabled();
+    expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it.each(NOT_LINKABLE_REASONS)(
-    "explains on hover that a found zaak cannot be linked because of %s",
+    "explains that a found zaak cannot be linked because of %s",
     async (reason) => {
       await setup();
       findLinkableZaken([
@@ -494,9 +490,9 @@ describe(ZaakLinkComponent.name, () => {
       await enterSearchCriterion();
       await clickSearch();
 
-      expect(linkTooltipMessages()).toEqual([
+      expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAccessibleDescription(
         `zaak.koppelen.niet-koppelbaar.${reason}`,
-      ]);
+      );
     },
   );
 
@@ -520,9 +516,9 @@ describe(ZaakLinkComponent.name, () => {
     await enterSearchCriterion();
     await clickSearch();
 
-    expect(linkTooltipMessages()).toEqual([
+    expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAccessibleDescription(
       "Hoofdzaaktype staat geen deelzaken van Deelzaaktype toe",
-    ]);
+    );
   });
 
   it("names the found zaak as the hoofdzaak when the current zaak would become the deelzaak", async () => {
@@ -545,22 +541,9 @@ describe(ZaakLinkComponent.name, () => {
     await enterSearchCriterion();
     await clickSearch();
 
-    expect(linkTooltipMessages()).toEqual([
+    expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAccessibleDescription(
       "Hoofdzaaktype staat geen deelzaken van Deelzaaktype toe",
-    ]);
-  });
-
-  it("cannot link the zaak to itself", async () => {
-    await setup();
-    findLinkableZaken([
-      makeFakeSearchResult({ identificatie: "ZAAK-2026-001" }),
-    ]);
-
-    await chooseRelationType("DEELZAAK");
-    await enterSearchCriterion();
-    await clickSearch();
-
-    expect(linkButtonOfRow("ZAAK-2026-001")).toBeDisabled();
+    );
   });
 
   it("links the zaak of the row the button was clicked on", async () => {
@@ -632,8 +615,14 @@ describe(ZaakLinkComponent.name, () => {
     fixture.detectChanges();
 
     const request = httpTestingController.expectOne(KOPPEL_URL);
-    expect(linkButtonOfRow("ZAAK-2026-002")).toBeDisabled();
-    expect(linkButtonOfRow("ZAAK-2026-003")).toBeEnabled();
+    expect(linkButtonOfRow("ZAAK-2026-002")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+    expect(linkButtonOfRow("ZAAK-2026-003")).not.toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
 
     request.flush(null);
     await sleep();

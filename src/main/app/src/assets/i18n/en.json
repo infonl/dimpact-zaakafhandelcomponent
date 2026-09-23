@@ -611,7 +611,7 @@
   "zaak.koppelen.niet-koppelbaar.FOUND_ZAAK_AFGEHANDELD": "A completed case cannot be linked to an ongoing case",
   "zaak.koppelen.niet-koppelbaar.FOUND_ZAAK_OPEN": "An ongoing case cannot be linked to a completed case",
   "zaak.koppelen.niet-koppelbaar.ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK": "Case type '{{hoofdzaakZaaktype}}' does not allow subcases of type '{{deelzaakZaaktype}}'",
-  "zaak.koppelen.niet-koppelbaar.NO_KOPPELEN_RIGHT": "Linking cases of type '{{zaaktype}}' as a main case or subcase is not allowed",
+  "zaak.koppelen.niet-koppelbaar.NO_KOPPELEN_RIGHT": "These cases may not be linked to each other",
   "zaak.koppelen.niet-koppelbaar.NO_LEZEN_RIGHT": "This case cannot be viewed and therefore cannot be related",
   " 6 ": ">>--> KNOPPEN & MENU'S <--<<",
   "actie.aanmaken": "Create",

@@ -70,7 +70,8 @@ fun ZaakLinkData.hoofdzaakDeelzaakNotLinkableReason(
 }
 
 fun ZaakLinkData.gerelateerdNotLinkableReason(to: ZaakLinkData): ZaakNotLinkableReason? = when {
-    !koppelen || !to.lezen -> ZaakNotLinkableReason.NO_LEZEN_RIGHT
+    !koppelen -> ZaakNotLinkableReason.NO_KOPPELEN_RIGHT
+    !to.lezen -> ZaakNotLinkableReason.NO_LEZEN_RIGHT
     else -> null
 }
 

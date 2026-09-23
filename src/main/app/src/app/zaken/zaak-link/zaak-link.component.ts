@@ -186,7 +186,7 @@ export class ZaakLinkComponent {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    if (this.rowDisabled(row)) return;
+    if (!row.isKoppelbaar) return;
     if (this.koppelZaakMutation.isPending()) return;
     if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
@@ -260,10 +260,16 @@ export class ZaakLinkComponent {
     }
   });
 
-  protected rowDisabled(
+  protected linkButtonDisabled(
     row: GeneratedType<"RestZaakKoppelenZoekObject">,
   ): boolean {
-    return !row.isKoppelbaar || row.identificatie === this.zaak().identificatie;
+    return !row.isKoppelbaar || this.isLinking(row);
+  }
+
+  protected rowTooltip(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    return row.nietKoppelbaarReden
+      ? `zaak.koppelen.niet-koppelbaar.${row.nietKoppelbaarReden}`
+      : "actie.zaak.koppelen";
   }
 
   protected rowTooltipParams(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
@@ -271,7 +277,6 @@ export class ZaakLinkComponent {
       this.form.controls.caseRelationType.value?.value === "DEELZAAK";
     const currentZaaktype = this.zaak().zaaktype.omschrijving;
     return {
-      zaaktype: row.zaaktypeOmschrijving,
       hoofdzaakZaaktype: isCurrentZaakHoofdzaak
         ? currentZaaktype
         : row.zaaktypeOmschrijving,
