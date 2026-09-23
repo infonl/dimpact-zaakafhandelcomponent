@@ -59,6 +59,7 @@ import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerR
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
@@ -166,12 +167,7 @@ class ZaakServiceTest : BehaviorSpec({
 
         given("a zaak and a user that is not a member of the requested group") {
             val zaak = createZaak()
-            val zaakToewijzing = createZaakToewijzing()
             val reason = "fakeReason"
-            every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
-            every {
-                zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, "fakeUserId")
-            } just runs
             every {
                 identityService.validateIfUserIsInGroup("fakeUserId", "fakeGroupId")
             } throws UserNotInGroupException()
@@ -190,8 +186,9 @@ class ZaakServiceTest : BehaviorSpec({
                     userNotInGroupException.errorCode shouldBe ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
                 }
 
-                and("no rol is written") {
+                and("no rol is written and the rollen of the zaak are not even read") {
                     verify(exactly = 0) {
+                        zaakspecifiekeAutorisatieService.readZaakToewijzing(any())
                         zrcClientService.createRol(any(), reason)
                         zrcClientService.updateRol(zaak, any(), reason)
                         zrcClientService.deleteRol(any<Rol<*>>(), reason)
@@ -778,9 +775,6 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.createRol(any(), explanation) } returns createRolMedewerker()
             every { zgwApiService.readBehandelaarRoltype(zaaktype.url) } returns behandelaarRolType
             every { identityService.isUserInGroup(user.id, group.name) } returns true
-            every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
-            every { identityService.readUser(user.id) } returns user
-            every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype(
@@ -814,6 +808,84 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
+        given(
+            """
+            a zaakspecifiek geautoriseerde zaak whose zaaktype does not define the zaakspecifiek geautoriseerde
+            medewerker roltype, an ordinary open zaak, a group and a user
+            """
+        ) {
+            val zaaktypeUUID = UUID.randomUUID()
+            val zaaktype = createZaakType(uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID"))
+            val markedZaak = createZaak(zaaktypeUri = zaaktype.url)
+            val ordinaryZaak = createZaak(zaaktypeUri = zaaktype.url)
+            val user = createUser(id = "fakeUserId")
+            val group = createGroup(id = "fakeGroupId")
+            listOf(markedZaak, ordinaryZaak).forEach {
+                every { zrcClientService.readZaak(it.uuid) } returns it
+            }
+            every { zaakspecifiekeAutorisatieService.readZaakToewijzing(markedZaak) } returns createZaakToewijzing(
+                behandelaarRollen = listOf(createRolMedewerker()),
+                isZaakspecifiekGeautoriseerd = true
+            )
+            every { zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak) } returns createZaakToewijzing()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(any(), user.id) } just runs
+            every {
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
+                    zaak = markedZaak,
+                    medewerker = any(),
+                    reason = explanation,
+                    zaakspecifiekGeautoriseerdeMedewerkers = any()
+                )
+            } throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException("fakeMessage")
+            every { zrcClientService.createRol(any(), explanation) } returns createRolMedewerker()
+            every { zrcClientService.updateRol(ordinaryZaak, any(), explanation) } just runs
+            every { zgwApiService.readBehandelaarRoltype(zaaktype.url) } returns createBehandelaarRolType(
+                zaakTypeUri = zaaktype.url
+            )
+            every { bpmnService.isZaakProcessDriven(ordinaryZaak.uuid) } returns false
+            every {
+                indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+            } just runs
+            every {
+                zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(ordinaryZaak)
+            } just runs
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
+            every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
+            } returns listOf(createPabcGroupRepresentation(name = group.name, description = group.description))
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+
+            `when`("the zaken are assigned to the group and the user") {
+                zaakService.assignZaken(
+                    zaakUUIDs = listOf(markedZaak.uuid, ordinaryZaak.uuid),
+                    explanation = explanation,
+                    group = group,
+                    user = user,
+                    screenEventResourceId = screenEventResourceId
+                )
+
+                then("the marked zaak is reported as skipped and none of its rollen is changed") {
+                    verify(exactly = 1) { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(markedZaak)) }
+                    verify(exactly = 0) {
+                        zrcClientService.updateRol(markedZaak, any(), explanation)
+                        zrcClientService.deleteRol(any<Rol<*>>(), explanation)
+                    }
+                }
+                and("the ordinary zaak is still assigned") {
+                    verify(exactly = 1) { zrcClientService.updateRol(ordinaryZaak, any(), explanation) }
+                }
+                and("a 'zaken verdelen' screen event reports the batch as updated") {
+                    verify(exactly = 1) {
+                        eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(screenEventResourceId))
+                    }
+                }
+                and("the group membership of the user is not validated again for every zaak") {
+                    verify(exactly = 0) { identityService.validateIfUserIsInGroup(any(), any()) }
+                }
+            }
+        }
+
         given("one open and one closed zaak, a group that is authorised for their zaaktype and a user") {
             val zaaktypeUUID = UUID.randomUUID()
             val zaaktype = createZaakType(uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID"))
@@ -838,9 +910,6 @@ class ZaakServiceTest : BehaviorSpec({
                 indexingService.indexeerDirect(openZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
             every { identityService.isUserInGroup(user.id, group.name) } returns true
-            every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
-            every { identityService.readUser(user.id) } returns user
-            every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
@@ -951,7 +1020,6 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(any(), null) } just runs
             every { zrcClientService.deleteRol(any<Rol<*>>(), explanation) } just runs
             every { zgwApiService.readBehandelaarRoltype(zaaktype.url) } returns behandelaarRolType
-            every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
@@ -1057,9 +1125,6 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.deleteRol(any<Rol<*>>(), explanation) } just runs
             every { zrcClientService.createRol(any(), explanation) } returns createRolMedewerker()
             every { identityService.isUserInGroup(user.id, group.name) } returns true
-            every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
-            every { identityService.readUser(user.id) } returns user
-            every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
@@ -1127,7 +1192,6 @@ class ZaakServiceTest : BehaviorSpec({
             every {
                 indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
-            every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)

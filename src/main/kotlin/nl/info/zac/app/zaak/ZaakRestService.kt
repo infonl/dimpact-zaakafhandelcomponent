@@ -229,6 +229,7 @@ class ZaakRestService @Inject constructor(
         restZaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
+        assertBehandelaarIsInGroup(behandelaarId = restZaak.behandelaar?.id, groupId = restZaak.groep?.id)
         val bronOrganisatie = configurationService.readBronOrganisatie()
         val verantwoordelijkeOrganisatie = configurationService.readVerantwoordelijkeOrganisatie()
         val zaak = restZaak.toZaak(
@@ -605,7 +606,10 @@ class ZaakRestService @Inject constructor(
             restZaak = restZaakEditMetRedenGegevens.zaak,
             currentBehandelaarId = currentBehandelaarId
         )
-        requestedAssignment?.let { assertPolicy(zaakRechten.toekennen) }
+        requestedAssignment?.let {
+            assertPolicy(zaakRechten.toekennen)
+            assertBehandelaarIsInGroup(behandelaarId = it.behandelaarId, groupId = it.groupId)
+        }
         val shouldBeMarkedZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
             zaakType = zaakType,
             requestedMarking = restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd,
@@ -773,11 +777,6 @@ class ZaakRestService @Inject constructor(
         restZaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
-        restZaak.behandelaar?.id?.let { behandelaarId ->
-            restZaak.groep?.id?.let { groepId ->
-                identityService.validateIfUserIsInGroup(behandelaarId, groepId)
-            }
-        }
     }
 
     private fun applyZaakUpdateSideEffects(
@@ -809,6 +808,12 @@ class ZaakRestService @Inject constructor(
      * An absent `behandelaar` keeps the one the zaak already has: a partial update never releases a
      * behandelaar, that goes through the dedicated vrijgeven endpoint.
      */
+    private fun assertBehandelaarIsInGroup(behandelaarId: String?, groupId: String?) {
+        if (!behandelaarId.isNullOrEmpty() && groupId != null) {
+            identityService.validateIfUserIsInGroup(behandelaarId, groupId)
+        }
+    }
+
     private fun resolveRequestedAssignment(
         zaak: Zaak,
         restZaak: RestZaakCreateData,
