@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import "dotenv/config";
+import dotenv from "dotenv";
 import z from "zod";
+
+dotenv.config();
 
 const userSchema = z.object({
   username: z.string(),
