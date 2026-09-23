@@ -51,6 +51,7 @@ import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRolty
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
+import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.ZaakToewijzing
 import java.net.URI
 import java.util.Locale
@@ -169,11 +170,7 @@ class ZaakService @Inject constructor(
     }
 
     /**
-     * Assign a single zaak to a group and/or user. This is the only place where the groep and behandelaar
-     * rollen of a zaak are written.
-     *
-     * When the zaak is zaakspecifiek geautoriseerd, the behandelaar that is replaced keeps access to the zaak
-     * as a zaakspecifiek geautoriseerde medewerker.
+     * Assign a single zaak to a group and/or user.
      *
      * @param zaak The zaak to assign.
      * @param groupId The ID of the group to assign the zaak to. If null, the group of the zaak is left as it is.
@@ -182,15 +179,33 @@ class ZaakService @Inject constructor(
      * @throws nl.info.zac.identity.exception.UserNotInGroupException when the user is not a member of the group,
      * before anything of the zaak is changed
      */
-    fun assignZaak(zaak: Zaak, groupId: String?, userName: String?, reason: String?) {
-        val user: User? = userName?.takeIf { it.isNotEmpty() }?.let { userNameToAssign ->
+    fun assignZaak(zaak: Zaak, groupId: String?, userName: String?, reason: String?) =
+        assignZaak(zaak = zaak, zaakAssignment = readZaakAssignment(groupId, userName), reason = reason)
+
+    /**
+     * Validates that the user is a member of the group and reads both, without changing any zaak.
+     *
+     * @param groupId The ID of the group. If null, the group of the zaak will be left as it is.
+     * @param userName The username of the user. If null or empty, the user will be removed from the zaak.
+     * @throws nl.info.zac.identity.exception.UserNotInGroupException when the user is not a member of the group
+     */
+    fun readZaakAssignment(groupId: String?, userName: String?): ZaakAssignment {
+        val user = userName?.takeIf { it.isNotEmpty() }?.let { userNameToAssign ->
             groupId?.let { identityService.validateIfUserIsInGroup(userNameToAssign, it) }
             identityService.readUser(userNameToAssign)
         }
-        assignZaak(zaak = zaak, group = groupId?.let(identityService::readGroup), user = user, reason = reason)
+        return ZaakAssignment(group = groupId?.let(identityService::readGroup), user = user)
     }
 
-    private fun assignZaak(zaak: Zaak, group: Group?, user: User?, reason: String?) {
+    /**
+     * Assign a single zaak to a validated [ZaakAssignment]. This is the only place where the groep and behandelaar
+     * rollen of a zaak are written.
+     *
+     * When the zaak is zaakspecifiek geautoriseerd, the behandelaar that is replaced keeps access to the zaak
+     * as a zaakspecifiek geautoriseerde medewerker.
+     */
+    fun assignZaak(zaak: Zaak, zaakAssignment: ZaakAssignment, reason: String?) {
+        val (group, user) = zaakAssignment
         // lock for the given zaak so that it is impossible to assign the zaak to multiple users on quick subsequent calls
         lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak)
@@ -353,7 +368,7 @@ class ZaakService @Inject constructor(
             return false
         }
         return try {
-            assignZaak(zaak = zaak, group = group, user = user, reason = explanation)
+            assignZaak(zaak = zaak, zaakAssignment = ZaakAssignment(group = group, user = user), reason = explanation)
             true
         } catch (releaseException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
             LOG.log(Level.FINE, releaseException) {
@@ -379,7 +394,7 @@ class ZaakService @Inject constructor(
             return
         }
         try {
-            assignZaak(zaak = zaak, group = null, user = null, reason = explanation)
+            assignZaak(zaak = zaak, zaakAssignment = ZaakAssignment(group = null, user = null), reason = explanation)
         } catch (releaseException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
             LOG.log(Level.FINE, releaseException) {
                 "Zaak with UUID '${zaak.uuid}' cannot be released. Therefore it is not released."

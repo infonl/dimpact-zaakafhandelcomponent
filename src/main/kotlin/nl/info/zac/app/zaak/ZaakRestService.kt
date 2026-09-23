@@ -229,7 +229,11 @@ class ZaakRestService @Inject constructor(
         restZaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
-        assertBehandelaarIsInGroup(behandelaarId = restZaak.behandelaar?.id, groupId = restZaak.groep?.id)
+        val zaakAssignment = if (restZaak.groep != null || restZaak.behandelaar != null) {
+            zaakService.readZaakAssignment(groupId = restZaak.groep?.id, userName = restZaak.behandelaar?.id)
+        } else {
+            null
+        }
         val bronOrganisatie = configurationService.readBronOrganisatie()
         val verantwoordelijkeOrganisatie = configurationService.readVerantwoordelijkeOrganisatie()
         val zaak = restZaak.toZaak(
@@ -239,13 +243,8 @@ class ZaakRestService @Inject constructor(
         ).let(zgwApiService::createZaak)
 
         addInitiator(restZaak, zaak, zaakType)
-        if (restZaak.groep != null || restZaak.behandelaar != null) {
-            zaakService.assignZaak(
-                zaak = zaak,
-                groupId = restZaak.groep?.id,
-                userName = restZaak.behandelaar?.id,
-                reason = AANMAKEN_ZAAK_REDEN
-            )
+        zaakAssignment?.let {
+            zaakService.assignZaak(zaak = zaak, zaakAssignment = it, reason = AANMAKEN_ZAAK_REDEN)
         }
         startZaak(zaaktypeUUID, zaak, zaakType, restZaak)
 
@@ -606,9 +605,9 @@ class ZaakRestService @Inject constructor(
             restZaak = restZaakEditMetRedenGegevens.zaak,
             currentBehandelaarId = currentBehandelaarId
         )
-        requestedAssignment?.let {
+        val zaakAssignment = requestedAssignment?.let {
             assertPolicy(zaakRechten.toekennen)
-            assertBehandelaarIsInGroup(behandelaarId = it.behandelaarId, groupId = it.groupId)
+            zaakService.readZaakAssignment(groupId = it.groupId, userName = it.behandelaarId)
         }
         val shouldBeMarkedZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
             zaakType = zaakType,
@@ -617,22 +616,17 @@ class ZaakRestService @Inject constructor(
             behandelaarId = currentBehandelaarId ?: requestedAssignment?.behandelaarId,
             loggedInUser = loggedInUser
         )
-        if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
-            zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
-        }
-        requestedAssignment?.let {
-            zaakService.assignZaak(
-                zaak = zaak,
-                groupId = it.groupId,
-                userName = it.behandelaarId,
-                reason = restZaakEditMetRedenGegevens.reden
-            )
-        }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
+        if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
+            zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+        }
+        zaakAssignment?.let {
+            zaakService.assignZaak(zaak = zaak, zaakAssignment = it, reason = restZaakEditMetRedenGegevens.reden)
+        }
         applyZaakUpdateSideEffects(zaak, zaakType, updatedZaak, restZaakEditMetRedenGegevens.zaak)
         return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
     }
@@ -808,12 +802,6 @@ class ZaakRestService @Inject constructor(
      * An absent `behandelaar` keeps the one the zaak already has: a partial update never releases a
      * behandelaar, that goes through the dedicated vrijgeven endpoint.
      */
-    private fun assertBehandelaarIsInGroup(behandelaarId: String?, groupId: String?) {
-        if (!behandelaarId.isNullOrEmpty() && groupId != null) {
-            identityService.validateIfUserIsInGroup(behandelaarId, groupId)
-        }
-    }
-
     private fun resolveRequestedAssignment(
         zaak: Zaak,
         restZaak: RestZaakCreateData,
