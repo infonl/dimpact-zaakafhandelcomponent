@@ -22,15 +22,15 @@ The run-scoped outputs in scope are:
 
 #### Scenario: Consuming job downloads outputs as artifacts
 
-- **WHEN** a downstream job (`run-unit-tests`, `itest-shard`, or `build-docker-image-and-run-itests`) needs an output produced by an earlier job
+- **WHEN** a downstream job (`backend-unit-tests`, `frontend-unit-tests`, `itest-shard`, or `build-docker-image-and-run-itests`) needs an output produced by an earlier job
 - **THEN** it retrieves the output with `actions/download-artifact` using the matching artifact name
 - **AND** no `actions/cache/restore` step is used to retrieve these outputs
 
 #### Scenario: Frontend artefacts retain dotfiles and executable permissions
 
-- **WHEN** the frontend artefacts (`node_modules` and the generated types) are passed from `build` to `run-unit-tests`
+- **WHEN** the frontend artefacts (`node_modules` and the generated types) are passed from `build` to `frontend-unit-tests`
 - **THEN** they are archived with `tar` before upload and extracted after download
-- **AND** the downloaded tree retains hidden entries such as `node_modules/.bin` and the executable bit on its CLI shims, so the `npmRun*` Gradle tasks can run
+- **AND** the downloaded tree retains hidden entries such as `node_modules/.bin` and the executable bit on its CLI shims, so the `npm` and `npmRun*` Gradle commands can run
 
 #### Scenario: Integration test results passed to the aggregation job
 

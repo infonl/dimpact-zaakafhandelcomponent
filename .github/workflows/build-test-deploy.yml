@@ -282,7 +282,7 @@ jobs:
             target/zaakafhandelcomponent.jar
           retention-days: 1
 
-  run-unit-tests:
+  backend-unit-tests:
     needs: [build, paths-filter]
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-26.04
@@ -292,6 +292,15 @@ jobs:
       READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # needed for the OPA image used by the policy tests below
+      - name: Authenticate with Docker Hub to avoid rate limiting issues
+        # Skip for pull requests from forks because a forked repository is not allowed to access our secrets
+        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Setup JDK
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -308,30 +317,13 @@ jobs:
           name: gradle-build
           path: build
 
-      - name: Download frontend build artefacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: frontend-artefacts
-
-      - name: Extract frontend build artefacts
-        run: tar xzf frontend-artefacts.tar.gz
-
       - name: Download generated Java clients
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: generated-java-clients
           path: src/generated
 
-      - name: Restore Jest transform cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: src/main/app/.jest-cache
-          key: jest-transform-${{ runner.os }}-${{ hashFiles('src/main/app/package-lock.json', 'src/main/app/jest.config.js', 'src/main/app/tsconfig.json', 'src/main/app/tsconfig.spec.json') }}-${{ github.run_id }}
-          restore-keys: |
-            jest-transform-${{ runner.os }}-${{ hashFiles('src/main/app/package-lock.json', 'src/main/app/jest.config.js', 'src/main/app/tsconfig.json', 'src/main/app/tsconfig.spec.json') }}-
-            jest-transform-${{ runner.os }}-
-
-      - name: Run unit tests and generate test coverage reports
+      - name: Run backend unit tests and generate the test coverage report
         run: |
           ./gradlew \
           -x processResources \
@@ -340,18 +332,24 @@ jobs:
           -x generateJsonSchema2Pojo \
           -x generateOpenApiSpec \
           -x npmInstall \
-          test npmRunTestCoverage jacocoTestReport --info
+          test jacocoTestReport --info
 
-      - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+      # The OPA policy tests are unit tests of the authorisation policies, so they run here and not in the integration test stack.
+      - name: Run OPA policy tests
         if: ${{ !cancelled() }}
-        with:
-          check_name: unit-test-results
-          files: |
-            build/test-results/test/**/*.xml
-            src/main/app/reports/*.xml
+        run: docker compose --profile opa-tests run --rm --no-deps opa-tests
 
-      - name: Upload unit test results to CodeCov
+      # The test results of both unit test jobs are published together by the 'run-unit-tests' job
+      - name: Upload backend unit test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: backend-unit-test-results
+          path: build/test-results/test/**/*.xml
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Upload backend unit test results to CodeCov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ !cancelled() }}
         with:
@@ -360,17 +358,117 @@ jobs:
 
       - name: Upload backend unit test coverage report to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: backendunittests
           directory: ./build/reports/jacoco/test
 
+  # Jest is split over two shards; both run the Angular test builder on the node_modules built by the
+  # 'build' job, so this job needs neither a JDK nor Gradle.
+  frontend-unit-tests:
+    needs: [build, paths-filter]
+    if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    strategy:
+      # let the other shard finish so that all failures show up in one run
+      fail-fast: false
+      matrix:
+        # every shard uploads its own coverage report, so update 'after_n_builds' in codecov.yml
+        # when the number of shards changes
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Download frontend build artefacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: frontend-artefacts
+
+      - name: Extract frontend build artefacts
+        run: tar xzf frontend-artefacts.tar.gz
+
+      - name: Restore Jest transform cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: src/main/app/.jest-cache
+          key: jest-transform-${{ runner.os }}-shard-${{ matrix.shard }}-${{ hashFiles('src/main/app/package-lock.json', 'src/main/app/jest.config.js', 'src/main/app/tsconfig.json', 'src/main/app/tsconfig.spec.json') }}-${{ github.run_id }}
+          restore-keys: |
+            jest-transform-${{ runner.os }}-shard-${{ matrix.shard }}-${{ hashFiles('src/main/app/package-lock.json', 'src/main/app/jest.config.js', 'src/main/app/tsconfig.json', 'src/main/app/tsconfig.spec.json') }}-
+            jest-transform-${{ runner.os }}-shard-${{ matrix.shard }}-
+
+      - name: Run frontend unit tests and generate the test coverage report
+        working-directory: src/main/app
+        run: npm run test:report -- --shard=${{ matrix.shard }}/2
+
+      # The test results of both unit test jobs are published together by the 'run-unit-tests' job
+      - name: Upload frontend unit test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: frontend-unit-test-results-shard-${{ matrix.shard }}
+          path: src/main/app/reports/*.xml
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Upload frontend unit test results to CodeCov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: "test_results"
+
+      # Codecov merges the partial coverage reports of the shards into one report per commit
       - name: Upload frontend unit test coverage report to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: frontendunittests
           directory: ./src/main/app/coverage
+
+  # Combines the results of the backend and frontend unit tests into the single 'unit-test-results' check.
+  # This job is a required status check on the main branch, so keep its name.
+  run-unit-tests:
+    needs: [backend-unit-tests, frontend-unit-tests]
+    if: ${{ !cancelled() && needs.backend-unit-tests.result != 'skipped' }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - name: Download backend unit test results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: backend-unit-test-results
+          path: build/test-results/test
+          merge-multiple: true
+
+      - name: Download frontend unit test results of all shards
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: frontend-unit-test-results-shard-*
+          path: src/main/app/reports
+          merge-multiple: false
+
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        with:
+          check_name: unit-test-results
+          files: |
+            build/test-results/test/**/*.xml
+            src/main/app/reports/**/*.xml
+
+      - name: Fail when a unit test job failed
+        if: ${{ needs.backend-unit-tests.result != 'success' || needs.frontend-unit-tests.result != 'success' }}
+        run: |
+          echo "The backend unit tests finished with result '${{ needs.backend-unit-tests.result }}'"
+          echo "The frontend unit tests finished with result '${{ needs.frontend-unit-tests.result }}'"
+          exit 1
 
   # Every shard builds the ZAC Docker image, starts its own Docker Compose stack and runs the specs
   # that 'src/itest/itest-shards.txt' assigns to it. The 'build-docker-image-and-run-itests' job below
@@ -431,24 +529,15 @@ jobs:
           name: zac-jar
           path: target
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
-
-      # All shards build the same image from the same JAR; only the first shard writes the layer cache
+      # No layer cache: the JAR layer changes with every commit, so a cache would hardly ever hit.
       - name: Build Docker image
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
-        with:
-          tags: ${{ env.ZAC_DOCKER_IMAGE }}
-          build-args: |
-            versionNumber=${{ env.NEXT_VERSION }}
-            branchName=${{ env.BRANCH_NAME }}
-            commitHash=${{ env.GIT_COMMIT_HASH }}
-          context: .
-          load: true
-          push: false
-          # use GitHub Actions cache to speed up the build
-          cache-from: type=gha
-          cache-to: ${{ matrix.shard == 1 && 'type=gha,mode=max' || '' }}
+        run: |
+          docker build \
+            --tag "${ZAC_DOCKER_IMAGE}" \
+            --build-arg versionNumber="${NEXT_VERSION}" \
+            --build-arg branchName="${BRANCH_NAME}" \
+            --build-arg commitHash="${GIT_COMMIT_HASH}" \
+            .
 
       - name: Wait for the Docker Compose images to be pulled
         run: |
@@ -510,11 +599,13 @@ jobs:
           path: build
 
       - name: Generate JaCoCo integration test code coverage report
+        if: ${{ !cancelled() }}
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       # Codecov merges the partial coverage reports of the shards into one report per commit
       - name: Upload integration test coverage report to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ !cancelled() }}
         with:
           flags: integrationtests
         env:
