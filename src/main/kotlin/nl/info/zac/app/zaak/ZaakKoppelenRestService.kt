@@ -316,7 +316,7 @@ class ZaakKoppelenRestService @Inject constructor(
             zaaktypeOmschrijving = zaaktypeOmschrijving,
             statustypeOmschrijving = statustypeOmschrijving,
             isKoppelbaar = notLinkableReason == null,
-            notLinkableReason = notLinkableReason,
+            nietKoppelbaarReden = notLinkableReason,
         )
 
     private fun addGerelateerdeZaak(

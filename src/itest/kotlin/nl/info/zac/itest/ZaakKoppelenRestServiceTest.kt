@@ -131,7 +131,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                         "id" : "$teKoppelenZaakUuid",
                         "identificatie" : "$teKoppelenZaakIdentification",
                         "isKoppelbaar" : false,
-                        "notLinkableReason" : "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
+                        "nietKoppelbaarReden" : "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
                         "omschrijving" : "$toBeLinkedZaakDescription",
                         "statustypeOmschrijving" : "Intake",
                         "type" : "ZAAK",

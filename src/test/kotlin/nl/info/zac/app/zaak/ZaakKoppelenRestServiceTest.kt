@@ -130,7 +130,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
                     statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
-                    notLinkableReason shouldBe null
+                    nietKoppelbaarReden shouldBe null
                 }
             }
 
@@ -172,7 +172,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
                     statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
-                    notLinkableReason shouldBe null
+                    nietKoppelbaarReden shouldBe null
                 }
             }
 
@@ -214,7 +214,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
                     statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
-                    notLinkableReason shouldBe null
+                    nietKoppelbaarReden shouldBe null
                 }
             }
 
@@ -261,7 +261,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             then("the zaak is returned but cannot be linked because it is closed") {
                 with(result.results.first()) {
                     isKoppelbaar shouldBe false
-                    notLinkableReason shouldBe ZaakNotLinkableReason.FOUND_ZAAK_AFGEHANDELD
+                    nietKoppelbaarReden shouldBe ZaakNotLinkableReason.FOUND_ZAAK_AFGEHANDELD
                 }
             }
         }
@@ -278,7 +278,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             then("the zaak can still be related because the status does not block relating") {
                 with(result.results.first()) {
                     isKoppelbaar shouldBe true
-                    notLinkableReason shouldBe null
+                    nietKoppelbaarReden shouldBe null
                 }
             }
         }

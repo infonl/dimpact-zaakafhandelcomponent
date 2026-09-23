@@ -18,7 +18,7 @@ data class RestZaakKoppelenZoekObject(
     val statustypeOmschrijving: String? = null,
     @get:JsonbProperty("isKoppelbaar")
     val isKoppelbaar: Boolean = false,
-    val notLinkableReason: ZaakNotLinkableReason? = null
+    val nietKoppelbaarReden: ZaakNotLinkableReason? = null
 ) : AbstractRestZoekObject(id, type, identificatie)
 
 fun RestZaakZoekObject.toRestZaakKoppelenZoekObject(documentLinkable: Boolean) =

@@ -153,7 +153,12 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row" class="text-right">
           <div
-            [matTooltip]="rowTooltipKey(row) | translate: rowTooltipParams(row)"
+            [matTooltip]="
+              (row.nietKoppelbaarReden
+                ? 'zaak.koppelen.niet-koppelbaar.' + row.nietKoppelbaarReden
+                : 'actie.zaak.koppelen'
+              ) | translate: rowTooltipParams(row)
+            "
           >
             <button
               mat-icon-button
