@@ -42,10 +42,6 @@ import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZakenService } from "../zaken.service";
 
-type FindLinkableZakenParams = Parameters<
-  ZoekenService["findLinkableZaken"]
->[0];
-
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ({
     label: `zaak.koppelen.link.type.${value}`,
@@ -89,7 +85,9 @@ export class ZaakLinkComponent {
     this.zakenService.koppelZaakMutation(),
   );
 
-  private readonly searchParams = signal<FindLinkableZakenParams | null>(null);
+  private readonly searchParams = signal<
+    Parameters<ZoekenService["findLinkableZaken"]>[0] | null
+  >(null);
 
   protected readonly casesQuery = injectQuery(() => {
     const searchParams = this.searchParams();
@@ -240,7 +238,7 @@ export class ZaakLinkComponent {
     target.set({ ...range });
   }
 
-  protected readonly ownZaakBlockedReason = computed(() => {
+  protected readonly relationTypeUnavailableReason = computed(() => {
     switch (this.caseRelationType()?.value) {
       case "HOOFDZAAK":
         if (this.zaak().isDeelzaak) {
