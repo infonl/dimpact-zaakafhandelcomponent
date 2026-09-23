@@ -29,7 +29,6 @@ import { DocumentIconComponent } from "../../shared/document-icon/document-icon.
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -96,7 +95,6 @@ describe(InformatieObjectViewComponent.name, () => {
         TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         DocumentIconComponent,
-        PipesModule,
         MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
