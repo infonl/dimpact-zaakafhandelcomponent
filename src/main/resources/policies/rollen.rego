@@ -30,3 +30,7 @@ raadpleger := {
 brpZoeken := {
     "rol": "brp_zoeken"
 }
+
+systeemrolBehandelaarAlleZaaktypen := {
+    "rol": "systeemrol_behandelaar_alle_zaaktypen"
+}

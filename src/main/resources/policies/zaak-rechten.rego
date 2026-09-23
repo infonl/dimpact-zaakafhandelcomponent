@@ -13,6 +13,7 @@ import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
+import data.net.atos.zac.rol.systeemrolBehandelaarAlleZaaktypen
 import input.zaak
 import input.user
 
@@ -59,6 +60,9 @@ lezen if {
     raadpleger.rol in user.rollen
     zaaktype_allowed
 }
+lezen if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default wijzigen := false
 wijzigen if {
@@ -70,6 +74,9 @@ wijzigen if {
 wijzigen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
+}
+wijzigen if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default toekennen := false
@@ -83,17 +90,26 @@ toekennen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
+toekennen if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default behandelen := false
 behandelen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
 }
+behandelen if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default afbreken := false
 afbreken if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
+}
+afbreken if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default heropenen := false
@@ -113,6 +129,9 @@ wijzigen_doorlooptijd if {
     zaaktype_allowed
     zaak.open
 }
+wijzigen_doorlooptijd if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default verlengen := false
 verlengen if {
@@ -123,6 +142,9 @@ verlengen if {
     not zaak.opgeschort
     not zaak.verlengd
 }
+verlengen if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default opschorten := false
 opschorten if {
@@ -132,11 +154,17 @@ opschorten if {
     not zaak.heropend
     not zaak.opgeschort
 }
+opschorten if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default hervatten := false
 hervatten if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
+}
+hervatten if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default creeren_document := false
@@ -144,6 +172,9 @@ creeren_document if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+}
+creeren_document if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default toevoegen_document := false
@@ -157,6 +188,9 @@ toevoegen_document if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
+toevoegen_document if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default koppelen := false
 koppelen if {
@@ -169,6 +203,9 @@ koppelen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
+koppelen if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default versturen_email := false
 versturen_email if {
@@ -176,12 +213,18 @@ versturen_email if {
     zaaktype_allowed
     zaak.open
 }
+versturen_email if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default versturen_ontvangstbevestiging := false
 versturen_ontvangstbevestiging if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+}
+versturen_ontvangstbevestiging if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default toevoegen_initiator_persoon := false
@@ -195,6 +238,9 @@ toevoegen_initiator_persoon if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
+toevoegen_initiator_persoon if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default toevoegen_initiator_bedrijf := false
 toevoegen_initiator_bedrijf if {
@@ -206,6 +252,9 @@ toevoegen_initiator_bedrijf if {
 toevoegen_initiator_bedrijf if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
+}
+toevoegen_initiator_bedrijf if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default verwijderen_initiator := false
@@ -219,6 +268,9 @@ verwijderen_initiator if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
+verwijderen_initiator if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default toevoegen_betrokkene_persoon := false
 toevoegen_betrokkene_persoon if {
@@ -230,6 +282,9 @@ toevoegen_betrokkene_persoon if {
 toevoegen_betrokkene_persoon if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
+}
+toevoegen_betrokkene_persoon if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default toevoegen_betrokkene_bedrijf := false
@@ -243,6 +298,9 @@ toevoegen_betrokkene_bedrijf if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
+toevoegen_betrokkene_bedrijf if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default verwijderen_betrokkene := false
 verwijderen_betrokkene if {
@@ -254,6 +312,9 @@ verwijderen_betrokkene if {
 verwijderen_betrokkene if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
+}
+verwijderen_betrokkene if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default toevoegen_bag_object := false
@@ -267,12 +328,18 @@ toevoegen_bag_object if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
+toevoegen_bag_object if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default starten_taak := false
 starten_taak if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+}
+starten_taak if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default vastleggen_besluit := false
@@ -283,12 +350,18 @@ vastleggen_besluit if {
     not zaak.intake
     zaak.besloten
 }
+vastleggen_besluit if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
+}
 
 default verlengen_doorlooptijd := false
 verlengen_doorlooptijd if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+}
+verlengen_doorlooptijd if {
+    systeemrolBehandelaarAlleZaaktypen.rol in user.rollen
 }
 
 default wijzigen_locatie := false
