@@ -384,6 +384,8 @@ jobs:
       # let the other shards finish so that all failures show up in one run
       fail-fast: false
       matrix:
+        # every shard uploads its own coverage report, so update 'after_n_builds' in codecov.yml
+        # when the number of shards changes
         shard: [1, 2, 3]
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
