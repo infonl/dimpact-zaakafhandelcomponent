@@ -5,6 +5,29 @@ opposed to test code (`src/test`, `src/itest`, `src/e2e`), which is out of scope
 required follow-up changes to bring logging in line with GDPR/AVG requirements — see
 [Follow-up recommendations](#follow-up-recommendations).
 
+## Logging philosophy
+
+ZAC's logging draws a hard line between server errors and client errors. Server errors (5xx) are always
+logged at `SEVERE`, with enough context (typically the zaak UUID/identificatie, not personal data) to
+troubleshoot without needing to reproduce the failure. Client errors (4xx) are, with few exceptions, logged
+at `FINE` — effectively suppressed in production, since these represent expected/handled conditions (bad
+input, conflicts, forbidden access) rather than defects. The broader intent is that logs should be a signal 
+of things the operator needs to act on, not a record of every client mistake.
+
+Beyond errors, ZAC also logs some normal, non-error events purely for troubleshooting purposes — e.g.
+`UserPrincipalFilter` logging `User logged in: ...` at `INFO` on every new session, so a support engineer
+can trace what a user's session looked like without an error having occurred.
+
+Separately, ZAC performs a form of audit logging specific to BRP requests, distinct from its regular
+application logging. See
+[`nl/info/client/brp/BrpClientService.kt`](../../src/main/kotlin/nl/info/client/brp/BrpClientService.kt):
+when BRP protocollering is enabled.
+The log level of these ZAC BRP audit logs is configurable, with a default of `INFO`.
+ZAC attaches certain HTTP headers to the outgoing BRP request itself — doelbinding (purpose of use), verwerkingregister,
+the requesting user, origin OIN, and toepassing — so the BRP system's own audit trail records who
+queried what data and why. This is legally required for BRP access, enforced via
+request headers to the BRP API rather than (only) ZAC's own log files.
+
 ## Backend
 
 The backend logs exclusively through `java.util.logging.Logger` (JUL). No third-party logging
