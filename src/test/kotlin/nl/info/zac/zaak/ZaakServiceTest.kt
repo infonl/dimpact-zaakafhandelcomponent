@@ -26,6 +26,7 @@ import java.util.logging.Level
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
@@ -83,6 +84,7 @@ class ZaakServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val pabcClientService = mockk<PabcClientService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
+    val cmmnService = mockk<CMMNService>()
     val zaakService = ZaakService(
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
@@ -93,7 +95,8 @@ class ZaakServiceTest : BehaviorSpec({
         indexingService = indexingService,
         bpmnService = bpmnService,
         pabcClientService = pabcClientService,
-        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
+        cmmnService = cmmnService
     )
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
@@ -1616,6 +1619,50 @@ class ZaakServiceTest : BehaviorSpec({
                         zrcClientService.createRol(any(), "fakeReason")
                         zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(markedZaak)
                     }
+                }
+            }
+        }
+    }
+
+    context("Determining whether zaakdata is archived") {
+        given("a zaak with an active BPMN process and no active CMMN case") {
+            val zaak = createZaak()
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
+            every { cmmnService.isZaakCaseDriven(zaak.uuid) } returns false
+
+            `when`("setIsZaakdataGearchiveerd is called") {
+                val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
+
+                then("the zaakdata is not archived") {
+                    isZaakdataGearchiveerd shouldBe false
+                }
+            }
+        }
+
+        given("a zaak with an active CMMN case and no active BPMN process") {
+            val zaak = createZaak()
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { cmmnService.isZaakCaseDriven(zaak.uuid) } returns true
+
+            `when`("setIsZaakdataGearchiveerd is called") {
+                val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
+
+                then("the zaakdata is not archived") {
+                    isZaakdataGearchiveerd shouldBe false
+                }
+            }
+        }
+
+        given("a zaak with neither an active BPMN process nor an active CMMN case") {
+            val zaak = createZaak()
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { cmmnService.isZaakCaseDriven(zaak.uuid) } returns false
+
+            `when`("setIsZaakdataGearchiveerd is called") {
+                val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
+
+                then("the zaakdata is archived") {
+                    isZaakdataGearchiveerd shouldBe true
                 }
             }
         }

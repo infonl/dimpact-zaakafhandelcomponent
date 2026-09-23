@@ -180,10 +180,7 @@
       activeAction === "actie.zaakdata.archief"
     ) {
       @defer (on immediate) {
-        <zac-zaakdata
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-        ></zac-zaakdata>
+        <zac-zaakdata [sideNav]="actionsSidenav" [zaak]="zaak"></zac-zaakdata>
       }
     }
     @if (activeAction === "actie.procesverloop.bekijken") {

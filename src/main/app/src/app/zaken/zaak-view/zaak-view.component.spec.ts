@@ -394,56 +394,37 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-  describe("isArchief", () => {
-    const cmmnZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
-      ...zaak.zaaktype,
-      zaakafhandelparameters: fromPartial<
-        GeneratedType<"RestZaaktypeConfiguration">
-      >({
-        caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
-          key: "fakeCaseDefinitionKey",
-        }),
-      }),
-    });
-
-    const cases: [string, Partial<GeneratedType<"RestZaak">>, boolean][] = [
-      [
-        "marks a BPMN zaak with a live process as not archief",
-        { zaaktype: zaak.zaaktype, isProcesGestuurd: true },
-        false,
-      ],
-      [
-        "marks a BPMN zaak without a live process as archief",
-        { zaaktype: zaak.zaaktype, isProcesGestuurd: false },
-        true,
-      ],
-      [
-        "marks an open CMMN zaak that was never reopened as not archief",
-        { zaaktype: cmmnZaaktype, isOpen: true, isHeropend: false },
-        false,
-      ],
-      [
-        "marks a closed CMMN zaak as archief",
-        { zaaktype: cmmnZaaktype, isOpen: false },
-        true,
-      ],
-      [
-        "marks a reopened CMMN zaak as archief",
-        { zaaktype: cmmnZaaktype, isOpen: true, isHeropend: true },
-        true,
-      ],
-    ];
-
-    it.each(cases)("%s", (_description, zaakFields, expectedIsArchief) => {
-      mockActivatedRoute.data.next({
-        zaak: fromPartial<GeneratedType<"RestZaak">>({
-          ...zaak,
-          ...zaakFields,
-        }),
+  describe("isZaakdataGearchiveerd", () => {
+    // The archief determination itself now happens on the backend (RestZaak.isZaakdataGearchiveerd);
+    // this only checks that the component threads the zaak's own value through to the menu unchanged.
+    const zaakWithZaakdata = (isZaakdataGearchiveerd: boolean) =>
+      fromPartial<GeneratedType<"RestZaak">>({
+        ...zaak,
+        zaakdata: { fakeKey: "fakeValue" },
+        rechten: { ...zaak.rechten, bekijkenZaakdata: true },
+        isZaakdataGearchiveerd,
       });
+
+    it("labels the zaakdata menu item as archief when the zaak reports it archived", () => {
+      mockActivatedRoute.data.next({ zaak: zaakWithZaakdata(true) });
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["isArchief"]()).toBe(expectedIsArchief);
+      const titles = fixture.componentInstance["menu"]().map(
+        (item) => item.title,
+      );
+      expect(titles).toContain("actie.zaakdata.archief");
+      expect(titles).not.toContain("actie.zaakdata.bekijken");
+    });
+
+    it("labels the zaakdata menu item as bekijken when the zaak reports it not archived", () => {
+      mockActivatedRoute.data.next({ zaak: zaakWithZaakdata(false) });
+      fixture.detectChanges();
+
+      const titles = fixture.componentInstance["menu"]().map(
+        (item) => item.title,
+      );
+      expect(titles).toContain("actie.zaakdata.bekijken");
+      expect(titles).not.toContain("actie.zaakdata.archief");
     });
   });
 

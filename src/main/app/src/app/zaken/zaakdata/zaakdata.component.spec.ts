@@ -55,12 +55,15 @@ describe(ZaakdataComponent.name, () => {
   const setup = (
     zaak: GeneratedType<"RestZaak"> = makeZaak(),
     sideNav: MatDrawer = makeSideNav(),
-    isArchief = false,
+    isZaakdataGearchiveerd = false,
   ) => {
     fixture = TestBed.createComponent(ZaakdataComponent);
     fixture.componentRef.setInput("zaak", zaak);
     fixture.componentRef.setInput("sideNav", sideNav);
-    fixture.componentRef.setInput("isArchief", isArchief);
+    fixture.componentRef.setInput(
+      "isZaakdataGearchiveerd",
+      isZaakdataGearchiveerd,
+    );
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
     return { fixture, component: fixture.componentInstance, sideNav };

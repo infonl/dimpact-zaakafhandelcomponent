@@ -205,7 +205,8 @@ fun createRestZaak(
     zaakdata = createZaakData(),
     zaakgeometrie = createRESTGeometry(),
     zaakSpecificContactDetails = null,
-    zaaktype = restZaakType
+    zaaktype = restZaakType,
+    isZaakdataGearchiveerd = false
 )
 
 @Suppress("LongParameterList")

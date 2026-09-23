@@ -175,7 +175,9 @@ function zaakMenuItems(
   if (hasZaakData(zaak) && zaak.rechten.bekijkenZaakdata) {
     menu.push(
       new ButtonMenuItem(
-          isZaakdataGearchiveerd ? "actie.zaakdata.archief" : "actie.zaakdata.bekijken",
+        isZaakdataGearchiveerd
+          ? "actie.zaakdata.archief"
+          : "actie.zaakdata.bekijken",
         open,
         "folder_copy",
       ),
