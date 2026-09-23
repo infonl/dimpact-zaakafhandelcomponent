@@ -8,12 +8,12 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import nl.info.zac.itest.config.DockerComposeStack
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
-import nl.info.zac.itest.config.dockerComposeContainer
 import kotlin.time.Duration.Companion.seconds
 
 fun zacContainerLogs(): String =
-    dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).get().logs
+    DockerComposeStack.readContainerOfService(ZAC_CONTAINER_SERVICE_NAME).logs
 
 /**
  * ZAC's own startup already triggers a full `reindexAll()` when the Solr schema is not yet at

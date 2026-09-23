@@ -7,8 +7,8 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import nl.info.zac.itest.config.DockerComposeStack
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
-import nl.info.zac.itest.config.dockerComposeContainer
 import org.json.JSONObject
 
 const val NUMBER_OF_LOG_LINES = 10
@@ -18,9 +18,7 @@ class LoggingTest : BehaviorSpec({
 
     given("ZAC Docker container is running") {
         `when`("the ZAC container log output is retrieved") {
-            val zacContainer = dockerComposeContainer
-                .getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME)
-                .get()
+            val zacContainer = DockerComposeStack.readContainerOfService(ZAC_CONTAINER_SERVICE_NAME)
             val jsonLogLines = zacContainer.logs
                 .lines()
                 .filter { it.trimStart().startsWith("{") }

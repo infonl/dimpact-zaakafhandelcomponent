@@ -235,17 +235,25 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          # The Gradle configuration cache lives in the project's '.gradle' directory, which this action
+          # only caches when it can encrypt it. Without the secret it behaves as it did before.
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
+      # The frontend linter is excluded because every job below waits for this one while it runs, and
+      # nothing below needs its result. The 'frontend-unit-tests' job runs it instead.
+      # 'copyJacocoAgentForItest' is built here so that the integration test shards can start the ZAC
+      # container without waiting for Gradle.
       - name: Gradle build
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ./gradlew clean build -x test --info
+            ./gradlew clean build copyJacocoAgentForItest -x test -x npmRunLint --info
           else
-            ./gradlew build -x test --info
+            ./gradlew build copyJacocoAgentForItest -x test -x npmRunLint --info
           fi
 
       - name: Upload Gradle build artefacts
@@ -264,14 +272,23 @@ jobs:
             src/generated
           retention-days: 1
 
-      - name: Compress frontend build artefacts
-        run: tar czf frontend-artefacts.tar.gz src/main/app/node_modules src/main/app/src/generated/types
-
-      - name: Upload frontend build artefacts
+      # Only the generated types are shared with the frontend jobs. They install their own dependencies,
+      # which keeps compressing and uploading 'node_modules' - a minute of work spread over three jobs -
+      # off the critical path of every job that waits for this one.
+      - name: Upload generated frontend types
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: frontend-artefacts
-          path: frontend-artefacts.tar.gz
+          name: generated-frontend-types
+          path: src/main/app/src/generated/types
+          retention-days: 1
+
+      # The integration test shards start the ZAC container before they run Gradle, and it only starts
+      # when the JaCoCo agent it records the integration test coverage with is in place.
+      - name: Upload JaCoCo agent
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jacoco-agent
+          path: build/jacoco/itest/jacoco-agent
           retention-days: 1
 
       - name: Upload built ZAC JAR
@@ -310,6 +327,10 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          # The Gradle configuration cache lives in the project's '.gradle' directory, which this action
+          # only caches when it can encrypt it. Without the secret it behaves as it did before.
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Download Gradle build artefacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -364,8 +385,9 @@ jobs:
           flags: backendunittests
           directory: ./build/reports/jacoco/test
 
-  # Jest is split over two shards; both run the Angular test builder on the node_modules built by the
-  # 'build' job, so this job needs neither a JDK nor Gradle.
+  # Jest is split over two shards; both run the Angular test builder, so this job needs neither a JDK
+  # nor Gradle. It also runs the frontend linter, which the 'build' job leaves to this job because it
+  # has the slack for it and nothing waits for its result.
   frontend-unit-tests:
     needs: [build, paths-filter]
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
@@ -385,14 +407,23 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: src/main/app/package-lock.json
 
-      - name: Download frontend build artefacts
+      - name: Download generated frontend types
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: frontend-artefacts
+          name: generated-frontend-types
+          path: src/main/app/src/generated/types
 
-      - name: Extract frontend build artefacts
-        run: tar xzf frontend-artefacts.tar.gz
+      - name: Install frontend dependencies
+        working-directory: src/main/app
+        run: npm ci
+
+      - name: Run the frontend linter
+        if: ${{ matrix.shard == 1 }}
+        working-directory: src/main/app
+        run: npm run lint
 
       - name: Restore Jest transform cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -493,6 +524,11 @@ jobs:
       BAG_API_CLIENT_MP_REST_URL: ${{ vars.BAG_API_CLIENT_MP_REST_URL }}
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
+      # The stack is started by the step below instead of by the integration tests, so that it boots
+      # while the ZAC Docker image is built and Gradle starts up. Both have to agree on the Compose
+      # project name for the integration tests to find the containers of the stack.
+      COMPOSE_PROJECT_NAME: zac-itest
+      DO_NOT_START_DOCKER_COMPOSE: "true"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -504,15 +540,13 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Pull the Docker Compose images in the background while the JDK, Gradle and the ZAC Docker image
-      # are being prepared, so that the integration tests do not have to wait for the pulls.
-      # The ZAC image is excluded because it is built below.
-      - name: Start pulling the Docker Compose images in the background
+      # Pull the images and boot the stack in the background while the JDK, Gradle and the ZAC Docker
+      # image are being prepared. The script starts ZAC as soon as its image and the JaCoCo agent are
+      # there, so that by the time Gradle reaches the integration tests the stack is up.
+      - name: Start the Docker Compose stack in the background
         run: |
-          nohup docker compose --profile zac --profile itest pull --quiet --ignore-pull-failures \
-            $(docker compose --profile zac --profile itest config --services | grep --invert-match --line-regexp zac) \
-            < /dev/null > "$RUNNER_TEMP/compose-pull.log" 2>&1 &
-          echo $! > "$RUNNER_TEMP/compose-pull.pid"
+          nohup ./scripts/docker/start-itest-docker-compose-stack.sh \
+            < /dev/null > "$RUNNER_TEMP/compose-up.log" 2>&1 &
 
       - name: Setup JDK
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -522,12 +556,22 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          # The Gradle configuration cache lives in the project's '.gradle' directory, which this action
+          # only caches when it can encrypt it. Without the secret it behaves as it did before.
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Download built ZAC JAR
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: zac-jar
           path: target
+
+      - name: Download JaCoCo agent
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: jacoco-agent
+          path: build/jacoco/itest/jacoco-agent
 
       # No layer cache: the JAR layer changes with every commit, so a cache would hardly ever hit.
       - name: Build Docker image
@@ -539,13 +583,6 @@ jobs:
             --build-arg commitHash="${GIT_COMMIT_HASH}" \
             .
 
-      - name: Wait for the Docker Compose images to be pulled
-        run: |
-          while kill -0 "$(cat "$RUNNER_TEMP/compose-pull.pid")" 2> /dev/null; do
-            sleep 2
-          done
-          cat "$RUNNER_TEMP/compose-pull.log"
-
       # The full integration test log (including the container logs) is written to a file that is uploaded
       # as an artifact when the tests fail. The console only shows failed tests.
       - name: Run integration tests
@@ -554,6 +591,10 @@ jobs:
             -PitestLogFile=build/reports/itest/itest.log \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest
+
+      - name: Show how the Docker Compose stack was started
+        if: ${{ failure() }}
+        run: cat "$RUNNER_TEMP/compose-up.log"
 
       - name: Publish integration test timings
         if: ${{ !cancelled() }}
@@ -654,6 +695,8 @@ jobs:
           echo "The integration test shards finished with result '${{ needs.itest-shard.result }}'"
           exit 1
 
+  # Tagging the image, creating the release and triggering the provisioning are seconds of work each.
+  # They run in one job because three jobs would pay for three runner allocations and three checkouts.
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]
     runs-on: ubuntu-26.04
@@ -663,8 +706,14 @@ jobs:
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
+      NEXT_VERSION_TAG: ${{ needs.determine-version.outputs.tag }}
       RELEASE_TYPE: ${{ needs.determine-version.outputs.release-type }}
+      PREVIOUS_TAG: ${{ needs.determine-version.outputs.previous-tag }}
+      PROVISION_TAG: ${{ needs.determine-version.outputs.release-type == 'dev' && format('{0}.{1}', needs.determine-version.outputs.version, github.run_number) || needs.determine-version.outputs.version }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - name: Docker Login
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
@@ -695,19 +744,6 @@ jobs:
             --tag ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION} \
             --tag ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}.${MINOR_VERSION} \
             ${ZAC_DOCKER_IMAGE}
-
-  create-release:
-    needs: [push-docker-image, determine-version]
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')
-    runs-on: ubuntu-26.04
-    env:
-      NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
-      NEXT_VERSION_TAG: ${{ needs.determine-version.outputs.tag }}
-      RELEASE_TYPE: ${{ needs.determine-version.outputs.release-type }}
-      PREVIOUS_TAG: ${{ needs.determine-version.outputs.previous-tag }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Delete existing dev pre-releases
         if: ${{ env.RELEASE_TYPE == 'dev' || env.RELEASE_TYPE == 'release' }}
@@ -788,15 +824,9 @@ jobs:
           allowUpdates: true
           makeLatest: ${{ env.RELEASE_TYPE == 'release' }}
 
-  trigger-provision:
-    needs: [determine-version, push-docker-image, create-release]
-    env:
-      PROVISION_TAG: ${{ needs.determine-version.outputs.release-type == 'dev' && format('{0}.{1}', needs.determine-version.outputs.version, github.run_number) || needs.determine-version.outputs.version }}
-    runs-on: ubuntu-26.04
-    timeout-minutes: 30
-    if: ${{ github.ref == 'refs/heads/main' && vars.ENABLE_AUTOMATIC_PROVISION == 'true' }}
-    steps:
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      - name: Trigger the provisioning of the new version
+        if: ${{ github.ref == 'refs/heads/main' && vars.ENABLE_AUTOMATIC_PROVISION == 'true' }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.PROVISION_TOKEN }}
           script: |

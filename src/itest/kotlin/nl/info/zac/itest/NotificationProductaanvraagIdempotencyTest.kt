@@ -11,6 +11,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.COORDINATOR_1
+import nl.info.zac.itest.config.DockerComposeStack
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_CONCURRENT_UUID
@@ -18,7 +19,6 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_CONCURRENT_NOTIFICATIONS
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DATABASE_CONTAINER_SERVICE_NAME
-import nl.info.zac.itest.config.dockerComposeContainer
 import okhttp3.Headers
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -38,7 +38,7 @@ private const val INBOX_LIST_MAX_RESULTS = 10
 private val logger = KotlinLogging.logger {}
 
 private fun executeSqlInZacDatabase(sql: String): String =
-    dockerComposeContainer.getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME).get()
+    DockerComposeStack.readContainerOfService(ZAC_DATABASE_CONTAINER_SERVICE_NAME)
         .execInContainer("psql", "-U", "zac", "-d", "zac", "-t", "-A", "-c", sql)
         .let { execResult ->
             check(execResult.exitCode == 0) { "psql failed: ${execResult.stderr}" }

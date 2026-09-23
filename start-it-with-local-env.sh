@@ -61,6 +61,10 @@ while getopts ':bdcsuh' OPTION; do
     s)
       echo "Disabling Docker Compose containers startup ..."
       export DO_NOT_START_DOCKER_COMPOSE=true
+      # the stack you started yourself is yours: it already has the test setup data of a previous run
+      # and the tests leave it running
+      export DO_NOT_CREATE_ITEST_SETUP_DATA=true
+      export TESTCONTAINERS_RYUK_DISABLED=true
       ;;
     u)
       echo "Turning on debug logs ..."

@@ -10,9 +10,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.DockerComposeStack
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DATABASE_CONTAINER_SERVICE_NAME
-import nl.info.zac.itest.config.dockerComposeContainer
 import java.net.HttpURLConnection.HTTP_OK
 
 /**
@@ -33,9 +33,7 @@ class DataSourceConnectionValidationTest : BehaviorSpec({
         ).code shouldBe HTTP_OK
 
         and("all connections to the zac database are lost") {
-            val databaseContainer = dockerComposeContainer
-                .getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME)
-                .get()
+            val databaseContainer = DockerComposeStack.readContainerOfService(ZAC_DATABASE_CONTAINER_SERVICE_NAME)
             val execResult = databaseContainer.execInContainer(
                 "psql",
                 "-U",

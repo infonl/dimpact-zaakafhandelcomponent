@@ -95,10 +95,32 @@ The Gradle property `itestSpecConcurrency` overrides the number of concurrent sp
 Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests behaviour:
 * `TESTCONTAINERS_RYUK_DISABLED` - do not stop Docker containers after the tests finish executing
 * `DO_NOT_START_DOCKER_COMPOSE` - do not start Docker Compose when running the integration tests
+* `DO_NOT_CREATE_ITEST_SETUP_DATA` - do not create the BPMN process definitions, process task forms and zaaktype
+  configurations that the integration tests need, because the stack they run against already has them
 
 ![Run Configuration](./attachments/images/run-configuration.gif)
 
 In such way you can run the integration tests in a more controlled environment and start up Docker Compose only once.
+`./start-it-with-local-env.sh -s` sets all three: the stack is yours, so the tests neither start it, nor
+initialise it, nor stop it.
+
+### Running the integration tests against a stack that is already running
+
+The integration tests find the containers of the Docker Compose stack through the `com.docker.compose.project`
+and `com.docker.compose.service` labels, which is why they work against a stack they did not start themselves.
+Set `COMPOSE_PROJECT_NAME` to the Compose project of that stack; without it the tests look up the project name
+from the labels of the running containers.
+
+Whoever starts the stack has to configure it identically, so the integration tests and the build workflow both
+pass `src/itest/docker-compose-itest.env` to Docker Compose with `--env-file`:
+
+```shell
+docker compose --profile zac --profile itest --env-file src/itest/docker-compose-itest.env up --detach
+```
+
+CI uses this to take the boot of the stack off the critical path: `scripts/docker/start-itest-docker-compose-stack.sh`
+starts the stack in the background while the ZAC Docker image is built and Gradle starts up, and starts the ZAC
+container as soon as its image and the JaCoCo agent are available.
 
 ### Debugging integration tests
 
