@@ -18,8 +18,7 @@ Beyond errors, ZAC also logs some normal, non-error events purely for troublesho
 `UserPrincipalFilter` logging `User logged in: ...` at log level `INFO` on every new session, so a support engineer
 can trace what a user's session looked like without an error having occurred.
 
-Separately, ZAC has two independent, unrelated mechanisms around BRP requests, both in
-[`nl/info/client/brp/BrpClientService.kt`](../../src/main/kotlin/nl/info/client/brp/BrpClientService.kt):
+Separately, ZAC has two independent, unrelated mechanisms around BRP requests:
 
 - **BRP audit headers** — the actual audit mechanism. When `BRP_PROTOCOLLERING_ENABLED` is enabled,
   ZAC attaches HTTP headers to the outgoing BRP request itself — doelbinding (purpose of use),
