@@ -51,7 +51,7 @@
 
 ## 5. End-to-end verification
 
-- [ ] 5.1 Run `./gradlew test --tests "*RestExceptionMapperTest*" --tests "*ZrcClientServiceTest*"` and
+- [x] 5.1 Run `./gradlew test --tests "*RestExceptionMapperTest*" --tests "*ZrcClientServiceTest*"` and
   the relevant search/indexing test classes, and confirm they pass.
-- [ ] 5.2 Run `./gradlew spotlessApply detektApply` and `cd src/main/app && npm run lint` and confirm
+- [x] 5.2 Run `./gradlew spotlessApply detektApply` and `cd src/main/app && npm run lint` and confirm
   no violations remain in the touched files.
