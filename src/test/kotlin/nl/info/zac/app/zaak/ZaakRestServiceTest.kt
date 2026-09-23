@@ -1170,7 +1170,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
                 every {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(it.url.extractUuid())
-                } returns createZaaktypeCmmnConfiguration()
+                } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
             }
             every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
 
@@ -1223,7 +1223,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
                 every {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(it.url.extractUuid())
-                } returns createZaaktypeCmmnConfiguration()
+                } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
             }
             zaaktypes.last().let {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
@@ -1275,6 +1275,100 @@ class ZaakRestServiceTest : BehaviorSpec({
                         }
                         returnedRestZaaktypes shouldHaveSize 2
                         returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
+                    }
+                }
+            }
+        }
+
+        given("A concept zaaktype, a zaaktype not yet valid and an expired zaaktype") {
+            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithInvalidZaaktypes")
+            val now = LocalDate.now()
+            val zaaktypes = listOf(
+                createZaakType(omschrijving = "fakeConceptZaaktype", concept = true, beginGeldigheid = now.minusDays(1)),
+                createZaakType(omschrijving = "fakeFutureZaaktype", beginGeldigheid = now.plusDays(1)),
+                createZaakType(
+                    omschrijving = "fakeExpiredZaaktype",
+                    beginGeldigheid = now.minusDays(10),
+                    eindeGeldigheid = now.minusDays(1)
+                )
+            )
+            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
+
+            `when`("the zaaktypes are listed") {
+                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
+
+                then("no zaaktypes are returned and the policy is not evaluated for them") {
+                    returnedRestZaaktypes shouldBe emptyList()
+                    zaaktypes.forEach {
+                        verify(exactly = 0) { policyService.readOverigeRechten(it.omschrijving) }
+                    }
+                }
+            }
+        }
+
+        given("Two valid versions of a CMMN zaaktype with the same omschrijving") {
+            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithTwoVersions")
+            val now = LocalDate.now()
+            val zaaktypes = listOf(
+                createZaakType(omschrijving = "fakeVersionedZaaktype", beginGeldigheid = now.minusDays(2)),
+                createZaakType(omschrijving = "fakeVersionedZaaktype", beginGeldigheid = now.minusDays(1))
+            )
+            val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
+            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
+            every { policyService.readOverigeRechten("fakeVersionedZaaktype") } returns createOverigeRechten()
+            zaaktypes.forEachIndexed { index, zaaktype ->
+                every {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktype.url.extractUuid())
+                } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
+                every { healthCheckService.controleerZaaktype(zaaktype.url) } returns createZaaktypeInrichtingscheck()
+                every { restZaaktypeConverter.convert(zaaktype) } returns restZaaktypes[index]
+            }
+
+            `when`("the zaaktypes are listed") {
+                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
+
+                then("both versions are returned and the policy is evaluated once for the omschrijving") {
+                    returnedRestZaaktypes shouldBe restZaaktypes
+                    verify(exactly = 1) { policyService.readOverigeRechten("fakeVersionedZaaktype") }
+                }
+            }
+        }
+
+        given("A zaaktype without ZAC configuration and a zaaktype with an invalid CMMN configuration") {
+            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithUnconfiguredZaaktypes")
+            val now = LocalDate.now()
+            val unconfiguredZaaktype = createZaakType(
+                omschrijving = "fakeUnconfiguredZaaktype",
+                beginGeldigheid = now.minusDays(1)
+            )
+            val invalidlyConfiguredZaaktype = createZaakType(
+                omschrijving = "fakeInvalidlyConfiguredZaaktype",
+                beginGeldigheid = now.minusDays(1)
+            )
+            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every {
+                ztcClientService.listZaaktypen(defaultCatalogueURI)
+            } returns listOf(unconfiguredZaaktype, invalidlyConfiguredZaaktype)
+            listOf(unconfiguredZaaktype, invalidlyConfiguredZaaktype).forEach {
+                every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
+            }
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(unconfiguredZaaktype.url.extractUuid())
+            } returns null
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(invalidlyConfiguredZaaktype.url.extractUuid())
+            } returns createZaaktypeCmmnConfiguration(groupId = null)
+
+            `when`("the zaaktypes are listed") {
+                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
+
+                then("no zaaktypes are returned and the inrichtingscheck is not run for them") {
+                    returnedRestZaaktypes shouldBe emptyList()
+                    verify(exactly = 0) {
+                        healthCheckService.controleerZaaktype(unconfiguredZaaktype.url)
+                        healthCheckService.controleerZaaktype(invalidlyConfiguredZaaktype.url)
                     }
                 }
             }
