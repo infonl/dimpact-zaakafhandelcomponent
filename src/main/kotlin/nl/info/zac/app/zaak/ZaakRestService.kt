@@ -431,7 +431,7 @@ class ZaakRestService @Inject constructor(
                     policyService.readOverigeRechten(it.omschrijving).startenZaak
                 }
             }
-            .filter { it.isReadyForZaakCreation() }
+            .filter { it.isValidForZaakCreation() }
             .map(restZaaktypeConverter::convert)
             .toList()
     }
@@ -859,7 +859,7 @@ class ZaakRestService @Inject constructor(
      * For CMMN, the full zaaktype check calls Open Zaak several times and always fails when the ZAC
      * configuration is not valid. So we check the ZAC configuration first and skip the slow check when it fails.
      */
-    private fun ZaakType.isReadyForZaakCreation() =
+    private fun ZaakType.isValidForZaakCreation() =
         when (val zaaktypeConfiguration = zaaktypeConfigurationService.readZaaktypeConfiguration(url.extractUuid())) {
             is ZaaktypeBpmnConfiguration -> true
             is ZaaktypeCmmnConfiguration ->
