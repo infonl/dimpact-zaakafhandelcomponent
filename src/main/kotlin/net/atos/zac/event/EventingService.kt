@@ -16,6 +16,8 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @ApplicationScoped
 @AllOpen
@@ -26,6 +28,10 @@ class EventingService @Inject constructor(
     private val signaleringJobEvent: Event<JobEvent>,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(EventingService::class.java.name)
+    }
+
     /**
      * Send [ScreenEvent]s to Observer(s), which pass them on to the subscribed websocket clients.
      *
@@ -45,7 +51,11 @@ class EventingService @Inject constructor(
      * Prefer using the factory methods on [SignaleringEventUtil] to create these events.
      */
     fun send(event: SignaleringEvent<*>) {
-        signaleringEvent.fireAsync(event)
+        // nothing else observes the outcome, so a failing observer would otherwise go unnoticed
+        signaleringEvent.fireAsync(event).exceptionally { throwable ->
+            LOG.log(Level.SEVERE, "Failed to handle signalering event $event", throwable)
+            null
+        }
     }
 
     /**
