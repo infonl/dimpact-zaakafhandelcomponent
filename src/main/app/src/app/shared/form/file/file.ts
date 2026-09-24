@@ -9,12 +9,12 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  effect,
   ElementRef,
   input,
   numberAttribute,
   OnDestroy,
   OnInit,
-  signal,
   viewChild,
 } from "@angular/core";
 import {
@@ -27,7 +27,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
@@ -52,9 +52,9 @@ import { SingleInputFormField } from "../BaseFormField";
   ],
 })
 export class ZacFile<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-  >
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+>
   extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {
@@ -71,20 +71,41 @@ export class ZacFile<
 
   protected displayControl = this.formBuilder.control<string | null>(null);
 
-  protected allowedFormats = signal<string[]>([]);
+  protected readonly allowedFileTypesQuery = injectQuery(() => ({
+    ...this.configuratieService.readAllowedFileTypesQuery(),
+    enabled: !this.allowedFileTypes().length,
+  }));
+
+  protected allowedFormats = computed(() => {
+    if (this.allowedFileTypes().length) return this.allowedFileTypes();
+    return (
+      this.allowedFileTypesQuery
+        .data()
+        ?.map((allowedFileType) => allowedFileType.extension) ?? []
+    );
+  });
+
+  protected isAllowedFormatsUnavailable = computed(
+    () => !this.allowedFormats().length,
+  );
 
   constructor(
     private readonly changeDetector: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
     private readonly configuratieService: ConfiguratieService,
-    private readonly queryClient: QueryClient,
   ) {
     super();
+
+    effect(() => {
+      if (this.isAllowedFormatsUnavailable()) {
+        this.displayControl.disable({ emitEvent: false });
+        return;
+      }
+      this.displayControl.enable({ emitEvent: false });
+    });
   }
 
   ngOnInit() {
-    void this.resolveAllowedFormats();
-
     // Subscribe to form control status changes to sync errors
     this.control()
       ?.statusChanges.pipe(takeUntil(this.destroy$))
@@ -113,8 +134,14 @@ export class ZacFile<
     this.updateInputControls(null);
   }
 
+  protected openFilePicker() {
+    if (this.isAllowedFormatsUnavailable()) return;
+    this.fileInput()?.nativeElement.click();
+  }
+
   protected async droppedFile(files: FileList) {
     if (!files.length) return;
+    if (this.isAllowedFormatsUnavailable()) return;
     await this.setFile(files[0]);
   }
 
@@ -128,8 +155,9 @@ export class ZacFile<
   private async setFile(file: File) {
     this.control()?.setErrors(null);
     this.updateInputControls(file);
+    this.displayControl.markAsTouched();
 
-    if (!(await this.isFileTypeAllowed(file))) {
+    if (!this.isFileTypeAllowed(file)) {
       this.control()?.setErrors({
         fileTypeInvalid: { type: this.getFileExtension(file) },
       });
@@ -163,31 +191,9 @@ export class ZacFile<
     this.changeDetector.detectChanges();
   }
 
-  private async resolveAllowedFormats() {
-    const allowedFormats = await this.readAllowedFormats();
-    this.allowedFormats.set(allowedFormats);
-    return allowedFormats;
-  }
-
-  private async readAllowedFormats() {
-    if (this.allowedFileTypes().length) return this.allowedFileTypes();
-
-    return (
-      this.queryClient
-        .query(this.configuratieService.readAllowedFileTypesQuery())
-        .then((allowedFileTypes) =>
-          allowedFileTypes.map((allowedFileType) => allowedFileType.extension),
-        )
-        // an unreachable configuration cannot narrow the selection; the backend rejects what is not allowed
-        .catch(() => [])
-    );
-  }
-
-  private async isFileTypeAllowed(file: File) {
-    const allowedFormats = await this.resolveAllowedFormats();
-    if (!allowedFormats.length) return true;
+  private isFileTypeAllowed(file: File) {
     const extension = this.getFileExtension(file);
-    return allowedFormats.includes(`.${extension}`);
+    return this.allowedFormats().includes(`.${extension}`);
   }
 
   private async isFileSizeAllowed(file: File) {

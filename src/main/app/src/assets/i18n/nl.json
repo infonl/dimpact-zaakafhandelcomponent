@@ -1107,6 +1107,8 @@
   "validators.fileEmpty": "Het bestand is leeg",
   "validators.emptyHtmlElement": "Het bericht is verplicht",
   "form.input.file.hint.formats": "Toegestane bestandtypen: {{formats}}",
+  "form.input.file.hint.formats-loading": "Toegestane bestandstypen worden geladen…",
+  "form.input.file.hint.formats-unavailable": "De toegestane bestandstypen konden niet worden geladen. Sluit het formulier en probeer het opnieuw.",
   "form.input.file.hint.max-size": "Maximale bestandsgrootte: {{sizeInMB}}MB",
   " 12 ": ">>--> TODO <--<<",
   "gegevens": "Gegevens",
