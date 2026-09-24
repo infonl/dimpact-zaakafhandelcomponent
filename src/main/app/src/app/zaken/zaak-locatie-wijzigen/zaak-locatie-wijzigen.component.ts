@@ -10,11 +10,11 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  input,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
-  input,
 } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import {

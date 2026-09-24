@@ -9,10 +9,10 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  input,
   OnDestroy,
   Output,
   ViewChild,
-  input,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {

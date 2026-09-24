@@ -8,9 +8,9 @@ import {
   Component,
   ElementRef,
   inject,
+  input,
   OnChanges,
   ViewChild,
-  input,
 } from "@angular/core";
 import * as style from "ol/style.js";
 import { LocationUtil } from "../../shared/location/location-util";

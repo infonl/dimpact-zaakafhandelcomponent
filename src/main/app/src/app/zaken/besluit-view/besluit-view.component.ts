@@ -8,10 +8,10 @@ import {
   Component,
   EventEmitter,
   inject,
+  input,
   OnChanges,
   OnInit,
   Output,
-  input,
 } from "@angular/core";
 
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";

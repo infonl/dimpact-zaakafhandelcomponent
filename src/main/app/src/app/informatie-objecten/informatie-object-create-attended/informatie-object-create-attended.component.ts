@@ -7,10 +7,10 @@ import {
   Component,
   effect,
   EventEmitter,
+  input,
   OnDestroy,
   OnInit,
   Output,
-  input,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
