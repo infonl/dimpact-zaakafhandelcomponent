@@ -855,8 +855,9 @@ class ZaakRestService @Inject constructor(
         zaaktypeConfigurationService.readZaaktypeConfiguration(this.url.extractUuid())?.getConfigurationType() == BPMN
 
     /**
-     * BPMN zaaktypes have no inrichtingscheck yet, so any configured one qualifies. The CMMN inrichtingscheck
-     * calls Open Zaak several times, so it is only run when the ZAC configuration alone cannot fail it.
+     * BPMN zaaktypes have no zaaktype check yet, so any zaaktype with a BPMN configuration qualifies.
+     * For CMMN, the full zaaktype check calls Open Zaak several times and always fails when the ZAC
+     * configuration is not valid. So we check the ZAC configuration first and skip the slow check when it fails.
      */
     private fun ZaakType.isReadyForZaakCreation() =
         when (val zaaktypeConfiguration = zaaktypeConfigurationService.readZaaktypeConfiguration(url.extractUuid())) {
