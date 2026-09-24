@@ -16,7 +16,7 @@ type SubscriptionType = {
   objectType: ObjectType;
 };
 
-const DEFAULT_PROCESS_TIMEOUT_IN_MS = 1000 * 30;
+const DEFAULT_PROCESS_TIMEOUT_IN_MS = 1000 * 300;
 
 type ProgressTimeout = {
   durationInMs?: number;
