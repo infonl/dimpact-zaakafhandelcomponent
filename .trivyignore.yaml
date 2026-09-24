@@ -29,12 +29,7 @@ misconfigurations:
       - "charts/zac/templates/deployment.yaml"
       - "charts/zac/templates/office-converter-deployment.yaml"
     statement: >-
-      CPU limits are left out on purpose. The containers set CPU requests only, because a CPU limit throttles a
-      container even when the node has CPU to spare, which for example slows down the startup of the ZAC JVM.
-  - id: KSV-0125
-    paths:
-      - "charts/zac/templates/*.yaml"
-    statement: >-
-      Which container registries are trusted is a policy of the cluster that the chart is deployed to (registry
-      mirrors, admission control), not of the chart. The chart pulls its images from ghcr.io and Docker Hub,
-      and every repository can be overridden in values.yaml.
+      The ZAC and office-converter containers have a CPU request but no default CPU limit. A CPU limit throttles
+      a container even when the node has CPU to spare, which slows down the WildFly startup and document
+      conversions. Deployers can set a limit in the resources values. Trivy ignores per file, so this also
+      covers the init container and the OPA sidecar in deployment.yaml.

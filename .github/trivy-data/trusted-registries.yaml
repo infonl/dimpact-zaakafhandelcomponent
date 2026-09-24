@@ -1,0 +1,11 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Registries that Trivy check KSV-0125 trusts. By default it trusts only the Azure, AWS and Google registries.
+# The check takes the part of the image name before the first '/' as the registry, so an image from Docker Hub
+# must be written as 'docker.io/<owner>/<image>' to match.
+ksv0125:
+  trusted_registries:
+    - ghcr.io
+    - docker.io

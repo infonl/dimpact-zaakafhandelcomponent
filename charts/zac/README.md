@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.326](https://img.shields.io/badge/Version-1.0.326-informational?style=flat-square) ![AppVersion: 5.8](https://img.shields.io/badge/AppVersion-5.8-informational?style=flat-square)
+![Version: 1.0.327](https://img.shields.io/badge/Version-1.0.327-informational?style=flat-square) ![AppVersion: 5.8](https://img.shields.io/badge/AppVersion-5.8-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -115,7 +115,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.mail | string | `""` |  |
 | gemeente.naam | string | `""` |  |
 | global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
-| global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
+| global.curlImage.repository | string | `"docker.io/curlimages/curl"` | curl docker repository used throughout the chart |
 | global.curlImage.tag | string | `"8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
@@ -206,7 +206,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.enabled | bool | `false` |  |
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
-| nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
+| nginx.image.repository | string | `"docker.io/nginxinc/nginx-unprivileged"` |  |
 | nginx.image.tag | string | `"1.31.6@sha256:e44b470e571b20d935336bfb9f8277c1468d15e1e4d105a12ab5609d0b4682cb"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
@@ -241,7 +241,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.env.API_ENABLE_BASIC_AUTH | string | `"true"` |  |
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
-| office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
+| office_converter.image.repository | string | `"docker.io/gotenberg/gotenberg"` |  |
 | office_converter.image.tag | string | `"8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
@@ -265,7 +265,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.autoscaling.enabled | bool | `false` |  |
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
-| opa.image.repository | string | `"openpolicyagent/opa"` |  |
+| opa.image.repository | string | `"docker.io/openpolicyagent/opa"` |  |
 | opa.image.tag | string | `"1.20.2-static@sha256:bb245e9e36be0d0ed486c240b606c56be7aba96014a4a87895fed4ba7a6dfa8d"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
