@@ -58,7 +58,6 @@ export class ZacFile<
   extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {
-  protected allowedFileTypes = input<string[]>([]);
   protected maxFileSizeMB = input(0, { transform: numberAttribute });
   protected fileInput = viewChild<ElementRef>("fileInput");
 
@@ -71,19 +70,16 @@ export class ZacFile<
 
   protected displayControl = this.formBuilder.control<string | null>(null);
 
-  protected readonly allowedFileTypesQuery = injectQuery(() => ({
-    ...this.configuratieService.readAllowedFileTypesQuery(),
-    enabled: !this.allowedFileTypes().length,
-  }));
+  protected readonly allowedFileTypesQuery = injectQuery(() =>
+    this.configuratieService.readAllowedFileTypesQuery(),
+  );
 
-  protected allowedFormats = computed(() => {
-    if (this.allowedFileTypes().length) return this.allowedFileTypes();
-    return (
+  protected allowedFormats = computed(
+    () =>
       this.allowedFileTypesQuery
         .data()
-        ?.map((allowedFileType) => allowedFileType.extension) ?? []
-    );
-  });
+        ?.map((allowedFileType) => allowedFileType.extension) ?? [],
+  );
 
   protected isAllowedFormatsUnavailable = computed(
     () => !this.allowedFormats().length,

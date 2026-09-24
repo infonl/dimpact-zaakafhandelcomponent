@@ -211,9 +211,6 @@ describe(ZacFile.name, () => {
     });
 
     it("should validate file type", async () => {
-      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
-      fixture.detectChanges();
-      await fixture.whenStable();
       const invalidFile = createMockFile("test.doc", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -260,7 +257,6 @@ describe(ZacFile.name, () => {
     });
 
     it("should accept valid file", async () => {
-      componentRef.setInput("allowedFileTypes", [".txt"]);
       componentRef.setInput("maxFileSizeMB", 5);
       const validFile = createMockFile("test.txt", 1024);
       const mockEvent = fromPartial<Event>({
@@ -359,16 +355,14 @@ describe(ZacFile.name, () => {
   });
 
   describe("File type restrictions", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "document");
       component.ngOnInit();
-      fixture.detectChanges();
+      await loadAllowedFileTypes();
     });
 
     it("should accept file with allowed extension", async () => {
-      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
-      fixture.detectChanges();
       const validFile = createMockFile("document.txt", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -473,19 +467,17 @@ describe(ZacFile.name, () => {
   });
 
   describe("Hint display", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "document");
       component.ngOnInit();
       componentRef.setInput("maxFileSizeMB", 5);
-      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
-      fixture.detectChanges();
       translateService.setTranslation("en", {
         "form.input.file.hint.max-size": "Max size: {{sizeInMB}}MB",
         "form.input.file.hint.formats": "Formats: {{formats}}",
       });
       translateService.use("en");
-      fixture.detectChanges();
+      await loadAllowedFileTypes();
     });
 
     it("should display hint with file size and formats", async () => {
