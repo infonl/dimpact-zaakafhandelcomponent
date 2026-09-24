@@ -9,10 +9,10 @@ import {
   Component,
   ElementRef,
   inject,
+  input,
   OnDestroy,
   OnInit,
   ViewChild,
-  input,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";

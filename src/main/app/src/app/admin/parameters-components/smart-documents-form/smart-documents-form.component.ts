@@ -161,8 +161,8 @@ export class SmartDocumentsFormComponent {
       level: level,
       expandable: Boolean(
         "templates" in node &&
-        Array.isArray(node.templates) &&
-        node.templates.length,
+          Array.isArray(node.templates) &&
+          node.templates.length,
       ),
     };
   };

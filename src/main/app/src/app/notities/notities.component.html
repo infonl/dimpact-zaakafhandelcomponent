@@ -77,7 +77,8 @@
                 cdkTextareaAutosize
                 id="notitie_wijzigen"
                 [maxLength]="maxLengteTextArea"
-                >{{ notitie.tekst }}</textarea>
+                >{{ notitie.tekst }}</textarea
+              >
               <mat-hint align="end">
                 {{ notitieTekst.value?.length ?? 0 }}/{{ maxLengteTextArea }}
               </mat-hint>
