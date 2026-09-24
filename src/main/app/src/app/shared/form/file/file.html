@@ -10,7 +10,7 @@
     subscriptSizing="dynamic"
     class="full-width"
     [formGroup]="form()"
-    (click)="fileInput.click()"
+    (click)="openFilePicker()"
   >
     <mat-label>
       <ng-content select="mat-label">
@@ -54,7 +54,13 @@
                 | translate: { sizeInMB: fileSize() | async }
             }}
           </div>
-          @if (allowedFormats().length) {
+          @if (allowedFileTypesQuery.isError()) {
+            <div>
+              {{ "form.input.file.hint.formats-unavailable" | translate }}
+            </div>
+          } @else if (isAllowedFormatsUnavailable()) {
+            <div>{{ "form.input.file.hint.formats-loading" | translate }}</div>
+          } @else {
             <div>
               {{
                 "form.input.file.hint.formats"
@@ -70,6 +76,7 @@
       hidden="hidden"
       type="file"
       [accept]="allowedFormats().join(',')"
+      [disabled]="isAllowedFormatsUnavailable()"
       (change)="selectedFile($event)"
       (cancel)="$event.stopPropagation()"
       #fileInput

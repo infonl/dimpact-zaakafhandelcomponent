@@ -27,6 +27,7 @@ import { persistQueryClient } from "@tanstack/query-persist-client-core";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";
+import { provideStartupPrefetch } from "./core/startup-prefetch";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { RouteReuseStrategyService } from "./informatie-objecten/route-reuse-strategy.service";
 import { Paths } from "./shared/http/http-client";
@@ -56,6 +57,7 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
       })),
     ),
     provideHttpClient(withInterceptorsFromDi()),
+    provideStartupPrefetch(),
   ],
 })
 export class AppModule {
@@ -86,6 +88,7 @@ export class AppModule {
 
           const sessionStoragePersistedEndpoints: (keyof Paths)[] = [
             "/rest/identity/loggedInUser",
+            "/rest/configuratie/file-types",
           ];
           return sessionStoragePersistedEndpoints.includes(
             String(url) as keyof Paths,

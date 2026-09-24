@@ -1116,6 +1116,8 @@
   "validators.fileEmpty": "The file is empty",
   "validators.emptyHtmlElement": "The message is required",
   "form.input.file.hint.formats": "Allowed formats: {{formats}}",
+  "form.input.file.hint.formats-loading": "Loading the allowed formats…",
+  "form.input.file.hint.formats-unavailable": "The allowed formats could not be loaded. Close the form and try again.",
   "form.input.file.hint.max-size": "Max files size: {{sizeInMB}}MB",
   " 12 ": ">>--> TODO <--<<",
   "gegevens": "Details",
