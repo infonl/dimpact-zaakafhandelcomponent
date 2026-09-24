@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 13-08-2026 <br>
-> Versie :   1.15 <br>
-> Verandering : Herindeling handleiding <br>
+> Datum : 24-09-2026 <br>
+> Versie :   1.16 <br>
+> Verandering : BRP-autorisatie <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -19,6 +19,7 @@ Versiegeschiedenis:
 | 1.13 | ZAC versie 4.8.0   |
 | 1.14 | ZAC versie 5.0.0   |
 | 1.15 | ZAC versie 5.5.0   |
+| 1.16 | ZAC versie 5.9.0   |
 
 # Inhoud
 
