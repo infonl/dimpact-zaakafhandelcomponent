@@ -225,12 +225,12 @@ export class ZaakLinkComponent {
     } = this.formValue();
     return Boolean(
       caseNumberToSearchFor ||
-        caseDescriptionToSearchFor ||
-        caseTypeToSearchFor ||
-        this.startdatum().van ||
-        this.startdatum().tot ||
-        this.einddatum().van ||
-        this.einddatum().tot,
+      caseDescriptionToSearchFor ||
+      caseTypeToSearchFor ||
+      this.startdatum().van ||
+      this.startdatum().tot ||
+      this.einddatum().van ||
+      this.einddatum().tot,
     );
   });
 
@@ -283,6 +283,7 @@ export class ZaakLinkComponent {
       deelzaakZaaktype: isCurrentZaakHoofdzaak
         ? row.zaaktypeOmschrijving
         : currentZaaktype,
+      zaaktype: row.zaaktypeOmschrijving,
     };
   }
 
