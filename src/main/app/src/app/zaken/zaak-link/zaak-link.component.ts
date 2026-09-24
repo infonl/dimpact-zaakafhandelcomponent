@@ -186,7 +186,7 @@ export class ZaakLinkComponent {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    if (!row.isKoppelbaar) return;
+    if (row.nietKoppelbaarReden) return;
     if (this.koppelZaakMutation.isPending()) return;
     if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
@@ -263,7 +263,7 @@ export class ZaakLinkComponent {
   protected linkButtonDisabled(
     row: GeneratedType<"RestZaakKoppelenZoekObject">,
   ): boolean {
-    return !row.isKoppelbaar || this.isLinking(row);
+    return !!row.nietKoppelbaarReden || this.isLinking(row);
   }
 
   protected rowTooltip(row: GeneratedType<"RestZaakKoppelenZoekObject">) {

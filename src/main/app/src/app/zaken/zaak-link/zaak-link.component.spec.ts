@@ -13,7 +13,7 @@ import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -47,21 +47,20 @@ const makeFakeSearchResult = (
   fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
     id: "fake-result-uuid",
     identificatie: "ZAAK-2026-002",
-    isKoppelbaar: true,
     ...fields,
   });
 
 const NOT_LINKABLE_REASONS: NonNullable<
   GeneratedType<"RestZaakKoppelenZoekObject">["nietKoppelbaarReden"]
 >[] = [
-  "FOUND_ZAAK_AFGEHANDELD",
-  "FOUND_ZAAK_OPEN",
-  "FOUND_ZAAK_IS_DEELZAAK_SO_NO_HOOFDZAAK",
-  "FOUND_ZAAK_ALREADY_DEELZAAK",
-  "FOUND_ZAAK_HAS_DEELZAKEN",
+  "AFGEHANDELD",
+  "OPEN",
+  "IS_DEELZAAK",
+  "ALREADY_DEELZAAK",
+  "HAS_DEELZAKEN",
   "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
-  "NO_KOPPELEN_RIGHT",
-  "NO_LEZEN_RIGHT",
+  "NOT_AUTHORISED_TO_KOPPELEN",
+  "NOT_AUTHORISED_TO_LEZEN",
 ];
 
 describe(ZaakLinkComponent.name, () => {
@@ -168,15 +167,6 @@ describe(ZaakLinkComponent.name, () => {
     within(
       screen.getByRole("row", { name: new RegExp(identificatie) }),
     ).getByRole("button", { name: "actie.zaak.koppelen" });
-
-  const translateZaaktypeForbidsDeelzaak = () => {
-    const translateService = TestBed.inject(TranslateService);
-    translateService.setTranslation("nl", {
-      "zaak.koppelen.niet-koppelbaar.ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK":
-        "{{hoofdzaakZaaktype}} staat geen deelzaken van {{deelzaakZaaktype}} toe",
-    });
-    translateService.use("nl");
-  };
 
   it("offers every relation type a zaak can be linked with", async () => {
     await setup();
@@ -460,7 +450,7 @@ describe(ZaakLinkComponent.name, () => {
     findLinkableZaken([
       makeFakeSearchResult({
         identificatie: "ZAAK-2026-003",
-        isKoppelbaar: false,
+        nietKoppelbaarReden: "AFGEHANDELD",
       }),
     ]);
 
@@ -481,7 +471,6 @@ describe(ZaakLinkComponent.name, () => {
       findLinkableZaken([
         makeFakeSearchResult({
           identificatie: "ZAAK-2026-003",
-          isKoppelbaar: false,
           nietKoppelbaarReden: reason,
         }),
       ]);
@@ -495,56 +484,6 @@ describe(ZaakLinkComponent.name, () => {
       );
     },
   );
-
-  it("names the current zaak as the hoofdzaak when the found zaak would become the deelzaak", async () => {
-    await setup({
-      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
-        omschrijving: "Hoofdzaaktype",
-      }),
-    });
-    translateZaaktypeForbidsDeelzaak();
-    findLinkableZaken([
-      makeFakeSearchResult({
-        identificatie: "ZAAK-2026-003",
-        isKoppelbaar: false,
-        nietKoppelbaarReden: "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
-        zaaktypeOmschrijving: "Deelzaaktype",
-      }),
-    ]);
-
-    await chooseRelationType("DEELZAAK");
-    await enterSearchCriterion();
-    await clickSearch();
-
-    expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAccessibleDescription(
-      "Hoofdzaaktype staat geen deelzaken van Deelzaaktype toe",
-    );
-  });
-
-  it("names the found zaak as the hoofdzaak when the current zaak would become the deelzaak", async () => {
-    await setup({
-      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
-        omschrijving: "Deelzaaktype",
-      }),
-    });
-    translateZaaktypeForbidsDeelzaak();
-    findLinkableZaken([
-      makeFakeSearchResult({
-        identificatie: "ZAAK-2026-003",
-        isKoppelbaar: false,
-        nietKoppelbaarReden: "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
-        zaaktypeOmschrijving: "Hoofdzaaktype",
-      }),
-    ]);
-
-    await chooseRelationType("HOOFDZAAK");
-    await enterSearchCriterion();
-    await clickSearch();
-
-    expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAccessibleDescription(
-      "Hoofdzaaktype staat geen deelzaken van Deelzaaktype toe",
-    );
-  });
 
   it("links the zaak of the row the button was clicked on", async () => {
     const { zaak, zaakLinked, utilService, sideNav } = await setup();

@@ -250,7 +250,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = zaak.statusNotLinkableReason(foundZaak)
 
                 then("a closed zaak cannot be linked to an open zaak") {
-                    reason shouldBe ZaakNotLinkableReason.FOUND_ZAAK_AFGEHANDELD
+                    reason shouldBe ZaakNotLinkableReason.AFGEHANDELD
                 }
             }
         }
@@ -263,7 +263,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = zaak.statusNotLinkableReason(foundZaak)
 
                 then("an open zaak cannot be linked to a closed zaak") {
-                    reason shouldBe ZaakNotLinkableReason.FOUND_ZAAK_OPEN
+                    reason shouldBe ZaakNotLinkableReason.OPEN
                 }
             }
         }
@@ -306,7 +306,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
 
                 then("a deelzaak cannot be a hoofdzaak") {
-                    reason shouldBe ZaakNotLinkableReason.FOUND_ZAAK_IS_DEELZAAK_SO_NO_HOOFDZAAK
+                    reason shouldBe ZaakNotLinkableReason.IS_DEELZAAK
                 }
             }
         }
@@ -319,7 +319,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
 
                 then("a zaak cannot be a deelzaak of two hoofdzaken") {
-                    reason shouldBe ZaakNotLinkableReason.FOUND_ZAAK_ALREADY_DEELZAAK
+                    reason shouldBe ZaakNotLinkableReason.ALREADY_DEELZAAK
                 }
             }
         }
@@ -332,7 +332,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
 
                 then("a hoofdzaak cannot become a deelzaak") {
-                    reason shouldBe ZaakNotLinkableReason.FOUND_ZAAK_HAS_DEELZAKEN
+                    reason shouldBe ZaakNotLinkableReason.HAS_DEELZAKEN
                 }
             }
         }
@@ -358,7 +358,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
 
                 then("the missing koppelen right blocks the link") {
-                    reason shouldBe ZaakNotLinkableReason.NO_KOPPELEN_RIGHT
+                    reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
                 }
             }
         }
@@ -371,7 +371,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
 
                 then("the relation structure reason is reported before the zaaktype reason") {
-                    reason shouldBe ZaakNotLinkableReason.FOUND_ZAAK_HAS_DEELZAKEN
+                    reason shouldBe ZaakNotLinkableReason.HAS_DEELZAKEN
                 }
             }
         }
@@ -412,7 +412,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = zaak.gerelateerdNotLinkableReason(foundZaak)
 
                 then("the missing lezen right blocks the link") {
-                    reason shouldBe ZaakNotLinkableReason.NO_LEZEN_RIGHT
+                    reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_LEZEN
                 }
             }
         }
@@ -438,7 +438,7 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = zaak.gerelateerdNotLinkableReason(foundZaak)
 
                 then("the missing koppelen right on the current zaak blocks the link") {
-                    reason shouldBe ZaakNotLinkableReason.NO_KOPPELEN_RIGHT
+                    reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
                 }
             }
         }

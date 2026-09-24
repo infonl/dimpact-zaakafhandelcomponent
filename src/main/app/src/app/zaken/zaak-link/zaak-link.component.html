@@ -172,7 +172,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: caseColumns"
-        [class.disabled]="!row.isKoppelbaar"
+        [class.disabled]="!!row.nietKoppelbaarReden"
       ></tr>
     </table>
   }

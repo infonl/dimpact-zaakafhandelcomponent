@@ -315,7 +315,6 @@ class ZaakKoppelenRestService @Inject constructor(
             omschrijving = omschrijving,
             zaaktypeOmschrijving = zaaktypeOmschrijving,
             statustypeOmschrijving = statustypeOmschrijving,
-            isKoppelbaar = notLinkableReason == null,
             nietKoppelbaarReden = notLinkableReason,
         )
 
