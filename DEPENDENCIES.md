@@ -10,7 +10,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **redis**: 8.6.7
 - **solr**: 9.10.1-slim
 - **openpolicyagent/opa**: 1.20.2-static
-- **brp-api/personen-mock**: 2.7.0-202609211606
+- **brp-api/personen-mock**: 2.7.0-202609241003
 - **gotenberg**: 8.37.0
 - **otel/opentelemetry-collector-contrib**: 0.161.0
 - **grafana/tempo**: 3.0.3

@@ -33,6 +33,7 @@ enum class ErrorCode(val value: String) {
     ),
     ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED("msg.error.system.reference.table.cannot.be.deleted"),
     ERROR_CODE_ZRC_CLIENT("msg.error.zrc.client.exception"),
+    ERROR_CODE_ZAAK_GEOMETRIE_NOT_SUPPORTED("msg.error.zaak.geometrie.not-supported"),
     ERROR_CODE_ZTC_CLIENT("msg.error.ztc.client.exception"),
     ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED("msg.error.smartdocuments.not.configured"),
     ERROR_CODE_SMARTDOCUMENTS_DISABLED("msg.error.smartdocuments.disabled"),

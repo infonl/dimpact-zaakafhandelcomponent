@@ -864,6 +864,7 @@
   "msg.error.reference.table.with.same.code.already.exists": "A reference table with this code already exists. Please use a unique code.",
   "msg.error.zrc.client.exception": "Unfortunately a technical error has occurred. No zaken could be retrieved.",
   "msg.error.ztc.client.exception": "Unfortunately a technical error has occurred. No zaaktypes could be retrieved.",
+  "msg.error.zaak.geometrie.not-supported": "This zaak has a geometry (e.g. an area) that is not supported. Only a point geometry is supported.",
   "msg.error.smartdocuments.not.configured": "SmartDocuments is not configured.",
   "msg.error.smartdocuments.disabled": "SmartDocuments is disabled.",
   "msg.error.validation.generic": "The data entered is not valid. Please check the fields for invalid input.",

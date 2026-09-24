@@ -21,7 +21,7 @@ import {
 } from "@angular/material/radio/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { PipesModule } from "../../pipes/pipes.module";
+import { screen } from "@testing-library/angular";
 import { ZacRadio } from "./radio";
 
 interface TestOption {
@@ -63,7 +63,6 @@ describe(ZacRadio.name, () => {
         ReactiveFormsModule,
         MatRadioModule,
         TranslateModule.forRoot(),
-        PipesModule,
         NoopAnimationsModule,
       ],
       providers: [TranslateService],
@@ -110,9 +109,7 @@ describe(ZacRadio.name, () => {
     });
 
     it("renders a label for the group", () => {
-      const label: HTMLElement =
-        fixture.nativeElement.querySelector("mat-label");
-      expect(label).not.toBeNull();
+      expect(screen.getByText(/choice/i)).toBeInTheDocument();
     });
   });
 
@@ -123,7 +120,7 @@ describe(ZacRadio.name, () => {
       componentRef.setInput("options", [optionA]);
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain("*");
+      expect(screen.getByText(/choice/i)).toHaveTextContent("*");
     });
 
     it("does not show asterisk when control is not required", () => {
@@ -132,9 +129,7 @@ describe(ZacRadio.name, () => {
       componentRef.setInput("options", [optionA]);
       fixture.detectChanges();
 
-      const label: HTMLElement =
-        fixture.nativeElement.querySelector("mat-label");
-      expect(label.textContent).not.toContain("*");
+      expect(screen.getByText(/choice/i)).not.toHaveTextContent("*");
     });
   });
 
