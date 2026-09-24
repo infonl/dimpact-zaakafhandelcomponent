@@ -3,57 +3,80 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatExpansionModule } from "@angular/material/expansion";
-import { MatIconModule } from "@angular/material/icon";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen.component";
 
 describe(ZaakInitiatorToevoegenComponent.name, () => {
   let fixture: ComponentFixture<ZaakInitiatorToevoegenComponent>;
-  let component: ZaakInitiatorToevoegenComponent;
-  let loader: HarnessLoader;
 
-  beforeEach(async () => {
+  const user = userEvent.setup();
+
+  const setup = async (toevoegenToegestaan: boolean) => {
     await TestBed.configureTestingModule({
       imports: [
         ZaakInitiatorToevoegenComponent,
         NoopAnimationsModule,
-        MatExpansionModule,
-        MatIconModule,
         TranslateModule.forRoot(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakInitiatorToevoegenComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
+    fixture.componentRef.setInput("toevoegenToegestaan", toevoegenToegestaan);
+    fixture.detectChanges();
+  };
+
+  const addButton = () =>
+    screen.queryByRole("button", { name: "actie.initiator.koppelen" });
+
+  it("tells that the zaak has no initiator", async () => {
+    await setup(false);
+
+    expect(screen.getByText("msg.zaak.geen.initiator")).toBeInTheDocument();
   });
 
-  it("hides the add button when toevoegenToegestaan is false", async () => {
-    component.toevoegenToegestaan = false;
-    fixture.detectChanges();
-    const buttons = await loader.getAllHarnesses(MatButtonHarness);
-    expect(buttons).toHaveLength(0);
+  it("hides the add button when adding an initiator is not allowed", async () => {
+    await setup(false);
+
+    expect(addButton()).not.toBeInTheDocument();
   });
 
-  it("shows the add button when toevoegenToegestaan is true", async () => {
-    component.toevoegenToegestaan = true;
-    fixture.detectChanges();
-    const buttons = await loader.getAllHarnesses(MatButtonHarness);
-    expect(buttons).toHaveLength(1);
+  it("shows the add button when adding an initiator is allowed", async () => {
+    await setup(true);
+
+    expect(addButton()).toBeInTheDocument();
   });
 
-  it("emits add event when the button is clicked", async () => {
-    component.toevoegenToegestaan = true;
+  it("shows the add button once adding an initiator becomes allowed", async () => {
+    await setup(false);
+
+    fixture.componentRef.setInput("toevoegenToegestaan", true);
     fixture.detectChanges();
-    jest.spyOn(component.add, "emit");
-    const button = await loader.getHarness(MatButtonHarness);
-    await button.click();
-    expect(component.add.emit).toHaveBeenCalledTimes(1);
+
+    expect(addButton()).toBeInTheDocument();
+  });
+
+  it("hides the add button once adding an initiator is no longer allowed", async () => {
+    await setup(true);
+
+    fixture.componentRef.setInput("toevoegenToegestaan", false);
+    fixture.detectChanges();
+
+    expect(addButton()).not.toBeInTheDocument();
+  });
+
+  it("emits add when the add button is clicked", async () => {
+    await setup(true);
+    const add = jest.fn();
+    fixture.componentInstance.add.subscribe(add);
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.initiator.koppelen" }),
+    );
+
+    expect(add).toHaveBeenCalledTimes(1);
   });
 });

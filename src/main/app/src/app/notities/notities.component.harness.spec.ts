@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ComponentHarness, HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
@@ -15,6 +13,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../setupJest";
 import { IdentityService } from "../identity/identity.service";
@@ -23,47 +23,25 @@ import { NotitiesComponent } from "./notities.component";
 import { NotitieService } from "./notities.service";
 
 @Component({
-  template: `<zac-notities zaakUuid="test-uuid"></zac-notities>`,
+  template: `<zac-notities
+    zaakUuid="fakeZaakUuid"
+    [notitieRechten]="notitieRechten"
+  ></zac-notities>`,
   standalone: true,
   imports: [NotitiesComponent],
 })
-class TestHostComponent {}
+class TestHostComponent {
+  notitieRechten?: GeneratedType<"RestNotitieRechten">;
+}
 
 const currentUser: GeneratedType<"RestLoggedInUser"> = {
   id: "currentUser",
   naam: "test",
 };
 
-class NotitiesHarness extends ComponentHarness {
-  static hostSelector = "zac-notities";
-
-  async clickNotitiesButton(): Promise<void> {
-    const button = await this.locatorFor('button[aria-label="Notities"]')();
-    await button.click();
-  }
-
-  async isMatCardVisible(): Promise<boolean> {
-    try {
-      await this.locatorFor("mat-card")();
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async isTextareaVisible(): Promise<boolean> {
-    try {
-      await this.locatorFor("textarea")();
-      return true;
-    } catch {
-      return false;
-    }
-  }
-}
-
 describe("NotitiesComponent harness", () => {
   let fixture: ComponentFixture<TestHostComponent>;
-  let loader: HarnessLoader;
+  let notitieService: NotitieService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -85,7 +63,7 @@ describe("NotitiesComponent harness", () => {
       currentUser,
     );
 
-    const notitieService = TestBed.inject(NotitieService);
+    notitieService = TestBed.inject(NotitieService);
     jest.spyOn(notitieService, "listNotities").mockReturnValue(of([]));
     jest
       .spyOn(notitieService, "updateNotitie")
@@ -93,8 +71,10 @@ describe("NotitiesComponent harness", () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     fixture.detectChanges();
+  });
 
-    loader = TestbedHarnessEnvironment.loader(fixture);
+  it("should load the notities of the zaak it is given as a static attribute", () => {
+    expect(notitieService.listNotities).toHaveBeenCalledWith("fakeZaakUuid");
   });
 
   it.each`
@@ -104,21 +84,19 @@ describe("NotitiesComponent harness", () => {
   `(
     "should $str show textarea when wijzigen is $wijzigen",
     async ({ wijzigen, expected }) => {
-      const notitiesComponentInstance =
-        fixture.debugElement.children[0].componentInstance;
-      notitiesComponentInstance.notitieRechten = { lezen: false, wijzigen };
-
+      const user = userEvent.setup();
+      fixture.componentInstance.notitieRechten = { lezen: false, wijzigen };
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const harness = await loader.getHarness(NotitiesHarness);
-      await harness.clickNotitiesButton();
-
+      await user.click(screen.getByRole("button", { name: "Notities" }));
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(await harness.isMatCardVisible()).toBe(true);
-      expect(await harness.isTextareaVisible()).toBe(expected);
+      expect(
+        screen.getByRole("button", { name: "actie.minimaliseren" }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("textbox") !== null).toBe(expected);
     },
   );
 });

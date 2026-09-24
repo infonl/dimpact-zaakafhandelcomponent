@@ -56,6 +56,31 @@ describe(VersionComponent.name, () => {
     expect(await loader.getAllHarnesses(MatChipHarness)).toHaveLength(0);
   });
 
+  it("shows the chip and not the card in NORMAL layout", async () => {
+    fixture.componentRef.setInput("layout", VersionLayout.NORMAL);
+    fixture.detectChanges();
+
+    await loader.getHarness(MatChipHarness);
+    expect(await loader.getAllHarnesses(MatCardHarness)).toHaveLength(0);
+  });
+
+  it("switches from the card back to the chip once the layout changes from VERBOSE to NORMAL", async () => {
+    fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
+    fixture.detectChanges();
+    fixture.componentRef.setInput("layout", VersionLayout.NORMAL);
+    fixture.detectChanges();
+
+    await loader.getHarness(MatChipHarness);
+    expect(await loader.getAllHarnesses(MatCardHarness)).toHaveLength(0);
+  });
+
+  it("does not read the build information again when the layout changes", () => {
+    fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
+    fixture.detectChanges();
+
+    expect(healthCheckService.readBuildInformatie).toHaveBeenCalledTimes(1);
+  });
+
   it("should call readBuildInformatie on init", () => {
     expect(healthCheckService.readBuildInformatie).toHaveBeenCalledTimes(1);
   });

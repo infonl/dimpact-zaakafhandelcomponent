@@ -3,73 +3,73 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
-import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { SharedModule } from "src/app/shared/shared.module";
+import { fromPartial } from "src/test-helpers";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { KlantKoppelComponent } from "./klant-koppel.component";
 
+const fakeKlantGegevens = new KlantGegevens(
+  fromPartial<GeneratedType<"RestPersoon">>({ bsn: "999990408" }),
+);
+
 @Component({
   selector: "zac-klant-koppel-initiator-persoon",
-  template: "",
+  template: `
+    <p>initiator type: {{ type() }}, zaaktypeUUID: {{ zaaktypeUUID() }}</p>
+    <button type="button" (click)="klantGegevens.emit(fakeKlantGegevens)">
+      select fake initiator
+    </button>
+  `,
   standalone: true,
 })
 class KlantKoppelInitiatorStubComponent {
-  @Input() type!: string;
-  @Input() zaaktypeUUID?: string | null;
-  @Output() klantGegevens = new EventEmitter<KlantGegevens>();
+  readonly type = input<string>();
+  readonly zaaktypeUUID = input<string | null>();
+  readonly klantGegevens = output<KlantGegevens>();
+  protected readonly fakeKlantGegevens = fakeKlantGegevens;
 }
 
 @Component({
   selector: "zac-klant-koppel-betrokkene-persoon",
-  template: "",
+  template: `
+    <p>betrokkene type: {{ type() }}, zaaktypeUUID: {{ zaaktypeUUID() }}</p>
+    <button type="button" (click)="klantGegevens.emit(fakeKlantGegevens)">
+      select fake betrokkene
+    </button>
+  `,
   standalone: true,
 })
 class KlantKoppelBetrokkeneStubComponent {
-  @Input() type!: string;
-  @Input() zaaktypeUUID?: string | null;
-  @Output() klantGegevens = new EventEmitter<KlantGegevens>();
+  readonly type = input<string>();
+  readonly zaaktypeUUID = input<string | null>();
+  readonly klantGegevens = output<KlantGegevens>();
+  protected readonly fakeKlantGegevens = fakeKlantGegevens;
 }
 
-const mockSideNav = { close: jest.fn() } as unknown as MatDrawer;
-
 describe(KlantKoppelComponent.name, () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  const user = userEvent.setup();
+
+  let fixture: ComponentFixture<KlantKoppelComponent>;
+  let sideNav: MatDrawer;
+  let onKlantGegevens: jest.Mock<void, [KlantGegevens]>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [
         KlantKoppelComponent,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-    });
-  });
-
-  describe("tab groups", () => {
-    let fixture: ComponentFixture<KlantKoppelComponent>;
-    let loader: HarnessLoader;
-
-    function createFixture(
-      initiator = false,
-      allowPersoon = true,
-      allowBedrijf = true,
-    ) {
-      fixture = TestBed.createComponent(KlantKoppelComponent);
-      fixture.componentRef.setInput("sideNav", mockSideNav);
-      fixture.componentRef.setInput("initiator", initiator);
-      fixture.componentRef.setInput("allowPersoon", allowPersoon);
-      fixture.componentRef.setInput("allowBedrijf", allowBedrijf);
-      loader = TestbedHarnessEnvironment.loader(fixture);
-      fixture.detectChanges();
-    }
-
-    beforeEach(async () => {
-      await TestBed.overrideComponent(KlantKoppelComponent, {
+    })
+      .overrideComponent(KlantKoppelComponent, {
         set: {
           imports: [
             SharedModule,
@@ -78,84 +78,222 @@ describe(KlantKoppelComponent.name, () => {
             KlantKoppelBetrokkeneStubComponent,
           ],
         },
-      }).compileComponents();
+      })
+      .compileComponents();
 
-      createFixture();
+    sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
+    fixture = TestBed.createComponent(KlantKoppelComponent);
+    onKlantGegevens = jest.fn();
+    fixture.componentInstance.klantGegevens.subscribe(onKlantGegevens);
+  });
+
+  function initialiseWith(inputs: {
+    initiator?: boolean;
+    zaaktypeUUID?: string | null;
+    allowPersoon?: boolean;
+    allowBedrijf?: boolean;
+  }) {
+    fixture.componentRef.setInput("sideNav", sideNav);
+    Object.entries(inputs).forEach(([name, value]) =>
+      fixture.componentRef.setInput(name, value),
+    );
+    fixture.detectChanges();
+  }
+
+  function heading() {
+    return screen.getByRole("heading");
+  }
+
+  function expectTabs(...names: string[]) {
+    const tabs = screen.queryAllByRole("tab");
+    expect(tabs).toHaveLength(names.length);
+    names.forEach((name, index) =>
+      expect(tabs[index]).toHaveAccessibleName(name),
+    );
+  }
+
+  async function openTab(name: "betrokkene.persoon" | "betrokkene.bedrijf") {
+    await user.click(screen.getByRole("tab", { name: new RegExp(name) }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
+  describe("the heading", () => {
+    it("asks to link a betrokkene when no initiator input is given", () => {
+      initialiseWith({ allowPersoon: true, allowBedrijf: true });
+
+      expect(heading()).toHaveTextContent("actie.betrokkene.koppelen");
     });
 
-    it("should render two tabs when allowPersoon and allowBedrijf are true", async () => {
-      const tabGroup = await loader.getHarness(MatTabGroupHarness);
-      expect((await tabGroup.getTabs()).length).toBe(2);
+    it("asks to link the initiator when initiator is set", () => {
+      initialiseWith({ initiator: true, allowPersoon: true });
+
+      expect(heading()).toHaveTextContent("actie.initiator.koppelen");
     });
 
-    describe("betrokkene tab group (initiator=false)", () => {
-      describe("when allowPersoon is true", () => {
-        it("should show the persoon tab", async () => {
-          const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const tabs = await tabGroup.getTabs();
-          expect(tabs.length).toBe(2);
-          expect(await tabs[0].getLabel()).toContain("betrokkene.persoon");
-        });
+    it("switches to linking the initiator when initiator changes to true", () => {
+      initialiseWith({ initiator: false, allowPersoon: true });
 
-        it("should select the persoon tab by default", async () => {
-          const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [persoonTab] = await tabGroup.getTabs();
-          expect(await persoonTab.isSelected()).toBe(true);
-        });
-      });
+      fixture.componentRef.setInput("initiator", true);
+      fixture.detectChanges();
 
-      describe("when allowPersoon is false", () => {
-        beforeEach(() => createFixture(false, false, true));
+      expect(heading()).toHaveTextContent("actie.initiator.koppelen");
+    });
+  });
 
-        it("should hide the persoon tab", async () => {
-          const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const tabs = await tabGroup.getTabs();
-          expect(tabs.length).toBe(1);
-          expect(await tabs[0].getLabel()).toContain("betrokkene.bedrijf");
-        });
+  describe("closing", () => {
+    beforeEach(() => initialiseWith({ allowPersoon: true }));
 
-        it("should show the bedrijf tab as the only tab", async () => {
-          const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [bedrijfTab] = await tabGroup.getTabs();
-          expect(await bedrijfTab.isSelected()).toBe(true);
-        });
-      });
+    it("closes the side navigation with the close button in the heading", async () => {
+      await user.click(within(heading()).getByRole("button"));
+
+      expect(sideNav.close).toHaveBeenCalled();
     });
 
-    describe("initiator tab group (initiator=true)", () => {
-      beforeEach(() => createFixture(true));
+    it("closes the side navigation with the cancel button", async () => {
+      await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
 
-      describe("when allowPersoon is true", () => {
-        it("should show the persoon tab", async () => {
-          const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const tabs = await tabGroup.getTabs();
-          expect(tabs.length).toBe(2);
-          expect(await tabs[0].getLabel()).toContain("betrokkene.persoon");
-        });
+      expect(sideNav.close).toHaveBeenCalled();
+    });
+  });
 
-        it("should select the persoon tab by default", async () => {
-          const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [persoonTab] = await tabGroup.getTabs();
-          expect(await persoonTab.isSelected()).toBe(true);
-        });
-      });
+  describe.each([
+    { initiator: false, description: "a betrokkene" },
+    { initiator: true, description: "an initiator" },
+  ])("the tabs to link $description", ({ initiator }) => {
+    it("shows a persoon and a bedrijf tab when both are allowed, with the persoon tab selected", () => {
+      initialiseWith({ initiator, allowPersoon: true, allowBedrijf: true });
 
-      describe("when allowPersoon is false", () => {
-        beforeEach(() => createFixture(true, false, true));
+      expectTabs("betrokkene.persoon", "betrokkene.bedrijf");
+      expect(
+        screen.getByRole("tab", { name: /betrokkene.persoon/ }),
+      ).toHaveAttribute("aria-selected", "true");
+    });
 
-        it("should hide the persoon tab", async () => {
-          const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const tabs = await tabGroup.getTabs();
-          expect(tabs.length).toBe(1);
-          expect(await tabs[0].getLabel()).toContain("betrokkene.bedrijf");
-        });
+    it("shows only the bedrijf tab, selected, when only a bedrijf is allowed", () => {
+      initialiseWith({ initiator, allowPersoon: false, allowBedrijf: true });
 
-        it("should show the bedrijf tab as the only tab", async () => {
-          const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [bedrijfTab] = await tabGroup.getTabs();
-          expect(await bedrijfTab.isSelected()).toBe(true);
-        });
-      });
+      expectTabs("betrokkene.bedrijf");
+      expect(
+        screen.getByRole("tab", { name: /betrokkene.bedrijf/ }),
+      ).toHaveAttribute("aria-selected", "true");
+    });
+
+    it("shows only the persoon tab when only a persoon is allowed", () => {
+      initialiseWith({ initiator, allowPersoon: true, allowBedrijf: false });
+
+      expectTabs("betrokkene.persoon");
+    });
+
+    it("shows no tabs when allowPersoon and allowBedrijf are not given", () => {
+      initialiseWith({ initiator });
+
+      expectTabs();
+    });
+
+    it("adds the bedrijf tab when allowBedrijf changes to true", () => {
+      initialiseWith({ initiator, allowPersoon: true, allowBedrijf: false });
+
+      fixture.componentRef.setInput("allowBedrijf", true);
+      fixture.detectChanges();
+
+      expectTabs("betrokkene.persoon", "betrokkene.bedrijf");
+    });
+  });
+
+  describe("linking an initiator", () => {
+    beforeEach(() =>
+      initialiseWith({
+        initiator: true,
+        zaaktypeUUID: "fakeZaaktypeUuid",
+        allowPersoon: true,
+        allowBedrijf: true,
+      }),
+    );
+
+    it("searches for a persoon initiator of the zaaktype in the persoon tab", () => {
+      expect(
+        screen.getByText(
+          "initiator type: persoon, zaaktypeUUID: fakeZaaktypeUuid",
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/^betrokkene type/)).not.toBeInTheDocument();
+    });
+
+    it("searches for a bedrijf initiator without a zaaktype in the bedrijf tab", async () => {
+      await openTab("betrokkene.bedrijf");
+
+      expect(
+        screen.getByText("initiator type: bedrijf, zaaktypeUUID:"),
+      ).toBeInTheDocument();
+    });
+
+    it("passes the new zaaktypeUUID to the persoon initiator search when the zaaktypeUUID changes", () => {
+      fixture.componentRef.setInput("zaaktypeUUID", "fakeOtherZaaktypeUuid");
+      fixture.detectChanges();
+
+      expect(
+        screen.getByText(
+          "initiator type: persoon, zaaktypeUUID: fakeOtherZaaktypeUuid",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("emits the klantGegevens of the selected initiator", async () => {
+      await user.click(
+        screen.getByRole("button", { name: "select fake initiator" }),
+      );
+
+      expect(onKlantGegevens).toHaveBeenCalledWith(fakeKlantGegevens);
+    });
+  });
+
+  describe("linking a betrokkene", () => {
+    beforeEach(() =>
+      initialiseWith({
+        initiator: false,
+        zaaktypeUUID: "fakeZaaktypeUuid",
+        allowPersoon: true,
+        allowBedrijf: true,
+      }),
+    );
+
+    it("searches for a persoon betrokkene of the zaaktype in the persoon tab", () => {
+      expect(
+        screen.getByText(
+          "betrokkene type: persoon, zaaktypeUUID: fakeZaaktypeUuid",
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/^initiator type/)).not.toBeInTheDocument();
+    });
+
+    it("searches for a bedrijf betrokkene of the zaaktype in the bedrijf tab", async () => {
+      await openTab("betrokkene.bedrijf");
+
+      expect(
+        screen.getByText(
+          "betrokkene type: bedrijf, zaaktypeUUID: fakeZaaktypeUuid",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("passes the new zaaktypeUUID to the persoon betrokkene search when the zaaktypeUUID changes", () => {
+      fixture.componentRef.setInput("zaaktypeUUID", "fakeOtherZaaktypeUuid");
+      fixture.detectChanges();
+
+      expect(
+        screen.getByText(
+          "betrokkene type: persoon, zaaktypeUUID: fakeOtherZaaktypeUuid",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("emits the klantGegevens of the selected betrokkene", async () => {
+      await user.click(
+        screen.getByRole("button", { name: "select fake betrokkene" }),
+      );
+
+      expect(onKlantGegevens).toHaveBeenCalledWith(fakeKlantGegevens);
     });
   });
 });

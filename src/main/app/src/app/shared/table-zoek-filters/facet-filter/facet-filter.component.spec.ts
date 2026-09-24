@@ -3,42 +3,32 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { SimpleChange } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatSelectHarness } from "@angular/material/select/testing";
+import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../utils/generated-types";
 import { FacetFilterComponent } from "./facet-filter.component";
 
-const makeFilterParameters = (
-  fields: Partial<GeneratedType<"FilterParameters">> = {},
-): GeneratedType<"FilterParameters"> =>
-  ({
-    values: [],
-    inverse: false,
-    ...fields,
-  }) as Partial<
-    GeneratedType<"FilterParameters">
-  > as unknown as GeneratedType<"FilterParameters">;
+type FilterParameters = GeneratedType<"FilterParameters">;
+type FilterResultaat = GeneratedType<"FilterResultaat">;
 
-const makeFilterResultaat = (
-  fields: Partial<GeneratedType<"FilterResultaat">> = {},
-): GeneratedType<"FilterResultaat"> =>
-  ({
-    naam: "optie",
-    aantal: 1,
-    ...fields,
-  }) as Partial<
-    GeneratedType<"FilterResultaat">
-  > as unknown as GeneratedType<"FilterResultaat">;
+type FacetFilterInputs = {
+  label: string;
+  filter?: FilterParameters;
+  opties?: FilterResultaat[];
+};
+
+const makeFilterParameters = (values: string[]) =>
+  fromPartial<FilterParameters>({ values, inverse: false });
+
+const makeOpties = (...namen: string[]) =>
+  namen.map((naam) => fromPartial<FilterResultaat>({ naam, aantal: 1 }));
 
 describe(FacetFilterComponent.name, () => {
-  let fixture: ComponentFixture<FacetFilterComponent>;
-  let component: FacetFilterComponent;
-  let loader: HarnessLoader;
+  const user = userEvent.setup({ delay: null });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -48,170 +38,185 @@ describe(FacetFilterComponent.name, () => {
         TranslateModule.forRoot(),
       ],
     }).compileComponents();
-
-    fixture = TestBed.createComponent(FacetFilterComponent);
-    component = fixture.componentInstance;
-    component.label = "status";
-    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  describe("getFilters()", () => {
-    it("sorts opties alphabetically by naam", () => {
-      component.opties = [
-        makeFilterResultaat({ naam: "zebra" }),
-        makeFilterResultaat({ naam: "appel" }),
-        makeFilterResultaat({ naam: "midden" }),
-      ];
+  const setup = async (inputs: FacetFilterInputs) => {
+    const fixture = TestBed.createComponent(FacetFilterComponent);
+    Object.entries(inputs).forEach(([name, value]) =>
+      fixture.componentRef.setInput(name, value),
+    );
+    const changed = jest.fn<void, [FilterParameters]>();
+    fixture.componentInstance.changed.subscribe(changed);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    return { fixture, changed };
+  };
 
-      const sorted = component["getFilters"]();
+  const select = () => screen.getByRole("combobox");
 
-      expect(sorted?.map((o) => o.naam)).toEqual(["appel", "midden", "zebra"]);
+  const optionNames = async () => {
+    await user.click(select());
+    return screen
+      .getAllByRole("option")
+      .map((option) => option.textContent?.trim());
+  };
+
+  describe("the select", () => {
+    it("gets the id <label>_filter", async () => {
+      await setup({ label: "behandelaar" });
+
+      expect(select()).toHaveAttribute("id", "behandelaar_filter");
     });
 
-    it("returns undefined when opties is undefined", () => {
-      component.opties = undefined;
+    it("shows the 'alle' placeholder when no filter is bound", async () => {
+      await setup({ label: "status", opties: makeOpties("open") });
 
-      expect(component["getFilters"]()).toBeUndefined();
-    });
-
-    it("returns empty array when opties is empty", () => {
-      component.opties = [];
-
-      expect(component["getFilters"]()).toEqual([]);
-    });
-  });
-
-  describe("isVertaalbaar()", () => {
-    it("returns true for keys present in VERTAALBARE_FACETTEN", () => {
-      expect(component["isVertaalbaar"]("indicaties")).toBe(true);
-      expect(component["isVertaalbaar"]("vertrouwelijkheidaanduiding")).toBe(
-        true,
-      );
-      expect(component["isVertaalbaar"]("archiefNominatie")).toBe(true);
-    });
-
-    it("returns false for unknown keys", () => {
-      expect(component["isVertaalbaar"]("status")).toBe(false);
-      expect(component["isVertaalbaar"]("")).toBe(false);
+      expect(select()).toHaveTextContent("filter.-alle-");
     });
   });
 
-  describe("ngOnInit — setSelected()", () => {
-    it("initialises the form control from filter.values[0]", () => {
-      component.filter = makeFilterParameters({ values: ["open"] });
-
-      component.ngOnInit();
-
-      expect(component["selected"].value).toBe("open");
-    });
-
-    it("sets control to null when filter is absent", () => {
-      component.filter = undefined;
-
-      component.ngOnInit();
-
-      expect(component["selected"].value).toBeNull();
-    });
-
-    it("sets control to null when filter.values is empty", () => {
-      component.filter = makeFilterParameters({ values: [] });
-
-      component.ngOnInit();
-
-      expect(component["selected"].value).toBeNull();
-    });
-  });
-
-  describe("ngOnChanges()", () => {
-    it("updates the control when filter changes after the first change", () => {
-      component.filter = makeFilterParameters({ values: ["oud"] });
-      component.ngOnInit();
-
-      component.filter = makeFilterParameters({ values: ["nieuw"] });
-      component.ngOnChanges({
-        filter: new SimpleChange(
-          makeFilterParameters({ values: ["oud"] }),
-          component.filter,
-          false,
-        ),
+  describe("the options", () => {
+    it("lists 'alle' first, followed by the opties sorted by naam", async () => {
+      await setup({
+        label: "status",
+        opties: makeOpties("zebra", "appel", "midden"),
       });
 
-      expect(component["selected"].value).toBe("nieuw");
+      expect(await optionNames()).toEqual([
+        "filter.-alle-",
+        "appel",
+        "midden",
+        "zebra",
+      ]);
     });
 
-    it("does NOT update the control on the first change", () => {
-      component["selected"].setValue("pre-existing");
+    it("lists only 'alle' when no opties are bound", async () => {
+      await setup({ label: "status" });
 
-      component.filter = makeFilterParameters({ values: ["first"] });
-      component.ngOnChanges({
-        filter: new SimpleChange(undefined, component.filter, true),
+      expect(await optionNames()).toEqual(["filter.-alle-"]);
+    });
+
+    it("lists only 'alle' when the parent binds undefined opties", async () => {
+      await setup({ label: "status", opties: undefined });
+
+      expect(await optionNames()).toEqual(["filter.-alle-"]);
+    });
+
+    it("shows the '-geen-' translation of the label for the -NULL- optie", async () => {
+      await setup({ label: "status", opties: makeOpties("-NULL-") });
+
+      expect(await optionNames()).toEqual(["filter.-alle-", "status.-geen-"]);
+    });
+
+    it.each([
+      ["indicaties", "indicatie.VERLENGD"],
+      ["vertrouwelijkheidaanduiding", "vertrouwelijkheidaanduiding.VERLENGD"],
+      ["archiefNominatie", "archiefNominatie.VERLENGD"],
+    ])(
+      "translates the optie naam with the facet prefix for label %s",
+      async (label, translationKey) => {
+        await setup({ label, opties: makeOpties("VERLENGD") });
+
+        expect(await optionNames()).toEqual(["filter.-alle-", translationKey]);
+      },
+    );
+
+    it("shows the new opties when the parent binds a different list", async () => {
+      const { fixture } = await setup({
+        label: "status",
+        opties: makeOpties("oud"),
       });
 
-      expect(component["selected"].value).toBe("pre-existing");
+      fixture.componentRef.setInput("opties", makeOpties("nieuw", "anders"));
+      fixture.detectChanges();
+
+      expect(await optionNames()).toEqual(["filter.-alle-", "anders", "nieuw"]);
     });
   });
 
-  describe("change()", () => {
-    it("emits FilterParameters with the selected value when a value is selected", () => {
-      const emitted: GeneratedType<"FilterParameters">[] = [];
-      component.changed.subscribe((v) => emitted.push(v));
+  describe("the selected optie", () => {
+    it("is the first value of the bound filter", async () => {
+      await setup({
+        label: "status",
+        filter: makeFilterParameters(["open", "gesloten"]),
+        opties: makeOpties("gesloten", "open"),
+      });
 
-      component["selected"].setValue("open");
-      component["change"]();
-
-      expect(emitted).toEqual([{ values: ["open"], inverse: false }]);
+      expect(select()).toHaveTextContent("open");
     });
 
-    it("emits FilterParameters with empty values array when nothing is selected", () => {
-      const emitted: GeneratedType<"FilterParameters">[] = [];
-      component.changed.subscribe((v) => emitted.push(v));
+    it("follows a different filter bound by the parent", async () => {
+      const { fixture } = await setup({
+        label: "status",
+        filter: makeFilterParameters(["oud"]),
+        opties: makeOpties("oud", "nieuw"),
+      });
 
-      component["selected"].setValue(undefined);
-      component["change"]();
+      fixture.componentRef.setInput("filter", makeFilterParameters(["nieuw"]));
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-      expect(emitted).toEqual([{ values: [], inverse: false }]);
+      expect(select()).toHaveTextContent("nieuw");
     });
 
-    it("always emits inverse: false", () => {
-      const emitted: GeneratedType<"FilterParameters">[] = [];
-      component.changed.subscribe((v) => emitted.push(v));
+    it("is cleared when the parent binds a filter without values", async () => {
+      const { fixture } = await setup({
+        label: "status",
+        filter: makeFilterParameters(["open"]),
+        opties: makeOpties("open"),
+      });
 
-      component["selected"].setValue("gesloten");
-      component["change"]();
+      fixture.componentRef.setInput("filter", makeFilterParameters([]));
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-      expect(emitted[0].inverse).toBe(false);
+      expect(select()).toHaveTextContent("filter.-alle-");
     });
   });
 
-  describe("template rendering", () => {
-    it("sets the mat-select id to label + '_filter'", async () => {
-      component.label = "behandelaar";
-      fixture.detectChanges();
+  describe("choosing an optie", () => {
+    it("emits a filter with the chosen naam as its only value", async () => {
+      const { changed } = await setup({
+        label: "status",
+        opties: makeOpties("open", "gesloten"),
+      });
 
-      const select = await loader.getHarness(MatSelectHarness);
-      const id = await (await select.host()).getAttribute("id");
-      expect(id).toBe("behandelaar_filter");
+      await user.click(select());
+      await user.click(screen.getByRole("option", { name: "gesloten" }));
+
+      expect(changed).toHaveBeenCalledTimes(1);
+      expect(changed).toHaveBeenCalledWith({
+        values: ["gesloten"],
+        inverse: false,
+      });
     });
 
-    it("renders the 'alle' option as first option", async () => {
-      component.opties = [makeFilterResultaat({ naam: "optie1" })];
-      fixture.detectChanges();
+    it("emits a filter without values when 'alle' is chosen", async () => {
+      const { changed } = await setup({
+        label: "status",
+        filter: makeFilterParameters(["open"]),
+        opties: makeOpties("open"),
+      });
 
-      const select = await loader.getHarness(MatSelectHarness);
-      await select.open();
-      const options = await select.getOptions();
+      await user.click(select());
+      await user.click(screen.getByRole("option", { name: "filter.-alle-" }));
 
-      expect(options.length).toBeGreaterThanOrEqual(2);
-      expect(await options[0].getText()).toBeTruthy();
+      expect(changed).toHaveBeenCalledTimes(1);
+      expect(changed).toHaveBeenCalledWith({ values: [], inverse: false });
     });
 
-    it("renders raw naam for non-translatable labels", () => {
-      component.label = "status";
-      component.opties = [makeFilterResultaat({ naam: "open" })];
-      fixture.detectChanges();
+    it("does not emit when the parent binds a different filter", async () => {
+      const { fixture, changed } = await setup({
+        label: "status",
+        filter: makeFilterParameters(["oud"]),
+        opties: makeOpties("oud", "nieuw"),
+      });
 
-      const names = component["getFilters"]()?.map((o) => o.naam);
-      expect(names).toContain("open");
+      fixture.componentRef.setInput("filter", makeFilterParameters(["nieuw"]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(changed).not.toHaveBeenCalled();
     });
   });
 });
