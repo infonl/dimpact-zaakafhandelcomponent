@@ -15,6 +15,8 @@ import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
@@ -107,6 +109,81 @@ class EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest : Behav
             then("the response should be a 200 HTTP response with the file content") {
                 response.code shouldBe HTTP_OK
                 response.bodyAsString shouldContain "%PDF"
+            }
+        }
+    }
+
+    given(
+        """
+        A document has been added to a CMMN zaak of a zaaktype that supports zaakspecifieke autorisatie,
+        the zaak is assigned to a behandelaar without the zaakspecifiek_geautoriseerd application role,
+        is marked as zaakspecifiek geautoriseerd, and is then handed over to a behandelaar of another group
+        """
+    ) {
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1,
+            behandelaarId = BEHANDELAAR_1.username,
+            behandelaarName = BEHANDELAAR_1.displayName
+        )
+        val documentTitle = "itestDocumentTitle-${System.currentTimeMillis()}"
+        val (documentUuid, _) = documentHelper.uploadDocumentToZaak(
+            zaakUuid = zaakUuid,
+            fileName = TEST_PDF_FILE_NAME,
+            documentTitle = documentTitle,
+            authorName = FAKE_AUTHOR_NAME,
+            testUser = BEHANDELAAR_1
+        )
+        openZaakClient.createZaakeigenschap(
+            zaakUUID = zaakUuid,
+            zaaktypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            eigenschapNaam = "ZAAK_GEAUTORISEERD",
+            waarde = "true"
+        )
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/toekennen",
+            requestBodyAsString = """
+                {
+                    "zaakUUID": "$zaakUuid",
+                    "groepId": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
+                    "behandelaarGebruikersnaam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
+                    "reden": "fakeHandoverReason"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        ).code shouldBe HTTP_OK
+
+        `when`("the document is read by the behandelaar the zaak was taken away from") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid",
+                testUser = BEHANDELAAR_1
+            )
+            then("the response should be a 200 HTTP response with rechten.lezen set to true") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                JSONObject(responseBody).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+            }
+        }
+        `when`("the document is downloaded by the behandelaar the zaak was taken away from") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/download",
+                testUser = BEHANDELAAR_1
+            )
+            then("the response should be a 200 HTTP response with the file content") {
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldContain "%PDF"
+            }
+        }
+        `when`("the document is read by the new behandelaar") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid",
+                testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+            )
+            then("the response should be a 200 HTTP response with rechten.lezen set to true") {
+                response.code shouldBe HTTP_OK
+                JSONObject(response.bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
             }
         }
     }

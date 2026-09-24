@@ -4,6 +4,8 @@
  */
 package nl.info.client.zgw.ztc.model
 
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.model.generated.BesluitType
@@ -124,6 +126,26 @@ fun createRolType(
     this.omschrijving = omschrijving
     this.omschrijvingGeneriek = omschrijvingGeneriek
 }
+
+fun createBehandelaarRolType(
+    zaakTypeUri: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    uri: URI = URI("https://example.com/roltype/${UUID.randomUUID()}")
+) = createRolType(
+    omschrijving = ROLTYPE_OMSCHRIJVING_BEHANDELAAR,
+    omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR,
+    uri = uri,
+    zaakTypeUri = zaakTypeUri
+)
+
+fun createZaakspecifiekGeautoriseerdeMedewerkerRolType(
+    zaakTypeUri: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    uri: URI = URI("https://example.com/roltype/${UUID.randomUUID()}")
+) = createRolType(
+    omschrijving = ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+    omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR,
+    uri = uri,
+    zaakTypeUri = zaakTypeUri
+)
 
 @Suppress("LongParameterList")
 fun createZaakType(

@@ -744,6 +744,31 @@ VALUES
   NULL                              -- datum_einde_geldigheid
 );
 
+-- Grants an individual medewerker access to one zaakspecifiek geautoriseerde zaak of this zaaktype.
+-- Together with the 'ZAAK_GEAUTORISEERD' eigenschap this makes the zaaktype 'zaakspecifiek autoriseerbaar' in ZAC.
+INSERT INTO catalogi_roltype
+(
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,
+  '97d06d82-360b-440e-b1aa-48bfbd8bd7e2', -- uuid
+  'Zaakspecifiek geautoriseerde medewerker', -- omschrijving
+  'behandelaar',                    -- omschrijving_generiek
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), -- Zaaktype ID
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
+);
+
 
 --  ZAAKTYPE 2 INFORMATION OBJECT TYPES
 -- ZAC required the informatie objecttype `e-mail` to be present (note the case sensitivity). Also see the 'ConfiguratieService.java' class in the ZAC code base.

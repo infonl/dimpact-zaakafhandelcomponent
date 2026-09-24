@@ -25,7 +25,6 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaakEigenschap
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -42,6 +41,8 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.createZaakToewijzing
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.client.solrj.response.UpdateResponse
@@ -56,7 +57,7 @@ private data class ReindexSupportServiceTestContext(
     val zrcClientService: ZrcClientService,
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
-    val zgwApiService: ZgwApiService,
+    val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
     val reindexSupportService: ReindexSupportService
 )
 
@@ -90,14 +91,14 @@ private fun setupContext(): ReindexSupportServiceTestContext {
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val zgwApiService = mockk<ZgwApiService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
 
     val reindexSupportService = ReindexSupportService(
         converterInstances,
         zrcClientService,
         drcClientService,
         flowableTaskService,
-        zgwApiService,
+        zaakspecifiekeAutorisatieService,
         solrClientFactory
     )
 
@@ -108,7 +109,7 @@ private fun setupContext(): ReindexSupportServiceTestContext {
         zrcClientService,
         drcClientService,
         flowableTaskService,
-        zgwApiService,
+        zaakspecifiekeAutorisatieService,
         reindexSupportService
     )
 }
@@ -301,27 +302,78 @@ class ReindexSupportServiceTest : BehaviorSpec({
         }
     }
 
-    given("zaakAutorisatieGegevens for a zaak the caller has already read") {
+    given("a zaakspecifiek geautoriseerde zaak whose behandelaar handed it over to another medewerker") {
         val ctx = setupContext()
         val zaak = createZaak()
-        val rolMedewerker = createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
-        )
         every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
         )
-        every { ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, any()) } returns rolMedewerker
+        every {
+            ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+        } returns createZaakToewijzing(
+            behandelaarRollen = listOf(
+                createRolMedewerker(
+                    medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+                )
+            ),
+            zaakspecifiekGeautoriseerdeMedewerkers = listOf(
+                createRolMedewerker(
+                    medewerkerIdentificatie = createMedewerkerIdentificatie(
+                        identificatie = "fakePreviousBehandelaarId"
+                    )
+                )
+            ),
+            isZaakspecifiekGeautoriseerd = true
+        )
 
         `when`("its geautoriseerde medewerkers are resolved") {
             val geautoriseerdeMedewerkers =
                 ctx.reindexSupportService.zaakAutorisatieGegevens(zaak).geautoriseerdeMedewerkers
 
-            then("the behandelaar is returned") {
-                geautoriseerdeMedewerkers shouldBe listOf("fakeBehandelaarId")
+            then("both the current behandelaar and the zaakspecifiek geautoriseerde medewerker are returned") {
+                geautoriseerdeMedewerkers shouldBe listOf("fakeBehandelaarId", "fakePreviousBehandelaarId")
             }
 
             then("the zaak is not read again, since the caller already provided it") {
                 verify(exactly = 0) { ctx.zrcClientService.readZaak(zaak.uuid) }
+            }
+
+            then("the zaakspecifieke autorisatie of the zaak is read only once") {
+                verify(exactly = 1) { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) }
+            }
+        }
+    }
+
+    given("a zaakspecifiek geautoriseerde zaak with a medewerker that only holds a zaakspecifieke autorisatie") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every {
+            ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+        } returns createZaakToewijzing(
+            zaakspecifiekGeautoriseerdeMedewerkers = listOf(
+                createRolMedewerker(
+                    medewerkerIdentificatie = createMedewerkerIdentificatie(
+                        identificatie = "fakeZaakspecifiekGeautoriseerdeMedewerkerId"
+                    )
+                )
+            ),
+            isZaakspecifiekGeautoriseerd = true
+        )
+
+        `when`("its geautoriseerde medewerkers are resolved from the zaak UUID alone") {
+            val zaakAutorisatieGegevens = ctx.reindexSupportService.zaakAutorisatieGegevens(zaak.uuid)
+            val geautoriseerdeMedewerkers = zaakAutorisatieGegevens.geautoriseerdeMedewerkers
+
+            then("the zaak is reported as zaakspecifiek geautoriseerd") {
+                zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd shouldBe true
+            }
+
+            then("that medewerker is reported as geautoriseerd even though the zaak has no behandelaar") {
+                geautoriseerdeMedewerkers shouldBe listOf("fakeZaakspecifiekGeautoriseerdeMedewerkerId")
             }
         }
     }

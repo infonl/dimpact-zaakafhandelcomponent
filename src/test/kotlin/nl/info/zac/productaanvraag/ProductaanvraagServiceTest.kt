@@ -21,9 +21,7 @@ import jakarta.servlet.http.HttpSession
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.client.zgw.zrc.model.Rol
-import nl.info.client.zgw.zrc.model.RolMedewerker
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
-import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
@@ -36,12 +34,10 @@ import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.or.`object`.model.createObjectRecord
 import nl.info.client.zgw.drc.DrcClientService
-import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZgwApiService
-import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -64,12 +60,12 @@ import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
-import nl.info.zac.identity.model.createUser
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.createBron
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
+import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -81,6 +77,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val zaakService = mockk<ZaakService>()
     val identityService = mockk<IdentityService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
@@ -105,8 +102,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val productaanvraagService = ProductaanvraagService(
         objectsClientService = objectsClientService,
         zgwApiService = zgwApiService,
-        zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
+        zaakService = zaakService,
         identityService = identityService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
@@ -418,7 +415,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val defaultBehandelaarId = "fakeGebruikersnaamMedewerker"
-            val fakeGebruikersnaamMedewerker = createUser()
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
@@ -459,10 +455,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaakTypeUri = zaakType.url,
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
             )
-            val rolTypeBehandelaar = createRolType(
-                zaakTypeUri = zaakType.url,
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-            )
             val zaakToBeCreated = slot<Zaak>()
             val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
@@ -486,11 +478,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
-            every { identityService.readUser(defaultBehandelaarId) } returns createUser()
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
             every {
-                ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR, ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
-            } returns rolTypeBehandelaar
+                zaakService.assignZaak(zaak = createdZaak, groupId = null, userName = defaultBehandelaarId, reason = null)
+            } just runs
             every {
                 productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                     createdZaak,
@@ -526,18 +517,22 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         communicatiekanaalNaam shouldBe "E-formulier"
                         bronorganisatie shouldBe "123443210"
                     }
-                    roleToBeCreated.size shouldBe 2
+                    roleToBeCreated.size shouldBe 1
                     with(roleToBeCreated[0]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
-                        identificatienummer shouldBe fakeGebruikersnaamMedewerker.id
-                        roltype shouldBe rolTypeBehandelaar.url
-                        zaak shouldBe createdZaak.url
-                    }
-                    with(roleToBeCreated[1]) {
                         betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
                         identificatienummer shouldBe bsnNumber
                         roltype shouldBe rolTypeInitiator.url
                         zaak shouldBe createdZaak.url
+                    }
+                }
+                and("the zaak is assigned to the default behandelaar of the zaaktype configuration") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaak(
+                            zaak = createdZaak,
+                            groupId = null,
+                            userName = defaultBehandelaarId,
+                            reason = null
+                        )
                     }
                 }
             }
@@ -556,7 +551,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val defaultBehandelaarId = "fakeGebruikersnaamMedewerker"
-            val fakeGebruikersnaamMedewerker = createUser()
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
@@ -600,12 +594,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     startAt = today
                 )
             )
-            val rolTypeBehandelaar = createRolType(
-                zaakTypeUri = zaakType.url,
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-            )
             val zaakToBeCreated = slot<Zaak>()
-            val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
@@ -627,11 +616,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
-            every { identityService.readUser(defaultBehandelaarId) } returns createUser()
             every {
-                ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR, ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
-            } returns rolTypeBehandelaar
-            every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
+                zaakService.assignZaak(zaak = createdZaak, groupId = null, userName = defaultBehandelaarId, reason = null)
+            } just runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every {
                 productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
@@ -642,12 +629,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                then(
-                    """
-                    a zaak should be created, an initiator role of type 'natuurlijk persoon' should be created for the zaak
-                    and a CMMN case process should be started
-                    """
-                ) {
+                then("a zaak should be created and a CMMN case process should be started") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
                         zrcClientService.createZaakobject(any())
@@ -662,14 +644,185 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         communicatiekanaalNaam shouldBe "E-formulier"
                         bronorganisatie shouldBe "123443210"
                     }
-                    // Instead of 3 roles we have only 1 as BRP and KVK are disabled
-                    roleToBeCreated.size shouldBe 1
-                    with(roleToBeCreated[0]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
-                        identificatienummer shouldBe fakeGebruikersnaamMedewerker.id
-                        roltype shouldBe rolTypeBehandelaar.url
-                        zaak shouldBe createdZaak.url
+                }
+                and("no betrokkene roles are added because the BRP and KVK koppelingen are disabled") {
+                    verify(exactly = 0) {
+                        zrcClientService.createRol(any())
                     }
+                }
+                and("the zaak is assigned to the default behandelaar of the zaaktype configuration") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaak(
+                            zaak = createdZaak,
+                            groupId = null,
+                            userName = defaultBehandelaarId,
+                            reason = null
+                        )
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
+            with a default behandelaar that is not a member of the default group
+            """
+        ) {
+            clearAllMocks()
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val groupId = "fakeGroupId"
+            val defaultBehandelaarId = "fakeDefaultBehandelaarId"
+            val zaakType = createZaakType()
+            val createdZaak = createZaak()
+            val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeUUID = zaakTypeUUID,
+                groupId = groupId,
+                defaultBehandelaarId = defaultBehandelaarId
+            )
+            val formulierBron = createBron()
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to formulierBron,
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
+                    )
+                )
+            )
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns listOf(zaaktypeCmmnConfiguration)
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { zgwApiService.createZaak(any()) } returns createdZaak
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
+            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every { identityService.isUserInGroup(defaultBehandelaarId, groupId) } returns false
+            every {
+                zaakService.assignZaak(zaak = createdZaak, groupId = groupId, userName = null, reason = null)
+            } just runs
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
+            every {
+                productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                    createdZaak,
+                    null,
+                    null,
+                    zaaktypeCmmnConfiguration
+                )
+            } just runs
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then("the zaak is created and the CMMN case is started") {
+                    verify(exactly = 1) {
+                        zgwApiService.createZaak(any())
+                        cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
+                    }
+                }
+                and("the zaak is assigned to the default group only") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaak(zaak = createdZaak, groupId = groupId, userName = null, reason = null)
+                    }
+                }
+                and("the intake completes and the productaanvraag is marked as done") {
+                    verify(exactly = 1) {
+                        productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                            createdZaak,
+                            null,
+                            null,
+                            zaaktypeCmmnConfiguration
+                        )
+                        productaanvraagClaimRepository.markDone(productAanvraagORObject.uuid)
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            a productaanvraag-dimpact object for which a zaaktypeBpmnConfiguration exists
+            with a default behandelaar that is not a member of the default group
+            """
+        ) {
+            clearAllMocks()
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val groupId = "fakeGroupId"
+            val defaultBehandelaarId = "fakeDefaultBehandelaarId"
+            val zaakType = createZaakType()
+            val createdZaak = createZaak()
+            val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+            val bpmnConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeUUID = zaakTypeUUID,
+                groupId = groupId,
+                defaultBehandelaarId = defaultBehandelaarId,
+                bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
+            )
+            val formulierBron = createBron()
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to formulierBron,
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
+                    )
+                )
+            )
+            val zaakDataSlot = slot<Map<String, Any>>()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns emptyList()
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns bpmnConfiguration
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { zgwApiService.createZaak(any()) } returns createdZaak
+            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every { identityService.isUserInGroup(defaultBehandelaarId, groupId) } returns false
+            every {
+                zaakService.assignZaak(zaak = createdZaak, groupId = groupId, userName = null, reason = null)
+            } just runs
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
+            every {
+                bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot))
+            } just runs
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then("the zaak is assigned to the default group only") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaak(zaak = createdZaak, groupId = groupId, userName = null, reason = null)
+                    }
+                }
+                and("the BPMN process is started for the group without the default behandelaar") {
+                    verify(exactly = 1) {
+                        bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
+                    }
+                    zaakDataSlot.captured[VAR_ZAAK_GROUP] shouldBe groupId
+                    zaakDataSlot.captured.containsKey(VAR_ZAAK_USER) shouldBe false
+                }
+                and("the intake completes and the productaanvraag is marked as done") {
+                    verify(exactly = 1) { productaanvraagClaimRepository.markDone(productAanvraagORObject.uuid) }
                 }
             }
         }
@@ -1603,11 +1756,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 name = "fakeGroupName",
             )
             val defaultBehandelaarId = "fakeGebruikersnaamMedewerker"
-            val defaultBehandelaarUser = createUser()
-            val behandelaarRolType = createRolType(
-                zaakTypeUri = zaakType.url,
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-            )
             val rolTypeInitiator = createRolType(
                 zaakTypeUri = zaakType.url,
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
@@ -1658,13 +1806,17 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns createdZaakInformatieobject
             every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot)) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
-            every { identityService.readGroup(groupName) } returns group
-            every { identityService.readUser(defaultBehandelaarId) } returns defaultBehandelaarUser
             every {
-                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
-            } returns behandelaarRolType
+                zaakService.assignZaak(
+                    zaak = createdZaak,
+                    groupId = group.name,
+                    userName = defaultBehandelaarId,
+                    reason = null
+                )
+            } just runs
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
+            every { identityService.isUserInGroup(defaultBehandelaarId, group.name) } returns true
 
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -1687,23 +1839,14 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zrcClientService.createZaakInformatieobject(any(), any())
                     }
                 }
-                and("the group role should be created for the assigned group") {
+                and("the zaak should be assigned to the group and default behandelaar of the zaaktype") {
                     verify(exactly = 1) {
-                        zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
-                    }
-                    with(roleToBeCreated.single { it.betrokkeneType == BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID }) {
-                        roltype shouldBe behandelaarRolType.url
-                        zaak shouldBe createdZaak.url
-                    }
-                }
-                and("the employee role should be created for the default behandelaar") {
-                    verify(exactly = 1) {
-                        zrcClientService.createRol(any<RolMedewerker>())
-                    }
-                    with(roleToBeCreated.single { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER }) {
-                        identificatienummer shouldBe defaultBehandelaarUser.id
-                        roltype shouldBe behandelaarRolType.url
-                        zaak shouldBe createdZaak.url
+                        zaakService.assignZaak(
+                            zaak = createdZaak,
+                            groupId = group.name,
+                            userName = defaultBehandelaarId,
+                            reason = null
+                        )
                     }
                 }
                 and("the initiator betrokkene role should be added to the zaak") {
@@ -1911,10 +2054,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val groupName = "fakeGroup"
             val group = createGroup(id = groupName, name = "Fake Group")
-            val behandelaarRolType = createRolType(
-                zaakTypeUri = zaakType.url,
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-            )
             val bpmnConfiguration = createZaaktypeBpmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
                 groupId = group.name,
@@ -1947,11 +2086,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createdZaakInformatieobject
             every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any()) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
-            every { identityService.readGroup(groupName) } returns group
             every {
-                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
-            } returns behandelaarRolType
-            every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
+                zaakService.assignZaak(zaak = createdZaak, groupId = group.name, userName = null, reason = null)
+            } just runs
             every { klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, createdZaak.uuid) } just runs
 
             `when`("the productaanvraag is handled") {
