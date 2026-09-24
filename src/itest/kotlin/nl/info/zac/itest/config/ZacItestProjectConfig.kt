@@ -128,6 +128,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private const val COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
         private const val SPEC_CONCURRENCY_SYSTEM_PROPERTY = "zac.itest.specConcurrency"
         private const val DEFAULT_SPEC_CONCURRENCY = 3
+        private const val DOCKER_COMPOSE_START_ATTEMPTS = 3
 
         private val logger = KotlinLogging.logger {}
         private val dockerClient: DockerClient by lazy { DockerClientFactory.instance().client() }
@@ -216,51 +217,72 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         logger.info {
             "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
         }
-        try {
-            if (!skipDockerComposeStart) {
-                dockerComposeContainer = createDockerComposeContainer()
-                dockerComposeContainer.start()
-                ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
-                logger.info { "Started ZAC Docker Compose containers" }
-            } else {
-                logger.warn {
-                    "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
-                }
+        if (!skipDockerComposeStart) {
+            startDockerComposeContainer()
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
+            logger.info { "Started ZAC Docker Compose containers" }
+        } else {
+            logger.warn {
+                "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
             }
+        }
 
-            logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
-            eventually(
-                eventuallyConfig {
-                    duration = 30.seconds
-                    expectedExceptions = setOf(SocketException::class)
+        logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
+        eventually(
+            eventuallyConfig {
+                duration = 30.seconds
+                expectedExceptions = setOf(SocketException::class)
+            }
+        ) {
+            itestHttpClient.performGetRequest(
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                url = KEYCLOAK_HEALTH_READY_URL
+            ).code shouldBe HTTP_OK
+        }
+        ItestTimingReport.markPhase(ItestTimingReport.PHASE_KEYCLOAK_HEALTHY)
+        logger.info { "Keycloak is healthy" }
+        logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
+        eventually(60.seconds) {
+            itestHttpClient.performGetRequest(
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                url = ZAC_HEALTH_READY_URL
+            ).let { response ->
+                response.code shouldBe HTTP_OK
+                JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
+            }
+        }
+        ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
+        logger.info { "ZAC is healthy" }
+        if (!skipDockerComposeStart) {
+            createTestSetupData()
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
+        }
+    }
+
+    /**
+     * Docker Compose can fail to start with a [ContainerLaunchException] when a fixed host port it needs
+     * is transiently in use by an unrelated process on the runner (an ephemeral-port race, not a real
+     * conflict), so retry a few times before giving up.
+     */
+    private fun startDockerComposeContainer() {
+        repeat(DOCKER_COMPOSE_START_ATTEMPTS) { attempt ->
+            dockerComposeContainer = createDockerComposeContainer()
+            try {
+                dockerComposeContainer.start()
+                return
+            } catch (exception: ContainerLaunchException) {
+                dockerComposeContainer.stop()
+                if (attempt == DOCKER_COMPOSE_START_ATTEMPTS - 1) {
+                    logger.error(exception) {
+                        "Failed to start Docker Compose containers after $DOCKER_COMPOSE_START_ATTEMPTS attempts"
+                    }
+                    throw exception
                 }
-            ) {
-                itestHttpClient.performGetRequest(
-                    headers = Headers.headersOf("Content-Type", "application/json"),
-                    url = KEYCLOAK_HEALTH_READY_URL
-                ).code shouldBe HTTP_OK
-            }
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_KEYCLOAK_HEALTHY)
-            logger.info { "Keycloak is healthy" }
-            logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            eventually(60.seconds) {
-                itestHttpClient.performGetRequest(
-                    headers = Headers.headersOf("Content-Type", "application/json"),
-                    url = ZAC_HEALTH_READY_URL
-                ).let { response ->
-                    response.code shouldBe HTTP_OK
-                    JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
+                logger.warn(exception) {
+                    "Failed to start Docker Compose containers " +
+                        "(attempt ${attempt + 1} of $DOCKER_COMPOSE_START_ATTEMPTS), retrying"
                 }
             }
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
-            logger.info { "ZAC is healthy" }
-            if (!skipDockerComposeStart) {
-                createTestSetupData()
-                ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
-            }
-        } catch (exception: ContainerLaunchException) {
-            logger.error(exception) { "Failed to start Docker Compose containers" }
-            dockerComposeContainer.stop()
         }
     }
 
