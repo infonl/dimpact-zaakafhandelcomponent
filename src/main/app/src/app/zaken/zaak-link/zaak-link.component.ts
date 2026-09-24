@@ -29,6 +29,7 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
+import { MatTooltip } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
@@ -69,6 +70,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
     ZacAutoComplete,
     DateRangeFilterComponent,
     EmptyPipe,
+    MatTooltip,
   ],
 })
 export class ZaakLinkComponent {
@@ -184,6 +186,7 @@ export class ZaakLinkComponent {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    if (row.nietKoppelbaarReden) return;
     if (this.koppelZaakMutation.isPending()) return;
     if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
@@ -257,10 +260,30 @@ export class ZaakLinkComponent {
     }
   });
 
-  protected rowDisabled(
+  protected linkButtonDisabled(
     row: GeneratedType<"RestZaakKoppelenZoekObject">,
   ): boolean {
-    return !row.isKoppelbaar || row.identificatie === this.zaak().identificatie;
+    return !!row.nietKoppelbaarReden || this.isLinking(row);
+  }
+
+  protected rowTooltip(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    return row.nietKoppelbaarReden
+      ? `zaak.koppelen.niet-koppelbaar.${row.nietKoppelbaarReden}`
+      : "actie.zaak.koppelen";
+  }
+
+  protected rowTooltipParams(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    const isCurrentZaakHoofdzaak =
+      this.form.controls.caseRelationType.value?.value === "DEELZAAK";
+    const currentZaaktype = this.zaak().zaaktype.omschrijving;
+    return {
+      hoofdzaakZaaktype: isCurrentZaakHoofdzaak
+        ? currentZaaktype
+        : row.zaaktypeOmschrijving,
+      deelzaakZaaktype: isCurrentZaakHoofdzaak
+        ? row.zaaktypeOmschrijving
+        : currentZaaktype,
+    };
   }
 
   protected isLinking(

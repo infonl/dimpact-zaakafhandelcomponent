@@ -536,7 +536,6 @@ class SearchRestServiceTest : BehaviorSpec({
                       {
                         "id" : "$zaak1Uuid",
                         "identificatie" : "$zaak1Identification",
-                        "isKoppelbaar" : true,
                         "omschrijving" : "$zaak1Description",
                         "statustypeOmschrijving" : "Intake",
                         "toelichting" : "null",
@@ -585,7 +584,7 @@ class SearchRestServiceTest : BehaviorSpec({
                           {
                             "id" : "$zaak2Uuid",
                             "identificatie" : "$zaak2Identification",
-                            "isKoppelbaar" : false,
+                            "nietKoppelbaarReden" : "ZAAKTYPE_DOES_NOT_ALLOW_INFORMATIEOBJECTTYPE",
                             "omschrijving" : "$zaak2Description",
                             "statustypeOmschrijving" : "Intake",
                             "toelichting" : "null",
@@ -634,7 +633,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             {
                                 "id" : "$zaak1Uuid",
                                 "identificatie" : "$zaak1Identification",
-                                "isKoppelbaar" : false,
+                                "nietKoppelbaarReden" : "ZAAKTYPE_DOES_NOT_ALLOW_INFORMATIEOBJECTTYPE",
                                 "omschrijving" : "$zaak1Description",
                                 "statustypeOmschrijving" : "Intake",
                                 "toelichting" : "null",

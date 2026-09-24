@@ -155,11 +155,13 @@
           <button
             mat-icon-button
             color="primary"
-            title="{{ 'actie.zaak.koppelen' | translate }}"
-            [disabled]="rowDisabled(row) || isLinking(row)"
+            disabledInteractive
+            [attr.aria-label]="'actie.zaak.koppelen' | translate"
+            [matTooltip]="rowTooltip(row) | translate: rowTooltipParams(row)"
+            [disabled]="linkButtonDisabled(row)"
             (click)="selectCase(row)"
           >
-            <mat-icon [class.disabled]="rowDisabled(row) || isLinking(row)"
+            <mat-icon [class.disabled]="linkButtonDisabled(row)"
               >account_tree</mat-icon
             >
           </button>
@@ -170,7 +172,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: caseColumns"
-        [class.disabled]="rowDisabled(row)"
+        [class.disabled]="!!row.nietKoppelbaarReden"
       ></tr>
     </table>
   }

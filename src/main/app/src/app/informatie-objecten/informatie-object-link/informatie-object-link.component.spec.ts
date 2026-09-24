@@ -50,21 +50,19 @@ const koppelbareZaken = [
     zaaktypeOmschrijving: "Type A",
     statustypeOmschrijving: "In behandeling",
     omschrijving: "Zaak omschrijving 1",
-    isKoppelbaar: true,
   }),
   fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
     identificatie: "ZAAK-002",
     zaaktypeOmschrijving: "Type B",
     statustypeOmschrijving: "Afgerond",
     omschrijving: "Zaak omschrijving 2",
-    isKoppelbaar: false,
+    nietKoppelbaarReden: "ZAAKTYPE_DOES_NOT_ALLOW_INFORMATIEOBJECTTYPE",
   }),
   fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
     identificatie: "SOURCE-ZAAK",
     zaaktypeOmschrijving: "Type C",
     statustypeOmschrijving: "Open",
     omschrijving: "Zaak omschrijving 3",
-    isKoppelbaar: true,
   }),
 ];
 
