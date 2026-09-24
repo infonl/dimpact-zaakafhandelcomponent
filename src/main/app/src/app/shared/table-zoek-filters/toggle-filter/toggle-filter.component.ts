@@ -4,7 +4,13 @@
  */
 
 import { NgSwitch, NgSwitchCase } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  input,
+  linkedSignal,
+  Output,
+} from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { ToggleSwitchOptions } from "./toggle-switch-options";
@@ -17,28 +23,30 @@ import { ToggleSwitchOptions } from "./toggle-switch-options";
   imports: [MatButtonModule, MatIconModule, NgSwitch, NgSwitchCase],
 })
 export class ToggleFilterComponent {
-  @Input() protected selected: ToggleSwitchOptions =
-    ToggleSwitchOptions.INDETERMINATE;
-  @Input() protected checkedIcon = "check_circle";
-  @Input() protected unCheckedIcon = "cancel";
-  @Input() protected indeterminateIcon = "radio_button_unchecked";
+  protected readonly selected = input<ToggleSwitchOptions>(
+    ToggleSwitchOptions.INDETERMINATE,
+  );
+  protected readonly state = linkedSignal(() => this.selected());
+  protected readonly checkedIcon = input("check_circle");
+  protected readonly unCheckedIcon = input("cancel");
+  protected readonly indeterminateIcon = input("radio_button_unchecked");
   @Output() public changed = new EventEmitter<ToggleSwitchOptions>();
 
   protected readonly toggleSwitchOptions = ToggleSwitchOptions;
 
   protected toggle() {
-    switch (this.selected) {
+    switch (this.state()) {
       case ToggleSwitchOptions.CHECKED:
-        this.selected = ToggleSwitchOptions.UNCHECKED;
+        this.state.set(ToggleSwitchOptions.UNCHECKED);
         break;
       case ToggleSwitchOptions.UNCHECKED:
-        this.selected = ToggleSwitchOptions.INDETERMINATE;
+        this.state.set(ToggleSwitchOptions.INDETERMINATE);
         break;
       case ToggleSwitchOptions.INDETERMINATE:
-        this.selected = ToggleSwitchOptions.CHECKED;
+        this.state.set(ToggleSwitchOptions.CHECKED);
         break;
     }
 
-    this.changed.emit(this.selected);
+    this.changed.emit(this.state());
   }
 }

@@ -12,7 +12,7 @@ import {
   EventEmitter,
   HostListener,
   inject,
-  Input,
+  input,
   OnChanges,
   OnInit,
   Output,
@@ -55,13 +55,17 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
 export class FormioWrapperComponent
   implements OnInit, OnChanges, AfterViewInit
 {
-  @Input() form: unknown;
-  @Input() zaak?: GeneratedType<"RestZaak">;
-  @Input() taak?: GeneratedType<"RestTask">;
-  @Input() options?: FormioHookOptions;
-  @Input({ required: true, transform: booleanAttribute }) readOnly = false;
-  @Input({ required: true, transform: booleanAttribute }) submitPending = false;
-  @Input({ transform: booleanAttribute }) submitFailed = false;
+  readonly form = input<unknown>();
+  readonly zaak = input<GeneratedType<"RestZaak">>();
+  readonly taak = input<GeneratedType<"RestTask">>();
+  readonly options = input<FormioHookOptions>();
+  readonly readOnly = input.required<boolean, unknown>({
+    transform: booleanAttribute,
+  });
+  readonly submitPending = input.required<boolean, unknown>({
+    transform: booleanAttribute,
+  });
+  readonly submitFailed = input(false, { transform: booleanAttribute });
   @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
   @Output() formChange = new EventEmitter<FormioChangeEvent>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
@@ -97,7 +101,7 @@ export class FormioWrapperComponent
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes["taak"]) {
-      this.submission = { data: this.taak?.taakdata ?? {} };
+      this.submission = { data: this.taak()?.taakdata ?? {} };
     }
 
     // Not `taak`: a rebuild tears the open form down, losing what the user typed.
@@ -119,7 +123,7 @@ export class FormioWrapperComponent
         submitPendingChange.previousValue &&
         !submitPendingChange.currentValue
       ) {
-        if (this.submitFailed) {
+        if (this.submitFailed()) {
           // Form.io renders its own translated `submitError` text, so this message is not displayed -
           // it only has to be a non-empty error for Form.io to mark the button as failed.
           this.submissionError.emit({ message: "submit failed" });
@@ -144,10 +148,10 @@ export class FormioWrapperComponent
           this.evalContextReady = false;
           const source = from(
             this.customFunctions.prepareFormContext(
-              this.form,
-              this.taak?.taakdata ?? {},
-              this.zaak,
-              this.taak,
+              this.form(),
+              this.taak()?.taakdata ?? {},
+              this.zaak(),
+              this.taak(),
             ),
           );
           return source.pipe(
@@ -203,7 +207,7 @@ export class FormioWrapperComponent
   private refreshTaakInContext() {
     this.evalContext = {
       ...this.evalContext,
-      taak: this.customFunctions.asContextValue(this.taak, "taak"),
+      taak: this.customFunctions.asContextValue(this.taak(), "taak"),
     };
 
     const webform = this.formioComponent?.formio as FormioWebform | undefined;
@@ -212,7 +216,7 @@ export class FormioWrapperComponent
     webform.options.evalContext = this.evalContext;
 
     // A redraw rebuilds the submit button, which would discard the spinner of a submit in flight.
-    if (this.submitPending) {
+    if (this.submitPending()) {
       this.redrawDeferred = true;
       return;
     }
@@ -224,10 +228,10 @@ export class FormioWrapperComponent
     const webform = this.formioComponent?.formio as FormioWebform | undefined;
     if (!webform) return;
 
-    webform.options.readOnly = this.readOnly;
+    webform.options.readOnly = this.readOnly();
     webform.everyComponent((component) => {
-      component.options.readOnly = this.readOnly;
-      component.disabled = this.readOnly;
+      component.options.readOnly = this.readOnly();
+      component.disabled = this.readOnly();
     });
     void webform.redraw();
   }
@@ -240,7 +244,7 @@ export class FormioWrapperComponent
     const webform = this.formioComponent?.formio as FormioWebform | undefined;
     if (!webform) return;
 
-    const disabled = this.readOnly || this.submitPending;
+    const disabled = this.readOnly() || this.submitPending();
     webform.everyComponent((component) => {
       // Select and Tags override this setter to disable their Choices widget too.
       component.disabled = disabled;

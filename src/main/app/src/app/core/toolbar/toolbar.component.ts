@@ -9,9 +9,9 @@ import {
   computed,
   effect,
   inject,
-  Input,
   OnDestroy,
   OnInit,
+  input,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -91,7 +91,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   protected readonly createZaakMutationKey =
     this.zakenService.createZaak().mutationKey;
 
-  @Input({ required: true }) zoekenSideNav!: MatSidenav;
+  readonly zoekenSideNav = input.required<MatSidenav>();
   protected zoekenFormControl = new FormControl<string>("");
 
   protected headerTitle$?: Observable<string>;

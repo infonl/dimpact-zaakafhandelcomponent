@@ -6,7 +6,6 @@
 import {
   Component,
   EventEmitter,
-  Input,
   Output,
   computed,
   effect,
@@ -75,7 +74,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
 })
 export class ZaakLinkComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
-  @Input({ required: true }) sideNav!: MatDrawer;
+  readonly sideNav = input.required<MatDrawer>();
   @Output() zaakLinked = new EventEmitter<void>();
 
   private readonly formBuilder = inject(FormBuilder);
@@ -225,12 +224,12 @@ export class ZaakLinkComponent {
     } = this.formValue();
     return Boolean(
       caseNumberToSearchFor ||
-        caseDescriptionToSearchFor ||
-        caseTypeToSearchFor ||
-        this.startdatum().van ||
-        this.startdatum().tot ||
-        this.einddatum().van ||
-        this.einddatum().tot,
+      caseDescriptionToSearchFor ||
+      caseTypeToSearchFor ||
+      this.startdatum().van ||
+      this.startdatum().tot ||
+      this.einddatum().van ||
+      this.einddatum().tot,
     );
   });
 
@@ -296,7 +295,7 @@ export class ZaakLinkComponent {
   }
 
   protected close() {
-    void this.sideNav.close();
+    void this.sideNav().close();
     this.reset();
   }
 

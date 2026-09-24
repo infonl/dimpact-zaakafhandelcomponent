@@ -4,15 +4,15 @@
   -->
 
 <mat-toolbar role="heading" class="gap-16">
-  <mat-icon>{{ actionIcon }}</mat-icon>
-  <span class="flex-grow-1">{{ actionLabel | translate }}</span>
-  <button mat-icon-button (click)="sideNav.close()">
+  <mat-icon>{{ actionIcon() }}</mat-icon>
+  <span class="flex-grow-1">{{ actionLabel() | translate }}</span>
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form" *ngIf="infoObject">
+<div class="form" *ngIf="infoObject()">
   <p>{{ intro }}</p>
   <form [formGroup]="form" (submit)="searchCases()" class="mt-2">
     <fieldset class="p-0">
@@ -75,13 +75,13 @@
           <button
             mat-icon-button
             color="primary"
-            title="{{ actionLabel | translate }}"
+            title="{{ actionLabel() | translate }}"
             [disabled]="isUnlinkable(row) || isLinking(row)"
             (click)="selectCase(row)"
           >
             <mat-icon
               [ngClass]="{ disabled: isUnlinkable(row) || isLinking(row) }"
-              >{{ actionIcon }}</mat-icon
+              >{{ actionIcon() }}</mat-icon
             >
           </button>
         </td>
@@ -110,7 +110,7 @@
     </p>
   </div>
   <mat-action-row>
-    <button mat-raised-button (click)="sideNav.close()">
+    <button mat-raised-button (click)="sideNav().close()">
       {{ "actie.annuleren" | translate }}
     </button>
   </mat-action-row>

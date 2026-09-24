@@ -7,9 +7,10 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input,
+  inject,
   OnChanges,
   ViewChild,
+  input,
 } from "@angular/core";
 import * as style from "ol/style.js";
 import { LocationUtil } from "../../shared/location/location-util";
@@ -29,9 +30,11 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   imports: [StaticTextComponent],
 })
 export class LocatieTonenComponent implements AfterViewInit, OnChanges {
-  @Input({ required: true }) currentLocation!: GeneratedType<"RestGeometry">;
+  readonly currentLocation = input.required<GeneratedType<"RestGeometry">>();
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
+
+  private readonly locationService = inject(LocationService);
 
   protected nearestAddress?: AddressResult;
 
@@ -50,21 +53,21 @@ export class LocatieTonenComponent implements AfterViewInit, OnChanges {
 
   private viewInitialized = false;
 
-  constructor(private readonly locationService: LocationService) {}
-
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.locationMap.setTarget(this.openLayersMapRef.nativeElement);
       this.viewInitialized = true;
-      if (this.currentLocation) {
-        this.setLocation(this.currentLocation);
+      const currentLocation = this.currentLocation();
+      if (currentLocation) {
+        this.setLocation(currentLocation);
       }
     }, 0);
   }
 
   ngOnChanges(): void {
-    if (this.viewInitialized && this.currentLocation) {
-      this.setLocation(this.currentLocation);
+    const currentLocation = this.currentLocation();
+    if (this.viewInitialized && currentLocation) {
+      this.setLocation(currentLocation);
     }
   }
 

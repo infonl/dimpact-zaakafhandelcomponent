@@ -8,10 +8,11 @@ import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
   ElementRef,
-  Input,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
+  input,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";
@@ -51,8 +52,12 @@ import { NotitieService } from "./notities.service";
   ],
 })
 export class NotitiesComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) zaakUuid!: string;
-  @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
+  private readonly identityService = inject(IdentityService);
+  private readonly notitieService = inject(NotitieService);
+  private readonly websocketService = inject(WebsocketService);
+
+  readonly zaakUuid = input.required<string>();
+  readonly notitieRechten = input<GeneratedType<"RestNotitieRechten">>();
 
   @ViewChild("notitieTekst") notitieTekst!: {
     nativeElement: HTMLTextAreaElement;
@@ -81,19 +86,13 @@ export class NotitiesComponent implements OnInit, OnDestroy {
 
   private notitiesListener!: WebsocketListener;
 
-  constructor(
-    private identityService: IdentityService,
-    private notitieService: NotitieService,
-    private websocketService: WebsocketService,
-  ) {}
-
   ngOnInit() {
     this.haalNotitiesOp();
 
     this.notitiesListener = this.websocketService.addListener(
       Opcode.UPDATED,
       ObjectType.ZAAK_NOTITIES,
-      this.zaakUuid,
+      this.zaakUuid(),
       () => this.haalNotitiesOp(),
     );
   }
@@ -111,7 +110,7 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   }
 
   private haalNotitiesOp() {
-    this.notitieService.listNotities(this.zaakUuid).subscribe((notities) => {
+    this.notitieService.listNotities(this.zaakUuid()).subscribe((notities) => {
       this.notities = notities;
       this.notities.sort((a, b) => {
         if (!a.tijdstipLaatsteWijziging) return -1;
@@ -132,7 +131,7 @@ export class NotitiesComponent implements OnInit, OnDestroy {
 
     this.notitieService
       .createNotitie({
-        zaakUUID: this.zaakUuid,
+        zaakUUID: this.zaakUuid(),
         tekst: tekst,
         gebruikersnaamMedewerker: loggedInUser.id,
       })

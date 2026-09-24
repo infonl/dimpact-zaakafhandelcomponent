@@ -4,7 +4,14 @@
  */
 
 import { KeyValuePipe, NgFor } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  input,
+  Output,
+} from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import {
@@ -37,31 +44,32 @@ import { ColumnPickerValue } from "./column-picker-value";
   ],
 })
 export class ColumnPickerComponent {
-  @Input() set columnSrc(columns: Map<ZoekenColumn, ColumnPickerValue>) {
-    this._selection = [];
-    this._columnSrc = columns;
-    this._columns = new Map(
-      [...columns.keys()]
-        .filter((key) => columns.get(key) !== ColumnPickerValue.STICKY)
-        .map((key) => {
-          if (columns.get(key) === ColumnPickerValue.VISIBLE) {
-            this._selection.push(key);
-          }
-          return [key, this.translate.instant(key)];
-        }),
-    );
-  }
+  private readonly translate = inject(TranslateService);
+
+  readonly columnSrc = input(new Map<ZoekenColumn, ColumnPickerValue>());
 
   @Output() columnsChanged = new EventEmitter<
     Map<ZoekenColumn, ColumnPickerValue>
   >();
 
-  private _columnSrc = new Map<ZoekenColumn, ColumnPickerValue>();
-  private _columns = new Map<ZoekenColumn, string>();
-  private _selection: ZoekenColumn[] = [];
+  protected readonly columns = computed(() => {
+    const columns = this.columnSrc();
+    return new Map(
+      [...columns.keys()]
+        .filter((key) => columns.get(key) !== ColumnPickerValue.STICKY)
+        .map((key): [ZoekenColumn, string] => [
+          key,
+          this.translate.instant(key),
+        ]),
+    );
+  });
+  private readonly selection = computed(() => {
+    const columns = this.columnSrc();
+    return [...columns.keys()].filter(
+      (key) => columns.get(key) === ColumnPickerValue.VISIBLE,
+    );
+  });
   private changed = false;
-
-  constructor(private readonly translate: TranslateService) {}
 
   protected menuOpened() {
     this.changed = false;
@@ -69,10 +77,11 @@ export class ColumnPickerComponent {
 
   protected selectionChanged($event: MatSelectionListChange) {
     this.changed = true;
+    const columnSrc = this.columnSrc();
     $event.options.forEach((option) =>
-      this._columnSrc.set(
+      columnSrc.set(
         option.value,
-        this._columnSrc.get(option.value) === ColumnPickerValue.VISIBLE
+        columnSrc.get(option.value) === ColumnPickerValue.VISIBLE
           ? ColumnPickerValue.HIDDEN
           : ColumnPickerValue.VISIBLE,
       ),
@@ -81,15 +90,11 @@ export class ColumnPickerComponent {
 
   protected updateColumns() {
     if (this.changed) {
-      this.columnsChanged.emit(this._columnSrc);
+      this.columnsChanged.emit(this.columnSrc());
     }
   }
 
-  protected get columns() {
-    return this._columns;
-  }
-
   protected isSelected(column: ZoekenColumn) {
-    return this._selection.includes(column);
+    return this.selection().includes(column);
   }
 }

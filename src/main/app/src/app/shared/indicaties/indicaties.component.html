@@ -4,13 +4,13 @@
   -->
 
 <mat-chip-listbox
-  *ngIf="layout == Layout.EXTENDED"
-  [class]="layout.toLowerCase()"
+  *ngIf="layout() === Layout.EXTENDED"
+  [class]="layout().toLowerCase()"
   selectable="false"
   class="flex-row"
 >
   <mat-chip-option
-    *ngFor="let indicatie of indicaties"
+    *ngFor="let indicatie of indicaties()"
     selectable="false"
     [color]="indicatie.primary ? 'accent' : null"
     [highlighted]="indicatie.primary"
@@ -28,13 +28,13 @@
 </mat-chip-listbox>
 
 <mat-chip-listbox
-  *ngIf="layout == Layout.COMPACT || layout == Layout.SEARCH"
-  [class]="layout.toLowerCase()"
+  *ngIf="layout() === Layout.COMPACT || layout() === Layout.SEARCH"
+  [class]="layout().toLowerCase()"
   selectable="false"
   class="flex-row"
 >
   <mat-chip-option
-    *ngFor="let indicatie of indicaties"
+    *ngFor="let indicatie of indicaties()"
     selectable="false"
     [color]="indicatie.primary ? 'accent' : null"
     [highlighted]="indicatie.primary"

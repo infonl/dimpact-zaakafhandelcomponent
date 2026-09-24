@@ -12,7 +12,7 @@
     *ngIf="isPDF()"
     type="application/pdf"
     [data]="previewSrc"
-    [title]="document.titel"
+    [title]="document().titel"
     height="600px"
     width="100%"
   ></object>
@@ -20,7 +20,7 @@
   <img
     *ngIf="isImage()"
     [src]="previewSrc"
-    [alt]="document.beschrijving"
-    [title]="document.bestandsnaam"
+    [alt]="document().beschrijving"
+    [title]="document().bestandsnaam"
   />
 </div>

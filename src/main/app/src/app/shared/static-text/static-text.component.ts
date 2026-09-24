@@ -6,11 +6,10 @@
 import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
+  computed,
   EventEmitter,
-  Input,
+  input,
   numberAttribute,
-  OnChanges,
-  OnInit,
   Output,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
@@ -34,30 +33,20 @@ import { ReadMoreComponent } from "../read-more/read-more.component";
   ],
 })
 export class StaticTextComponent<
-    T extends string | number | null | undefined = string,
-  >
-  implements OnInit, OnChanges
-{
+  T extends string | number | null | undefined = string,
+> {
   /**
    * Will get translated automatically
    */
-  @Input() label?: string;
-  @Input() value?: T;
-  @Input() icon?: TextIcon | null;
-  @Input({ transform: numberAttribute }) maxLength?: number;
+  readonly label = input<string>();
+  readonly value = input<T>();
+  readonly icon = input<TextIcon | null>();
+  readonly maxLength = input<number | undefined, unknown>(undefined, {
+    transform: numberAttribute,
+  });
   @Output() iconClicked = new EventEmitter<void>();
 
-  showIcon = false;
-
-  ngOnInit() {
-    this.setIcon();
-  }
-
-  ngOnChanges() {
-    this.setIcon();
-  }
-
-  setIcon() {
-    this.showIcon = Boolean(this.icon?.showIcon?.(new FormControl(this.value)));
-  }
+  protected readonly showIcon = computed(() =>
+    Boolean(this.icon()?.showIcon?.(new FormControl(this.value()))),
+  );
 }
