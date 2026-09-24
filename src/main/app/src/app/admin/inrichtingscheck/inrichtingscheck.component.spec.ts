@@ -25,33 +25,46 @@ import { MatSidenavModule } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatSortHarness } from "@angular/material/sort/testing";
 import { MatTableModule } from "@angular/material/table";
-import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { delay } from "rxjs/operators";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { createMutationOptions } from "../../../test-helpers";
+import { createMutationOptions, fromPartial } from "../../../test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { VersionComponent } from "../../shared/version/version.component";
 import { HealthCheckService } from "../health-check.service";
 import { InrichtingscheckComponent } from "./inrichtingscheck.component";
 
-const mockZaaktype1 = {
+const VALIDE_ICON_LABEL = "healthCheck.zaaktype.status.valide";
+const WAARSCHUWING_ICON_LABEL = "healthCheck.zaaktype.status.waarschuwing";
+const NIET_VALIDE_ICON_LABEL = "healthCheck.zaaktype.status.niet-valide";
+const ROLTYPE_ONTBREEKT_MESSAGE =
+  "healthCheck.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt";
+const EIGENSCHAP_ONTBREEKT_MESSAGE =
+  "healthCheck.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt";
+
+const volledigIngerichtZaaktype = fromPartial<
+  GeneratedType<"RESTZaaktypeInrichtingscheck">
+>({
   zaaktype: {
-    uuid: "uuid-1",
+    uuid: "fakeZaaktypeUuid1",
     omschrijving: "Zaaktype A",
     doel: "Doel A",
     beginGeldigheid: "2024-01-01",
   },
   valide: true,
+  heeftWaarschuwingen: false,
   zaakafhandelParametersValide: true,
   statustypeIntakeAanwezig: true,
   statustypeInBehandelingAanwezig: true,
@@ -67,20 +80,53 @@ const mockZaaktype1 = {
   resultaattypesMetVerplichtBesluit: [],
   besluittypeAanwezig: true,
   brpInstellingenCorrect: true,
-};
+  isZaakspecifiekeAutorisatieEigenschapAanwezig: true,
+  isZaakspecifiekeAutorisatieRoltypeAanwezig: true,
+});
 
-const mockZaaktype2 = {
-  ...mockZaaktype1,
+const nietValideZaaktype = fromPartial<
+  GeneratedType<"RESTZaaktypeInrichtingscheck">
+>({
+  ...volledigIngerichtZaaktype,
   zaaktype: {
-    ...mockZaaktype1.zaaktype,
-    uuid: "uuid-2",
+    uuid: "fakeZaaktypeUuid2",
     omschrijving: "Zaaktype B",
     doel: "Doel B",
     beginGeldigheid: "2024-06-01",
   },
   valide: false,
   zaakafhandelParametersValide: false,
-};
+});
+
+const zaaktypeZonderRoltype = fromPartial<
+  GeneratedType<"RESTZaaktypeInrichtingscheck">
+>({
+  ...volledigIngerichtZaaktype,
+  zaaktype: {
+    uuid: "fakeZaaktypeUuid3",
+    omschrijving: "Zaaktype C",
+    doel: "Doel C",
+    beginGeldigheid: "2024-07-01",
+  },
+  heeftWaarschuwingen: true,
+  isZaakspecifiekeAutorisatieEigenschapAanwezig: true,
+  isZaakspecifiekeAutorisatieRoltypeAanwezig: false,
+});
+
+const zaaktypeZonderEigenschap = fromPartial<
+  GeneratedType<"RESTZaaktypeInrichtingscheck">
+>({
+  ...volledigIngerichtZaaktype,
+  zaaktype: {
+    uuid: "fakeZaaktypeUuid4",
+    omschrijving: "Zaaktype D",
+    doel: "Doel D",
+    beginGeldigheid: "2024-08-01",
+  },
+  heeftWaarschuwingen: true,
+  isZaakspecifiekeAutorisatieEigenschapAanwezig: false,
+  isZaakspecifiekeAutorisatieRoltypeAanwezig: true,
+});
 
 @Component({
   templateUrl: "./inrichtingscheck.component.html",
@@ -114,6 +160,18 @@ describe(InrichtingscheckComponent.name, () => {
   let clearZTCCachesMutation: ReturnType<typeof createMutationOptions<string>>;
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
 
+  const user = userEvent.setup();
+
+  function setValideFilter(option: ToggleSwitchOptions) {
+    component["valideFilter"] = option;
+    component["applyFilter"]();
+    fixture.detectChanges();
+  }
+
+  function zaaktypeRow(omschrijving: string) {
+    return screen.getByRole("row", { name: new RegExp(omschrijving) });
+  }
+
   beforeEach(async () => {
     utilServiceMock = {
       setTitle: jest.fn(),
@@ -140,7 +198,12 @@ describe(InrichtingscheckComponent.name, () => {
     jest
       .spyOn(healthCheckService, "listZaaktypeInrichtingschecks")
       .mockReturnValue(
-        of([mockZaaktype1, mockZaaktype2]).pipe(delay(0)) as ReturnType<
+        of([
+          volledigIngerichtZaaktype,
+          nietValideZaaktype,
+          zaaktypeZonderRoltype,
+          zaaktypeZonderEigenschap,
+        ]).pipe(delay(0)) as ReturnType<
           typeof healthCheckService.listZaaktypeInrichtingschecks
         >,
       );
@@ -192,7 +255,7 @@ describe(InrichtingscheckComponent.name, () => {
   });
 
   it("should populate dataSource with zaaktype data after init", () => {
-    expect(component["dataSource"].data.length).toBe(2);
+    expect(component["dataSource"].data.length).toBe(4);
   });
 
   it("should store ztcCacheTime from service response", () => {
@@ -207,65 +270,163 @@ describe(InrichtingscheckComponent.name, () => {
     expect(component["loadingZaaktypes"]).toBe(false);
   });
 
-  it("should expand an invalid row on click and collapse it on second click", async () => {
-    const table = await loader.getHarness(MatTableHarness);
-    // default valideFilter=UNCHECKED hides valid rows — only the invalid row is visible
-    const mainRows = await table.getRows({ selector: ".main-row" });
-    const invalidRow = mainRows[0];
+  it("should show the valide icon and no expand affordance for a fully configured zaaktype", () => {
+    setValideFilter(ToggleSwitchOptions.CHECKED);
 
-    expect(component["expandedRow"]).toBeNull();
+    const row = zaaktypeRow("Zaaktype A");
 
-    await (await invalidRow.host()).click();
-    expect(component["expandedRow"]).toBe(mockZaaktype2);
+    expect(
+      within(row).getByRole("img", { name: VALIDE_ICON_LABEL }),
+    ).toBeInTheDocument();
+    expect(
+      within(row).queryByRole("img", { name: WAARSCHUWING_ICON_LABEL }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(row).queryByText("keyboard_arrow_down"),
+    ).not.toBeInTheDocument();
+    expect(row).toHaveClass("ok");
+  });
 
-    await (await invalidRow.host()).click();
+  it("should not expand a fully configured zaaktype on click", async () => {
+    setValideFilter(ToggleSwitchOptions.CHECKED);
+
+    await user.click(zaaktypeRow("Zaaktype A"));
+
     expect(component["expandedRow"]).toBeNull();
   });
 
-  it("should not expand a valid row on click", async () => {
-    // switch filter to CHECKED so valid rows are visible
-    component["valideFilter"] = ToggleSwitchOptions.CHECKED;
-    component["applyFilter"]();
+  it("should show the error icon for a zaaktype that is not valide", () => {
+    const row = zaaktypeRow("Zaaktype B");
+
+    expect(
+      within(row).getByRole("img", { name: NIET_VALIDE_ICON_LABEL }),
+    ).toBeInTheDocument();
+    expect(row).toHaveClass("error");
+  });
+
+  it("should expand a zaaktype that is not valide on click and collapse it on second click", async () => {
+    const row = zaaktypeRow("Zaaktype B");
+
+    expect(component["expandedRow"]).toBeNull();
+
+    await user.click(row);
+    expect(component["expandedRow"]).toBe(nietValideZaaktype);
+
+    await user.click(row);
+    expect(component["expandedRow"]).toBeNull();
+  });
+
+  it("should show the waarschuwing icon and an expand affordance for a valide zaaktype without the roltype", () => {
+    const row = zaaktypeRow("Zaaktype C");
+
+    expect(
+      within(row).getByRole("img", { name: WAARSCHUWING_ICON_LABEL }),
+    ).toBeInTheDocument();
+    expect(
+      within(row).queryByRole("img", { name: NIET_VALIDE_ICON_LABEL }),
+    ).not.toBeInTheDocument();
+    expect(within(row).getByText("keyboard_arrow_down")).toBeInTheDocument();
+    expect(row).toHaveClass("warning");
+  });
+
+  it("should expand a valide zaaktype without the roltype and reveal that the roltype is missing", async () => {
+    await user.click(zaaktypeRow("Zaaktype C"));
     fixture.detectChanges();
 
-    const table = await loader.getHarness(MatTableHarness);
-    const mainRows = await table.getRows({ selector: ".main-row" });
-    const validRow = mainRows[0];
+    expect(component["expandedRow"]).toBe(zaaktypeZonderRoltype);
 
-    await (await validRow.host()).click();
-
-    expect(component["expandedRow"]).toBeNull();
+    const detailRow = screen.getByRole("row", {
+      name: new RegExp(ROLTYPE_ONTBREEKT_MESSAGE),
+    });
+    expect(within(detailRow).getByText("rol")).toBeInTheDocument();
+    expect(
+      within(detailRow).getByText(ROLTYPE_ONTBREEKT_MESSAGE),
+    ).toBeInTheDocument();
   });
 
-  it("should render zaaktype omschrijving in the visible table row", async () => {
-    // default UNCHECKED filter shows only invalid rows — mockZaaktype2 is the only visible row
-    const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows({ selector: ".main-row" });
-    const cells = await rows[0].getCells({
-      columnName: "zaaktypeOmschrijving",
+  it("should expand a valide zaaktype without the eigenschap and reveal that the eigenschap is missing", async () => {
+    await user.click(zaaktypeRow("Zaaktype D"));
+    fixture.detectChanges();
+
+    expect(component["expandedRow"]).toBe(zaaktypeZonderEigenschap);
+
+    const detailRow = screen.getByRole("row", {
+      name: new RegExp(EIGENSCHAP_ONTBREEKT_MESSAGE),
     });
-    expect(await cells[0].getText()).toBe("Zaaktype B");
+    expect(within(detailRow).getByText("eigenschap")).toBeInTheDocument();
+    expect(
+      within(detailRow).getByText(EIGENSCHAP_ONTBREEKT_MESSAGE),
+    ).toBeInTheDocument();
+  });
+
+  it("should show every zaaktype that needs attention when the filter is set to not valide", () => {
+    setValideFilter(ToggleSwitchOptions.UNCHECKED);
+
+    expect(component["dataSource"].filteredData).toEqual([
+      nietValideZaaktype,
+      zaaktypeZonderRoltype,
+      zaaktypeZonderEigenschap,
+    ]);
+    expect(
+      screen.queryByRole("row", { name: /Zaaktype A/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("should show only the zaaktypen without findings when the filter is set to valide", () => {
+    setValideFilter(ToggleSwitchOptions.CHECKED);
+
+    expect(component["dataSource"].filteredData).toEqual([
+      volledigIngerichtZaaktype,
+    ]);
+    expect(
+      screen.queryByRole("row", { name: /Zaaktype C/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("should keep the valide filter a total partition so that no zaaktype disappears from both sides", () => {
+    setValideFilter(ToggleSwitchOptions.UNCHECKED);
+    const needingAttention = component["dataSource"].filteredData;
+    setValideFilter(ToggleSwitchOptions.CHECKED);
+    const withoutFindings = component["dataSource"].filteredData;
+
+    expect(
+      [...needingAttention, ...withoutFindings]
+        .map(
+          (zaaktypeInrichtingscheck) => zaaktypeInrichtingscheck.zaaktype.uuid,
+        )
+        .sort(),
+    ).toEqual(
+      component["dataSource"].data
+        .map(
+          (zaaktypeInrichtingscheck) => zaaktypeInrichtingscheck.zaaktype.uuid,
+        )
+        .sort(),
+    );
   });
 
   it("should show 'beschikbaar' text when communicatiekanaal e-formulier exists", () => {
-    expect(fixture.nativeElement.textContent).toContain(
-      "healthCheck.communicatiekanaal.e-formulier.beschikbaar",
-    );
+    expect(
+      screen.getByText(
+        "healthCheck.communicatiekanaal.e-formulier.beschikbaar",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("should show 'niet beschikbaar' text when communicatiekanaal e-formulier does not exist", () => {
     component["bestaatCommunicatiekanaalEformulier"] = false;
     component["loadingCommunicatiekanaal"] = false;
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain(
-      "healthCheck.communicatiekanaal.e-formulier.niet.beschikbaar",
-    );
+
+    expect(
+      screen.getByText(
+        "healthCheck.communicatiekanaal.e-formulier.niet.beschikbaar",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("should filter rows by zaaktype omschrijving text", () => {
-    component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
-    component["applyFilter"]();
-    expect(component["dataSource"].filteredData.length).toBe(2);
+    setValideFilter(ToggleSwitchOptions.INDETERMINATE);
+    expect(component["dataSource"].filteredData.length).toBe(4);
 
     const event = { target: { value: "Zaaktype A" } } as unknown as Event;
     component["applyFilter"](event);
@@ -279,42 +440,42 @@ describe(InrichtingscheckComponent.name, () => {
     component["dataSource"].data = [];
     component["loadingZaaktypes"] = true;
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain("msg.loading");
+
+    expect(screen.getByText("msg.loading")).toBeInTheDocument();
   });
 
   it("should disable the sync button while zaaktypes are loading", () => {
     component["loadingZaaktypes"] = true;
     fixture.detectChanges();
-    const button = fixture.nativeElement.querySelector(
-      "[mat-raised-button]",
-    ) as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
+
+    expect(
+      screen.getByRole("button", {
+        name: "healthCheck.synchroniseer.ztc.button",
+      }),
+    ).toBeDisabled();
   });
 
   it("should show 'geen gegevens' message when data source is empty and not loading", () => {
     component["dataSource"].data = [];
     component["loadingZaaktypes"] = false;
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain(
-      "msg.geen.gegevens.gevonden",
-    );
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeInTheDocument();
   });
 
   it("should sort by doel ascending then descending via column header click", async () => {
-    component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
-    component["applyFilter"]();
-    fixture.detectChanges();
+    setValideFilter(ToggleSwitchOptions.INDETERMINATE);
 
     const sort = await loader.getHarness(MatSortHarness);
     const [doelHeader] = await sort.getSortHeaders({ label: "doel" });
 
     await doelHeader.click();
     expect(component["dataSource"].data[0].zaaktype.doel).toBe("Doel A");
-    expect(component["dataSource"].data[1].zaaktype.doel).toBe("Doel B");
+    expect(component["dataSource"].data[3].zaaktype.doel).toBe("Doel D");
 
     await doelHeader.click();
-    expect(component["dataSource"].data[0].zaaktype.doel).toBe("Doel B");
-    expect(component["dataSource"].data[1].zaaktype.doel).toBe("Doel A");
+    expect(component["dataSource"].data[0].zaaktype.doel).toBe("Doel D");
+    expect(component["dataSource"].data[3].zaaktype.doel).toBe("Doel A");
   });
 
   it("should reload zaaktypes and update cache time on clearZTCCache", async () => {
