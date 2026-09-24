@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -10,7 +10,7 @@
 >
   <mat-card-title-group>
     <mat-card-title>{{
-      "zoeken.filter." + (label | lowercase) | translate
+      "zoeken.filter." + (label() | lowercase) | translate
     }}</mat-card-title>
     <mat-icon (click)="invert()" class="on" *ngIf="!inverse"
       >toggle_off</mat-icon
@@ -20,19 +20,19 @@
     >
   </mat-card-title-group>
   <mat-card-content>
-    <div *ngFor="let facetWaarde of opties" class="flex-row space-between">
+    <div *ngFor="let facetWaarde of opties()" class="flex-row space-between">
       <mat-checkbox
         zacNarrowMatCheckbox
         (change)="checkboxChange()"
         [formControlName]="facetWaarde.naam"
       >
         <read-more
-          *ngIf="isVertaalbaar(label)"
-          [text]="VERTAALBARE_FACETTEN[label] + facetWaarde.naam | translate"
+          *ngIf="isVertaalbaar(label())"
+          [text]="VERTAALBARE_FACETTEN[label()] + facetWaarde.naam | translate"
           [maxLength]="30"
         ></read-more>
         <read-more
-          *ngIf="!isVertaalbaar(label)"
+          *ngIf="!isVertaalbaar(label())"
           [text]="facetWaarde.naam"
           [maxLength]="30"
         ></read-more>

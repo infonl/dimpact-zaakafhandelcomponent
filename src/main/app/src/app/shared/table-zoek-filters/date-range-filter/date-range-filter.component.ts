@@ -4,7 +4,15 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  EventEmitter,
+  input,
+  Output,
+  untracked,
+} from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MAT_DATE_FORMATS } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
@@ -46,48 +54,52 @@ import { GeneratedType } from "../../utils/generated-types";
   ],
 })
 export class DateRangeFilterComponent {
-  @Input({ required: true })
-  set range(value: GeneratedType<"RestDatumRange"> | null | undefined) {
-    this.currentRange = value ?? { van: null, tot: null };
-    this.dateVan.setValue(this.toDate(this.currentRange.van));
-    this.dateTM.setValue(this.toDate(this.currentRange.tot));
-  }
-
-  get range() {
-    return this.currentRange;
-  }
-
-  @Input() label!: string;
-  @Input() showLabel?: boolean;
+  readonly range = input.required<
+    GeneratedType<"RestDatumRange"> | null | undefined
+  >();
+  readonly label = input.required<string>();
+  readonly showLabel = input<boolean>();
   @Output() changed = new EventEmitter<GeneratedType<"RestDatumRange">>();
 
   protected dateVan = new FormControl<Date | null>(null);
   protected dateTM = new FormControl<Date | null>(null);
 
-  private currentRange: GeneratedType<"RestDatumRange"> = {
-    van: null,
-    tot: null,
-  };
+  private readonly currentRange = computed<GeneratedType<"RestDatumRange">>(
+    () => this.range() ?? { van: null, tot: null },
+  );
+
+  constructor() {
+    effect(() => {
+      const currentRange = this.currentRange();
+      untracked(() => {
+        this.dateVan.setValue(this.toDate(currentRange.van));
+        this.dateTM.setValue(this.toDate(currentRange.tot));
+      });
+    });
+  }
 
   protected clearDate($event: MouseEvent): void {
     $event.stopPropagation();
     this.dateVan.setValue(null);
     this.dateTM.setValue(null);
-    this.currentRange.van = null;
-    this.currentRange.tot = null;
-    this.changed.emit(this.currentRange);
+    const currentRange = this.currentRange();
+    currentRange.van = null;
+    currentRange.tot = null;
+    this.changed.emit(currentRange);
   }
 
   protected change(): void {
-    this.currentRange.van = this.dateVan.value?.toISOString() ?? null;
-    this.currentRange.tot = this.dateTM.value?.toISOString() ?? null;
+    const currentRange = this.currentRange();
+    currentRange.van = this.dateVan.value?.toISOString() ?? null;
+    currentRange.tot = this.dateTM.value?.toISOString() ?? null;
     if (this.hasRange()) {
-      this.changed.emit(this.currentRange);
+      this.changed.emit(currentRange);
     }
   }
 
   protected hasRange(): boolean {
-    return this.currentRange.van != null || this.currentRange.tot != null;
+    const currentRange = this.currentRange();
+    return currentRange.van != null || currentRange.tot != null;
   }
 
   private toDate(value?: string | null) {

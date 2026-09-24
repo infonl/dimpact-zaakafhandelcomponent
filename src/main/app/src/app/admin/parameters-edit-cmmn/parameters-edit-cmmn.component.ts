@@ -9,7 +9,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  Input,
+  input,
   OnDestroy,
   Output,
   ViewChild,
@@ -111,7 +111,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   ],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
-  @Input({ required: false }) selectedIndexStart: number = 0;
+  readonly selectedIndexStart = input<number>(0);
   @Output() switchModellingMethod =
     new EventEmitter<ProcessModelMethodSelection>();
 

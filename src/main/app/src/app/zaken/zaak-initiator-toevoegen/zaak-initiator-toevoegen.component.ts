@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Output, input } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
@@ -24,6 +24,6 @@ import { TranslateModule } from "@ngx-translate/core";
   ],
 })
 export class ZaakInitiatorToevoegenComponent {
-  @Input({ required: true }) toevoegenToegestaan = false;
+  readonly toevoegenToegestaan = input.required<boolean>();
   @Output() add = new EventEmitter<void>();
 }

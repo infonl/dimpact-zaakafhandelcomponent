@@ -8,7 +8,6 @@ import {
   Component,
   EventEmitter,
   input,
-  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -58,8 +57,8 @@ import { FormCommunicatieService } from "../form-communicatie-service";
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
   @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
-  @Input() sideNav?: MatSidenav;
-  @Input() syncEnabled = false;
+  readonly sideNav = input<MatSidenav>();
+  readonly syncEnabled = input(false);
 
   protected blockSearch = input<boolean>(false);
 
@@ -158,7 +157,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (!this.syncEnabled) return;
+    if (!this.syncEnabled()) return;
 
     this.formCommunicationService.itemSelected$
       .pipe(takeUntil(this.destroy$))
@@ -188,7 +187,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
   }
 
   openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">) {
-    this.sideNav?.close();
+    this.sideNav()?.close();
     const link = buildBedrijfRouteLink(bedrijf);
     if (link) {
       void this.router.navigate(link);
@@ -199,7 +198,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     this.bedrijf.emit(bedrijf);
     this.wissen();
 
-    if (!this.syncEnabled) return;
+    if (!this.syncEnabled()) return;
     this.formCommunicationService.notifyItemSelected(this.uuid);
   }
 

@@ -3,18 +3,20 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-@if (form && stylesLoaded && evalContextReady) {
-  <formio
-    [submission]="submission"
-    [submitDone]="submissionDone"
-    [error]="submissionError"
-    [form]="form"
-    [readOnly]="readOnly"
-    [options]="{ disableAlerts: true, evalContext: evalContext }"
-    [renderOptions]="{ disableAlerts: true, evalContext: evalContext }"
-    (ready)="onFormioReady($event)"
-    (submit)="onSubmit($event)"
-    (change)="onChange($event)"
-    (customEvent)="onCustomEvent($event)"
-  ></formio>
+@if (stylesLoaded && evalContextReady) {
+  @if (form(); as form) {
+    <formio
+      [submission]="submission"
+      [submitDone]="submissionDone"
+      [error]="submissionError"
+      [form]="form"
+      [readOnly]="readOnly()"
+      [options]="{ disableAlerts: true, evalContext: evalContext }"
+      [renderOptions]="{ disableAlerts: true, evalContext: evalContext }"
+      (ready)="onFormioReady($event)"
+      (submit)="onSubmit($event)"
+      (change)="onChange($event)"
+      (customEvent)="onCustomEvent($event)"
+    ></formio>
+  }
 }

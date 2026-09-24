@@ -8,11 +8,11 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  Input,
   OnChanges,
   OnInit,
   ViewChild,
   inject,
+  input,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -67,7 +67,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 export class BagZakenTabelComponent
   implements OnInit, AfterViewInit, OnChanges
 {
-  @Input({ required: true }) BagObjectIdentificatie!: string;
+  readonly BagObjectIdentificatie = input.required<string>();
   @ViewChild(MatPaginator) private paginator!: MatPaginator;
   @ViewChild(MatSort) private sort!: MatSort;
   protected dataSource = new MatTableDataSource<ZaakZoekObject>();
@@ -98,11 +98,11 @@ export class BagZakenTabelComponent
 
   ngOnInit() {
     this.zoekParameters.type = "ZAAK";
-    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
+    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie();
   }
 
   private loadZaken() {
-    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
+    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie();
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.sorteerRichting = this.sort.direction;
     this.zoekParameters.sorteerVeld = this.sort

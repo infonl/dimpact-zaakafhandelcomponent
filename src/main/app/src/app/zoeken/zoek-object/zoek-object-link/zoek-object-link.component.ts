@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, HostListener, Input } from "@angular/core";
+import { Component, HostListener, input } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { RouterLink } from "@angular/router";
@@ -34,9 +34,11 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
   ],
 })
 export class ZoekObjectLinkComponent {
-  @Input({ required: true })
-  zoekObject!: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">;
-  @Input({ required: true }) sideNav!: MatSidenav;
+  readonly zoekObject =
+    input.required<
+      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+    >();
+  readonly sideNav = input.required<MatSidenav>();
   protected _newtab = false;
   protected indicatiesLayout = IndicatiesLayout;
 
@@ -55,38 +57,40 @@ export class ZoekObjectLinkComponent {
   }
 
   protected getLink() {
-    switch (this.zoekObject.type) {
+    const zoekObject = this.zoekObject();
+    switch (zoekObject.type) {
       case "ZAAK":
-        return ["/zaken/", (this.zoekObject as ZaakZoekObject).identificatie];
+        return ["/zaken/", (zoekObject as ZaakZoekObject).identificatie];
       case "TAAK":
-        return ["/taken/", this.zoekObject.id];
+        return ["/taken/", zoekObject.id];
       case "DOCUMENT":
-        return ["/informatie-objecten/", this.zoekObject.id];
+        return ["/informatie-objecten/", zoekObject.id];
       default:
         throw new Error(
-          `Search object type ${this.zoekObject.type} is not supported`,
+          `Search object type ${zoekObject.type} is not supported`,
         );
     }
   }
 
   protected getName() {
-    switch (this.zoekObject.type) {
+    const zoekObject = this.zoekObject();
+    switch (zoekObject.type) {
       case "ZAAK":
-        return (this.zoekObject as ZaakZoekObject).identificatie;
+        return (zoekObject as ZaakZoekObject).identificatie;
       case "TAAK":
-        return (this.zoekObject as TaakZoekObject).naam;
+        return (zoekObject as TaakZoekObject).naam;
       case "DOCUMENT":
-        return (this.zoekObject as DocumentZoekObject).titel;
+        return (zoekObject as DocumentZoekObject).titel;
       default:
         throw new Error(
-          `Search object type ${this.zoekObject.type} is not supported`,
+          `Search object type ${zoekObject.type} is not supported`,
         );
     }
   }
 
   protected navigate(event: Event) {
     if (!this._newtab) {
-      this.sideNav.close();
+      this.sideNav().close();
     }
     event.stopPropagation();
   }

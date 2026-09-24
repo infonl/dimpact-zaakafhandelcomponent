@@ -7,7 +7,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input,
+  input,
   OnChanges,
   OnInit,
   SimpleChanges,
@@ -41,7 +41,7 @@ type Geometry = GeneratedType<"RestGeometry">;
   imports: [MatCardModule, TranslateModule],
 })
 export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input() bagGeometrie?: Geometry;
+  readonly bagGeometrie = input<Geometry>();
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
 
   private map?: ol.Map;
@@ -149,8 +149,9 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
     setTimeout(() => {
       this.map?.setTarget(this.openLayersMapRef.nativeElement);
     }, 0);
-    if (this.bagGeometrie) {
-      this.draw(this.bagGeometrie);
+    const bagGeometrie = this.bagGeometrie();
+    if (bagGeometrie) {
+      this.draw(bagGeometrie);
       this.zoom();
     }
   }
@@ -202,10 +203,10 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.bagGeometrie = changes.bagGeometrie.currentValue;
-    if (this.bagGeometrie && !changes.bagGeometrie.isFirstChange()) {
+    const bagGeometrie = this.bagGeometrie();
+    if (bagGeometrie && !changes.bagGeometrie.isFirstChange()) {
       this.geometrieSource.clear();
-      this.draw(this.bagGeometrie);
+      this.draw(bagGeometrie);
       this.zoom();
     }
   }

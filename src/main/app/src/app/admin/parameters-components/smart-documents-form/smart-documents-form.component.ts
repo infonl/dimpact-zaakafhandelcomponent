@@ -5,7 +5,7 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 import { NgIf } from "@angular/common";
-import { Component, effect, Input } from "@angular/core";
+import { Component, effect, input, untracked } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -60,11 +60,9 @@ interface FlatNode {
   ],
 })
 export class SmartDocumentsFormComponent {
-  @Input({ required: true }) zaakTypeUuid!: string;
-  @Input({ required: true }) enabledGlobally!: boolean;
-  @Input() set enabledForZaaktype(value: boolean) {
-    this.enabledForZaaktypeForm.controls.enabledForZaaktype.setValue(value);
-  }
+  readonly zaakTypeUuid = input.required<string>();
+  readonly enabledGlobally = input.required<boolean>();
+  readonly enabledForZaaktype = input(false);
 
   enabledForZaaktypeForm = new FormGroup({
     enabledForZaaktype: new FormControl<boolean>(false),
@@ -72,7 +70,7 @@ export class SmartDocumentsFormComponent {
 
   get enabledForZaaktypeValue(): boolean {
     return (
-      this.enabledGlobally &&
+      this.enabledGlobally() &&
       Boolean(this.enabledForZaaktypeForm.value.enabledForZaaktype)
     );
   }
@@ -92,6 +90,14 @@ export class SmartDocumentsFormComponent {
     private formBuilder: FormBuilder,
   ) {
     effect(() => this.prepareDatasource());
+    effect(() => {
+      const enabledForZaaktype = this.enabledForZaaktype();
+      untracked(() =>
+        this.enabledForZaaktypeForm.controls.enabledForZaaktype.setValue(
+          enabledForZaaktype,
+        ),
+      );
+    });
   }
 
   private prepareDatasource() {
@@ -133,17 +139,17 @@ export class SmartDocumentsFormComponent {
   }));
 
   private readonly currentTemplateMappingsQuery = injectQuery(() => ({
-    ...this.smartDocumentsService.getTemplatesMappingQuery(this.zaakTypeUuid),
+    ...this.smartDocumentsService.getTemplatesMappingQuery(this.zaakTypeUuid()),
     refetchOnWindowFocus: false,
   }));
 
   private readonly informationObjectTypesQuery = injectQuery(() => ({
-    queryKey: ["informationObjectTypesQuery", this.zaakTypeUuid],
+    queryKey: ["informationObjectTypesQuery", this.zaakTypeUuid()],
     refetchOnWindowFocus: false,
     queryFn: () =>
       firstValueFrom(
         this.informatieObjectenService.listInformatieobjecttypes(
-          this.zaakTypeUuid,
+          this.zaakTypeUuid(),
         ),
       ),
   }));
@@ -245,7 +251,7 @@ export class SmartDocumentsFormComponent {
 
   public saveSmartDocumentsMapping() {
     return this.smartDocumentsService.storeTemplatesMapping(
-      this.zaakTypeUuid,
+      this.zaakTypeUuid(),
       this.smartDocumentsService.getOnlyMappedTemplates(
         this.newTemplateMappings,
       ),

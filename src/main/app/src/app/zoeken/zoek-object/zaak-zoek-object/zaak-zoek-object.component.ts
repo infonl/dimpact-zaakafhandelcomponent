@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
@@ -25,6 +25,6 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
   ],
 })
 export class ZaakZoekObjectComponent extends ZoekObjectComponent {
-  @Input({ required: true }) zaak!: ZaakZoekObject;
-  @Input({ required: true }) sideNav!: MatSidenav;
+  readonly zaak = input.required<ZaakZoekObject>();
+  readonly sideNav = input.required<MatSidenav>();
 }
