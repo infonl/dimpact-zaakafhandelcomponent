@@ -128,7 +128,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private const val COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
         private const val SPEC_CONCURRENCY_SYSTEM_PROPERTY = "zac.itest.specConcurrency"
         private const val DEFAULT_SPEC_CONCURRENCY = 3
-        private const val DOCKER_COMPOSE_START_ATTEMPTS = 3
 
         private val logger = KotlinLogging.logger {}
         private val dockerClient: DockerClient by lazy { DockerClientFactory.instance().client() }
@@ -218,7 +217,14 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
         }
         if (!skipDockerComposeStart) {
-            startDockerComposeContainer()
+            dockerComposeContainer = createDockerComposeContainer()
+            try {
+                dockerComposeContainer.start()
+            } catch (exception: ContainerLaunchException) {
+                logger.error(exception) { "Failed to start Docker Compose containers" }
+                dockerComposeContainer.stop()
+                throw exception
+            }
             ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
             logger.info { "Started ZAC Docker Compose containers" }
         } else {
@@ -256,33 +262,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         if (!skipDockerComposeStart) {
             createTestSetupData()
             ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
-        }
-    }
-
-    /**
-     * Docker Compose can fail to start with a [ContainerLaunchException] when a fixed host port it needs
-     * is transiently in use by an unrelated process on the runner (an ephemeral-port race, not a real
-     * conflict), so retry a few times before giving up.
-     */
-    private fun startDockerComposeContainer() {
-        repeat(DOCKER_COMPOSE_START_ATTEMPTS) { attempt ->
-            dockerComposeContainer = createDockerComposeContainer()
-            try {
-                dockerComposeContainer.start()
-                return
-            } catch (exception: ContainerLaunchException) {
-                dockerComposeContainer.stop()
-                if (attempt == DOCKER_COMPOSE_START_ATTEMPTS - 1) {
-                    logger.error(exception) {
-                        "Failed to start Docker Compose containers after $DOCKER_COMPOSE_START_ATTEMPTS attempts"
-                    }
-                    throw exception
-                }
-                logger.warn(exception) {
-                    "Failed to start Docker Compose containers " +
-                        "(attempt ${attempt + 1} of $DOCKER_COMPOSE_START_ATTEMPTS), retrying"
-                }
-            }
         }
     }
 
