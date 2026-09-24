@@ -22,7 +22,6 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../material/material.module";
-import { PipesModule } from "../../pipes/pipes.module";
 import { ZacDate } from "./date";
 
 interface TestForm extends Record<string, AbstractControl> {
@@ -47,7 +46,6 @@ describe(ZacDate.name, () => {
         ZacDate,
         MaterialModule,
         TranslateModule.forRoot(),
-        PipesModule,
         MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
