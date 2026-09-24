@@ -27,6 +27,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
@@ -139,6 +140,25 @@ class RestExceptionMapperTest : BehaviorSpec({
                 then("it should return the ZRC server error code and log the exception") {
                     checkResponse(response, "msg.error.zrc.client.exception")
                     verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("A ZaakGeometrieNotSupportedException exception") {
+            val exceptionMessage = "Zaak 'fakeZaakUUID' has an unsupported zaakgeometrie type. " +
+                "Only 'Point' zaakgeometrie is supported."
+            val exception = ZaakGeometrieNotSupportedException(exceptionMessage, RuntimeException("cause"))
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return the zaak geometrie not supported error code, a bad request status, and log at WARNING") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.zaak.geometrie.not-supported",
+                        expectedStatus = HttpStatus.SC_BAD_REQUEST
+                    )
+                    verify(exactly = 1) { log(any(), Level.WARNING, exception.message!!, exception) }
                 }
             }
         }
