@@ -4,6 +4,7 @@
  */
 package net.atos.zac.signalering.event;
 
+import static nl.info.client.zgw.shared.ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 import java.net.URI;
@@ -182,8 +183,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
             }
             case ZAAK_OP_NAAM -> {
                 final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().resource());
-                if (OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase()) ==
-                    OmschrijvingGeneriekEnum.BEHANDELAAR) {
+                if (isBehandelaarRol(rol)) {
                     final Zaak subject = zrcClientService.readZaak(rol.getZaak());
                     switch (rol.getBetrokkeneType()) {
                         case MEDEWERKER -> {
@@ -205,6 +205,12 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 LOG.warning(String.format("ignored SignaleringType %s", event.getObjectType()));
         }
         return null;
+    }
+
+    private static boolean isBehandelaarRol(final Rol<?> rol) {
+        return OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase()) ==
+               OmschrijvingGeneriekEnum.BEHANDELAAR &&
+               ROLTYPE_OMSCHRIJVING_BEHANDELAAR.equals(rol.getOmschrijving());
     }
 
     private RolType getRoltypeBehandelaar(final Zaak zaak) {
