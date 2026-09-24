@@ -283,7 +283,6 @@ export class ZaakLinkComponent {
       deelzaakZaaktype: isCurrentZaakHoofdzaak
         ? row.zaaktypeOmschrijving
         : currentZaaktype,
-      zaaktype: row.zaaktypeOmschrijving,
     };
   }
 

@@ -13,7 +13,7 @@ import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -485,31 +485,6 @@ describe(ZaakLinkComponent.name, () => {
       );
     },
   );
-
-  it("names the zaaktype of the found zaak when there is no right to link it", async () => {
-    await setup();
-    const translateService = TestBed.inject(TranslateService);
-    translateService.setTranslation("nl", {
-      "zaak.koppelen.niet-koppelbaar.NOT_AUTHORISED_TO_KOPPELEN":
-        "Zaken van het type '{{zaaktype}}' koppelen is niet toegestaan",
-    });
-    translateService.use("nl");
-    findLinkableZaken([
-      makeFakeSearchResult({
-        identificatie: "ZAAK-2026-003",
-        zaaktypeOmschrijving: "fakeGevondenZaaktype",
-        nietKoppelbaarReden: "NOT_AUTHORISED_TO_KOPPELEN",
-      }),
-    ]);
-
-    await chooseRelationType("DEELZAAK");
-    await enterSearchCriterion();
-    await clickSearch();
-
-    expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAccessibleDescription(
-      "Zaken van het type 'fakeGevondenZaaktype' koppelen is niet toegestaan",
-    );
-  });
 
   it("links the zaak of the row the button was clicked on", async () => {
     const { zaak, zaakLinked, utilService, sideNav } = await setup();
