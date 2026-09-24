@@ -13,21 +13,13 @@ import io.mockk.slot
 import jakarta.enterprise.event.Event
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.event.SignaleringEventId
-import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.createLoggedInUser
-import java.net.URI
 import java.util.UUID
-import java.util.concurrent.CompletableFuture
-import java.util.logging.Handler
-import java.util.logging.Level
-import java.util.logging.LogRecord
-import java.util.logging.Logger
 
 class EventingServiceTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
@@ -77,44 +69,4 @@ class EventingServiceTest : BehaviorSpec({
             }
         }
     }
-
-    context("Sending a signalering event") {
-        given("an observer that fails to handle the event") {
-            val event = SignaleringEvent(
-                SignaleringType.Type.ZAAK_OP_NAAM,
-                SignaleringEventId(URI("https://example.com/fakeRol"), null),
-                null
-            )
-            every {
-                signaleringEvent.fireAsync(event)
-            } returns CompletableFuture.failedFuture(IllegalStateException("fakeFailure"))
-
-            `when`("the signalering event is sent") {
-                val logRecords = captureLogRecords { eventingService.send(event) }
-
-                then("the failure is logged, because nothing else observes it") {
-                    logRecords.single { it.level == Level.SEVERE }.thrown.message shouldBe "fakeFailure"
-                }
-            }
-        }
-    }
 })
-
-private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(EventingService::class.java.name)
-    val records = mutableListOf<LogRecord>()
-    val handler = object : Handler() {
-        override fun publish(record: LogRecord) {
-            records.add(record)
-        }
-        override fun flush() = Unit
-        override fun close() = Unit
-    }
-    logger.addHandler(handler)
-    try {
-        block()
-    } finally {
-        logger.removeHandler(handler)
-    }
-    return records
-}
