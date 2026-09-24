@@ -51,6 +51,8 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationService.Companion.INADMISSIBLE
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService.Companion.INADMISSIBLE_TERMINATION_REASON
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
@@ -418,22 +420,21 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaaktypes-for-creation")
-    fun listZaaktypesForZaakCreation(): List<RestZaaktype> =
-        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
+    fun listZaaktypesForZaakCreation(): List<RestZaaktype> {
+        val isStartenZaakAllowedByOmschrijving = mutableMapOf<String, Boolean>()
+        return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .asSequence()
-            .filter {
-                policyService.readOverigeRechten(it.omschrijving).startenZaak
-            }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
             .filter {
-                // as we don't have defined inrichtingscheck for BPMN yet @ 2025-12-15:
-                // return configured BPMN or valid CMMN zaaktypes
-                it.isConfiguredBPMNZaaktype() ||
-                    healthCheckService.controleerZaaktype(it.url).isValide
+                isStartenZaakAllowedByOmschrijving.getOrPut(it.omschrijving) {
+                    policyService.readOverigeRechten(it.omschrijving).startenZaak
+                }
             }
+            .filter { it.isValidForZaakCreation() }
             .map(restZaaktypeConverter::convert)
             .toList()
+    }
 
     /**
      * Retrieve the default afzender for a zaak
@@ -852,6 +853,19 @@ class ZaakRestService @Inject constructor(
 
     private fun ZaakType.isConfiguredBPMNZaaktype() =
         zaaktypeConfigurationService.readZaaktypeConfiguration(this.url.extractUuid())?.getConfigurationType() == BPMN
+
+    /**
+     * BPMN zaaktypes have no zaaktype check yet, so any zaaktype with a BPMN configuration qualifies.
+     * For CMMN, the full zaaktype check calls Open Zaak several times and always fails when the ZAC
+     * configuration is not valid. So we check the ZAC configuration first and skip the slow check when it fails.
+     */
+    private fun ZaakType.isValidForZaakCreation() =
+        when (val zaaktypeConfiguration = zaaktypeConfigurationService.readZaaktypeConfiguration(url.extractUuid())) {
+            is ZaaktypeBpmnConfiguration -> true
+            is ZaaktypeCmmnConfiguration ->
+                zaaktypeConfiguration.isValide() && healthCheckService.controleerZaaktype(url).isValide
+            else -> false
+        }
 
     private fun isWarning(
         today: LocalDate,
