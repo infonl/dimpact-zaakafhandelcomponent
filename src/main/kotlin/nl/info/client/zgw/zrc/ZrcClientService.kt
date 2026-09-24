@@ -93,9 +93,10 @@ class ZrcClientService @Inject constructor(
     }
 
     fun readZaak(zaakUUID: UUID): Zaak =
-        translatingUnsupportedZaakgeometrie({ unsupportedZaakgeometrieMessage(zaakUUID.toString()) }) {
-            zrcClient.zaakRead(zaakUUID)
-        }
+        translatingUnsupportedZaakgeometrie(
+            fn = { zrcClient.zaakRead(zaakUUID) },
+            buildMessage = { unsupportedZaakgeometrieMessage(zaakUUID.toString()) }
+        )
 
     fun readZaak(zaakURI: URI): Zaak {
         validateZgwApiUri(zaakURI, configurationService.readZgwApiClientMpRestUrl())
@@ -146,9 +147,10 @@ class ZrcClientService @Inject constructor(
     fun patchZaak(zaakUUID: UUID, zaak: Zaak): Zaak = zrcClient.zaakPartialUpdate(zaakUUID, zaak)
 
     fun listZaken(filter: ZaakListParameters): Results<Zaak> =
-        translatingUnsupportedZaakgeometrie({ unsupportedZaakgeometrieInListMessage(filter) }) {
-            zrcClient.zaakList(filter)
-        }
+        translatingUnsupportedZaakgeometrie(
+            fn = { zrcClient.zaakList(filter) },
+            buildMessage = { unsupportedZaakgeometrieInListMessage(filter) }
+        )
 
     fun listZakenUuids(filter: ZaakListParameters): Results<ZaakUuid> = zrcClient.zaakListUuids(filter)
 
@@ -324,7 +326,7 @@ class ZrcClientService @Inject constructor(
      * a number) fails deserialization too, but with a different message, since the parser position
      * itself is still the expected one. Any other [ProcessingException] is rethrown unchanged.
      */
-    private fun <T> translatingUnsupportedZaakgeometrie(buildMessage: () -> String, fn: () -> T): T =
+    private fun <T> translatingUnsupportedZaakgeometrie(fn: () -> T, buildMessage: () -> String): T =
         try {
             fn()
         } catch (processingException: ProcessingException) {
