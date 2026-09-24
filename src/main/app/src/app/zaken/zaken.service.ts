@@ -159,10 +159,6 @@ export class ZakenService {
     return this.zacQueryClient.GET("/rest/zaken/gekoppelde-zaken/zaaktypen");
   }
 
-  updateZaakdata() {
-    return this.zacQueryClient.PUT("/rest/zaken/zaakdata");
-  }
-
   toekennen(body: PatchBody<"/rest/zaken/toekennen">) {
     return this.zacHttpClient.PATCH("/rest/zaken/toekennen", body);
   }

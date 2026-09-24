@@ -80,7 +80,6 @@ import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
 import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.RestZaakCreateData
-import nl.info.zac.app.zaak.model.RestZaakDataUpdate
 import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RestZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
@@ -619,14 +618,6 @@ class ZaakRestService @Inject constructor(
         }
         applyZaakUpdateSideEffects(zaak, zaakType, updatedZaak, restZaakEditMetRedenGegevens.zaak)
         return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
-    }
-
-    @PUT
-    @Path("zaakdata")
-    fun updateZaakdata(restZaakDataUpdate: RestZaakDataUpdate) {
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakDataUpdate.uuid)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).wijzigen)
-        zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, restZaakDataUpdate.zaakdata)
     }
 
     @PATCH

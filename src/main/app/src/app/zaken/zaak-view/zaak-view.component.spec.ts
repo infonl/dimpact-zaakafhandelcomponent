@@ -392,6 +392,40 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("isZaakdataGearchiveerd", () => {
+    // The archief determination itself now happens on the backend (RestZaak.isZaakdataGearchiveerd);
+    // this only checks that the component threads the zaak's own value through to the menu unchanged.
+    const zaakWithZaakdata = (isZaakdataGearchiveerd: boolean) =>
+      fromPartial<GeneratedType<"RestZaak">>({
+        ...zaak,
+        zaakdata: { fakeKey: "fakeValue" },
+        rechten: { ...zaak.rechten, bekijkenZaakdata: true },
+        isZaakdataGearchiveerd,
+      });
+
+    it("labels the zaakdata menu item as archief when the zaak reports it archived", () => {
+      mockActivatedRoute.data.next({ zaak: zaakWithZaakdata(true) });
+      fixture.detectChanges();
+
+      const titles = fixture.componentInstance["menu"]().map(
+        (item) => item.title,
+      );
+      expect(titles).toContain("actie.zaakdata.archief");
+      expect(titles).not.toContain("actie.zaakdata.bekijken");
+    });
+
+    it("labels the zaakdata menu item as bekijken when the zaak reports it not archived", () => {
+      mockActivatedRoute.data.next({ zaak: zaakWithZaakdata(false) });
+      fixture.detectChanges();
+
+      const titles = fixture.componentInstance["menu"]().map(
+        (item) => item.title,
+      );
+      expect(titles).toContain("actie.zaakdata.bekijken");
+      expect(titles).not.toContain("actie.zaakdata.archief");
+    });
+  });
+
   describe("side effects on zaak changes", () => {
     const opschortbareZaak = {
       ...zaak,
