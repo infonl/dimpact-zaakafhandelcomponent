@@ -7,17 +7,24 @@
   <mat-icon>folder_copy</mat-icon>
   <h3 class="flex-grow-1">
     {{
-      (readonly() ? "actie.zaakdata.bekijken" : "actie.zaakdata.wijzigen")
-        | translate
+      (zaak().isZaakdataGearchiveerd
+        ? "actie.zaakdata.archief"
+        : "actie.zaakdata.bekijken"
+      ) | translate
     }}
   </h3>
   <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
+@if (zaak().isZaakdataGearchiveerd) {
+  <p class="archief-toelichting">
+    {{ "msg.zaakdata.archief.toelichting" | translate }}
+  </p>
+}
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" (ngSubmit)="formSubmit()" class="mt-2">
+<form [formGroup]="form" class="mt-2">
   <fieldset>
     <section class="row mt-2">
       @for (control of form.controls | keyvalue; track control.key) {
@@ -34,25 +41,6 @@
         </ng-container>
       }
     </section>
-  </fieldset>
-  <fieldset *ngIf="!readonly()">
-    <mat-action-row>
-      <button
-        mat-raised-button
-        type="submit"
-        color="primary"
-        [disabled]="
-          !form.valid ||
-          updateZaakDataMutation.isPending() ||
-          updateZaakDataMutation.isSuccess()
-        "
-      >
-        {{ "actie.opslaan" | translate }}
-      </button>
-      <button type="button" mat-raised-button (click)="sideNav().close()">
-        {{ "actie.annuleren" | translate }}
-      </button>
-    </mat-action-row>
   </fieldset>
 </form>
 
@@ -108,7 +96,7 @@
     </div>
   } @else if (isFormArray(control)) {
     <div class="col-12 p-3">
-      <mat-label class="font-weight-bold" [class.readonly-label]="readonly()">
+      <mat-label class="font-weight-bold readonly-label">
         {{ controlName }}
         <mat-icon
           class="copy-icon copy-icon--sm"
@@ -148,7 +136,7 @@
                     matInput
                     autocomplete="off"
                     [formControlName]="$index"
-                    [readonly]="readonly()"
+                    readonly
                   />
                 </mat-form-field>
               }

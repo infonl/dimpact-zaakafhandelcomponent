@@ -164,4 +164,10 @@ class CMMNService @Inject constructor(
         cmmnRepositoryService.getCmmnModel(caseDefinitionKey)
             .primaryCase
             .findPlanItemDefinitionsOfType(HumanTask::class.java)
+
+    fun isZaakCaseDriven(zaakUUID: UUID): Boolean =
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .singleResult() != null
+
 }

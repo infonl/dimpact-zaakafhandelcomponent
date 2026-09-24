@@ -1,0 +1,40 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Trivy misconfiguration findings that are accepted by design.
+# Trivy ties a finding to a line in the rendered Helm chart, so a dismissed alert is reopened as soon as a
+# template changes. Accept a finding here instead of dismissing it in the GitHub Security tab.
+misconfigurations:
+  - id: DS-0026
+    paths:
+      - "Dockerfile"
+    statement: >-
+      ZAC runs on Kubernetes, which ignores a Docker HEALTHCHECK. The Helm chart checks the container with
+      startup, liveness and readiness probes on the /health endpoints instead.
+  - id: KSV-0109
+    paths:
+      - "charts/zac/templates/config.yaml"
+    statement: >-
+      Trivy matches on key names such as BRP_TOEPASSING. These keys hold a purpose-of-use code and HTTP header
+      names, not credentials. All credentials are in the Secret in secret.yaml.
+  - id: KSV-01010
+    paths:
+      - "charts/zac/templates/config.yaml"
+    statement: >-
+      Trivy matches on key names such as MAX_FILE_SIZE_MB and GEMEENTE_CODE. None of these keys hold sensitive
+      values. All credentials are in the Secret in secret.yaml.
+  - id: KSV-0011
+    paths:
+      - "charts/zac/templates/deployment.yaml"
+      - "charts/zac/templates/office-converter-deployment.yaml"
+    statement: >-
+      CPU limits are left out on purpose. The containers set CPU requests only, because a CPU limit throttles a
+      container even when the node has CPU to spare, which for example slows down the startup of the ZAC JVM.
+  - id: KSV-0125
+    paths:
+      - "charts/zac/templates/*.yaml"
+    statement: >-
+      Which container registries are trusted is a policy of the cluster that the chart is deployed to (registry
+      mirrors, admission control), not of the chart. The chart pulls its images from ghcr.io and Docker Hub,
+      and every repository can be overridden in values.yaml.

@@ -98,7 +98,6 @@ import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakCreateData
-import nl.info.zac.app.zaak.model.createRestZaakDataUpdate
 import nl.info.zac.app.zaak.model.createRestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.createRestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.createRestZaaktype
@@ -2563,34 +2562,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 then("it fails") {
                     exception.message shouldBe null
-                }
-            }
-        }
-    }
-
-    context("Updating zaak data") {
-        given("Rest zaak data") {
-            val restZaakDataUpdate = createRestZaakDataUpdate()
-            val zaak = createZaak()
-            val zaakType = createZaakType()
-            val zaakdataMap = slot<Map<String, Any>>()
-            val loggedInUser = createLoggedInUser()
-
-            every {
-                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakDataUpdate.uuid)
-            } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
-            every { zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, capture(zaakdataMap)) } just runs
-            every { loggedInUserInstance.get() } returns loggedInUser
-
-            `when`("the zaakdata is requested to be updated") {
-                zaakRestService.updateZaakdata(restZaakDataUpdate)
-
-                then("the zaakdata is correctly updated") {
-                    verify(exactly = 1) {
-                        zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, any())
-                    }
-                    zaakdataMap.captured shouldBe restZaakDataUpdate.zaakdata
                 }
             }
         }

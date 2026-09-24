@@ -175,13 +175,12 @@
         ></zac-zaak-link>
       }
     }
-    @if (activeAction === "actie.zaakdata.bekijken") {
+    @if (
+      activeAction === "actie.zaakdata.bekijken" ||
+      activeAction === "actie.zaakdata.archief"
+    ) {
       @defer (on immediate) {
-        <zac-zaakdata
-          [readonly]="true"
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-        ></zac-zaakdata>
+        <zac-zaakdata [sideNav]="actionsSidenav" [zaak]="zaak"></zac-zaakdata>
       }
     }
     @if (activeAction === "actie.procesverloop.bekijken") {
