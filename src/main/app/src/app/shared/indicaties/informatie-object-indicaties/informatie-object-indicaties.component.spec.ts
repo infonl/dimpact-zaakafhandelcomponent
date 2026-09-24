@@ -3,267 +3,293 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { LOCALE_ID, SimpleChange, SimpleChanges } from "@angular/core";
-import { TestBed } from "@angular/core/testing";
-import { TranslateService } from "@ngx-translate/core";
-import { DatumPipe } from "../../pipes/datum.pipe";
+import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { render, screen, within } from "@testing-library/angular";
+import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
+import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesLayout } from "../indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "./informatie-object-indicaties.component";
 
-const indicatieMetadata: {
-  indicatie: GeneratedType<"DocumentIndicatie">;
-  expectedIcon: string;
-  expectedPrimary: boolean;
-}[] = [
-  { indicatie: "VERGRENDELD", expectedIcon: "lock", expectedPrimary: true },
-  {
-    indicatie: "ONDERTEKEND",
-    expectedIcon: "fact_check",
-    expectedPrimary: false,
-  },
-  { indicatie: "BESLUIT", expectedIcon: "gavel", expectedPrimary: false },
-  {
-    indicatie: "GEBRUIKSRECHT",
-    expectedIcon: "privacy_tip",
-    expectedPrimary: true,
-  },
-  {
-    indicatie: "VERZONDEN",
-    expectedIcon: "local_post_office",
-    expectedPrimary: false,
-  },
-];
-
-const mockDocument = {
-  gelockedDoor: { id: "user1", naam: "Jan de Vries" },
-  ondertekening: { soort: "Digitaal", datum: "2024-01-15" },
-  verzenddatum: "2024-01-20",
-} as GeneratedType<"RestEnkelvoudigInformatieobject">;
-
-const mockZoekObject = {
-  vergrendeldDoor: "Piet Pietersen",
-  ondertekeningSoort: "Analoog",
-  ondertekeningDatum: "2024-03-10",
-  verzenddatum: "2024-03-15",
+const translations = {
+  "msg.document.vergrendeld": "Vergrendeld door {{gebruiker}}",
+  "msg.document.besluit": "Vastgelegd in een besluit",
 };
 
-describe(InformatieObjectIndicatiesComponent.name, () => {
-  let component: InformatieObjectIndicatiesComponent;
-  let translateInstant: jest.Mock;
-  let datumPipe: DatumPipe;
+const dutchShortDate = (day: string, month: string, year: string) =>
+  [day, month, year].join("‑");
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [DatumPipe, { provide: LOCALE_ID, useValue: "nl" }],
-    });
-
-    datumPipe = TestBed.inject(DatumPipe);
-
-    translateInstant = jest.fn((key: string) => key);
-    component = new InformatieObjectIndicatiesComponent({
-      instant: translateInstant,
-    } as unknown as TranslateService);
-
-    jest.spyOn(console, "warn").mockImplementation(() => {});
+const makeDocument = (
+  indicaties: GeneratedType<"DocumentIndicatie">[],
+): GeneratedType<"RestEnkelvoudigInformatieobject"> =>
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    gelockedDoor: { id: "fakeUserId", naam: "fakeGelockedDoorNaam" },
+    ondertekening: { soort: "fakeDocumentSoort", datum: "2024-01-15" },
+    verzenddatum: "2024-01-20",
+    indicaties,
   });
 
+const makeDocumentZoekObject = (
+  indicaties: GeneratedType<"DocumentIndicatie">[],
+): DocumentZoekObject =>
+  fromPartial<DocumentZoekObject>({
+    vergrendeldDoor: "fakeVergrendeldDoor",
+    ondertekeningSoort: "fakeZoekObjectSoort",
+    ondertekeningDatum: "2024-03-10",
+    verzenddatum: "2024-03-15",
+    indicaties,
+  });
+
+const tooltipOf = (
+  indicatie: GeneratedType<"DocumentIndicatie">,
+  toelichting: string,
+) =>
+  toelichting
+    ? `indicatie.${indicatie}: ${toelichting}`
+    : `indicatie.${indicatie}`;
+
+const setup = (inputs: {
+  layout: IndicatiesLayout;
+  document?: GeneratedType<"RestEnkelvoudigInformatieobject">;
+  documentZoekObject?: DocumentZoekObject;
+}) =>
+  render(InformatieObjectIndicatiesComponent, {
+    inputs,
+    imports: [
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useValue: { getTranslation: () => of(translations) },
+        },
+        lang: "nl",
+      }),
+    ],
+  });
+
+const chipWithTooltip = (tooltip: string) =>
+  screen.getByRole("presentation", { description: tooltip });
+
+describe(InformatieObjectIndicatiesComponent.name, () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it.each(Object.values(IndicatiesLayout))(
-    "layout %s wordt geaccepteerd als input",
-    (layout) => {
-      component.layout = layout;
+  it("shows no indicaties when neither a document nor a documentZoekObject is given", async () => {
+    await setup({ layout: IndicatiesLayout.COMPACT });
 
-      expect(component.layout).toBe(layout);
-    },
-  );
-
-  it("should have empty indicaties when no inputs are provided", () => {
-    component.ngOnChanges({} as SimpleChanges);
-
-    expect(component["indicaties"]).toHaveLength(0);
+    expect(screen.queryAllByRole("option")).toHaveLength(0);
   });
 
-  it.each(indicatieMetadata)(
-    "document: $indicatie → icon '$expectedIcon', primary=$expectedPrimary",
-    ({ indicatie, expectedIcon, expectedPrimary }) => {
-      component.ngOnChanges({
-        document: new SimpleChange(
-          undefined,
-          { ...mockDocument, indicaties: [indicatie] },
-          true,
-        ),
+  describe("given a document", () => {
+    it.each<{
+      indicatie: GeneratedType<"DocumentIndicatie">;
+      expectedIcon: string;
+      isHighlighted: boolean;
+      expectedToelichting: string;
+    }>([
+      {
+        indicatie: "VERGRENDELD",
+        expectedIcon: "lock",
+        isHighlighted: true,
+        expectedToelichting: "Vergrendeld door fakeGelockedDoorNaam",
+      },
+      {
+        indicatie: "ONDERTEKEND",
+        expectedIcon: "fact_check",
+        isHighlighted: false,
+        expectedToelichting: `fakeDocumentSoort-${dutchShortDate("15", "01", "2024")}`,
+      },
+      {
+        indicatie: "BESLUIT",
+        expectedIcon: "gavel",
+        isHighlighted: false,
+        expectedToelichting: "Vastgelegd in een besluit",
+      },
+      {
+        indicatie: "GEBRUIKSRECHT",
+        expectedIcon: "privacy_tip",
+        isHighlighted: true,
+        expectedToelichting: "",
+      },
+      {
+        indicatie: "VERZONDEN",
+        expectedIcon: "local_post_office",
+        isHighlighted: false,
+        expectedToelichting: dutchShortDate("20", "01", "2024"),
+      },
+    ])(
+      "shows $indicatie as a chip with icon '$expectedIcon' (highlighted: $isHighlighted) and toelichting '$expectedToelichting'",
+      async ({
+        indicatie,
+        expectedIcon,
+        isHighlighted,
+        expectedToelichting,
+      }) => {
+        await setup({
+          layout: IndicatiesLayout.COMPACT,
+          document: makeDocument([indicatie]),
+        });
+
+        const chip = chipWithTooltip(tooltipOf(indicatie, expectedToelichting));
+        expect(within(chip).getByText(expectedIcon)).toBeInTheDocument();
+        expect(chip.classList.contains("mat-mdc-chip-highlighted")).toBe(
+          isHighlighted,
+        );
+      },
+    );
+
+    it("shows every indicatie of the document, in the order given", async () => {
+      await setup({
+        layout: IndicatiesLayout.EXTENDED,
+        document: makeDocument(["VERGRENDELD", "ONDERTEKEND", "BESLUIT"]),
       });
 
-      expect(component["indicaties"]).toHaveLength(1);
-      expect(component["indicaties"][0].naam).toBe(indicatie);
-      expect(component["indicaties"][0].icon).toBe(expectedIcon);
-      expect(component["indicaties"][0].primary).toBe(expectedPrimary);
-    },
-  );
+      const options = screen.getAllByRole("option");
+      expect(options).toHaveLength(3);
+      expect(options[0]).toHaveAccessibleName("indicatie.VERGRENDELD");
+      expect(options[1]).toHaveAccessibleName("indicatie.ONDERTEKEND");
+      expect(options[2]).toHaveAccessibleName("indicatie.BESLUIT");
+    });
 
-  it.each(indicatieMetadata)(
-    "documentZoekObject: $indicatie → icon '$expectedIcon', primary=$expectedPrimary",
-    ({ indicatie, expectedIcon, expectedPrimary }) => {
-      component.ngOnChanges({
-        documentZoekObject: new SimpleChange(
-          undefined,
-          { ...mockZoekObject, indicaties: [indicatie] },
-          true,
-        ),
+    it("EXTENDED labels the chip with the indicatie name and puts only the toelichting in the tooltip", async () => {
+      await setup({
+        layout: IndicatiesLayout.EXTENDED,
+        document: makeDocument(["VERGRENDELD"]),
       });
 
-      expect(component["indicaties"]).toHaveLength(1);
-      expect(component["indicaties"][0].naam).toBe(indicatie);
-      expect(component["indicaties"][0].icon).toBe(expectedIcon);
-      expect(component["indicaties"][0].primary).toBe(expectedPrimary);
-    },
-  );
-
-  it("VERGRENDELD document: toelichting used gelockedDoor naam", () => {
-    component.ngOnChanges({
-      document: new SimpleChange(
-        undefined,
-        { ...mockDocument, indicaties: ["VERGRENDELD"] },
-        true,
-      ),
+      const chip = chipWithTooltip("Vergrendeld door fakeGelockedDoorNaam");
+      expect(
+        within(chip).getByRole("option", { name: "indicatie.VERGRENDELD" }),
+      ).toBeInTheDocument();
     });
 
-    expect(component["indicaties"][0].toelichting).toBe(
-      "msg.document.vergrendeld",
+    it("skips an unknown indicatie and warns about it", async () => {
+      const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+      await setup({
+        layout: IndicatiesLayout.COMPACT,
+        document: makeDocument([
+          "ONBEKEND" as unknown as GeneratedType<"DocumentIndicatie">,
+          "BESLUIT",
+        ]),
+      });
+
+      expect(screen.getAllByRole("option")).toHaveLength(1);
+      expect(
+        chipWithTooltip("indicatie.BESLUIT: Vastgelegd in een besluit"),
+      ).toBeInTheDocument();
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("ONBEKEND"));
+    });
+
+    it("replaces the indicaties when the document input changes", async () => {
+      const { fixture } = await setup({
+        layout: IndicatiesLayout.EXTENDED,
+        document: makeDocument(["VERGRENDELD", "BESLUIT"]),
+      });
+
+      fixture.componentRef.setInput("document", makeDocument(["BESLUIT"]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const options = screen.getAllByRole("option");
+      expect(options).toHaveLength(1);
+      expect(options[0]).toHaveAccessibleName("indicatie.BESLUIT");
+    });
+  });
+
+  describe("given a documentZoekObject", () => {
+    it.each<{
+      indicatie: GeneratedType<"DocumentIndicatie">;
+      expectedIcon: string;
+      isHighlighted: boolean;
+      expectedToelichting: string;
+    }>([
+      {
+        indicatie: "VERGRENDELD",
+        expectedIcon: "lock",
+        isHighlighted: true,
+        expectedToelichting: "Vergrendeld door fakeVergrendeldDoor",
+      },
+      {
+        indicatie: "ONDERTEKEND",
+        expectedIcon: "fact_check",
+        isHighlighted: false,
+        expectedToelichting: `fakeZoekObjectSoort-${dutchShortDate("10", "03", "2024")}`,
+      },
+      {
+        indicatie: "BESLUIT",
+        expectedIcon: "gavel",
+        isHighlighted: false,
+        expectedToelichting: "Vastgelegd in een besluit",
+      },
+      {
+        indicatie: "GEBRUIKSRECHT",
+        expectedIcon: "privacy_tip",
+        isHighlighted: true,
+        expectedToelichting: "",
+      },
+      {
+        indicatie: "VERZONDEN",
+        expectedIcon: "local_post_office",
+        isHighlighted: false,
+        expectedToelichting: dutchShortDate("15", "03", "2024"),
+      },
+    ])(
+      "shows $indicatie as a chip with icon '$expectedIcon' (highlighted: $isHighlighted) and toelichting '$expectedToelichting'",
+      async ({
+        indicatie,
+        expectedIcon,
+        isHighlighted,
+        expectedToelichting,
+      }) => {
+        await setup({
+          layout: IndicatiesLayout.SEARCH,
+          documentZoekObject: makeDocumentZoekObject([indicatie]),
+        });
+
+        const chip = chipWithTooltip(tooltipOf(indicatie, expectedToelichting));
+        expect(within(chip).getByText(expectedIcon)).toBeInTheDocument();
+        expect(chip.classList.contains("mat-mdc-chip-highlighted")).toBe(
+          isHighlighted,
+        );
+      },
     );
+
+    it("replaces the indicaties when the documentZoekObject input changes", async () => {
+      const { fixture } = await setup({
+        layout: IndicatiesLayout.SEARCH,
+        documentZoekObject: makeDocumentZoekObject(["VERGRENDELD"]),
+      });
+
+      fixture.componentRef.setInput(
+        "documentZoekObject",
+        makeDocumentZoekObject(["VERZONDEN"]),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(screen.getAllByRole("option")).toHaveLength(1);
+      expect(
+        chipWithTooltip(
+          tooltipOf("VERZONDEN", dutchShortDate("15", "03", "2024")),
+        ),
+      ).toBeInTheDocument();
+    });
   });
 
-  it("VERGRENDELD documentZoekObject: toelichting used vergrendeldDoor", () => {
-    component.ngOnChanges({
-      documentZoekObject: new SimpleChange(
-        undefined,
-        { ...mockZoekObject, indicaties: ["VERGRENDELD"] },
-        true,
-      ),
+  it("uses the documentZoekObject, not the document, when both are given", async () => {
+    await setup({
+      layout: IndicatiesLayout.COMPACT,
+      document: makeDocument(["BESLUIT"]),
+      documentZoekObject: makeDocumentZoekObject(["VERGRENDELD"]),
     });
 
-    expect(component["indicaties"][0].toelichting).toBe(
-      "msg.document.vergrendeld",
-    );
-  });
-
-  it("ONDERTEKEND document: toelichting bevat soort en geformatteerde datum", () => {
-    component.ngOnChanges({
-      document: new SimpleChange(
-        undefined,
-        { ...mockDocument, indicaties: ["ONDERTEKEND"] },
-        true,
+    expect(screen.getAllByRole("option")).toHaveLength(1);
+    expect(
+      chipWithTooltip(
+        "indicatie.VERGRENDELD: Vergrendeld door fakeVergrendeldDoor",
       ),
-    });
-
-    expect(component["indicaties"][0].toelichting).toBe(
-      `Digitaal-${datumPipe.transform("2024-01-15")}`,
-    );
-  });
-
-  it("ONDERTEKEND documentZoekObject: toelichting bevat soort en geformatteerde datum", () => {
-    component.ngOnChanges({
-      documentZoekObject: new SimpleChange(
-        undefined,
-        { ...mockZoekObject, indicaties: ["ONDERTEKEND"] },
-        true,
-      ),
-    });
-
-    expect(component["indicaties"][0].toelichting).toBe(
-      `Analoog-${datumPipe.transform("2024-03-10")}`,
-    );
-  });
-
-  it("BESLUIT document: toelichting via translateService", () => {
-    component.ngOnChanges({
-      document: new SimpleChange(
-        undefined,
-        { ...mockDocument, indicaties: ["BESLUIT"] },
-        true,
-      ),
-    });
-
-    expect(component["indicaties"][0].toelichting).toBe("msg.document.besluit");
-  });
-
-  it("GEBRUIKSRECHT document: toelichting is leeg", () => {
-    component.ngOnChanges({
-      document: new SimpleChange(
-        undefined,
-        { ...mockDocument, indicaties: ["GEBRUIKSRECHT"] },
-        true,
-      ),
-    });
-
-    expect(component["indicaties"][0].toelichting).toBe("");
-  });
-
-  it("VERZONDEN document: toelichting bevat geformatteerde verzenddatum", () => {
-    component.ngOnChanges({
-      document: new SimpleChange(
-        undefined,
-        { ...mockDocument, indicaties: ["VERZONDEN"] },
-        true,
-      ),
-    });
-
-    expect(component["indicaties"][0].toelichting).toBe(
-      datumPipe.transform("2024-01-20"),
-    );
-  });
-
-  it("VERZONDEN documentZoekObject: toelichting bevat geformatteerde verzenddatum", () => {
-    component.ngOnChanges({
-      documentZoekObject: new SimpleChange(
-        undefined,
-        { ...mockZoekObject, indicaties: ["VERZONDEN"] },
-        true,
-      ),
-    });
-
-    expect(component["indicaties"][0].toelichting).toBe(
-      datumPipe.transform("2024-03-15"),
-    );
-  });
-
-  it("meerdere indicaties worden allemaal toegevoegd", () => {
-    component.ngOnChanges({
-      document: new SimpleChange(
-        undefined,
-        {
-          ...mockDocument,
-          indicaties: ["VERGRENDELD", "ONDERTEKEND", "BESLUIT"],
-        },
-        true,
-      ),
-    });
-
-    expect(component["indicaties"].map((i) => i.naam)).toEqual([
-      "VERGRENDELD",
-      "ONDERTEKEND",
-      "BESLUIT",
-    ]);
-  });
-
-  it("onbekende indicatie: console.warn, geen item toegevoegd", () => {
-    component.ngOnChanges({
-      document: new SimpleChange(
-        undefined,
-        {
-          indicaties: ["ONBEKEND"],
-        } as unknown as GeneratedType<"RestEnkelvoudigInformatieobject">,
-        true,
-      ),
-    });
-
-    expect(component["indicaties"]).toHaveLength(0);
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining("ONBEKEND"),
-    );
+    ).toBeInTheDocument();
   });
 });

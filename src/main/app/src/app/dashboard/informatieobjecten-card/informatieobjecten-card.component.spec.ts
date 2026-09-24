@@ -80,7 +80,10 @@ describe(InformatieobjectenCardComponent.name, () => {
     fixture = TestBed.createComponent(InformatieobjectenCardComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
-    component.data = buildDashboardCard("ZAAK_DOCUMENT_TOEGEVOEGD");
+    fixture.componentRef.setInput(
+      "data",
+      buildDashboardCard("ZAAK_DOCUMENT_TOEGEVOEGD"),
+    );
     fixture.detectChanges();
     component["reloader"]?.unsubscribe();
   });
@@ -135,7 +138,7 @@ describe(InformatieobjectenCardComponent.name, () => {
       "listInformatieobjectenSignalering",
     );
     spy.mockClear();
-    component.data = buildDashboardCard(undefined);
+    fixture.componentRef.setInput("data", buildDashboardCard(undefined));
     testQueryClient.removeQueries({
       queryKey: ["informatieobjecten signaleringen dashboard"],
     });

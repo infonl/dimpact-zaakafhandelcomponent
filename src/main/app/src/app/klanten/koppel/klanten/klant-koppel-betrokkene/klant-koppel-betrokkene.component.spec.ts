@@ -4,84 +4,93 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { KlantenService } from "src/app/klanten/klanten.service";
+import { ZacInput } from "src/app/shared/form/input/input";
+import { ZacSelect } from "src/app/shared/form/select/select";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { KlantKoppelBetrokkeneComponent } from "./klant-koppel-betrokkene.component";
 
-@Component({ selector: "zac-persoon-zoek", template: "", standalone: true })
-class PersoonZoekStubComponent {
-  @Input() syncEnabled?: boolean;
-  @Input() blockSearch?: boolean;
-  @Input() zaaktypeUUID?: string | null;
-  @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
-}
+const fakePersoon = fromPartial<GeneratedType<"RestPersoon">>({
+  bsn: "999990408",
+});
 
-@Component({ selector: "zac-bedrijf-zoek", template: "", standalone: true })
-class BedrijfZoekStubComponent {
-  @Input() syncEnabled?: boolean;
-  @Input() blockSearch?: boolean;
-  @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
-}
-
-@Component({ selector: "zac-select", template: "", standalone: true })
-class SelectStubComponent {
-  @Input() form: unknown;
-  @Input() key?: string;
-  @Input() options?: unknown[];
-  @Input() optionDisplayValue?: string;
-}
-
-@Component({ selector: "zac-input", template: "", standalone: true })
-class InputStubComponent {
-  @Input() form: unknown;
-  @Input() key?: string;
-}
+const fakeBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+  kvkNummer: "12345678",
+});
 
 const fakeRoltype = fromPartial<GeneratedType<"RestRoltype">>({
-  uuid: "fake-roltype-uuid",
+  uuid: "fakeRoltypeUuid",
   naam: "fakeRoltype",
 });
 
-describe(KlantKoppelBetrokkeneComponent.name, () => {
-  let fixture: ComponentFixture<KlantKoppelBetrokkeneComponent>;
-  let component: KlantKoppelBetrokkeneComponent;
-  let klantenService: KlantenService;
+@Component({
+  selector: "zac-persoon-zoek",
+  template: `
+    <p>persoon-zoek zaaktypeUUID: {{ zaaktypeUUID() }}</p>
+    <p>persoon-zoek syncEnabled: {{ syncEnabled() }}</p>
+    <p>persoon-zoek blockSearch: {{ blockSearch() }}</p>
+    <button type="button" (click)="persoon.emit(fakePersoon)">
+      select fake persoon
+    </button>
+  `,
+  standalone: true,
+})
+class PersoonZoekStubComponent {
+  readonly syncEnabled = input<boolean>();
+  readonly blockSearch = input<boolean>();
+  readonly zaaktypeUUID = input<string | null>();
+  readonly persoon = output<GeneratedType<"RestPersoon">>();
+  protected readonly fakePersoon = fakePersoon;
+}
 
-  function createFixture(
-    type: "persoon" | "bedrijf" = "persoon",
-    zaaktypeUUID?: string,
-  ) {
-    fixture = TestBed.createComponent(KlantKoppelBetrokkeneComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput("type", type);
-    if (zaaktypeUUID)
-      fixture.componentRef.setInput("zaaktypeUUID", zaaktypeUUID);
-    fixture.detectChanges();
-  }
+@Component({
+  selector: "zac-bedrijf-zoek",
+  template: `
+    <p>bedrijf-zoek syncEnabled: {{ syncEnabled() }}</p>
+    <p>bedrijf-zoek blockSearch: {{ blockSearch() }}</p>
+    <button type="button" (click)="bedrijf.emit(fakeBedrijf)">
+      select fake bedrijf
+    </button>
+  `,
+  standalone: true,
+})
+class BedrijfZoekStubComponent {
+  readonly syncEnabled = input<boolean>();
+  readonly blockSearch = input<boolean>();
+  readonly bedrijf = output<GeneratedType<"RestBedrijf">>();
+  protected readonly fakeBedrijf = fakeBedrijf;
+}
+
+describe(KlantKoppelBetrokkeneComponent.name, () => {
+  const user = userEvent.setup();
+
+  let fixture: ComponentFixture<KlantKoppelBetrokkeneComponent>;
+  let listBetrokkeneRoltypen: jest.Mock;
+  let onKlantGegevens: jest.Mock<void, [KlantGegevens]>;
 
   beforeEach(async () => {
+    listBetrokkeneRoltypen = jest.fn().mockReturnValue(of([fakeRoltype]));
+
     await TestBed.configureTestingModule({
       imports: [
         KlantKoppelBetrokkeneComponent,
         NoopAnimationsModule,
-        ReactiveFormsModule,
         TranslateModule.forRoot(),
       ],
       providers: [
         {
           provide: KlantenService,
-          useValue: {
-            listBetrokkeneRoltypen: jest.fn().mockReturnValue(of([])),
-          },
+          useValue: fromPartial<KlantenService>({ listBetrokkeneRoltypen }),
         },
       ],
     })
@@ -91,8 +100,8 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
             NgIf,
             ReactiveFormsModule,
             TranslateModule,
-            SelectStubComponent,
-            InputStubComponent,
+            ZacSelect,
+            ZacInput,
             PersoonZoekStubComponent,
             BedrijfZoekStubComponent,
           ],
@@ -100,125 +109,206 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
       })
       .compileComponents();
 
-    klantenService = TestBed.inject(KlantenService);
+    fixture = TestBed.createComponent(KlantKoppelBetrokkeneComponent);
+    onKlantGegevens = jest.fn();
+    fixture.componentInstance.klantGegevens.subscribe(onKlantGegevens);
   });
 
-  describe('when type is "persoon"', () => {
-    beforeEach(() => createFixture("persoon"));
+  function initialiseWith(inputs: {
+    type: "persoon" | "bedrijf";
+    zaaktypeUUID?: string | null;
+  }) {
+    Object.entries(inputs).forEach(([name, value]) =>
+      fixture.componentRef.setInput(name, value),
+    );
+    fixture.detectChanges();
+  }
 
-    it("should render zac-persoon-zoek", () => {
-      expect(
-        fixture.debugElement.query(By.directive(PersoonZoekStubComponent)),
-      ).not.toBeNull();
+  function roltypeField() {
+    return screen.getByRole("combobox", { name: "BetrokkeneRoltype" });
+  }
+
+  async function chooseRoltype() {
+    await user.click(roltypeField());
+    await user.click(screen.getByRole("option", { name: "fakeRoltype" }));
+    fixture.detectChanges();
+  }
+
+  function queryPersoonZoek() {
+    return screen.queryByText(/^persoon-zoek syncEnabled/);
+  }
+
+  function queryBedrijfZoek() {
+    return screen.queryByText(/^bedrijf-zoek syncEnabled/);
+  }
+
+  describe("the search for the klant", () => {
+    it('shows only the persoon search when type is "persoon"', () => {
+      initialiseWith({ type: "persoon" });
+
+      expect(queryPersoonZoek()).toBeInTheDocument();
+      expect(queryBedrijfZoek()).not.toBeInTheDocument();
     });
 
-    it("should not render zac-bedrijf-zoek", () => {
-      expect(
-        fixture.debugElement.query(By.directive(BedrijfZoekStubComponent)),
-      ).toBeNull();
-    });
-  });
+    it('shows only the bedrijf search when type is "bedrijf"', () => {
+      initialiseWith({ type: "bedrijf" });
 
-  describe('when type is "bedrijf"', () => {
-    beforeEach(() => createFixture("bedrijf"));
-
-    it("should render zac-bedrijf-zoek", () => {
-      expect(
-        fixture.debugElement.query(By.directive(BedrijfZoekStubComponent)),
-      ).not.toBeNull();
+      expect(queryBedrijfZoek()).toBeInTheDocument();
+      expect(queryPersoonZoek()).not.toBeInTheDocument();
     });
 
-    it("should not render zac-persoon-zoek", () => {
-      expect(
-        fixture.debugElement.query(By.directive(PersoonZoekStubComponent)),
-      ).toBeNull();
-    });
-  });
+    it("switches from the persoon search to the bedrijf search when the type changes", () => {
+      initialiseWith({ type: "persoon" });
 
-  describe("ngOnInit", () => {
-    it("should load betrokkeneRoltypen when zaaktypeUUID is provided", () => {
-      const roltypen = [fakeRoltype];
-      jest
-        .spyOn(klantenService, "listBetrokkeneRoltypen")
-        .mockReturnValue(of(roltypen));
-
-      createFixture("persoon", "fake-zaaktype-uuid");
-
-      expect(klantenService.listBetrokkeneRoltypen).toHaveBeenCalledWith(
-        "fake-zaaktype-uuid",
-      );
-      expect(component["betrokkeneRoltypen"]).toEqual(roltypen);
-    });
-
-    it("should not call the service when zaaktypeUUID is not provided", () => {
-      createFixture("persoon");
-      expect(klantenService.listBetrokkeneRoltypen).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("blockSearch", () => {
-    beforeEach(() => createFixture("persoon"));
-
-    it("should block search when betrokkeneRoltype is not set", () => {
-      const stub = fixture.debugElement.query(
-        By.directive(PersoonZoekStubComponent),
-      ).componentInstance as PersoonZoekStubComponent;
-      expect(stub.blockSearch).toBe(true);
-    });
-
-    it("should not block search when betrokkeneRoltype is set", () => {
-      component["form"].patchValue({ betrokkeneRoltype: fakeRoltype });
+      fixture.componentRef.setInput("type", "bedrijf");
       fixture.detectChanges();
 
-      const stub = fixture.debugElement.query(
-        By.directive(PersoonZoekStubComponent),
-      ).componentInstance as PersoonZoekStubComponent;
-      expect(stub.blockSearch).toBe(false);
+      expect(queryBedrijfZoek()).toBeInTheDocument();
+      expect(queryPersoonZoek()).not.toBeInTheDocument();
+    });
+
+    it("enables the synchronisation of the persoon search", () => {
+      initialiseWith({ type: "persoon" });
+
+      expect(
+        screen.getByText("persoon-zoek syncEnabled: true"),
+      ).toBeInTheDocument();
+    });
+
+    it("enables the synchronisation of the bedrijf search", () => {
+      initialiseWith({ type: "bedrijf" });
+
+      expect(
+        screen.getByText("bedrijf-zoek syncEnabled: true"),
+      ).toBeInTheDocument();
+    });
+
+    it("passes the zaaktypeUUID to the persoon search", () => {
+      initialiseWith({ type: "persoon", zaaktypeUUID: "fakeZaaktypeUuid" });
+
+      expect(
+        screen.getByText("persoon-zoek zaaktypeUUID: fakeZaaktypeUuid"),
+      ).toBeInTheDocument();
+    });
+
+    it("passes the new zaaktypeUUID to the persoon search when the zaaktypeUUID changes", () => {
+      initialiseWith({ type: "persoon", zaaktypeUUID: "fakeZaaktypeUuid" });
+
+      fixture.componentRef.setInput("zaaktypeUUID", "fakeOtherZaaktypeUuid");
+      fixture.detectChanges();
+
+      expect(
+        screen.getByText("persoon-zoek zaaktypeUUID: fakeOtherZaaktypeUuid"),
+      ).toBeInTheDocument();
     });
   });
 
-  describe("klantGeselecteerd", () => {
-    beforeEach(() => createFixture("persoon"));
+  describe("the betrokkene roltypen", () => {
+    it("offers the betrokkene roltypen of the zaaktype", async () => {
+      initialiseWith({ type: "persoon", zaaktypeUUID: "fakeZaaktypeUuid" });
 
-    it("should emit klantGegevens with klant, betrokkeneRoltype and toelichting", () => {
-      const emitted: KlantGegevens[] = [];
-      component.klantGegevens.subscribe((v) => emitted.push(v));
+      await user.click(roltypeField());
 
-      component["form"].patchValue({
+      expect(listBetrokkeneRoltypen).toHaveBeenCalledWith("fakeZaaktypeUuid");
+      expect(
+        screen.getByRole("option", { name: "fakeRoltype" }),
+      ).toBeInTheDocument();
+    });
+
+    it("does not load any roltypen when no zaaktypeUUID is given", () => {
+      initialiseWith({ type: "persoon" });
+
+      expect(listBetrokkeneRoltypen).not.toHaveBeenCalled();
+    });
+
+    it("does not reload the roltypen when the zaaktypeUUID changes", () => {
+      initialiseWith({ type: "persoon", zaaktypeUUID: "fakeZaaktypeUuid" });
+
+      fixture.componentRef.setInput("zaaktypeUUID", "fakeOtherZaaktypeUuid");
+      fixture.detectChanges();
+
+      expect(listBetrokkeneRoltypen).toHaveBeenCalledTimes(1);
+      expect(listBetrokkeneRoltypen).toHaveBeenCalledWith("fakeZaaktypeUuid");
+    });
+  });
+
+  describe("blocking the search", () => {
+    it("blocks the persoon search until a roltype is chosen", async () => {
+      initialiseWith({ type: "persoon", zaaktypeUUID: "fakeZaaktypeUuid" });
+
+      expect(
+        screen.getByText("persoon-zoek blockSearch: true"),
+      ).toBeInTheDocument();
+
+      await chooseRoltype();
+
+      expect(
+        screen.getByText("persoon-zoek blockSearch: false"),
+      ).toBeInTheDocument();
+    });
+
+    it("blocks the bedrijf search until a roltype is chosen", async () => {
+      initialiseWith({ type: "bedrijf", zaaktypeUUID: "fakeZaaktypeUuid" });
+
+      expect(
+        screen.getByText("bedrijf-zoek blockSearch: true"),
+      ).toBeInTheDocument();
+
+      await chooseRoltype();
+
+      expect(
+        screen.getByText("bedrijf-zoek blockSearch: false"),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("selecting a klant", () => {
+    it("emits the persoon with the chosen roltype and the toelichting", async () => {
+      initialiseWith({ type: "persoon", zaaktypeUUID: "fakeZaaktypeUuid" });
+      await chooseRoltype();
+      await user.type(
+        screen.getByRole("textbox", { name: "Toelichting" }),
+        "fakeToelichting",
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: "select fake persoon" }),
+      );
+
+      expect(onKlantGegevens).toHaveBeenCalledTimes(1);
+      expect(onKlantGegevens).toHaveBeenCalledWith({
+        klant: fakePersoon,
         betrokkeneRoltype: fakeRoltype,
-        toelichting: "fakeNote",
+        betrokkeneToelichting: "fakeToelichting",
       });
-      fixture.detectChanges();
-
-      const stub = fixture.debugElement.query(
-        By.directive(PersoonZoekStubComponent),
-      ).componentInstance as PersoonZoekStubComponent;
-      const persoon = fromPartial<GeneratedType<"RestPersoon">>({
-        bsn: "999990408",
-      });
-      stub.persoon.emit(persoon);
-
-      expect(emitted).toHaveLength(1);
-      expect(emitted[0].klant).toBe(persoon);
-      expect(emitted[0].betrokkeneRoltype).toBe(fakeRoltype);
-      expect(emitted[0].betrokkeneToelichting).toBe("fakeNote");
     });
 
-    it("should emit empty string for betrokkeneToelichting when not filled in", () => {
-      const emitted: KlantGegevens[] = [];
-      component.klantGegevens.subscribe((v) => emitted.push(v));
+    it("emits an empty toelichting when none is filled in", async () => {
+      initialiseWith({ type: "persoon", zaaktypeUUID: "fakeZaaktypeUuid" });
+      await chooseRoltype();
 
-      component["form"].patchValue({ betrokkeneRoltype: fakeRoltype });
-      fixture.detectChanges();
-
-      const stub = fixture.debugElement.query(
-        By.directive(PersoonZoekStubComponent),
-      ).componentInstance as PersoonZoekStubComponent;
-      stub.persoon.emit(
-        fromPartial<GeneratedType<"RestPersoon">>({ bsn: "999990408" }),
+      await user.click(
+        screen.getByRole("button", { name: "select fake persoon" }),
       );
 
-      expect(emitted[0].betrokkeneToelichting).toBe("");
+      expect(onKlantGegevens).toHaveBeenCalledWith(
+        expect.objectContaining({ betrokkeneToelichting: "" }),
+      );
+    });
+
+    it("emits the bedrijf with the chosen roltype", async () => {
+      initialiseWith({ type: "bedrijf", zaaktypeUUID: "fakeZaaktypeUuid" });
+      await chooseRoltype();
+
+      await user.click(
+        screen.getByRole("button", { name: "select fake bedrijf" }),
+      );
+
+      expect(onKlantGegevens).toHaveBeenCalledWith({
+        klant: fakeBedrijf,
+        betrokkeneRoltype: fakeRoltype,
+        betrokkeneToelichting: "",
+      });
     });
   });
 });

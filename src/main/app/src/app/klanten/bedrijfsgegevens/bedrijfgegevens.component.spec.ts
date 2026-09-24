@@ -471,12 +471,9 @@ describe(BedrijfsgegevensComponent.name, () => {
           );
         component["ophalenProfiel"]();
         fixture.detectChanges();
-        const element = fixture.debugElement
-          .queryAll((de) => de.name === "zac-static-text")
-          .find(
-            (de) => de.componentInstance.label === "totaalWerkzamePersonen",
-          );
-        expect(element).toBeTruthy();
+
+        expect(screen.getByText("totaalWerkzamePersonen")).toBeInTheDocument();
+        expect(screen.getByText("25")).toBeInTheDocument();
       });
 
       it("renders hoofdactiviteit after profiel is loaded", () => {
@@ -487,10 +484,9 @@ describe(BedrijfsgegevensComponent.name, () => {
           );
         component["ophalenProfiel"]();
         fixture.detectChanges();
-        const element = fixture.debugElement
-          .queryAll((de) => de.name === "zac-static-text")
-          .find((de) => de.componentInstance.label === "hoofdactiviteit");
-        expect(element).toBeTruthy();
+
+        expect(screen.getByText("hoofdactiviteit")).toBeInTheDocument();
+        expect(screen.getByText("Software")).toBeInTheDocument();
       });
 
       it("renders website after profiel is loaded", () => {
@@ -501,10 +497,9 @@ describe(BedrijfsgegevensComponent.name, () => {
           );
         component["ophalenProfiel"]();
         fixture.detectChanges();
-        const element = fixture.debugElement
-          .queryAll((de) => de.name === "zac-static-text")
-          .find((de) => de.componentInstance.label === "website");
-        expect(element).toBeTruthy();
+
+        expect(screen.getByText("website")).toBeInTheDocument();
+        expect(screen.getByText("https://test.nl")).toBeInTheDocument();
       });
     });
 
@@ -561,10 +556,9 @@ describe(BedrijfsgegevensComponent.name, () => {
           .mockReturnValue(of(makeBedrijfsprofiel({ rechtsvorm: "BV" })));
         component["ophalenProfiel"]();
         fixture.detectChanges();
-        const element = fixture.debugElement
-          .queryAll((de) => de.name === "zac-static-text")
-          .find((de) => de.componentInstance.label === "rechtsvorm");
-        expect(element).toBeTruthy();
+
+        expect(screen.getByText("rechtsvorm")).toBeInTheDocument();
+        expect(screen.getByText("BV")).toBeInTheDocument();
       });
 
       it("renders uitgebreideRechtsvorm after profiel is loaded", () => {
@@ -577,10 +571,9 @@ describe(BedrijfsgegevensComponent.name, () => {
         );
         component["ophalenProfiel"]();
         fixture.detectChanges();
-        const element = fixture.debugElement
-          .queryAll((de) => de.name === "zac-static-text")
-          .find((de) => de.componentInstance.label === "uitgebreideRechtsvorm");
-        expect(element).toBeTruthy();
+
+        expect(screen.getByText("uitgebreideRechtsvorm")).toBeInTheDocument();
+        expect(screen.getByText("Besloten Vennootschap")).toBeInTheDocument();
       });
 
       it("renders statutaireNaam after profiel is loaded", () => {
@@ -591,10 +584,9 @@ describe(BedrijfsgegevensComponent.name, () => {
           );
         component["ophalenProfiel"]();
         fixture.detectChanges();
-        const element = fixture.debugElement
-          .queryAll((de) => de.name === "zac-static-text")
-          .find((de) => de.componentInstance.label === "statutaireNaam");
-        expect(element).toBeTruthy();
+
+        expect(screen.getByText("statutaireNaam")).toBeInTheDocument();
+        expect(screen.getByText("Test BV Statutair")).toBeInTheDocument();
       });
     });
   });

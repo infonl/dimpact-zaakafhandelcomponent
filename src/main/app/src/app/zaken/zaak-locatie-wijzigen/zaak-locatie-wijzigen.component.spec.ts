@@ -15,7 +15,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { render, screen } from "@testing-library/angular";
+import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -40,6 +40,10 @@ jest.mock("ol/geom.js", () => ({
   Point: jest.fn(),
   Polygon: jest.fn(),
 }));
+const mockMapListeners: {
+  type: string;
+  listener: (event: { coordinate: number[] }) => void;
+}[] = [];
 jest.mock("ol/index.js", () => ({
   Map: jest.fn(() => ({
     setTarget: jest.fn(),
@@ -50,7 +54,10 @@ jest.mock("ol/index.js", () => ({
     })),
     getSize: jest.fn(),
     addInteraction: jest.fn(),
-    on: jest.fn(),
+    on: jest.fn(
+      (type: string, listener: (event: { coordinate: number[] }) => void) =>
+        mockMapListeners.push({ type, listener }),
+    ),
   })),
   View: jest.fn(() => ({
     setZoom: jest.fn(),
@@ -147,6 +154,7 @@ describe(CaseLocationEditComponent.name, () => {
   };
 
   async function setup(zaak?: Partial<GeneratedType<"RestZaak">>) {
+    mockMapListeners.length = 0;
     sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
     locatieChanged = jest.fn();
 
@@ -183,6 +191,13 @@ describe(CaseLocationEditComponent.name, () => {
 
   function submitButton() {
     return screen.getByRole("button", { name: "actie.opslaan" });
+  }
+
+  async function clickOnMap() {
+    mockMapListeners
+      .filter(({ type }) => type === "click")
+      .forEach(({ listener }) => listener({ coordinate: [0, 0] }));
+    await sleep();
   }
 
   async function pickAddressFromSearch() {
@@ -294,5 +309,91 @@ describe(CaseLocationEditComponent.name, () => {
       geometrie: null,
     });
     requests[0].flush(null);
+  });
+
+  it("offers to link a location when the zaak has none yet", async () => {
+    await setup();
+
+    expect(
+      screen.getByRole("heading", { name: /actie.zaak.locatie.koppelen/ }),
+    ).toBeVisible();
+  });
+
+  it("offers to change the location when the zaak already has one", async () => {
+    await setup({ zaakgeometrie: point });
+
+    expect(
+      screen.getByRole("heading", { name: /actie.zaak.locatie.wijzigen/ }),
+    ).toBeVisible();
+  });
+
+  it("shows the coordinates and the nearest address of the current location of the zaak", async () => {
+    locationService.coordinateToAddress.mockReturnValueOnce(
+      of({
+        response: {
+          docs: [fromPartial<AddressResult>({ weergavenaam: addressName })],
+        },
+      }),
+    );
+
+    await setup({ zaakgeometrie: point });
+
+    expect(locationService.coordinateToAddress).toHaveBeenCalledWith([5, 52]);
+    expect(screen.getByText("52, 5")).toBeVisible();
+    expect(screen.getByText(addressName)).toBeVisible();
+  });
+
+  it("moves the location to where the map is clicked", async () => {
+    await setup({ zaakgeometrie: point });
+
+    await clickOnMap();
+
+    expect(screen.getByText("0, 0")).toBeVisible();
+    expect(screen.getByLabelText("reden")).toBeEnabled();
+  });
+
+  it("only shows the location when the user may not change it", async () => {
+    await setup({
+      zaakgeometrie: point,
+      rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
+        wijzigenLocatie: false,
+      }),
+    });
+
+    expect(screen.getByText("52, 5")).toBeVisible();
+    expect(screen.queryByLabelText("adres")).toBeNull();
+    expect(screen.queryByLabelText("reden")).toBeNull();
+    expect(screen.queryByRole("button", { name: "actie.opslaan" })).toBeNull();
+  });
+
+  it("does not move the location when the map is clicked and the user may not change it", async () => {
+    await setup({
+      zaakgeometrie: point,
+      rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
+        wijzigenLocatie: false,
+      }),
+    });
+
+    await clickOnMap();
+
+    expect(screen.getByText("52, 5")).toBeVisible();
+    expect(screen.queryByText("0, 0")).toBeNull();
+  });
+
+  it("closes the side nav when cancelled", async () => {
+    await setup();
+
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+    expect(sideNav.close).toHaveBeenCalled();
+    httpTestingController.expectNone(ZAAK_LOCATIE_URL);
+  });
+
+  it("closes the side nav with the close button of the toolbar", async () => {
+    await setup();
+
+    await user.click(within(screen.getByRole("heading")).getByRole("button"));
+
+    expect(sideNav.close).toHaveBeenCalled();
   });
 });

@@ -5,21 +5,35 @@
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { TaakZoekObjectComponent } from "./taak-zoek-object.component";
 
-const makeTaak = (fields: Partial<TaakZoekObject>): TaakZoekObject =>
-  fields as unknown as TaakZoekObject;
-const makeSidenav = (fields: Partial<MatSidenav> = {}): MatSidenav =>
-  fields as unknown as MatSidenav;
+const makeTaak = (fields: Partial<TaakZoekObject> = {}) =>
+  fromPartial<TaakZoekObject>({
+    type: "TAAK",
+    id: "fakeTaakId",
+    naam: "fakeTaakNaam",
+    zaaktypeOmschrijving: "fakeZaaktypeOmschrijving",
+    status: "AFGEROND",
+    zaakIdentificatie: "fakeZaakIdentificatie",
+    behandelaarNaam: "fakeBehandelaarNaam",
+    groepNaam: "fakeGroepNaam",
+    creatiedatum: "2026-01-10",
+    fataledatum: "2026-04-10",
+    toekenningsdatum: "2026-01-12",
+    toelichting: "fakeToelichting",
+    ...fields,
+  });
 
 describe(TaakZoekObjectComponent.name, () => {
-  let component: TaakZoekObjectComponent;
   let fixture: ComponentFixture<TaakZoekObjectComponent>;
+  let sideNav: MatSidenav;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -28,52 +42,64 @@ describe(TaakZoekObjectComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideRouter([])],
+      providers: [provideRouter([{ path: "**", children: [] }])],
     }).compileComponents();
 
+    sideNav = fromPartial<MatSidenav>({ close: jest.fn() });
     fixture = TestBed.createComponent(TaakZoekObjectComponent);
-    component = fixture.componentInstance;
-    component.taak = makeTaak({
-      type: "TAAK",
-      zaaktypeOmschrijving: "Aanvraag vergunning",
-      status: "AFGEROND",
-      zaakIdentificatie: "ZAAK-2026-001",
-      behandelaarNaam: "Piet Jansen",
-      groepNaam: "Vergunningen",
-      creatiedatum: "2026-01-10",
-      fataledatum: "2026-04-10",
-      toekenningsdatum: "2026-01-12",
-      toelichting: "Taakomschrijving",
-    });
-    component.sideNav = makeSidenav();
+    fixture.componentRef.setInput("taak", makeTaak());
+    fixture.componentRef.setInput("sideNav", sideNav);
     fixture.detectChanges();
   });
 
-  it("renders all required field labels", () => {
-    const labels = fixture.debugElement
-      .queryAll(By.css("zac-static-text"))
-      .map((el) => el.nativeElement.getAttribute("label"));
-    expect(labels).toEqual(
-      expect.arrayContaining([
-        "zaaktype",
-        "status",
-        "zaakIdentificatie",
-        "behandelaar",
-        "groep",
-        "creatiedatum",
-        "fataledatum",
-        "toekenningsdatum",
-        "toelichting",
-      ]),
+  it.each([
+    ["zaaktype", "fakeZaaktypeOmschrijving"],
+    ["status", "taak.status.AFGEROND"],
+    ["zaakIdentificatie", "fakeZaakIdentificatie"],
+    ["behandelaar", "fakeBehandelaarNaam"],
+    ["groep", "fakeGroepNaam"],
+    ["creatiedatum", "01/10/2026"],
+    ["fataledatum", "04/10/2026"],
+    ["toekenningsdatum", "01/12/2026"],
+    ["toelichting", "fakeToelichting"],
+  ])("shows the %s of the taak under its label", (label, value) => {
+    expect(screen.getByText(label)).toBeVisible();
+    expect(fixture.nativeElement).toHaveTextContent(`${label} ${value}`);
+  });
+
+  it("links to the taak", () => {
+    expect(screen.getByRole("link", { name: "fakeTaakNaam" })).toHaveAttribute(
+      "href",
+      "/taken/fakeTaakId",
     );
   });
 
-  it("displays taak field values in the template", () => {
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain("Aanvraag vergunning");
-    expect(text).toContain("ZAAK-2026-001");
-    expect(text).toContain("Piet Jansen");
-    expect(text).toContain("Vergunningen");
-    expect(text).toContain("Taakomschrijving");
+  it("closes the side nav when the link to the taak is followed", async () => {
+    const user = userEvent.setup({ delay: null });
+
+    await user.click(screen.getByRole("link", { name: "fakeTaakNaam" }));
+
+    expect(sideNav.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the taak that replaced the previous one", () => {
+    fixture.componentRef.setInput(
+      "taak",
+      makeTaak({
+        id: "fakeTaakId2",
+        naam: "fakeTaakNaam2",
+        zaaktypeOmschrijving: "fakeZaaktypeOmschrijving2",
+      }),
+    );
+    fixture.detectChanges();
+
+    expect(screen.getByText("fakeZaaktypeOmschrijving2")).toBeVisible();
+    expect(
+      screen.queryByText("fakeZaaktypeOmschrijving"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "fakeTaakNaam2" })).toHaveAttribute(
+      "href",
+      "/taken/fakeTaakId2",
+    );
   });
 });
