@@ -6,7 +6,9 @@ package nl.info.client.zgw.zrc
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.json.bind.JsonbException
 import jakarta.ws.rs.NotFoundException
+import jakarta.ws.rs.ProcessingException
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolListParameters
@@ -31,6 +33,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakBijwerken
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -89,7 +92,11 @@ class ZrcClientService @Inject constructor(
         }
     }
 
-    fun readZaak(zaakUUID: UUID): Zaak = zrcClient.zaakRead(zaakUUID)
+    fun readZaak(zaakUUID: UUID): Zaak =
+        translatingUnsupportedZaakgeometrie(
+            fn = { zrcClient.zaakRead(zaakUUID) },
+            buildMessage = { unsupportedZaakgeometrieMessage(zaakUUID.toString()) }
+        )
 
     fun readZaak(zaakURI: URI): Zaak {
         validateZgwApiUri(zaakURI, configurationService.readZgwApiClientMpRestUrl())
@@ -139,7 +146,11 @@ class ZrcClientService @Inject constructor(
 
     fun patchZaak(zaakUUID: UUID, zaak: Zaak): Zaak = zrcClient.zaakPartialUpdate(zaakUUID, zaak)
 
-    fun listZaken(filter: ZaakListParameters): Results<Zaak> = zrcClient.zaakList(filter)
+    fun listZaken(filter: ZaakListParameters): Results<Zaak> =
+        translatingUnsupportedZaakgeometrie(
+            fn = { zrcClient.zaakList(filter) },
+            buildMessage = { unsupportedZaakgeometrieInListMessage(filter) }
+        )
 
     fun listZakenUuids(filter: ZaakListParameters): Results<ZaakUuid> = zrcClient.zaakListUuids(filter)
 
@@ -305,4 +316,61 @@ class ZrcClientService @Inject constructor(
     ) = rolesToBeCreated
         .filter { newRole -> currentRoles.none { it.equalBetrokkeneRol(newRole) } }
         .forEach { createRol(it, description) }
+
+    /**
+     * A non-`Point` `zaakgeometrie` (e.g. a `Polygon`) fails JSON-B deserialization before the
+     * response reaches this class, since `GeoJSONGeometry.coordinates` only models a flat point
+     * coordinate pair: JSON-B expects a `BigDecimal` at every position of `coordinates` and instead
+     * encounters a nested array, which Yasson reports as "Incorrect position for processing type:
+     * class java.math.BigDecimal". A malformed but still flat `Point` (e.g. a coordinate that isn't
+     * a number) fails deserialization too, but with a different message, since the parser position
+     * itself is still the expected one. Any other [ProcessingException] is rethrown unchanged.
+     */
+    private fun <T> translatingUnsupportedZaakgeometrie(fn: () -> T, buildMessage: () -> String): T =
+        try {
+            fn()
+        } catch (processingException: ProcessingException) {
+            extractUnsupportedZaakgeometrieCause(processingException)?.let {
+                throw ZaakGeometrieNotSupportedException(buildMessage(), processingException)
+            }
+            throw processingException
+        }
+
+    private fun extractUnsupportedZaakgeometrieCause(processingException: ProcessingException): JsonbException? =
+        generateSequence(processingException as Throwable) { it.cause }
+            .filterIsInstance<JsonbException>()
+            .firstOrNull { it.indicatesUnsupportedZaakgeometrieCoordinates() }
+
+    private fun JsonbException.indicatesUnsupportedZaakgeometrieCoordinates(): Boolean {
+        val exceptionMessage = message ?: return false
+        return exceptionMessage.contains("'zaakgeometrie'") &&
+            exceptionMessage.contains("'coordinates'") &&
+            exceptionMessage.contains("Incorrect position for processing type: class java.math.BigDecimal")
+    }
+
+    private fun unsupportedZaakgeometrieMessage(zaakIdentification: String) =
+        "Zaak '$zaakIdentification' has an unsupported zaakgeometrie type. Only 'Point' zaakgeometrie is supported."
+
+    /**
+     * `zaakList` has no single zaak to name: the filter can match many zaken (e.g. the zaak
+     * warnings list, which filters by assignee rather than `identificatie`), and JSON-B fails on
+     * the whole page before any single result is known. When the filter itself does not pin down
+     * one zaak, re-fetch the matching UUIDs (a response shape that never includes `zaakgeometrie`,
+     * so it cannot fail the same way) and read each one individually to find the offender.
+     */
+    private fun unsupportedZaakgeometrieInListMessage(filter: ZaakListParameters): String =
+        (filter.identificatie ?: findUuidOfZaakWithUnsupportedZaakgeometrie(filter)?.toString())
+            ?.let { unsupportedZaakgeometrieMessage(it) }
+            ?: "One or more zaken matching the given filter have an unsupported zaakgeometrie type. " +
+                "Only 'Point' zaakgeometrie is supported."
+
+    private fun findUuidOfZaakWithUnsupportedZaakgeometrie(filter: ZaakListParameters): UUID? =
+        zrcClient.zaakListUuids(filter).results().firstOrNull { zaakUuid ->
+            try {
+                zrcClient.zaakRead(zaakUuid.uuid)
+                false
+            } catch (processingException: ProcessingException) {
+                extractUnsupportedZaakgeometrieCause(processingException) != null
+            }
+        }?.uuid
 }

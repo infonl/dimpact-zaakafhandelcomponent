@@ -856,6 +856,7 @@
   "msg.error.reference.table.with.same.code.already.exists": "Een referentietabel met deze code bestaat al. Gebruik s.v.p. een unieke code.",
   "msg.error.zrc.client.exception": "Er heeft zich helaas een technische fout voorgedaan. Er kunnen geen zaken worden opgehaald.",
   "msg.error.ztc.client.exception": "Er heeft zich helaas een technische fout voorgedaan. Er kunnen geen zaaktypes worden opgehaald.",
+  "msg.error.zaak.geometrie.not-supported": "Deze zaak heeft een geometrie (bijvoorbeeld een vlak) die niet wordt ondersteund. Alleen een punt-geometrie wordt ondersteund.",
   "msg.error.smartdocuments.not.configured": "SmartDocuments is niet geconfigureerd.",
   "msg.error.smartdocuments.disabled": "SmartDocuments is uitgeschakeld.",
   "msg.error.validation.generic": "Er zijn fouten gevonden in de ingevoerde gegevens. Controleer de velden en probeer het opnieuw.",
