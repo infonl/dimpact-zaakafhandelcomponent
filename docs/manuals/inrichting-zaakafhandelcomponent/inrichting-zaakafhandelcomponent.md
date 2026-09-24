@@ -37,6 +37,7 @@ Versiegeschiedenis:
     - [Inrichtingscheck](#inrichtingscheck)
   - [Identiteits- en toegangsbeheer](#identiteits--en-toegangsbeheer)
     - [IAM-architectuur](#iam-architectuur)
+    - [BRP-autorisatie](#brp-autorisatie)
     - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
     - [Groepen](#groepen)
 - [Inrichting zaakafhandel parameters (zaaktype)](#inrichting-zaakafhandel-parameters-zaaktype)
@@ -94,13 +95,15 @@ Referentietabellen worden in de ZAC onder meer gebruikt om de keuzes in keuzelij
 ZAC maakt onderscheid tussen systeemreferentietabellen en zelf toegevoegde referentietabellen. De systeemreferentietabellen zijn standaard beschikbaar en kunnen niet verwijderd worden. De zelf toegevoegde referentietabellen kunnen wel verwijderd worden.
 ZAC kent de volgende systeemreferentietabellen:
 
-- ADVIES | bevat de mogelijk waarde voor de keuzelijst ‘Advies’ die gebruikt wordt bij het afronden van de taak ‘Intern advies’
-- AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Afzenders referentietabel' voor meer details
-- BRP_DOELBINDING_RAADPLEEG_WAARDE | bevat de 1ste waarde die gebruikt wordt bij het configureren de BRP-doelbinding voor dit zaaktype
-- BRP_DOELBINDING_ZOEK_WAARDE | bevat de 2de waarde die gebruikt worden bij het configureren de BRP-doelbinding voor dit zaaktype
-- COMMUNICATIEKANAAL | bevat de mogelijke waarden voor de keuzelijst ‘Communicatiekanaal’ die gebruikt wordt bij het aanmaken of aanpassen van een zaak
-- SERVER_ERROR_ERROR_PAGINA_TEKST | bevat (optionele) tekstparagrafen die getoond worden bij foutmeldingen voor 'server errors' (technische fouten afkomstig van de server of onderliggende systemen). Door een volgende waarde toe te voegen, zal deze onder de al bestaande waarde(s) worden getoond bij de foutmelding. 
-Dit kunnen bijvoorbeeld doorverwijzingen zijn naar een functioneelbeheerafdeling van de gemeente. Bijvoorbeeld: "Neem s.v.p. contact op met ...".  
+| Referentietabel                 | Inhoud                                                                                                                                                                                                                                                                                                                        | Meer informatie                                                    |
+|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| ADVIES                          | De keuzes voor de keuzelijst 'Advies'. De medewerker kiest een advies bij het afronden van de taak 'Intern advies'.                                                                                                                                                                                                         |                                                                    |
+| AFZENDER                        | De afzenders waaruit de medewerker kiest bij het versturen van een e-mail.                                                                                                                                                                                                                                                 | [Afzenders referentietabel](#afzenders-referentietabel)            |
+| BRP_DOELBINDING_RAADPLEEG_WAARDE | De keuzes voor de Raadpleegwaarde van de BRP-doelbinding van een zaaktype.                                                                                                                                                                                                                                                   | [Doelbinding en protocollering](#doelbinding-en-protocollering)    |
+| BRP_DOELBINDING_ZOEK_WAARDE     | De keuzes voor de Zoekwaarde van de BRP-doelbinding van een zaaktype.                                                                                                                                                                                                                                                         | [Doelbinding en protocollering](#doelbinding-en-protocollering)    |
+| BRP_VERWERKINGSREGISTER_WAARDE  | De keuzes voor de Verwerkingregisterwaarde van een zaaktype.                                                                                                                                                                                                                                                                  | [Doelbinding en protocollering](#doelbinding-en-protocollering)    |
+| COMMUNICATIEKANAAL              | De keuzes voor de keuzelijst 'Communicatiekanaal'. De medewerker kiest een communicatiekanaal bij het aanmaken of wijzigen van een zaak.                                                                                                                                                                                    |                                                                    |
+| SERVER_ERROR_ERROR_PAGINA_TEKST | Optionele tekstparagrafen voor de foutmelding bij een technische fout van de server of van een onderliggend systeem. ZAC toont elke waarde als een aparte paragraaf, onder de vorige waarde. Gebruik dit bijvoorbeeld voor een verwijzing naar de afdeling functioneel beheer van de gemeente: "Neem s.v.p. contact op met ...". |                                                                    |
 
 #### Referentietabel bewerken
 
@@ -233,6 +236,7 @@ Voor nu worden de volgende onderdelen gecheckt:
 - Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel 'Initiator' en 'Behandelaar' die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. ZAC vereist precies één roltype 'Initiator' en één roltype 'Behandelaar'. Het roltype 'Behandelaar' moet de volgende eigenschappen hebben: Betrokkene type 'Medewerker', Omschrijving generiek 'Behandelaar' én Omschrijving 'Behandelaar'. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan een zaak.
 - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
 - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
+- BRP | ZAC controleert de referentietabellen BRP_DOELBINDING_ZOEK_WAARDE, BRP_DOELBINDING_RAADPLEEG_WAARDE en BRP_VERWERKINGSREGISTER_WAARDE. Elke tabel moet minimaal één waarde hebben. Elke waarde mag alleen ASCII-tekens bevatten. Anders toont de check 'Onjuiste BRP-headerwaarde' bij elk zaaktype. Zie sectie [Doelbinding en protocollering](#doelbinding-en-protocollering).
 
 #### Roltypen
 ZAC zoekt naar een roltype met behulp van één van deze velden:
@@ -377,8 +381,8 @@ Voor ZAC moet dit zijn: `zaakafhandelcomponent`.
 
 ###### Entiteitstypes
 
-Dit zijn de zaaktypes waarop geautoriseerd moet worden.
-In de toekomst zullen ook andere entiteitstypes worden ondersteund.
+Dit zijn de zaaktypes en de gemeenten waarop geautoriseerd moet worden.
+ZAC gebruikt gemeenten alleen voor het zoeken in het BRP. Zie sectie [BRP-autorisatie](#brp-autorisatie).
 
   ![PABC entiteitstypes](images/pabc_entiteitstypes.png)
 
@@ -433,9 +437,173 @@ In dit geval kan er gekozen worden voor het type `Alle entiteitstypes`.
   ![PABC autorisatie-koppelingen 3](images/pabc_autorisatie_koppelingen_3.png)
 
 Het derde type autorisatie-koppeling, `Geen enkel entiteitstype`, is bedoeld voor rollen waar entiteitstypes niet voor van toepassing zijn.
-Dit type wordt ondersteund door ZAC voor medewerkers die personen mogen zoeken in het BRP, ongeacht de gemeente van inschrijving.
+ZAC gebruikt dit type alleen voor de applicatierol `brp_zoeken`. Zie sectie [BRP-autorisatie](#brp-autorisatie).
+
+### BRP-autorisatie
+
+ZAC zoekt en toont personen uit de Basisregistratie Personen (BRP).
+Deze sectie beschrijft wie dat mag, en welke gegevens ZAC aan het BRP meestuurt.
+
+Twee lagen bepalen wat een medewerker in het BRP kan doen:
+
+| Laag                          | Vraag                                                                   | Waar ingericht                                                      | Door wie                                        |
+|-------------------------------|-------------------------------------------------------------------------|---------------------------------------------------------------------|-------------------------------------------------|
+| ZAC-autorisatie               | Welke medewerker mag personen zoeken, en in welke gemeenten?            | Keycloak en de PABC                                                 | Functioneel beheerder                           |
+| Doelbinding en protocollering | Met welk doel vraagt ZAC gegevens op, en hoe legt het BRP de vraag vast? | Omgevingsvariabelen van ZAC, zaakafhandelparameters en referentietabellen | Technisch beheerder en functioneel beheerder |
+
+#### De applicatierol `brp_zoeken`
+
+De applicatierol `brp_zoeken` geeft een medewerker het recht om personen te zoeken in het BRP.
+De rol werkt los van de zaaktype-autorisaties. Een medewerker kan dus `behandelaar` zijn zonder `brp_zoeken`, en omgekeerd.
+
+Met de rol `brp_zoeken` ziet de medewerker:
+- de knop 'Persoon zoeken' in de zoekbalk
+- het tabblad 'Persoon zoeken' bij het toevoegen van een initiator of een betrokkene aan een zaak
+
+Zonder de rol `brp_zoeken` ziet de medewerker deze functies niet.
+ZAC controleert de rol ook bij elke zoekopdracht. Een zoekopdracht zonder de juiste autorisatie weigert ZAC.
+
+De rol `brp_zoeken` is niet nodig om de gegevens te tonen van een persoon die al aan een zaak gekoppeld is.
+De zaaktype-autorisaties bepalen of de medewerker die zaak mag zien.
+
+ZAC kent twee vormen van de rol `brp_zoeken`:
+
+| Vorm                      | Wat de medewerker mag                                                              | Type autorisatie-koppeling in de PABC                                   |
+|---------------------------|------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| Landelijk zoeken          | Personen zoeken in het hele BRP, ongeacht de gemeente van inschrijving              | `Geen enkel entiteitstype`                                              |
+| Binnengemeentelijk zoeken | Alleen personen zoeken die ingeschreven zijn in één of meer opgegeven gemeenten     | `Entiteitstype van een specifiek domein`, met een domein van gemeenten |
+
+ZAC negeert de rol `brp_zoeken` in een domein met zaaktypes. Zo'n autorisatie-koppeling geeft geen recht om te zoeken.
+ZAC negeert ook alle andere applicatierollen in een domein met gemeenten.
+
+Geef een medewerker één van de twee vormen, niet allebei.
+Met beide vormen mag de medewerker landelijk zoeken, maar toont het zoekscherm bij sommige zoekopdrachten alleen de eigen gemeenten.
+
+#### Landelijk zoeken inrichten
+
+Voorwaarde: de functionele rol bestaat in Keycloak en in de PABC. Zie sectie [Functionele rollen](#functionele-rollen).
+
+1. Open het dashboard van de PABC.
+2. Kies de functionele rol die landelijk mag zoeken.
+3. Voeg een autorisatie-koppeling toe van het type `Geen enkel entiteitstype`.
+4. Kies de applicatierol `brp_zoeken` van de applicatie `zaakafhandelcomponent`.
+5. Sla de autorisatie-koppeling op.
+6. Ken in Keycloak de functionele rol toe aan de groepen van de medewerkers.
 
   ![PABC autorisatie-koppelingen BRP geen enkel entiteitstype](images/pabc_autorisatie_koppelingen_brp_geen_enkel_entiteitstype.png)
+
+#### Binnengemeentelijk zoeken inrichten
+
+Voor binnengemeentelijk zoeken richt u in de PABC drie dingen in: de gemeenten, een domein en een autorisatie-koppeling.
+
+Voorwaarde: de functionele rol bestaat in Keycloak en in de PABC. Zie sectie [Functionele rollen](#functionele-rollen).
+
+Voeg de gemeenten toe als entiteitstype:
+
+1. Open in de PABC de lijst met entiteitstypes.
+2. Voeg per gemeente een entiteitstype toe.
+3. Vul in het veld `Entiteitstype` de waarde `GEMEENTE` in, in hoofdletters.
+4. Vul in het veld `Entiteitstype ID` de viercijferige gemeentecode van het BRP in, met voorloopnullen. Bijvoorbeeld: `0626` voor Voorschoten.
+5. Vul in het veld `Entiteitstype naam` de naam van de gemeente in. ZAC toont deze naam in de keuzelijst van gemeenten.
+6. Laat het veld `Entiteitstype URL` leeg.
+
+  ![PABC entiteitstype velden voor gemeente](images/pabc_entiteitstype_velden_gemeente.png)
+
+Maak een domein met de gemeenten:
+
+1. Maak in de PABC een domein. Bijvoorbeeld: `brp_binnengemeentelijk_leiden`.
+2. Voeg de gemeenten toe aan het domein. Bijvoorbeeld: Leidschendam-Voorburg (`1916`) en Voorschoten (`0626`).
+3. Voeg geen zaaktypes toe aan dit domein. Een domein met alleen gemeenten maakt de autorisaties beter leesbaar.
+
+Maak de autorisatie-koppeling:
+
+1. Open het dashboard van de PABC.
+2. Kies de functionele rol die binnengemeentelijk mag zoeken.
+3. Voeg een autorisatie-koppeling toe van het type `Entiteitstype van een specifiek domein`.
+4. Kies het domein met de gemeenten.
+5. Kies de applicatierol `brp_zoeken` van de applicatie `zaakafhandelcomponent`.
+6. Sla de autorisatie-koppeling op.
+7. Ken in Keycloak de functionele rol toe aan de groepen van de medewerkers.
+
+Een medewerker kan via meerdere groepen meerdere domeinen met gemeenten krijgen. ZAC voegt de gemeenten van alle domeinen samen.
+
+#### Wat de medewerker ziet
+
+ZAC leest de autorisaties van een medewerker uit de PABC als de medewerker zich aanmeldt.
+Een wijziging in Keycloak of de PABC werkt pas nadat de medewerker zich afmeldt en opnieuw aanmeldt.
+
+Het BRP ondersteunt vijf zoekopdrachten.
+Bij sommige zoekopdrachten is de gemeente van inschrijving verplicht:
+
+| Zoekopdracht                                                          | Landelijk zoeken         | Binnengemeentelijk zoeken |
+|-----------------------------------------------------------------------|--------------------------|---------------------------|
+| BSN                                                                   | Gemeente niet mogelijk   | Gemeente verplicht        |
+| Geslachtsnaam en geboortedatum (voornamen en voorvoegsel optioneel)   | Gemeente niet mogelijk   | Gemeente verplicht        |
+| Geslachtsnaam en voornamen (voorvoegsel optioneel)                    | Gemeente verplicht       | Gemeente verplicht        |
+| Postcode en huisnummer                                                | Gemeente niet mogelijk   | Gemeente verplicht        |
+| Straat en huisnummer                                                  | Gemeente verplicht       | Gemeente verplicht        |
+
+Bij landelijk zoeken typt de medewerker de gemeentecode zelf in.
+De knop 'Mijn gemeentecode' vult de gemeentecode van de eigen gemeente in. De technisch beheerder stelt deze code in met de omgevingsvariabele `GEMEENTE_CODE`.
+
+Bij binnengemeentelijk zoeken kiest de medewerker de gemeente uit een keuzelijst.
+De keuzelijst toont alleen de gemeenten waarvoor de medewerker geautoriseerd is.
+Heeft de medewerker maar één gemeente, dan vult ZAC die gemeente zelf in.
+
+Bij binnengemeentelijk zoeken vindt ZAC alleen personen die ingeschreven zijn in de gekozen gemeente.
+Dat geldt ook voor zoeken op BSN. Een persoon die in een andere gemeente ingeschreven is, vindt ZAC niet.
+
+#### Doelbinding en protocollering
+
+De BRP-proxy van de BRP-leverancier controleert elke vraag van ZAC en legt die vast. Dit heet protocollering.
+Voorbeelden van BRP-leveranciers zijn iConnect (PinkRoccade), 2Secure en eServices.
+
+Voor de protocollering stuurt ZAC bij elke vraag deze gegevens mee:
+- de medewerker die de vraag stelt
+- de doelbinding: het doel van de vraag
+- de verwerkingregisterwaarde: de verwerking in het register van verwerkingen van de gemeente
+- de naam van de applicatie, bijvoorbeeld `ZAC`
+- het OIN van de gemeente
+
+De technisch beheerder stelt de protocollering in met omgevingsvariabelen van ZAC.
+Zie de [BRP protocollering configuration](../brp-guide/README.md) (alleen in het Engels) voor de variabelen per BRP-leverancier.
+
+ZAC kent drie waarden voor de doelbinding en de verwerking:
+
+| Waarde in de zaakafhandelparameters | Referentietabel                  | ZAC gebruikt de waarde bij                                     |
+|-------------------------------------|----------------------------------|----------------------------------------------------------------|
+| Zoekwaarde                          | BRP_DOELBINDING_ZOEK_WAARDE      | zoeken van personen op naam, geboortedatum of adres            |
+| Raadpleegwaarde                     | BRP_DOELBINDING_RAADPLEEG_WAARDE | opvragen van één persoon met een BSN, ook bij zoeken op BSN    |
+| Verwerkingregisterwaarde            | BRP_VERWERKINGSREGISTER_WAARDE   | elke vraag                                                     |
+
+Bij sommige BRP-leveranciers verschilt de doelbinding per zaaktype.
+Dan zet de technisch beheerder de omgevingsvariabele `BRP_DOELBINDING_PER_ZAAKTYPE` op `true`.
+Daarna kiest de functioneel beheerder de drie waarden per zaaktype. Zie sectie [Landelijke registratie koppelingen](#landelijke-registratie-koppelingen).
+
+In deze gevallen gebruikt ZAC de standaardwaarden uit de omgevingsvariabelen:
+- De doelbinding per zaaktype staat uit.
+- Het zaaktype heeft geen waarde.
+- De vraag hoort niet bij een zaak. Bijvoorbeeld: de medewerker zoekt een persoon via de zoekbalk.
+
+Richt de drie referentietabellen als volgt in:
+
+1. Vraag de geldige waarden op bij de BRP-leverancier. Bijvoorbeeld: `BRPACT-ZoekenAlgemeen` of `BRPACT-Totaal`.
+2. Open in de beheerinstellingen de referentietabellen.
+3. Voeg de waarden toe aan de juiste referentietabel. Gebruik alleen ASCII-tekens, dus geen letters als 'ë' of 'é'.
+4. Verwijder de standaardwaarden die de BRP-leverancier niet kent.
+5. Open de inrichtingscheck en controleer dat er geen melding 'Onjuiste BRP-headerwaarde' is.
+
+> Let op! ZAC stuurt de waarden mee in HTTP-headers. Een header mag alleen ASCII-tekens bevatten.
+
+#### Problemen oplossen
+
+| Probleem                                                                    | Mogelijke oorzaak                                                                                                         |
+|-----------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| De medewerker ziet de knop 'Persoon zoeken' niet.                           | De medewerker heeft geen autorisatie-koppeling met `brp_zoeken`, of meldde zich niet opnieuw aan na de wijziging.           |
+| De medewerker moet binnengemeentelijk zoeken, maar ziet geen keuzelijst.    | Het veld `Entiteitstype` is niet `GEMEENTE`, of de autorisatie-koppeling heeft niet de applicatierol `brp_zoeken`.         |
+| ZAC vindt een persoon niet bij zoeken op BSN.                               | De medewerker zoekt binnengemeentelijk en de persoon is ingeschreven in een andere gemeente.                               |
+| De inrichtingscheck toont 'Onjuiste BRP-headerwaarde'.                      | Een van de drie BRP-referentietabellen is leeg, of een waarde bevat een teken dat geen ASCII-teken is.                     |
+| De zaakafhandelparameters tonen geen keuzes voor de doelbinding.            | De doelbinding per zaaktype staat uit, of 'Basisregistratie personen (persoonsgegevens) koppelen' staat uit bij het zaaktype. |
 
 ### Migratie van de oude naar de nieuwe IAM-architectuur
 
@@ -578,17 +746,23 @@ Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het document
 
 #### Landelijke registratie koppelingen
 
-- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
-  - Basisregistratie personen (persoonsgegevens) koppelen
-  - KvK (bedrijfsgegevens) koppelen
+Met twee schakelaars zet u de koppelingen met landelijke registraties per zaaktype aan of uit:
+- Basisregistratie personen (persoonsgegevens) koppelen
+- KvK (bedrijfsgegevens) koppelen
 
-Als in de proxy configuratie "doelbinding per zaaktype" aan staat bij de inrichting van PodiumD, is er aanvullende informatie nodig.
+Staat 'Basisregistratie personen (persoonsgegevens) koppelen' uit, dan kan een medewerker geen persoon als initiator of betrokkene aan een zaak van dit zaaktype koppelen.
+Bij een productaanvraag koppelt ZAC dan ook geen persoon aan de zaak.
 
-Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+Staat de doelbinding per zaaktype aan, dan toont ZAC onder de schakelaar drie keuzelijsten. Zie sectie [Doelbinding en protocollering](#doelbinding-en-protocollering).
 
-- BRP_DOELBINDING_RAADPLEEG_WAARDE
-- BRP_DOELBINDING_ZOEK_WAARDE
-- BRP_VERWERKINGSREGISTER_WAARDE
+1. Zet 'Basisregistratie personen (persoonsgegevens) koppelen' aan.
+2. Kies een Zoekwaarde.
+3. Kies een Raadpleegwaarde.
+4. Kies een Verwerkingregisterwaarde.
+
+De drie keuzelijsten zijn verplicht. De keuzes komen uit de referentietabellen BRP_DOELBINDING_ZOEK_WAARDE, BRP_DOELBINDING_RAADPLEEG_WAARDE en BRP_VERWERKINGSREGISTER_WAARDE.
+
+De schakelaar regelt niet wie personen mag zoeken. Dat regelt de applicatierol `brp_zoeken`. Zie sectie [BRP-autorisatie](#brp-autorisatie).
 
 #### SmartDocuments
 
