@@ -5,6 +5,7 @@
 package nl.info.zac.search.model.zoekobject
 
 import nl.info.zac.app.task.model.TaakStatus
+import nl.info.zac.app.task.model.TaakStatus.AFGEROND
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
@@ -84,9 +85,9 @@ data class TaakZoekObject(
     var zaakGeautoriseerdeMedewerkers: List<String>? = null
 ) : ZoekObject {
     companion object {
-        const val BEHANDELAAR_ID_FIELD: String = "taak_behandelaarGebruikersnaam"
-        const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "taak_zaakspecifiekGeautoriseerd"
-        const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD: String = "taak_zaakGeautoriseerdeMedewerkers"
+        const val BEHANDELAAR_ID_FIELD = "taak_behandelaarGebruikersnaam"
+        const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD = "taak_zaakspecifiekGeautoriseerd"
+        const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD = "taak_zaakGeautoriseerdeMedewerkers"
     }
 
     override fun getObjectId() = id
@@ -103,3 +104,5 @@ data class TaakZoekObject(
         this.type = type.toString()
     }
 }
+
+fun TaakZoekObject.isOpen() = getStatus()?.let { it != AFGEROND } ?: false

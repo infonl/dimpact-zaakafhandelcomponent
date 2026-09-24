@@ -15,6 +15,17 @@
 .table-wrapper {
   margin-top: 20px;
   text-align: center;
+
+  // The inset sits on the cells, so the row dividers keep running the full panel width.
+  th.mat-mdc-header-cell:first-of-type,
+  td.mat-mdc-cell:first-of-type {
+    padding-left: 18px;
+  }
+
+  th.mat-mdc-header-cell:last-of-type,
+  td.mat-mdc-cell:last-of-type {
+    padding-right: 18px;
+  }
 }
 
 .text-right {

@@ -9,6 +9,14 @@ You can run them separately using the following command:
 ./gradlew test --info
 ```
 
+In CI the backend and the frontend unit tests run as two jobs at the same time, and the frontend suite is
+split over two Jest shards. A small `run-unit-tests` job combines their results into the single
+`unit-test-results` check. Run one frontend shard locally with:
+
+```shell
+cd src/main/app && npm run test:report -- --shard=1/2
+```
+
 ## Integration tests
 
 Our integration are written as [Kotest](https://kotest.io/) tests, and use the [TestContainers framework](https://testcontainers.com/) together
@@ -42,11 +50,45 @@ then start up ZAC as Docker container and finally run the integration tests.
 Every integration test run writes a timing report to `build/reports/itest/timings.md`: how long starting the
 Docker Compose stack, ZAC becoming healthy, the specs and the teardown took, when each container started and
 became ready, and the slowest specs. Use it to find out where the time goes before trying to speed things up.
-In CI the report is published in the job summary of the `build-docker-image-and-run-itests` job.
+In CI the report is published in the job summary of every `itest-shard` job.
 
 CI runs the integration tests without `--info` and writes the full log, including the container logs, to
 `build/reports/itest/itest.log` (Gradle property `itestLogFile`). That file is uploaded as the
-`integration-test-log` artifact when the tests fail.
+`integration-test-log-shard-<N>` artifact when the tests fail.
+
+### Integration test shards
+
+CI runs the integration tests in shards: `src/itest/itest-shards.txt` assigns every spec to a shard and the
+`itest-shard` matrix job of the build workflow starts one Docker Compose stack per shard and runs only the specs
+of that shard, using the Gradle property `itestShard`:
+
+```shell
+./gradlew itest -PitestShard=2
+```
+
+Every spec has to be assigned to exactly one shard. When a shard is selected, the build fails with a message that
+lists the specs that are missing from the file or no longer exist. Use the "Slowest specs" table of the timing
+report to keep the shards balanced when adding or moving specs. The `build-docker-image-and-run-itests` job
+combines the test results of all shards into the single `integration-test-results` check.
+
+### Concurrent specs and `@Isolate`
+
+Within one run the specs run concurrently (three at a time by default, each spec on its own thread), in random
+order, against the same ZAC and Docker Compose stack. A spec must therefore only create, change and assert on
+its own data. A spec that touches global state has to carry Kotest's `@Isolate` annotation so that it runs on its
+own, before the concurrent specs. This applies to specs that:
+
+- assert on mail in a GreenMail mailbox that other specs or ZAC flows also write to (the mail store is purged
+  before every isolated spec; a spec that only uses recipient addresses of its own can run concurrently),
+- trigger reindexing, or diff or wait on the ZAC container logs,
+- run or assert on the signaleringen jobs or other admin jobs, or reset mocks such as the BRP WireMock journal,
+- change configuration that other specs rely on (zaaktype configuration, reference tables, mail templates,
+  BPMN process definitions, ...), even when the spec restores it afterwards,
+- assert on totals, listings or orderings that the data of other specs changes,
+- interfere with the infrastructure, for example by terminating database connections.
+
+The Gradle property `itestSpecConcurrency` overrides the number of concurrent specs, for example
+`-PitestSpecConcurrency=1` runs the specs one by one when debugging a failure.
 
 ### Configuring Docker Compose containers start/stop behaviour
 
@@ -192,11 +234,12 @@ This contains the details on how to run ACT tests.
 
 ## Open Policy Agent (OPA) Rego Tests
 
-The tests are part of the integration tests profile and run automatically via Docker Compose. 
+The policies are unit tested with OPA's own test runner. The tests run in the backend unit test job of the
+CI pipeline, not in the integration test stack, so the integration test shards no longer wait for them.
 
-To have a single run of the OPA Tests you can use the following command:
+To run them yourself, use the Docker Compose service that the pipeline uses:
 ```shell
-docker run -it -v ./src/test/resources/policies:/home/tests -v ./src/main/resources/policies:/home/policies docker.io/openpolicyagent/opa:1.3.0 test /home/policies /home/tests
+docker compose --profile opa-tests run --rm --no-deps opa-tests
 ```
 
 There are several useful flags that can be used to develop and debug [tests with OPA](https://www.openpolicyagent.org/docs/latest/policy-testing/).

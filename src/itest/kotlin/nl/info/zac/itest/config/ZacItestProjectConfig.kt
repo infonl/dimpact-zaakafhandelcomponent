@@ -11,11 +11,15 @@ import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.extensions.Extension
 import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.SpecExecutionOrder
+import io.kotest.engine.concurrency.ConcurrencyOrder
+import io.kotest.engine.concurrency.SpecExecutionMode
+import io.kotest.engine.coroutines.ThreadPerSpecCoroutineContextFactory
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
@@ -122,6 +126,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
         private const val DOCKER_USE_ARM64_CONTAINERS_ENV_VAR = "DOCKER_USE_ARM64_CONTAINERS"
         private const val COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
+        private const val SPEC_CONCURRENCY_SYSTEM_PROPERTY = "zac.itest.specConcurrency"
+        private const val DEFAULT_SPEC_CONCURRENCY = 3
 
         private val logger = KotlinLogging.logger {}
         private val dockerClient: DockerClient by lazy { DockerClientFactory.instance().client() }
@@ -130,6 +136,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
         private val skipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
         private val skipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
+        private val specConcurrency = System.getProperty(SPEC_CONCURRENCY_SYSTEM_PROPERTY)?.toInt() ?: DEFAULT_SPEC_CONCURRENCY
 
         // All variables below have to be overridable in the docker-compose.yaml file
         private val dockerComposeOverrideEnvironment = mapOf(
@@ -175,22 +182,40 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     override val specExecutionOrder = SpecExecutionOrder.Random
 
     /**
-     * Purge GreenMail's email store before each spec to prevent emails sent by one spec
-     * from leaking into another spec's assertions.
+     * Run the specs concurrently against the shared Docker Compose stack, each spec on its own thread.
+     * Specs that touch global state (mail, reindexing, container logs, admin jobs, shared configuration)
+     * carry Kotest's `@Isolate` annotation and run one by one before the concurrent specs.
+     * The number of concurrent specs can be overridden with the `zac.itest.specConcurrency` system property.
+     */
+    override val specExecutionMode = SpecExecutionMode.LimitedConcurrency(specConcurrency)
+
+    override val concurrencyOrder = ConcurrencyOrder.IsolateFirst
+
+    override val coroutineDispatcherFactory = ThreadPerSpecCoroutineContextFactory
+
+    /**
+     * Purge GreenMail's email store before each isolated spec, so that a spec that asserts on mail sent to
+     * a shared mailbox starts from an empty store. Isolated specs run one by one, so this never removes mail
+     * that a running spec still needs. A spec that asserts on mail while running concurrently has to use
+     * recipient addresses that no other spec uses.
      */
     override val extensions: List<Extension> = listOf(
         ItestTimingReport,
         object : BeforeSpecListener {
             override suspend fun beforeSpec(spec: Spec) {
-                logger.info { "Purging GreenMail email store before spec '${spec::class.simpleName}'" }
-                itestHttpClient.performDeleteRequest(url = "$GREENMAIL_API_URI/service")
+                if (spec::class.java.isAnnotationPresent(Isolate::class.java)) {
+                    logger.info { "Purging GreenMail email store before isolated spec '${spec::class.simpleName}'" }
+                    itestHttpClient.performDeleteRequest(url = "$GREENMAIL_API_URI/service")
+                }
             }
         }
     )
 
     override suspend fun beforeProject() {
         ItestTimingReport.markPhase(ItestTimingReport.PHASE_RUN_STARTED)
-        logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
+        logger.info {
+            "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
+        }
         try {
             if (!skipDockerComposeStart) {
                 dockerComposeContainer = createDockerComposeContainer()
@@ -353,11 +378,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
                     "ZAC"
                 )
-            )
-            .waitingFor(
-                "opa-tests",
-                OneShotStartupWaitStrategy()
-                    .withStartupTimeout(10.seconds.toJavaDuration())
             )
             .waitingFor(
                 "openzaak-app.local",

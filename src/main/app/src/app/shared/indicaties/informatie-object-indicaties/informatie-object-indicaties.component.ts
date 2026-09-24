@@ -10,13 +10,12 @@ import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zo
 import { MaterialModule } from "../../material/material.module";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { DatumPipe } from "../../pipes/datum.pipe";
-import { PipesModule } from "../../pipes/pipes.module";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
   selector: "zac-informatie-object-indicaties",
-  imports: [MaterialModule, TranslateModule, PipesModule, CommonModule],
+  imports: [MaterialModule, TranslateModule, CommonModule],
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
 })

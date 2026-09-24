@@ -19,6 +19,7 @@ import nl.info.client.pabc.ENTITY_TYPE_GEMEENTE
 import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
+import nl.info.client.pabc.ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -151,6 +152,9 @@ constructor(
                 .filter { it.entityType == null }
                 .flatMap { it.applicationRoles.mapNotNull { applicationRoleModel -> applicationRoleModel.name?.trim() } }
                 .filter { it.isNotEmpty() }
+                // reserved for the hardcoded FUNCTIONEEL_GEBRUIKER/PRODUCTAANVRAAG_GEBRUIKER system users;
+                // never grant it to a real user, even if PABC is misconfigured to hand it out
+                .filterNot { it == ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN }
                 .toSet()
 
         val brpGemeenten = applicationRolesResponse.results

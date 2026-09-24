@@ -31,7 +31,6 @@ import { BackButtonDirective } from "./navigation/back-button.directive";
 import { paginatorLanguageInitializerFactory } from "./paginator/paginator-language-initializer";
 import { PaginatorTranslator } from "./paginator/paginator-translator";
 import { EmptyPipe } from "./pipes/empty.pipe";
-import { PipesModule } from "./pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ReadMoreComponent } from "./read-more/read-more.component";
 import { SideNavComponent } from "./side-nav/side-nav.component";
@@ -62,7 +61,6 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     FormsModule,
-    PipesModule,
     MaterialModule,
     MaterialFormBuilderModule.forRoot(),
     TranslateModule,
@@ -83,7 +81,6 @@ import { VersionComponent } from "./version/version.component";
     BackButtonDirective,
     StaticTextComponent,
     ReadMoreComponent,
-    PipesModule,
     MaterialModule,
     MaterialFormBuilderModule,
     DateRangeFilterComponent,

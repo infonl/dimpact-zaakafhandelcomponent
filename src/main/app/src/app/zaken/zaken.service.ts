@@ -155,8 +155,8 @@ export class ZakenService {
     return this.zacHttpClient.GET("/rest/zaken/zaaktypes-for-creation");
   }
 
-  listZaaktypesToLink() {
-    return this.zacHttpClient.GET("/rest/zaken/gekoppelde-zaken/zaaktypen");
+  listZaaktypesToLinkQuery() {
+    return this.zacQueryClient.GET("/rest/zaken/gekoppelde-zaken/zaaktypen");
   }
 
   toekennen(body: PatchBody<"/rest/zaken/toekennen">) {

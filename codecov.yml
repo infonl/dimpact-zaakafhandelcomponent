@@ -8,10 +8,12 @@
 # See: https://docs.codecov.com/docs/codecov-yaml
 codecov:
   notify:
-    # only notify Codecov after three builds because we want to make sure
-    # that the reported coverage from our GitHub workflow includes both
-    # our frontend unit tests, backend unit tests and integration test coverage
-    after_n_builds: 3
+    # Only notify Codecov after all coverage uploads of a commit have arrived, so that the reported
+    # coverage includes the frontend and backend unit tests and every integration test shard:
+    # 1 backend unit test report + 2 frontend unit test shards ('frontend-unit-tests' matrix) +
+    # 3 integration test shards ('itest-shard' matrix) in build-test-deploy.yml.
+    # Update these numbers when the number of shards changes.
+    after_n_builds: 6
   max_report_age: off
 coverage:
   status:
@@ -26,6 +28,7 @@ flag_management:
     - name: backendunittests
       after_n_builds: 1
     - name: frontendunittests
-      after_n_builds: 1
+      after_n_builds: 2
     - name: integrationtests
-      after_n_builds: 1
+      # one upload per integration test shard
+      after_n_builds: 3

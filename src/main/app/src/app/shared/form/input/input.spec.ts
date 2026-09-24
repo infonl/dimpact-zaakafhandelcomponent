@@ -20,9 +20,9 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { render, screen } from "@testing-library/angular";
 import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../material/material.module";
-import { PipesModule } from "../../pipes/pipes.module";
 import { ZacInput } from "./input";
 
 interface TestForm extends Record<string, AbstractControl> {
@@ -55,7 +55,6 @@ describe(ZacInput.name, () => {
         ReactiveFormsModule,
         MaterialModule,
         TranslateModule.forRoot(),
-        PipesModule,
         MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
@@ -340,7 +339,7 @@ describe(ZacInput.name, () => {
       await input.setValue("Test description");
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain("16 / 100");
+      expect(screen.getByText("16 / 100")).toBeInTheDocument();
     });
 
     it("should not show character counter when maxlength is not set", async () => {
@@ -352,7 +351,7 @@ describe(ZacInput.name, () => {
       await input.setValue("Test description");
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).not.toContain("/");
+      expect(screen.queryByText(/\d+ \/ \d+/)).not.toBeInTheDocument();
     });
   });
 
@@ -399,11 +398,30 @@ describe(ZacInput.name, () => {
       const hints = await formField.getTextHints();
       expect(hints.length).toBeGreaterThanOrEqual(1);
     });
+  });
+});
 
-    it("should project suffix content", () => {
-      expect(
-        fixture.nativeElement.querySelector("span[matSuffix]"),
-      ).toBeTruthy();
-    });
+describe(`${ZacInput.name} content projection into the suffix slot`, () => {
+  it("should project suffix content", async () => {
+    await render(
+      `<zac-input [form]="form" key="name"><button type="button">Zoeken</button></zac-input>`,
+      {
+        imports: [
+          ZacInput,
+          ReactiveFormsModule,
+          MaterialModule,
+          TranslateModule.forRoot(),
+          MaterialFormBuilderModule,
+          NoopAnimationsModule,
+        ],
+        componentProperties: {
+          form: new FormGroup({
+            name: new FormControl<string | null>(null, { nonNullable: true }),
+          }),
+        },
+      },
+    );
+
+    expect(screen.getByRole("button", { name: "Zoeken" })).toBeInTheDocument();
   });
 });
