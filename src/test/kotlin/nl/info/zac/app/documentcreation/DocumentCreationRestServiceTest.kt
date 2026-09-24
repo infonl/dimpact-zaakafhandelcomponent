@@ -184,7 +184,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
             then("it throws exception with correct message") {
                 exception.errorCode shouldBe ERROR_CODE_SMARTDOCUMENTS_DISABLED
-                exception.message shouldBe null
+                exception.message shouldBe "SmartDocuments is disabled"
             }
         }
     }

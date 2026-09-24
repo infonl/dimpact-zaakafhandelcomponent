@@ -32,6 +32,7 @@ enum class ErrorCode(val value: String) {
         "msg.error.reference.table.is.in.use.by.zaaktypeCmmnConfiguration"
     ),
     ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED("msg.error.system.reference.table.cannot.be.deleted"),
+    ERROR_CODE_SYSTEM_REFERENCE_TABLE_NOT_CONFIGURED("msg.error.system.reference.table.not.configured"),
     ERROR_CODE_ZRC_CLIENT("msg.error.zrc.client.exception"),
     ERROR_CODE_ZAAK_GEOMETRIE_NOT_SUPPORTED("msg.error.zaak.geometrie.not-supported"),
     ERROR_CODE_ZTC_CLIENT("msg.error.ztc.client.exception"),

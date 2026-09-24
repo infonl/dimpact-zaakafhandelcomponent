@@ -851,6 +851,7 @@
   "msg.error.objecttypes.client.exception": "Unfortunately a technical error has occurred. No object types could be retrieved.",
   "msg.error.productaanvraagtype.already.in.use": "This productaanvraagtype is already linked to another zaaktype and therefore cannot be used.",
   "msg.error.system.reference.table.cannot.be.deleted": "A system reference table cannot be deleted.",
+  "msg.error.system.reference.table.not.configured": "Unfortunately a technical error has occurred. A required system reference table is not configured.",
   "msg.error.system.reference.table.system.values.cannot.be.changed": "The system values of a system reference table cannot be changed.",
   "msg.error.reference.table.is.in.use.by.zaaktypeCmmnConfiguration": "The reference table is in use by one or more case handling parameters and cannot be deleted.",
   "msg.error.reference.table.with.same.code.already.exists": "A reference table with this code already exists. Please use a unique code.",

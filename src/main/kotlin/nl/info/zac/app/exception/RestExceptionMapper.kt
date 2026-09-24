@@ -271,7 +271,16 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         return Response.status(exception.response.status)
             .type(MediaType.APPLICATION_JSON)
             .entity(jsonErrorMessage)
-            .build()
+            .build().also {
+                log(
+                    logger = LOG,
+                    level = Level.FINE,
+                    message = exception.message ?: "Exception was thrown. Returning response with status: '${
+                        exception.response.status
+                    }'.",
+                    throwable = exception
+                )
+            }
     }
 
     private fun generateResponse(
