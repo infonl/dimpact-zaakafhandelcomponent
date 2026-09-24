@@ -7,7 +7,7 @@
   *ngIf="algemeenFormGroup"
   orientation="horizontal"
   [linear]="!algemeenFormGroup.valid"
-  [selectedIndex]="selectedIndexStart"
+  [selectedIndex]="selectedIndexStart()"
 >
   <!--
     Step below is skipped on load when parameters are already saved

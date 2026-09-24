@@ -6,7 +6,8 @@
 import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
-  Input,
+  inject,
+  input,
   OnChanges,
   OnInit,
   SimpleChanges,
@@ -27,19 +28,19 @@ import { GeneratedType } from "../utils/generated-types";
   imports: [NgClass, NgIf],
 })
 export class DocumentViewerComponent implements OnInit, OnChanges {
-  @Input({ required: true })
-  document!: GeneratedType<"RestEnkelvoudigInformatieobject">;
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly sanitizer = inject(DomSanitizer);
+
+  readonly document =
+    input.required<GeneratedType<"RestEnkelvoudigInformatieobject">>();
 
   previewSrc: SafeUrl | null = null;
   showPreview = false;
 
-  constructor(
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly sanitizer: DomSanitizer,
-  ) {}
-
   ngOnChanges(changes: SimpleChanges) {
-    if (!this.document) return;
+    if (!this.document()) return;
     if (changes.document.isFirstChange()) return;
 
     this.loadDocument();
@@ -50,9 +51,8 @@ export class DocumentViewerComponent implements OnInit, OnChanges {
   }
 
   private loadDocument() {
-    if (
-      !FileFormatUtil.isPreviewAvailable(this.document.formaat as FileFormat)
-    ) {
+    const document = this.document();
+    if (!FileFormatUtil.isPreviewAvailable(document.formaat as FileFormat)) {
       this.showPreview = false;
       this.previewSrc = null;
       return;
@@ -60,17 +60,17 @@ export class DocumentViewerComponent implements OnInit, OnChanges {
 
     this.showPreview = true;
     const url = this.informatieObjectenService.getPreviewUrl(
-      this.document.uuid!,
-      this.document.versie,
+      document.uuid!,
+      document.versie,
     );
     this.previewSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   isImage() {
-    return FileFormatUtil.isImage(this.document.formaat as FileFormat);
+    return FileFormatUtil.isImage(this.document().formaat as FileFormat);
   }
 
   isPDF() {
-    return this.document.formaat === FileFormat.PDF;
+    return this.document().formaat === FileFormat.PDF;
   }
 }

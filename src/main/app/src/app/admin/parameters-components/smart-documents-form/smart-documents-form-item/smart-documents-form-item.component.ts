@@ -5,7 +5,7 @@
  */
 
 import { NgFor } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, input, OnInit, Output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -30,10 +30,10 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   ],
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
-  @Input({ required: true })
-  node!: GeneratedType<"RestMappedSmartDocumentsTemplate">;
-  @Input({ required: true })
-  informationObjectTypes!: GeneratedType<"RestInformatieobjecttype">[];
+  readonly node =
+    input.required<GeneratedType<"RestMappedSmartDocumentsTemplate">>();
+  readonly informationObjectTypes =
+    input.required<GeneratedType<"RestInformatieobjecttype">[]>();
   @Output() selectionChange = new EventEmitter<
     GeneratedType<"RestMappedSmartDocumentsTemplate">
   >();
@@ -46,19 +46,25 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
-    this.previousInformatieObjectTypeUUID = this.node?.informatieObjectTypeUUID;
+    this.previousInformatieObjectTypeUUID =
+      this.node().informatieObjectTypeUUID;
     this.updateFormControls();
   }
 
   protected clearSelectedDocumentType() {
-    this.node.informatieObjectTypeUUID = "";
+    this.selectDocumentType("");
+  }
+
+  protected selectDocumentType(informatieObjectTypeUUID: string) {
+    this.node().informatieObjectTypeUUID = informatieObjectTypeUUID;
     this.updateFormControls();
   }
 
   updateFormControls() {
-    const { informatieObjectTypeUUID } = this.node;
+    const node = this.node();
+    const { informatieObjectTypeUUID } = node;
 
-    const confidentiality = this.informationObjectTypes.find(
+    const confidentiality = this.informationObjectTypes().find(
       ({ uuid }) => informatieObjectTypeUUID === uuid,
     )?.vertrouwelijkheidaanduiding;
 
@@ -74,13 +80,9 @@ export class SmartDocumentsFormItemComponent implements OnInit {
       Boolean(informatieObjectTypeUUID && informatieObjectTypeUUID !== ""),
     );
 
-    if (
-      this.node.informatieObjectTypeUUID !==
-      this.previousInformatieObjectTypeUUID
-    ) {
-      this.selectionChange.emit({ ...this.node });
-      this.previousInformatieObjectTypeUUID =
-        this.node.informatieObjectTypeUUID;
+    if (informatieObjectTypeUUID !== this.previousInformatieObjectTypeUUID) {
+      this.selectionChange.emit({ ...node });
+      this.previousInformatieObjectTypeUUID = informatieObjectTypeUUID;
     }
   }
 

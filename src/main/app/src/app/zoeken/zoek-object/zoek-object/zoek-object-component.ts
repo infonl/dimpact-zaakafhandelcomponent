@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, InputSignal } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 
 @Component({
@@ -11,7 +11,7 @@ import { MatSidenav } from "@angular/material/sidenav";
   standalone: true,
 })
 export abstract class ZoekObjectComponent {
-  abstract sideNav: MatSidenav;
+  abstract readonly sideNav: InputSignal<MatSidenav>;
 
   constructor() {}
 }

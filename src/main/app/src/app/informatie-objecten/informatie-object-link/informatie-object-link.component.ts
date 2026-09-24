@@ -6,13 +6,13 @@
 import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
+  computed,
   EventEmitter,
-  Input,
+  inject,
+  input,
   OnChanges,
-  OnInit,
   Output,
   SimpleChanges,
-  inject,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -60,22 +60,23 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
     EmptyPipe,
   ],
 })
-export class InformatieObjectLinkComponent implements OnInit, OnChanges {
-  @Input() infoObject?: GeneratedType<
+export class InformatieObjectLinkComponent implements OnChanges {
+  readonly infoObject = input<GeneratedType<
     | "RestDetachedDocument"
     | "RestInboxDocument"
     | "RestEnkelvoudigInformatieobject"
-  > | null = null;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Input({ required: true }) source!: string;
-  @Input({ required: true })
-  actionLabel!: DocumentAction;
+  > | null>(null);
+  readonly sideNav = input.required<MatDrawer>();
+  readonly source = input.required<string>();
+  readonly actionLabel = input.required<DocumentAction>();
   @Output() informationObjectLinked = new EventEmitter<void>();
 
   protected intro = "";
   protected loading = false;
 
-  protected actionIcon!: string;
+  protected readonly actionIcon = computed(() =>
+    this.actionLabel() === "actie.document.koppelen" ? "link" : "move_item",
+  );
 
   protected cases = new MatTableDataSource<
     GeneratedType<"RestZaakKoppelenZoekObject">
@@ -110,11 +111,6 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     private readonly formBuilder: FormBuilder,
   ) {}
 
-  ngOnInit() {
-    this.actionIcon =
-      this.actionLabel === "actie.document.koppelen" ? "link" : "move_item";
-  }
-
   ngOnChanges(changes: SimpleChanges) {
     if (changes.infoObject && changes.infoObject.currentValue) {
       this.reset();
@@ -128,7 +124,8 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   }
 
   protected searchCases() {
-    if (!this.infoObject?.informatieobjectTypeUUID) return;
+    const infoObject = this.infoObject();
+    if (!infoObject?.informatieobjectTypeUUID) return;
 
     this.loading = true;
     this.utilService.setLoading(true);
@@ -137,7 +134,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       this.queryClient,
       this.zoekenService.listDocumentKoppelbareZaken({
         zaakIdentificator: caseSearch!,
-        informationObjectTypeUuid: this.infoObject.informatieobjectTypeUUID,
+        informationObjectTypeUuid: infoObject.informatieobjectTypeUUID,
         page: 0,
         rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
       }),
@@ -162,18 +159,18 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     this.linkDocumentMutation.mutate(
       {
         documentUUID: this.getDocumentUUID(),
-        bron: this.source,
+        bron: this.source(),
         nieuweZaakID: row.identificatie ?? "",
       },
       {
         onSuccess: () => {
           const msgSnackbarKey =
-            this.actionLabel === "actie.document.koppelen"
+            this.actionLabel() === "actie.document.koppelen"
               ? "msg.document.koppelen.uitgevoerd"
               : "msg.document.verplaatsen.uitgevoerd";
 
           this.utilService.openSnackbar(msgSnackbarKey, {
-            document: this.infoObject!.titel,
+            document: this.infoObject()!.titel,
             case: row.identificatie,
           });
           this.close();
@@ -191,22 +188,22 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   }
 
   private getDocumentUUID(): string {
-    if (!this.infoObject) return "";
-    if ("uuid" in this.infoObject) return this.infoObject.uuid ?? "";
-    if ("documentUUID" in this.infoObject)
-      return this.infoObject.documentUUID ?? "";
-    if ("enkelvoudiginformatieobjectUUID" in this.infoObject)
-      return this.infoObject.enkelvoudiginformatieobjectUUID ?? "";
+    const infoObject = this.infoObject();
+    if (!infoObject) return "";
+    if ("uuid" in infoObject) return infoObject.uuid ?? "";
+    if ("documentUUID" in infoObject) return infoObject.documentUUID ?? "";
+    if ("enkelvoudiginformatieobjectUUID" in infoObject)
+      return infoObject.enkelvoudiginformatieobjectUUID ?? "";
     return "";
   }
 
   protected close() {
-    void this.sideNav.close();
+    void this.sideNav().close();
     this.reset();
   }
 
   protected isUnlinkable(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    return !row.isKoppelbaar || row.identificatie === this.source;
+    return !row.isKoppelbaar || row.identificatie === this.source();
   }
 
   protected reset() {

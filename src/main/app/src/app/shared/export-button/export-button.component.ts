@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
@@ -18,8 +18,9 @@ import { GeneratedType } from "../utils/generated-types";
   imports: [MatButtonModule, MatIconModule, TranslateModule],
 })
 export class ExportButtonComponent {
-  @Input() zoekParameters!: GeneratedType<"RestZoekParameters">;
-  @Input() filename!: string;
+  readonly zoekParameters =
+    input.required<GeneratedType<"RestZoekParameters">>();
+  readonly filename = input.required<string>();
 
   constructor(
     private csvService: CsvService,
@@ -27,8 +28,8 @@ export class ExportButtonComponent {
   ) {}
 
   downloadExport() {
-    this.csvService.exportToCSV(this.zoekParameters).subscribe((response) => {
-      this.utilService.downloadBlobResponse(response, this.filename);
+    this.csvService.exportToCSV(this.zoekParameters()).subscribe((response) => {
+      this.utilService.downloadBlobResponse(response, this.filename());
     });
   }
 }

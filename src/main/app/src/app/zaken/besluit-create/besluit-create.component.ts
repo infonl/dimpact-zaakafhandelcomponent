@@ -4,7 +4,14 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  inject,
+  input,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -20,7 +27,6 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
-import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -53,9 +59,15 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class BesluitCreateComponent implements OnInit {
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input({ required: true }) sideNav!: MatDrawer;
+  readonly zaak = input.required<GeneratedType<"RestZaak">>();
+  readonly sideNav = input.required<MatDrawer>();
   @Output() besluitVastgelegd = new EventEmitter<boolean>();
+
+  private readonly zakenService = inject(ZakenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly formBuilder = inject(FormBuilder);
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   protected besluittypes: GeneratedType<"RestBesluitType">[] = [];
@@ -93,12 +105,7 @@ export class BesluitCreateComponent implements OnInit {
     },
   );
 
-  constructor(
-    private readonly zakenService: ZakenService,
-    private readonly utilService: UtilService,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly formBuilder: FormBuilder,
-  ) {
+  constructor() {
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -127,7 +134,7 @@ export class BesluitCreateComponent implements OnInit {
 
         this.informatieObjectenService
           .listEnkelvoudigInformatieobjecten({
-            zaakUUID: this.zaak.uuid,
+            zaakUUID: this.zaak().uuid,
             besluittypeUUID: value.id,
           })
           .subscribe((documents) => {
@@ -184,13 +191,13 @@ export class BesluitCreateComponent implements OnInit {
 
   ngOnInit() {
     this.zakenService
-      .listResultaattypes(this.zaak.zaaktype.uuid)
+      .listResultaattypes(this.zaak().zaaktype.uuid)
       .subscribe((resultaattypes) => {
         this.resultaattypes = resultaattypes;
       });
 
     this.zakenService
-      .listBesluittypes(this.zaak.zaaktype.uuid)
+      .listBesluittypes(this.zaak().zaaktype.uuid)
       .subscribe((besluittypes) => {
         this.besluittypes = besluittypes;
       });
@@ -201,7 +208,7 @@ export class BesluitCreateComponent implements OnInit {
 
     this.createBesluitMutation.mutate({
       ...value,
-      zaakUuid: this.zaak.uuid,
+      zaakUuid: this.zaak().uuid,
       besluittypeUuid: value.besluit!.id,
       ingangsdatum: value.ingangsdatum?.toISOString(),
       vervaldatum: value.vervaldatum?.toISOString(),

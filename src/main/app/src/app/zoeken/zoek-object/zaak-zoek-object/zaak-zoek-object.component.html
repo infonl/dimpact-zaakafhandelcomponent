@@ -1,38 +1,38 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <div class="flex-row flex-wrap zoek-object-wrapper">
   <div class="flex-1 w33">
     <zac-zoek-object-link
-      [zoekObject]="zaak"
-      [sideNav]="sideNav"
+      [zoekObject]="zaak()"
+      [sideNav]="sideNav()"
     ></zac-zoek-object-link>
-    <zac-static-text label="zaaktype" [value]="zaak.zaaktypeOmschrijving" />
-    <zac-static-text label="status" [value]="zaak.statustypeOmschrijving" />
+    <zac-static-text label="zaaktype" [value]="zaak().zaaktypeOmschrijving" />
+    <zac-static-text label="status" [value]="zaak().statustypeOmschrijving" />
   </div>
   <div class="flex-1 w33">
-    <zac-static-text label="groep" [value]="zaak.groepNaam" />
-    <zac-static-text label="behandelaar" [value]="zaak.behandelaarNaam" />
+    <zac-static-text label="groep" [value]="zaak().groepNaam" />
+    <zac-static-text label="behandelaar" [value]="zaak().behandelaarNaam" />
     <zac-static-text
       label="resultaat"
-      [value]="zaak.resultaattypeOmschrijving"
+      [value]="zaak().resultaattypeOmschrijving"
     />
   </div>
   <div class="flex-1 w33">
-    <zac-static-text label="startdatum" [value]="zaak.startdatum | datum" />
+    <zac-static-text label="startdatum" [value]="zaak().startdatum | datum" />
     <zac-static-text
       label="einddatumGepland"
-      [value]="zaak.einddatumGepland | datum"
+      [value]="zaak().einddatumGepland | datum"
     />
     <zac-static-text
       label="uiterlijkeEinddatumAfdoening"
-      [value]="zaak.uiterlijkeEinddatumAfdoening | datum"
+      [value]="zaak().uiterlijkeEinddatumAfdoening | datum"
     />
-    <zac-static-text label="einddatum" [value]="zaak.einddatum | datum" />
+    <zac-static-text label="einddatum" [value]="zaak().einddatum | datum" />
   </div>
 </div>
 <div class="toelichting">
-  <zac-static-text label="omschrijving" [value]="zaak.omschrijving" />
-  <zac-static-text label="toelichting" [value]="zaak.toelichting" />
+  <zac-static-text label="omschrijving" [value]="zaak().omschrijving" />
+  <zac-static-text label="toelichting" [value]="zaak().toelichting" />
 </div>

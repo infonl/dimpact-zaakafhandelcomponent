@@ -10,7 +10,6 @@ import {
   effect,
   EventEmitter,
   input,
-  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -68,9 +67,9 @@ import { FormCommunicatieService } from "../form-communicatie-service";
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
-  @Input() zaaktypeUUID?: string | null = null;
-  @Input() sideNav?: MatSidenav;
-  @Input() syncEnabled: boolean = false;
+  readonly zaaktypeUUID = input<string | null | undefined>(null);
+  readonly sideNav = input<MatSidenav>();
+  readonly syncEnabled = input(false);
 
   protected blockSearch = input<boolean>(false);
 
@@ -161,7 +160,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (!this.syncEnabled) return;
+    if (!this.syncEnabled()) return;
 
     this.uuid = crypto.randomUUID();
 
@@ -307,7 +306,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
               ? value.gemeenteVanInschrijving
               : value.gemeenteVanInschrijving?.code,
         },
-        this.zaaktypeUUID ?? "",
+        this.zaaktypeUUID() ?? "",
       )
       .subscribe({
         next: (personen) => {
@@ -327,13 +326,13 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.persoon.emit(persoon);
     this.clearFormAndData();
 
-    if (this.syncEnabled) {
+    if (this.syncEnabled()) {
       this.formCommunicationService.notifyItemSelected(this.uuid);
     }
   }
 
   protected openPersoonPagina(persoon: GeneratedType<"RestPersoon">) {
-    this.sideNav?.close();
+    this.sideNav()?.close();
     void this.router.navigate(["/persoon/", persoon.temporaryPersonId]);
   }
 

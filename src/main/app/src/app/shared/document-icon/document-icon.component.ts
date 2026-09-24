@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { MatIcon } from "@angular/material/icon";
 import { TranslateService } from "@ngx-translate/core";
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
@@ -15,9 +15,9 @@ import { FileIcon } from "../../informatie-objecten/model/file-icon";
   imports: [MatIcon],
 })
 export class DocumentIconComponent {
-  @Input() bestandsnaam?: string;
+  private readonly translate = inject(TranslateService);
 
-  constructor(private translate: TranslateService) {}
+  readonly bestandsnaam = input<string>();
 
   getFileIcon(filename?: string) {
     return FileIcon.getIconByBestandsnaam(filename);

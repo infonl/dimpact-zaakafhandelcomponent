@@ -63,7 +63,8 @@
 
           <div
             *ngIf="
-              notitieRechten?.wijzigen && geselecteerdeNotitieId === notitie.id
+              notitieRechten()?.wijzigen &&
+              geselecteerdeNotitieId === notitie.id
             "
           >
             <mat-form-field appearance="fill" class="full-width">
@@ -76,8 +77,7 @@
                 cdkTextareaAutosize
                 id="notitie_wijzigen"
                 [maxLength]="maxLengteTextArea"
-                >{{ notitie.tekst }}</textarea
-              >
+                >{{ notitie.tekst }}</textarea>
               <mat-hint align="end">
                 {{ notitieTekst.value?.length ?? 0 }}/{{ maxLengteTextArea }}
               </mat-hint>
@@ -108,7 +108,7 @@
 
         <mat-card-actions
           *ngIf="
-            notitieRechten?.wijzigen &&
+            notitieRechten()?.wijzigen &&
             notitie.bewerkenToegestaan &&
             geselecteerdeNotitieId !== notitie.id
           "
@@ -135,7 +135,7 @@
     </ng-container>
   </mat-card-content>
 
-  <mat-card-actions *ngIf="notitieRechten?.wijzigen">
+  <mat-card-actions *ngIf="notitieRechten()?.wijzigen">
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>{{ "actie.notitie.aanmaken" | translate }}</mat-label>
       <textarea
@@ -145,7 +145,7 @@
         cdkTextareaAutosize
         matInput
         [maxLength]="maxLengteTextArea"
-        [disabled]="geselecteerdeNotitieId != null"
+        [disabled]="geselecteerdeNotitieId !== null"
       ></textarea>
       <mat-hint align="end">
         {{ notitieTekst.value?.length ?? 0 }}/{{ maxLengteTextArea }}
@@ -157,7 +157,7 @@
         color="primary"
         title="{{ 'actie.opslaan' | translate }}"
         [disabled]="
-          notitieTekst.value.length == 0 || geselecteerdeNotitieId != null
+          notitieTekst.value.length === 0 || geselecteerdeNotitieId !== null
         "
         (click)="maakNotitieAan(notitieTekst.value)"
       >

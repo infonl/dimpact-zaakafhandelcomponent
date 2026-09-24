@@ -7,10 +7,10 @@ import {
   AfterViewInit,
   Component,
   inject,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild,
+  input,
 } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
@@ -31,13 +31,14 @@ import { DashboardCard } from "../model/dashboard-card";
   standalone: true,
 })
 export abstract class DashboardCardComponent<
-    T extends
-      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> = GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
-    C extends readonly string[] = readonly string[],
-  >
+  T extends
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> =
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+  C extends readonly string[] = readonly string[],
+>
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Input({ required: true }) data!: DashboardCard;
+  readonly data = input.required<DashboardCard>();
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
@@ -69,8 +70,9 @@ export abstract class DashboardCardComponent<
       if (this.sort) this.dataSource.sort = this.sort;
     }
 
-    if (this.reload == null && this.data.signaleringType != null) {
-      this.reload = this.refreshOnSignalering(this.data.signaleringType);
+    const data = this.data();
+    if (this.reload == null && data.signaleringType != null) {
+      this.reload = this.refreshOnSignalering(data.signaleringType);
     }
     this.reloader = this.reload?.subscribe(() => {
       this.onLoad();

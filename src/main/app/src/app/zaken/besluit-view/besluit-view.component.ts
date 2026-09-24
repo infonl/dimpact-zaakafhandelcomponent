@@ -7,10 +7,11 @@ import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
-  Input,
+  inject,
   OnChanges,
   OnInit,
   Output,
+  input,
 } from "@angular/core";
 
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
@@ -63,9 +64,14 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
   ],
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
-  @Input({ required: true }) besluiten!: GeneratedType<"RestBesluit">[];
-  @Input({ required: true }) readonly!: boolean;
+  readonly besluiten = input.required<GeneratedType<"RestBesluit">[]>();
+  readonly readonly = input.required<boolean>();
   @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
+
+  private readonly zakenService = inject(ZakenService);
+  private readonly dialog = inject(MatDialog);
+  private readonly formBuilder = inject(FormBuilder);
+
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<
     string,
@@ -90,15 +96,9 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     true,
   );
 
-  constructor(
-    private zakenService: ZakenService,
-    private dialog: MatDialog,
-    private formBuilder: FormBuilder,
-  ) {}
-
   ngOnInit(): void {
-    if (this.besluiten.length > 0) {
-      this.loadBesluitData(this.besluiten[0].uuid);
+    if (this.besluiten().length > 0) {
+      this.loadBesluitData(this.besluiten()[0].uuid);
     }
   }
 
@@ -130,7 +130,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   }
 
   protected isReadonly(besluit: GeneratedType<"RestBesluit">) {
-    return this.readonly || besluit.isIngetrokken;
+    return this.readonly() || besluit.isIngetrokken;
   }
 
   protected intrekken(besluit: GeneratedType<"RestBesluit">) {

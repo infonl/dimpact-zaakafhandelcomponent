@@ -9,10 +9,10 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  Input,
   OnDestroy,
   Output,
   ViewChild,
+  input,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -111,7 +111,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   ],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
-  @Input({ required: false }) selectedIndexStart: number = 0;
+  readonly selectedIndexStart = input<number>(0);
   @Output() switchModellingMethod =
     new EventEmitter<ProcessModelMethodSelection>();
 

@@ -4,9 +4,9 @@
   -->
 
 <mat-icon
-  [title]="getFileTooltip(getFileIcon(bestandsnaam).type)"
+  [title]="getFileTooltip(getFileIcon(bestandsnaam()).type)"
   [style]="{
-    color: getFileIcon(bestandsnaam).color,
+    color: getFileIcon(bestandsnaam()).color,
   }"
-  >{{ getFileIcon(bestandsnaam).icon }}</mat-icon
+  >{{ getFileIcon(bestandsnaam()).icon }}</mat-icon
 >

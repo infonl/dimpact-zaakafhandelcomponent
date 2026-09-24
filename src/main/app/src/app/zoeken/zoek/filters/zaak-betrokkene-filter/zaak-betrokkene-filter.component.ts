@@ -4,7 +4,14 @@
  */
 
 import { NgClass } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  inject,
+  input,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -35,8 +42,8 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
   ],
 })
 export class ZaakBetrokkeneFilterComponent implements OnInit {
-  @Input({ required: true })
-  zoekparameters!: GeneratedType<"RestZoekParameters">;
+  readonly zoekparameters =
+    input.required<GeneratedType<"RestZoekParameters">>();
   @Output() changed = new EventEmitter<void>();
   protected dialogOpen: boolean = false;
   protected betrokkeneSelectControl = new FormControl<ZoekVeld>(
@@ -45,14 +52,14 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
   protected klantIdControl = new FormControl("");
   protected huidigeRoltype!: ZoekVeld;
   protected ZoekVeld = ZoekVeld;
-
-  constructor(private readonly dialog: MatDialog) {}
+  private readonly dialog = inject(MatDialog);
 
   ngOnInit(): void {
     this.bepaalHuidigRoltype();
-    if (this.zoekparameters?.zoeken && this.huidigeRoltype != null) {
+    const zoekparameters = this.zoekparameters();
+    if (zoekparameters?.zoeken && this.huidigeRoltype != null) {
       this.klantIdControl.setValue(
-        this.zoekparameters.zoeken[this.huidigeRoltype] ?? "",
+        zoekparameters.zoeken[this.huidigeRoltype] ?? "",
       );
     }
   }
@@ -69,14 +76,15 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
       .subscribe((result: GeneratedType<"RestBedrijf" | "RestPersoon">) => {
         this.dialogOpen = false;
 
-        if (this.zoekparameters?.zoeken && this.huidigeRoltype != null) {
+        const zoekparameters = this.zoekparameters();
+        if (zoekparameters?.zoeken && this.huidigeRoltype != null) {
           const identificatie =
             (result as GeneratedType<"RestBedrijf">).vestigingsnummer ??
             (result as GeneratedType<"RestBedrijf">).kvkNummer ??
             (result as GeneratedType<"RestPersoon">).bsn ??
             "";
           this.klantIdControl.setValue(identificatie);
-          this.zoekparameters.zoeken[this.huidigeRoltype] = identificatie;
+          zoekparameters.zoeken[this.huidigeRoltype] = identificatie;
         }
 
         this.changed.emit();
@@ -84,25 +92,27 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
   }
 
   idChanged(): void {
-    if (!this.zoekparameters?.zoeken || this.huidigeRoltype == null) return;
+    const zoekparameters = this.zoekparameters();
+    if (!zoekparameters?.zoeken || this.huidigeRoltype == null) return;
 
-    const huidigId = this.zoekparameters.zoeken[this.huidigeRoltype];
+    const huidigId = zoekparameters.zoeken[this.huidigeRoltype];
     const nieuwId = this.klantIdControl.value ?? "";
 
     if (huidigId !== nieuwId) {
-      this.zoekparameters.zoeken[this.huidigeRoltype] = nieuwId;
+      zoekparameters.zoeken[this.huidigeRoltype] = nieuwId;
       this.changed.emit();
     }
   }
 
   roltypeChanged(): void {
-    if (!this.zoekparameters?.zoeken) return;
+    const zoekparameters = this.zoekparameters();
+    if (!zoekparameters?.zoeken) return;
 
-    const id = this.zoekparameters.zoeken[this.huidigeRoltype];
+    const id = zoekparameters.zoeken[this.huidigeRoltype];
 
     // Delete old key safely
     if (this.huidigeRoltype != null) {
-      delete this.zoekparameters.zoeken[this.huidigeRoltype];
+      delete zoekparameters.zoeken[this.huidigeRoltype];
     }
 
     // Get new roltype safely, fallback to current if null
@@ -112,7 +122,7 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
 
     // Reassign old value
     if (newRoltype != null) {
-      this.zoekparameters.zoeken[newRoltype] = id ?? "";
+      zoekparameters.zoeken[newRoltype] = id ?? "";
     }
 
     if (id) {
@@ -122,21 +132,22 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
 
   bepaalHuidigRoltype() {
     this.huidigeRoltype = ZoekVeld.ZAAK_INITIATOR;
-    if (!this.zoekparameters?.zoeken) return;
+    const zoekparameters = this.zoekparameters();
+    if (!zoekparameters?.zoeken) return;
 
-    if (this.zoekparameters.zoeken.ZAAK_BETROKKENEN) {
+    if (zoekparameters.zoeken.ZAAK_BETROKKENEN) {
       this.huidigeRoltype = ZoekVeld.ZAAK_BETROKKENEN;
-    } else if (this.zoekparameters.zoeken.ZAAK_INITIATOR) {
+    } else if (zoekparameters.zoeken.ZAAK_INITIATOR) {
       this.huidigeRoltype = ZoekVeld.ZAAK_INITIATOR;
-    } else if (this.zoekparameters.zoeken.ZAAK_BETROKKENE_BELANGHEBBENDE) {
+    } else if (zoekparameters.zoeken.ZAAK_BETROKKENE_BELANGHEBBENDE) {
       this.huidigeRoltype = ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE;
-    } else if (this.zoekparameters.zoeken.ZAAK_BETROKKENE_ADVISEUR) {
+    } else if (zoekparameters.zoeken.ZAAK_BETROKKENE_ADVISEUR) {
       this.huidigeRoltype = ZoekVeld.ZAAK_BETROKKENE_ADVISEUR;
-    } else if (this.zoekparameters.zoeken.ZAAK_BETROKKENE_BESLISSER) {
+    } else if (zoekparameters.zoeken.ZAAK_BETROKKENE_BESLISSER) {
       this.huidigeRoltype = ZoekVeld.ZAAK_BETROKKENE_BESLISSER;
-    } else if (this.zoekparameters.zoeken.ZAAK_BETROKKENE_ZAAKCOORDINATOR) {
+    } else if (zoekparameters.zoeken.ZAAK_BETROKKENE_ZAAKCOORDINATOR) {
       this.huidigeRoltype = ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR;
-    } else if (this.zoekparameters.zoeken.ZAAK_BETROKKENE_MEDE_INITIATOR) {
+    } else if (zoekparameters.zoeken.ZAAK_BETROKKENE_MEDE_INITIATOR) {
       this.huidigeRoltype = ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR;
     }
   }

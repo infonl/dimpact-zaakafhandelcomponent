@@ -5,7 +5,7 @@
  */
 
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, OnInit } from "@angular/core";
+import { Component, computed, input } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialModule } from "../../material/material.module";
 import { IndicatieItem } from "../../model/indicatie-item";
@@ -19,23 +19,18 @@ import { IndicatiesComponent } from "../indicaties.component";
   standalone: true,
   imports: [CommonModule, MaterialModule, TranslateModule],
 })
-export class PersoonIndicatiesComponent
-  extends IndicatiesComponent
-  implements OnInit, OnChanges
-{
-  @Input({ required: true }) persoon!: GeneratedType<"RestPersoon">;
+export class PersoonIndicatiesComponent extends IndicatiesComponent {
+  readonly persoon = input.required<GeneratedType<"RestPersoon">>();
 
-  ngOnInit() {
-    this.loadIndicaties();
-  }
+  protected readonly indicaties = computed(() => this.createIndicaties());
 
-  private loadIndicaties(): void {
-    if (!this.persoon?.indicaties?.length) {
-      this.indicaties = [];
-      return;
+  private createIndicaties(): IndicatieItem[] {
+    const persoon = this.persoon();
+    if (!persoon?.indicaties?.length) {
+      return [];
     }
 
-    this.indicaties = this.persoon.indicaties.reduce((acc, indicatie) => {
+    return persoon.indicaties.reduce((acc, indicatie) => {
       let icon = "info";
       switch (indicatie) {
         case "GEHEIMHOUDING_OP_PERSOONSGEGEVENS":
@@ -66,9 +61,5 @@ export class PersoonIndicatiesComponent
 
       return [...acc, new IndicatieItem(indicatie, icon).temporary()];
     }, [] as IndicatieItem[]);
-  }
-
-  ngOnChanges() {
-    this.loadIndicaties();
   }
 }
