@@ -92,6 +92,24 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
 
+        given("A WebApplicationException with a status different from 500 and no message") {
+            val exception = WebApplicationException(null as String?, Response.Status.NOT_FOUND)
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return the generic server error code as the message and the not found status") {
+                    checkResponse(response, "msg.error.server.generic", expectedStatus = HttpStatus.SC_NOT_FOUND)
+                }
+
+                and("it should log a fallback message naming the response status, at the level FINE") {
+                    verify(exactly = 1) {
+                        log(any(), Level.FINE, "Exception was thrown. Returning response with status: '404'.", exception)
+                    }
+                }
+            }
+        }
+
         given("A runtime exception") {
             val exceptionMessage = "FakeRuntimeException"
             val exception = RuntimeException(exceptionMessage)

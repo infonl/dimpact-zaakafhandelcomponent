@@ -68,9 +68,10 @@ class ReferenceTableService @Inject constructor(
      * Reads a system reference table by its [SystemReferenceTable] code.
      * Unlike [readReferenceTable], the code here is never caller-supplied: a miss means the system
      * reference table was never seeded by an administrator, not that the caller guessed a bad code.
+     * A row matching the code but not flagged as a system reference table is treated the same as a
+     * miss, since a non-system table sharing a reserved code is itself a misconfiguration.
      */
     fun readSystemReferenceTable(systemReferenceTable: SystemReferenceTable): ReferenceTable =
-        findReferenceTable(systemReferenceTable.name) ?: throw SystemReferenceTableNotConfiguredException(
-            systemReferenceTable
-        )
+        findReferenceTable(systemReferenceTable.name)?.takeIf { it.isSystemReferenceTable }
+            ?: throw SystemReferenceTableNotConfiguredException(systemReferenceTable)
 }
