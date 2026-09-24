@@ -110,7 +110,13 @@ class LoggedInUserProvider @Inject constructor(
     private fun fallBackToFunctioneelGebruiker(): LoggedInUser {
         val origin = fallbackOrigin()
         if (loggedFallbackOrigins.add(origin) && loggedFallbackOrigins.size <= MAX_LOGGED_FALLBACK_ORIGINS) {
-            LOG.warning { "No logged-in user in scope, using the functionele gebruiker. Called from: $origin" }
+            LOG.warning {
+                "ZAC code ran without a user and fell back to the functionele gebruiker. " +
+                    "The work itself succeeded, but this fallback is deprecated and will be removed. " +
+                    "Beheerders: no action needed, please report this message to the ZAC developers. " +
+                    "Developers: name the user explicitly with runAsSystemUser or runAsLoggedInUser at the " +
+                    "entry point of the background work that leads to: $origin"
+            }
         }
         return FUNCTIONEEL_GEBRUIKER
     }
