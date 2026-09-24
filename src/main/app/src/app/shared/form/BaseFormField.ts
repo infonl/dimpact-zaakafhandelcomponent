@@ -20,6 +20,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
+import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
 import { FormHelper } from "./helpers";
 
@@ -30,6 +31,10 @@ import { FormHelper } from "./helpers";
  */
 @Component({
   template: "",
+  host: {
+    class: "zac-form-field",
+    "[attr.inert]": "isSubmitting() ? '' : null",
+  },
 })
 export class SingleInputFormField<
   Form extends Record<string, AbstractControl>,
@@ -40,6 +45,14 @@ export class SingleInputFormField<
   private readonly translateService = inject(TranslateService);
 
   private readonly controlErrors = signal<ValidationErrors | null>(null);
+
+  private readonly mutatingCount = injectIsMutating();
+
+  /**
+   * Blocks the field with `inert` rather than disabling its control, so the
+   * control keeps its value, validity and deliberately disabled state.
+   */
+  protected readonly isSubmitting = computed(() => this.mutatingCount() > 0);
 
   protected readonly destroy$ = new Subject<void>();
 

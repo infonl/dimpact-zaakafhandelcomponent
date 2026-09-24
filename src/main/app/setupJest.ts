@@ -7,7 +7,10 @@
 import { HttpTestingController } from "@angular/common/http/testing";
 import "@angular/compiler";
 import { TestBed } from "@angular/core/testing";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  provideTanStackQuery,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
 
 const cryptoPolyfill = {
@@ -149,6 +152,14 @@ export const testQueryClient = new QueryClient({
 });
 export const mockMutationFn = (timeout = MUTATION_TIMEOUT) =>
   new Promise((resolve) => sleep(timeout).then(resolve));
+
+// Every shared form field reads the pending mutations to lock itself, so any
+// spec that renders one needs a query client, whether or not it mutates.
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [provideTanStackQuery(testQueryClient)],
+  });
+});
 
 afterEach(() => {
   // Only the specs that provide `provideHttpClientTesting()` have one to verify.
