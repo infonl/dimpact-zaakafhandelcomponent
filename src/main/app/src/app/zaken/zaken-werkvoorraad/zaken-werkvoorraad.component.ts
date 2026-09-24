@@ -319,17 +319,20 @@ export class ZakenWerkvoorraadComponent
     dialogComponent: ComponentType<T>,
     release = false,
   ) {
-    const skippedBecauseGeautoriseerd = this.selection.selected.filter(
+    const geautoriseerdeZaken = this.selection.selected.filter(
       ({ isZaakspecifiekGeautoriseerd }) => isZaakspecifiekGeautoriseerd,
     );
-    const zaken = this.selection.selected.filter(
-      ({ isZaakspecifiekGeautoriseerd, behandelaarGebruikersnaam }) =>
-        !isZaakspecifiekGeautoriseerd &&
-        (!release || !!behandelaarGebruikersnaam),
-    );
+    // Verdelen only leaves a zaakspecifiek geautoriseerde zaak behind when the dialog returns no
+    // behandelaar, which is known once it closes; vrijgeven always leaves it behind.
+    const zaken = release
+      ? this.selection.selected.filter(
+          ({ isZaakspecifiekGeautoriseerd, behandelaarGebruikersnaam }) =>
+            !isZaakspecifiekGeautoriseerd && !!behandelaarGebruikersnaam,
+        )
+      : this.selection.selected;
 
     if (!zaken.length) {
-      this.showSkippedZakenMessage(release, skippedBecauseGeautoriseerd.length);
+      this.showSkippedZakenMessage(release, geautoriseerdeZaken.length);
       return;
     }
     this.batchProcessService.subscribe({
@@ -374,26 +377,34 @@ export class ZakenWerkvoorraadComponent
           return;
         }
 
+        const skippedZaken =
+          release || !this.toekenning?.medewerker ? geautoriseerdeZaken : [];
+        const verwerkteZaken = zaken.filter(
+          (zaak) => !skippedZaken.includes(zaak),
+        );
+
         if (!release) {
-          const notChanged = zaken
+          const notProcessed = zaken
             .filter(
               (x) =>
-                this.toekenning?.groep?.id === x.groepId &&
-                this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
+                skippedZaken.includes(x) ||
+                (this.toekenning?.groep?.id === x.groepId &&
+                  this.toekenning.medewerker?.id ===
+                    x.behandelaarGebruikersnaam),
             )
             .map(({ id }) => id);
-          this.batchProcessService.update(notChanged);
+          this.batchProcessService.update(notProcessed);
         }
         this.zakenLoading.set(true);
         const message =
-          zaken.length === 1
+          verwerkteZaken.length === 1
             ? this.translateService.instant(
                 release ? "msg.vrijgegeven.zaak" : "msg.verdeeld.zaak",
               )
             : this.translateService.instant(
                 release ? "msg.vrijgegeven.zaken" : "msg.verdeeld.zaken",
                 {
-                  aantal: zaken.length,
+                  aantal: verwerkteZaken.length,
                 },
               );
         this.batchProcessService.showProgress(message, {
@@ -401,10 +412,7 @@ export class ZakenWerkvoorraadComponent
             this.utilService.openSnackbar("msg.error.timeout");
           },
         });
-        this.showSkippedZakenMessage(
-          release,
-          skippedBecauseGeautoriseerd.length,
-        );
+        this.showSkippedZakenMessage(release, skippedZaken.length);
       });
   }
 
