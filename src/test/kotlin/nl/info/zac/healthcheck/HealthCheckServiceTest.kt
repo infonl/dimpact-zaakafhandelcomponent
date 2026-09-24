@@ -95,13 +95,13 @@ class HealthCheckServiceTest : BehaviorSpec({
             createInformatieObjectType(omschrijving = ConfigurationService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
         )
         every {
-            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE.name)
+            referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE)
         } returns createReferenceTable()
         every {
-            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
+            referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE)
         } returns createReferenceTable()
         every {
-            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE.name)
+            referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE)
         } returns createReferenceTable(
             values = mutableListOf(
                 createReferenceTableValue(name = "Algemeen"),
@@ -200,13 +200,13 @@ class HealthCheckServiceTest : BehaviorSpec({
             createInformatieObjectType(omschrijving = ConfigurationService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
         )
         every {
-            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE.name)
+            referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE)
         } returns createReferenceTable()
         every {
-            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
+            referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE)
         } returns createReferenceTable()
         every {
-            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE.name)
+            referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE)
         } returns createReferenceTable(
             values = mutableListOf(
                 createReferenceTableValue(name = "Algemeen"),

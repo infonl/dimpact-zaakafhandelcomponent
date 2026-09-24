@@ -120,7 +120,7 @@ class ReferenceTableRestService @Inject constructor(
     @Path("afzender")
     fun listEmailSenders(): List<String> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return referenceTableService.readReferenceTable(AFZENDER.name).values.let {
+        return referenceTableService.readSystemReferenceTable(AFZENDER).values.let {
             getReferenceTableValueNames(it)
         }
     }
@@ -130,13 +130,13 @@ class ReferenceTableRestService @Inject constructor(
     fun listCommunicationChannels(
         @PathParam("inclusiefEFormulier") includingEFormulier: Boolean
     ) = getReferenceTableValueNames(
-        referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name).values
+        referenceTableService.readSystemReferenceTable(COMMUNICATIEKANAAL).values
     ).filter { communicationChannel -> includingEFormulier || communicationChannel != COMMUNICATIEKANAAL_EFORMULIER }
 
     @GET
     @Path("server-error-text")
     fun listServerErrorPageTexts(): List<String> {
-        return referenceTableService.readReferenceTable(SERVER_ERROR_ERROR_PAGINA_TEKST.name).values.let {
+        return referenceTableService.readSystemReferenceTable(SERVER_ERROR_ERROR_PAGINA_TEKST).values.let {
             getReferenceTableValueNames(it)
         }
     }
@@ -144,21 +144,21 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("brp-doelbinding-zoek-waarde")
     fun listBrpDoelbindingZoekWaarden(): List<String> =
-        referenceTableService.readReferenceTable(BRP_DOELBINDING_ZOEK_WAARDE.name).values.let {
+        referenceTableService.readSystemReferenceTable(BRP_DOELBINDING_ZOEK_WAARDE).values.let {
             getReferenceTableValueNames(it)
         }
 
     @GET
     @Path("brp-doelbinding-raadpleeg-waarde")
     fun listBrpDoelbindingRaadpleegWaarden(): List<String> =
-        referenceTableService.readReferenceTable(BRP_DOELBINDING_RAADPLEEG_WAARDE.name).values.let {
+        referenceTableService.readSystemReferenceTable(BRP_DOELBINDING_RAADPLEEG_WAARDE).values.let {
             getReferenceTableValueNames(it)
         }
 
     @GET
     @Path("brp-verwerkingregister-waarde")
     fun listBrpVerwerkingregisterWaarde(): List<String> =
-        referenceTableService.readReferenceTable(BRP_VERWERKINGSREGISTER_WAARDE.name).values.let {
+        referenceTableService.readSystemReferenceTable(BRP_VERWERKINGSREGISTER_WAARDE).values.let {
             getReferenceTableValueNames(it)
         }
 

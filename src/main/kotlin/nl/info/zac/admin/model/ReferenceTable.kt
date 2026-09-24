@@ -31,7 +31,8 @@ import nl.info.zac.util.AllOpen
 class ReferenceTable {
     /**
      * Defines the list of 'system reference tables'.
-     * Make sure to keep this list in sync with the 'is_systeem_tabel' column in the database.
+     * The implementation expects that these system reference tables exist in the database,
+     * and have the [isSystemReferenceTable] column set to 'true'.
      */
     enum class SystemReferenceTable {
         ADVIES,

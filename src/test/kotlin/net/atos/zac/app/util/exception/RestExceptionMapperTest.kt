@@ -31,6 +31,8 @@ import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
+import nl.info.zac.admin.exception.SystemReferenceTableNotConfiguredException
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.besluit.BesluitPublicationDateMissingException
 import nl.info.zac.besluit.BesluitPublicationDisabledException
@@ -42,6 +44,8 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
+import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
@@ -82,8 +86,26 @@ class RestExceptionMapperTest : BehaviorSpec({
                     checkResponse(response, "msg.error.invalid.argument", exceptionMessage, HttpStatus.SC_BAD_REQUEST)
                 }
 
-                and("it should not log the exception") {
-                    verify(exactly = 0) { log(any(), any(), any<String>(), any()) }
+                and("it should log the exception at the level FINE") {
+                    verify(exactly = 1) { log(any(), Level.FINE, exceptionMessage, exception) }
+                }
+            }
+        }
+
+        given("A WebApplicationException with a status different from 500 and no message") {
+            val exception = WebApplicationException(null as String?, Response.Status.NOT_FOUND)
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return the generic server error code as the message and the not found status") {
+                    checkResponse(response, "msg.error.server.generic", expectedStatus = HttpStatus.SC_NOT_FOUND)
+                }
+
+                and("it should log a fallback message naming the response status, at the level FINE") {
+                    verify(exactly = 1) {
+                        log(any(), Level.FINE, "Exception was thrown. Returning response with status: '404'.", exception)
+                    }
                 }
             }
         }
@@ -592,6 +614,66 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "fakeErrorCodeValue",
                         expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                     )
+                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("A SmartDocumentsConfigurationException exception") {
+            val exception = SmartDocumentsConfigurationException("fakeMessage")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the SmartDocuments not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.smartdocuments.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("A SmartDocumentsDisabledException exception") {
+            val exception = SmartDocumentsDisabledException()
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the SmartDocuments disabled error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.smartdocuments.disabled",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("A SystemReferenceTableNotConfiguredException exception") {
+            val exception = SystemReferenceTableNotConfiguredException(AFZENDER)
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the system reference table not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.system.reference.table.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
                     verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
                 }
             }
