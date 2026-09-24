@@ -496,6 +496,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # The Docker Compose stack maps several Postgres containers to fixed host ports in the 54320-54330
+      # range, which falls inside the kernel's ephemeral port range. Without this, the runner can
+      # occasionally pick one of those ports as an ephemeral source port for an unrelated outbound
+      # connection at the exact moment Docker Compose tries to bind it, failing the stack start with
+      # "address already in use". Reserve the range before any step below can open a connection that
+      # could claim one of those ports as an ephemeral source port.
+      - name: Reserve the Docker Compose Postgres ports so the kernel never uses them as ephemeral ports
+        run: sudo sysctl -w net.ipv4.ip_local_reserved_ports=54320-54330
+
       - name: Authenticate with Docker Hub to avoid rate limiting issues
         # Skip for pull requests from forks because a forked repository is not allowed to access our secrets
         if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
@@ -545,14 +554,6 @@ jobs:
             sleep 2
           done
           cat "$RUNNER_TEMP/compose-pull.log"
-
-      # The Docker Compose stack maps several Postgres containers to fixed host ports in the 54320-54330
-      # range, which falls inside the kernel's ephemeral port range. Without this, the runner can
-      # occasionally pick one of those ports as an ephemeral source port for an unrelated outbound
-      # connection at the exact moment Docker Compose tries to bind it, failing the stack start with
-      # "address already in use".
-      - name: Reserve the Docker Compose Postgres ports so the kernel never uses them as ephemeral ports
-        run: sudo sysctl -w net.ipv4.ip_local_reserved_ports=54320-54330
 
       # The full integration test log (including the container logs) is written to a file that is uploaded
       # as an artifact when the tests fail. The console only shows failed tests.
