@@ -139,6 +139,18 @@ describe(BatchProcessService.name, () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
     });
 
+    test("should default to a 5 minute timeout when no duration is passed", () => {
+      jest.useFakeTimers();
+      const onTimeout = jest.fn();
+      service.showProgress("message", { onTimeout });
+
+      jest.advanceTimersByTime(5 * 60 * 1000 - 1);
+      expect(onTimeout).not.toHaveBeenCalled();
+
+      jest.advanceTimersByTime(1);
+      expect(onTimeout).toHaveBeenCalledTimes(1);
+    });
+
     test("should call the timeout callback after the timeout", () => {
       jest.useFakeTimers();
       const timeout = 100;
