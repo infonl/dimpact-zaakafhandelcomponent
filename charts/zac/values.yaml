@@ -14,7 +14,7 @@
 global:
   curlImage:
      # -- curl docker repository used throughout the chart
-    repository: curlimages/curl
+    repository: docker.io/curlimages/curl
      # -- curl docker tag to pull
     tag: 8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777
     pullPolicy: IfNotPresent
@@ -421,7 +421,7 @@ opa:
     port: 8181
     annotations: {}
   image:
-    repository: openpolicyagent/opa
+    repository: docker.io/openpolicyagent/opa
     tag: "1.20.2-static@sha256:bb245e9e36be0d0ed486c240b606c56be7aba96014a4a87895fed4ba7a6dfa8d"
     pullPolicy: IfNotPresent
    # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
@@ -664,7 +664,7 @@ office_converter:
    # the url should be the url office-converter can be reached on from ZAC ( for example: http://release-office-converter.default.svc.cluster.local )
    # url: ""
   image:
-    repository: gotenberg/gotenberg
+    repository: docker.io/gotenberg/gotenberg
     tag: "8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769"
     pullPolicy: IfNotPresent
   name: "office-converter"
@@ -751,7 +751,7 @@ opentelemetry-collector:
 nginx:
   enabled: false
   image:
-    repository: nginxinc/nginx-unprivileged
+    repository: docker.io/nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
     tag: 1.31.6@sha256:e44b470e571b20d935336bfb9f8277c1468d15e1e4d105a12ab5609d0b4682cb
   service:
