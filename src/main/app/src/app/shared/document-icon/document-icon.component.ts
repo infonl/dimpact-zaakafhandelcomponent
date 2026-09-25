@@ -15,11 +15,11 @@ import { FileIcon } from "../../informatie-objecten/model/file-icon";
   imports: [MatIcon],
 })
 export class DocumentIconComponent {
-  @Input() bestandsnaam?: string;
+  @Input() bestandsnaam?: string | null;
 
   constructor(private translate: TranslateService) {}
 
-  getFileIcon(filename?: string) {
+  getFileIcon(filename?: string | null) {
     return FileIcon.getIconByBestandsnaam(filename);
   }
 
