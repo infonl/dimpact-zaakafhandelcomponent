@@ -83,9 +83,6 @@
         <flowable:field name="template">
           <flowable:string><![CDATA[Ontvangstbevestiging]]></flowable:string>
         </flowable:field>
-        <flowable:field name="vertrouwelijkheidaanduiding">
-          <flowable:string><![CDATA[OPENBAAR]]></flowable:string>
-        </flowable:field>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
