@@ -19,9 +19,12 @@ As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports t
 | recordmanager | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
 | beheerder     | De functioneel beheerder. Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzingen.              |
 | brp_zoeken    | Heeft het recht om personen op te zoeken in de BRP (Basisregistratie Personen).                                                            |
+| systeemrol_behandelaar_alle_zaaktypen | Interne systeemrol, niet toewijsbaar aan een medewerker. Wordt uitsluitend gebruikt door de interne "Productaanvraag"-systeemgebruiker (`PRODUCTAANVRAAG_GEBRUIKER`, zie `LoggedInUserProvider.kt`) die zaken verwerkt die zijn aangemaakt vanuit een productaanvraag. Geeft behandelaar-achtige rechten op elke zaak, van elk zaaktype, ongeacht de open/gesloten status van de zaak. |
 
 
 Typically, these roles are assigned to individual users through groups.
+The `systeemrol_behandelaar_alle_zaaktypen` role above is the one exception: it is never assigned through a
+group, only hardcoded to the internal productaanvraag system user.
 
 Note that the ZAC authorisation architecture has been set up in such that a user also needs all 'lower-level' roles
 next to their 'main' role in order to be able to work in ZAC.
@@ -120,6 +123,13 @@ Notes:
   and therefore no task can be started.
 - The policies listed above are backend policies. Whether the related functionality is available to the user in the
   frontend (browser) is for a large part also determined by these policies but differences may apply.
+- The `systeemrol_behandelaar_alle_zaaktypen` role is not shown in the table above. It only covers *Zaak rechten*:
+  it is not referenced by the Taak, Document, Werklijst, Notitie, Overige or BRP policies, so this role grants no
+  rights there. Within *Zaak rechten* it grants every right except `heropenen` and `bekijkenZaakdata`, which remain
+  recordmanager/beheerder-only. Where it is granted, the right is unconditional: unlike every other role, it ignores
+  the zaak's open/closed state and the zaaktype restriction. This role is not assigned to employees; it is hardcoded
+  to the internal productaanvraag system user (see the roles table above), so that ZAC can process a zaak created
+  from a productaanvraag regardless of its zaaktype or current status.
 
 ## Technical implementation
 

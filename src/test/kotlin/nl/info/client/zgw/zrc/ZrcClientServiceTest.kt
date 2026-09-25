@@ -61,7 +61,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         )
         val auditExplanation = "fakeExplanation"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
-        every { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any()) } answers { secondArg<() -> Any?>()() }
         every { zrcClient.rolCreate(any()) } returns newRole
 
         `when`("updateRol is called") {
@@ -69,7 +69,7 @@ class ZrcClientServiceTest : BehaviorSpec({
 
             then("it should create the new role and set the audit description") {
                 verify(exactly = 1) {
-                    zgwClientHeadersFactory.setAuditExplanation(auditExplanation)
+                    zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
                     zrcClient.rolCreate(newRole)
                 }
             }
@@ -85,7 +85,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         val description = "fakeDescription"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
         every { zrcClient.rolDelete(any()) } just Runs
-        every { zgwClientHeadersFactory.setAuditExplanation(description) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(description, any()) } answers { secondArg<() -> Any?>()() }
 
         `when`("deleteRol is called for betrokkeneType 'Medewerker'") {
             zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, description)

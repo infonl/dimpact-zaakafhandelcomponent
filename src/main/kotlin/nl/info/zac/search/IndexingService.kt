@@ -16,7 +16,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
-import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
+import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -103,18 +103,18 @@ class IndexingService @Inject constructor(
         }
         reindexingViewfinder.add(objectType)
         try {
-            systemUser.set(true)
-            LOG.info("[$objectType] Reindexing started")
-            removeEntitiesFromSolrIndex(objectType)
-            when (objectType) {
-                ZoekObjectType.ZAAK -> reindexAllZaken()
-                ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
-                ZoekObjectType.TAAK -> reindexAllTaken()
+            runAsSystemUser {
+                LOG.info("[$objectType] Reindexing started")
+                removeEntitiesFromSolrIndex(objectType)
+                when (objectType) {
+                    ZoekObjectType.ZAAK -> reindexAllZaken()
+                    ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
+                    ZoekObjectType.TAAK -> reindexAllTaken()
+                }
+                LOG.info("[$objectType] Reindexing finished")
             }
-            LOG.info("[$objectType] Reindexing finished")
         } finally {
             reindexingViewfinder.remove(objectType)
-            systemUser.remove()
         }
     }
 

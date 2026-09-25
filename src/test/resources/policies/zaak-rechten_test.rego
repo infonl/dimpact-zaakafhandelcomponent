@@ -773,3 +773,160 @@ test_wijzigen_locatie_wrong_role_fails if {
         with input.user.rollen as [ "fakeRole" ]
         with input.zaak.open as false
 }
+
+test_lezen_systeemrol_behandelaar_alle_zaaktypen if {
+    lezen with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
+test_wijzigen_systeemrol_behandelaar_alle_zaaktypen if {
+    wijzigen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_toekennen_systeemrol_behandelaar_alle_zaaktypen if {
+    toekennen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_behandelen_systeemrol_behandelaar_alle_zaaktypen if {
+    behandelen with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
+test_afbreken_systeemrol_behandelaar_alle_zaaktypen if {
+    afbreken with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
+test_heropenen_systeemrol_behandelaar_alle_zaaktypen_fails if {
+    not heropenen with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
+test_bekijken_zaakdata_systeemrol_behandelaar_alle_zaaktypen_fails if {
+    not bekijken_zaakdata with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
+test_wijzigen_doorlooptijd_systeemrol_behandelaar_alle_zaaktypen if {
+    wijzigen_doorlooptijd
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_verlengen_systeemrol_behandelaar_alle_zaaktypen if {
+    verlengen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+        with input.zaak.heropend as true
+        with input.zaak.opgeschort as true
+        with input.zaak.verlengd as true
+}
+
+test_opschorten_systeemrol_behandelaar_alle_zaaktypen if {
+    opschorten
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+        with input.zaak.heropend as true
+        with input.zaak.opgeschort as true
+}
+
+test_hervatten_systeemrol_behandelaar_alle_zaaktypen if {
+    hervatten with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+}
+
+test_creeren_document_systeemrol_behandelaar_alle_zaaktypen if {
+    creeren_document
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_document_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_document
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_koppelen_systeemrol_behandelaar_alle_zaaktypen if {
+    koppelen
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_versturen_email_systeemrol_behandelaar_alle_zaaktypen if {
+    versturen_email
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_versturen_ontvangstbevestiging_systeemrol_behandelaar_alle_zaaktypen if {
+    versturen_ontvangstbevestiging
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_initiator_persoon_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_initiator_persoon
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_initiator_bedrijf_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_initiator_bedrijf
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_verwijderen_initiator_systeemrol_behandelaar_alle_zaaktypen if {
+    verwijderen_initiator
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_betrokkene_persoon_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_betrokkene_persoon
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_betrokkene_bedrijf_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_betrokkene_bedrijf
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_verwijderen_betrokkene_systeemrol_behandelaar_alle_zaaktypen if {
+    verwijderen_betrokkene
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_bag_object_systeemrol_behandelaar_alle_zaaktypen if {
+    toevoegen_bag_object
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_starten_taak_systeemrol_behandelaar_alle_zaaktypen if {
+    starten_taak
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_vastleggen_besluit_systeemrol_behandelaar_alle_zaaktypen if {
+    vastleggen_besluit
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+        with input.zaak.intake as true
+        with input.zaak.besloten as false
+}
+
+test_verlengen_doorlooptijd_systeemrol_behandelaar_alle_zaaktypen if {
+    verlengen_doorlooptijd
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_locatie_systeemrol_behandelaar_alle_zaaktypen if {
+    wijzigen_locatie
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
+}

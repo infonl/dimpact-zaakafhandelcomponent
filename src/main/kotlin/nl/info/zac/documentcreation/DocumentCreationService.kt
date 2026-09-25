@@ -46,6 +46,7 @@ class DocumentCreationService @Inject constructor(
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val configurationService: ConfigurationService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val documentCreationUserStore: DocumentCreationUserStore,
 ) {
     companion object {
         private const val SMART_DOCUMENTS_WIZARD_FINISH_PAGE = "static/smart-documents-result.html"
@@ -139,6 +140,8 @@ class DocumentCreationService @Inject constructor(
         ).apply {
             queryParam("templateId", templateId)
             queryParam("templateGroupId", templateGroupId)
+            // the callback is unauthenticated: it recovers the user from this token, not from the URL
+            queryParam("documentCreationToken", documentCreationUserStore.createToken())
         }
 
         return if (taskId != null) {

@@ -14,6 +14,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.util.AllOpen
@@ -36,6 +37,13 @@ class ZaaktypeConfigurationService @Inject constructor(
         private val LOG = Logger.getLogger(ZaaktypeConfigurationService::class.java.name)
     }
 
+    private val beheerServicesByConfigurationType by lazy {
+        mapOf<ZaaktypeConfigurationType, ZaaktypeConfigurationBeheerService>(
+            CMMN to zaaktypeCmmnConfigurationBeheerService,
+            BPMN to zaaktypeBpmnConfigurationBeheerService
+        )
+    }
+
     fun updateZaaktypeConfiguration(zaaktypeUri: URI) {
         ztcClientService.clearZaaktypeCache()
         ztcClientService.readZaaktype(zaaktypeUri).let {
@@ -44,10 +52,9 @@ class ZaaktypeConfigurationService @Inject constructor(
                 return
             }
             getLastCreatedConfiguration(it.omschrijving)?.let { zaaktypeConfiguration ->
-                when (zaaktypeConfiguration.getConfigurationType()) {
-                    CMMN -> zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(it)
-                    BPMN -> zaaktypeBpmnConfigurationBeheerService.copyConfiguration(it)
-                }
+                beheerServicesByConfigurationType
+                    .getValue(zaaktypeConfiguration.getConfigurationType())
+                    .upsertConfiguration(it)
             } ?: LOG.info {
                 "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} has no known configuration. Ignoring"
             }

@@ -5,6 +5,7 @@
 package nl.info.zac.app.task.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -18,6 +19,9 @@ import net.atos.zac.flowable.util.TaskUtil
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
+import nl.info.zac.admin.model.createHumanTaskReferentieTabel
+import nl.info.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.task.model.TaakStatus
@@ -156,6 +160,65 @@ class RestTaskConverterTest : BehaviorSpec({
                 then("formio formulier is set and formulierDefinitieId is null") {
                     restTask.formioFormulier shouldBe fakeFormioFormulier
                     restTask.formulierDefinitieId.shouldBeNull()
+                }
+
+                and("no reference tables are offered because the formio form carries its own options") {
+                    restTask.tabellen.shouldBeEmpty()
+                }
+            }
+        }
+
+        given("a CMMN advies task whose human task is coupled to the ADVIES reference table") {
+            val taskInfo = mockk<TaskInfo>()
+            val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+            val humanTaskParameters = createHumanTaskParameters(
+                planItemDefinitionID = taskDefinitionKey,
+                formulierDefinitieID = "ADVIES",
+                referenceTables = listOf(
+                    createHumanTaskReferentieTabel(
+                        referenceTable = createReferenceTable(
+                            code = "ADVIES",
+                            values = mutableListOf(
+                                createReferenceTableValue(id = 1L, name = "Positief"),
+                                createReferenceTableValue(id = 2L, name = "Negatief")
+                            )
+                        ),
+                        field = "ADVIES"
+                    )
+                )
+            )
+
+            every { TaakVariabelenService.readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
+            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
+            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
+            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
+            every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
+            every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
+            every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
+            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
+            every { TaskUtil.isCmmnTask(taskInfo) } returns true
+
+            every { taskInfo.id } returns "fakeAdviesTaskId"
+            every { taskInfo.name } returns "Advies intern"
+            every { taskInfo.assignee } returns null
+            every { taskInfo.description } returns null
+            every { taskInfo.createTime } returns null
+            every { taskInfo.claimTime } returns null
+            every { taskInfo.dueDate } returns null
+            every { taskInfo.taskDefinitionKey } returns taskDefinitionKey
+            every { taskInfo.identityLinks } returns emptyList()
+
+            every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns createTaakRechten()
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
+            } returns zaaktypeCmmnConfiguration
+            every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
+
+            `when`("convert is called") {
+                val restTask = restTaskConverter.convert(taskInfo)
+
+                then("the advies options of the reference table are offered on the task") {
+                    restTask.tabellen["ADVIES"] shouldBe listOf("Positief", "Negatief")
                 }
             }
         }

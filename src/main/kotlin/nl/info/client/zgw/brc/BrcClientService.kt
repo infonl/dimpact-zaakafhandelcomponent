@@ -37,13 +37,15 @@ class BrcClientService @Inject constructor(
     fun createBesluit(besluit: Besluit): Besluit = brcClient.besluitCreate(besluit)
 
     fun updateBesluit(besluit: Besluit, auditExplanation: String?): Besluit {
-        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return brcClient.besluitUpdate(besluit.url.extractUuid(), besluit)
+        return zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
+            brcClient.besluitUpdate(besluit.url.extractUuid(), besluit)
+        }
     }
 
     fun patchBesluit(besluitUuid: UUID, besluit: Besluit, auditExplanation: String?): Besluit {
-        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return brcClient.besluitPartialUpdate(besluitUuid, besluit)
+        return zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
+            brcClient.besluitPartialUpdate(besluitUuid, besluit)
+        }
     }
 
     fun listAuditTrail(besluitUuid: UUID): List<AuditTrailRegel> = brcClient.listAuditTrail(besluitUuid)
@@ -54,8 +56,9 @@ class BrcClientService @Inject constructor(
         besluitInformatieobject: BesluitInformatieObject,
         auditExplanation: String?
     ): BesluitInformatieObject {
-        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return brcClient.besluitinformatieobjectCreate(besluitInformatieobject)
+        return zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
+            brcClient.besluitinformatieobjectCreate(besluitInformatieobject)
+        }
     }
 
     fun deleteBesluitinformatieobject(besluitInformatieobjectUuid: UUID): BesluitInformatieObject =

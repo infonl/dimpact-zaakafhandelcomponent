@@ -9,29 +9,182 @@ import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeBrpParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @ApplicationScoped
 @Transactional
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class ZaaktypeHelperService @Inject constructor(
     private val ztcClientService: ZtcClientService,
 ) {
-    /**
-     * Remaps the ZaakbeeindigGegevens of the given zaaktype configuration onto the resultaattypen of the given
-     * zaaktype, in place. Passing the configuration as both source and destination is safe: [mapZaakbeeindigGegevens]
-     * resolves all resultaattypen into local variables before it writes anything back.
-     *
-     * @param zaaktypeConfiguration source and destination
-     * @param newZaaktype           zaaktype to read the results from
-     */
+    fun copyConfigurationData(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktype: ZaakType
+    ) {
+        copySharedConfigurationData(previousZaaktypeConfiguration, newZaaktypeConfiguration, newZaaktype)
+        when {
+            previousZaaktypeConfiguration is ZaaktypeCmmnConfiguration &&
+                newZaaktypeConfiguration is ZaaktypeCmmnConfiguration ->
+                copyCmmnConfigurationData(previousZaaktypeConfiguration, newZaaktypeConfiguration, newZaaktype)
+            previousZaaktypeConfiguration is ZaaktypeBpmnConfiguration &&
+                newZaaktypeConfiguration is ZaaktypeBpmnConfiguration ->
+                copyBpmnConfigurationData(previousZaaktypeConfiguration, newZaaktypeConfiguration)
+            else -> throw IllegalArgumentException(
+                "Cannot copy a ${previousZaaktypeConfiguration.getConfigurationType()} zaaktype configuration " +
+                    "onto a ${newZaaktypeConfiguration.getConfigurationType()} zaaktype configuration"
+            )
+        }
+    }
+
+    private fun copyCmmnConfigurationData(
+        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        newZaaktype: ZaakType
+    ) {
+        newZaaktypeCmmnConfiguration.apply {
+            caseDefinitionID = previousZaaktypeCmmnConfiguration.caseDefinitionID
+            einddatumGeplandWaarschuwing = previousZaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing.takeIf {
+                newZaaktype.isServicenormAvailable()
+            }
+            uiterlijkeEinddatumAfdoeningWaarschuwing =
+                previousZaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
+            intakeMail = previousZaaktypeCmmnConfiguration.intakeMail
+            afrondenMail = previousZaaktypeCmmnConfiguration.afrondenMail
+        }
+        copyHumanTaskParameters(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
+        copyUserEventListenerParameters(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
+        copyMailtemplateKoppelingen(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
+        copyZaakAfzenders(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
+        copyAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
+    }
+
+    private fun copyBpmnConfigurationData(
+        previousZaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration,
+        newZaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration
+    ) {
+        newZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey =
+            previousZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
+    }
+
+    private fun copyHumanTaskParameters(
+        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    ) = previousZaaktypeCmmnConfiguration.getHumanTaskParametersCollection().map {
+        ZaaktypeCmmnHumantaskParameters().apply {
+            doorlooptijd = it.doorlooptijd
+            actief = it.actief
+            setFormulierDefinitieID(it.getFormulierDefinitieID())
+            planItemDefinitionID = it.planItemDefinitionID
+            groepID = it.groepID
+            setReferentieTabellen(it.getReferentieTabellen())
+        }
+    }.toSet().let(newZaaktypeCmmnConfiguration::setHumanTaskParametersCollection)
+
+    private fun copyUserEventListenerParameters(
+        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    ) = previousZaaktypeCmmnConfiguration.getUserEventListenerParametersCollection().map {
+        ZaaktypeCmmnUsereventlistenerParameters().apply {
+            planItemDefinitionID = it.planItemDefinitionID
+            toelichting = it.toelichting
+        }
+    }.toSet().let(newZaaktypeCmmnConfiguration::setUserEventListenerParametersCollection)
+
+    private fun copyMailtemplateKoppelingen(
+        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    ) = previousZaaktypeCmmnConfiguration.getMailtemplateKoppelingen().map {
+        ZaaktypeCmmnMailtemplateParameters().apply {
+            mailTemplate = it.mailTemplate
+            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+        }
+    }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
+
+    private fun copyZaakAfzenders(
+        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    ) = previousZaaktypeCmmnConfiguration.getZaakAfzenders().map {
+        ZaaktypeCmmnZaakafzenderParameters().apply {
+            defaultMail = it.defaultMail
+            mail = it.mail
+            replyTo = it.replyTo
+            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+        }
+    }.let(newZaaktypeCmmnConfiguration::setZaakAfzenders)
+
+    private fun copyAutomaticEmailConfirmation(
+        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    ) {
+        newZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters = ZaaktypeCmmnEmailParameters().apply {
+            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+            enabled = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.enabled ?: false
+            templateName = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
+            emailSender = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
+            emailReply = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
+        }
+    }
+
+    private fun copySharedConfigurationData(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktype: ZaakType
+    ) {
+        newZaaktypeConfiguration.apply {
+            groepID = previousZaaktypeConfiguration.groepID
+            defaultBehandelaarId = previousZaaktypeConfiguration.defaultBehandelaarId
+            productaanvraagtype = previousZaaktypeConfiguration.productaanvraagtype
+            smartDocumentsEnabled = previousZaaktypeConfiguration.smartDocumentsEnabled
+            creatiedatum = ZonedDateTime.now()
+        }
+        copyBetrokkeneKoppelingen(previousZaaktypeConfiguration, newZaaktypeConfiguration)
+        copyBrpDoelbindingen(previousZaaktypeConfiguration, newZaaktypeConfiguration)
+        mapZaakbeeindigGegevens(previousZaaktypeConfiguration, newZaaktypeConfiguration, newZaaktype)
+    }
+
+    private fun copyBetrokkeneKoppelingen(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) {
+        newZaaktypeConfiguration.zaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
+            zaaktypeConfiguration = newZaaktypeConfiguration
+            brpKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
+            kvkKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
+        }
+    }
+
+    private fun copyBrpDoelbindingen(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) {
+        newZaaktypeConfiguration.zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
+            zaaktypeConfiguration = newZaaktypeConfiguration
+            zoekWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.zoekWaarde
+            raadpleegWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
+            verwerkingregisterWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.verwerkingregisterWaarde
+        }
+    }
+
     fun updateZaakbeeindigGegevens(
         zaaktypeConfiguration: ZaaktypeConfiguration,
         newZaaktype: ZaakType
@@ -48,26 +201,18 @@ class ZaaktypeHelperService @Inject constructor(
             ?.extractUuid()
 
     /**
-     * Copying of the ZaakbeeindigGegevens from the old ZaaktypeConfiguration to the new ZaaktypeConfiguration.
-     * Resultaattypen of the previous configuration are matched to those of the new zaaktype by omschrijving;
-     * parameters without a match are dropped.
-     *
      * Source and destination may be the same instance; everything is read into local variables before the first write.
-     *
-     * @param previousZaaktypeCmmnConfiguration source
-     * @param newZaaktypeCmmnConfiguration      destination
-     * @param newZaaktype                       new zaaktype to read the results from
      */
     fun mapZaakbeeindigGegevens(
-        previousZaaktypeCmmnConfiguration: ZaaktypeConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeConfiguration,
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration,
         newZaaktype: ZaakType
     ) {
         val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
-        val nietOntvankelijkResultaattype = previousZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
+        val nietOntvankelijkResultaattype = previousZaaktypeConfiguration.nietOntvankelijkResultaattype?.let {
             mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
         }
-        val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
+        val zaakbeeindigParametersCollection = previousZaaktypeConfiguration.getZaakbeeindigParameters()
             .mapNotNull { zaakbeeindigParameter ->
                 zaakbeeindigParameter.resultaattype
                     .let { mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen) }
@@ -78,7 +223,7 @@ class ZaaktypeHelperService @Inject constructor(
                         }
                     }
             }.toMutableSet()
-        newZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
-        newZaaktypeCmmnConfiguration.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
+        newZaaktypeConfiguration.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        newZaaktypeConfiguration.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
     }
 }
