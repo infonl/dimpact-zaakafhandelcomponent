@@ -62,9 +62,9 @@ class SignaleringEventObserver @Inject constructor(
     override fun onFire(@ObservesAsync event: SignaleringEvent<*>) {
         try {
             runAsSystemUser { handle(event) }
-        } catch (throwable: Throwable) {
+        } catch (runtimeException: RuntimeException) {
             // nothing observes the outcome of an async event, so an uncaught failure would go unnoticed
-            LOG.log(Level.SEVERE, "asynchronous guard", throwable)
+            LOG.log(Level.SEVERE, "asynchronous guard", runtimeException)
         }
     }
 
