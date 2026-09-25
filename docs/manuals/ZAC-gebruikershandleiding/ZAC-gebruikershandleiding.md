@@ -88,6 +88,7 @@ Versiegeschiedenis:
     - [Document maken](#document-maken)
     - [Document toevoegen](#document-toevoegen)
     - [Document verzenden](#document-verzenden)
+    - [Zaakdata bekijken](#zaakdata-bekijken)
     - [Zaak afbreken](#zaak-afbreken)
     - [Intake afronden](#intake-afronden)
     - [Initiator koppelen](#initiator-koppelen)
@@ -718,6 +719,20 @@ Nadat de actie is afgerond is het document voorzien van een ‘is verzonden’ i
 ![Document verzenden](./images/document-verzenden.png)
 
 >Zweef met de muis over de indicatie om de verzenddatum te zien!
+
+### Zaakdata bekijken
+
+Bij een zaak die zaakdata bevat (variabelen uit het onderliggende proces of de zaakbehandeling) kunnen deze gegevens via deze actie ingezien worden. De velden zijn alleen-lezen; met het kopieer-icoon naast een veld kan de naam ervan gekopieerd worden.
+
+>Deze actie is alleen zichtbaar als er zaakdata aanwezig is en je hiervoor rechten hebt.
+
+Zolang het onderliggende proces of de zaakbehandeling nog actief is, heet deze actie ‘Zaakdata’. Is het proces of de zaakbehandeling afgerond, dan heet de actie ‘Zaakdata archief’ en wordt bovenaan het geopende paneel een toelichting getoond dat de getoonde zaakdata gearchiveerd is en kan afwijken van de actuele zaakgegevens, bijvoorbeeld het communicatiekanaal.
+
+**Stappen:**
+
+1 In een zaak kies je actie *Zaakdata* (of *Zaakdata archief* als de onderliggende zaakbehandeling is afgerond)
+
+2 Bekijk de zaakdata in het geopende paneel
 
 ### Zaak afbreken
 
