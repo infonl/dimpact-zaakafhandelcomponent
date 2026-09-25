@@ -127,7 +127,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     requestedMarking = null,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
-                    behandelaarId = "fakeBehandelaarId",
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                     loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
                 )
 
@@ -152,7 +152,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     requestedMarking = true,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
-                    behandelaarId = "fakeBehandelaarId",
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                     loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
                 )
 
@@ -166,7 +166,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     requestedMarking = false,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
-                    behandelaarId = "fakeBehandelaarId",
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                     loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
                 )
 
@@ -187,7 +187,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             zaakType = zaakType,
                             requestedMarking = true,
                             isAlreadyZaakspecifiekGeautoriseerd = false,
-                            behandelaarId = "fakeBehandelaarId",
+                            currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                             loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
                         )
                     }
@@ -213,7 +213,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             zaakType = zaakType,
                             requestedMarking = true,
                             isAlreadyZaakspecifiekGeautoriseerd = false,
-                            behandelaarId = "fakeBehandelaarId",
+                            currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                             loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
                         )
                     }
@@ -241,7 +241,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             zaakType = zaakType,
                             requestedMarking = true,
                             isAlreadyZaakspecifiekGeautoriseerd = false,
-                            behandelaarId = null,
+                            currentAndRequestedBehandelaarIds = emptySet(),
                             loggedInUser = createLoggedInUser()
                         )
                     }
@@ -269,7 +269,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             zaakType = zaakType,
                             requestedMarking = true,
                             isAlreadyZaakspecifiekGeautoriseerd = false,
-                            behandelaarId = "fakeBehandelaarId",
+                            currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                             loggedInUser = createLoggedInUser(id = "fakeOtherUserId")
                         )
                     }
@@ -280,12 +280,26 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
 
+            `when`("a user who does not hold the zaakspecifiek_geautoriseerd role takes the zaak over and marks it in one update") {
+                val shouldMark = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
+                    zaakType = zaakType,
+                    requestedMarking = true,
+                    isAlreadyZaakspecifiekGeautoriseerd = false,
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId", "fakeOtherUserId"),
+                    loggedInUser = createLoggedInUser(id = "fakeOtherUserId")
+                )
+
+                then("the zaak is marked, because the user becomes its behandelaar") {
+                    shouldMark shouldBe true
+                }
+            }
+
             `when`("a user who holds the zaakspecifiek_geautoriseerd role for the zaaktype asks for the marking") {
                 val shouldMark = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
                     zaakType = zaakType,
                     requestedMarking = true,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
-                    behandelaarId = "fakeBehandelaarId",
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                     loggedInUser = createLoggedInUser(
                         id = "fakeOtherUserId",
                         applicationRolesPerZaaktype = mapOf(
@@ -304,7 +318,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     requestedMarking = true,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
-                    behandelaarId = "fakeBehandelaarId",
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                     loggedInUser = createLoggedInUser(
                         id = "fakeOtherUserId",
                         overallRoles = setOf(ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
@@ -325,7 +339,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     requestedMarking = true,
                     isAlreadyZaakspecifiekGeautoriseerd = true,
-                    behandelaarId = "fakeBehandelaarId",
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                     loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
                 )
 
@@ -342,7 +356,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             zaakType = zaakType,
                             requestedMarking = false,
                             isAlreadyZaakspecifiekGeautoriseerd = true,
-                            behandelaarId = "fakeBehandelaarId",
+                            currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                             loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
                         )
                     }
@@ -594,6 +608,101 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
 
                 then("the release is allowed") {}
+            }
+        }
+    }
+
+    context("Checking whether the behandelaar of a zaak can be handed over before anything is written") {
+        given("a zaakspecifiek geautoriseerde zaak whose zaaktype does not define the zaakspecifiek geautoriseerde medewerker roltype") {
+            val zaak = createZaak()
+            every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype) } returns null
+
+            `when`("its behandelaar is handed over to another behandelaar") {
+                val zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException =
+                    shouldThrow<ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException> {
+                        zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                            zaak = zaak,
+                            isZaakspecifiekGeautoriseerd = true,
+                            currentBehandelaarId = "fakeBehandelaarId",
+                            requestedBehandelaarId = "fakeOtherBehandelaarId"
+                        )
+                    }
+
+                then("the handover is refused, because the previous behandelaar could not keep access") {
+                    zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak whose zaaktype defines the zaakspecifiek geautoriseerde medewerker roltype") {
+            val zaak = createZaak()
+            every {
+                zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
+            } returns createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
+
+            `when`("its behandelaar is handed over to another behandelaar") {
+                zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                    zaak = zaak,
+                    isZaakspecifiekGeautoriseerd = true,
+                    currentBehandelaarId = "fakeBehandelaarId",
+                    requestedBehandelaarId = "fakeOtherBehandelaarId"
+                )
+
+                then("the handover is allowed") {
+                    verify(exactly = 1) { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak with a behandelaar") {
+            val zaak = createZaak()
+
+            `when`("it is assigned to the behandelaar it already has") {
+                zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                    zaak = zaak,
+                    isZaakspecifiekGeautoriseerd = true,
+                    currentBehandelaarId = "fakeBehandelaarId",
+                    requestedBehandelaarId = "fakeBehandelaarId"
+                )
+
+                then("the zaaktype is not consulted, because nobody loses access") {
+                    verify(exactly = 0) { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak without a behandelaar") {
+            val zaak = createZaak()
+
+            `when`("it is assigned to a behandelaar") {
+                zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                    zaak = zaak,
+                    isZaakspecifiekGeautoriseerd = true,
+                    currentBehandelaarId = null,
+                    requestedBehandelaarId = "fakeBehandelaarId"
+                )
+
+                then("the zaaktype is not consulted, because there is no previous behandelaar to keep authorised") {
+                    verify(exactly = 0) { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(any()) }
+                }
+            }
+        }
+
+        given("a zaak that is not zaakspecifiek geautoriseerd") {
+            val zaak = createZaak()
+
+            `when`("its behandelaar is handed over to another behandelaar") {
+                zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                    zaak = zaak,
+                    isZaakspecifiekGeautoriseerd = false,
+                    currentBehandelaarId = "fakeBehandelaarId",
+                    requestedBehandelaarId = "fakeOtherBehandelaarId"
+                )
+
+                then("the zaaktype is not consulted, because the previous behandelaar is not kept authorised") {
+                    verify(exactly = 0) { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(any()) }
+                }
             }
         }
     }

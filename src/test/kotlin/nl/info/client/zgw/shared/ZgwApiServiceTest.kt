@@ -31,6 +31,7 @@ import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
+import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -241,12 +242,12 @@ class ZgwApiServiceTest : BehaviorSpec({
             } returns Results(listOf(rolMedewerker, rolMedewerker), 2)
 
             `when`("the behandelaar medewerker rol is requested") {
-                val exception = shouldThrow<IllegalStateException> {
+                val multipleBehandelaarRolesException = shouldThrow<MultipleBehandelaarRolesException> {
                     zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                 }
 
                 then("an exception should be thrown") {
-                    exception.message shouldBe
+                    multipleBehandelaarRolesException.message shouldBe
                         "More than one behandelaar role found for zaak with identificatie '${zaak.identificatie}' and UUID: '${zaak.uuid}' (count: 2)"
                 }
             }

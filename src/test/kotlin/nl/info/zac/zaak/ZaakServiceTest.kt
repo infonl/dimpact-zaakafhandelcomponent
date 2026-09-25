@@ -39,6 +39,7 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.Rol
@@ -950,6 +951,69 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
+        given("a zaak with two groep rollen, an ordinary open zaak, a group and a user") {
+            val zaaktypeUUID = UUID.randomUUID()
+            val zaaktype = createZaakType(uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID"))
+            val zaakWithTwoGroepRollen = createZaak(zaaktypeUri = zaaktype.url)
+            val ordinaryZaak = createZaak(zaaktypeUri = zaaktype.url)
+            val user = createUser(id = "fakeUserId")
+            val group = createGroup(id = "fakeGroupId")
+            listOf(zaakWithTwoGroepRollen, ordinaryZaak).forEach {
+                every { zrcClientService.readZaak(it.uuid) } returns it
+            }
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaakWithTwoGroepRollen)
+            } throws MultipleBehandelaarRolesException("fakeMessage")
+            every { zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak) } returns createZaakToewijzing()
+            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(any(), user.id) } just runs
+            every { zrcClientService.createRol(any(), explanation) } returns createRolMedewerker()
+            every { zrcClientService.updateRol(ordinaryZaak, any(), explanation) } just runs
+            every { zgwApiService.readBehandelaarRoltype(zaaktype.url) } returns createBehandelaarRolType(
+                zaakTypeUri = zaaktype.url
+            )
+            every { bpmnService.isZaakProcessDriven(ordinaryZaak.uuid) } returns false
+            every {
+                indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+            } just runs
+            every {
+                zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(ordinaryZaak)
+            } just runs
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
+            every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
+            } returns listOf(createPabcGroupRepresentation(name = group.name, description = group.description))
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+
+            `when`("the zaken are assigned to the group and the user") {
+                zaakService.assignZaken(
+                    zaakUUIDs = listOf(zaakWithTwoGroepRollen.uuid, ordinaryZaak.uuid),
+                    explanation = explanation,
+                    group = group,
+                    user = user,
+                    screenEventResourceId = screenEventResourceId
+                )
+
+                then("the zaak with two groep rollen is reported as skipped and none of its rollen is changed") {
+                    verify(exactly = 1) {
+                        eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaakWithTwoGroepRollen))
+                    }
+                    verify(exactly = 0) {
+                        zrcClientService.updateRol(zaakWithTwoGroepRollen, any(), explanation)
+                        zrcClientService.deleteRol(any<Rol<*>>(), explanation)
+                    }
+                }
+                and("the ordinary zaak is still assigned") {
+                    verify(exactly = 1) { zrcClientService.updateRol(ordinaryZaak, any(), explanation) }
+                }
+                and("a 'zaken verdelen' screen event reports the batch as updated") {
+                    verify(exactly = 1) {
+                        eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(screenEventResourceId))
+                    }
+                }
+            }
+        }
+
         given("one open and one closed zaak, a group that is authorised for their zaaktype and a user") {
             val zaaktypeUUID = UUID.randomUUID()
             val zaaktype = createZaakType(uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID"))
@@ -1434,6 +1498,57 @@ class ZaakServiceTest : BehaviorSpec({
 
                 and("the ordinary zaak in the same batch is still released") {
                     verify(exactly = 1) { zrcClientService.deleteRol(ordinaryBehandelaarRol, explanation) }
+                }
+            }
+        }
+
+        given("a zaak with two groep rollen and an ordinary open zaak to release") {
+            val zaakWithTwoGroepRollen = createZaak()
+            val ordinaryZaak = createZaak()
+            val ordinaryBehandelaarRol = createRolMedewerker(
+                zaakURI = ordinaryZaak.url,
+                rolType = createBehandelaarRolType(zaakTypeUri = ordinaryZaak.zaaktype)
+            )
+            val ordinaryZaakToewijzing = createZaakToewijzing(behandelaarRollen = listOf(ordinaryBehandelaarRol))
+            listOf(zaakWithTwoGroepRollen, ordinaryZaak).forEach {
+                every { zrcClientService.readZaak(it.uuid) } returns it
+            }
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaakWithTwoGroepRollen)
+            } throws MultipleBehandelaarRolesException("fakeMessage")
+            every { zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak) } returns ordinaryZaakToewijzing
+            every {
+                zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(ordinaryZaakToewijzing, null)
+            } just runs
+            every {
+                zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(ordinaryZaak)
+            } just runs
+            every { zrcClientService.deleteRol(ordinaryBehandelaarRol, explanation) } just runs
+            every { bpmnService.isZaakProcessDriven(ordinaryZaak.uuid) } returns false
+            every {
+                indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+            } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+
+            `when`("the zaken are released") {
+                zaakService.releaseZaken(
+                    zaakUUIDs = listOf(zaakWithTwoGroepRollen.uuid, ordinaryZaak.uuid),
+                    explanation = explanation,
+                    screenEventResourceId = screenEventResourceId
+                )
+
+                then("the zaak with two groep rollen is reported as skipped") {
+                    verify(exactly = 1) {
+                        eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaakWithTwoGroepRollen))
+                    }
+                }
+                and("the ordinary zaak in the same batch is still released") {
+                    verify(exactly = 1) { zrcClientService.deleteRol(ordinaryBehandelaarRol, explanation) }
+                }
+                and("a 'zaken vrijgeven' screen event reports the batch as updated") {
+                    verify(exactly = 1) {
+                        eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(screenEventResourceId))
+                    }
                 }
             }
         }
