@@ -19,6 +19,7 @@ import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
@@ -370,17 +371,28 @@ class ZaakService @Inject constructor(
         return try {
             assignZaak(zaak = zaak, zaakAssignment = ZaakAssignment(group = group, user = user), reason = explanation)
             true
-        } catch (releaseException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
-            LOG.log(Level.FINE, releaseException) {
+        } catch (
+            zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+        ) {
+            LOG.log(Level.FINE, zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
                 "Zaak with UUID '${zaak.uuid}' is zaakspecifiek geautoriseerd and cannot be left without a " +
                     "behandelaar. Therefore it is skipped and not assigned."
             }
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             false
-        } catch (roltypeNotFoundException: ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException) {
-            LOG.log(Level.WARNING, roltypeNotFoundException) {
+        } catch (
+            zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException: ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+        ) {
+            LOG.log(Level.WARNING, zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException) {
                 "Zaak with UUID '${zaak.uuid}' is zaakspecifiek geautoriseerd but its zaaktype cannot keep the " +
                     "previous behandelaar authorised. Therefore it is skipped and not assigned."
+            }
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+            false
+        } catch (multipleBehandelaarRolesException: MultipleBehandelaarRolesException) {
+            LOG.log(Level.WARNING, multipleBehandelaarRolesException) {
+                "Zaak with UUID '${zaak.uuid}' has more than one groep or behandelaar rol. " +
+                    "Therefore it is skipped and not assigned."
             }
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             false
@@ -389,15 +401,23 @@ class ZaakService @Inject constructor(
 
     private fun releaseZaakFromBatch(zaak: Zaak, explanation: String?) {
         if (!zaak.isOpen()) {
-            LOG.fine("Zaak with UUID '${zaak.uuid} cannot be released. Therefore it is not released.")
+            LOG.fine { "Zaak with UUID '${zaak.uuid}' cannot be released. Therefore it is not released." }
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             return
         }
         try {
             assignZaak(zaak = zaak, zaakAssignment = ZaakAssignment(group = null, user = null), reason = explanation)
-        } catch (releaseException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
-            LOG.log(Level.FINE, releaseException) {
+        } catch (
+            zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+        ) {
+            LOG.log(Level.FINE, zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
                 "Zaak with UUID '${zaak.uuid}' cannot be released. Therefore it is not released."
+            }
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+        } catch (multipleBehandelaarRolesException: MultipleBehandelaarRolesException) {
+            LOG.log(Level.WARNING, multipleBehandelaarRolesException) {
+                "Zaak with UUID '${zaak.uuid}' has more than one groep or behandelaar rol. " +
+                    "Therefore it is not released."
             }
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
         }

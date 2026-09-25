@@ -387,10 +387,10 @@ class ProductaanvraagService @Inject constructor(
             zaakUrl = zaak.url
         )
         if (zaaktypeCmmnConfiguration.groepID == null) {
-            LOG.warning(
+            LOG.warning {
                 "No group ID found in zaaktypeCmmnConfiguration for zaak ${zaak.identificatie} with UUID '${zaak.uuid}'. " +
                     "No group role was assigned for this zaak created for ${generateProductaanvraagDescription(productaanvraagDimpact)}."
-            )
+            }
         }
         assignZaak(
             zaak = zaak,

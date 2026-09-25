@@ -607,13 +607,19 @@ class ZaakRestService @Inject constructor(
         )
         val zaakAssignment = requestedAssignment?.let {
             assertPolicy(zaakRechten.toekennen)
+            zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                zaak = zaak,
+                isZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
+                currentBehandelaarId = currentBehandelaarId,
+                requestedBehandelaarId = it.behandelaarId
+            )
             zaakService.readZaakAssignment(groupId = it.groupId, userName = it.behandelaarId)
         }
         val shouldBeMarkedZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
             zaakType = zaakType,
             requestedMarking = restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd,
             isAlreadyZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
-            behandelaarId = currentBehandelaarId ?: requestedAssignment?.behandelaarId,
+            currentAndRequestedBehandelaarIds = setOfNotNull(currentBehandelaarId, requestedAssignment?.behandelaarId),
             loggedInUser = loggedInUser
         )
         val updatedZaak = zrcClientService.patchZaak(

@@ -86,7 +86,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         zaakType: ZaakType,
         requestedMarking: Boolean?,
         isAlreadyZaakspecifiekGeautoriseerd: Boolean,
-        behandelaarId: String?,
+        currentAndRequestedBehandelaarIds: Set<String>,
         loggedInUser: LoggedInUser
     ): Boolean = when {
         requestedMarking == null -> false
@@ -97,8 +97,10 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         isAlreadyZaakspecifiekGeautoriseerd -> false
         else -> {
             if (!isZaakspecifiekAutoriseerbaar(zaakType)) throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
-            behandelaarId ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
-            if (behandelaarId != loggedInUser.id && !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.omschrijving)) {
+            if (currentAndRequestedBehandelaarIds.isEmpty()) throw ZaakWithoutBehandelaarCannotBeMarkedException()
+            if (loggedInUser.id !in currentAndRequestedBehandelaarIds &&
+                !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.omschrijving)
+            ) {
                 throw ZaakspecifiekeAutorisatieNotAllowedException()
             }
             true
@@ -119,6 +121,25 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     }
 
     /**
+     * Lets a caller refuse a handover of a zaakspecifiek geautoriseerde zaak before it writes anything else of
+     * the zaak, since keeping the previous behandelaar authorised needs a roltype that zaaktypen configured before
+     * this roltype existed may lack.
+     *
+     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaaktype does not define
+     * the roltype
+     */
+    fun assertBehandelaarCanBeHandedOver(
+        zaak: Zaak,
+        isZaakspecifiekGeautoriseerd: Boolean,
+        currentBehandelaarId: String?,
+        requestedBehandelaarId: String?
+    ) {
+        if (isZaakspecifiekGeautoriseerd && currentBehandelaarId != null && currentBehandelaarId != requestedBehandelaarId) {
+            readZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak)
+        }
+    }
+
+    /**
      * Grants [medewerker] individual access to [zaak] by adding a zaakspecifiek geautoriseerde medewerker rol.
      * Does nothing when the medewerker already holds one.
      *
@@ -135,11 +156,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         zaakspecifiekGeautoriseerdeMedewerkers: List<RolMedewerker>? = null
     ): Boolean {
         val medewerkerId = medewerker.identificatie ?: return false
-        val roltype = zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
-            ?: throw ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException(
-                "Roltype '${ZgwApiService.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER}' not found " +
-                    "for zaaktype '${zaak.zaaktype}' of zaak with UUID '${zaak.uuid}'"
-            )
+        val roltype = readZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak)
         val isAlreadyGeautoriseerd = (
             zaakspecifiekGeautoriseerdeMedewerkers
                 ?: zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak)
@@ -173,6 +190,13 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         if (!isZaakspecifiekGeautoriseerd(zaak)) return
         reindexDependents(zaak)
     }
+
+    private fun readZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak: Zaak) =
+        zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
+            ?: throw ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException(
+                "Roltype '${ZgwApiService.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER}' not found " +
+                    "for zaaktype '${zaak.zaaktype}' of zaak with UUID '${zaak.uuid}'"
+            )
 
     private fun reindexDependents(zaak: Zaak) {
         indexingService.addOrUpdateTakenForZaak(zaak.uuid)
