@@ -9,6 +9,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
 import nl.info.client.zgw.zrc.util.isHoofdzaak
+import nl.info.client.zgw.zrc.util.isLinkedTo
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.zac.policy.output.ZaakRechten
 import java.util.UUID
@@ -30,6 +31,9 @@ fun Zaak.toZaakLinkData(rechten: ZaakRechten) = ZaakLinkData(
     lezen = rechten.lezen,
     koppelen = rechten.koppelen
 )
+
+fun Zaak.alreadyGerelateerdReason(foundZaakUuid: UUID) =
+    ZaakNotLinkableReason.ALREADY_GERELATEERD.takeIf { isLinkedTo(foundZaakUuid) }
 
 fun ZaakLinkData.canBeRelatedTo(to: ZaakLinkData): Boolean =
     gerelateerdNotLinkableReason(to) == null
