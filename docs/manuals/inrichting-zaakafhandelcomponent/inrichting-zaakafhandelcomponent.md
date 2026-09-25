@@ -467,6 +467,11 @@ ZAC controleert de rol ook bij elke zoekopdracht. Een zoekopdracht zonder de jui
 De rol `brp_zoeken` is niet nodig om de gegevens te tonen van een persoon die al aan een zaak gekoppeld is.
 De zaaktype-autorisaties bepalen of de medewerker die zaak mag zien.
 
+De rol `brp_zoeken` geldt alleen voor personen in het BRP. De rol geldt niet voor bedrijven in het Handelsregister van de KVK.
+Voor het zoeken van bedrijven is geen applicatierol nodig. Elke medewerker ziet de knop 'Bedrijf zoeken' in de zoekbalk.
+Of een medewerker een bedrijf als initiator of betrokkene aan een zaak mag koppelen, bepalen de zaaktype-autorisaties
+en de schakelaar 'KvK (bedrijfsgegevens) koppelen'. Zie sectie [Landelijke registratie koppelingen](#landelijke-registratie-koppelingen).
+
 ZAC kent twee vormen van de rol `brp_zoeken`:
 
 | Vorm                      | Wat de medewerker mag                                                              | Type autorisatie-koppeling in de PABC                                   |
@@ -753,6 +758,9 @@ Met twee schakelaars zet u de koppelingen met landelijke registraties per zaakty
 
 Staat 'Basisregistratie personen (persoonsgegevens) koppelen' uit, dan kan een medewerker geen persoon als initiator of betrokkene aan een zaak van dit zaaktype koppelen.
 Bij een productaanvraag koppelt ZAC dan ook geen persoon aan de zaak.
+
+Staat 'KvK (bedrijfsgegevens) koppelen' uit, dan kan een medewerker geen bedrijf als initiator of betrokkene aan een zaak van dit zaaktype koppelen.
+Bij een productaanvraag koppelt ZAC dan ook geen bedrijf aan de zaak.
 
 Staat de doelbinding per zaaktype aan, dan toont ZAC onder de schakelaar drie keuzelijsten. Zie sectie [Doelbinding en protocollering](#doelbinding-en-protocollering).
 
