@@ -48,6 +48,7 @@ nl.info.zac.itest.BagRestServiceTest
 nl.info.zac.itest.bpmn.BpmnProcessDefinitionRestServiceTest
 nl.info.zac.itest.bpmn.BpmnSuspendResumeExtendRestServiceTest
 nl.info.zac.itest.bpmn.BpmnZaakRestServiceTest
+nl.info.zac.itest.bpmn.BpmnZaakspecifiekAutorisatieTest
 nl.info.zac.itest.CsvRestServiceTest
 nl.info.zac.itest.DocumentCreationRestServiceTest
 nl.info.zac.itest.HealthCheckRestServiceTest

@@ -17,12 +17,8 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.model.createMedewerkerIdentificatie
-import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -30,7 +26,9 @@ import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.DocumentIndicatie
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 
 class DocumentZoekObjectConverterTest : BehaviorSpec({
@@ -39,16 +37,16 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZgwApiService>()
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
+    val reindexSupportService = mockk<ReindexSupportService>()
     val documentZoekObjectConverter = DocumentZoekObjectConverter(
         identityService = identityService,
         brcClientService = brcClientService,
         ztcClientService = ztcClientService,
         drcClientService = drcClientService,
         zrcClientService = zrcClientService,
-        zgwApiService = zgwApiService,
-        enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService
+        enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService,
+        reindexSupportService = reindexSupportService
     )
 
     afterEach {
@@ -81,11 +79,12 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
-            createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
-        )
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeZaakBehandelaarId")
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak.uuid) } returns createZaakAutorisatieGegevens(
+            isZaakspecifiekGeautoriseerd = true,
+            geautoriseerdeMedewerkers = listOf(
+                "fakeZaakBehandelaarId",
+                "fakeZaakspecifiekGeautoriseerdeMedewerkerId"
+            )
         )
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
@@ -104,9 +103,18 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     // because the archiefnominatie is null, the zaak is still open and not considered 'afgehandeld'
                     isZaakAfgehandeld shouldBe false
                     isZaakspecifiekGeautoriseerd shouldBe true
-                    zaakGeautoriseerdeMedewerkers shouldBe listOf("fakeZaakBehandelaarId")
                     getDocumentIndicaties().size shouldBe 0
                 }
+            }
+
+            then(
+                "every geautoriseerde medewerker of the zaak is indexed, so that a medewerker holding only " +
+                    "the 'Zaakspecifiek geautoriseerde medewerker' rol can find the document"
+            ) {
+                documentZoekObject!!.zaakGeautoriseerdeMedewerkers shouldBe listOf(
+                    "fakeZaakBehandelaarId",
+                    "fakeZaakspecifiekGeautoriseerdeMedewerkerId"
+                )
             }
         }
     }
@@ -137,7 +145,11 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak.uuid) } returns ZaakAutorisatieGegevens(
+            isZaakspecifiekGeautoriseerd = false
+        ) {
+            error("the geautoriseerde medewerkers of a zaak that is not zaakspecifiek geautoriseerd are never resolved")
+        }
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
@@ -156,7 +168,6 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     isZaakAfgehandeld shouldBe true
                     isZaakspecifiekGeautoriseerd shouldBe false
                     zaakGeautoriseerdeMedewerkers shouldBe emptyList()
-                    verify(exactly = 0) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any()) }
                     with(getDocumentIndicaties()) {
                         size shouldBe 1
                         first() shouldBe DocumentIndicatie.GEBRUIKSRECHT
@@ -193,7 +204,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak.uuid) } returns createZaakAutorisatieGegevens()
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())

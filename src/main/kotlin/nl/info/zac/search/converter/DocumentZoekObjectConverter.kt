@@ -12,15 +12,14 @@ import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.isOpen
-import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
@@ -33,22 +32,12 @@ class DocumentZoekObjectConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val drcClientService: DrcClientService,
     private val zrcClientService: ZrcClientService,
-    private val zgwApiService: ZgwApiService,
-    private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService
+    private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
+    private val reindexSupportService: ReindexSupportService
 ) : AbstractZoekObjectConverter<DocumentZoekObject>() {
 
     override fun convert(id: String): DocumentZoekObject? =
-        convert(id) { zaakUUID ->
-            ZaakAutorisatieGegevens(
-                isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-            ) {
-                listOfNotNull(
-                    zgwApiService.findBehandelaarMedewerkerRoleForZaak(zrcClientService.readZaak(zaakUUID))
-                        ?.betrokkeneIdentificatie
-                        ?.identificatie
-                )
-            }
-        }
+        convert(id, reindexSupportService::zaakAutorisatieGegevens)
 
     /**
      * Converts [id], looking up the zaak-level data through [zaakAutorisatieGegevens] for whichever zaak
