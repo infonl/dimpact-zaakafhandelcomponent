@@ -16,10 +16,14 @@ import {
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { of, Subject } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "src/app/shared/material/material.module";
@@ -32,13 +36,26 @@ import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
 import { PersoonZoekComponent } from "./persoon-zoek.component";
 
+const fakePersoon = fromPartial<GeneratedType<"RestPersoon">>({
+  bsn: "999990408",
+  naam: "fakeNaam",
+  temporaryPersonId: "fakeTemporaryPersonId",
+});
+
 describe(PersoonZoekComponent.name, () => {
+  const user = userEvent.setup();
+
   let component: PersoonZoekComponent;
   let fixture: ComponentFixture<typeof component>;
   let klantenService: KlantenService;
   let loader: HarnessLoader;
+  let itemSelected: Subject<{ selected: boolean; uuid: string | null }>;
+  let notifyItemSelected: jest.Mock;
 
   beforeEach(async () => {
+    itemSelected = new Subject();
+    notifyItemSelected = jest.fn();
+
     await TestBed.configureTestingModule({
       imports: [
         PersoonZoekComponent,
@@ -53,6 +70,7 @@ describe(PersoonZoekComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         {
           provide: UtilService,
           useValue: {
@@ -62,15 +80,14 @@ describe(PersoonZoekComponent.name, () => {
         {
           provide: FormCommunicatieService,
           useValue: {
-            itemSelected$: of({ selected: false, uuid: "test" }),
-            notifyItemSelected: jest.fn(),
+            itemSelected$: itemSelected.asObservable(),
+            notifyItemSelected,
           },
         },
         provideTanStackQuery(testQueryClient),
       ],
     }).compileComponents();
 
-    // Mock the services before first change detection
     klantenService = TestBed.inject(KlantenService);
     jest.spyOn(klantenService, "getPersonenParameters").mockReturnValue(
       of([
@@ -99,20 +116,45 @@ describe(PersoonZoekComponent.name, () => {
       .mockReturnValue(of("1234"));
 
     TestBed.inject(PolicyService);
-
-    fixture = TestBed.createComponent(PersoonZoekComponent);
-    component = fixture.componentInstance;
-
-    fixture.componentRef.setInput("action", "test-action");
-    fixture.componentRef.setInput("context", "test-context");
-    fixture.componentRef.setInput("zaaktypeUUID", "test-zaaktype-uuid");
-
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
-    fixture.detectChanges();
   });
 
+  function createComponent(
+    inputs: {
+      zaaktypeUUID?: string | null;
+      sideNav?: MatSidenav;
+      syncEnabled?: boolean;
+    } = {},
+    onPersoon?: (persoon: GeneratedType<"RestPersoon">) => void,
+  ) {
+    fixture = TestBed.createComponent(PersoonZoekComponent);
+    component = fixture.componentInstance;
+    Object.entries(inputs).forEach(([name, value]) =>
+      fixture.componentRef.setInput(name, value),
+    );
+    if (onPersoon) component.persoon.subscribe(onPersoon);
+    loader = TestbedHarnessEnvironment.loader(fixture);
+    fixture.detectChanges();
+  }
+
+  async function searchByBsn(bsn = "999990408") {
+    await user.type(screen.getByRole("textbox", { name: "Bsn" }), bsn);
+    fixture.detectChanges();
+    await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
+    fixture.detectChanges();
+    fixture.detectChanges();
+  }
+
+  function resultRow() {
+    return screen.getByRole("row", { name: /999990408/ });
+  }
+
+  function queryResultRow() {
+    return screen.queryByRole("row", { name: /999990408/ });
+  }
+
   describe(PersoonZoekComponent.prototype.zoekPersonen.name, () => {
+    beforeEach(() => createComponent({ zaaktypeUUID: "test-zaaktype-uuid" }));
+
     it(`should call the ${KlantenService.prototype.listPersonen.name}`, () => {
       const spy = jest.spyOn(klantenService, "listPersonen");
       component.zoekPersonen();
@@ -191,7 +233,230 @@ describe(PersoonZoekComponent.name, () => {
     });
   });
 
+  describe("the zaaktype of the search", () => {
+    it("searches with the given zaaktypeUUID when the user searches", async () => {
+      createComponent({ zaaktypeUUID: "fakeZaaktypeUuid" });
+
+      await searchByBsn();
+
+      expect(klantenService.listPersonen).toHaveBeenCalledWith(
+        expect.objectContaining({ bsn: "999990408" }),
+        "fakeZaaktypeUuid",
+      );
+    });
+
+    it("searches with an empty zaaktype UUID when no zaaktypeUUID is given", async () => {
+      createComponent();
+
+      await searchByBsn();
+
+      expect(klantenService.listPersonen).toHaveBeenCalledWith(
+        expect.objectContaining({ bsn: "999990408" }),
+        "",
+      );
+    });
+
+    it("searches with the new zaaktypeUUID after the zaaktypeUUID changes", async () => {
+      createComponent({ zaaktypeUUID: "fakeZaaktypeUuid" });
+      fixture.componentRef.setInput("zaaktypeUUID", "fakeOtherZaaktypeUuid");
+      fixture.detectChanges();
+
+      await searchByBsn();
+
+      expect(klantenService.listPersonen).toHaveBeenCalledWith(
+        expect.objectContaining({ bsn: "999990408" }),
+        "fakeOtherZaaktypeUuid",
+      );
+    });
+  });
+
+  describe("the search button", () => {
+    it("is disabled while blockSearch is set, even when the form is valid", async () => {
+      createComponent();
+      fixture.componentRef.setInput("blockSearch", true);
+      fixture.detectChanges();
+
+      await user.type(
+        screen.getByRole("textbox", { name: "Bsn" }),
+        "999990408",
+      );
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("button", { name: "actie.zoeken" }),
+      ).toBeDisabled();
+    });
+  });
+
+  describe("when a parent listens to the selected persoon", () => {
+    const onPersoon = jest.fn();
+
+    beforeEach(() => {
+      jest.spyOn(klantenService, "listPersonen").mockReturnValue(
+        of(
+          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
+            resultaten: [fakePersoon],
+          }),
+        ),
+      );
+    });
+
+    it("emits the persoon and clears the results when the user selects a persoon", async () => {
+      createComponent({}, onPersoon);
+      await searchByBsn();
+
+      await user.click(
+        within(resultRow()).getByRole("button", { name: "actie.selecteren" }),
+      );
+      fixture.detectChanges();
+
+      expect(onPersoon).toHaveBeenCalledWith(fakePersoon);
+      expect(queryResultRow()).not.toBeInTheDocument();
+      expect(screen.getByRole("textbox", { name: "Bsn" })).toHaveValue("");
+    });
+
+    describe("without syncEnabled", () => {
+      beforeEach(async () => {
+        createComponent({}, onPersoon);
+        await searchByBsn();
+      });
+
+      it("does not notify the other search forms when the user selects a persoon", async () => {
+        await user.click(
+          within(resultRow()).getByRole("button", {
+            name: "actie.selecteren",
+          }),
+        );
+
+        expect(notifyItemSelected).not.toHaveBeenCalled();
+      });
+
+      it("keeps its results when another search form selects an item", () => {
+        itemSelected.next({ selected: true, uuid: "fakeOtherFormUuid" });
+        fixture.detectChanges();
+
+        expect(resultRow()).toBeInTheDocument();
+      });
+    });
+
+    describe("with syncEnabled", () => {
+      beforeEach(async () => {
+        createComponent({ syncEnabled: true }, onPersoon);
+        await searchByBsn();
+      });
+
+      it("notifies the other search forms when the user selects a persoon", async () => {
+        await user.click(
+          within(resultRow()).getByRole("button", {
+            name: "actie.selecteren",
+          }),
+        );
+
+        expect(notifyItemSelected).toHaveBeenCalledWith(expect.any(String));
+      });
+
+      it("clears its results and form when another search form selects an item", () => {
+        itemSelected.next({ selected: true, uuid: "fakeOtherFormUuid" });
+        fixture.detectChanges();
+
+        expect(queryResultRow()).not.toBeInTheDocument();
+        expect(screen.getByRole("textbox", { name: "Bsn" })).toHaveValue("");
+      });
+
+      it("keeps its results when it was itself the search form that selected an item", async () => {
+        await user.click(
+          within(resultRow()).getByRole("button", {
+            name: "actie.selecteren",
+          }),
+        );
+        const [ownUuid] = notifyItemSelected.mock.lastCall!;
+        await searchByBsn();
+
+        itemSelected.next({ selected: true, uuid: ownUuid });
+        fixture.detectChanges();
+
+        expect(resultRow()).toBeInTheDocument();
+      });
+
+      it("keeps its results when another search form clears its selection", () => {
+        itemSelected.next({ selected: false, uuid: "fakeOtherFormUuid" });
+        fixture.detectChanges();
+
+        expect(resultRow()).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("when no parent listens to the selected persoon", () => {
+    let navigate: jest.SpyInstance;
+
+    beforeEach(() => {
+      jest.spyOn(klantenService, "listPersonen").mockReturnValue(
+        of(
+          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
+            resultaten: [fakePersoon],
+          }),
+        ),
+      );
+      navigate = jest
+        .spyOn(TestBed.inject(Router), "navigate")
+        .mockResolvedValue(true);
+    });
+
+    it("offers to view the persoon instead of selecting it", async () => {
+      createComponent();
+      await searchByBsn();
+
+      expect(
+        within(resultRow()).getByRole("button", {
+          name: "actie.persoon.bekijken",
+        }),
+      ).toBeInTheDocument();
+      expect(
+        within(resultRow()).queryByRole("button", {
+          name: "actie.selecteren",
+        }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("closes the side navigation and opens the persoon page when the user views a persoon", async () => {
+      const sideNav = fromPartial<MatSidenav>({ close: jest.fn() });
+      createComponent({ sideNav });
+      await searchByBsn();
+
+      await user.click(
+        within(resultRow()).getByRole("button", {
+          name: "actie.persoon.bekijken",
+        }),
+      );
+
+      expect(sideNav.close).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith([
+        "/persoon/",
+        "fakeTemporaryPersonId",
+      ]);
+    });
+
+    it("opens the persoon page when the user views a persoon without a side navigation", async () => {
+      createComponent();
+      await searchByBsn();
+
+      await user.click(
+        within(resultRow()).getByRole("button", {
+          name: "actie.persoon.bekijken",
+        }),
+      );
+
+      expect(navigate).toHaveBeenCalledWith([
+        "/persoon/",
+        "fakeTemporaryPersonId",
+      ]);
+    });
+  });
+
   describe("brpGemeenten effect", () => {
+    beforeEach(() => createComponent({ zaaktypeUUID: "test-zaaktype-uuid" }));
+
     it("should auto-set gemeenteVanInschrijving when exactly one gemeente is returned", fakeAsync(() => {
       testQueryClient.setQueryData(
         klantenService.listAuthorisedBrpGemeenten().queryKey,

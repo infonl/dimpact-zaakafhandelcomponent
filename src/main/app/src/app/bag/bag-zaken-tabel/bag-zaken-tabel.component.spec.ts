@@ -151,4 +151,17 @@ describe(BagZakenTabelComponent.name, () => {
       expect.objectContaining({ ZAAK_BAGOBJECTEN: "0363010000000002" }),
     );
   });
+
+  it("returns to the first page when it is pointed at another bag object", async () => {
+    await setup(makeZoekResultaat({ totaal: 25 }));
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await settle();
+    expect(lastSearch().page).toBe(1);
+
+    await rerender({ inputs: { BagObjectIdentificatie: "0363010000000002" } });
+    await settle();
+
+    expect(lastSearch().page).toBe(0);
+  });
 });

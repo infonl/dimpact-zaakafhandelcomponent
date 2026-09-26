@@ -21,7 +21,7 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { render, screen } from "@testing-library/angular";
+import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -96,6 +96,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
   async function setup(
     inputs: {
+      taak?: GeneratedType<"RestTask">;
       smartDocumentsGroupId?: string;
       smartDocumentsTemplateId?: string;
     } = {},
@@ -312,6 +313,43 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     expect(windowOpen).toHaveBeenCalledWith("https://example.com/doc");
   });
 
+  it("creates the document for the taak it was opened from", async () => {
+    jest.spyOn(window, "open").mockReturnValue(null);
+    await setup({
+      taak: fromPartial<GeneratedType<"RestTask">>({ id: "fakeTaskId" }),
+    });
+    await fillInValidForm();
+
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(CREATE_URL);
+    expect(request.request.body).toMatchObject({
+      zaakUuid: "fakeZaakUuid",
+      taskId: "fakeTaskId",
+    });
+    request.flush({ redirectURL: "https://example.com/doc", message: null });
+    await sleep();
+
+    expect(documentCreated).toHaveBeenCalledWith(
+      expect.objectContaining({ taskId: "fakeTaskId" }),
+    );
+  });
+
+  it("creates the document without a taak when it was opened from a zaak", async () => {
+    jest.spyOn(window, "open").mockReturnValue(null);
+    await setup();
+    await fillInValidForm();
+
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(CREATE_URL);
+    expect(request.request.body.taskId).toBeUndefined();
+    request.flush({ redirectURL: "https://example.com/doc", message: null });
+    await sleep();
+  });
+
   it("reports the message when there is no document to open", async () => {
     await setup();
     await fillInValidForm();
@@ -355,6 +393,18 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     httpTestingController
       .expectOne(CREATE_URL)
       .flush({ redirectURL: null, message: "done" });
+  });
+
+  it("closes the drawer from its toolbar", async () => {
+    await setup();
+
+    await user.click(
+      within(
+        screen.getByRole("heading", { name: /actie.document.maken/ }),
+      ).getByRole("button"),
+    );
+
+    expect(sideNav.close).toHaveBeenCalled();
   });
 
   it("closes the drawer when the creation is cancelled", async () => {
