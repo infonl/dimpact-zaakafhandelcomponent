@@ -6,6 +6,7 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import {
+  type MutationFunctionContext,
   mutationOptions,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
@@ -26,6 +27,7 @@ import type {
   UploadProgress,
 } from "./http-client";
 import { HttpClient, Response } from "./http-client";
+import { reportsErrors } from "./query-client";
 
 // From https://tanstack.com/query/latest/docs/framework/angular/guides/query-retries
 const DEFAULT_RETRY_COUNT = 3;
@@ -53,6 +55,21 @@ export class ZacQueryClient {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly httpClient = inject(HttpClient);
   private readonly utilService = inject(UtilService);
+
+  /**
+   * The counterpart of what the query cache does for a read, so that a caller
+   * opts a write out of the shared reporting the same way it opts out a read.
+   */
+  private readonly reportError = (
+    error: HttpErrorResponse,
+    _variables: unknown,
+    _context: unknown,
+    { meta }: MutationFunctionContext,
+  ) => {
+    if (!reportsErrors(meta)) return;
+
+    this.foutAfhandelingService.foutAfhandelen(error);
+  };
 
   public GET<
     Path extends PathsWithMethod<Paths, Method>,
@@ -148,7 +165,7 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: PostBody<Path, Method>) =>
         lastValueFrom(this.httpClient.POST<Path, Method>(url, body, ...args)),
-      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+      onError: this.reportError,
     });
   }
 
@@ -165,7 +182,7 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: PutBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
-      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+      onError: this.reportError,
     });
   }
 
@@ -234,7 +251,7 @@ export class ZacQueryClient {
           ),
         );
       },
-      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+      onError: this.reportError,
     });
   }
 
@@ -253,7 +270,7 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: PatchBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PATCH<Path, Method>(url, body, ...args)),
-      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+      onError: this.reportError,
     });
   }
 }

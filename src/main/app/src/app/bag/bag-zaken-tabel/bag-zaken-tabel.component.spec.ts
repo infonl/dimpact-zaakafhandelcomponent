@@ -40,6 +40,15 @@ describe(BagZakenTabelComponent.name, () => {
     return list.mock.lastCall![0] as Parameters<ZoekenService["list"]>[0];
   }
 
+  function failNextSearch() {
+    list.mockReturnValue({
+      queryKey: ["failing-query"],
+      queryFn: jest
+        .fn()
+        .mockRejectedValue(new HttpErrorResponse({ status: 500 })),
+    });
+  }
+
   async function settle() {
     await sleep();
     // the table creates the row views in one pass and binds their cells in the next
@@ -121,24 +130,38 @@ describe(BagZakenTabelComponent.name, () => {
     expect(lastSearch().page).toBe(0);
   });
 
+  it("stays on the page it is showing when the search for the next one fails", async () => {
+    await setup(
+      makeZoekResultaat({
+        totaal: 25,
+        resultaten: [
+          fromPartial<ZaakZoekObject>({ identificatie: "ZAAK-001" }),
+        ],
+      }),
+    );
+    failNextSearch();
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await settle();
+
+    expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
+    expect(screen.getByText("1 – 10 of 25")).toBeVisible();
+  });
+
   it("keeps searching after a search has failed", async () => {
     await setup(makeZoekResultaat({ totaal: 25 }));
-    list.mockReturnValue({
-      queryKey: ["failing-query"],
-      queryFn: jest
-        .fn()
-        .mockRejectedValue(new HttpErrorResponse({ status: 500 })),
-    });
+    failNextSearch();
 
     await user.click(screen.getByRole("button", { name: "Next page" }));
     await settle();
     expect(lastSearch().page).toBe(1);
 
     list.mockReturnValue(createQueryOptions(makeZoekResultaat({ totaal: 25 })));
-    await user.click(screen.getByRole("button", { name: "Previous page" }));
+    await user.click(screen.getByRole("button", { name: "Next page" }));
     await settle();
 
-    expect(lastSearch().page).toBe(0);
+    expect(lastSearch().page).toBe(1);
+    expect(screen.getByText("11 – 20 of 25")).toBeVisible();
   });
 
   it("searches again when it is pointed at another bag object", async () => {
