@@ -78,4 +78,5 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED(
         "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned"
     ),
+    ERROR_CODE_MAIL_TEMPLATE_NOT_CONFIGURED("msg.error.mailtemplate.not.configured"),
 }

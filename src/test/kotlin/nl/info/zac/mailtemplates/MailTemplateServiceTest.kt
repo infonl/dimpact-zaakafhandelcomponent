@@ -20,6 +20,7 @@ import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
@@ -206,11 +207,12 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { typedQuery.resultList } returns emptyList()
 
             `when`("readMailtemplate is called with the mail type") {
-                val exception = shouldThrow<MailTemplateNotFoundException> {
+                val exception = shouldThrow<MailTemplateNotConfiguredException> {
                     mailTemplateService.readMailtemplate(mail)
                 }
-                then("it should throw MailTemplateNotFoundException") {
-                    exception shouldBe MailTemplateNotFoundException(mail)
+                then("it should throw MailTemplateNotConfiguredException") {
+                    exception.message shouldBe
+                        "No default mail template configured for mail type '${mail.name}'. It must be configured by an administrator."
                 }
             }
         }
