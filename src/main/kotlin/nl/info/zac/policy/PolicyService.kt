@@ -85,7 +85,7 @@ class PolicyService @Inject constructor(
                     zaaktype = zaaktypeDescription,
                 )
             )
-        ).requireResult("overig/overige_rechten")
+        ).requireResult(OpaEvaluationClient.OVERIGE_RECHTEN_PATH)
 
     fun readZaakRechten(zaak: Zaak, loggedInUser: LoggedInUser): ZaakRechten {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
@@ -118,7 +118,7 @@ class PolicyService @Inject constructor(
                     zaakData = zaakData
                 )
             )
-        ).requireResult("zaak/zaak_rechten")
+        ).requireResult(OpaEvaluationClient.ZAAK_RECHTEN_PATH)
     }
 
     fun readZaakRechtenForZaakZoekObject(zaakZoekObject: ZaakZoekObject): ZaakRechten {
@@ -145,7 +145,7 @@ class PolicyService @Inject constructor(
                     zaakData = zaakData
                 )
             )
-        ).requireResult("zaak/zaak_rechten")
+        ).requireResult(OpaEvaluationClient.ZAAK_RECHTEN_PATH)
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: EnkelvoudigInformatieObject, zaak: Zaak?) =
@@ -179,7 +179,7 @@ class PolicyService @Inject constructor(
                     documentData = documentData
                 )
             )
-        ).requireResult("document/document_rechten")
+        ).requireResult(OpaEvaluationClient.DOCUMENT_RECHTEN_PATH)
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject): DocumentRechten {
@@ -201,7 +201,7 @@ class PolicyService @Inject constructor(
                     documentData = documentData
                 )
             )
-        ).requireResult("document/document_rechten")
+        ).requireResult(OpaEvaluationClient.DOCUMENT_RECHTEN_PATH)
     }
 
     fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
@@ -229,7 +229,7 @@ class PolicyService @Inject constructor(
                     taakData = taakData
                 )
             )
-        ).requireResult("taak/taak_rechten")
+        ).requireResult(OpaEvaluationClient.TAAK_RECHTEN_PATH)
     }
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
@@ -247,7 +247,7 @@ class PolicyService @Inject constructor(
                     taakData = taakData
                 )
             )
-        ).requireResult("taak/taak_rechten")
+        ).requireResult(OpaEvaluationClient.TAAK_RECHTEN_PATH)
     }
 
     private fun Zaak.isGeautoriseerdeMedewerkerOf(userId: String) =
@@ -262,7 +262,7 @@ class PolicyService @Inject constructor(
                     loggedInUser = loggedInUserInstance.get()
                 )
             )
-        ).requireResult("notitie/notitie_rechten")
+        ).requireResult(OpaEvaluationClient.NOTITIE_RECHTEN_PATH)
 
     fun readWerklijstRechten(): WerklijstRechten =
         evaluationClient.readWerklijstRechten(
@@ -271,7 +271,7 @@ class PolicyService @Inject constructor(
                     loggedInUser = loggedInUserInstance.get()
                 )
             )
-        ).requireResult("werklijst/werklijst_rechten")
+        ).requireResult(OpaEvaluationClient.WERKLIJST_RECHTEN_PATH)
 
     fun readBrpRechten(gemeenteCode: String?) =
         evaluationClient.readBrpRechten(
@@ -281,7 +281,7 @@ class PolicyService @Inject constructor(
                     gemeenteCode = gemeenteCode,
                 )
             )
-        ).requireResult("brp/brp_rechten")
+        ).requireResult(OpaEvaluationClient.BRP_RECHTEN_PATH)
 
     private fun <T : OpaRuleResult> RuleResponse<T>.requireResult(rulePath: String): T =
         result ?: throw OpaRuleNotConfiguredException(rulePath)
