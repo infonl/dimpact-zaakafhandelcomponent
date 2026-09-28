@@ -80,4 +80,5 @@ enum class ErrorCode(val value: String) {
         "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found"
     ),
     ERROR_CODE_MAIL_TEMPLATE_NOT_CONFIGURED("msg.error.mailtemplate.not.configured"),
+    ERROR_CODE_CATALOGUS_NOT_CONFIGURED("msg.error.catalogus.not.configured"),
 }
