@@ -869,6 +869,7 @@
   "msg.error.zaak.geometrie.not-supported": "Deze zaak heeft een geometrie (bijvoorbeeld een vlak) die niet wordt ondersteund. Alleen een punt-geometrie wordt ondersteund.",
   "msg.error.smartdocuments.not.configured": "SmartDocuments is niet geconfigureerd.",
   "msg.error.smartdocuments.disabled": "SmartDocuments is uitgeschakeld.",
+  "msg.error.mailtemplate.not.configured": "Er heeft zich helaas een technische fout voorgedaan. Er is geen standaard e-mailsjabloon ingericht voor dit type e-mail.",
   "msg.error.validation.generic": "Er zijn fouten gevonden in de ingevoerde gegevens. Controleer de velden en probeer het opnieuw.",
   "msg.error.validation.zgw": "Foutmelding van onderliggend zaakregister.",
   "msg.document.uploaden.voortgang": "Voortgang van het uploaden",
