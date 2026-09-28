@@ -30,6 +30,7 @@ import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
 import nl.info.zac.admin.exception.SystemReferenceTableNotConfiguredException
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
@@ -691,6 +692,26 @@ class RestExceptionMapperTest : BehaviorSpec({
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.mailtemplate.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("A CatalogusNotFoundException exception") {
+            val exception = CatalogusNotFoundException("fakeMessage")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the catalogus not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.catalogus.not.configured",
                         expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                     )
                 }
