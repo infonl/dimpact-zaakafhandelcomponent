@@ -18,6 +18,7 @@ import jakarta.ws.rs.ProcessingException
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createOrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
@@ -25,6 +26,8 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectPand
+import nl.info.client.zgw.ztc.model.createBehandelaarRolType
+import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
@@ -220,6 +223,58 @@ class ZrcClientServiceTest : BehaviorSpec({
                     zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
                     zrcClient.rolCreate(newRole)
                 }
+            }
+        }
+    }
+
+    given("a zaak with a groep, a behandelaar and two zaakspecifiek geautoriseerde medewerkers") {
+        val zaak = createZaak()
+        val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
+        val geautoriseerdeRolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType(
+            zaakTypeUri = zaak.zaaktype
+        )
+        val currentGroep = createRolOrganisatorischeEenheidForReads(
+            rolType = behandelaarRolType,
+            organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(
+                identificatie = "fakeCurrentGroupId"
+            )
+        )
+        val behandelaar = createRolMedewerkerForReads(
+            rolType = behandelaarRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+        )
+        val firstGeautoriseerde = createRolMedewerkerForReads(
+            rolType = geautoriseerdeRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeGeautoriseerdeId1")
+        )
+        val secondGeautoriseerde = createRolMedewerkerForReads(
+            rolType = geautoriseerdeRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeGeautoriseerdeId2")
+        )
+        val newGroep = createRolOrganisatorischeEenheid(
+            zaakURI = zaak.url,
+            rolType = behandelaarRolType,
+            organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(
+                identificatie = "fakeNewGroupId"
+            )
+        )
+        val existingRoles = listOf(currentGroep, behandelaar, firstGeautoriseerde, secondGeautoriseerde)
+        val auditExplanation = "fakeExplanation"
+        every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
+        every {
+            zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
+        } answers { secondArg<() -> Any?>()() }
+        every { zrcClient.rolDelete(any()) } just Runs
+        every { zrcClient.rolCreate(any()) } returns newGroep
+
+        `when`("updateRol is called with a new groep") {
+            zrcClientService.updateRol(zaak, newGroep, auditExplanation)
+
+            then("only the groep rol is replaced, so the behandelaar and both individually authorised medewerkers stay") {
+                verify(exactly = 1) { zrcClient.rolDelete(any()) }
+                verify(exactly = 1) { zrcClient.rolDelete(currentGroep.uuid!!) }
+                verify(exactly = 1) { zrcClient.rolCreate(any()) }
+                verify(exactly = 1) { zrcClient.rolCreate(newGroep) }
             }
         }
     }

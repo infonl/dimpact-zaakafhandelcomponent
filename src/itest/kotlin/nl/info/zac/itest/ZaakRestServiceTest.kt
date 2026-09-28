@@ -16,7 +16,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -111,6 +110,12 @@ import kotlin.time.Duration.Companion.seconds
 
 const val ZAAK_OMSCHRIJVING_MAX_LENGTH = 80
 
+private data class OpenZaakRollen(
+    val behandelaarIds: Set<String>,
+    val geautoriseerdeIds: Set<String>,
+    val groepIds: Set<String>
+)
+
 @Suppress("LargeClass")
 @Isolate
 class ZaakRestServiceTest : BehaviorSpec({
@@ -187,10 +192,30 @@ class ZaakRestServiceTest : BehaviorSpec({
             ?.getString("uuid")
             ?.run(UUID::fromString)
 
-    fun zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid: UUID) =
-        rollenForZaak(zaakUuid)
-            .filter { it.getString("omschrijving") == ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
-            .map { it.getJSONObject("betrokkeneIdentificatie").getString("identificatie") }
+    fun rolIdentificaties(
+        rollen: List<JSONObject>,
+        omschrijving: String,
+        betrokkeneType: String
+    ) = rollen
+        .filter {
+            it.getString("omschrijving") == omschrijving &&
+                it.getString("betrokkeneType") == betrokkeneType
+        }
+        .map { it.getJSONObject("betrokkeneIdentificatie").getString("identificatie") }
+        .toSet()
+
+    fun openZaakRollen(zaakUuid: UUID): OpenZaakRollen {
+        val rollen = rollenForZaak(zaakUuid)
+        return OpenZaakRollen(
+            behandelaarIds = rolIdentificaties(rollen, ROLTYPE_NAME_BEHANDELAAR, "medewerker"),
+            geautoriseerdeIds = rolIdentificaties(
+                rollen,
+                ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                "medewerker"
+            ),
+            groepIds = rolIdentificaties(rollen, ROLTYPE_NAME_BEHANDELAAR, "organisatorische_eenheid")
+        )
+    }
 
     fun assignZaak(
         zaakUuid: UUID,
@@ -1566,7 +1591,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
 
                 and("the previous behandelaar keeps reading it as a zaakspecifiek geautoriseerde medewerker") {
-                    zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe listOf(BEHANDELAAR_1.username)
+                    openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                        behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
+                        geautoriseerdeIds = setOf(BEHANDELAAR_1.username),
+                        groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
+                    )
                     with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
@@ -1650,9 +1679,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
 
                 and("the behandelaar that is replaced is granted an individual authorisation in turn") {
-                    zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldContainExactlyInAnyOrder listOf(
-                        BEHANDELAAR_1.username,
-                        ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                    openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                        behandelaarIds = setOf(BEHANDELAAR_1.username),
+                        geautoriseerdeIds = setOf(
+                            BEHANDELAAR_1.username,
+                            ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                        ),
+                        groepIds = setOf(GROUP_BEHANDELAARS_TEST_1.name)
                     )
                 }
             }
@@ -1668,10 +1701,128 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 then("no second individual authorisation is added for the behandelaar that is replaced again") {
                     response.code shouldBe HTTP_OK
-                    zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldContainExactlyInAnyOrder listOf(
-                        BEHANDELAAR_1.username,
-                        ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                    openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                        behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
+                        geautoriseerdeIds = setOf(
+                            BEHANDELAAR_1.username,
+                            ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                        ),
+                        groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
                     )
+                }
+            }
+        }
+    }
+
+    context("Open Zaak rollen after switching behandelaars of a zaakspecifiek geautoriseerde zaak") {
+        data class Switch(
+            val behandelaar: TestUser,
+            val group: TestGroup
+        )
+
+        data class HandoverCase(
+            val description: String,
+            val switches: List<Switch>,
+            val expected: List<OpenZaakRollen>
+        )
+
+        fun rollen(
+            behandelaar: TestUser,
+            group: TestGroup,
+            vararg geautoriseerd: TestUser
+        ) = OpenZaakRollen(
+            behandelaarIds = setOf(behandelaar.username),
+            geautoriseerdeIds = geautoriseerd.map { it.username }.toSet(),
+            groepIds = setOf(group.name)
+        )
+
+        val behandelaarA = BEHANDELAAR_1
+        val groepA = GROUP_BEHANDELAARS_TEST_1
+        val behandelaarB = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+        val groepB = GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1
+        val behandelaarC = BEHANDELAAR_LONG_NAME_TEST
+        val groepC = GROUP_BEHANDELAARS_LONG_NAME_TEST
+
+        listOf(
+            HandoverCase(
+                description = "A → A leaves Open Zaak unchanged",
+                switches = listOf(Switch(behandelaarA, groepA)),
+                expected = listOf(rollen(behandelaarA, groepA))
+            ),
+            HandoverCase(
+                description = "A → B → B does not grant B a zaakspecifiek geautoriseerde rol",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarB, groepB)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarB, groepB, behandelaarA)
+                )
+            ),
+            HandoverCase(
+                description = "A → B → C: C is behandelaar, A and B are zaakspecifiek geautoriseerd",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarC, groepC)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarC, groepC, behandelaarA, behandelaarB)
+                )
+            ),
+            HandoverCase(
+                description = "A → B → C → A: A is behandelaar and keeps the geautoriseerde rol",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarC, groepC),
+                    Switch(behandelaarA, groepA)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarC, groepC, behandelaarA, behandelaarB),
+                    rollen(behandelaarA, groepA, behandelaarA, behandelaarB, behandelaarC)
+                )
+            ),
+            HandoverCase(
+                description = "A → B → C → B: B is both behandelaar and zaakspecifiek geautoriseerd",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarC, groepC),
+                    Switch(behandelaarB, groepB)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarC, groepC, behandelaarA, behandelaarB),
+                    rollen(behandelaarB, groepB, behandelaarA, behandelaarB, behandelaarC)
+                )
+            )
+        ).forEach { handoverCase ->
+            given(handoverCase.description) {
+                val (_, zaakUuid) = zaakHelper.createZaak(
+                    zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                    group = groepA,
+                    testUser = behandelaarA,
+                    behandelaarId = behandelaarA.username,
+                    behandelaarName = behandelaarA.displayName
+                )
+                markZaakspecifiekGeautoriseerd(zaakUuid, behandelaarA).code shouldBe HTTP_OK
+
+                `when`("the behandelaar is switched according to the case") {
+                    then("Open Zaak has the expected behandelaar, geautoriseerde medewerkers and groep after every switch") {
+                        var actor = behandelaarA
+                        handoverCase.switches.zip(handoverCase.expected).forEach { (switch, expectedRollen) ->
+                            assignZaak(
+                                zaakUuid = zaakUuid,
+                                group = switch.group,
+                                behandelaar = switch.behandelaar,
+                                reason = "fakeHandoverReason",
+                                testUser = actor
+                            ).code shouldBe HTTP_OK
+                            openZaakRollen(zaakUuid) shouldBe expectedRollen
+                            actor = switch.behandelaar
+                        }
+                    }
                 }
             }
         }
@@ -1747,7 +1898,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
 
                 and("the previous behandelaar keeps access as a zaakspecifiek geautoriseerde medewerker") {
-                    zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe listOf(BEHANDELAAR_1.username)
+                    openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                        behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
+                        geautoriseerdeIds = setOf(BEHANDELAAR_1.username),
+                        groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
+                    )
                     zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
                 }
             }
