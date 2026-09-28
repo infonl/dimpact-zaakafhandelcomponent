@@ -58,6 +58,7 @@ import java.lang.reflect.InvocationTargetException
 import java.net.UnknownHostException
 import java.util.logging.Level
 
+@Suppress("LargeClass")
 class RestExceptionMapperTest : BehaviorSpec({
     val restExceptionMapper = RestExceptionMapper()
 
