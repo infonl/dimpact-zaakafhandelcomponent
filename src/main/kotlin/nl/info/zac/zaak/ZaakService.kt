@@ -440,7 +440,8 @@ class ZaakService @Inject constructor(
     /**
      * Replaces the behandelaar rol(len) of the zaak with [user], or removes them when [user] is null.
      * A replaced behandelaar of a zaakspecifiek geautoriseerde zaak is granted an individual authorisation
-     * first, so that they never lose access to the zaak.
+     * first, so that they never lose access to the zaak. A medewerker holds at most one of both rollen, so a new
+     * behandelaar gives up their individual authorisation once their behandelaar rol exists.
      *
      * @return true when the behandelaar of the zaak changed
      */
@@ -462,6 +463,7 @@ class ZaakService @Inject constructor(
             behandelaarRollen
                 .mapNotNull { it.betrokkeneIdentificatie }
                 .distinctBy { it.identificatie }
+                .filter { it.identificatie != user?.id }
                 .forEach {
                     zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
                         zaak = zaak,
@@ -472,7 +474,12 @@ class ZaakService @Inject constructor(
                 }
         }
         behandelaarRollen.forEach { zrcClientService.deleteRol(it, reason) }
-        user?.let { zrcClientService.createRol(bepaalRolMedewerker(it, zaak), reason) }
+        user?.let { newBehandelaar ->
+            zrcClientService.createRol(bepaalRolMedewerker(newBehandelaar, zaak), reason)
+            zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
+                .filter { it.identificatienummer == newBehandelaar.id }
+                .forEach { zrcClientService.deleteRol(it, reason) }
+        }
         return true
     }
 

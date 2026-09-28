@@ -626,17 +626,14 @@ class ZaakServiceTest : BehaviorSpec({
                 rolType = behandelaarRolType,
                 medewerkerIdentificatie = currentBehandelaarIdentificatie
             )
+            val returningBehandelaarGeautoriseerdeRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype),
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = returningBehandelaar.id)
+            )
             val zaakToewijzing = createZaakToewijzing(
                 behandelaarRollen = listOf(currentBehandelaarRol),
-                zaakspecifiekGeautoriseerdeMedewerkers = listOf(
-                    createRolMedewerker(
-                        zaakURI = zaak.url,
-                        rolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype),
-                        medewerkerIdentificatie = createMedewerkerIdentificatie(
-                            identificatie = returningBehandelaar.id
-                        )
-                    )
-                ),
+                zaakspecifiekGeautoriseerdeMedewerkers = listOf(returningBehandelaarGeautoriseerdeRol),
                 isZaakspecifiekGeautoriseerd = true
             )
             val createdRollen = mutableListOf<Rol<*>>()
@@ -659,6 +656,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readGroup(group.name) } returns group
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.deleteRol(currentBehandelaarRol, reason) } just runs
+            every { zrcClientService.deleteRol(returningBehandelaarGeautoriseerdeRol, reason) } just runs
             every { zrcClientService.createRol(capture(createdRollen), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
@@ -677,6 +675,13 @@ class ZaakServiceTest : BehaviorSpec({
                         this.roltype shouldBe behandelaarRolType.url
                         (betrokkeneIdentificatie as MedewerkerIdentificatie).identificatie shouldBe
                             returningBehandelaar.id
+                    }
+                }
+
+                and("their individual authorisation is removed only after their behandelaar rol exists") {
+                    verifyOrder {
+                        zrcClientService.createRol(any(), reason)
+                        zrcClientService.deleteRol(returningBehandelaarGeautoriseerdeRol, reason)
                     }
                 }
 

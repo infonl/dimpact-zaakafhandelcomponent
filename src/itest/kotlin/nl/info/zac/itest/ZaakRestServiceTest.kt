@@ -1678,13 +1678,15 @@ class ZaakRestServiceTest : BehaviorSpec({
                         BEHANDELAAR_1.username
                 }
 
-                and("the behandelaar that is replaced is granted an individual authorisation in turn") {
+                and(
+                    """
+                    the behandelaar that is replaced is granted an individual authorisation in turn,
+                    while the original behandelaar gives up theirs
+                    """
+                ) {
                     openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
                         behandelaarIds = setOf(BEHANDELAAR_1.username),
-                        geautoriseerdeIds = setOf(
-                            BEHANDELAAR_1.username,
-                            ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
-                        ),
+                        geautoriseerdeIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
                         groepIds = setOf(GROUP_BEHANDELAARS_TEST_1.name)
                     )
                 }
@@ -1699,14 +1701,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                then("no second individual authorisation is added for the behandelaar that is replaced again") {
+                then("each behandelaar holds either the behandelaar rol or an individual authorisation, never both") {
                     response.code shouldBe HTTP_OK
                     openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
                         behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
-                        geautoriseerdeIds = setOf(
-                            BEHANDELAAR_1.username,
-                            ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
-                        ),
+                        geautoriseerdeIds = setOf(BEHANDELAAR_1.username),
                         groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
                     )
                 }
@@ -1761,6 +1760,17 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             ),
             HandoverCase(
+                description = "A → B → A: A is behandelaar again and gives up the geautoriseerde rol to B",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarA, groepA)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarA, groepA, behandelaarB)
+                )
+            ),
+            HandoverCase(
                 description = "A → B → C: C is behandelaar, A and B are zaakspecifiek geautoriseerd",
                 switches = listOf(
                     Switch(behandelaarB, groepB),
@@ -1772,7 +1782,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             ),
             HandoverCase(
-                description = "A → B → C → A: A is behandelaar and keeps the geautoriseerde rol",
+                description = "A → B → C → A: A is behandelaar again and no longer zaakspecifiek geautoriseerd",
                 switches = listOf(
                     Switch(behandelaarB, groepB),
                     Switch(behandelaarC, groepC),
@@ -1781,11 +1791,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 expected = listOf(
                     rollen(behandelaarB, groepB, behandelaarA),
                     rollen(behandelaarC, groepC, behandelaarA, behandelaarB),
-                    rollen(behandelaarA, groepA, behandelaarA, behandelaarB, behandelaarC)
+                    rollen(behandelaarA, groepA, behandelaarB, behandelaarC)
                 )
             ),
             HandoverCase(
-                description = "A → B → C → B: B is both behandelaar and zaakspecifiek geautoriseerd",
+                description = "A → B → C → B: B is behandelaar again and no longer zaakspecifiek geautoriseerd",
                 switches = listOf(
                     Switch(behandelaarB, groepB),
                     Switch(behandelaarC, groepC),
@@ -1794,7 +1804,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 expected = listOf(
                     rollen(behandelaarB, groepB, behandelaarA),
                     rollen(behandelaarC, groepC, behandelaarA, behandelaarB),
-                    rollen(behandelaarB, groepB, behandelaarA, behandelaarB, behandelaarC)
+                    rollen(behandelaarB, groepB, behandelaarA, behandelaarC)
                 )
             )
         ).forEach { handoverCase ->
