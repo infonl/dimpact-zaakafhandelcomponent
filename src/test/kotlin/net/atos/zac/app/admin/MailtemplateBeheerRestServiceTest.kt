@@ -170,7 +170,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
             `when`("reading a non-existent mail template") {
                 then("it should propagate MailTemplateNotFoundException (404)") {
                     every { policyService.readOverigeRechten().beheren } returns true
-                    every { mailTemplateService.readMailtemplate(999L) } throws MailTemplateNotFoundException(999L)
+                    every { mailTemplateService.readMailTemplate(999L) } throws MailTemplateNotFoundException(999L)
                     shouldThrow<MailTemplateNotFoundException> {
                         mailtemplateBeheerRestService.readMailtemplate(999L)
                     }

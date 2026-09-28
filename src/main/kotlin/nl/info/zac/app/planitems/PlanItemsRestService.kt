@@ -156,7 +156,7 @@ class PlanItemsRestService @Inject constructor(
             val mailTemplate = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
                 .map { it.mailTemplate }
                 .firstOrNull { it?.mail == mail }
-                ?: mailTemplateService.readMailtemplate(mail)
+                ?: mailTemplateService.readDefaultMailTemplate(mail)
 
             val afzender = configurationService.readGemeenteNaam()
             TaakVariabelenService.setMailBody(

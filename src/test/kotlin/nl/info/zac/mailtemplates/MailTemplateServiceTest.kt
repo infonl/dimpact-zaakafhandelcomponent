@@ -185,8 +185,8 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns listOf(mailTemplate)
 
-            `when`("readMailtemplate is called with the mail type") {
-                val result = mailTemplateService.readMailtemplate(mail)
+            `when`("readDefaultMailTemplate is called with the mail type") {
+                val result = mailTemplateService.readDefaultMailTemplate(mail)
 
                 then("it should return the mail template") {
                     result shouldBe mailTemplate
@@ -206,9 +206,9 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns emptyList()
 
-            `when`("readMailtemplate is called with the mail type") {
+            `when`("readDefaultMailTemplate is called with the mail type") {
                 val exception = shouldThrow<MailTemplateNotConfiguredException> {
-                    mailTemplateService.readMailtemplate(mail)
+                    mailTemplateService.readDefaultMailTemplate(mail)
                 }
                 then("it should throw MailTemplateNotConfiguredException") {
                     exception.message shouldBe
@@ -226,7 +226,7 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
 
             `when`("readMailtemplate is called with the ID") {
-                val result = mailTemplateService.readMailtemplate(mailTemplateId)
+                val result = mailTemplateService.readMailTemplate(mailTemplateId)
 
                 then("it should return the mail template") {
                     result shouldBe mailTemplate
@@ -239,7 +239,7 @@ class MailTemplateServiceTest : BehaviorSpec({
 
             `when`("readMailtemplate is called with the ID") {
                 val exception = shouldThrow<MailTemplateNotFoundException> {
-                    mailTemplateService.readMailtemplate(mailTemplateId)
+                    mailTemplateService.readMailTemplate(mailTemplateId)
                 }
                 then("it should throw MailTemplateNotFoundException") {
                     exception shouldBe MailTemplateNotFoundException(mailTemplateId)

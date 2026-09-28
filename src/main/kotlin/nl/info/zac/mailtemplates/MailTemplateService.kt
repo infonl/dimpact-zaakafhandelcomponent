@@ -66,10 +66,10 @@ class MailTemplateService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    fun readMailtemplate(mail: Mail): MailTemplate =
+    fun readDefaultMailTemplate(mail: Mail): MailTemplate =
         findDefaultMailtemplate(mail) ?: throw MailTemplateNotConfiguredException(mail)
 
-    fun readMailtemplate(id: Long): MailTemplate {
+    fun readMailTemplate(id: Long): MailTemplate {
         return entityManager.find(MailTemplate::class.java, id)
             ?: throw MailTemplateNotFoundException(id)
     }
@@ -84,7 +84,7 @@ class MailTemplateService @Inject constructor(
 
     fun updateMailtemplate(id: Long, mailTemplate: MailTemplate): MailTemplate {
         validateObject(mailTemplate)
-        val existingTemplate = readMailtemplate(id)
+        val existingTemplate = readMailTemplate(id)
 
         existingTemplate.apply {
             this.mailTemplateNaam = mailTemplate.mailTemplateNaam

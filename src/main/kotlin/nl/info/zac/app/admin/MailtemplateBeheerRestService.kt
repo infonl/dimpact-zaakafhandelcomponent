@@ -46,7 +46,7 @@ class MailtemplateBeheerRestService @Inject constructor(
     @Path("{id}")
     fun readMailtemplate(@PathParam("id") @Positive id: Long): RestMailtemplate {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return mailTemplateService.readMailtemplate(id).toRestMailtemplate()
+        return mailTemplateService.readMailTemplate(id).toRestMailtemplate()
     }
 
     @GET
