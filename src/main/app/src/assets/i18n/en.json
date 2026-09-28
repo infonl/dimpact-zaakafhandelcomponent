@@ -395,7 +395,7 @@
   "zaak.identificatie": "Case number",
   "zaak.is-zaakspecifiek-geautoriseerd": "Case is case-specifically authorized",
   "is-zaakspecifiek-geautoriseerd": "Mark this zaak as zaakspecifiek geautoriseerd",
-  "zaak.zaakspecifiek-geautoriseerd.hint": "Only the behandelaar and employees who are zaakspecifiek geautoriseerd for this zaaktype will still be able to see this zaak. A behandelaar who hands the zaak over keeps access to it. This cannot be undone.",
+  "zaak.zaakspecifiek-geautoriseerd.hint": "Only the behandelaar and employees who are zaakspecifiek geautoriseerd for this zaaktype will still be able to see this zaak. This cannot be undone. A behandelaar who hands the zaak over keeps access to it.",
   "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud": "One zaak was not distributed because it is zaakspecifiek geautoriseerd.",
   "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.meervoud": "{{aantal}} zaken were not distributed because they are zaakspecifiek geautoriseerd.",
   "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud": "One zaak was not released because it is zaakspecifiek geautoriseerd.",

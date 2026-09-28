@@ -637,7 +637,7 @@ VALUES
   NULL                              -- datum_einde_geldigheid
 );
 
--- Grants an individual medewerker access to one zaakspecifiek geautoriseerde zaak of this zaaktype.
+-- Adds the 'Zaakspecifiek geautoriseerde medewerker' roltype with which individual employees can be granted access to a specific zaakspecifiek geautoriseerde zaak of this zaaktype.
 -- Together with the 'ZAAK_GEAUTORISEERD' eigenschap this makes the zaaktype 'zaakspecifiek autoriseerbaar' in ZAC.
 INSERT INTO catalogi_roltype
 (

@@ -48,7 +48,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     fun isZaakspecifiekGeautoriseerd(zaak: Zaak) = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
 
     /**
-     * Reads who a zaak is assigned to and who is individually authorised for it.
+     * Reads which employee a zaak is assigned to and which employees are individually authorised for it.
      *
      * @param rollen pre-fetched rollen for [zaak], to avoid a redundant `listRollen` call when the caller
      * already fetched all rollen for the zaak. When 'null', the rollen are fetched here.
@@ -108,7 +108,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     }
 
     /**
-     * A zaakspecifiek geautoriseerde zaak can be handed over to another behandelaar but never be released:
+     * A zaakspecifiek geautoriseerde zaak can be handed over to another behandelaar but can never be released:
      * without a behandelaar nobody would be able to pick the zaak up again.
      */
     fun assertBehandelaarMayChange(zaakToewijzing: ZaakToewijzing, requestedBehandelaarId: String?) {
