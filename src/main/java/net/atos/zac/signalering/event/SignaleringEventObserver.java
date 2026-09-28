@@ -24,6 +24,7 @@ import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.task.FlowableTaskService;
 import net.atos.zac.signalering.model.Signalering;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
+import nl.info.client.zgw.shared.ZgwApiService;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.Rol;
 import nl.info.client.zgw.zrc.model.RolListParameters;
@@ -32,7 +33,6 @@ import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject;
-import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 import nl.info.zac.identity.IdentityService;
@@ -48,7 +48,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
 
     private static final Logger LOG = Logger.getLogger(SignaleringEventObserver.class.getName());
 
-    private ZtcClientService ztcClientService;
+    private ZgwApiService zgwApiService;
     private ZrcClientService zrcClientService;
     private FlowableTaskService flowableTaskService;
     private IdentityService identityService;
@@ -62,13 +62,13 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
 
     @Inject
     public SignaleringEventObserver(
-            final ZtcClientService ztcClientService,
+            final ZgwApiService zgwApiService,
             final ZrcClientService zrcClientService,
             final FlowableTaskService flowableTaskService,
             final IdentityService identityService,
             final SignaleringService signaleringService
     ) {
-        this.ztcClientService = ztcClientService;
+        this.zgwApiService = zgwApiService;
         this.zrcClientService = zrcClientService;
         this.flowableTaskService = flowableTaskService;
         this.identityService = identityService;
@@ -183,8 +183,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
             }
             case ZAAK_OP_NAAM -> {
                 final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().resource());
-                if (OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase()) ==
-                    OmschrijvingGeneriekEnum.BEHANDELAAR) {
+                if (isBehandelaarRol(rol)) {
                     final Zaak subject = zrcClientService.readZaak(rol.getZaak());
                     switch (rol.getBetrokkeneType()) {
                         case MEDEWERKER -> {
@@ -208,8 +207,14 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         return null;
     }
 
+    private static boolean isBehandelaarRol(final Rol<?> rol) {
+        return OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase()) ==
+               OmschrijvingGeneriekEnum.BEHANDELAAR &&
+               ROLTYPE_OMSCHRIJVING_BEHANDELAAR.equals(rol.getOmschrijving());
+    }
+
     private RolType getRoltypeBehandelaar(final Zaak zaak) {
-        return ztcClientService.readRoltype(zaak.getZaaktype(), OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR);
+        return zgwApiService.readBehandelaarRoltype(zaak.getZaaktype());
     }
 
     private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {

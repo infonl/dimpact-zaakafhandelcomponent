@@ -889,7 +889,7 @@ describe(CaseDetailsEditComponent.name, () => {
       options: { status: 400, statusText: "Bad Request" },
     });
 
-    it("shows the reassignment refusal, and the single request leaves the zaakgegevens unsaved", async () => {
+    it("shows the missing roltype refusal on a handover, and the single request leaves the zaakgegevens unsaved", async () => {
       renderComponent();
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
@@ -905,7 +905,7 @@ describe(CaseDetailsEditComponent.name, () => {
       await new Promise(requestAnimationFrame);
 
       const { body, options } = refusal(
-        "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned",
+        "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found",
       );
       expectUpdateZaakRequest().flush(body, options);
       await new Promise(requestAnimationFrame);
@@ -913,7 +913,7 @@ describe(CaseDetailsEditComponent.name, () => {
 
       expect(
         screen.getByText(
-          "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned",
+          "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found",
         ),
       ).toBeInTheDocument();
       httpTestingController.verify();

@@ -7,6 +7,6 @@ package nl.info.zac.app.zaak.exception
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 
-class ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException : InputValidationFailedException(
-    errorCode = ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED
+class BetrokkeneCannotBeDeletedException : InputValidationFailedException(
+    errorCode = ErrorCode.ERROR_CODE_CASE_BETROKKENE_CANNOT_BE_DELETED
 )
