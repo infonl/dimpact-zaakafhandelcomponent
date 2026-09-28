@@ -7,6 +7,10 @@ package nl.info.client.opa.model
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
 
+/**
+ * OPA's Data API omits the 'result' field entirely when the queried rule path is undefined,
+ * e.g. because the rule was renamed or removed from the policy bundle.
+ */
 data class RuleResponse<T : OpaRuleResult> @JsonbCreator constructor(
-    @param:JsonbProperty("result") val result: T
+    @param:JsonbProperty("result") val result: T?
 )

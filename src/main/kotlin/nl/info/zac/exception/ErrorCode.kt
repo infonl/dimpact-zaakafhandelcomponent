@@ -81,4 +81,5 @@ enum class ErrorCode(val value: String) {
     ),
     ERROR_CODE_MAIL_TEMPLATE_NOT_CONFIGURED("msg.error.mailtemplate.not.configured"),
     ERROR_CODE_CATALOGUS_NOT_CONFIGURED("msg.error.catalogus.not.configured"),
+    ERROR_CODE_OPA_RULE_NOT_CONFIGURED("msg.error.opa.rule.not.configured"),
 }
