@@ -41,6 +41,7 @@ Versiegeschiedenis:
     - [BRP-autorisatie](#brp-autorisatie)
     - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
     - [Groepen](#groepen)
+  - [Zaakdata bekijken](#zaakdata-bekijken)
 - [Inrichting zaakafhandel parameters (zaaktype)](#inrichting-zaakafhandel-parameters-zaaktype)
   - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
     - [CMMN/BPMN](#cmmnbpmn)
@@ -654,6 +655,20 @@ Dergelijke subgroepen worden niet ondersteund.
 > Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
 > Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
 > Hier wordt geen foutmelding van getoond. 
+
+## Zaakdata bekijken
+
+Bij een zaak die zaakdata bevat (variabelen uit het onderliggende proces of de zaakbehandeling) is in het zaakmenu de actie *Zaakdata* beschikbaar waarmee deze gegevens ingezien kunnen worden. De velden zijn alleen-lezen; met het kopieer-icoon naast een veld kan de naam ervan gekopieerd worden.
+
+>Deze actie is alleen zichtbaar voor medewerkers met de rol `beheerder`, en alleen als er zaakdata aanwezig is.
+
+Zolang het onderliggende proces of de zaakbehandeling nog actief is, heet deze actie ‘Zaakdata’. Is het proces of de zaakbehandeling afgerond, dan heet de actie ‘Zaakdata archief’ en wordt bovenaan het geopende paneel een toelichting getoond dat de getoonde zaakdata gearchiveerd is en kan afwijken van de actuele zaakgegevens, bijvoorbeeld het communicatiekanaal.
+
+**Stappen:**
+
+1 In een zaak kies je actie *Zaakdata* (of *Zaakdata archief* als de onderliggende zaakbehandeling is afgerond)
+
+2 Bekijk de zaakdata in het geopende paneel
 
 # Inrichting zaakafhandel parameters (zaaktype)
 
