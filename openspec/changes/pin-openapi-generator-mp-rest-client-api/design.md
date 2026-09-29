@@ -10,6 +10,7 @@ The originally suspected second gap - Renovate proposing incompatible bumps for 
 
 **Goals:**
 - Give developers a scriptable, repeatable way to verify the `jboss-logmanager` version in `libs.versions.toml` against what a built WildFly server actually bundles, replacing the manual instruction in `updatingDependencies.md`.
+- Stop Renovate from opening ad hoc bump PRs for `jboss-logmanager` that skip the verification script - the version must only change as a deliberate step of a WildFly upgrade, not an independent Renovate PR.
 - Document why `openapi-generator-eclipse-microprofile-rest-client-api` needs no Renovate rule today, so a future maintainer doesn't have to re-derive it.
 
 **Non-Goals:**
@@ -27,6 +28,8 @@ The originally suspected second gap - Renovate proposing incompatible bumps for 
 
 Alternative considered: extend the Python `dependencies/versions.py` script instead - rejected because that script's purpose is checking *latest available* versions of external components, whereas this check is a *consistency* check against an already-installed local WildFly server, a different concern better kept as a small, dependency-free shell script.
 
+**Renovate rule for `jboss-logmanager`**: fold `org.jboss.logmanager:jboss-logmanager` into the existing "Dependencies provided by WildFly" disabled `packageRule` in `renovate.json`, alongside `jakarta-jakartaee` and the others - its `description` ("versions must be manually synced with WildFly - see updatingDependencies.md") already covers this case correctly now that `updatingDependencies.md` points at the verification script, so no wording change is needed. Alternative considered: a separate rule specific to `jboss-logmanager` - rejected, since it's the same category of dependency (manually synced with WildFly) as the rest of that group, and a second near-identical rule would only fragment the "Dependencies provided by WildFly" story across two places in `renovate.json`.
+
 ## Risks / Trade-offs
 
 - [WildFly's module directory layout or `module.xml` format changes across WildFly major versions, breaking the parsing] → Mitigation: script only needs to keep working across the WildFly versions actually in use; a parsing failure should produce a clear error rather than a false pass/fail, so a broken parse is caught immediately during manual WildFly upgrades.
@@ -34,4 +37,4 @@ Alternative considered: extend the Python `dependencies/versions.py` script inst
 
 ## Migration Plan
 
-Not applicable - additive tooling change, no rollback concerns beyond reverting the script and documentation changes.
+Not applicable - additive tooling change, no rollback concerns beyond reverting the script, `renovate.json`, and documentation changes.

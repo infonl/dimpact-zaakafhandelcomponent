@@ -548,7 +548,8 @@
         "org.eclipse.microprofile.rest.client:microprofile-rest-client-api",
         "org.jboss.resteasy:resteasy-multipart-provider",
         "org.wildfly.security:wildfly-elytron-http-oidc",
-        "org.hibernate.validator:hibernate-validator"
+        "org.hibernate.validator:hibernate-validator",
+        "org.jboss.logmanager:jboss-logmanager"
       ],
       "matchManagers": [
         "gradle"

@@ -8,3 +8,7 @@
 
 - [x] 2.1 Update `docs/development/updatingDependencies.md`'s WildFly upgrade section to replace the manual `jboss-logmanager` module-checking instruction with a pointer to running `scripts/wildfly/verify-jboss-logmanager-version.sh`.
 - [x] 2.2 Add a comment next to `openapi-generator-eclipse-microprofile-rest-client-api` in `gradle/libs.versions.toml` noting it has no `[libraries]` entry referencing it, so Renovate cannot and does not manage it (verified: unchanged across all history despite sibling entries being bumped by renovate-bot before they moved under WildFly BOM coverage) - if it's ever wired to a `[libraries]` entry, a Renovate disable rule must be added at that point, matching the existing "Dependencies provided by WildFly" packageRule style.
+
+## 3. Renovate rule for jboss-logmanager
+
+- [x] 3.1 Add `org.jboss.logmanager:jboss-logmanager` to the `matchPackageNames` list of the existing "Dependencies provided by WildFly" disabled `packageRule` in `renovate.json`, so Renovate stops opening bump PRs for it. Verify the JSON still parses (e.g. `python3 -m json.tool renovate.json` or equivalent).
