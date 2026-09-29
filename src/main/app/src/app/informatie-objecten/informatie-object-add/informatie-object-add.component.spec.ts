@@ -32,7 +32,6 @@ import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
@@ -117,7 +116,6 @@ describe(InformatieObjectAddComponent.name, () => {
         ReactiveFormsModule,
         MatIconModule,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],

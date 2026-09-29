@@ -14,13 +14,13 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { ZacDate } from "./date";
 
 interface TestForm extends Record<string, AbstractControl> {
@@ -41,13 +41,8 @@ describe(ZacDate.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZacDate,
-        TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
-        NoopAnimationsModule,
-      ],
-      providers: [TranslateService],
+      imports: [ZacDate, TranslateModule.forRoot(), NoopAnimationsModule],
+      providers: [TranslateService, provideMomentDateAdapter()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(

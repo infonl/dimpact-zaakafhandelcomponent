@@ -27,7 +27,6 @@ import { IdentityService } from "../../identity/identity.service";
 import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -93,7 +92,6 @@ describe(InformatieObjectViewComponent.name, () => {
         TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         DocumentIconComponent,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [

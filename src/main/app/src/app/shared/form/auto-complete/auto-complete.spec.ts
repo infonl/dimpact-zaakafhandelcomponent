@@ -19,7 +19,6 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { ZacAutoComplete } from "./auto-complete";
 
 interface TestOption {
@@ -65,7 +64,6 @@ describe(ZacAutoComplete.name, () => {
       imports: [
         ZacAutoComplete,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [TranslateService],

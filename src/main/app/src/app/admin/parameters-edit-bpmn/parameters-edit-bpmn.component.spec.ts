@@ -21,7 +21,6 @@ import { fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
@@ -93,7 +92,6 @@ describe(ParametersEditBpmnComponent.name, () => {
         ParametersEditBpmnComponent,
         StaticTextComponent,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [

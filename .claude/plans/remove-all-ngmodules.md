@@ -15,10 +15,10 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [x] **Step 3** — ngx-editor out of the eager graph (PZ-12707) — **−77 kB** (merged, #7088)
 - [x] **Step 4** — dissolve `PipesModule` — pure deletion, −0.6 kB
 - [ ] **Step 5** — dissolve `MaterialModule`, split in two PRs:
-  - [ ] **5a** — 15 specs (PZ-12820, branch `refactor/PZ-12820-spec-files-import-components-directly-instead-of-through-modules`)
+  - [ ] **5a** — all 20 specs that import one of our NgModules (PZ-12820, branch `refactor/PZ-12820-spec-files-import-components-directly-instead-of-through-modules`)
   - [ ] **5b** — 14 non-spec files (local branch `temp-ng20-step5b`, rebase on main after 5a merges)
 - [ ] **Step 6** — dissolve `MaterialFormBuilderModule` (17 non-spec, 12 specs)
-- [ ] **Step 7** — dissolve `SharedModule` (8 non-spec, 2 specs after 5a) — last, it re-exports the others
+- [ ] **Step 7** — dissolve `SharedModule` (8 non-spec, 0 specs after 5a) — last, it re-exports the others
 - [ ] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
       `documenten`, `productaanvragen`)
 - [ ] **Step 9** — `app-routing.module.ts` -> `app.routes.ts`
@@ -253,7 +253,7 @@ PR that touches them, because `no-restricted-syntax` is an **error** on any spec
 Step 4 cleared `shared/form/input`, `shared/form/radio` and `klanten/bedrijfsgegevens`;
 `admin/bpmn-process-definitions` + its `-item` remain (their specs import `SharedModule`), and fall into step 7.
 
-**Option (proposed, not decided): clear every spec first.** On main, 20 specs import a remaining module (`MaterialModule` 14, `MaterialFormBuilderModule` 12, `SharedModule` 3, overlapping; routing modules, `AppModule` and `CoreModule` 0). After 5a, 14 still do: 12 via `MaterialFormBuilderModule` (9 of them also touched by 5a) and 2 via `SharedModule` (`bpmn-process-definitions` + `-item`). Five of the 14 are not in 5a at all: `bpmn-process-definitions` + `-item`, `abstract-taak-formulier`, `abstract-task-form`, `zaak-create`. Clearing these 14 in 5a (or a follow-up spec-only PR) means steps 5b, 6 and 7 touch no spec. A trial showed `tsc` at 0 and two blockers only: the moment `DateAdapter` provider that `MaterialFormBuilderModule` supplies (34 failing tests in `date`, `abstract-task-form`, `abstract-taak-formulier`; fix with one reusable `provideZacDateAdapter()`), and 10 `querySelector` strict-lint errors in `abstract-taak-formulier` (4), `abstract-task-form` (4) and `zaak-create` (2).
+**Done in 5a (PZ-12820): no spec imports any of our NgModules any more.** On main 20 specs imported one (`MaterialModule` 14, `MaterialFormBuilderModule` 12, `SharedModule` 3, overlapping); 5a clears all 20, so steps 5b, 6 and 7 touch no spec. Specs lost two providers they had inherited from `MaterialFormBuilderModule` and now provide them themselves: the moment `DateAdapter` (`provideMomentDateAdapter()`, in `date`, `abstract-task-form`, `abstract-taak-formulier`) and `HttpClient` (`provideHttpClient()` + `provideHttpClientTesting()`, in the two abstract form specs). The 10 `querySelector` strict-lint errors in `abstract-taak-formulier`, `abstract-task-form` and `zaak-create` were migrated to Testing Library. In `zaak-create`, the sidenav content is inside a closed `mat-sidenav`, so `getByRole` sees an empty name even with `hidden: true`; `getByText` is used there.
 
 ## Step 4 — `PipesModule` — DONE
 
@@ -293,11 +293,11 @@ doing it:
   `render()` host that projects a button and queries it by role. Budget for this in steps 5-7;
   it is per-spec work, not a mechanical find-and-replace.
 
-### Step 5 — `MaterialModule` — 14 non-spec, 15 specs — IMPLEMENTED, split in two PRs
+### Step 5 — `MaterialModule` — 14 non-spec, 20 specs — IMPLEMENTED, split in two PRs
 
 **Measured: a bundle regression, not a win.** On main `d4e8a2c3a`: `Initial total` 2.19 MB / 459.59 kB -> 2.13 MB / 486.59 kB (**+27 kB transfer**, −60 kB raw). Only stepper, tree and bottom-sheet left the initial set; the rest of Material stays eager through `MaterialFormBuilderModule` and `SharedModule`'s standalone components, and splitting it into small chunks gzips worse. The win expected here needs steps 6 and 7, or cutting `SharedModule` out of `AppModule`/`CoreModule`.
 
-- **5a — 15 specs (PZ-12820):** drop `MaterialModule` from 14 specs; `klant-koppel.component.spec.ts` drops `SharedModule` and turns its override from `set` into `remove`/`add` of the two child components. Green on its own: 3326/3326 tests, `tsc --project .` at 0, strict touched-spec lint clean.
+- **5a — 20 specs (PZ-12820):** drop every NgModule of ours from every spec (see above); among them `MaterialModule` from 14 specs; `klant-koppel.component.spec.ts` drops `SharedModule` and turns its override from `set` into `remove`/`add` of the two child components. Green on its own: 3326/3326 tests, `tsc --project .` at 0, strict touched-spec lint clean.
 - **5b — 14 non-spec (`temp-ng20-step5b`):** direct Material imports in `admin/bpmn-process-definitions` + `-item`, `fout-afhandeling/dialog/fout-detailed-dialog`, `klanten/koppel/klanten/{klant-koppel,klant-koppel-betrokkene,klant-koppel-initiator}`, `shared/indicaties/{besluit,informatie-object,persoon,zaak}-indicaties`; `MaterialModule` out of `shared.module.ts`; `material.module.ts` deleted; `app.module.ts` and `core.module.ts` adjusted. Cannot go alone: the 5a specs still import the file it deletes, so it rebases after 5a merges.
 
 Gotchas hit:
@@ -306,7 +306,7 @@ Gotchas hit:
 - `AppComponent` needs `MatSidenavModule` in `AppModule`.
 - The production `ng build` must run outside the sandbox (exit 134 otherwise).
 
-### Step 6 — `MaterialFormBuilderModule` — 17 non-spec, 12 specs
+### Step 6 — `MaterialFormBuilderModule` — 17 non-spec, 0 specs (cleared by 5a)
 
 - `admin/`: `mailtemplate`, `parameters-edit-bpmn`, `parameters-edit-cmmn`,
   `parameters-select-process-model-method`
@@ -322,16 +322,15 @@ any more — what it exports is the modern `Zac*` form-field set. Carries the mo
 with `MAT_DATE_FORMATS` / `MAT_MOMENT_DATE_ADAPTER_OPTIONS`. Its `forRoot()` returns
 `providers: []` — a dead API, delete rather than port (its only caller is `shared.module.ts`). `withJsonpSupport()` in its `provideHttpClient(...)` is dead: no `.jsonp(` call exists in the app (verified 2026-09-29).
 
-**Providers must move in this step, not step 10.** `DateAdapter` (`MomentDateAdapter`), `MAT_MOMENT_DATE_ADAPTER_OPTIONS` and `MAT_DATE_FORMATS` reach the app only via `AppModule -> SharedModule -> MaterialFormBuilderModule`. Extract them into one `provideZacDateAdapter()` and add it to `CoreModule.providers`; without it every `mat-datepicker` throws "No provider found for DateAdapter" at runtime. Specs that relied on the barrel for it (`date`, `abstract-task-form`, `abstract-taak-formulier`: 34 tests) provide it themselves. Drop the barrel's `provideHttpClient(...)` rather than moving it; `app` and `core` already provide one.
+**Providers must move in this step, not step 10.** `DateAdapter` (`MomentDateAdapter`), `MAT_MOMENT_DATE_ADAPTER_OPTIONS` and `MAT_DATE_FORMATS` reach the app only via `AppModule -> SharedModule -> MaterialFormBuilderModule`. Extract them into one `provideZacDateAdapter()` and add it to `CoreModule.providers`; without it every `mat-datepicker` throws "No provider found for DateAdapter" at runtime. The specs that relied on the barrel for it already provide it themselves (5a). Drop the barrel's `provideHttpClient(...)` rather than moving it; `app` and `core` already provide one.
 
 Three components import both barrels (MFB + `SharedModule`): `klant-koppel-betrokkene`, `klant-koppel-initiator` and `parameters-edit-cmmn`. Step 6 removes only MFB from them; `SharedModule` stays until step 7.
 
-### Step 7 — `SharedModule` — 8 non-spec, 2 specs
+### Step 7 — `SharedModule` — 8 non-spec, 0 specs (cleared by 5a)
 
 - `admin/`: `bpmn-process-definitions` + its `-item`, `parameters-edit-cmmn`
 - `klanten/koppel/klanten/`: `klant-koppel`, `klant-koppel-betrokkene`, `klant-koppel-initiator`
 - `app.module.ts`, `core/core.module.ts`
-- specs: `bpmn-process-definitions` + its `-item` (`klant-koppel` is cleared by 5a)
 
 Last, because until the other three are gone it is still the thing re-exporting them. Its own
 exports are 21 standalone components, directives and pipes plus `CommonModule`, `FormsModule`, `TranslateModule` and `DragDropModule`, which consumers list directly instead.

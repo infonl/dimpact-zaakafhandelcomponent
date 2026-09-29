@@ -21,7 +21,6 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { ZacInput } from "./input";
 
 interface TestForm extends Record<string, AbstractControl> {
@@ -53,7 +52,6 @@ describe(ZacInput.name, () => {
         ZacInput,
         ReactiveFormsModule,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [TranslateService],
@@ -408,7 +406,6 @@ describe(`${ZacInput.name} content projection into the suffix slot`, () => {
           ZacInput,
           ReactiveFormsModule,
           TranslateModule.forRoot(),
-          MaterialFormBuilderModule,
           NoopAnimationsModule,
         ],
         componentProperties: {
