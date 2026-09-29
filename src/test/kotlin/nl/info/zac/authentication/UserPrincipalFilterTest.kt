@@ -109,6 +109,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             val oidcPrincipal = OidcPrincipal("aDifferentUserId", oidcSecurityContext)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
+            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
             every { filterChain.doFilter(any(), any()) } just runs
