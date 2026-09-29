@@ -6,7 +6,7 @@ package net.atos.zac.signalering.event;
 
 import static nl.info.client.zgw.shared.ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-import static org.jboss.logmanager.Level.ERROR;
+import static nl.info.zac.log.LogUtilsKt.ERROR;
 
 import java.net.URI;
 import java.util.Optional;

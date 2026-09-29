@@ -24,7 +24,7 @@ import nl.info.zac.util.AllOpen
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
-import org.jboss.logmanager.Level.ERROR
+import nl.info.zac.log.ERROR
 import java.util.logging.Logger
 
 @AllOpen

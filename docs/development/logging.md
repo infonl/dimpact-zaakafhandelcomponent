@@ -9,7 +9,7 @@ required follow-up changes to bring logging in line with GDPR/AVG requirements â
 
 ZAC's logging draws a hard line between server errors and client errors:
 
-* Server errors (5xx) are always logged at `ERROR` (`org.jboss.logmanager.Level.ERROR`, same severity as JUL's
+* Server errors (5xx) are always logged at `ERROR` (`nl.info.zac.log.ERROR`, same severity as JUL's
 `SEVERE` â€” see [Level usage](#level-usage) below), with enough context (typically the zaak UUID/identificatie,
 not personal data) to troubleshoot without needing to reproduce the failure.
 
@@ -41,6 +41,8 @@ to make exception logging easier to stub out in unit tests:
 fun log(logger: Logger, level: Level, message: String, throwable: Throwable) = logger.log(level, message, throwable)
 fun log(logger: Logger, level: Level, message: String) = logger.log(level, message)
 ```
+
+The same file also defines the `ERROR` level - see [Level usage](#level-usage) below.
 
 `PolicyService.kt` is the one exception to the `LOG` naming convention: it accepts a `Logger` as a
 function parameter named `logger`.
@@ -76,12 +78,12 @@ Observed usage of `java.util.logging.Level` in this codebase:
 | `INFO` | Notable lifecycle events: zaak status transitions, case/process start, database migration status, reindexing start/finish, notifications sent/received |
 | `FINE` | Verbose diagnostic detail: websocket connection lifecycle, per-item progress, cache eviction, individual delegate execution steps |
 
-`ERROR` is `org.jboss.logmanager.Level.ERROR`, not `java.util.logging.Level.SEVERE`: both share the same
-numeric severity (1000), but JUL's own `SEVERE` name isn't recognized by log-aggregation tools such as
-Grafana/Loki, which expect the `ERROR`/`WARN`/`INFO`/`DEBUG` naming used by Log4j/SLF4J/syslog. WildFly's own
-log manager (`org.jboss.logmanager`) defines `ERROR` as an alternate `Level` constant precisely for this
-reason, so call sites log server errors via `LOG.log(ERROR, ...)` instead of `LOG.severe(...)` or
-`Level.SEVERE`.
+`ERROR` is [`nl.info.zac.log.ERROR`](../../src/main/kotlin/nl/info/zac/log/LogUtils.kt), not
+`java.util.logging.Level.SEVERE`: both share the same numeric severity (1000), but JUL's own `SEVERE` name
+isn't recognized by log-aggregation tools such as Grafana/Loki, which expect the `ERROR`/`WARN`/`INFO`/`DEBUG`
+naming used by Log4j/SLF4J/syslog. `nl.info.zac.log.ERROR` is a plain `java.util.logging.Level` subclass
+named `"ERROR"` with the same numeric value as `SEVERE`, defined precisely for this reason, so call sites log
+server errors via `LOG.log(ERROR, ...)` instead of `LOG.severe(...)` or `Level.SEVERE`.
 
 ### Where logging is concentrated
 

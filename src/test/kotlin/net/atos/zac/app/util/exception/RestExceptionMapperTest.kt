@@ -44,6 +44,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OB
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
+import nl.info.zac.log.ERROR
 import nl.info.zac.log.log
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.model.Mail
@@ -53,7 +54,6 @@ import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
-import org.jboss.logmanager.Level.ERROR
 import org.json.JSONObject
 import java.io.IOException
 import java.lang.reflect.InvocationTargetException

@@ -25,7 +25,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import org.jboss.logmanager.Level.ERROR
+import nl.info.zac.log.ERROR
 import java.util.logging.Logger
 
 /**

@@ -42,7 +42,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.util.toBase64String
 import org.eclipse.jetty.http.HttpStatus
-import org.jboss.logmanager.Level.ERROR
+import nl.info.zac.log.ERROR
 import java.time.LocalDate
 import java.util.UUID
 import java.util.logging.Logger
