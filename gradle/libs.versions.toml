@@ -48,6 +48,11 @@ kotlinx-metadata-jvm = "0.9.0"
 # WildFly. Please follow the instructions in 'updatingDependencies.md'.
 # Unfortunately, the OpenAPI Generator library that we use to generate model classes from OpenAPI specs
 # does not support the latest version of the Eclipse MicroProfile Rest Client API.
+# No Renovate rule is needed for this entry: it has no [libraries] entry referencing it via
+# version.ref (it's only used as a raw template string in build.gradle.kts), so Renovate's gradle
+# manager cannot resolve a package identity for it and never proposes a bump. If this entry is ever
+# wired to a [libraries] entry, add a Renovate disable rule then, matching the style of the
+# "Dependencies provided by WildFly" packageRule in renovate.json.
 openapi-generator-eclipse-microprofile-rest-client-api = "3.0"
 # used only as the reference Bean Validation runtime for our unit tests (see below), does not need
 # to match the WildFly runtime exactly
