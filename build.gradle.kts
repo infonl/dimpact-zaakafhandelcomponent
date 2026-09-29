@@ -200,6 +200,10 @@ dependencies {
     providedCompile(libs.eclipse.microprofile.config.api)
     providedCompile(libs.eclipse.microprofile.health.api)
     providedCompile(libs.eclipse.microprofile.fault.tolerance.api)
+    // provides org.jboss.logmanager.Level.ERROR, so JUL-based error logging renders as
+    // "ERROR" instead of "SEVERE" in WildFly's JSON log formatter, matching the level names
+    // log-aggregation tools such as Grafana/Loki recognize
+    providedCompile(libs.jboss.logmanager)
     providedCompile(libs.jboss.resteasy.multipart.provider)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)

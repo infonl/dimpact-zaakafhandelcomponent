@@ -27,6 +27,7 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.cmmn.model.HumanTask
 import org.flowable.cmmn.model.UserEventListener
 import org.flowable.common.engine.api.FlowableObjectNotFoundException
+import org.jboss.logmanager.Level.ERROR
 import java.util.Date
 import java.util.UUID
 import java.util.logging.Logger
@@ -89,7 +90,8 @@ class CMMNService @Inject constructor(
             zaakData?.let(caseInstanceBuilder::variables)
             caseInstanceBuilder.start()
         } catch (_: FlowableObjectNotFoundException) {
-            LOG.severe(
+            LOG.log(
+                ERROR,
                 "CMMN model '$caseDefinitionKey' for zaak '${zaak.uuid}' could not be found. Zaak is not started.",
             )
         }

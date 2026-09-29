@@ -55,6 +55,10 @@ smallrye-health = "4.3.0"
 # tracks the Jakarta EE platform spec version implemented by WildFly, not an individually
 # versioned WildFly component, so it is not part of a WildFly BOM
 jakarta-jakartaee = "11.0.0"
+# not managed by the WildFly BOMs; check the version of the 'org.jboss.logmanager:jboss-logmanager'
+# module actually provisioned under 'modules/system/layers/base/org/jboss/logmanager/main' in a
+# built WildFly server when upgrading WildFly
+jboss-logmanager = "2.1.19.Final"
 # ~Versions of dependencies provided by WildFly.
 
 eclipse-yasson = "3.0.5"
@@ -133,6 +137,7 @@ smallrye-health = { group = "io.smallrye", name = "smallrye-health", version.ref
 eclipse-microprofile-fault-tolerance-api = { group = "org.eclipse.microprofile.fault-tolerance", name = "microprofile-fault-tolerance-api" }
 hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator" }
 jakarta-jakartaee = { group = "jakarta.platform", name = "jakarta.jakartaee-api", version.ref = "jakarta-jakartaee" }
+jboss-logmanager = { group = "org.jboss.logmanager", name = "jboss-logmanager", version.ref = "jboss-logmanager" }
 jboss-resteasy-multipart-provider = { group = "org.jboss.resteasy", name = "resteasy-multipart-provider" }
 wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "wildfly-elytron-http-oidc" }
 # ~dependencies provided by WildFly

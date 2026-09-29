@@ -16,7 +16,7 @@ import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.logging.Level
+import org.jboss.logmanager.Level.ERROR
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -38,7 +38,7 @@ class KvkClientService @Inject constructor(
         } catch (_: KvkClientNoResultException) {
             // Nothing to report
         } catch (exception: RuntimeException) {
-            LOG.log(Level.SEVERE, "Failed to search for company information using the KVK API", exception)
+            LOG.log(ERROR, "Failed to search for company information using the KVK API", exception)
         }
         return Resultaat().apply {
             totaal = 0

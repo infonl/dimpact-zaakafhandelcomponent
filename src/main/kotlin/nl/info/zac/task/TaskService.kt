@@ -24,7 +24,7 @@ import nl.info.zac.util.AllOpen
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
-import java.util.logging.Level
+import org.jboss.logmanager.Level.ERROR
 import java.util.logging.Logger
 
 @AllOpen
@@ -171,7 +171,7 @@ class TaskService @Inject constructor(
             } catch (taskNotFoundException: TaskNotFoundException) {
                 // continue assigning remaining tasks if a particular open task could not be found
                 LOG.log(
-                    Level.SEVERE,
+                    ERROR,
                     "No open task with ID '${restTask.taakId}' found while assigning tasks. Skipping task.",
                     taskNotFoundException
                 )
@@ -228,7 +228,7 @@ class TaskService @Inject constructor(
                 }
             } catch (taskNotFoundException: TaskNotFoundException) {
                 LOG.log(
-                    Level.SEVERE,
+                    ERROR,
                     "No open task with ID '${it.taakId}' found while releasing tasks. Skipping task.",
                     taskNotFoundException
                 )
