@@ -5,7 +5,7 @@
 
 package net.atos.zac.util.event;
 
-import static org.jboss.logmanager.Level.ERROR;
+import static nl.info.zac.log.LogUtilsKt.ERROR;
 
 import java.util.Objects;
 import java.util.logging.Logger;
