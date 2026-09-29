@@ -98,7 +98,7 @@ describe(ZakenCardComponent.name, () => {
       .mockReturnValue(of(buildResultaat(25, 5)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+    fixture.componentRef.setInput("data", cardData);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -112,7 +112,7 @@ describe(ZakenCardComponent.name, () => {
       .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+    fixture.componentRef.setInput("data", cardData);
     fixture.detectChanges();
 
     expect(fixture.componentInstance.dataSource.paginator).toBeFalsy();
@@ -128,7 +128,7 @@ describe(ZakenCardComponent.name, () => {
       .mockReturnValue(of(buildResultaat(8)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+    fixture.componentRef.setInput("data", cardData);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -138,7 +138,7 @@ describe(ZakenCardComponent.name, () => {
 
   it("updates pageNumber when onPageChange is called", () => {
     fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+    fixture.componentRef.setInput("data", cardData);
 
     fixture.componentInstance.onPageChange({ pageIndex: 4 });
 
@@ -151,7 +151,7 @@ describe(ZakenCardComponent.name, () => {
       .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+    fixture.componentRef.setInput("data", cardData);
     fixture.detectChanges();
 
     expect(fixture.componentInstance.sortField()).toBe("SIGNALERING_TIJDSTIP");
@@ -168,7 +168,7 @@ describe(ZakenCardComponent.name, () => {
       .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+    fixture.componentRef.setInput("data", cardData);
     fixture.detectChanges();
 
     fixture.componentInstance.onPageChange({ pageIndex: 3 });
@@ -195,7 +195,7 @@ describe(ZakenCardComponent.name, () => {
       .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+    fixture.componentRef.setInput("data", cardData);
     fixture.detectChanges();
 
     fixture.componentInstance.sort!.sortChange.emit({
@@ -223,7 +223,7 @@ describe(ZakenCardComponent.name, () => {
       .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+    fixture.componentRef.setInput("data", cardData);
     fixture.detectChanges();
     await fixture.whenStable();
 

@@ -849,6 +849,7 @@
   "msg.error.dialog.taken-verdelen.no-authorised-groups": "No group can be found that is authorised for all selected tasks.",
   "msg.error.server.generic": "Unfortunately a technical error has occurred.",
   "msg.error.server.forbidden": "You do not have permission to perform this action.",
+  "msg.error.opa.rule.not.configured": "Unfortunately a technical error has occurred. A required OPA authorization rule is not configured.",
   "msg.error.bag.client.exception": "Unfortunately a technical error has occurred. No BAG objects could be retrieved.",
   "msg.error.brc.client.exception": "Unfortunately a technical error has occurred. No decisions could be retrieved.",
   "msg.error.brp.client.exception": "Unfortunately a technical error has occurred. No persons could be retrieved.",

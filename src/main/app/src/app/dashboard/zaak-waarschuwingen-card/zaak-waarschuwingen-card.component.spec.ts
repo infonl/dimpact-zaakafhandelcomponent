@@ -82,7 +82,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     fixture = TestBed.createComponent(ZaakWaarschuwingenCardComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
-    component.data = makeDashboardCard();
+    fixture.componentRef.setInput("data", makeDashboardCard());
     fixture.detectChanges();
   });
 

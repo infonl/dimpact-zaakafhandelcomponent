@@ -5,6 +5,7 @@
 
 package nl.info.zac.policy
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -39,6 +40,7 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.TaakInput
 import nl.info.zac.policy.input.UserInput
@@ -729,6 +731,27 @@ class PolicyServiceTest : BehaviorSpec({
                         // this policy check is not zaaktype-specific, so zaaktypen should be null
                         zaaktypen shouldBe null
                     }
+                }
+            }
+        }
+    }
+
+    context("An OPA rule path that returns no result") {
+        given("A missing or undefined werklijst_rechten rule") {
+            every {
+                opaEvaluationClient.readWerklijstRechten(any())
+            } returns RuleResponse(null)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the werklijst rechten are requested") {
+                val opaRuleNotConfiguredException = shouldThrow<OpaRuleNotConfiguredException> {
+                    policyService.readWerklijstRechten()
+                }
+
+                then("it should throw OpaRuleNotConfiguredException naming the rule path") {
+                    opaRuleNotConfiguredException.message shouldBe
+                        "OPA returned no result for rule path 'werklijst/werklijst_rechten'. " +
+                        "The rule may be missing from the policy bundle."
                 }
             }
         }
