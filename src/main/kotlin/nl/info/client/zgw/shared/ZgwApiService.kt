@@ -16,6 +16,7 @@ import nl.info.zac.document.content.DocumentContent
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
+import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.util.convertToDateTime
@@ -37,6 +38,7 @@ import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
+import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
@@ -78,6 +80,14 @@ class ZgwApiService @Inject constructor(
          * 'omschrijving generiek' but with a different description.
          */
         const val ROLTYPE_OMSCHRIJVING_BEHANDELAAR = "Behandelaar"
+
+        /**
+         * The role type description for a medewerker that is individually authorised for a zaakspecifiek
+         * geautoriseerde zaak. Like [ROLTYPE_OMSCHRIJVING_BEHANDELAAR] this role type has its
+         * 'omschrijving generiek' set to [OmschrijvingGeneriekEnum.BEHANDELAAR], so that it is not offered as
+         * a betrokkene, and is distinguished from the behandelaar by its description.
+         */
+        const val ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER = "Zaakspecifiek geautoriseerde medewerker"
     }
 
     /**
@@ -303,6 +313,70 @@ class ZgwApiService @Inject constructor(
     }
 
     /**
+     * Read the [RolType] that ZAC uses for the behandelaar of a zaak.
+     *
+     * @throws nl.info.client.zgw.ztc.exception.RoltypeNotFoundException if the zaaktype does not define it
+     */
+    fun readBehandelaarRoltype(zaaktypeUri: URI) =
+        ztcClientService.readRoltype(
+            zaaktypeUri,
+            OmschrijvingGeneriekEnum.BEHANDELAAR,
+            ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+        )
+
+    /**
+     * Find the [RolType] that ZAC uses for a medewerker that is individually authorised for a zaak.
+     * A zaaktype only has this role type when it is configured to be zaakspecifiek autoriseerbaar.
+     */
+    fun findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaaktypeUri: URI) =
+        ztcClientService.findRoltypen(zaaktypeUri, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            .firstOrNull { it.omschrijving == ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
+
+    /**
+     * List the medewerkers that are individually authorised for [zaak].
+     *
+     * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
+     * already fetched all roles for the zaak. When 'null', the roles are fetched here.
+     */
+    fun listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(
+        zaak: Zaak,
+        roles: List<Rol<*>>? = null
+    ): List<RolMedewerker> =
+        findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)?.let { roleType ->
+            listMedewerkerRolesForRoltype(zaak, roleType.url, roles)
+        }.orEmpty()
+
+    /**
+     * List the behandelaar [RolMedewerker]s of [zaak]. There is normally at most one; roles created outside
+     * ZAC can leave a zaak with several, which is why this returns all of them instead of failing.
+     *
+     * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
+     * already fetched all roles for the zaak. When 'null', the roles are fetched here.
+     */
+    fun listBehandelaarMedewerkerRolesForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): List<RolMedewerker> =
+        findBehandelaarRoltypes(zaak).firstOrNull()?.let { roleType ->
+            listMedewerkerRolesForRoltype(zaak, roleType.url, roles).also {
+                if (it.size > 1) {
+                    LOG.warning {
+                        "Zaak with UUID '${zaak.uuid}' has ${it.size} behandelaar roles while at most one is expected."
+                    }
+                }
+            }
+        }.orEmpty()
+
+    private fun listMedewerkerRolesForRoltype(
+        zaak: Zaak,
+        roltypeUri: URI,
+        roles: List<Rol<*>>?
+    ): List<RolMedewerker> =
+        (
+            roles?.filter { it.roltype == roltypeUri && it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER }
+                ?: zrcClientService.listRollen(
+                    RolListParameters(zaak.url, roltypeUri, BetrokkeneTypeEnum.MEDEWERKER)
+                ).results()
+            ).filterIsInstance<RolMedewerker>()
+
+    /**
      * Find [RolOrganisatorischeEenheid] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak].
@@ -358,31 +432,35 @@ class ZgwApiService @Inject constructor(
         betrokkeneType: BetrokkeneTypeEnum,
         roles: List<Rol<*>>? = null
     ): Rol<*>? {
-        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
-            .filter { it.omschrijving == ROLTYPE_OMSCHRIJVING_BEHANDELAAR }
-            .also {
-                if (it.size > 1) {
-                    LOG.warning(
-                        "Multiple behandelaar role types with omschrijving '$ROLTYPE_OMSCHRIJVING_BEHANDELAAR' " +
-                            "found for zaaktype: '${zaak.zaaktype}', using the first one."
-                    )
-                }
-            }
-        return roleTypes.firstOrNull()?.let { roleType ->
+        return findBehandelaarRoltypes(zaak).firstOrNull()?.let { roleType ->
             val matchingRoles = (
                 roles?.filter { it.roltype == roleType.url && it.betrokkeneType == betrokkeneType }
                     ?: zrcClientService.listRollen(
                         RolListParameters(zaak.url, roleType.url, betrokkeneType)
                     ).results()
                 ).also {
-                check(it.size <= 1) {
-                    "More than one behandelaar role found for zaak with identificatie '${zaak.identificatie}' " +
+                if (it.size > 1) {
+                    throw MultipleBehandelaarRolesException(
+                        "More than one behandelaar role found for zaak with identificatie '${zaak.identificatie}' " +
                             "and UUID: '${zaak.uuid}' (count: ${it.size})"
+                    )
                 }
             }
             matchingRoles.firstOrNull()
         }
     }
+
+    private fun findBehandelaarRoltypes(zaak: Zaak) =
+        ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            .filter { it.omschrijving == ROLTYPE_OMSCHRIJVING_BEHANDELAAR }
+            .also {
+                if (it.size > 1) {
+                    LOG.warning {
+                        "Multiple behandelaar role types with omschrijving '$ROLTYPE_OMSCHRIJVING_BEHANDELAAR' " +
+                            "found for zaaktype: '${zaak.zaaktype}', using the first one."
+                    }
+                }
+            }
 
     private fun createStatusForZaak(zaakUUID: UUID, statustypeURI: URI, toelichting: String?): StatusSub {
         val status = StatusSub().apply {

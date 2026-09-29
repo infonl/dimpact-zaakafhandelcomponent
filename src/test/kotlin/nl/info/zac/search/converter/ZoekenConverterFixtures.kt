@@ -10,6 +10,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.search.ReindexSupportService
 
 @Suppress("LongParameterList")
 fun createZaakZoekObjectConverter(
@@ -17,12 +18,14 @@ fun createZaakZoekObjectConverter(
     ztcClientService: ZtcClientService,
     zgwApiService: ZgwApiService,
     identityService: IdentityService,
-    flowableTaskService: FlowableTaskService
+    flowableTaskService: FlowableTaskService,
+    reindexSupportService: ReindexSupportService
 ) =
     ZaakZoekObjectConverter(
         zrcClientService,
         ztcClientService,
         zgwApiService,
         identityService,
-        flowableTaskService
+        flowableTaskService,
+        reindexSupportService
     )

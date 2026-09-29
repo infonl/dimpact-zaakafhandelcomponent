@@ -23,6 +23,9 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
+import nl.info.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
@@ -304,6 +307,25 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                     )
                     zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
                 }
+            }
+        }
+    }
+
+    given("A configured AFZENDER system reference table with one reply-to address") {
+        val referenceTable = createReferenceTable(
+            code = AFZENDER.name,
+            isSystemReferenceTable = true,
+            values = mutableListOf(createReferenceTableValue(name = "fakeReplyToAddress", sortOrder = 0))
+        )
+        every { referenceTableService.readSystemReferenceTable(AFZENDER) } returns referenceTable
+        every { referenceTableService.listReferenceTableValuesSorted(referenceTable) } returns referenceTable.values
+
+        `when`("the reply-tos are listed") {
+            val replyTos = zaaktypeConfigurationRestService.listReplyTos()
+
+            then("the configured address is combined with the two special mail options, sorted") {
+                replyTos.map { it.mail } shouldBe listOf("GEMEENTE", "MEDEWERKER", "fakeReplyToAddress")
+                replyTos.map { it.speciaal } shouldBe listOf(true, true, false)
             }
         }
     }

@@ -206,7 +206,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   }
 
   protected isUnlinkable(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    return !row.isKoppelbaar || row.identificatie === this.source;
+    return !!row.nietKoppelbaarReden || row.identificatie === this.source;
   }
 
   protected reset() {

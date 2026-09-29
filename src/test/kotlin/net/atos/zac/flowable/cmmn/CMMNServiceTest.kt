@@ -5,6 +5,7 @@
 package net.atos.zac.flowable.cmmn
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -124,6 +125,39 @@ class CMMNServiceTest : BehaviorSpec({
                     cmmnRuntimeService.deleteCaseInstance(caseInstanceID)
                     cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID)
                 }
+            }
+        }
+    }
+    given("a zaak with a running CMMN case instance") {
+        val zaakUUID = UUID.randomUUID()
+        val caseInstance = mockk<CaseInstance>()
+        every {
+            cmmnRuntimeService.createCaseInstanceQuery()
+                .caseInstanceBusinessKey(zaakUUID.toString())
+                .singleResult()
+        } returns caseInstance
+
+        `when`("isZaakCaseDriven is called") {
+            val isZaakCaseDriven = cmmnService.isZaakCaseDriven(zaakUUID)
+
+            then("the zaak is reported as case driven") {
+                isZaakCaseDriven shouldBe true
+            }
+        }
+    }
+    given("a zaak without a running CMMN case instance") {
+        val zaakUUID = UUID.randomUUID()
+        every {
+            cmmnRuntimeService.createCaseInstanceQuery()
+                .caseInstanceBusinessKey(zaakUUID.toString())
+                .singleResult()
+        } returns null
+
+        `when`("isZaakCaseDriven is called") {
+            val isZaakCaseDriven = cmmnService.isZaakCaseDriven(zaakUUID)
+
+            then("the zaak is not reported as case driven") {
+                isZaakCaseDriven shouldBe false
             }
         }
     }

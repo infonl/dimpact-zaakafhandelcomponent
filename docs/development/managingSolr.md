@@ -122,9 +122,14 @@ document reindex does not delay the zaak rows, which are the ones users notice f
 ### Deployment prerequisites for zaakspecifieke autorisatie
 
 `SolrSchemaV9` adds the medewerkers individually authorised for a zaak to the zaak, taak and document rows,
-which is what keeps a zaakspecifiek geautoriseerde zaak visible to its own behandelaar in werklijsten and
-zoekresultaten. Until the reindex above has run, existing rows carry none, which the filter query reads as
-"not authorised" - it fails closed, never open.
+which is what keeps a zaakspecifiek geautoriseerde zaak visible in werklijsten and zoekresultaten to the
+medewerkers individually authorised for it: its current behandelaar and every medewerker holding the
+`Zaakspecifiek geautoriseerde medewerker` rol on it. Until the reindex above has run, existing rows carry
+none, which the filter query reads as "not authorised" - it fails closed, never open.
+
+The catalogus must define both the `ZAAK_GEAUTORISEERD` eigenschap and the `Zaakspecifiek geautoriseerde
+medewerker` roltype for a zaaktype before any of its zaken can be marked; see
+[accessControlPolicies.md](../solution-architecture/accessControlPolicies.md).
 
 Separately, `recordmanager` and `beheerder` reach zaakspecifiek geautoriseerde zaken only by being granted the
 `zaakspecifiek_geautoriseerd` application role for the zaaktype in PABC; there is no rule for those roles in

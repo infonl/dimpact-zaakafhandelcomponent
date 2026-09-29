@@ -58,6 +58,7 @@ import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
+import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.util.EnumSet
 import java.util.UUID
@@ -84,6 +85,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
     val identificationService = mockk<IdentificationService>()
     val klantClientService = mockk<KlantClientService>()
+    val zaakService = mockk<ZaakService>()
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
@@ -99,6 +101,7 @@ class RestZaakConverterTest : BehaviorSpec({
         bpmnService = bpmnService,
         identificationService = identificationService,
         klantClientService = klantClientService,
+        zaakService = zaakService,
     )
 
     afterEach {
@@ -149,6 +152,7 @@ class RestZaakConverterTest : BehaviorSpec({
         } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -227,6 +231,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
@@ -292,6 +297,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
@@ -338,6 +344,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns processDefinition
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting the zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -376,6 +383,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns processDefinition
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting the zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -406,6 +414,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting the zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -439,6 +448,7 @@ class RestZaakConverterTest : BehaviorSpec({
         } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
             val testCases = listOf(
@@ -515,6 +525,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak with the 'Intake' status") {
             val statusType = createStatusType().apply { omschrijving = STATUSTYPE_OMSCHRIJVING_INTAKE }
@@ -570,6 +581,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             restGerelateerdeZaakConverter.convert(zaak, zaakRechten, gerelateerdeZaakItem, loggedInUser)
         } returns restGerelateerdeZaak
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting the zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -607,6 +619,7 @@ class RestZaakConverterTest : BehaviorSpec({
         } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns contactDetails
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -636,6 +649,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+        every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("the zaakeigenschappen include ZAAK_GEAUTORISEERD with value 'true'") {
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
@@ -680,6 +694,48 @@ class RestZaakConverterTest : BehaviorSpec({
 
             then("isZaakspecifiekGeautoriseerd should be false") {
                 restZaak.isZaakspecifiekGeautoriseerd shouldBe false
+            }
+        }
+    }
+
+    given("A zaak for which the zaak service determines whether the zaakdata is archived") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val restZaakType = createRestZaaktype()
+        val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+
+        every { zrcClientService.listRollen(zaak) } returns emptyList()
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak, any()) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak, any()) } returns null
+            every { findInitiatorRoleForZaak(zaak, any()) } returns null
+        }
+        every { zaakVariabelenService.readZaakdata(zaak.uuid) } returns zaakdata
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+
+        `when`("the zaak service reports the zaakdata as archived") {
+            every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns true
+
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+
+            then("isZaakdataGearchiveerd is true on the rest zaak") {
+                restZaak.isZaakdataGearchiveerd shouldBe true
+            }
+        }
+
+        `when`("the zaak service reports the zaakdata as not archived") {
+            every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
+
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+
+            then("isZaakdataGearchiveerd is false on the rest zaak") {
+                restZaak.isZaakdataGearchiveerd shouldBe false
             }
         }
     }

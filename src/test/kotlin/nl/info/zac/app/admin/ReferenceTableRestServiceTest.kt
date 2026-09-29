@@ -14,7 +14,13 @@ import io.mockk.mockk
 import io.mockk.slot
 import nl.info.zac.admin.ReferenceTableAdminService
 import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.exception.ReferenceTableNotFoundException
 import nl.info.zac.admin.model.ReferenceTable
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.SERVER_ERROR_ERROR_PAGINA_TEKST
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.app.admin.model.createRestReferenceTableUpdate
@@ -35,6 +41,41 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    context("Read a reference table by a caller-supplied id or code") {
+        given("No reference table exists for the given id") {
+            val id = 1234L
+            every { policyService.readOverigeRechten().beheren } returns true
+            every { referenceTableService.readReferenceTable(id) } throws ReferenceTableNotFoundException(id)
+
+            `when`("the reference table is requested by id") {
+                val exception = shouldThrow<ReferenceTableNotFoundException> {
+                    referenceTableRestService.readReferenceTableById(id)
+                }
+
+                then("it should propagate ReferenceTableNotFoundException, which maps to a 404") {
+                    exception.message shouldBe "No reference table found with id '$id'"
+                }
+            }
+        }
+
+        given("No reference table exists for the given code") {
+            val code = "fakeCode"
+            every {
+                referenceTableService.readReferenceTable(code)
+            } throws ReferenceTableNotFoundException("No reference table found with code '$code'")
+
+            `when`("the reference table is requested by code") {
+                val exception = shouldThrow<ReferenceTableNotFoundException> {
+                    referenceTableRestService.readReferenceTableByCode(code)
+                }
+
+                then("it should propagate ReferenceTableNotFoundException, which maps to a 404") {
+                    exception.message shouldBe "No reference table found with code '$code'"
+                }
+            }
+        }
     }
 
     context("List communication channels") {
@@ -61,7 +102,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 referenceTableValue2
             )
             referenceTable.values = referenceTableValues.toMutableList()
-            every { referenceTableService.readReferenceTable("COMMUNICATIEKANAAL") } returns referenceTable
+            every { referenceTableService.readSystemReferenceTable(COMMUNICATIEKANAAL) } returns referenceTable
 
             `when`("the communication channels are retrieved including E-formulier") {
                 val communicationChannels = referenceTableRestService.listCommunicationChannels(true)
@@ -109,7 +150,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             )
             referenceTable.values = referenceTableValues.toMutableList()
 
-            every { referenceTableService.readReferenceTable("SERVER_ERROR_ERROR_PAGINA_TEKST") } returns referenceTable
+            every { referenceTableService.readSystemReferenceTable(SERVER_ERROR_ERROR_PAGINA_TEKST) } returns referenceTable
 
             `when`("the server error page texts are retrieved") {
                 val serverErrorPageTexts = referenceTableRestService.listServerErrorPageTexts()
@@ -240,7 +281,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
         given("A BRP purpose search table") {
             referenceTable.code = "BRP_DOELBINDING_ZOEK_WAARDE"
-            every { referenceTableService.readReferenceTable(referenceTable.code) } returns referenceTable
+            every { referenceTableService.readSystemReferenceTable(BRP_DOELBINDING_ZOEK_WAARDE) } returns referenceTable
 
             `when`("the purpose search table is retrieved") {
                 val values = referenceTableRestService.listBrpDoelbindingZoekWaarden()
@@ -254,7 +295,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
         given("A BRP purpose consulting table") {
             referenceTable.code = "BRP_DOELBINDING_RAADPLEEG_WAARDE"
-            every { referenceTableService.readReferenceTable(referenceTable.code) } returns referenceTable
+            every { referenceTableService.readSystemReferenceTable(BRP_DOELBINDING_RAADPLEEG_WAARDE) } returns referenceTable
 
             `when`("the purpose search table is retrieved") {
                 val values = referenceTableRestService.listBrpDoelbindingRaadpleegWaarden()
@@ -268,7 +309,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
         given("A BRP processing register table") {
             referenceTable.code = "BRP_VERWERKINGSREGISTER_WAARDE"
-            every { referenceTableService.readReferenceTable(referenceTable.code) } returns referenceTable
+            every { referenceTableService.readSystemReferenceTable(BRP_VERWERKINGSREGISTER_WAARDE) } returns referenceTable
 
             `when`("the purpose search table is retrieved") {
                 val values = referenceTableRestService.listBrpVerwerkingregisterWaarde()

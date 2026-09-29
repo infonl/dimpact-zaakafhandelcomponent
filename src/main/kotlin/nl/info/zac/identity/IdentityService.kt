@@ -17,9 +17,12 @@ import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
+import nl.info.zac.log.log
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.RealmResource
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @AllOpen
 @NoArgConstructor
@@ -31,6 +34,10 @@ class IdentityService @Inject constructor(
 
     private val pabcClientService: PabcClientService
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(IdentityService::class.java.name)
+    }
+
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
         .list()
         .map { it.toUser() }
@@ -77,15 +84,19 @@ class IdentityService @Inject constructor(
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
         .map { it.toUser() }.firstOrNull()
-        // is this fallback really needed? better to return null or throw a custom exception
-        ?: User(userId)
+        ?: run {
+            log(LOG, Level.WARNING, "User with id '$userId' could not be found in Keycloak. Returning a placeholder.")
+            User(userId)
+        }
 
     fun readGroup(groupId: String): Group = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups(groupId, true, 0, 1, false)
         .firstOrNull()?.toGroup()
-        // is this fallback really needed? better to return null or throw a custom exception
-        ?: Group(groupId)
+        ?: run {
+            log(LOG, Level.WARNING, "Group with id '$groupId' could not be found in Keycloak. Returning a placeholder.")
+            Group(groupId)
+        }
 
     fun listUsersInGroup(groupId: String): List<User> {
         val keycloakGroupId = keycloakZacRealmResource.groups()

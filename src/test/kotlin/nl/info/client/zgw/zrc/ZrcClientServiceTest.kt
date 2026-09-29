@@ -13,9 +13,12 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.json.bind.JsonbException
+import jakarta.ws.rs.ProcessingException
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createOrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
@@ -23,10 +26,15 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectPand
+import nl.info.client.zgw.ztc.model.createBehandelaarRolType
+import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
+import nl.info.client.zgw.zrc.model.ZaakListParameters
+import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.zac.configuration.ConfigurationService
+import java.net.ConnectException
 import java.util.UUID
 
 class ZrcClientServiceTest : BehaviorSpec({
@@ -58,6 +66,144 @@ class ZrcClientServiceTest : BehaviorSpec({
         }
     }
 
+    given("A zaak whose zaakgeometrie cannot be deserialized because it is not a Point") {
+        val zaakUUID = UUID.randomUUID()
+        val jsonbException = JsonbException(
+            "Unable to deserialize property 'zaakgeometrie' because of: Unable to deserialize property " +
+                "'coordinates' because of: Incorrect position for processing type: class java.math.BigDecimal."
+        )
+        val processingException = ProcessingException(jsonbException)
+        every { zrcClient.zaakRead(zaakUUID) } throws processingException
+
+        `when`("readZaak is called") {
+            val zaakGeometrieNotSupportedException = shouldThrow<ZaakGeometrieNotSupportedException> {
+                zrcClientService.readZaak(zaakUUID)
+            }
+
+            then("it should throw an exception identifying the zaak and the unsupported zaakgeometrie") {
+                zaakGeometrieNotSupportedException.message shouldBe
+                    "Zaak '$zaakUUID' has an unsupported zaakgeometrie type. Only 'Point' zaakgeometrie is supported."
+                zaakGeometrieNotSupportedException.cause shouldBe processingException
+            }
+        }
+    }
+
+    given("A ZRC client call that fails for a reason unrelated to zaakgeometrie deserialization") {
+        val zaakUUID = UUID.randomUUID()
+        val processingException = ProcessingException(ConnectException("Connection refused"))
+        every { zrcClient.zaakRead(zaakUUID) } throws processingException
+
+        `when`("readZaak is called") {
+            val exception = shouldThrow<ProcessingException> {
+                zrcClientService.readZaak(zaakUUID)
+            }
+
+            then("it should propagate the original exception unchanged") {
+                exception shouldBe processingException
+            }
+        }
+    }
+
+    given("A zaak whose zaakgeometrie is a Point but with a coordinate value that JSON-B cannot deserialize") {
+        val zaakUUID = UUID.randomUUID()
+        val jsonbException = JsonbException(
+            "Unable to deserialize property 'zaakgeometrie' because of: Unable to deserialize property " +
+                "'coordinates' because of: Cannot convert JSON value into type: class java.math.BigDecimal."
+        )
+        val processingException = ProcessingException(jsonbException)
+        every { zrcClient.zaakRead(zaakUUID) } throws processingException
+
+        `when`("readZaak is called") {
+            val exception = shouldThrow<ProcessingException> {
+                zrcClientService.readZaak(zaakUUID)
+            }
+
+            then("it should propagate the original exception unchanged instead of reporting an unsupported zaakgeometrie type") {
+                exception shouldBe processingException
+            }
+        }
+    }
+
+    given("Zaken are listed by identificatie and the matching zaak has an unsupported zaakgeometrie") {
+        val identificatie = "fakeZaakIdentificatie123"
+        val jsonbException = JsonbException(
+            "Unable to deserialize property 'zaakgeometrie' because of: Unable to deserialize property " +
+                "'coordinates' because of: Incorrect position for processing type: class java.math.BigDecimal."
+        )
+        val processingException = ProcessingException(jsonbException)
+        every { zrcClient.zaakList(any()) } throws processingException
+
+        `when`("readZaakByID is called") {
+            val zaakGeometrieNotSupportedException = shouldThrow<ZaakGeometrieNotSupportedException> {
+                zrcClientService.readZaakByID(identificatie)
+            }
+
+            then("it should throw an exception identifying the zaak identificatie and the unsupported zaakgeometrie") {
+                zaakGeometrieNotSupportedException.message shouldBe
+                    "Zaak '$identificatie' has an unsupported zaakgeometrie type. Only 'Point' zaakgeometrie is supported."
+            }
+        }
+    }
+
+    given("Zaken are listed without an identificatie filter and one of the matching zaken has an unsupported zaakgeometrie") {
+        val filter = ZaakListParameters().apply {
+            rolBetrokkeneIdentificatieMedewerkerIdentificatie = "fakeMedewerkerIdentificatie123"
+        }
+        val jsonbException = JsonbException(
+            "Unable to deserialize property 'zaakgeometrie' because of: Unable to deserialize property " +
+                "'coordinates' because of: Incorrect position for processing type: class java.math.BigDecimal."
+        )
+        val processingException = ProcessingException(jsonbException)
+        val okZaakUuid = ZaakUuid(UUID.randomUUID())
+        val unsupportedZaakUuid = ZaakUuid(UUID.randomUUID())
+        every { zrcClient.zaakList(filter) } throws processingException
+        every { zrcClient.zaakListUuids(filter) } returns Results(listOf(okZaakUuid, unsupportedZaakUuid), 2)
+        every { zrcClient.zaakRead(okZaakUuid.uuid) } returns createZaak(uuid = okZaakUuid.uuid)
+        every { zrcClient.zaakRead(unsupportedZaakUuid.uuid) } throws processingException
+
+        `when`("listZaken is called") {
+            val zaakGeometrieNotSupportedException = shouldThrow<ZaakGeometrieNotSupportedException> {
+                zrcClientService.listZaken(filter)
+            }
+
+            then("it should identify the specific zaak with the unsupported zaakgeometrie") {
+                zaakGeometrieNotSupportedException.message shouldBe
+                    "Zaak '${unsupportedZaakUuid.uuid}' has an unsupported zaakgeometrie type. " +
+                    "Only 'Point' zaakgeometrie is supported."
+            }
+        }
+    }
+
+    given(
+        "Zaken are listed without an identificatie filter and the offending zaak can no longer be " +
+            "pinpointed by re-reading the matching zaken individually"
+    ) {
+        val filter = ZaakListParameters().apply {
+            rolBetrokkeneIdentificatieMedewerkerIdentificatie = "fakeMedewerkerIdentificatie123"
+        }
+        val jsonbException = JsonbException(
+            "Unable to deserialize property 'zaakgeometrie' because of: Unable to deserialize property " +
+                "'coordinates' because of: Incorrect position for processing type: class java.math.BigDecimal."
+        )
+        val processingException = ProcessingException(jsonbException)
+        val okZaakUuid = ZaakUuid(UUID.randomUUID())
+        every { zrcClient.zaakList(filter) } throws processingException
+        every { zrcClient.zaakListUuids(filter) } returns Results(listOf(okZaakUuid), 1)
+        every { zrcClient.zaakRead(okZaakUuid.uuid) } returns createZaak(uuid = okZaakUuid.uuid)
+
+        `when`("listZaken is called") {
+            val zaakGeometrieNotSupportedException = shouldThrow<ZaakGeometrieNotSupportedException> {
+                zrcClientService.listZaken(filter)
+            }
+
+            then("it should throw an honest aggregate error instead of naming an arbitrary zaak") {
+                zaakGeometrieNotSupportedException.message shouldBe
+                    "One or more zaken matching the given filter have an unsupported zaakgeometrie type. " +
+                    "Only 'Point' zaakgeometrie is supported."
+            }
+        }
+    }
+
     given("A zaak and a new rol to be added") {
         val zaak = createZaak()
         val existingRoles = listOf(createRolMedewerker(), createRolOrganisatorischeEenheid())
@@ -81,28 +227,54 @@ class ZrcClientServiceTest : BehaviorSpec({
         }
     }
 
-    given("A zaak with existing roles") {
+    given("a zaak with a groep, a behandelaar and two zaakspecifiek geautoriseerde medewerkers") {
         val zaak = createZaak()
-        val medewerkerRole1 = createRolMedewerkerForReads()
-        val medewerkerRole2 = createRolMedewerkerForReads()
-        val organisatorischeEenheidRol = createRolOrganisatorischeEenheidForReads()
-        val existingRoles = listOf(medewerkerRole1, medewerkerRole2, organisatorischeEenheidRol)
-        val description = "fakeDescription"
+        val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
+        val geautoriseerdeRolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType(
+            zaakTypeUri = zaak.zaaktype
+        )
+        val currentGroep = createRolOrganisatorischeEenheidForReads(
+            rolType = behandelaarRolType,
+            organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(
+                identificatie = "fakeCurrentGroupId"
+            )
+        )
+        val behandelaar = createRolMedewerkerForReads(
+            rolType = behandelaarRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+        )
+        val firstGeautoriseerde = createRolMedewerkerForReads(
+            rolType = geautoriseerdeRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeGeautoriseerdeId1")
+        )
+        val secondGeautoriseerde = createRolMedewerkerForReads(
+            rolType = geautoriseerdeRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeGeautoriseerdeId2")
+        )
+        val newGroep = createRolOrganisatorischeEenheid(
+            zaakURI = zaak.url,
+            rolType = behandelaarRolType,
+            organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(
+                identificatie = "fakeNewGroupId"
+            )
+        )
+        val existingRoles = listOf(currentGroep, behandelaar, firstGeautoriseerde, secondGeautoriseerde)
+        val auditExplanation = "fakeExplanation"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
+        every {
+            zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
+        } answers { secondArg<() -> Any?>()() }
         every { zrcClient.rolDelete(any()) } just Runs
-        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(description, any()) } answers { secondArg<() -> Any?>()() }
+        every { zrcClient.rolCreate(any()) } returns newGroep
 
-        `when`("deleteRol is called for betrokkeneType 'Medewerker'") {
-            zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, description)
+        `when`("updateRol is called with a new groep") {
+            zrcClientService.updateRol(zaak, newGroep, auditExplanation)
 
-            then("it should remove only the first role of the matching betrokkene type") {
-                verify(exactly = 1) {
-                    zrcClient.rolDelete(medewerkerRole1.uuid!!)
-                }
-                verify(exactly = 0) {
-                    zrcClient.rolDelete(medewerkerRole2.uuid!!)
-                    zrcClient.rolDelete(organisatorischeEenheidRol.uuid!!)
-                }
+            then("only the groep rol is replaced, so the behandelaar and both individually authorised medewerkers stay") {
+                verify(exactly = 1) { zrcClient.rolDelete(any()) }
+                verify(exactly = 1) { zrcClient.rolDelete(currentGroep.uuid!!) }
+                verify(exactly = 1) { zrcClient.rolCreate(any()) }
+                verify(exactly = 1) { zrcClient.rolCreate(newGroep) }
             }
         }
     }

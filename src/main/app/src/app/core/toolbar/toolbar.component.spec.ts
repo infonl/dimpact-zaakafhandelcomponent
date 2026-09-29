@@ -16,6 +16,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
+import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -23,6 +24,8 @@ import {
   injectMutation,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { mockMutationFn, testQueryClient } from "../../../../setupJest";
@@ -42,6 +45,9 @@ describe(ToolbarComponent.name, () => {
   let zakenService: ZakenService;
   let injector: Injector;
   let createZaakMutation: ReturnType<typeof injectMutation>;
+  let zoekenSideNav: MatSidenav;
+
+  const user = userEvent.setup();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -94,7 +100,9 @@ describe(ToolbarComponent.name, () => {
   });
 
   function createComponent() {
+    zoekenSideNav = fromPartial<MatSidenav>({ open: jest.fn() });
     fixture = TestBed.createComponent(ToolbarComponent);
+    fixture.componentRef.setInput("zoekenSideNav", zoekenSideNav);
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
   }
@@ -249,6 +257,39 @@ describe(ToolbarComponent.name, () => {
       const iconNames = await Promise.all(icons.map((icon) => icon.getName()));
       expect(iconNames).toContain("search");
       expect(iconNames).not.toContain("close");
+    });
+
+    it("opens the search side nav when enter is pressed in the search field", async () => {
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        { startenZaak: false, beheren: false, zoeken: true },
+      );
+      createComponent();
+
+      await user.type(
+        screen.getByRole("textbox", { name: "actie.zoeken" }),
+        "fakeTrefwoord{Enter}",
+      );
+
+      expect(zoekenSideNav.open).toHaveBeenCalledTimes(1);
+    });
+
+    it("opens the search side nav from each search button", async () => {
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        { startenZaak: false, beheren: false, zoeken: true },
+      );
+      createComponent();
+
+      const searchButtons = screen.getAllByRole("button", {
+        name: "actie.zoeken",
+      });
+      for (const searchButton of searchButtons) {
+        await user.click(searchButton);
+      }
+
+      expect(searchButtons).toHaveLength(2);
+      expect(zoekenSideNav.open).toHaveBeenCalledTimes(2);
     });
   });
 

@@ -281,7 +281,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     @GET
     @Path("replyTo")
     fun listReplyTos(): List<RESTReplyTo> =
-        referenceTableService.readReferenceTable(AFZENDER.name).let { referenceTable ->
+        referenceTableService.readSystemReferenceTable(AFZENDER).let { referenceTable ->
             referenceTableService.listReferenceTableValuesSorted(referenceTable).let {
                 RESTReplyToConverter.convertReplyTos(
                     it

@@ -641,11 +641,8 @@ When(
       timeout: FORTY_SECONDS_IN_MS,
     });
 
-    // Until the allowed file types have been fetched the form rejects every file it is given.
     const fileField = addDocumentPanel.locator('input[type="file"]');
-    await expect(fileField).not.toHaveAttribute("accept", "", {
-      timeout: FORTY_SECONDS_IN_MS,
-    });
+    await expect(fileField).toBeEnabled();
     await fileField.setInputFiles(
       path.join(__dirname, "../testdata", `${title}.docx`),
     );

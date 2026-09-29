@@ -1029,6 +1029,9 @@ describe(ZaakViewComponent.name, () => {
         zaakafhandelparameters: fromPartial<
           GeneratedType<"RestZaaktypeConfiguration">
         >({
+          caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
+            key: "fakeCaseDefinitionKey",
+          }),
           smartDocuments: { enabledForZaaktype: true, enabledGlobally: true },
           betrokkeneKoppelingen: { kvkKoppelen: true },
         }),

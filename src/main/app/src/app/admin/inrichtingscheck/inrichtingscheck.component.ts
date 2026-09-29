@@ -128,10 +128,16 @@ export class InrichtingscheckComponent
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
     this.dataSource.filterPredicate = (data, filter: string) => {
-      if (this.valideFilter === ToggleSwitchOptions.CHECKED && !data.valide) {
+      if (
+        this.valideFilter === ToggleSwitchOptions.CHECKED &&
+        this.needsAttention(data)
+      ) {
         return false;
       }
-      if (this.valideFilter === ToggleSwitchOptions.UNCHECKED && data.valide) {
+      if (
+        this.valideFilter === ToggleSwitchOptions.UNCHECKED &&
+        !this.needsAttention(data)
+      ) {
         return false;
       }
       const dataString = (data.zaaktype.omschrijving + " " + data.zaaktype.doel)
@@ -151,6 +157,22 @@ export class InrichtingscheckComponent
     this.healtCheckService.readZTCCacheTime().subscribe((value) => {
       this.ztcCacheTime = value;
     });
+  }
+
+  protected needsAttention(
+    zaaktypeInrichtingscheck: GeneratedType<"RESTZaaktypeInrichtingscheck">,
+  ) {
+    return (
+      !zaaktypeInrichtingscheck.valide ||
+      Boolean(zaaktypeInrichtingscheck.heeftWaarschuwingen)
+    );
+  }
+
+  protected rowStateClass(
+    zaaktypeInrichtingscheck: GeneratedType<"RESTZaaktypeInrichtingscheck">,
+  ) {
+    if (!zaaktypeInrichtingscheck.valide) return "error";
+    return zaaktypeInrichtingscheck.heeftWaarschuwingen ? "warning" : "ok";
   }
 
   protected applyFilter(event?: Event) {

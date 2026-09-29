@@ -15,6 +15,7 @@ import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -161,16 +162,56 @@ describe(ParametersEditBpmnComponent.name, () => {
     jest
       .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
       .mockReturnValue(of(false));
+  });
 
+  async function createComponent(inputs: { selectedIndexStart?: number } = {}) {
     fixture = TestBed.createComponent(ParametersEditBpmnComponent);
     component = fixture.componentInstance;
+    Object.entries(inputs).forEach(([name, value]) =>
+      fixture.componentRef.setInput(name, value),
+    );
     fixture.detectChanges();
     await fixture.whenStable();
 
     loader = TestbedHarnessEnvironment.loader(fixture);
+  }
+
+  function selectedStep() {
+    return screen.getByRole("tab", { selected: true });
+  }
+
+  describe("selectedIndexStart", () => {
+    it("starts at the first step by default", async () => {
+      await createComponent();
+
+      expect(selectedStep()).toHaveAccessibleName(
+        /gegevens.proces-model-methode.BPMN/,
+      );
+    });
+
+    it("starts at the step it points to", async () => {
+      await createComponent({ selectedIndexStart: 1 });
+
+      expect(selectedStep()).toHaveAccessibleName(/gegevens.algemeen/);
+    });
+
+    it("moves back to the first step when it changes to 0", async () => {
+      await createComponent({ selectedIndexStart: 1 });
+
+      fixture.componentRef.setInput("selectedIndexStart", 0);
+      fixture.detectChanges();
+
+      expect(selectedStep()).toHaveAccessibleName(
+        /gegevens.proces-model-methode.BPMN/,
+      );
+    });
   });
 
   describe("Zaakspecifieke autorisatie", () => {
+    beforeEach(async () => {
+      await createComponent();
+    });
+
     it("should show 'nee' for a zaaktype without the eigenschap", () => {
       expect(fixture.nativeElement.textContent).toContain(
         "zaakspecifiekAutoriseerbaar",
@@ -188,6 +229,10 @@ describe(ParametersEditBpmnComponent.name, () => {
   });
 
   describe("Case handler", () => {
+    beforeEach(async () => {
+      await createComponent();
+    });
+
     it("should set the case handlers selected group", async () => {
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
       const processDefinitionField = selectFields[0];
@@ -204,6 +249,10 @@ describe(ParametersEditBpmnComponent.name, () => {
   });
 
   describe("opslaan", () => {
+    beforeEach(async () => {
+      await createComponent();
+    });
+
     it("should disable opslaan when the form is invalid", async () => {
       expect(component["algemeenFormGroup"].controls.bpmnDefinition.value).toBe(
         null,
@@ -218,6 +267,10 @@ describe(ParametersEditBpmnComponent.name, () => {
   });
 
   describe("switchModellingMethod", () => {
+    beforeEach(async () => {
+      await createComponent();
+    });
+
     it("should emit CMMN when selected and form is not dirty", () => {
       const emitted: ProcessModelMethodSelection[] = [];
       fixture.componentInstance.switchModellingMethod.subscribe((v) =>

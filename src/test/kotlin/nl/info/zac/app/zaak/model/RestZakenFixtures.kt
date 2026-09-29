@@ -205,15 +205,8 @@ fun createRestZaak(
     zaakdata = createZaakData(),
     zaakgeometrie = createRESTGeometry(),
     zaakSpecificContactDetails = null,
-    zaaktype = restZaakType
-)
-
-fun createRestZaakDataUpdate(
-    uuid: UUID = UUID.randomUUID(),
-    zaakData: Map<String, Any> = createZaakData()
-) = RestZaakDataUpdate(
-    uuid = uuid,
-    zaakdata = zaakData
+    zaaktype = restZaakType,
+    isZaakdataGearchiveerd = false
 )
 
 @Suppress("LongParameterList")

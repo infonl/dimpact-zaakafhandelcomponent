@@ -3,313 +3,350 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from "@angular/core/testing";
+import { ComponentFixture } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatInputHarness } from "@angular/material/input/testing";
-import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { Subject } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZoekVeld } from "../../../model/zoek-veld";
 import { KlantZoekDialog } from "./klant-zoek-dialog.component";
 import { ZaakBetrokkeneFilterComponent } from "./zaak-betrokkene-filter.component";
 
-const makeZoekParams = (
-  zoeken: { [key: string]: string } = {},
-): GeneratedType<"RestZoekParameters"> =>
-  ({
-    page: 0,
-    rows: 25,
-    zoeken,
-  }) as Partial<
-    GeneratedType<"RestZoekParameters">
-  > as unknown as GeneratedType<"RestZoekParameters">;
+type ZoekParameters = GeneratedType<"RestZoekParameters">;
+type Klant = GeneratedType<"RestBedrijf" | "RestPersoon">;
+
+const makeZoekParameters = (
+  zoeken: ZoekParameters["zoeken"] = {},
+): ZoekParameters => fromPartial<ZoekParameters>({ page: 0, rows: 25, zoeken });
 
 describe(ZaakBetrokkeneFilterComponent.name, () => {
   let fixture: ComponentFixture<ZaakBetrokkeneFilterComponent>;
-  let loader: HarnessLoader;
-  let component: ZaakBetrokkeneFilterComponent;
-  let dialog: MatDialog;
+  let changed: jest.Mock<void, [void]>;
+  let dialogOpen: jest.SpyInstance;
+  let dialogClosed: Subject<Klant>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        KlantZoekDialog,
-        ZaakBetrokkeneFilterComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-    }).compileComponents();
+  const user = userEvent.setup({ delay: null });
 
-    fixture = TestBed.createComponent(ZaakBetrokkeneFilterComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    dialog = fixture.debugElement.injector.get(MatDialog);
-  });
-
-  describe("ngOnInit — roltype initialisation", () => {
-    it("defaults huidigeRoltype to ZAAK_INITIATOR when zoeken is empty", () => {
-      component.zoekparameters = makeZoekParams({});
-      fixture.detectChanges();
-
-      expect(component["huidigeRoltype"]).toBe(ZoekVeld.ZAAK_INITIATOR);
+  async function setup(zoekparameters: ZoekParameters) {
+    changed = jest.fn();
+    const rendered = await render(ZaakBetrokkeneFilterComponent, {
+      inputs: { zoekparameters },
+      on: { changed },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
     });
+    fixture = rendered.fixture;
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-    it("sets huidigeRoltype to ZAAK_BETROKKENEN when that key is present", () => {
-      component.zoekparameters = makeZoekParams({
-        ZAAK_BETROKKENEN: "123",
-      });
-      fixture.detectChanges();
-
-      expect(component["huidigeRoltype"]).toBe(ZoekVeld.ZAAK_BETROKKENEN);
-    });
-
-    it("sets huidigeRoltype to ZAAK_BETROKKENE_BELANGHEBBENDE when that key is present", () => {
-      component.zoekparameters = makeZoekParams({
-        ZAAK_BETROKKENE_BELANGHEBBENDE: "456",
-      });
-      fixture.detectChanges();
-
-      expect(component["huidigeRoltype"]).toBe(
-        ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE,
+    dialogClosed = new Subject<Klant>();
+    dialogOpen = jest
+      .spyOn(fixture.debugElement.injector.get(MatDialog), "open")
+      .mockReturnValue(
+        fromPartial<MatDialogRef<KlantZoekDialog>>({
+          afterClosed: () => dialogClosed.asObservable(),
+        }),
       );
-    });
+  }
 
-    it("populates klantIdControl from the active roltype key", () => {
-      component.zoekparameters = makeZoekParams({
-        ZAAK_INITIATOR: "987654321",
-      });
-      fixture.detectChanges();
+  function idField() {
+    return screen.getByPlaceholderText("bsn.vestigingsnummer.rsin");
+  }
 
-      expect(component["klantIdControl"].value).toBe("987654321");
-    });
+  function roltypeSelect() {
+    return screen.getByRole("combobox");
+  }
 
-    it("leaves klantIdControl empty when zoekparameters has no matching value", () => {
-      component.zoekparameters = makeZoekParams({});
-      fixture.detectChanges();
+  async function selectRoltype(name: string) {
+    await user.click(roltypeSelect());
+    await user.click(screen.getByRole("option", { name }));
+  }
 
-      expect(component["klantIdControl"].value).toBe("");
-    });
-  });
+  async function enterId(id: string) {
+    await user.clear(idField());
+    await user.type(idField(), id);
+    await user.tab();
+  }
 
-  describe("idChanged", () => {
-    it("emits changed and updates zoekparameters when the ID value changes", () => {
-      component.zoekparameters = makeZoekParams({
-        ZAAK_INITIATOR: "old",
-      });
-      fixture.detectChanges();
-      const changedSpy = jest.fn();
-      component.changed.subscribe(changedSpy);
+  async function closeDialogWith(klant: Klant) {
+    dialogClosed.next(klant);
+    dialogClosed.complete();
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
 
-      component["klantIdControl"].setValue("new");
-      component["idChanged"]();
+  describe("showing the zoekparameters", () => {
+    it("offers every betrokkene roltype", async () => {
+      await setup(makeZoekParameters());
 
-      expect(changedSpy).toHaveBeenCalledTimes(1);
-      expect(component.zoekparameters.zoeken!["ZAAK_INITIATOR"]).toBe("new");
-    });
-
-    it("does not emit changed when the ID value is unchanged", () => {
-      component.zoekparameters = makeZoekParams({
-        ZAAK_INITIATOR: "same",
-      });
-      fixture.detectChanges();
-      component["klantIdControl"].setValue("same");
-      const changedSpy = jest.fn();
-      component.changed.subscribe(changedSpy);
-
-      component["idChanged"]();
-
-      expect(changedSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not throw when zoekparameters.zoeken is absent", () => {
-      component.zoekparameters = makeZoekParams();
-      component.zoekparameters.zoeken = null;
-      fixture.detectChanges();
-
-      expect(() => component["idChanged"]()).not.toThrow();
-    });
-  });
-
-  describe("roltypeChanged", () => {
-    it("transfers the old value to the new roltype key and emits changed", () => {
-      component.zoekparameters = makeZoekParams({
-        ZAAK_INITIATOR: "bsn123",
-      });
-      fixture.detectChanges();
-      const changedSpy = jest.fn();
-      component.changed.subscribe(changedSpy);
-
-      component["betrokkeneSelectControl"].setValue(
-        ZoekVeld.ZAAK_BETROKKENE_ADVISEUR,
-      );
-      component["roltypeChanged"]();
+      await user.click(roltypeSelect());
 
       expect(
-        component.zoekparameters.zoeken!["ZAAK_INITIATOR"],
-      ).toBeUndefined();
-      expect(component.zoekparameters.zoeken!["ZAAK_BETROKKENE_ADVISEUR"]).toBe(
-        "bsn123",
-      );
-      expect(changedSpy).toHaveBeenCalledTimes(1);
+        screen
+          .getAllByRole("option")
+          .map((option) => option.textContent?.trim()),
+      ).toEqual([
+        "betrokkeneRoltype.-alle-",
+        "betrokkeneRoltype.INITIATOR",
+        "betrokkeneRoltype.MEDE_INITIATOR",
+        "betrokkeneRoltype.BELANGHEBBENDE",
+        "betrokkeneRoltype.BESLISSER",
+        "betrokkeneRoltype.ADVISEUR",
+        "betrokkeneRoltype.KLANTCONTACTER",
+        "betrokkeneRoltype.ZAAKCOORDINATOR",
+      ]);
     });
 
-    it("does not emit changed when there was no previous ID value", () => {
-      component.zoekparameters = makeZoekParams({
-        ZAAK_INITIATOR: "",
+    it("starts with the initiator roltype selected, even when the zoekparameters hold another roltype", async () => {
+      await setup(
+        makeZoekParameters({ [ZoekVeld.ZAAK_BETROKKENE_ADVISEUR]: "fakeId" }),
+      );
+
+      expect(roltypeSelect()).toHaveTextContent("betrokkeneRoltype.INITIATOR");
+    });
+
+    it.each([
+      ZoekVeld.ZAAK_BETROKKENEN,
+      ZoekVeld.ZAAK_INITIATOR,
+      ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE,
+      ZoekVeld.ZAAK_BETROKKENE_ADVISEUR,
+      ZoekVeld.ZAAK_BETROKKENE_BESLISSER,
+      ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR,
+      ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR,
+    ])("shows the id searched for as %s", async (zoekVeld) => {
+      await setup(makeZoekParameters({ [zoekVeld]: "fakeId" }));
+
+      expect(idField()).toHaveValue("fakeId");
+    });
+
+    it("does not show an id searched for as klantcontacter", async () => {
+      await setup(
+        makeZoekParameters({
+          [ZoekVeld.ZAAK_BETROKKENE_KLANTCONTACTER]: "fakeId",
+        }),
+      );
+
+      expect(idField()).toHaveValue("");
+    });
+
+    it("shows the id of all betrokkenen before that of the initiator", async () => {
+      await setup(
+        makeZoekParameters({
+          [ZoekVeld.ZAAK_INITIATOR]: "fakeInitiatorId",
+          [ZoekVeld.ZAAK_BETROKKENEN]: "fakeBetrokkeneId",
+        }),
+      );
+
+      expect(idField()).toHaveValue("fakeBetrokkeneId");
+    });
+
+    it("shows an empty id when nothing is searched for", async () => {
+      await setup(makeZoekParameters());
+
+      expect(idField()).toHaveValue("");
+    });
+  });
+
+  describe("entering an id", () => {
+    it("writes the id into the zoekparameters of the parent and emits changed when the field loses focus", async () => {
+      const zoekparameters = makeZoekParameters({
+        [ZoekVeld.ZAAK_INITIATOR]: "fakeOldId",
       });
-      fixture.detectChanges();
-      const changedSpy = jest.fn();
-      component.changed.subscribe(changedSpy);
+      await setup(zoekparameters);
 
-      component["betrokkeneSelectControl"].setValue(
-        ZoekVeld.ZAAK_BETROKKENE_BESLISSER,
-      );
-      component["roltypeChanged"]();
+      await enterId("fakeNewId");
 
-      expect(changedSpy).not.toHaveBeenCalled();
+      expect(zoekparameters.zoeken).toEqual({
+        [ZoekVeld.ZAAK_INITIATOR]: "fakeNewId",
+      });
+      expect(changed).toHaveBeenCalledTimes(1);
+      expect(changed).toHaveBeenCalledWith(undefined);
+    });
+
+    it("writes the id into the zoekparameters of the parent and emits changed on enter", async () => {
+      const zoekparameters = makeZoekParameters();
+      await setup(zoekparameters);
+
+      await user.type(idField(), "fakeNewId{Enter}");
+
+      expect(zoekparameters.zoeken).toEqual({
+        [ZoekVeld.ZAAK_INITIATOR]: "fakeNewId",
+      });
+      expect(changed).toHaveBeenCalledTimes(1);
+    });
+
+    it("writes the id under the roltype that the zoekparameters hold", async () => {
+      const zoekparameters = makeZoekParameters({
+        [ZoekVeld.ZAAK_BETROKKENE_BESLISSER]: "fakeOldId",
+      });
+      await setup(zoekparameters);
+
+      await enterId("fakeNewId");
+
+      expect(zoekparameters.zoeken).toEqual({
+        [ZoekVeld.ZAAK_BETROKKENE_BESLISSER]: "fakeNewId",
+      });
+    });
+
+    it("does not emit changed when the id is unchanged", async () => {
+      await setup(makeZoekParameters({ [ZoekVeld.ZAAK_INITIATOR]: "fakeId" }));
+
+      await user.click(idField());
+      await user.tab();
+
+      expect(changed).not.toHaveBeenCalled();
+    });
+
+    it("ignores the id when the zoekparameters have no zoeken", async () => {
+      const zoekparameters = makeZoekParameters(null);
+      await setup(zoekparameters);
+
+      await enterId("fakeNewId");
+
+      expect(zoekparameters.zoeken).toBeNull();
+      expect(changed).not.toHaveBeenCalled();
     });
   });
 
-  describe("openDialog", () => {
-    it("sets dialogOpen to true while the dialog is open", () => {
-      component.zoekparameters = makeZoekParams({});
-      fixture.detectChanges();
+  describe("changing the roltype", () => {
+    it("moves the id to the selected roltype and emits changed", async () => {
+      const zoekparameters = makeZoekParameters({
+        [ZoekVeld.ZAAK_INITIATOR]: "fakeId",
+      });
+      await setup(zoekparameters);
 
-      const afterClosed$ = new Subject<
-        GeneratedType<"RestBedrijf" | "RestPersoon">
-      >();
-      jest.spyOn(dialog, "open").mockReturnValue({
-        afterClosed: () => afterClosed$.asObservable(),
-      } as unknown as MatDialogRef<KlantZoekDialog>);
+      await selectRoltype("betrokkeneRoltype.ADVISEUR");
 
-      component["openDialog"]();
-
-      expect(component["dialogOpen"]).toBe(true);
+      expect(zoekparameters.zoeken).toEqual({
+        [ZoekVeld.ZAAK_BETROKKENE_ADVISEUR]: "fakeId",
+      });
+      expect(changed).toHaveBeenCalledTimes(1);
     });
 
-    it("sets dialogOpen to false and updates klantIdControl after dialog closes", fakeAsync(() => {
-      component.zoekparameters = makeZoekParams({ ZAAK_INITIATOR: "" });
-      fixture.detectChanges();
+    it("moves an empty id to the selected roltype without emitting changed", async () => {
+      const zoekparameters = makeZoekParameters();
+      await setup(zoekparameters);
 
-      const afterClosed$ = new Subject<
-        GeneratedType<"RestBedrijf" | "RestPersoon">
-      >();
-      jest.spyOn(dialog, "open").mockReturnValue({
-        afterClosed: () => afterClosed$.asObservable(),
-      } as unknown as MatDialogRef<KlantZoekDialog>);
+      await selectRoltype("betrokkeneRoltype.BESLISSER");
 
-      component["openDialog"]();
-      afterClosed$.next({ bsn: "NEW_ID" } as GeneratedType<"RestPersoon">);
-      afterClosed$.complete();
-      tick();
-      fixture.detectChanges();
+      expect(zoekparameters.zoeken).toEqual({
+        [ZoekVeld.ZAAK_BETROKKENE_BESLISSER]: "",
+      });
+      expect(changed).not.toHaveBeenCalled();
+    });
 
-      expect(component["dialogOpen"]).toBe(false);
-      expect(component["klantIdControl"].value).toBe("NEW_ID");
-      expect(component.zoekparameters.zoeken!["ZAAK_INITIATOR"]).toBe("NEW_ID");
-    }));
+    it("writes an id entered afterwards under the selected roltype", async () => {
+      const zoekparameters = makeZoekParameters();
+      await setup(zoekparameters);
 
-    it("emits changed after dialog closes", fakeAsync(() => {
-      component.zoekparameters = makeZoekParams({ ZAAK_INITIATOR: "" });
-      fixture.detectChanges();
-      const changedSpy = jest.fn();
-      component.changed.subscribe(changedSpy);
+      await selectRoltype("betrokkeneRoltype.ZAAKCOORDINATOR");
+      await enterId("fakeId");
 
-      const afterClosed$ = new Subject<
-        GeneratedType<"RestBedrijf" | "RestPersoon">
-      >();
-      jest.spyOn(dialog, "open").mockReturnValue({
-        afterClosed: () => afterClosed$.asObservable(),
-      } as unknown as MatDialogRef<KlantZoekDialog>);
+      expect(zoekparameters.zoeken).toEqual({
+        [ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR]: "fakeId",
+      });
+    });
 
-      component["openDialog"]();
-      afterClosed$.next({ bsn: "X" } as GeneratedType<"RestPersoon">);
-      afterClosed$.complete();
-      tick();
+    it("ignores the roltype when the zoekparameters have no zoeken", async () => {
+      const zoekparameters = makeZoekParameters(null);
+      await setup(zoekparameters);
 
-      expect(changedSpy).toHaveBeenCalledTimes(1);
-    }));
+      await selectRoltype("betrokkeneRoltype.ADVISEUR");
 
-    it("falls back to empty string when result has no identification fields", fakeAsync(() => {
-      component.zoekparameters = makeZoekParams({ ZAAK_INITIATOR: "old" });
-      fixture.detectChanges();
-
-      const afterClosed$ = new Subject<
-        GeneratedType<"RestBedrijf" | "RestPersoon">
-      >();
-      jest.spyOn(dialog, "open").mockReturnValue({
-        afterClosed: () => afterClosed$.asObservable(),
-      } as unknown as MatDialogRef<KlantZoekDialog>);
-
-      component["openDialog"]();
-      afterClosed$.next({
-        vestigingsnummer: null,
-        kvkNummer: null,
-      } as GeneratedType<"RestBedrijf">);
-      afterClosed$.complete();
-      tick();
-
-      expect(component["klantIdControl"].value).toBe("");
-      expect(component.zoekparameters.zoeken!["ZAAK_INITIATOR"]).toBe("");
-    }));
+      expect(zoekparameters.zoeken).toBeNull();
+      expect(changed).not.toHaveBeenCalled();
+    });
   });
 
-  describe("template rendering", () => {
-    it("renders a mat-select with all 8 betrokkene roltype options", async () => {
-      component.zoekparameters = makeZoekParams({});
-      fixture.detectChanges();
+  describe("searching for a klant", () => {
+    it("opens the klant search dialog", async () => {
+      await setup(makeZoekParameters());
 
-      const select = await loader.getHarness(MatSelectHarness);
-      await select.open();
-      const options = await select.getOptions();
+      await user.click(screen.getByText("person"));
 
-      expect(options).toHaveLength(8);
+      expect(dialogOpen).toHaveBeenCalledWith(KlantZoekDialog, {
+        minWidth: "750px",
+        backdropClass: "noColor",
+      });
     });
 
-    it("renders a text input bound to klantIdControl", async () => {
-      component.zoekparameters = makeZoekParams({ ZAAK_INITIATOR: "test123" });
-      fixture.detectChanges();
+    it("marks the search icon active while the dialog is open", async () => {
+      await setup(makeZoekParameters());
 
-      const input = await loader.getHarness(MatInputHarness);
-      expect(await input.getValue()).toBe("test123");
+      await user.click(screen.getByText("person"));
+
+      expect(screen.getByText("person")).toHaveClass("active");
     });
 
-    it("adds active class to the icon when dialogOpen is true", () => {
-      component.zoekparameters = makeZoekParams({});
-      fixture.detectChanges();
-      component["dialogOpen"] = true;
-      fixture.detectChanges();
+    it("no longer marks the search icon active after the dialog closes", async () => {
+      await setup(makeZoekParameters());
+      await user.click(screen.getByText("person"));
 
-      const icon: HTMLElement = fixture.nativeElement.querySelector("mat-icon");
-      expect(icon.classList).toContain("active");
+      await closeDialogWith(fromPartial<Klant>({ bsn: "fakeBsn" }));
+
+      expect(screen.getByText("person")).not.toHaveClass("active");
     });
 
-    it("does not have active class on the icon when dialogOpen is false", () => {
-      component.zoekparameters = makeZoekParams({});
-      fixture.detectChanges();
+    it("writes the id of the chosen klant into the zoekparameters of the parent and emits changed", async () => {
+      const zoekparameters = makeZoekParameters({
+        [ZoekVeld.ZAAK_BETROKKENE_ADVISEUR]: "fakeOldId",
+      });
+      await setup(zoekparameters);
+      await user.click(screen.getByText("person"));
 
-      const icon: HTMLElement = fixture.nativeElement.querySelector("mat-icon");
-      expect(icon.classList).not.toContain("active");
+      await closeDialogWith(fromPartial<Klant>({ bsn: "fakeBsn" }));
+
+      expect(idField()).toHaveValue("fakeBsn");
+      expect(zoekparameters.zoeken).toEqual({
+        [ZoekVeld.ZAAK_BETROKKENE_ADVISEUR]: "fakeBsn",
+      });
+      expect(changed).toHaveBeenCalledTimes(1);
     });
 
-    it("calls idChanged when blur event fires on the input", async () => {
-      component.zoekparameters = makeZoekParams({ ZAAK_INITIATOR: "old" });
-      fixture.detectChanges();
-      const idChangedSpy = jest.spyOn(component as never, "idChanged");
+    it.each([
+      [
+        "the vestigingsnummer",
+        { vestigingsnummer: "fakeVestigingsnummer", kvkNummer: "fakeKvk" },
+        "fakeVestigingsnummer",
+      ],
+      [
+        "the kvk-nummer without a vestigingsnummer",
+        { vestigingsnummer: null, kvkNummer: "fakeKvk" },
+        "fakeKvk",
+      ],
+      ["the bsn of a persoon", { bsn: "fakeBsn" }, "fakeBsn"],
+      [
+        "an empty id without any identification",
+        { vestigingsnummer: null, kvkNummer: null },
+        "",
+      ],
+    ])(
+      "uses %s as the id of the chosen klant",
+      async (_description, klant, id) => {
+        await setup(
+          makeZoekParameters({ [ZoekVeld.ZAAK_INITIATOR]: "fakeOldId" }),
+        );
+        await user.click(screen.getByText("person"));
 
-      const input = await loader.getHarness(MatInputHarness);
-      await input.blur();
+        await closeDialogWith(fromPartial<Klant>(klant));
 
-      expect(idChangedSpy).toHaveBeenCalledTimes(1);
+        expect(idField()).toHaveValue(id);
+      },
+    );
+
+    it("emits changed after the dialog closes even when the zoekparameters have no zoeken", async () => {
+      const zoekparameters = makeZoekParameters(null);
+      await setup(zoekparameters);
+      await user.click(screen.getByText("person"));
+
+      await closeDialogWith(fromPartial<Klant>({ bsn: "fakeBsn" }));
+
+      expect(zoekparameters.zoeken).toBeNull();
+      expect(idField()).toHaveValue("");
+      expect(changed).toHaveBeenCalledTimes(1);
     });
   });
 });

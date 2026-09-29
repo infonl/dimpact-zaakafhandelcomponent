@@ -42,7 +42,8 @@
           (editCaseDetails)="editCaseDetails.emit()"
         ></zac-zaak-details-algemeen-tab>
       </mat-tab>
-      @if (zaak().zaakgeometrie) {
+      @let zaakgeometrie = zaak().zaakgeometrie;
+      @if (zaakgeometrie) {
         <mat-tab>
           <ng-template mat-tab-label>
             <mat-icon>place</mat-icon>
@@ -53,7 +54,7 @@
               <div class="flex flex-row space-between">
                 <zac-static-text
                   label="coordinates"
-                  [value]="zaak().zaakgeometrie | location"
+                  [value]="zaakgeometrie | location"
                   class="flex-item"
                 />
                 @if (zaak().rechten.wijzigenLocatie) {
@@ -71,7 +72,7 @@
               </div>
               @defer (on viewport) {
                 <zac-locatie-tonen
-                  [currentLocation]="zaak().zaakgeometrie"
+                  [currentLocation]="zaakgeometrie"
                 ></zac-locatie-tonen>
               } @placeholder {
                 <div class="locatie-kaart-placeholder"></div>

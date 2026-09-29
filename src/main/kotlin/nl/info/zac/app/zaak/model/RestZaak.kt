@@ -76,6 +76,9 @@ data class RestZaak(
     @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
     var isZaakspecifiekGeautoriseerd: Boolean,
 
+    @get:JsonbProperty("isZaakdataGearchiveerd")
+    var isZaakdataGearchiveerd: Boolean,
+
     var kenmerken: List<RestZaakKenmerk>?,
     var omschrijving: String,
     var publicatiedatum: LocalDate?,

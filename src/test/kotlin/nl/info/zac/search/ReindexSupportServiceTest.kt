@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.ws.rs.ProcessingException
 import java.util.UUID
 import java.util.logging.Handler
 import java.util.logging.LogRecord
@@ -24,10 +25,10 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaakEigenschap
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
@@ -40,6 +41,8 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.createZaakToewijzing
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.client.solrj.response.UpdateResponse
@@ -54,7 +57,7 @@ private data class ReindexSupportServiceTestContext(
     val zrcClientService: ZrcClientService,
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
-    val zgwApiService: ZgwApiService,
+    val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
     val reindexSupportService: ReindexSupportService
 )
 
@@ -88,14 +91,14 @@ private fun setupContext(): ReindexSupportServiceTestContext {
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val zgwApiService = mockk<ZgwApiService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
 
     val reindexSupportService = ReindexSupportService(
         converterInstances,
         zrcClientService,
         drcClientService,
         flowableTaskService,
-        zgwApiService,
+        zaakspecifiekeAutorisatieService,
         solrClientFactory
     )
 
@@ -106,7 +109,7 @@ private fun setupContext(): ReindexSupportServiceTestContext {
         zrcClientService,
         drcClientService,
         flowableTaskService,
-        zgwApiService,
+        zaakspecifiekeAutorisatieService,
         reindexSupportService
     )
 }
@@ -299,27 +302,78 @@ class ReindexSupportServiceTest : BehaviorSpec({
         }
     }
 
-    given("zaakAutorisatieGegevens for a zaak the caller has already read") {
+    given("a zaakspecifiek geautoriseerde zaak whose behandelaar handed it over to another medewerker") {
         val ctx = setupContext()
         val zaak = createZaak()
-        val rolMedewerker = createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
-        )
         every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
         )
-        every { ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, any()) } returns rolMedewerker
+        every {
+            ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+        } returns createZaakToewijzing(
+            behandelaarRollen = listOf(
+                createRolMedewerker(
+                    medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+                )
+            ),
+            zaakspecifiekGeautoriseerdeMedewerkers = listOf(
+                createRolMedewerker(
+                    medewerkerIdentificatie = createMedewerkerIdentificatie(
+                        identificatie = "fakePreviousBehandelaarId"
+                    )
+                )
+            ),
+            isZaakspecifiekGeautoriseerd = true
+        )
 
         `when`("its geautoriseerde medewerkers are resolved") {
             val geautoriseerdeMedewerkers =
                 ctx.reindexSupportService.zaakAutorisatieGegevens(zaak).geautoriseerdeMedewerkers
 
-            then("the behandelaar is returned") {
-                geautoriseerdeMedewerkers shouldBe listOf("fakeBehandelaarId")
+            then("both the current behandelaar and the zaakspecifiek geautoriseerde medewerker are returned") {
+                geautoriseerdeMedewerkers shouldBe listOf("fakeBehandelaarId", "fakePreviousBehandelaarId")
             }
 
             then("the zaak is not read again, since the caller already provided it") {
                 verify(exactly = 0) { ctx.zrcClientService.readZaak(zaak.uuid) }
+            }
+
+            then("the zaakspecifieke autorisatie of the zaak is read only once") {
+                verify(exactly = 1) { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) }
+            }
+        }
+    }
+
+    given("a zaakspecifiek geautoriseerde zaak with a medewerker that only holds a zaakspecifieke autorisatie") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every {
+            ctx.zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+        } returns createZaakToewijzing(
+            zaakspecifiekGeautoriseerdeMedewerkers = listOf(
+                createRolMedewerker(
+                    medewerkerIdentificatie = createMedewerkerIdentificatie(
+                        identificatie = "fakeZaakspecifiekGeautoriseerdeMedewerkerId"
+                    )
+                )
+            ),
+            isZaakspecifiekGeautoriseerd = true
+        )
+
+        `when`("its geautoriseerde medewerkers are resolved from the zaak UUID alone") {
+            val zaakAutorisatieGegevens = ctx.reindexSupportService.zaakAutorisatieGegevens(zaak.uuid)
+            val geautoriseerdeMedewerkers = zaakAutorisatieGegevens.geautoriseerdeMedewerkers
+
+            then("the zaak is reported as zaakspecifiek geautoriseerd") {
+                zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd shouldBe true
+            }
+
+            then("that medewerker is reported as geautoriseerd even though the zaak has no behandelaar") {
+                geautoriseerdeMedewerkers shouldBe listOf("fakeZaakspecifiekGeautoriseerdeMedewerkerId")
             }
         }
     }
@@ -370,6 +424,56 @@ class ReindexSupportServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(zaakZoekObject))
                 }
                 summary shouldBe ReindexSummary(successCount = 1, skippedCount = 0, totalCount = 1)
+            }
+        }
+    }
+
+    given(
+        "reindexAllZaken with one zaak whose zaakgeometrie is unsupported and another zaak that converts successfully"
+    ) {
+        val ctx = setupContext()
+        val zaakWithUnsupportedZaakgeometrie = createZaak()
+        val zaakThatConvertsSuccessfully = createZaak()
+        val zaakZoekObject = createZaakZoekObject()
+        val zaakZoekObjectConverter = mockk<AbstractZoekObjectConverter<out ZoekObject>>()
+
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.addBeans(listOf(zaakZoekObject)) } returns UpdateResponse()
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(
+            listOf(ZaakUuid(zaakWithUnsupportedZaakgeometrie.uuid), ZaakUuid(zaakThatConvertsSuccessfully.uuid)),
+            2
+        )
+        every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns zaakZoekObjectConverter
+        every { zaakZoekObjectConverter.convert(zaakWithUnsupportedZaakgeometrie.uuid.toString(), any()) } throws
+            ZaakGeometrieNotSupportedException(
+                "Zaak '${zaakWithUnsupportedZaakgeometrie.uuid}' has an unsupported zaakgeometrie type. " +
+                    "Only 'Point' zaakgeometrie is supported.",
+                ProcessingException("fake JSON-B deserialization failure")
+            )
+        every { zaakZoekObjectConverter.convert(zaakThatConvertsSuccessfully.uuid.toString(), any()) } returns
+            zaakZoekObject
+
+        `when`("reindexAllZaken is called") {
+            val summary = ctx.reindexSupportService.reindexAllZaken()
+
+            then("the zaak with the unsupported zaakgeometrie is not added to the Solr index") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(zaakZoekObject))
+                }
+            }
+
+            then("the reindex does not abort and still adds the other zaak to the Solr index") {
+                summary shouldBe ReindexSummary(successCount = 1, skippedCount = 0, totalCount = 2)
             }
         }
     }

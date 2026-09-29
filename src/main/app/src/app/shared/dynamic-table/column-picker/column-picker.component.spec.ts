@@ -3,155 +3,221 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
+import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { ZoekenColumn } from "../model/zoeken-column";
 import { ColumnPickerValue } from "./column-picker-value";
 import { ColumnPickerComponent } from "./column-picker.component";
 
+type Columns = Map<ZoekenColumn, ColumnPickerValue>;
+
 const makeColumns = (
-  fields: Partial<Record<ZoekenColumn, ColumnPickerValue>> = {},
-): Map<ZoekenColumn, ColumnPickerValue> =>
-  new Map(Object.entries(fields) as [ZoekenColumn, ColumnPickerValue][]);
+  entries: Partial<Record<ZoekenColumn, ColumnPickerValue>>,
+): Columns =>
+  new Map(Object.entries(entries) as [ZoekenColumn, ColumnPickerValue][]);
 
 describe(ColumnPickerComponent.name, () => {
-  let fixture: ComponentFixture<ColumnPickerComponent>;
-  let component: ColumnPickerComponent;
-  let loader: HarnessLoader;
+  const user = userEvent.setup({ delay: null });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        ColumnPickerComponent,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
-        ColumnPickerComponent,
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ColumnPickerComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
+    const translateService = TestBed.inject(TranslateService);
+    translateService.setTranslation("nl", {
+      [ZoekenColumn.NAAM]: "Zaaknaam",
+      [ZoekenColumn.CREATIEDATUM]: "Aangemaakt op",
+      [ZoekenColumn.STARTDATUM]: "Startdatum",
+    });
+    translateService.use("nl");
   });
 
-  it("excludes STICKY columns from the selectable list", () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.SELECT]: ColumnPickerValue.STICKY,
-      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
-      [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.HIDDEN,
+  const setup = async (columnSrc: Columns) => {
+    const fixture = TestBed.createComponent(ColumnPickerComponent);
+    fixture.componentRef.setInput("columnSrc", columnSrc);
+    const columnsChanged = jest.fn<void, [Columns]>();
+    fixture.componentInstance.columnsChanged.subscribe(columnsChanged);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    return { fixture, columnsChanged };
+  };
+
+  const menuButton = () =>
+    screen.getByRole("button", { name: "actie.kolommen.wijzig" });
+
+  const openMenu = async () => {
+    await user.click(menuButton());
+    return screen.getByRole("listbox");
+  };
+
+  const closeMenu = async () => {
+    await user.click(menuButton());
+  };
+
+  const optionNames = () =>
+    screen.getAllByRole("option").map((option) => option.textContent?.trim());
+
+  const selectedOptionNames = () =>
+    screen
+      .getAllByRole("option", { selected: true })
+      .map((option) => option.textContent?.trim());
+
+  describe("the menu", () => {
+    it("lists the translated non-sticky columns, sorted by their translation", async () => {
+      await setup(
+        makeColumns({
+          [ZoekenColumn.SELECT]: ColumnPickerValue.STICKY,
+          [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+          [ZoekenColumn.STARTDATUM]: ColumnPickerValue.HIDDEN,
+          [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.VISIBLE,
+        }),
+      );
+
+      await openMenu();
+
+      expect(optionNames()).toEqual([
+        "Aangemaakt op",
+        "Startdatum",
+        "Zaaknaam",
+      ]);
     });
 
-    expect([...component["_columns"].keys()]).not.toContain(
-      ZoekenColumn.SELECT,
-    );
-    expect([...component["_columns"].keys()]).toContain(ZoekenColumn.NAAM);
-    expect([...component["_columns"].keys()]).toContain(
-      ZoekenColumn.CREATIEDATUM,
-    );
+    it("selects the visible columns", async () => {
+      await setup(
+        makeColumns({
+          [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+          [ZoekenColumn.STARTDATUM]: ColumnPickerValue.HIDDEN,
+          [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.VISIBLE,
+        }),
+      );
+
+      await openMenu();
+
+      expect(selectedOptionNames()).toEqual(["Aangemaakt op", "Zaaknaam"]);
+    });
+
+    it("shows the columns and visible columns of a different map bound by the parent", async () => {
+      const { fixture } = await setup(
+        makeColumns({
+          [ZoekenColumn.NAAM]: ColumnPickerValue.HIDDEN,
+          [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.VISIBLE,
+        }),
+      );
+
+      fixture.componentRef.setInput(
+        "columnSrc",
+        makeColumns({
+          [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+          [ZoekenColumn.STARTDATUM]: ColumnPickerValue.HIDDEN,
+          [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.VISIBLE,
+        }),
+      );
+      fixture.detectChanges();
+      await openMenu();
+
+      expect(optionNames()).toEqual([
+        "Aangemaakt op",
+        "Startdatum",
+        "Zaaknaam",
+      ]);
+      expect(selectedOptionNames()).toEqual(["Aangemaakt op", "Zaaknaam"]);
+    });
   });
 
-  it("marks VISIBLE columns as selected when columnSrc is set", () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
-      [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.HIDDEN,
+  describe("toggling columns", () => {
+    it("emits, when the menu closes, the bound map with the toggled columns", async () => {
+      const columns = makeColumns({
+        [ZoekenColumn.SELECT]: ColumnPickerValue.STICKY,
+        [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+        [ZoekenColumn.STARTDATUM]: ColumnPickerValue.HIDDEN,
+        [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.VISIBLE,
+      });
+      const { columnsChanged } = await setup(columns);
+
+      await openMenu();
+      await user.click(screen.getByRole("option", { name: "Zaaknaam" }));
+      await user.click(screen.getByRole("option", { name: "Startdatum" }));
+
+      expect(columnsChanged).not.toHaveBeenCalled();
+
+      await closeMenu();
+
+      expect(columnsChanged).toHaveBeenCalledTimes(1);
+      expect(columnsChanged.mock.calls[0][0]).toBe(columns);
+      expect(columns).toEqual(
+        makeColumns({
+          [ZoekenColumn.SELECT]: ColumnPickerValue.STICKY,
+          [ZoekenColumn.NAAM]: ColumnPickerValue.HIDDEN,
+          [ZoekenColumn.STARTDATUM]: ColumnPickerValue.VISIBLE,
+          [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.VISIBLE,
+        }),
+      );
     });
 
-    expect(component["isSelected"](ZoekenColumn.NAAM)).toBe(true);
-    expect(component["isSelected"](ZoekenColumn.CREATIEDATUM)).toBe(false);
-  });
+    it("writes a toggled column into the bound map before the menu closes", async () => {
+      const columns = makeColumns({
+        [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+      });
+      await setup(columns);
 
-  it("resets selection state when columnSrc is reassigned", () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
-    });
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.HIDDEN,
-    });
+      await openMenu();
+      await user.click(screen.getByRole("option", { name: "Zaaknaam" }));
 
-    expect(component["isSelected"](ZoekenColumn.NAAM)).toBe(false);
-  });
-
-  it("resets changed flag when menu opens", () => {
-    component["changed"] = true;
-    component["menuOpened"]();
-    expect(component["changed"]).toBe(false);
-  });
-
-  it("toggles column from VISIBLE to HIDDEN on selectionChanged", () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+      expect(columns.get(ZoekenColumn.NAAM)).toBe(ColumnPickerValue.HIDDEN);
     });
 
-    const mockOption = { value: ZoekenColumn.NAAM };
-    const mockEvent = { options: [mockOption] } as never;
-    component["selectionChanged"](mockEvent);
+    it("writes toggles into, and emits, the map the parent bound most recently", async () => {
+      const { fixture, columnsChanged } = await setup(
+        makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE }),
+      );
+      const newColumns = makeColumns({
+        [ZoekenColumn.STARTDATUM]: ColumnPickerValue.HIDDEN,
+      });
 
-    expect(component["_columnSrc"].get(ZoekenColumn.NAAM)).toBe(
-      ColumnPickerValue.HIDDEN,
-    );
-    expect(component["changed"]).toBe(true);
-  });
+      fixture.componentRef.setInput("columnSrc", newColumns);
+      fixture.detectChanges();
+      await openMenu();
+      await user.click(screen.getByRole("option", { name: "Startdatum" }));
+      await closeMenu();
 
-  it("toggles column from HIDDEN to VISIBLE on selectionChanged", () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.HIDDEN,
+      expect(columnsChanged).toHaveBeenCalledTimes(1);
+      expect(columnsChanged.mock.calls[0][0]).toBe(newColumns);
+      expect(newColumns.get(ZoekenColumn.STARTDATUM)).toBe(
+        ColumnPickerValue.VISIBLE,
+      );
     });
 
-    const mockOption = { value: ZoekenColumn.NAAM };
-    const mockEvent = { options: [mockOption] } as never;
-    component["selectionChanged"](mockEvent);
+    it("does not emit when the menu closes without a toggled column", async () => {
+      const { columnsChanged } = await setup(
+        makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE }),
+      );
 
-    expect(component["_columnSrc"].get(ZoekenColumn.NAAM)).toBe(
-      ColumnPickerValue.VISIBLE,
-    );
-  });
+      await openMenu();
+      await closeMenu();
 
-  it("emits columnsChanged when updateColumns is called after a change", () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+      expect(columnsChanged).not.toHaveBeenCalled();
     });
-    component["changed"] = true;
 
-    const emitted: Map<ZoekenColumn, ColumnPickerValue>[] = [];
-    component.columnsChanged.subscribe((v) => emitted.push(v));
+    it("does not emit again when the menu is reopened and closed without a toggled column", async () => {
+      const { columnsChanged } = await setup(
+        makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE }),
+      );
 
-    component["updateColumns"]();
+      await openMenu();
+      await user.click(screen.getByRole("option", { name: "Zaaknaam" }));
+      await closeMenu();
+      await openMenu();
+      await closeMenu();
 
-    expect(emitted).toHaveLength(1);
-  });
-
-  it("does not emit columnsChanged when nothing changed", () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+      expect(columnsChanged).toHaveBeenCalledTimes(1);
     });
-    component["changed"] = false;
-
-    const emitted: Map<ZoekenColumn, ColumnPickerValue>[] = [];
-    component.columnsChanged.subscribe((v) => emitted.push(v));
-
-    component["updateColumns"]();
-
-    expect(emitted).toHaveLength(0);
-  });
-
-  it("renders the column picker trigger button", async () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
-    });
-    fixture.detectChanges();
-
-    const button = await loader.getHarness(MatButtonHarness);
-    expect(button).toBeTruthy();
-  });
-
-  it("exposes columns map via getter", () => {
-    component.columnSrc = makeColumns({
-      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
-    });
-    expect(component["columns"].size).toBe(1);
-    expect(component["columns"].has(ZoekenColumn.NAAM)).toBe(true);
   });
 });

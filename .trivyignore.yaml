@@ -1,0 +1,35 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Trivy misconfiguration findings that are accepted by design.
+# Trivy ties a finding to a line in the rendered Helm chart, so a dismissed alert is reopened as soon as a
+# template changes. Accept a finding here instead of dismissing it in the GitHub Security tab.
+misconfigurations:
+  - id: DS-0026
+    paths:
+      - "Dockerfile"
+    statement: >-
+      ZAC runs on Kubernetes, which ignores a Docker HEALTHCHECK. The Helm chart checks the container with
+      startup, liveness and readiness probes on the /health endpoints instead.
+  - id: KSV-0109
+    paths:
+      - "charts/zac/templates/config.yaml"
+    statement: >-
+      Trivy matches on key names such as BRP_TOEPASSING. These keys hold a purpose-of-use code and HTTP header
+      names, not credentials. All credentials are in the Secret in secret.yaml.
+  - id: KSV-01010
+    paths:
+      - "charts/zac/templates/config.yaml"
+    statement: >-
+      Trivy matches on key names such as MAX_FILE_SIZE_MB and GEMEENTE_CODE. None of these keys hold sensitive
+      values. All credentials are in the Secret in secret.yaml.
+  - id: KSV-0011
+    paths:
+      - "charts/zac/templates/deployment.yaml"
+      - "charts/zac/templates/office-converter-deployment.yaml"
+    statement: >-
+      The ZAC and office-converter containers have a CPU request but no default CPU limit. A CPU limit throttles
+      a container even when the node has CPU to spare, which slows down the WildFly startup and document
+      conversions. Deployers can set a limit in the resources values. Trivy ignores per file, so this also
+      covers the init container and the OPA sidecar in deployment.yaml.

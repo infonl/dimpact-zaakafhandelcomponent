@@ -4,7 +4,7 @@
  */
 
 import { AfterViewInit, Component } from "@angular/core";
-import { MatSidenav } from "@angular/material/sidenav";
+import { MatDrawer } from "@angular/material/sidenav";
 import { ViewComponent } from "./view-component";
 
 @Component({
@@ -15,7 +15,7 @@ export abstract class ActionsViewComponent
   extends ViewComponent
   implements AfterViewInit
 {
-  abstract actionsSidenav: MatSidenav;
+  abstract actionsSidenav: MatDrawer;
 
   protected constructor() {
     super();

@@ -21,6 +21,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { waitFor } from "@testing-library/angular";
 import { of } from "rxjs";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { fromPartial } from "src/test-helpers";
@@ -64,6 +65,14 @@ describe(ZacFile.name, () => {
     const file = new File(["test content"], name, { type });
     Object.defineProperty(file, "size", { value: size });
     return file;
+  };
+
+  const loadAllowedFileTypes = async () => {
+    fixture.detectChanges();
+    await waitFor(() =>
+      expect(component["allowedFileTypesQuery"].isPending()).toBe(false),
+    );
+    fixture.detectChanges();
   };
 
   beforeEach(async () => {
@@ -154,14 +163,14 @@ describe(ZacFile.name, () => {
   });
 
   describe("File selection", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "document");
       component.ngOnInit();
-      fixture.detectChanges();
+      await loadAllowedFileTypes();
     });
 
-    it("should handle file selection via input change event", () => {
+    it("should handle file selection via input change event", async () => {
       const mockFile = createMockFile("test.txt", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -169,16 +178,16 @@ describe(ZacFile.name, () => {
         }),
       });
 
-      component["selectedFile"](mockEvent);
+      await component["selectedFile"](mockEvent);
 
       expect(component.form().controls.document.value).toBe(mockFile);
     });
 
-    it("should handle file drop", () => {
+    it("should handle file drop", async () => {
       const mockFile = createMockFile("test.txt", 1024);
       const mockFileList = [mockFile] as unknown as FileList;
 
-      component["droppedFile"](mockFileList);
+      await component["droppedFile"](mockFileList);
 
       expect(component.form().controls.document.value).toBe(mockFile);
     });
@@ -194,17 +203,14 @@ describe(ZacFile.name, () => {
   });
 
   describe("File validation", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "document");
       component.ngOnInit();
-      fixture.detectChanges();
+      await loadAllowedFileTypes();
     });
 
     it("should validate file type", async () => {
-      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
-      fixture.detectChanges();
-      await fixture.whenStable();
       const invalidFile = createMockFile("test.doc", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -251,7 +257,6 @@ describe(ZacFile.name, () => {
     });
 
     it("should accept valid file", async () => {
-      componentRef.setInput("allowedFileTypes", [".txt"]);
       componentRef.setInput("maxFileSizeMB", 5);
       const validFile = createMockFile("test.txt", 1024);
       const mockEvent = fromPartial<Event>({
@@ -350,16 +355,14 @@ describe(ZacFile.name, () => {
   });
 
   describe("File type restrictions", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "document");
       component.ngOnInit();
-      fixture.detectChanges();
+      await loadAllowedFileTypes();
     });
 
-    it("should accept file with allowed extension", () => {
-      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
-      fixture.detectChanges();
+    it("should accept file with allowed extension", async () => {
       const validFile = createMockFile("document.txt", 1024);
       const mockEvent = fromPartial<Event>({
         target: fromPartial<HTMLInputElement>({
@@ -367,7 +370,7 @@ describe(ZacFile.name, () => {
         }),
       });
 
-      component["selectedFile"](mockEvent);
+      await component["selectedFile"](mockEvent);
 
       expect(component.form().controls.document.value).toBe(validFile);
       expect(component.form().controls.document.errors).toBeNull();
@@ -375,14 +378,14 @@ describe(ZacFile.name, () => {
   });
 
   describe("File size restrictions", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "document");
       component.ngOnInit();
-      fixture.detectChanges();
+      await loadAllowedFileTypes();
     });
 
-    it("should accept file within size limit", () => {
+    it("should accept file within size limit", async () => {
       componentRef.setInput("maxFileSizeMB", 2);
       fixture.detectChanges();
       const validFile = createMockFile("test.txt", 1024 * 1024); // 1MB
@@ -392,7 +395,7 @@ describe(ZacFile.name, () => {
         }),
       });
 
-      component["selectedFile"](mockEvent);
+      await component["selectedFile"](mockEvent);
 
       expect(component.form().controls.document.value).toBe(validFile);
       expect(component.form().controls.document.errors).toBeNull();
@@ -464,19 +467,17 @@ describe(ZacFile.name, () => {
   });
 
   describe("Hint display", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "document");
       component.ngOnInit();
       componentRef.setInput("maxFileSizeMB", 5);
-      componentRef.setInput("allowedFileTypes", [".txt", ".pdf"]);
-      fixture.detectChanges();
       translateService.setTranslation("en", {
         "form.input.file.hint.max-size": "Max size: {{sizeInMB}}MB",
         "form.input.file.hint.formats": "Formats: {{formats}}",
       });
       translateService.use("en");
-      fixture.detectChanges();
+      await loadAllowedFileTypes();
     });
 
     it("should display hint with file size and formats", async () => {
@@ -487,42 +488,7 @@ describe(ZacFile.name, () => {
     });
   });
 
-  describe("Hint display while the allowed file types are unavailable", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(configuratieService, "readAllowedFileTypesQuery")
-        .mockReturnValue(
-          fromPartial({
-            queryKey: ALLOWED_FILE_TYPES_QUERY_KEY,
-            queryFn: () => Promise.resolve([]),
-          }),
-        );
-
-      componentRef.setInput("form", createTestForm());
-      componentRef.setInput("key", "document");
-      component.ngOnInit();
-      componentRef.setInput("maxFileSizeMB", 5);
-      translateService.setTranslation("en", {
-        "form.input.file.hint.max-size": "Max size: {{sizeInMB}}MB",
-        "form.input.file.hint.formats": "Formats: {{formats}}",
-      });
-      translateService.use("en");
-      fixture.detectChanges();
-    });
-
-    it("should omit the formats from the hint rather than leaving them blank", async () => {
-      const formField = await loader.getHarness(MatFormFieldHarness);
-      const [hint] = await formField.getTextHints();
-      expect(hint).toBe("Max size: 5MB");
-      expect(hint).not.toContain("Formats:");
-    });
-  });
-
-  describe("Allowed file types that arrive after the file is chosen", () => {
-    let resolveAllowedFileTypes: (
-      allowedFileTypes: GeneratedType<"RestAllowedFileType">[],
-    ) => void;
-
+  describe("While the allowed file types are loading", () => {
     beforeEach(() => {
       jest
         .spyOn(configuratieService, "readAllowedFileTypesQuery")
@@ -530,98 +496,124 @@ describe(ZacFile.name, () => {
           fromPartial({
             queryKey: ALLOWED_FILE_TYPES_QUERY_KEY,
             queryFn: () =>
-              new Promise<GeneratedType<"RestAllowedFileType">[]>((resolve) => {
-                resolveAllowedFileTypes = resolve;
-              }),
+              new Promise<GeneratedType<"RestAllowedFileType">[]>(() => {}),
           }),
         );
 
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "document");
-      component.ngOnInit();
-      fixture.detectChanges();
-    });
-
-    it("should accept a file of an allowed type that is chosen before the list has loaded", async () => {
-      const validFile = createMockFile("test.txt", 1024);
-      const mockEvent = fromPartial<Event>({
-        target: fromPartial<HTMLInputElement>({
-          files: [validFile],
-        }),
-      });
-
-      const selection = component["selectedFile"](mockEvent);
-      resolveAllowedFileTypes([
-        { extension: ".txt", mediaType: "text/plain" },
-        { extension: ".pdf", mediaType: "application/pdf" },
-      ]);
-      await selection;
-
-      expect(component.form().controls.document.value).toBe(validFile);
-      expect(component.form().controls.document.errors).toBeNull();
-    });
-
-    it("should reject a file of a disallowed type that is chosen before the list has loaded", async () => {
-      const invalidFile = createMockFile("test.exe", 1024);
-      const mockEvent = fromPartial<Event>({
-        target: fromPartial<HTMLInputElement>({
-          files: [invalidFile],
-        }),
-      });
-
-      const selection = component["selectedFile"](mockEvent);
-      resolveAllowedFileTypes([{ extension: ".txt", mediaType: "text/plain" }]);
-      await selection;
-
-      expect(component.form().controls.document.errors).toEqual({
-        fileTypeInvalid: { type: "exe" },
-      });
-    });
-  });
-
-  describe("Allowed file types that failed to load on the first attempt", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(configuratieService, "readAllowedFileTypesQuery")
-        .mockReturnValue(
-          fromPartial({
-            queryKey: ALLOWED_FILE_TYPES_QUERY_KEY,
-            queryFn: jest
-              .fn()
-              .mockRejectedValueOnce(new Error("fakeNetworkFailure"))
-              .mockResolvedValue([
-                { extension: ".txt", mediaType: "text/plain" },
-              ]),
-            staleTime: "static",
-          }),
-        );
-
-      componentRef.setInput("form", createTestForm());
-      componentRef.setInput("key", "document");
-      component.ngOnInit();
       componentRef.setInput("maxFileSizeMB", 5);
+      component.ngOnInit();
       translateService.setTranslation("en", {
         "form.input.file.hint.max-size": "Max size: {{sizeInMB}}MB",
         "form.input.file.hint.formats": "Formats: {{formats}}",
+        "form.input.file.hint.formats-loading": "Loading formats",
       });
       translateService.use("en");
       fixture.detectChanges();
     });
 
-    it("should list the formats in the hint once a later attempt succeeds", async () => {
-      await fixture.whenStable();
-      const validFile = createMockFile("test.txt", 1024);
+    it("should disable the field", async () => {
+      const input = await loader.getHarness(MatInputHarness);
+      expect(await input.isDisabled()).toBe(true);
+    });
 
-      await component["selectedFile"](
-        fromPartial<Event>({
-          target: fromPartial<HTMLInputElement>({ files: [validFile] }),
-        }),
-      );
+    it("should tell the user the allowed formats are being loaded", async () => {
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const [hint] = await formField.getTextHints();
+      expect(hint).toContain("Loading formats");
+      expect(hint).not.toContain("Formats:");
+    });
+
+    it("should ignore a dropped file", async () => {
+      await component["droppedFile"]([
+        createMockFile("test.txt", 1024),
+      ] as unknown as FileList);
+
+      expect(component.form().controls.document.value).toBeNull();
+    });
+
+    it("should not open the file picker", () => {
+      const fileInput = component["fileInput"]()!.nativeElement;
+      const openPicker = jest.spyOn(fileInput, "click");
+
+      component["openFilePicker"]();
+
+      expect(openPicker).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("When the allowed file types failed to load", () => {
+    beforeEach(async () => {
+      jest
+        .spyOn(configuratieService, "readAllowedFileTypesQuery")
+        .mockReturnValue(
+          fromPartial({
+            queryKey: ALLOWED_FILE_TYPES_QUERY_KEY,
+            queryFn: () => Promise.reject(new Error("fakeNetworkFailure")),
+          }),
+        );
+
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
+      componentRef.setInput("maxFileSizeMB", 5);
+      component.ngOnInit();
+      translateService.setTranslation("en", {
+        "form.input.file.hint.max-size": "Max size: {{sizeInMB}}MB",
+        "form.input.file.hint.formats-loading": "Loading formats",
+        "form.input.file.hint.formats-unavailable": "Formats unavailable",
+      });
+      translateService.use("en");
+      await loadAllowedFileTypes();
+    });
+
+    it("should keep the field disabled", async () => {
+      const input = await loader.getHarness(MatInputHarness);
+      expect(await input.isDisabled()).toBe(true);
+    });
+
+    it("should tell the user the allowed formats could not be loaded", async () => {
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const [hint] = await formField.getTextHints();
+      expect(hint).toContain("Formats unavailable");
+    });
+
+    it("should ignore a dropped file", async () => {
+      await component["droppedFile"]([
+        createMockFile("test.txt", 1024),
+      ] as unknown as FileList);
+
+      expect(component.form().controls.document.value).toBeNull();
+    });
+  });
+
+  describe("Once the allowed file types have loaded", () => {
+    beforeEach(async () => {
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "document");
+      component.ngOnInit();
+      translateService.setTranslation("en", {
+        "validators.fileTypeInvalid": "Type {{type}} is not allowed",
+      });
+      translateService.use("en");
+      await loadAllowedFileTypes();
+    });
+
+    it("should enable the field", async () => {
+      const input = await loader.getHarness(MatInputHarness);
+      expect(await input.isDisabled()).toBe(false);
+    });
+
+    it("should show an error for a dropped file of a disallowed type", async () => {
+      await component["droppedFile"]([
+        createMockFile("test.exe", 1024),
+      ] as unknown as FileList);
       fixture.detectChanges();
 
       const formField = await loader.getHarness(MatFormFieldHarness);
-      const [hint] = await formField.getTextHints();
-      expect(hint).toContain("Formats: .txt");
+      expect(await formField.getTextErrors()).toEqual([
+        "Type exe is not allowed",
+      ]);
     });
   });
 

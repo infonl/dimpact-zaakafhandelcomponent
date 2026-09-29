@@ -216,51 +216,52 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         logger.info {
             "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
         }
-        try {
-            if (!skipDockerComposeStart) {
-                dockerComposeContainer = createDockerComposeContainer()
+        if (!skipDockerComposeStart) {
+            dockerComposeContainer = createDockerComposeContainer()
+            try {
                 dockerComposeContainer.start()
-                ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
-                logger.info { "Started ZAC Docker Compose containers" }
-            } else {
-                logger.warn {
-                    "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
-                }
+            } catch (exception: ContainerLaunchException) {
+                logger.error(exception) { "Failed to start Docker Compose containers" }
+                dockerComposeContainer.stop()
+                throw exception
             }
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
+            logger.info { "Started ZAC Docker Compose containers" }
+        } else {
+            logger.warn {
+                "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
+            }
+        }
 
-            logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
-            eventually(
-                eventuallyConfig {
-                    duration = 30.seconds
-                    expectedExceptions = setOf(SocketException::class)
-                }
-            ) {
-                itestHttpClient.performGetRequest(
-                    headers = Headers.headersOf("Content-Type", "application/json"),
-                    url = KEYCLOAK_HEALTH_READY_URL
-                ).code shouldBe HTTP_OK
+        logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
+        eventually(
+            eventuallyConfig {
+                duration = 30.seconds
+                expectedExceptions = setOf(SocketException::class)
             }
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_KEYCLOAK_HEALTHY)
-            logger.info { "Keycloak is healthy" }
-            logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            eventually(60.seconds) {
-                itestHttpClient.performGetRequest(
-                    headers = Headers.headersOf("Content-Type", "application/json"),
-                    url = ZAC_HEALTH_READY_URL
-                ).let { response ->
-                    response.code shouldBe HTTP_OK
-                    JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
-                }
+        ) {
+            itestHttpClient.performGetRequest(
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                url = KEYCLOAK_HEALTH_READY_URL
+            ).code shouldBe HTTP_OK
+        }
+        ItestTimingReport.markPhase(ItestTimingReport.PHASE_KEYCLOAK_HEALTHY)
+        logger.info { "Keycloak is healthy" }
+        logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
+        eventually(60.seconds) {
+            itestHttpClient.performGetRequest(
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                url = ZAC_HEALTH_READY_URL
+            ).let { response ->
+                response.code shouldBe HTTP_OK
+                JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
             }
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
-            logger.info { "ZAC is healthy" }
-            if (!skipDockerComposeStart) {
-                createTestSetupData()
-                ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
-            }
-        } catch (exception: ContainerLaunchException) {
-            logger.error(exception) { "Failed to start Docker Compose containers" }
-            dockerComposeContainer.stop()
+        }
+        ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
+        logger.info { "ZAC is healthy" }
+        if (!skipDockerComposeStart) {
+            createTestSetupData()
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
         }
     }
 

@@ -20,6 +20,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import {
+  MatDrawer,
   MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
@@ -119,7 +120,7 @@ export class TaakViewComponent
   extends ActionsViewComponent
   implements OnInit, OnDestroy
 {
-  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatDrawer;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("historieSort") historieSort!: MatSort;

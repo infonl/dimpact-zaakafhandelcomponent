@@ -53,7 +53,7 @@ export class DateRangeFilterComponent {
     this.dateTM.setValue(this.toDate(this.currentRange.tot));
   }
 
-  get range() {
+  get range(): GeneratedType<"RestDatumRange"> {
     return this.currentRange;
   }
 

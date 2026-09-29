@@ -48,6 +48,7 @@ import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
+import nl.info.zac.zaak.ZaakService
 import java.time.Period
 import java.util.EnumSet.noneOf
 
@@ -66,7 +67,8 @@ class RestZaakConverter @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BpmnService,
     private val identificationService: IdentificationService,
-    private val klantClientService: KlantClientService
+    private val klantClientService: KlantClientService,
+    private val zaakService: ZaakService
 ) {
     fun toRestZaak(
         zaak: Zaak,
@@ -97,14 +99,15 @@ class RestZaakConverter @Inject constructor(
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
-            ?.betrokkeneIdentificatie
-            ?.let { restUserConverter.convertUserId(it.identificatie) }
+            ?.identificatienummer
+            ?.let(restUserConverter::convertUserId)
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
         val initiatorIdentificatie = initiator?.let {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)
         }
         val zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid)
         val zaakData = zaakVariabelenService.readZaakdata(zaak.uuid)
+        val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
         val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
         val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
@@ -166,6 +169,7 @@ class RestZaakConverter @Inject constructor(
             verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding?.toRestVertrouwelijkheidaanduiding(),
             zaakdata = zaakData,
+            isZaakdataGearchiveerd = isZaakdataGearchiveerd,
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             zaakSpecificContactDetails = zaakSpecificContactDetails,
             zaaktype = restZaaktypeConverter.convert(zaakType)

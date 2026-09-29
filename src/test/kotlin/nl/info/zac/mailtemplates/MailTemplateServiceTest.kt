@@ -20,6 +20,7 @@ import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
@@ -184,8 +185,8 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns listOf(mailTemplate)
 
-            `when`("readMailtemplate is called with the mail type") {
-                val result = mailTemplateService.readMailtemplate(mail)
+            `when`("readDefaultMailTemplate is called with the mail type") {
+                val result = mailTemplateService.readDefaultMailTemplate(mail)
 
                 then("it should return the mail template") {
                     result shouldBe mailTemplate
@@ -205,12 +206,13 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns emptyList()
 
-            `when`("readMailtemplate is called with the mail type") {
-                val exception = shouldThrow<MailTemplateNotFoundException> {
-                    mailTemplateService.readMailtemplate(mail)
+            `when`("readDefaultMailTemplate is called with the mail type") {
+                val exception = shouldThrow<MailTemplateNotConfiguredException> {
+                    mailTemplateService.readDefaultMailTemplate(mail)
                 }
-                then("it should throw MailTemplateNotFoundException") {
-                    exception shouldBe MailTemplateNotFoundException(mail)
+                then("it should throw MailTemplateNotConfiguredException") {
+                    exception.message shouldBe
+                        "No default mail template configured for mail type '${mail.name}'. It must be configured by an administrator."
                 }
             }
         }
@@ -224,7 +226,7 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
 
             `when`("readMailtemplate is called with the ID") {
-                val result = mailTemplateService.readMailtemplate(mailTemplateId)
+                val result = mailTemplateService.readMailTemplate(mailTemplateId)
 
                 then("it should return the mail template") {
                     result shouldBe mailTemplate
@@ -237,7 +239,7 @@ class MailTemplateServiceTest : BehaviorSpec({
 
             `when`("readMailtemplate is called with the ID") {
                 val exception = shouldThrow<MailTemplateNotFoundException> {
-                    mailTemplateService.readMailtemplate(mailTemplateId)
+                    mailTemplateService.readMailTemplate(mailTemplateId)
                 }
                 then("it should throw MailTemplateNotFoundException") {
                     exception shouldBe MailTemplateNotFoundException(mailTemplateId)

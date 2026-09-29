@@ -5,6 +5,21 @@ opposed to test code (`src/test`, `src/itest`, `src/e2e`), which is out of scope
 required follow-up changes to bring logging in line with GDPR/AVG requirements — see
 [Follow-up recommendations](#follow-up-recommendations).
 
+## Logging philosophy
+
+ZAC's logging draws a hard line between server errors and client errors:
+
+* Server errors (5xx) are always logged at `SEVERE`, with enough context (typically the zaak UUID/identificatie, not personal data) to 
+troubleshoot without needing to reproduce the failure. 
+
+* Client errors (4xx) are either not logged at all, or logged at log level `FINE` — i.e. not logged at all in production by design, 
+since these represent expected/handled conditions (bad input, conflicts, forbidden access) rather than defects. 
+
+The broader intent is that errors in the ZAC log should be a signal of things the operator needs to act on, not a record of every client mistake.
+
+Beyond errors, ZAC also logs some normal, non-error events purely for troubleshooting purposes.
+For some of these events the log level is configurable, for others it is not.
+
 ## Backend
 
 The backend logs exclusively through `java.util.logging.Logger` (JUL). No third-party logging

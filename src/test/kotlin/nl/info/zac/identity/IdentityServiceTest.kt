@@ -10,6 +10,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import io.mockk.verify
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
@@ -18,7 +21,9 @@ import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.log.log
 import org.keycloak.admin.client.resource.RealmResource
+import java.util.logging.Level
 
 class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
@@ -27,6 +32,14 @@ class IdentityServiceTest : BehaviorSpec({
         keycloakZacRealmResource = realmResource,
         pabcClientService = pabcClientService
     )
+
+    beforeSpec {
+        mockkStatic("nl.info.zac.log.LogUtilsKt")
+    }
+
+    afterSpec {
+        unmockkStatic("nl.info.zac.log.LogUtilsKt")
+    }
 
     afterEach {
         checkUnnecessaryStub()
@@ -176,6 +189,78 @@ class IdentityServiceTest : BehaviorSpec({
                         lastName shouldBe "fakeLastName"
                         getFullName() shouldBe "fakeFirstName fakeLastName"
                         email shouldBe "test@example.com"
+                    }
+                }
+            }
+        }
+    }
+
+    context("Reading a user that no longer exists in Keycloak") {
+        given("A userId that used to be assigned to a zaak or task but is no longer found in Keycloak") {
+            val userId = "fakeStaleUserId"
+            every {
+                realmResource.users().searchByUsername(userId, true)
+            } returns emptyList()
+
+            `when`("the user is retrieved") {
+                val user = identityService.readUser(userId)
+
+                then("a placeholder user containing only the id is returned") {
+                    user.id shouldBe userId
+                }
+
+                then("the miss is logged at the level WARNING") {
+                    verify(exactly = 1) {
+                        log(
+                            any(),
+                            Level.WARNING,
+                            "User with id '$userId' could not be found in Keycloak. Returning a placeholder."
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    context("Reading a group") {
+        given("A group in the Keycloak realm") {
+            val groupId = "fakeGroupId"
+            val groupRepresentation = createGroupRepresentation(name = groupId)
+            every {
+                realmResource.groups().groups(groupId, true, 0, 1, false)
+            } returns listOf(groupRepresentation)
+
+            `when`("the group is retrieved") {
+                val group = identityService.readGroup(groupId)
+
+                then("the group is retrieved from Keycloak") {
+                    group.name shouldBe groupId
+                }
+            }
+        }
+    }
+
+    context("Reading a group that no longer exists in Keycloak") {
+        given("A groupId that used to be assigned to a zaak but is no longer found in Keycloak") {
+            val groupId = "fakeStaleGroupId"
+            every {
+                realmResource.groups().groups(groupId, true, 0, 1, false)
+            } returns emptyList()
+
+            `when`("the group is retrieved") {
+                val group = identityService.readGroup(groupId)
+
+                then("a placeholder group containing only the id is returned") {
+                    group.name shouldBe groupId
+                }
+
+                then("the miss is logged at the level WARNING") {
+                    verify(exactly = 1) {
+                        log(
+                            any(),
+                            Level.WARNING,
+                            "Group with id '$groupId' could not be found in Keycloak. Returning a placeholder."
+                        )
                     }
                 }
             }

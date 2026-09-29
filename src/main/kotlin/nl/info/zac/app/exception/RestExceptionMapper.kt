@@ -25,6 +25,7 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
@@ -40,6 +41,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_OBJECTS_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SERVER_GENERIC
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZAAK_GEOMETRIE_NOT_SUPPORTED
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
@@ -104,6 +106,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 ) != Response.Status.Family.SERVER_ERROR -> {
                 createResponse(exception.cause as WebApplicationException)
             }
+            is ZaakGeometrieNotSupportedException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_ZAAK_GEOMETRIE_NOT_SUPPORTED,
+                exception = exception,
+                logLevel = Level.WARNING
+            )
             is ZgwRuntimeException -> handleZgwRuntimeException(exception)
             is ZgwValidationErrorException -> handleZgwValidationErrorException(exception)
             is FlowableZgwValidationErrorException -> handleZgwValidationErrorException(exception.cause)
@@ -263,7 +271,16 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         return Response.status(exception.response.status)
             .type(MediaType.APPLICATION_JSON)
             .entity(jsonErrorMessage)
-            .build()
+            .build().also {
+                log(
+                    logger = LOG,
+                    level = Level.FINE,
+                    message = exception.message ?: "Exception was thrown. Returning response with status: '${
+                        exception.response.status
+                    }'.",
+                    throwable = exception
+                )
+            }
     }
 
     private fun generateResponse(

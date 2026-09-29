@@ -16,6 +16,7 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.TestUser
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
@@ -28,17 +29,6 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-/**
- * Verifies that once a zaak of a zaaktype that supports zaakspecifieke autorisatie is marked as
- * zaakspecifiek geautoriseerd, and the search index is refreshed to reflect that, the zaak (and its
- * task and document) disappear from werklijst/zoekresultaat searches for a behandelaar who lacks the
- * zaakspecifiek_geautoriseerd application role - asserted by the polling loop that waits for reindexing
- * to finish, since there is no other signal to poll for - while remaining visible, with correct
- * rechten, for a behandelaar who holds it.
- *
- * Also verifies the exception to that rule: the zaak's own behandelaar keeps seeing the zaak, its task
- * and its document without holding the zaakspecifiek_geautoriseerd role at all.
- */
 class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -307,6 +297,124 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
                 documentResult.getInt("totaal") shouldBe 1
                 documentResult.getJSONArray("resultaten").getJSONObject(0)
                     .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+            }
+        }
+    }
+
+    given(
+        """
+        A CMMN zaak of a zaaktype that supports zaakspecifieke autorisatie, with a task and a document,
+        is assigned to a behandelaar who does not hold the zaakspecifiek_geautoriseerd role, is marked
+        as zaakspecifiek geautoriseerd, and is then handed over to a behandelaar of another group
+        """
+    ) {
+        val documentTitle = "itestDocumentTitle-${System.currentTimeMillis()}"
+        val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            group = GROUP_BEHANDELAARS_TEST_1,
+            indexZaak = true,
+            testUser = BEHANDELAAR_1,
+            behandelaarId = BEHANDELAAR_1.username,
+            behandelaarName = BEHANDELAAR_1.displayName
+        )
+        taskHelper.startAanvullendeInformatieTaskForZaak(
+            zaakUuid = zaakUuid,
+            zaakIdentificatie = zaakIdentificatie,
+            fatalDate = LocalDate.now().plusWeeks(1),
+            group = GROUP_BEHANDELAARS_TEST_1,
+            waitForTaskToBeIndexed = true,
+            testUser = BEHANDELAAR_1
+        )
+        documentHelper.uploadDocumentToZaak(
+            zaakUuid = zaakUuid,
+            fileName = TEST_PDF_FILE_NAME,
+            documentTitle = documentTitle,
+            authorName = FAKE_AUTHOR_NAME,
+            indexDocument = true,
+            testUser = BEHANDELAAR_1
+        )
+        val zaakeigenschapUuid = openZaakClient.createZaakeigenschap(
+            zaakUUID = zaakUuid,
+            zaaktypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            eigenschapNaam = "ZAAK_GEAUTORISEERD",
+            waarde = "true"
+        )
+        flaggedZaken += zaakUuid to zaakeigenschapUuid
+        // As above, createZaakeigenschap() bypasses ZAC, so the notificatie is simulated, and the flag
+        // turning true in this behandelaar's own zaak result is the readiness signal.
+        openZaakClient.sendZaakeigenschapCreateNotification(zaakUuid, zaakeigenschapUuid)
+        eventually(30.seconds) {
+            searchZaak(zaakIdentificatie, BEHANDELAAR_1).let {
+                it.code shouldBe HTTP_OK
+                val result = JSONObject(it.bodyAsString)
+                result.getInt("totaal") shouldBe 1
+                result.getJSONArray("resultaten").getJSONObject(0)
+                    .getBoolean("isZaakspecifiekGeautoriseerd") shouldBe true
+            }
+        }
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/toekennen",
+            requestBodyAsString = """
+                {
+                    "zaakUUID": "$zaakUuid",
+                    "groepId": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
+                    "behandelaarGebruikersnaam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
+                    "reden": "fakeHandoverReason"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        ).code shouldBe HTTP_OK
+
+        `when`("worklist/search results are requested by the behandelaar the zaak was taken away from") {
+            then(
+                """
+                the zaak, its task and its document are all still present with lezen rechten set to
+                true, because handing the zaak over left that behandelaar individually authorised
+                """
+            ) {
+                eventually(30.seconds) {
+                    val zaakResponse = searchZaak(zaakIdentificatie, BEHANDELAAR_1)
+                    val taakResponse = searchTaak(zaakIdentificatie, BEHANDELAAR_1)
+                    val documentResponse = searchDocument(documentTitle, BEHANDELAAR_1)
+                    logger.info { "Zaak search response: ${zaakResponse.bodyAsString}" }
+                    logger.info { "Taak search response: ${taakResponse.bodyAsString}" }
+                    logger.info { "Document search response: ${documentResponse.bodyAsString}" }
+                    zaakResponse.code shouldBe HTTP_OK
+                    taakResponse.code shouldBe HTTP_OK
+                    documentResponse.code shouldBe HTTP_OK
+
+                    val zaakResult = JSONObject(zaakResponse.bodyAsString)
+                    zaakResult.getInt("totaal") shouldBe 1
+                    zaakResult.getJSONArray("resultaten").getJSONObject(0).apply {
+                        getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                        getString("behandelaarGebruikersnaam") shouldBe
+                            ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                    }
+
+                    val taakResult = JSONObject(taakResponse.bodyAsString)
+                    taakResult.getInt("totaal") shouldBe 1
+                    taakResult.getJSONArray("resultaten").getJSONObject(0)
+                        .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+
+                    val documentResult = JSONObject(documentResponse.bodyAsString)
+                    documentResult.getInt("totaal") shouldBe 1
+                    documentResult.getJSONArray("resultaten").getJSONObject(0)
+                        .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                }
+            }
+
+            and("the new behandelaar finds them too") {
+                eventually(30.seconds) {
+                    JSONObject(
+                        searchZaak(zaakIdentificatie, ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1).bodyAsString
+                    ).getInt("totaal") shouldBe 1
+                    JSONObject(
+                        searchTaak(zaakIdentificatie, ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1).bodyAsString
+                    ).getInt("totaal") shouldBe 1
+                    JSONObject(
+                        searchDocument(documentTitle, ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1).bodyAsString
+                    ).getInt("totaal") shouldBe 1
+                }
             }
         }
     }

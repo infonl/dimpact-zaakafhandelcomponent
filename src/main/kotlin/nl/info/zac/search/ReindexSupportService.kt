@@ -30,6 +30,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
 import nl.info.zac.util.AllOpen
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.common.params.CursorMarkParams
@@ -68,7 +69,7 @@ class ReindexSupportService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService,
-    private val zgwApiService: ZgwApiService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
     solrClientFactory: SolrClientFactory
 ) {
     companion object {
@@ -307,9 +308,7 @@ class ReindexSupportService @Inject constructor(
     internal fun memoizedZaakAutorisatieGegevens(): (UUID) -> ZaakAutorisatieGegevens {
         val zaakAutorisatieGegevensByZaakUUID = ConcurrentHashMap<UUID, ZaakAutorisatieGegevens>()
         return { zaakUUID ->
-            zaakAutorisatieGegevensByZaakUUID.computeIfAbsent(zaakUUID) {
-                zaakAutorisatieGegevens(zaakUUID) { zrcClientService.readZaak(zaakUUID) }
-            }
+            zaakAutorisatieGegevensByZaakUUID.computeIfAbsent(zaakUUID) { zaakAutorisatieGegevens(zaakUUID) }
         }
     }
 
@@ -319,15 +318,23 @@ class ReindexSupportService @Inject constructor(
      */
     internal fun zaakAutorisatieGegevens(zaak: Zaak) = zaakAutorisatieGegevens(zaak.uuid) { zaak }
 
+    /**
+     * The single place where the zaak-level data indexed for every zoekobject type is derived, so that
+     * the `ZAAK`, `TAAK` and `DOCUMENT` converters all index the same medewerkers for a given zaak.
+     */
+    internal fun zaakAutorisatieGegevens(zaakUUID: UUID) =
+        zaakAutorisatieGegevens(zaakUUID) { zrcClientService.readZaak(zaakUUID) }
+
     private fun zaakAutorisatieGegevens(zaakUUID: UUID, zaakSupplier: () -> Zaak) =
-        ZaakAutorisatieGegevens(
-            isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-        ) {
-            listOfNotNull(
-                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaakSupplier())
-                    ?.betrokkeneIdentificatie
-                    ?.identificatie
-            )
+        zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID).let { isZaakspecifiekGeautoriseerd ->
+            ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd) {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(
+                    zaak = zaakSupplier(),
+                    isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
+                )
+                    .geautoriseerdeMedewerkerIds
+                    .toList()
+            }
         }
 
     internal fun reindexAllZaken(): ReindexSummary? {

@@ -83,7 +83,7 @@ describe(TakenCardComponent.name, () => {
     fixture = TestBed.createComponent(TakenCardComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
-    component.data = makeDashboardCard();
+    fixture.componentRef.setInput("data", makeDashboardCard());
     fixture.detectChanges();
   });
 
@@ -91,7 +91,7 @@ describe(TakenCardComponent.name, () => {
     component["onLoad"]();
     await sleep();
     expect(signaleringenService.listTakenSignalering).toHaveBeenCalledWith(
-      component.data.signaleringType,
+      "TAAK_OP_NAAM",
     );
   });
 
@@ -115,9 +115,9 @@ describe(TakenCardComponent.name, () => {
   it("skips the service call and clears dataSource when signaleringType is missing", async () => {
     const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
     spy.mockClear();
-    component.data = new DashboardCard(
-      DashboardCardId.MIJN_TAKEN,
-      DashboardCardType.TAKEN,
+    fixture.componentRef.setInput(
+      "data",
+      new DashboardCard(DashboardCardId.MIJN_TAKEN, DashboardCardType.TAKEN),
     );
     testQueryClient.removeQueries({
       queryKey: ["taken signaleringen dashboard"],

@@ -68,14 +68,44 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                     zaaktype.identificatie shouldBe zaaktypen[0].identificatie
                     zaaktype.omschrijving shouldBe zaaktypen[0].omschrijving
                     zaaktype.uuid shouldBe zaaktypen[0].url.extractUuid()
-                    valide = true
+                    valide shouldBe true
                 }
                 with(result[1]) {
                     zaaktype.identificatie shouldBe zaaktypen[1].identificatie
                     zaaktype.omschrijving shouldBe zaaktypen[1].omschrijving
                     zaaktype.uuid shouldBe zaaktypen[1].url.extractUuid()
-                    valide = false
+                    valide shouldBe false
                 }
+            }
+        }
+    }
+
+    given("A zaaktype for which only the zaakspecifieke autorisatie eigenschap is configured") {
+        val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
+        val zaaktype = createZaakType()
+        every { policyService.readOverigeRechten().beheren } returns true
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
+        every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(zaaktype)
+        every { healthCheckService.controleerZaaktype(zaaktype.url) } returns createZaaktypeInrichtingscheck(
+            zaaktype = zaaktype,
+            zaakspecifiekeAutorisatieEigenschapAanwezig = true,
+            zaakspecifiekeAutorisatieRoltypeAanwezig = false
+        )
+
+        `when`("listZaaktypeInrichtingschecks is called") {
+            val result = healthCheckRestService.listZaaktypeInrichtingschecks()
+
+            then("both zaakspecifieke autorisatie flags are mapped to the REST model") {
+                with(result.single()) {
+                    isZaakspecifiekeAutorisatieEigenschapAanwezig shouldBe true
+                    isZaakspecifiekeAutorisatieRoltypeAanwezig shouldBe false
+                }
+            }
+            and("the warning is mapped to the REST model") {
+                result.single().heeftWaarschuwingen shouldBe true
+            }
+            and("the zaaktype is still reported as valid") {
+                result.single().valide shouldBe true
             }
         }
     }

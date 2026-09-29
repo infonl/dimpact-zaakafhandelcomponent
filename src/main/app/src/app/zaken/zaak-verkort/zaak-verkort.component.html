@@ -11,7 +11,7 @@
       >
       <mat-card-subtitle>{{ zaak.zaaktype.omschrijving }}</mat-card-subtitle>
       <a
-        [routerLink]="['/zaken', zaak?.identificatie]"
+        [routerLink]="['/zaken', zaak.identificatie]"
         [title]="zaak.identificatie + ' openen'"
         id="zaakDetail_button"
         mat-icon-button

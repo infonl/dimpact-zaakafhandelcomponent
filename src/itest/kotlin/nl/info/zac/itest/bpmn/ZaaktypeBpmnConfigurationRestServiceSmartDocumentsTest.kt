@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
 import nl.info.zac.itest.config.SMART_DOCUMENTS_TEMPLATE_MAPPINGS
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
-import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -103,7 +103,7 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                 val storeResponseBody = storeResponse.bodyAsString
                 logger.info { "Response: $storeResponseBody" }
 
-                storeResponse.code shouldBe HTTP_BAD_REQUEST
+                storeResponse.code shouldBe HTTP_INTERNAL_ERROR
                 storeResponseBody shouldBe """{"message":"msg.error.smartdocuments.not.configured"}"""
             }
         }
