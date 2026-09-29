@@ -28,7 +28,6 @@ import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
-import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
@@ -89,7 +88,6 @@ describe(BedrijfsgegevensComponent.name, () => {
         BedrijfsgegevensComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MaterialModule,
       ],
       providers: [
         KlantenService,

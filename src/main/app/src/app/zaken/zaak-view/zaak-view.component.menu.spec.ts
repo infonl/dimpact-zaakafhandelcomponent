@@ -46,7 +46,6 @@ import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
-import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { MenuItemType } from "../../shared/side-nav/menu-item/menu-item";
@@ -164,7 +163,6 @@ describe(ZaakViewComponent.name, () => {
         StaticTextComponent,
         ZaakProcessFlowComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,

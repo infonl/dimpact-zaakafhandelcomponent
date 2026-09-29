@@ -26,7 +26,6 @@ import userEvent from "@testing-library/user-event";
 import { of, Subject } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "src/app/shared/material/material.module";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
@@ -63,7 +62,6 @@ describe(PersoonZoekComponent.name, () => {
         ReactiveFormsModule,
         MaterialFormBuilderModule,
         MatIconModule,
-        MaterialModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
