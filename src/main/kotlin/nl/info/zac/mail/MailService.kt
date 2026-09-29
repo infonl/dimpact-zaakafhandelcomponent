@@ -48,7 +48,7 @@ import java.io.ByteArrayInputStream
 import java.time.LocalDate
 import java.util.Base64
 import java.util.Optional
-import org.jboss.logmanager.Level.ERROR
+import nl.info.zac.log.ERROR
 import java.util.logging.Logger
 import kotlin.ByteArray
 import kotlin.String

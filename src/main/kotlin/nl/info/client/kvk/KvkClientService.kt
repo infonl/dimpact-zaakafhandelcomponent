@@ -16,7 +16,7 @@ import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import org.jboss.logmanager.Level.ERROR
+import nl.info.zac.log.ERROR
 import java.util.logging.Logger
 
 @ApplicationScoped
