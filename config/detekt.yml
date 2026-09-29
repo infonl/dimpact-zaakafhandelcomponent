@@ -1,3 +1,23 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+comments:
+  AbsentOrWrongFileLicense:
+    active: true
+    licenseTemplate: '/\*[ *\n]*SPDX-FileCopyrightText: [^\n]+\n[ *]*SPDX-License-Identifier: EUPL-1\.2\+[ *\n]*\*/'
+    licenseTemplateIsRegex: true
 style:
   MaxLineLength:
     maxLineLength: 140
+  ExpressionBodySyntax:
+    active: true
+  ForbiddenComment:
+    comments:
+      - reason: 'Forbidden FIXME todo marker in comment, please fix the problem.'
+        value: 'FIXME:'
+      - reason: 'Forbidden STOPSHIP todo marker in comment, please address the problem before shipping the code.'
+        value: 'STOPSHIP:'
+      - reason: 'Forbidden TODO todo marker in comment, please do the changes.'
+        value: 'TODO:'
+      - reason: 'Jira ticket references belong in commit messages and pull request descriptions, not in code.'
+        value: '\b(PZ|DRT)-\d+'
