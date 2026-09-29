@@ -22,7 +22,6 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
@@ -92,15 +91,6 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
-            createInformatieObjectType(omschrijving = "bijlage")
-        )
-        every {
-            documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
-        } returns documentCreationResponse
-        every {
-            bpmnService.isZaakProcessDriven(any())
-        } returns false
         every { loggedInUserInstance.get() } returns loggedInUser
 
         `when`("createDocument is called by a role that is allowed to change the zaak") {
@@ -110,6 +100,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             every { flowableTaskService.findOpenTask(taskId) } returns task
             every { policyService.readTaakRechten(task).creerenDocument } returns true
             every { zaaktypeConfigurationService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
+            every {
+                documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
+            } returns documentCreationResponse
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
                 restDocumentCreationAttendedData
@@ -198,7 +191,6 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
         var userWhileStoringDocument: LoggedInUser? = null
 
-        every { httpSessionInstance.get() } returns null
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { documentCreationUserStore.consumeUser(documentCreationToken, any()) } returns loggedInUser
         every { smartDocumentsService.downloadDocument("fakeFileId") } returns createFile()
@@ -238,17 +230,11 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val expiredDocumentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
-        val httpSession = mockk<HttpSession>()
         val httpSessionInstance = mockk<Instance<HttpSession>>()
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
         var userWhileStoringDocument: LoggedInUser? = null
         var userWhileReadingZaak: LoggedInUser? = null
 
-        // the browser posting the callback still carries a ZAC session cookie
-        every { httpSessionInstance.get() } returns httpSession
-        every {
-            httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE)
-        } returns createLoggedInUser(id = "fakeSessionUserId")
         every { zrcClientService.readZaak(zaak.uuid) } answers {
             userWhileReadingZaak = loggedInUserProvider.getLoggedInUser()
             zaak
@@ -300,19 +286,13 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     given("a SmartDocuments callback whose session belongs to a different user than its token") {
         val zaak = createZaak()
         val documentCreationUser = createLoggedInUser(id = "fakeDocumentCreationUserId")
-        val sessionUser = createLoggedInUser(id = "fakeSessionUserId")
         val documentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
-        val httpSession = mockk<HttpSession>()
         val httpSessionInstance = mockk<Instance<HttpSession>>()
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
         var userWhileStoringDocument: LoggedInUser? = null
         var userWhileReadingZaak: LoggedInUser? = null
 
-        every { httpSessionInstance.get() } returns httpSession
-        every {
-            httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE)
-        } returns sessionUser
         every { zrcClientService.readZaak(zaak.uuid) } answers {
             userWhileReadingZaak = loggedInUserProvider.getLoggedInUser()
             zaak
