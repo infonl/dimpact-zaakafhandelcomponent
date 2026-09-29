@@ -17,7 +17,7 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [ ] **Step 5** — dissolve `MaterialModule`, split in two PRs:
   - [ ] **5a** — all 20 specs that import one of our NgModules (PZ-12820, branch `refactor/PZ-12820-spec-files-import-components-directly-instead-of-through-modules`)
   - [ ] **5b** — 14 non-spec files (local branch `temp-ng20-step5b`, rebase on main after 5a merges)
-- [ ] **Step 6** — dissolve `MaterialFormBuilderModule` (17 non-spec, 12 specs)
+- [ ] **Step 6** — dissolve `MaterialFormBuilderModule` (17 non-spec, 0 specs after 5a)
 - [ ] **Step 7** — dissolve `SharedModule` (8 non-spec, 0 specs after 5a) — last, it re-exports the others
 - [ ] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
       `documenten`, `productaanvragen`)
@@ -200,7 +200,7 @@ because the module turned out to be empty once the routing import was gone):
 `SharedModule`'s `MatPaginatorIntl` provider transitively through `InformatieObjectenModule`, so
 the paginator buttons lost their translated accessible names and two Testing Library queries
 failed. Runtime was never affected (`AppModule` imports `SharedModule`). The spec provides the
-same factory itself now. Expect the same when dissolving the barrels in steps 5–7 (step 4 bore this out: −0.6 kB).
+same factory itself now. Expect the same when dissolving the barrels in steps 5–7; 5a bore this out (`DateAdapter` and `HttpClient` inherited from `MaterialFormBuilderModule`).
 
 Result: 538.75 kB -> 520.80 kB initial transfer.
 
@@ -209,8 +209,8 @@ Result: 538.75 kB -> 520.80 kB initial transfer.
 **The rule this step is built on:** an NgModule's `exports` are a live edge that never
 tree-shakes; its `imports` are shaken away once nothing uses them. So a barrel costs only what
 it *exports* — and `AppModule -> SharedModule -> MaterialModule / MaterialFormBuilderModule`
-is what keeps Material eager. That remaining edge is cut in steps 5 and 6, where those barrels
-are dissolved; it is the last place a bundle win is expected.
+is what keeps Material eager. That remaining edge is cut in steps 5–7, where those barrels
+are dissolved. Step 5 alone measured +27 kB (see step 5), so any win left needs 6 and 7.
 
 `MaterialFormBuilderModule` imported `NgxEditorModule` *and* exported `ZacHtmlEditor`, so every
 first paint carried the whole WYSIWYG editor. It is used on four lazy screens only: mail-create,
@@ -251,7 +251,7 @@ lose providers they were inheriting through a barrel — step 2 hit exactly that
 `MatPaginatorIntl`. Importer specs still using `By.css` / `querySelector` must be migrated in the
 PR that touches them, because `no-restricted-syntax` is an **error** on any spec a PR touches.
 Step 4 cleared `shared/form/input`, `shared/form/radio` and `klanten/bedrijfsgegevens`;
-`admin/bpmn-process-definitions` + its `-item` remain (their specs import `SharedModule`), and fall into step 7.
+`admin/bpmn-process-definitions` + its `-item` were cleared in 5a.
 
 **Done in 5a (PZ-12820): no spec imports any of our NgModules any more.** On main 20 specs imported one (`MaterialModule` 14, `MaterialFormBuilderModule` 12, `SharedModule` 3, overlapping); 5a clears all 20, so steps 5b, 6 and 7 touch no spec. Specs lost two providers they had inherited from `MaterialFormBuilderModule` and now provide them themselves: the moment `DateAdapter` (`provideMomentDateAdapter()`, in `date`, `abstract-task-form`, `abstract-taak-formulier`) and `HttpClient` (`provideHttpClient()` + `provideHttpClientTesting()`, in the two abstract form specs). The 10 `querySelector` strict-lint errors in `abstract-taak-formulier`, `abstract-task-form` and `zaak-create` were migrated to Testing Library. In `zaak-create`, the sidenav content is inside a closed `mat-sidenav`, so `getByRole` sees an empty name even with `hidden: true`; `getByText` is used there.
 
@@ -290,15 +290,15 @@ doing it:
 - A vacuous assertion tends to hide inside a banned query. `input.spec.ts` asserted that
   `span[matSuffix]` existed — an element the template always renders, with nothing projected into
   it, so the test could not fail. Migrating it meant writing the test it was supposed to be: a
-  `render()` host that projects a button and queries it by role. Budget for this in steps 5-7;
-  it is per-spec work, not a mechanical find-and-replace.
+  `render()` host that projects a button and queries it by role. 5a did this for the remaining
+  specs; it is per-spec work, not a mechanical find-and-replace.
 
 ### Step 5 — `MaterialModule` — 14 non-spec, 20 specs — IMPLEMENTED, split in two PRs
 
-**Measured: a bundle regression, not a win.** On main `d4e8a2c3a`: `Initial total` 2.19 MB / 459.59 kB -> 2.13 MB / 486.59 kB (**+27 kB transfer**, −60 kB raw). Only stepper, tree and bottom-sheet left the initial set; the rest of Material stays eager through `MaterialFormBuilderModule` and `SharedModule`'s standalone components, and splitting it into small chunks gzips worse. The win expected here needs steps 6 and 7, or cutting `SharedModule` out of `AppModule`/`CoreModule`.
+**Measured: a bundle regression, not a win.** On main `d4e8a2c3a`: `Initial total` 2.19 MB / 459.59 kB -> 2.13 MB / 486.59 kB (**+27 kB transfer**, −60 kB raw). Only stepper, tree and bottom-sheet left the initial set; the rest of Material stays eager through `MaterialFormBuilderModule` and `SharedModule`'s standalone components, and splitting it into small chunks gzips worse (initial chunks 61 -> 90). Verified by component selector in the initial chunks: `mat-stepper`, `mat-tree`, `mat-bottom-sheet-container` gone; `mat-mdc-table`, `mat-calendar`, `mat-datepicker-content`, `mat-mdc-tab-group`, `mat-expansion-panel`, `mat-mdc-paginator`, `mat-sort-header`, `mat-mdc-autocomplete`, `mat-mdc-chip` still there. The win expected here needs steps 6 and 7, or cutting `SharedModule` out of `AppModule`/`CoreModule`.
 
-- **5a — 20 specs (PZ-12820):** drop every NgModule of ours from every spec (see above); among them `MaterialModule` from 14 specs; `klant-koppel.component.spec.ts` drops `SharedModule` and turns its override from `set` into `remove`/`add` of the two child components. Green on its own: 3326/3326 tests, `tsc --project .` at 0, strict touched-spec lint clean.
-- **5b — 14 non-spec (`temp-ng20-step5b`):** direct Material imports in `admin/bpmn-process-definitions` + `-item`, `fout-afhandeling/dialog/fout-detailed-dialog`, `klanten/koppel/klanten/{klant-koppel,klant-koppel-betrokkene,klant-koppel-initiator}`, `shared/indicaties/{besluit,informatie-object,persoon,zaak}-indicaties`; `MaterialModule` out of `shared.module.ts`; `material.module.ts` deleted; `app.module.ts` and `core.module.ts` adjusted. Cannot go alone: the 5a specs still import the file it deletes, so it rebases after 5a merges.
+- **5a — 20 specs (PZ-12820):** drop every NgModule of ours from every spec (see above); among them `MaterialModule` from 14 specs; `klant-koppel.component.spec.ts` drops `SharedModule` and turns its override from `set` into `remove`/`add` of the two child components. Green on its own: 3326/3326 tests, `tsc --project .` at 0, strict touched-spec lint clean. With 5b on top also green: 3326/3326, `tsc` 0, production build 486.59 kB.
+- **5b — 14 non-spec (`temp-ng20-step5b`):** direct Material imports in `admin/bpmn-process-definitions` + `-item`, `fout-afhandeling/dialog/fout-detailed-dialog`, `klanten/koppel/klanten/{klant-koppel,klant-koppel-betrokkene,klant-koppel-initiator}`, `shared/indicaties/{besluit,informatie-object,persoon,zaak}-indicaties`; `MaterialModule` out of `shared.module.ts`; `material.module.ts` deleted; `app.module.ts` and `core.module.ts` adjusted. Cannot go before 5a: specs on main still import the file it deletes. Rebase on main once 5a is merged.
 
 Gotchas hit:
 - `MaterialModule` also exported `ReactiveFormsModule`; `klant-koppel-betrokkene` needed it directly.
@@ -322,7 +322,7 @@ any more — what it exports is the modern `Zac*` form-field set. Carries the mo
 with `MAT_DATE_FORMATS` / `MAT_MOMENT_DATE_ADAPTER_OPTIONS`. Its `forRoot()` returns
 `providers: []` — a dead API, delete rather than port (its only caller is `shared.module.ts`). `withJsonpSupport()` in its `provideHttpClient(...)` is dead: no `.jsonp(` call exists in the app (verified 2026-09-29).
 
-**Providers must move in this step, not step 10.** `DateAdapter` (`MomentDateAdapter`), `MAT_MOMENT_DATE_ADAPTER_OPTIONS` and `MAT_DATE_FORMATS` reach the app only via `AppModule -> SharedModule -> MaterialFormBuilderModule`. Extract them into one `provideZacDateAdapter()` and add it to `CoreModule.providers`; without it every `mat-datepicker` throws "No provider found for DateAdapter" at runtime. The specs that relied on the barrel for it already provide it themselves (5a). Drop the barrel's `provideHttpClient(...)` rather than moving it; `app` and `core` already provide one.
+**Providers must move in this step, not step 10.** `DateAdapter` (`MomentDateAdapter`), `MAT_MOMENT_DATE_ADAPTER_OPTIONS` and `MAT_DATE_FORMATS` reach the app only through the barrel: via `SharedModule` (imported by `AppModule` and `CoreModule`) and via the components that import `MaterialFormBuilderModule` directly. Extract them into one `provideZacDateAdapter()` and add it to `CoreModule.providers`; without it every `mat-datepicker` throws "No provider found for DateAdapter" at runtime. The specs that relied on the barrel for it already provide it themselves (5a). Drop the barrel's `provideHttpClient(...)` rather than moving it; `app` and `core` already provide one.
 
 Three components import both barrels (MFB + `SharedModule`): `klant-koppel-betrokkene`, `klant-koppel-initiator` and `parameters-edit-cmmn`. Step 6 removes only MFB from them; `SharedModule` stays until step 7.
 
@@ -405,10 +405,11 @@ is its own ticket or a dead end worth recording so nobody re-measures it.
 - **`provideAnimationsAsync()` (−11.7 kB, blocked).** Replacing `BrowserAnimationsModule` gives
   444.27 -> 432.56 kB, but breaks 9 `klant-koppel` tab specs: the animations engine arrives a
   microtask late and `MatTabGroup` no longer renders its tabs synchronously in a spec. Worth
-  doing only together with fixing those specs. Mind this repo's NG05100 history.
-- **Dead `imports` entries cost nothing.** Four modules carry `imports` that nothing uses
+  doing only together with fixing those specs. Mind this repo's NG05100 history. The
+  `klant-koppel` spec has been rewritten since (#7154), so the 9 failures need re-measuring.
+- **Dead `imports` entries cost nothing.** Four modules carried `imports` that nothing used
   (`core`: 3, MFB: 24, `shared`: 2, `taken`: 1). Pruning the 26 safe ones changed the bundle by
-  0.04 kB — esbuild already shakes them. Do not plan a step for this. Two of the four are
+  0.04 kB — esbuild already shakes them. Already pruned in step 3 (#7088); nothing left to plan. Two of the four are
   load-bearing anyway: `core`'s `TranslateModule.forRoot(...)` carries providers and `taken`'s
   `TakenRoutingModule` carries the routes.
 - **`@angular/elements` is an unused dependency.** In `package.json`, imported nowhere. No
