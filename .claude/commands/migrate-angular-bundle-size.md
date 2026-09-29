@@ -87,7 +87,7 @@ Angular JIT compiler to every user. Switching to AOT-only bootstrap removes it.
 
 ### Steps
 
-- [ ] Standalone migration complete (see `migrate-ng19-standalone-components.md`)
+- [ ] Standalone migration complete (no `@NgModule` left under `src/main/app/src`)
 - [ ] Replace `src/main.ts` bootstrap:
   ```typescript
   // Before
@@ -115,7 +115,7 @@ simpler (`loadComponent` instead of `loadChildren`).
 |---|---|---|---|
 | 1 | Lazy-load Form.io via TakenModule | ~1.5–2 MB | [ ] |
 | 2 | Lazy-load OpenLayers via BAGModule | ~300–500 KB | [ ] |
-| 3 | Lazy-load AdminModule | ~60–80 KB | [ ] |
+| 3 | Lazy-load AdminModule | ~60–80 KB | [x] (`admin.routes.ts` is lazy-loaded) |
 | 4 | `bootstrapApplication` + drop compiler | ~500 KB–1 MB | [ ] |
 | **Total** | | **~2.4–3.6 MB** | |
 
