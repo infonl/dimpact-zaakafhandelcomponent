@@ -486,3 +486,20 @@ mat-drawer form .mat-action-row.mat-action-row {
   margin: 0 -16px;
   padding: 16px;
 }
+
+/*
+ * A field is inert while a submit is in flight. Its control stays enabled, so
+ * Material does not draw it as disabled; mimic that look instead. The delay
+ * keeps a fast submit from flickering the form.
+ */
+.zac-form-field {
+  transition: opacity 100ms ease-out;
+
+  &[inert] {
+    opacity: 0.38;
+  }
+
+  &:not([inert]) {
+    transition-delay: 350ms;
+  }
+}
