@@ -25,7 +25,6 @@ import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besl
 import { PersoonIndicatiesComponent } from "./indicaties/persoon-indicaties/persoon-indicaties.component";
 import { ZaakIndicatiesComponent } from "./indicaties/zaak-indicaties/zaak-indicaties.component";
 import { MaterialFormBuilderModule } from "./material-form-builder/material-form-builder.module";
-import { MaterialModule } from "./material/material.module";
 import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.directive";
 import { BackButtonDirective } from "./navigation/back-button.directive";
 import { paginatorLanguageInitializerFactory } from "./paginator/paginator-language-initializer";
@@ -61,7 +60,6 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     FormsModule,
-    MaterialModule,
     MaterialFormBuilderModule.forRoot(),
     TranslateModule,
     VertrouwelijkaanduidingToTranslationKeyPipe,
@@ -81,7 +79,6 @@ import { VersionComponent } from "./version/version.component";
     BackButtonDirective,
     StaticTextComponent,
     ReadMoreComponent,
-    MaterialModule,
     MaterialFormBuilderModule,
     DateRangeFilterComponent,
     FacetFilterComponent,

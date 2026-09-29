@@ -5,8 +5,10 @@
 
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { MaterialModule } from "../../material/material.module";
 import { BesluitIndicatie } from "../../model/indicatie";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
@@ -17,7 +19,13 @@ import { IndicatiesComponent } from "../indicaties.component";
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
   standalone: true,
-  imports: [CommonModule, MaterialModule, TranslateModule],
+  imports: [
+    CommonModule,
+    MatChipsModule,
+    MatIconModule,
+    MatTooltipModule,
+    TranslateModule,
+  ],
 })
 export class BesluitIndicatiesComponent
   extends IndicatiesComponent

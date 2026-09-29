@@ -11,7 +11,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
@@ -27,6 +27,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
     SharedModule,
     TranslateModule,
     MaterialFormBuilderModule,
+    ReactiveFormsModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,
   ],

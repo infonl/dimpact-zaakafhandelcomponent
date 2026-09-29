@@ -4,6 +4,8 @@
  */
 
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTabsModule } from "@angular/material/tabs";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
@@ -15,6 +17,8 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
 @Component({
   selector: "zac-klant-koppel-initiator-persoon",
   imports: [
+    MatIconModule,
+    MatTabsModule,
     SharedModule,
     TranslateModule,
     MaterialFormBuilderModule,

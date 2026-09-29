@@ -16,6 +16,7 @@ import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogConfig,
 } from "@angular/material/dialog";
+import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from "@angular/material/snack-bar";
 import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "../shared/shared.module";
 import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
@@ -50,6 +51,10 @@ registerLocaleData(localeNl, "nl-NL");
         width: "650px",
         autoFocus: "dialog",
       },
+    },
+    {
+      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+      useValue: { verticalPosition: "top" },
     },
     provideHttpClient(withInterceptorsFromDi()),
   ],

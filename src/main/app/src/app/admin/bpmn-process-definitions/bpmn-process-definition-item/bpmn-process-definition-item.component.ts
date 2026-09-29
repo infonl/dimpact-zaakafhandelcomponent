@@ -6,16 +6,22 @@
 import { animate, style, transition, trigger } from "@angular/animations";
 import {
   Component,
-  computed,
   ElementRef,
+  computed,
   inject,
   input,
   output,
   signal,
   viewChild,
 } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
 import { MatDialog } from "@angular/material/dialog";
 import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatTableModule } from "@angular/material/table";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { forkJoin, lastValueFrom } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
@@ -39,7 +45,17 @@ import { extractAttachmentFilename, readFileContent } from "../file.helper";
   selector: "zac-bpmn-process-definition-item",
   templateUrl: "./bpmn-process-definition-item.component.html",
   styleUrls: ["./bpmn-process-definition-item.component.less"],
-  imports: [SharedModule, FileDragAndDropDirective, MatExpansionModule],
+  imports: [
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    MatTooltipModule,
+    SharedModule,
+    FileDragAndDropDirective,
+    MatExpansionModule,
+  ],
   animations: [
     trigger("fadeSlide", [
       transition(":enter", [

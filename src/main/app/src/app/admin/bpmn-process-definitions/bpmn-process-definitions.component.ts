@@ -4,19 +4,28 @@
  */
 
 import {
-  afterNextRender,
   Component,
-  computed,
   ElementRef,
-  inject,
   Injector,
   OnInit,
   QueryList,
   ViewChild,
   ViewChildren,
+  afterNextRender,
+  computed,
+  inject,
 } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { MatIconModule } from "@angular/material/icon";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatTreeModule } from "@angular/material/tree";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -42,14 +51,19 @@ interface BpmnProcessDefinitionGroupNode {
 }
 
 type Node =
-  | BpmnProcessDefinitionGroupNode
-  | GeneratedType<"RestBpmnProcessDefinition">;
+  BpmnProcessDefinitionGroupNode | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
   standalone: true,
   templateUrl: "./bpmn-process-definitions.component.html",
   styleUrls: ["./bpmn-process-definitions.component.less"],
   imports: [
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatTooltipModule,
+    MatTreeModule,
     SharedModule,
     BpmnNodeRowDirective,
     BpmnProcessDefinitionItemComponent,
