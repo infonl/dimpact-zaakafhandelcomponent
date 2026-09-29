@@ -200,10 +200,6 @@ dependencies {
     providedCompile(libs.eclipse.microprofile.config.api)
     providedCompile(libs.eclipse.microprofile.health.api)
     providedCompile(libs.eclipse.microprofile.fault.tolerance.api)
-    // provides org.jboss.logmanager.Level.ERROR, so JUL-based error logging renders as
-    // "ERROR" instead of "SEVERE" in WildFly's JSON log formatter, matching the level names
-    // log-aggregation tools such as Grafana/Loki recognize
-    providedCompile(libs.jboss.logmanager)
     providedCompile(libs.jboss.resteasy.multipart.provider)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
@@ -301,12 +297,6 @@ testing {
                     // run the unit tests in multiple JVM forks so they use the available CPU cores
                     // instead of a single fork. Process-level isolation keeps tests independent.
                     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
-                    // jboss-logmanager (a providedCompile dependency, so also on the test classpath)
-                    // registers itself as a java.util.logging.LogManager service provider; without
-                    // pinning the JDK's own default here, that provider gets auto-installed via
-                    // ServiceLoader and its Logger/Handler dispatch is unreliable for tests that
-                    // capture LogRecords through a plain java.util.logging.Handler
-                    systemProperty("java.util.logging.manager", "java.util.logging.LogManager")
                 }
             }
         }

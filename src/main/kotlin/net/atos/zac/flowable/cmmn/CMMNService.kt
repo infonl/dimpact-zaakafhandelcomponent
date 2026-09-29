@@ -27,7 +27,7 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.cmmn.model.HumanTask
 import org.flowable.cmmn.model.UserEventListener
 import org.flowable.common.engine.api.FlowableObjectNotFoundException
-import org.jboss.logmanager.Level.ERROR
+import nl.info.zac.log.ERROR
 import java.util.Date
 import java.util.UUID
 import java.util.logging.Logger

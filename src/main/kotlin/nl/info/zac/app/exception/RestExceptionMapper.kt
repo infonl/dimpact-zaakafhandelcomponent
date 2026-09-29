@@ -48,6 +48,7 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
+import nl.info.zac.log.ERROR
 import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
@@ -56,7 +57,6 @@ import java.lang.reflect.InvocationTargetException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
-import org.jboss.logmanager.Level.ERROR
 import java.util.logging.Level
 import java.util.logging.Logger
 
