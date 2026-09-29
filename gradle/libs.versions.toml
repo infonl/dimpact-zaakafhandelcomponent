@@ -58,7 +58,7 @@ jakarta-jakartaee = "11.0.0"
 # not managed by the WildFly BOMs; check the version of the 'org.jboss.logmanager:jboss-logmanager'
 # module actually provisioned under 'modules/system/layers/base/org/jboss/logmanager/main' in a
 # built WildFly server when upgrading WildFly
-jboss-logmanager = "2.1.19.Final"
+jboss-logmanager = "3.2.2.Final"
 # ~Versions of dependencies provided by WildFly.
 
 eclipse-yasson = "3.0.5"
