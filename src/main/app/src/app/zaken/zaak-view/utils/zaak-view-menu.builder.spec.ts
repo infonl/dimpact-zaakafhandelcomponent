@@ -77,6 +77,7 @@ describe(buildZaakMenu.name, () => {
         handlers,
         dialogs,
         true,
+        false,
       );
 
       expect(titles(menu)).toEqual(["zaak"]);
@@ -95,6 +96,7 @@ describe(buildZaakMenu.name, () => {
             handlers,
             dialogs,
             false,
+            false,
           ),
         ),
       ).toContain("actie.ontvangstbevestiging.versturen");
@@ -106,6 +108,7 @@ describe(buildZaakMenu.name, () => {
             noPlanItems,
             handlers,
             dialogs,
+            false,
             false,
           ),
         ),
@@ -121,6 +124,7 @@ describe(buildZaakMenu.name, () => {
         noPlanItems,
         handlers,
         dialogs,
+        false,
         false,
       );
 
@@ -148,6 +152,7 @@ describe(buildZaakMenu.name, () => {
             handlers,
             dialogs,
             false,
+            false,
           ),
         );
 
@@ -162,6 +167,7 @@ describe(buildZaakMenu.name, () => {
         noPlanItems,
         handlers,
         dialogs,
+        false,
         false,
       );
 
@@ -184,6 +190,7 @@ describe(buildZaakMenu.name, () => {
             handlers,
             dialogs,
             false,
+            false,
           ),
         ),
       ).toContain("actie.zaakdata.bekijken");
@@ -195,6 +202,7 @@ describe(buildZaakMenu.name, () => {
             noPlanItems,
             handlers,
             dialogs,
+            false,
             false,
           ),
         ),
@@ -266,6 +274,7 @@ describe(buildZaakMenu.name, () => {
         handlers,
         dialogs,
         false,
+        false,
       );
 
       buttonNamed(menu, "actie.document.toevoegen")?.fn();
@@ -322,7 +331,14 @@ describe(buildZaakMenu.name, () => {
       "wires %s to its own dialog, on the zaak the menu was built for",
       (title, zaakState, rechten, dialog) => {
         const zaak = createZaak(zaakState, { behandelen: true, ...rechten });
-        const menu = buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false);
+        const menu = buildZaakMenu(
+          zaak,
+          noPlanItems,
+          handlers,
+          dialogs,
+          false,
+          false,
+        );
 
         buttonNamed(menu, title)?.fn();
 
@@ -355,6 +371,7 @@ describe(buildZaakMenu.name, () => {
             handlers,
             dialogs,
             false,
+            false,
           ),
         ),
       ).toContain("actie.zaak.brondatumZetten");
@@ -365,6 +382,7 @@ describe(buildZaakMenu.name, () => {
             noPlanItems,
             handlers,
             dialogs,
+            false,
             false,
           ),
         ),
@@ -385,6 +403,7 @@ describe(buildZaakMenu.name, () => {
         handlers,
         dialogs,
         false,
+        false,
       );
 
       expect(titles(menu)).not.toContain("actie.zaak.opschorten");
@@ -396,6 +415,7 @@ describe(buildZaakMenu.name, () => {
         noPlanItems,
         handlers,
         dialogs,
+        false,
         false,
       );
 
@@ -420,6 +440,7 @@ describe(buildZaakMenu.name, () => {
         },
         handlers,
         dialogs,
+        false,
         false,
       );
 
@@ -448,6 +469,7 @@ describe(buildZaakMenu.name, () => {
         handlers,
         dialogs,
         false,
+        false,
       );
 
       expect(titles(menu)).not.toContain("actie.taak.starten");
@@ -461,6 +483,7 @@ describe(buildZaakMenu.name, () => {
         { userEventListener: [], humanTask: [planItem] },
         handlers,
         dialogs,
+        false,
         false,
       );
 
@@ -480,6 +503,7 @@ describe(buildZaakMenu.name, () => {
         handlers,
         dialogs,
         false,
+        false,
       );
 
       buttonNamed(menu, "planitem.ZAAK_AFHANDELEN")?.fn();
@@ -496,6 +520,7 @@ describe(buildZaakMenu.name, () => {
         handlers,
         dialogs,
         true,
+        false,
       );
 
       expect(titles(menu)).not.toContain("koppelingen");
@@ -513,6 +538,7 @@ describe(buildZaakMenu.name, () => {
             handlers,
             dialogs,
             false,
+            false,
           ),
         ),
       ).toContain("actie.zaak.locatie.koppelen");
@@ -524,6 +550,7 @@ describe(buildZaakMenu.name, () => {
             noPlanItems,
             handlers,
             dialogs,
+            false,
             false,
           ),
         ),
@@ -543,10 +570,14 @@ describe(buildZaakMenu.name, () => {
       );
 
       expect(
-        titles(buildZaakMenu(zaak, noPlanItems, handlers, dialogs, true)),
+        titles(
+          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, true, false),
+        ),
       ).toContain("actie.betrokkene.koppelen");
       expect(
-        titles(buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false)),
+        titles(
+          buildZaakMenu(zaak, noPlanItems, handlers, dialogs, false, false),
+        ),
       ).not.toContain("actie.betrokkene.koppelen");
     });
   });
