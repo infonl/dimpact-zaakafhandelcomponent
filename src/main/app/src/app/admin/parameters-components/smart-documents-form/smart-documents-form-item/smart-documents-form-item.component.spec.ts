@@ -3,238 +3,267 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
-import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { SmartDocumentsFormItemComponent } from "./smart-documents-form-item.component";
 
+const informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [
+  fromPartial({
+    uuid: "fakeInformatieobjecttypeUuid1",
+    omschrijving: "Type A",
+    vertrouwelijkheidaanduiding: "OPENBAAR",
+  }),
+  fromPartial({
+    uuid: "fakeInformatieobjecttypeUuid2",
+    omschrijving: "Type B",
+    vertrouwelijkheidaanduiding: "VERTROUWELIJK",
+  }),
+];
+
 describe(SmartDocumentsFormItemComponent.name, () => {
-  let fixture: ComponentFixture<SmartDocumentsFormItemComponent>;
-  let loader: HarnessLoader;
+  const user = userEvent.setup();
 
-  const informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [
-    fromPartial({
-      uuid: "uuid-1",
-      omschrijving: "Type A",
-      vertrouwelijkheidaanduiding: "OPENBAAR",
-    }),
-    fromPartial({
-      uuid: "uuid-2",
-      omschrijving: "Type B",
-      vertrouwelijkheidaanduiding: "VERTROUWELIJK",
-    }),
-  ];
+  async function setup(informatieObjectTypeUUID: string) {
+    const node = fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>(
+      {
+        id: "fakeTemplateId",
+        name: "fakeTemplateName",
+        informatieObjectTypeUUID,
+      },
+    );
+    const selectionChange = jest.fn();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        SmartDocumentsFormItemComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
-    }).compileComponents();
+    const rendered = await render(SmartDocumentsFormItemComponent, {
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      inputs: { node, informationObjectTypes },
+      on: { selectionChange },
+    });
+    await rendered.fixture.whenStable();
+    rendered.fixture.detectChanges();
 
-    fixture = TestBed.createComponent(SmartDocumentsFormItemComponent);
-    loader = TestbedHarnessEnvironment.loader(fixture);
+    return { ...rendered, node, selectionChange };
+  }
+
+  function mappedCheckbox() {
+    return screen.getByRole("checkbox");
+  }
+
+  function informatieobjecttypeSelect() {
+    return screen.getByRole("combobox", {
+      name: /informatieobjectTypeOmschrijving/,
+    });
+  }
+
+  function vertrouwelijkheidaanduiding() {
+    return screen.getByLabelText("vertrouwelijkheidaanduiding");
+  }
+
+  async function chooseInformatieobjecttype(omschrijving: string) {
+    await user.click(informatieobjecttypeSelect());
+    await user.click(screen.getByRole("option", { name: omschrijving }));
+  }
+
+  describe("given a template without an informatieobjecttype", () => {
+    it("shows the name of the template", async () => {
+      await setup("");
+
+      expect(screen.getByText("fakeTemplateName")).toBeVisible();
+    });
+
+    it("shows the template as not mapped, without a way to clear it", async () => {
+      await setup("");
+
+      expect(mappedCheckbox()).not.toBeChecked();
+      expect(mappedCheckbox()).toBeDisabled();
+    });
+
+    it("shows no vertrouwelijkheidaanduiding", async () => {
+      await setup("");
+
+      expect(vertrouwelijkheidaanduiding()).toHaveValue("");
+      expect(vertrouwelijkheidaanduiding()).toBeDisabled();
+    });
+
+    it("offers an empty choice and every informatieobjecttype", async () => {
+      await setup("");
+
+      await user.click(informatieobjecttypeSelect());
+
+      expect(
+        screen.getAllByRole("option").map((option) => option.textContent),
+      ).toEqual(["informatieobjectType.-geen-", "Type A", "Type B"]);
+    });
+
+    it("does not announce a selection change when it is first shown", async () => {
+      const { selectionChange } = await setup("");
+
+      expect(selectionChange).not.toHaveBeenCalled();
+    });
+
+    describe("when an informatieobjecttype is chosen", () => {
+      it("announces the template mapped to that informatieobjecttype", async () => {
+        const { selectionChange } = await setup("");
+
+        await chooseInformatieobjecttype("Type B");
+
+        expect(selectionChange).toHaveBeenCalledTimes(1);
+        expect(selectionChange).toHaveBeenCalledWith({
+          id: "fakeTemplateId",
+          name: "fakeTemplateName",
+          informatieObjectTypeUUID: "fakeInformatieobjecttypeUuid2",
+        });
+      });
+
+      it("shows the template as mapped, with a way to clear it", async () => {
+        await setup("");
+
+        await chooseInformatieobjecttype("Type B");
+
+        expect(mappedCheckbox()).toBeChecked();
+        expect(mappedCheckbox()).toBeEnabled();
+      });
+
+      it("shows the vertrouwelijkheidaanduiding of that informatieobjecttype", async () => {
+        await setup("");
+
+        await chooseInformatieobjecttype("Type B");
+
+        expect(vertrouwelijkheidaanduiding()).toHaveValue(
+          "vertrouwelijkheidaanduiding.VERTROUWELIJK",
+        );
+      });
+
+      it("writes the choice into the template it was given, so that a re-rendered tree node keeps it", async () => {
+        const { node } = await setup("");
+
+        await chooseInformatieobjecttype("Type B");
+
+        expect(node.informatieObjectTypeUUID).toBe(
+          "fakeInformatieobjecttypeUuid2",
+        );
+      });
+    });
   });
 
-  describe("when node has no informatieObjectTypeUUID", () => {
-    beforeEach(() => {
-      fixture.componentRef.setInput(
-        "node",
-        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
-          name: "Template A",
-          informatieObjectTypeUUID: "",
-        }),
-      );
-      fixture.componentRef.setInput(
-        "informationObjectTypes",
-        informationObjectTypes,
-      );
-      fixture.detectChanges();
+  describe("given a template mapped to an informatieobjecttype", () => {
+    it("shows the chosen informatieobjecttype", async () => {
+      await setup("fakeInformatieobjecttypeUuid1");
+
+      expect(informatieobjecttypeSelect()).toHaveTextContent("Type A");
     });
 
-    it("should render the node name", () => {
-      expect(fixture.nativeElement.textContent).toContain("Template A");
+    it("shows the template as mapped, with a way to clear it", async () => {
+      await setup("fakeInformatieobjecttypeUuid1");
+
+      expect(mappedCheckbox()).toBeChecked();
+      expect(mappedCheckbox()).toBeEnabled();
     });
 
-    it("should initialize checkbox as unchecked and disabled", () => {
-      const component = fixture.componentInstance;
-      expect(component["checkbox"].value).toBe(false);
-      expect(component["checkbox"].disabled).toBe(true);
-    });
+    it("shows the vertrouwelijkheidaanduiding of that informatieobjecttype", async () => {
+      await setup("fakeInformatieobjecttypeUuid1");
 
-    it("should initialize confidentiality as null", () => {
-      expect(fixture.componentInstance["confidentiality"].value).toBeNull();
-    });
-  });
-
-  describe("when node has an informatieObjectTypeUUID", () => {
-    beforeEach(() => {
-      fixture.componentRef.setInput(
-        "node",
-        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
-          name: "Template B",
-          informatieObjectTypeUUID: "uuid-1",
-        }),
-      );
-      fixture.componentRef.setInput(
-        "informationObjectTypes",
-        informationObjectTypes,
-      );
-      fixture.detectChanges();
-    });
-
-    it("should initialize checkbox as checked and enabled", () => {
-      const component = fixture.componentInstance;
-      expect(component["checkbox"].value).toBe(true);
-      expect(component["checkbox"].disabled).toBe(false);
-    });
-
-    it("should set confidentiality from the matching information object type", () => {
-      expect(fixture.componentInstance["confidentiality"].value).toBe(
+      expect(vertrouwelijkheidaanduiding()).toHaveValue(
         "vertrouwelijkheidaanduiding.OPENBAAR",
       );
     });
-  });
 
-  describe("clearSelectedDocumentType", () => {
-    beforeEach(() => {
-      fixture.componentRef.setInput(
-        "node",
-        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
-          name: "Template C",
-          informatieObjectTypeUUID: "uuid-1",
-        }),
-      );
-      fixture.componentRef.setInput(
-        "informationObjectTypes",
-        informationObjectTypes,
-      );
-      fixture.detectChanges();
+    it("does not announce a selection change when it is first shown", async () => {
+      const { selectionChange } = await setup("fakeInformatieobjecttypeUuid1");
+
+      expect(selectionChange).not.toHaveBeenCalled();
     });
 
-    it("should clear informatieObjectTypeUUID", () => {
-      fixture.componentInstance["clearSelectedDocumentType"]();
-      expect(fixture.componentInstance.node.informatieObjectTypeUUID).toBe("");
-    });
+    describe("when the checkbox is unchecked", () => {
+      it("announces the template without an informatieobjecttype", async () => {
+        const { selectionChange } = await setup(
+          "fakeInformatieobjecttypeUuid1",
+        );
 
-    it("should uncheck and disable the checkbox", () => {
-      fixture.componentInstance["clearSelectedDocumentType"]();
-      expect(fixture.componentInstance["checkbox"].value).toBe(false);
-      expect(fixture.componentInstance["checkbox"].disabled).toBe(true);
-    });
+        await user.click(mappedCheckbox());
 
-    it("should emit selectionChange with the cleared node", () => {
-      const emitSpy = jest.spyOn(
-        fixture.componentInstance.selectionChange,
-        "emit",
-      );
-      fixture.componentInstance["clearSelectedDocumentType"]();
-      expect(emitSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ informatieObjectTypeUUID: "" }),
-      );
-    });
-
-    it("should clear informatieObjectTypeUUID when checkbox is unchecked", async () => {
-      const checkbox = await loader.getHarness(MatCheckboxHarness);
-      await checkbox.uncheck();
-
-      expect(fixture.componentInstance.node.informatieObjectTypeUUID).toBe("");
-    });
-  });
-
-  describe("mat-select options", () => {
-    beforeEach(() => {
-      fixture.componentRef.setInput(
-        "node",
-        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
-          name: "Template D",
+        expect(selectionChange).toHaveBeenCalledTimes(1);
+        expect(selectionChange).toHaveBeenCalledWith({
+          id: "fakeTemplateId",
+          name: "fakeTemplateName",
           informatieObjectTypeUUID: "",
-        }),
-      );
-      fixture.componentRef.setInput(
-        "informationObjectTypes",
-        informationObjectTypes,
-      );
-      fixture.detectChanges();
+        });
+      });
+
+      it("shows the template as not mapped, without a way to clear it", async () => {
+        await setup("fakeInformatieobjecttypeUuid1");
+
+        await user.click(mappedCheckbox());
+
+        expect(mappedCheckbox()).not.toBeChecked();
+        expect(mappedCheckbox()).toBeDisabled();
+      });
+
+      it("clears the vertrouwelijkheidaanduiding and the chosen informatieobjecttype", async () => {
+        await setup("fakeInformatieobjecttypeUuid1");
+
+        await user.click(mappedCheckbox());
+
+        expect(vertrouwelijkheidaanduiding()).toHaveValue("");
+        expect(informatieobjecttypeSelect()).not.toHaveTextContent("Type A");
+      });
+
+      it("clears the informatieobjecttype of the template it was given", async () => {
+        const { node } = await setup("fakeInformatieobjecttypeUuid1");
+
+        await user.click(mappedCheckbox());
+
+        expect(node.informatieObjectTypeUUID).toBe("");
+      });
     });
 
-    it("should register empty option plus one option per informationObjectType in mat-select", async () => {
-      const select = await loader.getHarness(MatSelectHarness);
-      await select.open();
-      const options = await select.getOptions();
-      // 1 empty option + 2 from *ngFor
-      expect(options.length).toBe(informationObjectTypes.length + 1);
-      await select.close();
+    describe("when the empty choice is chosen", () => {
+      it("announces the template without an informatieobjecttype", async () => {
+        const { selectionChange } = await setup(
+          "fakeInformatieobjecttypeUuid1",
+        );
+
+        await chooseInformatieobjecttype("informatieobjectType.-geen-");
+
+        expect(selectionChange).toHaveBeenCalledTimes(1);
+        expect(selectionChange).toHaveBeenCalledWith({
+          id: "fakeTemplateId",
+          name: "fakeTemplateName",
+          informatieObjectTypeUUID: undefined,
+        });
+      });
+
+      it("shows the template as not mapped, without a way to clear it", async () => {
+        await setup("fakeInformatieobjecttypeUuid1");
+
+        await chooseInformatieobjecttype("informatieobjectType.-geen-");
+
+        expect(mappedCheckbox()).not.toBeChecked();
+        expect(mappedCheckbox()).toBeDisabled();
+        expect(informatieobjecttypeSelect()).toHaveTextContent(
+          "informatieobjectType.-kies-",
+        );
+      });
     });
 
-    it("should bind informationObjectType uuid as option value", async () => {
-      const select = await loader.getHarness(MatSelectHarness);
-      await select.open();
-      const typeAOption = await select.getOptions({ text: "Type A" });
-      await typeAOption[0].click();
+    describe("when another informatieobjecttype is chosen", () => {
+      it("announces the template mapped to the other informatieobjecttype", async () => {
+        const { selectionChange } = await setup(
+          "fakeInformatieobjecttypeUuid1",
+        );
 
-      expect(fixture.componentInstance.node.informatieObjectTypeUUID).toBe(
-        "uuid-1",
-      );
-    });
-  });
+        await chooseInformatieobjecttype("Type B");
 
-  describe("updateFormControls", () => {
-    it("should emit selectionChange when UUID changes from previous value", () => {
-      fixture.componentRef.setInput(
-        "node",
-        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
-          name: "Template E",
-          informatieObjectTypeUUID: "",
-        }),
-      );
-      fixture.componentRef.setInput(
-        "informationObjectTypes",
-        informationObjectTypes,
-      );
-      fixture.detectChanges(); // ngOnInit sets previousUUID = ""
-
-      const emitSpy = jest.spyOn(
-        fixture.componentInstance.selectionChange,
-        "emit",
-      );
-      fixture.componentInstance.node.informatieObjectTypeUUID = "uuid-1";
-      fixture.componentInstance["updateFormControls"]();
-
-      expect(emitSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ informatieObjectTypeUUID: "uuid-1" }),
-      );
-    });
-
-    it("should not emit selectionChange when UUID has not changed", () => {
-      fixture.componentRef.setInput(
-        "node",
-        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
-          name: "Template F",
-          informatieObjectTypeUUID: "uuid-1",
-        }),
-      );
-      fixture.componentRef.setInput(
-        "informationObjectTypes",
-        informationObjectTypes,
-      );
-      fixture.detectChanges(); // ngOnInit sets previousUUID = "uuid-1"
-
-      const emitSpy = jest.spyOn(
-        fixture.componentInstance.selectionChange,
-        "emit",
-      );
-      fixture.componentInstance["updateFormControls"]();
-
-      expect(emitSpy).not.toHaveBeenCalled();
+        expect(selectionChange).toHaveBeenCalledTimes(1);
+        expect(selectionChange).toHaveBeenCalledWith(
+          expect.objectContaining({
+            informatieObjectTypeUUID: "fakeInformatieobjecttypeUuid2",
+          }),
+        );
+      });
     });
   });
 });

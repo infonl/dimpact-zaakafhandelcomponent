@@ -335,6 +335,75 @@ describe(ZoekopdrachtComponent.name, () => {
 
       expect(selectButton()).toBeVisible();
     });
+
+    it("does not report a saved search when the active one is cleared", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
+
+      await user.click(clearButton());
+      await flushRemoveActief();
+
+      expect(zoekopdrachtEmitted).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("reacting to the filters of the parent", () => {
+    it("offers to clear the filters once the parent sets a filter on its zoekFilters and reports the change", async () => {
+      const zoekFilters = makeZoekFilters();
+      await setup(zoekFilters);
+      await loadZoekopdrachten();
+
+      zoekFilters.zoeken = { zaakIdentificatie: "fakeZaakIdentificatie" };
+      filtersChanged.emit();
+      await flushRemoveActief();
+
+      expect(clearButton()).toBeEnabled();
+    });
+
+    it("stops listening to filter changes once it is destroyed", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
+
+      fixture.destroy();
+      filtersChanged.emit();
+      await sleep();
+
+      httpTestingController.expectNone(REMOVE_ACTIEF_URL);
+    });
+  });
+
+  describe("when the werklijst input changes afterwards", () => {
+    const OTHER_WERKLIJST = "WERKVOORRAAD_ZAKEN";
+
+    it("does not reload the saved searches", async () => {
+      await setup();
+      await loadZoekopdrachten();
+
+      fixture.componentRef.setInput("werklijst", OTHER_WERKLIJST);
+      fixture.detectChanges();
+      await sleep();
+
+      httpTestingController.expectNone(
+        `/rest/gebruikersvoorkeuren/zoekopdracht/${OTHER_WERKLIJST}`,
+      );
+      httpTestingController.expectNone(ZOEKOPDRACHTEN_URL);
+    });
+
+    it("saves the current filters for the new werklijst", async () => {
+      await setup();
+      await loadZoekopdrachten();
+
+      fixture.componentRef.setInput("werklijst", OTHER_WERKLIJST);
+      fixture.detectChanges();
+      await user.click(saveButton());
+
+      expect(dialogOpen).toHaveBeenCalledWith(
+        ZoekopdrachtSaveDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ lijstID: OTHER_WERKLIJST }),
+        }),
+      );
+    });
   });
 
   describe("saving the current filters", () => {
@@ -352,18 +421,23 @@ describe(ZoekopdrachtComponent.name, () => {
       expect(saveButton()).toBeDisabled();
     });
 
-    it("opens the save dialog for the current werklijst", async () => {
-      await setup();
-      await loadZoekopdrachten();
+    it("opens the save dialog with the werklijst, the zoekFilters and the saved searches", async () => {
+      const zoekFilters = makeZoekFilters({
+        zoeken: { zaakIdentificatie: "fakeZaakIdentificatie" },
+      });
+      const zoekopdrachten = [makeZoekopdracht()];
+      await setup(zoekFilters);
+      await loadZoekopdrachten(zoekopdrachten);
 
       await user.click(saveButton());
 
-      expect(dialogOpen).toHaveBeenCalledWith(
-        ZoekopdrachtSaveDialogComponent,
-        expect.objectContaining({
-          data: expect.objectContaining({ lijstID: WERKLIJST }),
-        }),
-      );
+      expect(dialogOpen).toHaveBeenCalledWith(ZoekopdrachtSaveDialogComponent, {
+        data: {
+          lijstID: WERKLIJST,
+          zoekopdracht: zoekFilters,
+          zoekopdrachten,
+        },
+      });
     });
 
     it("reloads the saved searches after one was saved", async () => {
