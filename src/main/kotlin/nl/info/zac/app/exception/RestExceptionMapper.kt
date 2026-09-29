@@ -56,6 +56,7 @@ import java.lang.reflect.InvocationTargetException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
+import org.jboss.logmanager.Level.ERROR
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -146,7 +147,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
                 exception = exception,
-                logLevel = Level.SEVERE
+                logLevel = ERROR
             )
             is ZaakWithABesluitCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
@@ -316,7 +317,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         errorCode = errorCode ?: ERROR_CODE_SERVER_GENERIC,
         exception = exception,
         exceptionMessage = exceptionMessage,
-        logLevel = Level.SEVERE
+        logLevel = ERROR
     )
 
     private fun getJSONMessage(errorMessage: String, exceptionMessage: String? = null) =
@@ -325,7 +326,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exceptionMessage?.let { errorJsonHashMap["exception"] = it }
             ObjectMapper().writeValueAsString(errorJsonHashMap)
         } catch (jsonProcessingException: JsonProcessingException) {
-            log(LOG, Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
+            log(LOG, ERROR, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
             JSON_CONVERSION_ERROR_MESSAGE
         }
 }
