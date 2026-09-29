@@ -301,6 +301,12 @@ testing {
                     // run the unit tests in multiple JVM forks so they use the available CPU cores
                     // instead of a single fork. Process-level isolation keeps tests independent.
                     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                    // jboss-logmanager (a providedCompile dependency, so also on the test classpath)
+                    // registers itself as a java.util.logging.LogManager service provider; without
+                    // pinning the JDK's own default here, that provider gets auto-installed via
+                    // ServiceLoader and its Logger/Handler dispatch is unreliable for tests that
+                    // capture LogRecords through a plain java.util.logging.Handler
+                    systemProperty("java.util.logging.manager", "java.util.logging.LogManager")
                 }
             }
         }
