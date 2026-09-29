@@ -91,7 +91,7 @@ is `jakarta-jakartaee` in the [Gradle Versions Catalog file](../../gradle/libs.v
 `smallrye-health` is only used as a test dependency and can be updated independently if needed.
 `jboss-logmanager`'s version is not covered by a WildFly BOM either; instead of checking it manually, run
 [`scripts/wildfly/verify-jboss-logmanager-version.sh`](../../scripts/wildfly/verify-jboss-logmanager-version.sh)
-after installing WildFly locally (step 5 below) to verify it against the version actually bundled in the
+after installing WildFly locally (step 5 above) to verify it against the version actually bundled in the
 installed server, and update the `jboss-logmanager` version in `libs.versions.toml` if it reports a mismatch.
 8. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
 and performing manual testing as well as by running our automated tests. 
