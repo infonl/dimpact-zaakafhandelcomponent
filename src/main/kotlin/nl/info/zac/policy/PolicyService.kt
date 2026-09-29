@@ -9,7 +9,9 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.flowable.util.isOpen
+import nl.info.client.opa.model.OpaRuleResult
 import nl.info.client.opa.model.RuleQuery
+import nl.info.client.opa.model.RuleResponse
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
@@ -27,6 +29,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
+import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.input.BrpInput
 import nl.info.zac.policy.input.DocumentData
@@ -82,7 +85,7 @@ class PolicyService @Inject constructor(
                     zaaktype = zaaktypeDescription,
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.OVERIGE_RECHTEN_PATH)
 
     fun readZaakRechten(zaak: Zaak, loggedInUser: LoggedInUser): ZaakRechten {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
@@ -115,7 +118,7 @@ class PolicyService @Inject constructor(
                     zaakData = zaakData
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.ZAAK_RECHTEN_PATH)
     }
 
     fun readZaakRechtenForZaakZoekObject(zaakZoekObject: ZaakZoekObject): ZaakRechten {
@@ -142,7 +145,7 @@ class PolicyService @Inject constructor(
                     zaakData = zaakData
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.ZAAK_RECHTEN_PATH)
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: EnkelvoudigInformatieObject, zaak: Zaak?) =
@@ -176,7 +179,7 @@ class PolicyService @Inject constructor(
                     documentData = documentData
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.DOCUMENT_RECHTEN_PATH)
     }
 
     fun readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject): DocumentRechten {
@@ -198,7 +201,7 @@ class PolicyService @Inject constructor(
                     documentData = documentData
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.DOCUMENT_RECHTEN_PATH)
     }
 
     fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
@@ -226,7 +229,7 @@ class PolicyService @Inject constructor(
                     taakData = taakData
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.TAAK_RECHTEN_PATH)
     }
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
@@ -244,7 +247,7 @@ class PolicyService @Inject constructor(
                     taakData = taakData
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.TAAK_RECHTEN_PATH)
     }
 
     private fun Zaak.isGeautoriseerdeMedewerkerOf(userId: String) =
@@ -259,7 +262,7 @@ class PolicyService @Inject constructor(
                     loggedInUser = loggedInUserInstance.get()
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.NOTITIE_RECHTEN_PATH)
 
     fun readWerklijstRechten(): WerklijstRechten =
         evaluationClient.readWerklijstRechten(
@@ -268,7 +271,7 @@ class PolicyService @Inject constructor(
                     loggedInUser = loggedInUserInstance.get()
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.WERKLIJST_RECHTEN_PATH)
 
     fun readBrpRechten(gemeenteCode: String?) =
         evaluationClient.readBrpRechten(
@@ -278,7 +281,10 @@ class PolicyService @Inject constructor(
                     gemeenteCode = gemeenteCode,
                 )
             )
-        ).result
+        ).requireResult(OpaEvaluationClient.BRP_RECHTEN_PATH)
+
+    private fun <T : OpaRuleResult> RuleResponse<T>.requireResult(rulePath: String): T =
+        result ?: throw OpaRuleNotConfiguredException(rulePath)
 }
 
 /**

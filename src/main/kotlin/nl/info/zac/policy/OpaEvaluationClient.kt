@@ -28,31 +28,41 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 @Path("v1/data/net/atos/zac")
 @Produces(MediaType.APPLICATION_JSON)
 interface OpaEvaluationClient {
+    companion object {
+        const val ZAAK_RECHTEN_PATH = "zaak/zaak_rechten"
+        const val TAAK_RECHTEN_PATH = "taak/taak_rechten"
+        const val DOCUMENT_RECHTEN_PATH = "document/document_rechten"
+        const val NOTITIE_RECHTEN_PATH = "notitie/notitie_rechten"
+        const val OVERIGE_RECHTEN_PATH = "overig/overige_rechten"
+        const val WERKLIJST_RECHTEN_PATH = "werklijst/werklijst_rechten"
+        const val BRP_RECHTEN_PATH = "brp/brp_rechten"
+    }
+
     @POST
-    @Path("zaak/zaak_rechten")
+    @Path(ZAAK_RECHTEN_PATH)
     fun readZaakRechten(query: RuleQuery<ZaakInput>): RuleResponse<ZaakRechten>
 
     @POST
-    @Path("taak/taak_rechten")
+    @Path(TAAK_RECHTEN_PATH)
     fun readTaakRechten(query: RuleQuery<TaakInput>): RuleResponse<TaakRechten>
 
     @POST
-    @Path("document/document_rechten")
+    @Path(DOCUMENT_RECHTEN_PATH)
     fun readDocumentRechten(query: RuleQuery<DocumentInput>): RuleResponse<DocumentRechten>
 
     @POST
-    @Path("notitie/notitie_rechten")
+    @Path(NOTITIE_RECHTEN_PATH)
     fun readNotitieRechten(query: RuleQuery<UserInput>): RuleResponse<NotitieRechten>
 
     @POST
-    @Path("overig/overige_rechten")
+    @Path(OVERIGE_RECHTEN_PATH)
     fun readOverigeRechten(query: RuleQuery<UserInput>): RuleResponse<OverigeRechten>
 
     @POST
-    @Path("werklijst/werklijst_rechten")
+    @Path(WERKLIJST_RECHTEN_PATH)
     fun readWerklijstRechten(query: RuleQuery<UserInput>): RuleResponse<WerklijstRechten>
 
     @POST
-    @Path("brp/brp_rechten")
+    @Path(BRP_RECHTEN_PATH)
     fun readBrpRechten(query: RuleQuery<BrpInput>): RuleResponse<BrpRechten>
 }

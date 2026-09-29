@@ -47,6 +47,7 @@ import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import org.apache.http.HttpHost
@@ -713,6 +714,26 @@ class RestExceptionMapperTest : BehaviorSpec({
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.catalogus.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("An OpaRuleNotConfiguredException exception") {
+            val exception = OpaRuleNotConfiguredException("zaak/zaak_rechten")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the OPA rule not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.opa.rule.not.configured",
                         expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                     )
                 }
