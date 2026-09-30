@@ -185,7 +185,7 @@ describe("Algemeen form step", () => {
       "Case Definition 1",
     );
     await chooseOption(
-      within(algemeen).getByRole("combobox", { name: /^groep$/i }),
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
       "test-group",
     );
 
@@ -196,7 +196,7 @@ describe("Algemeen form step", () => {
     const algemeen = await setup();
 
     await user.click(
-      within(algemeen).getByRole("combobox", { name: /^groep$/i }),
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
     );
 
     expect(
@@ -245,12 +245,12 @@ describe("Algemeen form step", () => {
     const algemeen = await setup();
 
     await chooseOption(
-      within(algemeen).getByRole("combobox", { name: /^groep$/i }),
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
       "test-group-2",
     );
 
     const behandelaar = within(algemeen).getByRole("combobox", {
-      name: /behandelaar/i,
+      name: /behandelaar.standaard/i,
     });
     expect(behandelaar).not.toHaveTextContent("test-user");
 
