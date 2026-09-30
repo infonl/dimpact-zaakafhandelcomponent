@@ -71,6 +71,7 @@ cd src/main/app && npm run lint     # Frontend ESLint check
 ```
 
 Run `./gradlew spotlessApply detektApply` before committing backend changes.
+`detektApply` only fixes formatting rules; fix the other issues that `./gradlew detekt` reports, such as `ExpressionBodySyntax`, by hand.
 
 ## Architecture
 

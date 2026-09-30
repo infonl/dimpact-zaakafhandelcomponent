@@ -30,9 +30,9 @@ This includes exceptions.
 For example `catch (e: IOException)` should be `catch (ioException: IOException)`.
 
 ## Catch narrow exceptions, not generic ones
-Never write `catch (exception: Exception)`, `catch (throwable: Throwable)` or `runCatching { }`. Catch the specific
-exception types the code in the `try` block can actually throw, and let everything else propagate. A generic catch
-swallows bugs — a `NullPointerException` or an `IllegalStateException` from a mistake in the `try` block gets treated
+In production code, never write `catch (exception: Exception)`, `catch (throwable: Throwable)` or `runCatching { }`.
+Catch the specific exception types the code in the `try` block can actually throw, and let everything else propagate.
+A generic catch swallows bugs — a `NullPointerException` or an `IllegalStateException` from a mistake in the `try` block gets treated
 as an expected failure and is silently handled.
 
 ```kotlin

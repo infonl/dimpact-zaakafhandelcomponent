@@ -20,4 +20,4 @@ style:
       - reason: 'Forbidden TODO todo marker in comment, please do the changes.'
         value: 'TODO:'
       - reason: 'Jira ticket references belong in commit messages and pull request descriptions, not in code.'
-        value: '\b(PZ|DRT)-\d+'
+        value: '\b(PZ|DRT)-'

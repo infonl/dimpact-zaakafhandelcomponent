@@ -106,7 +106,7 @@ module.exports = {
             selector:
               "TSAsExpression > TSAsExpression[typeAnnotation.type='TSUnknownKeyword'] > ObjectExpression.expression",
             message:
-              "Use fromPartial<T>({ … }) from @total-typescript/shoehorn instead of casting an object literal through unknown: it keeps the fields you do write type-checked.",
+              "Use fromPartial<T>({ … }) from src/test-helpers instead of casting an object literal through unknown: it keeps the fields you do write type-checked.",
           },
         ],
       },

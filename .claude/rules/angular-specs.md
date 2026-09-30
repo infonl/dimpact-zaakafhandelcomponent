@@ -6,7 +6,7 @@ paths:
 # Angular spec conventions
 
 - Import the standalone component under test directly; it declares its own template dependencies in its `imports` array.
-- Use `fromPartial` from `@total-typescript/shoehorn` to create partial mocks of generated types.
+- Use `fromPartial` from `src/test-helpers` to create partial mocks of generated types.
 
 ## Query the DOM through Testing Library, not through Angular
 New and modified specs use [Testing Library](https://testing-library.com/docs/queries/about/#priority)
