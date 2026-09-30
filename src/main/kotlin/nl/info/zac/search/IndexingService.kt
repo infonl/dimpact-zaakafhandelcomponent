@@ -25,7 +25,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import nl.info.zac.log.ERROR
+import java.util.logging.Level
 import java.util.logging.Logger
 
 /**
@@ -68,7 +68,7 @@ class IndexingService @Inject constructor(
      * that escapes a launched reindex since a fire-and-forget coroutine has no caller to propagate to.
      */
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        LOG.log(ERROR, "Unexpected failure while reindexing", throwable)
+        LOG.log(Level.SEVERE, "Unexpected failure while reindexing", throwable)
     }
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
 
@@ -147,7 +147,7 @@ class IndexingService @Inject constructor(
                 reindexCombined(combinedObjectTypes)
             } catch (exception: Exception) {
                 LOG.log(
-                    ERROR,
+                    Level.SEVERE,
                     "[$combinedObjectTypes] Reindexing failed, continuing with remaining object types",
                     exception
                 )
@@ -183,7 +183,7 @@ class IndexingService @Inject constructor(
             // catches more than IndexingException on purpose
             // an unguarded exception anywhere in reindex() must not abort the reindexing process
             LOG.log(
-                ERROR,
+                Level.SEVERE,
                 "[$objectType] Reindexing failed, continuing with remaining object types",
                 exception
             )

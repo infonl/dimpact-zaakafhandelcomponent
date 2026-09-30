@@ -13,7 +13,7 @@ When retrieving a zaak whose `zaakgeometrie` is of a type other than `Point`, th
 recognize this specific condition and respond with a dedicated error code identifying it as an
 unsupported zaakgeometrie, instead of a generic server error. The system SHALL log this condition at
 `WARNING` level with a message that identifies the affected zaak and states that its zaakgeometrie
-type is not supported, instead of logging the raw JSON deserialization failure at `ERROR` level.
+type is not supported, instead of logging the raw JSON deserialization failure at `SEVERE` level.
 
 #### Scenario: Zaak with a Polygon zaakgeometrie is requested
 - **WHEN** a user requests the details of a zaak whose `zaakgeometrie` in the ZGW zaakregister is a
