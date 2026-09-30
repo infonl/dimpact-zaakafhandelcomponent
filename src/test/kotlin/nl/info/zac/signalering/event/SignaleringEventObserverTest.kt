@@ -23,6 +23,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createOrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
+import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
@@ -214,6 +215,60 @@ class SignaleringEventObserverTest : BehaviorSpec({
             }
         }
 
+        given("a behandelaar rol for a medewerker who caused the event themselves") {
+            val user = createUser(id = "fakeBehandelaarId")
+            val rolMedewerker = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype),
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.id)
+            )
+            val signaleringEventByBehandelaar = SignaleringEvent(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                SignaleringEventId(rolURI, null),
+                user
+            )
+            every { zrcClientService.readRol(rolURI) } returns rolMedewerker
+            every { zrcClientService.readZaak(zaak.url) } returns zaak
+            every {
+                signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
+            } returns createSignalering(zaak = null)
+            every { identityService.readUser(user.id) } returns user
+            every { signaleringService.isNecessary(any(), user.id) } returns false
+
+            `when`("the event is handled") {
+                signaleringEventObserver.onFire(signaleringEventByBehandelaar)
+
+                then("no signalering is stored or sent, because it is not necessary") {
+                    verify(exactly = 0) {
+                        signaleringService.readInstellingen(any())
+                        signaleringService.storeSignalering(any())
+                        signaleringService.sendSignalering(any())
+                    }
+                }
+            }
+        }
+
+        given("a behandelaar rol for a natuurlijk persoon") {
+            val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(
+                zaakURI = zaak.url,
+                rolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
+            )
+            every { zrcClientService.readRol(rolURI) } returns rolNatuurlijkPersoon
+            every { zrcClientService.readZaak(zaak.url) } returns zaak
+
+            `when`("the event is handled") {
+                signaleringEventObserver.onFire(signaleringEvent)
+
+                then("no signalering is created, because only a medewerker or a group can be signalled") {
+                    verify(exactly = 0) {
+                        signaleringService.signaleringInstance(any())
+                        signaleringService.storeSignalering(any())
+                        signaleringService.sendSignalering(any())
+                    }
+                }
+            }
+        }
+
         given("reading the rol fails with an error") {
             every { zrcClientService.readRol(rolURI) } throws NotImplementedError("fakeError")
 
@@ -224,6 +279,28 @@ class SignaleringEventObserverTest : BehaviorSpec({
 
                 then("the error is passed on to the caller, so that the failure of the async event is logged") {
                     notImplementedError.message shouldBe "fakeError"
+                }
+            }
+        }
+    }
+
+    context("Receiving a zaak verlopend event") {
+        given("an event for a zaak") {
+            val signaleringEvent = SignaleringEvent(
+                SignaleringType.Type.ZAAK_VERLOPEND,
+                SignaleringEventId(createZaak().url, null),
+                null
+            )
+
+            `when`("the event is handled") {
+                signaleringEventObserver.onFire(signaleringEvent)
+
+                then("it is ignored, because verlopen signaleringen are created by a scheduled job instead") {
+                    verify(exactly = 0) {
+                        signaleringService.signaleringInstance(any())
+                        signaleringService.storeSignalering(any())
+                        signaleringService.sendSignalering(any())
+                    }
                 }
             }
         }
@@ -347,6 +424,42 @@ class SignaleringEventObserverTest : BehaviorSpec({
                         target shouldBe assignee.id
                         subject shouldBe task.id
                     }
+                }
+            }
+        }
+
+        given("an event without an actor, for a task without an owner") {
+            val assignee = createUser(id = "fakeAssigneeId")
+            val task = createTestTask(id = "fakeTaskId", owner = null, assignee = assignee.id)
+            val signaleringEvent = SignaleringEvent(
+                SignaleringType.Type.TAAK_OP_NAAM,
+                SignaleringEventId(task.id, null),
+                null
+            )
+            val sentSignalering = slot<Signalering>()
+            every { flowableTaskService.readOpenTask(task.id) } returns task
+            every { identityService.readUser(assignee.id) } returns assignee
+            every {
+                signaleringService.signaleringInstance(SignaleringType.Type.TAAK_OP_NAAM)
+            } returns createSignalering(
+                type = createSignaleringType(
+                    type = SignaleringType.Type.TAAK_OP_NAAM,
+                    subjecttype = SignaleringSubject.TAAK
+                ),
+                zaak = null
+            )
+            every { signaleringService.isNecessary(any(), null) } returns true
+            every { signaleringService.readInstellingen(any()) } returns createSignaleringInstellingen(
+                isDashboard = false,
+                isMail = true
+            )
+            every { signaleringService.sendSignalering(capture(sentSignalering)) } returns Unit
+
+            `when`("the event is handled") {
+                signaleringEventObserver.onFire(signaleringEvent)
+
+                then("the assignee is mailed") {
+                    sentSignalering.captured.target shouldBe assignee.id
                 }
             }
         }
