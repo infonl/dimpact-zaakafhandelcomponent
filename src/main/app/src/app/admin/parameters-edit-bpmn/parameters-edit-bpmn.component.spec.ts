@@ -48,7 +48,7 @@ describe(ParametersEditBpmnComponent.name, () => {
     zaaktypeOmschrijving: "omschrijving",
     bpmnProcessDefinitionKey: "bpmnProcessDefinitionKey",
     productaanvraagtype: null,
-    groepNaam: "test-group-bpmn",
+    groepNaam: "test-group-id",
     zaaktype: {
       uuid: "test-uuid",
       identificatie: "test-definitie",

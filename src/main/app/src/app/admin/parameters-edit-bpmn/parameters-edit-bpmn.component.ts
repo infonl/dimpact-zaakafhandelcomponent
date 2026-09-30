@@ -314,7 +314,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         ({ id }) => id === defaultGroepId,
       );
       this.algemeenFormGroup.controls.defaultGroep.setValue(
-        defaultGroup ?? this.groepen?.at(0) ?? null,
+        defaultGroup ?? null,
       );
     }
 
