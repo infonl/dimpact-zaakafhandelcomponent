@@ -30,6 +30,7 @@ describe(WebsocketService.name, () => {
   let socketConfigs: WebSocketSubjectConfig<unknown>[];
   let isServerReachable: boolean;
   let fetchQuery: jest.Mock;
+  let invalidateQueries: jest.Mock;
 
   const closeWithCode = (socketIndex: number, code: number) => {
     socketConfigs[socketIndex].closeObserver?.next(
@@ -52,6 +53,7 @@ describe(WebsocketService.name, () => {
     socketConfigs = [];
     isServerReachable = true;
     fetchQuery = jest.fn().mockResolvedValue({});
+    invalidateQueries = jest.fn().mockResolvedValue(undefined);
     const webSocketFactory = jest.fn(
       (config: WebSocketSubjectConfig<unknown>) => {
         const socket = new Subject<unknown>();
@@ -77,7 +79,7 @@ describe(WebsocketService.name, () => {
         { provide: UtilService, useValue: { openSnackbar: jest.fn() } },
         {
           provide: QueryClient,
-          useValue: { getQueryData: jest.fn(), fetchQuery },
+          useValue: { getQueryData: jest.fn(), fetchQuery, invalidateQueries },
         },
         {
           provide: IdentityService,
@@ -136,6 +138,22 @@ describe(WebsocketService.name, () => {
     expect(sockets[1].next).toHaveBeenCalledWith(
       new SubscriptionMessage(SubscriptionType.CREATE, listener.event),
     );
+  });
+
+  it("does not refetch any data when the first connection opens", async () => {
+    await flushMicrotasks();
+
+    expect(invalidateQueries).not.toHaveBeenCalled();
+  });
+
+  it("refetches all data once a connection has opened again, to catch up on events missed while disconnected", async () => {
+    await flushMicrotasks();
+
+    sockets[0].complete();
+    jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
+    await flushMicrotasks();
+
+    expect(invalidateQueries).toHaveBeenCalledTimes(1);
   });
 
   it("does not replay a subscription that was removed before the reconnect", async () => {

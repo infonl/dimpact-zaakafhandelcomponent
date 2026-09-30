@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { DOCUMENT } from "@angular/common";
-import { DestroyRef, Injectable, inject } from "@angular/core";
+import { DOCUMENT, DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
@@ -107,6 +106,8 @@ export class WebsocketService {
         openObserver: {
           next: () => {
             console.log("Websocket opened: " + url);
+            if (this.reconnectAttempt > 0)
+              void this.queryClient.invalidateQueries();
             this.reconnectAttempt = 0;
             this.resubscribeAll();
           },

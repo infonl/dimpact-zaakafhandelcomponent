@@ -5,16 +5,16 @@
 
 import type { Query, QueryStatus } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
-import { shouldPersistQueries } from "./should-persist-queries";
+import { shouldDehydrateQuery } from "./should-dehydrate-query";
 
 const createQuery = (url: string, status: QueryStatus) =>
   fromPartial<Query>({ queryKey: [url], state: { status } });
 
-describe(shouldPersistQueries.name, () => {
+describe(shouldDehydrateQuery.name, () => {
   it.each(["/rest/identity/loggedInUser", "/rest/configuratie/file-types"])(
     "persists a successful %s query",
     (url) => {
-      expect(shouldPersistQueries(createQuery(url, "success"))).toBe(true);
+      expect(shouldDehydrateQuery(createQuery(url, "success"))).toBe(true);
     },
   );
 
@@ -22,7 +22,7 @@ describe(shouldPersistQueries.name, () => {
     "does not persist a query with status %s",
     (status) => {
       expect(
-        shouldPersistQueries(
+        shouldDehydrateQuery(
           createQuery("/rest/identity/loggedInUser", status),
         ),
       ).toBe(false);
@@ -31,7 +31,7 @@ describe(shouldPersistQueries.name, () => {
 
   it("does not persist a successful query for an endpoint that is not listed", () => {
     expect(
-      shouldPersistQueries(createQuery("/rest/zaken/zaak/{uuid}", "success")),
+      shouldDehydrateQuery(createQuery("/rest/zaken/zaak/{uuid}", "success")),
     ).toBe(false);
   });
 });

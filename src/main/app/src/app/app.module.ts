@@ -31,7 +31,7 @@ import { provideStartupPrefetch } from "./core/startup-prefetch";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { RouteReuseStrategyService } from "./informatie-objecten/route-reuse-strategy.service";
 import { QUERY_CLIENT } from "./shared/http/query-client";
-import { shouldPersistQueries } from "./shared/http/should-persist-queries";
+import { shouldDehydrateQuery } from "./shared/http/should-dehydrate-query";
 import { SharedModule } from "./shared/shared.module";
 import { ZoekComponent } from "./zoeken/zoek/zoek.component";
 
@@ -81,7 +81,7 @@ export class AppModule {
         storage: window.sessionStorage,
         key: "zac:tanstack:query",
       }),
-      dehydrateOptions: { shouldDehydrateQuery: shouldPersistQueries },
+      dehydrateOptions: { shouldDehydrateQuery },
     });
   }
 }

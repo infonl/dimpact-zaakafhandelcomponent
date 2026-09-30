@@ -11,7 +11,7 @@ const SESSION_STORAGE_PERSISTED_ENDPOINTS: (keyof Paths)[] = [
   "/rest/configuratie/file-types",
 ];
 
-export const shouldPersistQueries = ({ queryKey, state }: Query) => {
+export const shouldDehydrateQuery = ({ queryKey, state }: Query) => {
   const [url] = queryKey;
   if (!url || state.status !== "success") return false;
 
