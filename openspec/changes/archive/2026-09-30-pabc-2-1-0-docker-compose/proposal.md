@@ -5,7 +5,7 @@ The local Docker Compose stack, which the integration tests also use, runs PABC 
 ## What Changes
 
 - Upgrade the `pabc-migrations` and `pabc-api` images in `docker-compose.yaml` from `2.0.0-prerelease` to `2.1.0-prerelease`, pinned by digest.
-- Configure the new optional `KeycloakAdmin__ExcludedRoles__N` setting on the Docker Compose `pabc-api` service only, with the values `offline_access`, `uma_authorization` and `default-roles-zaakafhandelcomponent`, so these technical Keycloak roles are not imported as functional roles. The values follow the `default-roles-<REALM_NAME>` pattern from PABC's release notes. The setting does not apply to any other environment.
+- Configure the new optional `KeycloakAdmin__ExcludedRoles__N` setting on the Docker Compose `pabc-api` service only, with the values `offline_access`, `uma_authorization` and `default-roles-zac`, so these technical Keycloak roles are not imported as functional roles. The local realm's default role is `default-roles-zac`, even though the realm is named `zaakafhandelcomponent`, so the `default-roles-<REALM_NAME>` pattern from PABC's release notes does not apply. The setting does not apply to any other environment.
 - Update the PABC versions in `DEPENDENCIES.md`.
 - Upgrade the arm64 override (`docker-compose.arm64-override.yaml`) from `ghcr.io/infonl/pabc-*:2.0.0-prerelease-arm64` to `2.1.0-prerelease-arm64`, pinned by digest, so arm64 machines run the same PABC version.
 - The new startup pre-fill of applications and application roles (`PREFILL_PATH`) is not used. The local stack already loads the full dataset through `JSON_DATASET_PATH`, which includes the applications and application roles.

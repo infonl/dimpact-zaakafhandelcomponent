@@ -23,9 +23,9 @@ The `docker-compose.yaml` `pabc-migrations` and `pabc-api` services SHALL use th
 - **THEN** they start `pabc-api` `2.1.0-prerelease`, and all tests that call PABC pass
 
 ### Requirement: Technical Keycloak realm roles are not imported as functional roles
-The `pabc-api` service in `docker-compose.yaml` SHALL configure the Keycloak realm roles `offline_access`, `uma_authorization` and `default-roles-zaakafhandelcomponent` as excluded roles. When a functioneel beheerder imports functional roles from Keycloak in the PABC UI, PABC SHALL skip these roles.
+The `pabc-api` service in `docker-compose.yaml` SHALL configure the Keycloak realm roles `offline_access`, `uma_authorization` and `default-roles-zac` as excluded roles. When a functioneel beheerder imports functional roles from Keycloak in the PABC UI, PABC SHALL skip these roles.
 
 #### Scenario: Importing functional roles from Keycloak
 - **WHEN** a functioneel beheerder imports the Keycloak realm roles as functional roles in the local PABC
 - **THEN** the realm's other roles are imported
-- **AND** `offline_access`, `uma_authorization` and `default-roles-zaakafhandelcomponent` are not
+- **AND** `offline_access`, `uma_authorization` and `default-roles-zac` are not

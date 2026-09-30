@@ -25,7 +25,7 @@ Changes in PABC `2.1.0-prerelease` compared with `2.0.0-prerelease` (release not
 
 Keep `platform: linux/amd64`. Upstream still publishes only amd64 plus an attestation manifest.
 
-**Configure `KeycloakAdmin__ExcludedRoles__0..2` on `pabc-api`** with `offline_access`, `uma_authorization` and `default-roles-zaakafhandelcomponent`. Without this setting, the functional role import in the local PABC offers the Keycloak technical roles as functional roles. The release notes recommend excluding them, using `default-roles-<REALM_NAME>` for the default role. For the `zaakafhandelcomponent` realm, that name is `default-roles-zaakafhandelcomponent`.
+**Configure `KeycloakAdmin__ExcludedRoles__0..2` on `pabc-api`** with `offline_access`, `uma_authorization` and `default-roles-zac`. Without this setting, the functional role import in the local PABC offers the Keycloak technical roles as functional roles. The release notes recommend excluding them, using `default-roles-<REALM_NAME>` for the default role. That pattern does not hold for our local realm: its default role is `default-roles-zac` (`zaakafhandelcomponent-realm.json`). Keycloak names the default role once, when a realm is created, and keeps the name when the realm is renamed. This export has carried `default-roles-zac` since it was first added.
 - Alternative: leave the setting out. It is optional, but then the local functional role import offers technical roles that are never meant to become functional roles. Rejected.
 
 **Upgrade the arm64 override to `ghcr.io/infonl/pabc-*:2.1.0-prerelease-arm64`**, pinned by digest. Both are single-platform `linux/arm64` manifests:
