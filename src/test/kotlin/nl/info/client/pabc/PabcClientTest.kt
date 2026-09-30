@@ -6,8 +6,11 @@ package nl.info.client.pabc
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.mockk.checkUnnecessaryStub
 
 class PabcClientTest : BehaviorSpec({
+    afterEach { checkUnnecessaryStub() }
+
     context("The read role names") {
         given("the application roles that the OPA policies grant lezen for") {
             `when`("the read role names are inspected") {
