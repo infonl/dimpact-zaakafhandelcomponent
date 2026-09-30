@@ -87,7 +87,7 @@ describe("QUERY_CLIENT", () => {
     expect(foutAfhandelen).not.toHaveBeenCalled();
   });
 
-  it("reports a missing path parameter, which never reaches the server", async () => {
+  it("reports nothing for a missing path parameter, since that is a programming error the user cannot act on", async () => {
     const queryClient = TestBed.inject(QUERY_CLIENT);
     const httpParamsError = new HttpParamsError("fakeMissingParameter");
 
@@ -99,7 +99,8 @@ describe("QUERY_CLIENT", () => {
       }),
     ).rejects.toBe(httpParamsError);
 
-    expect(foutAfhandelen).toHaveBeenCalledWith(httpParamsError);
+    expect(foutAfhandelen).not.toHaveBeenCalled();
+    expect(log).not.toHaveBeenCalled();
   });
 
   it("reports nothing for a read that says it handles its own failure", async () => {
@@ -138,5 +139,30 @@ describe("QUERY_CLIENT", () => {
     expect(foutAfhandelen).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledWith("msg.error.verversen-mislukt");
     expect(logRefreshFailure).toHaveBeenCalledWith(error);
+  });
+
+  it("reports a refetch that fails because the session expired through the error handling, so the user is sent to log in", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+    const queryKey = ["fakeEndpoint"];
+    const loggedOut = new HttpErrorResponse({
+      status: 0,
+      url: "https://example.com/rest/fakeEndpoint",
+    });
+
+    await queryClient.fetchQuery({
+      queryKey,
+      queryFn: () => Promise.resolve("fakeResponse"),
+    });
+    await expect(
+      queryClient.fetchQuery({
+        queryKey,
+        queryFn: () => Promise.reject(loggedOut),
+        retry: false,
+        staleTime: 0,
+      }),
+    ).rejects.toBe(loggedOut);
+
+    expect(foutAfhandelen).toHaveBeenCalledWith(loggedOut);
+    expect(log).not.toHaveBeenCalled();
   });
 });

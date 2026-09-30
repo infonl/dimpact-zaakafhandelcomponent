@@ -203,6 +203,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
 
         this.paginator().length = data?.totaal ?? 0;
         if (!data) {
+          this.lastLoadedPageIndex = 0;
           this.zoekResultaat = {
             resultaten: [],
             totaal: 0,

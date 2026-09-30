@@ -49,6 +49,7 @@ export abstract class ZoekenDataSource<
   private _detailExpandColumns: Array<ZoekenColumn> = [];
   private _drop = false;
   private subscriptions$: Subscription[] = [];
+  private lastLoadedPageIndex = 0;
 
   protected constructor(
     public readonly werklijst: GeneratedType<"Werklijst">,
@@ -114,9 +115,18 @@ export abstract class ZoekenDataSource<
         .list$(this.updateZoekParameters())
         .pipe(
           finalize(() => this.utilService.setLoading(false)),
-          catchError(() => EMPTY),
+          catchError(() => {
+            this.paginator.pageIndex = this.lastLoadedPageIndex;
+            this.zoekParameters.page = this.lastLoadedPageIndex;
+            SessionStorageUtil.setItem(
+              `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
+              this.zoekParameters,
+            );
+            return EMPTY;
+          }),
         )
         .subscribe((zaakResponse) => {
+          this.lastLoadedPageIndex = this.paginator.pageIndex;
           this.setData(zaakResponse as ZoekResultaat<OBJECT>);
         });
     }, delay);

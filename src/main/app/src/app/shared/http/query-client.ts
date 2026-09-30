@@ -6,8 +6,10 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { inject, InjectionToken } from "@angular/core";
 import { QueryCache, QueryClient } from "@tanstack/angular-query-experimental";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { HttpParamsError } from "./http-client";
+import {
+  FoutAfhandelingService,
+  isLoggedOut,
+} from "../../fout-afhandeling/fout-afhandeling.service";
 
 export type ZacMeta = {
   /**
@@ -48,15 +50,10 @@ export const QUERY_CLIENT = new InjectionToken<QueryClient>("QUERY_CLIENT", {
     return new QueryClient({
       queryCache: new QueryCache({
         onError: (error, query) => {
-          if (
-            !(error instanceof HttpErrorResponse) &&
-            !(error instanceof HttpParamsError)
-          ) {
-            return;
-          }
+          if (!(error instanceof HttpErrorResponse)) return;
           if (!reportsErrors(query.meta)) return;
 
-          if (query.state.data !== undefined) {
+          if (query.state.data !== undefined && !isLoggedOut(error)) {
             foutAfhandelingService.log("msg.error.verversen-mislukt")(error);
             return;
           }
