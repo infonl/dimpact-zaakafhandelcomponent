@@ -18,7 +18,7 @@ owasp-dependencycheck = "13.0.0"
 glassfish-expressly = "6.0.0"
 keycloak = "26.0.12"
 
-apache-commons-lang = "3.20.0"
+apache-commons-lang = "3.21.0"
 apache-commons-text = "1.15.0"
 apache-commons-collections = "4.6.0"
 commons-io = "2.22.0"
