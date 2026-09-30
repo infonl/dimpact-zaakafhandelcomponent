@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {LowerCasePipe, NgIf} from "@angular/common";
+import { LowerCasePipe, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -55,29 +55,29 @@ import { TakenService } from "../../taken/taken.service";
   styleUrls: ["./zaak-taken.component.less"],
   animations: [detailExpand],
   standalone: true,
-    imports: [
-        NgIf,
-        MatCard,
-        MatCardHeader,
-        MatCardTitle,
-        MatCardContent,
-        MatChip,
-        MatIcon,
-        MatIconAnchor,
-        MatIconButton,
-        MatSlideToggle,
-        MatSort,
-        MatSortHeader,
-        MatSortModule,
-        MatTableModule,
-        ReactiveFormsModule,
-        RouterLink,
-        TranslateModule,
-        DatumPipe,
-        EmptyPipe,
-        StaticTextComponent,
-        LowerCasePipe,
-    ],
+  imports: [
+    NgIf,
+    MatCard,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardContent,
+    MatChip,
+    MatIcon,
+    MatIconAnchor,
+    MatIconButton,
+    MatSlideToggle,
+    MatSort,
+    MatSortHeader,
+    MatSortModule,
+    MatTableModule,
+    ReactiveFormsModule,
+    RouterLink,
+    TranslateModule,
+    DatumPipe,
+    EmptyPipe,
+    StaticTextComponent,
+    LowerCasePipe,
+  ],
 })
 export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly takenService = inject(TakenService);
