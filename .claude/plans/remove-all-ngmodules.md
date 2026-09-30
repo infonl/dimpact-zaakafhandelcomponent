@@ -85,7 +85,7 @@ configured to compress, so a local run on :8080 ships the full raw size.
 | [x] | `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 | −18 kB with the container |
 | [x] | `informatie-objecten/informatie-objecten.module.ts` | container + provider | 2 | (same) |
 | [ ] | `shared/material/material.module.ts` | barrel | 5 | **+27 kB** transfer, −60 kB raw (measured) |
-| [ ] | `shared/material-form-builder/material-form-builder.module.ts` | barrel | 6 | **−9.8 kB** (measured), on top of the −77 kB banked in step 3 |
+| [x] | `shared/material-form-builder/material-form-builder.module.ts` | barrel | 6 | **−9.8 kB** (measured), on top of the −77 kB banked in step 3 |
 | [ ] | `shared/shared.module.ts` | barrel | 7 | not yet measured |
 | [x] | `shared/pipes/pipes.module.ts` | barrel | 4 | −0.6 kB (measured) |
 | [ ] | `taken/taken-routing.module.ts` | routing (lazy) | 8 | none |
