@@ -14,7 +14,6 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
@@ -42,7 +41,7 @@ describe(ZacDate.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ZacDate, TranslateModule.forRoot(), NoopAnimationsModule],
-      providers: [TranslateService, provideMomentDateAdapter()],
+      providers: [TranslateService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(

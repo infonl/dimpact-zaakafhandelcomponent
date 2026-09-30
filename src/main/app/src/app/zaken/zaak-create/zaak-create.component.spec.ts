@@ -6,7 +6,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -66,7 +65,6 @@ describe(ZaakCreateComponent.name, () => {
         ReferentieTabelService,
         UtilService,
         IdentityService,
-        provideHttpClient(),
         provideQueryClient(new QueryClient()),
       ],
       imports: [

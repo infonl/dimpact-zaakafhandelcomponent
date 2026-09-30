@@ -5,8 +5,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
@@ -15,7 +13,6 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
@@ -23,7 +20,6 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatRadioGroupHarness } from "@angular/material/radio/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
@@ -135,13 +131,7 @@ describe(AbstractTaskForm.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [
-        FormBuilder,
-        provideRouter([]),
-        provideMomentDateAdapter(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+      providers: [],
     }).compileComponents();
 
     formulier = TestBed.runInInjectionContext(() => new TestForm());

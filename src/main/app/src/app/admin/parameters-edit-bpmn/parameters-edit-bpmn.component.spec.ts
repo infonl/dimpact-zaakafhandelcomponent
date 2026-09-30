@@ -6,8 +6,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog } from "@angular/material/dialog";
@@ -95,8 +93,6 @@ describe(ParametersEditBpmnComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
           useValue: {

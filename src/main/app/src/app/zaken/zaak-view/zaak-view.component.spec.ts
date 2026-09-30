@@ -4,11 +4,7 @@
  *
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -132,8 +128,6 @@ describe(ZaakViewComponent.name, () => {
         EmptyPipe,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         PlanItemsService,
         {

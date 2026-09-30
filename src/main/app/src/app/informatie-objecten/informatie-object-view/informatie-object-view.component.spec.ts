@@ -11,8 +11,10 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatDrawer } from "@angular/material/sidenav";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -21,21 +23,26 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { IdentityService } from "../../identity/identity.service";
 import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
-import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
-import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat } from "../model/file-format";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
+
+@Component({
+  selector: "zac-informatie-object-edit",
+  template: "",
+  standalone: true,
+})
+class InformatieObjectEditStubComponent {
+  readonly infoObject =
+    input<GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">>();
+  readonly sideNav = input.required<MatDrawer>();
+  readonly zaakUuid = input.required<string>();
+}
 
 describe(InformatieObjectViewComponent.name, () => {
   let component: InformatieObjectViewComponent;
@@ -85,13 +92,7 @@ describe(InformatieObjectViewComponent.name, () => {
     await TestBed.configureTestingModule({
       imports: [
         InformatieObjectViewComponent,
-        InformatieObjectEditComponent,
-        SideNavComponent,
-        StaticTextComponent,
-        InformatieObjectIndicatiesComponent,
         TranslateModule.forRoot(),
-        VertrouwelijkaanduidingToTranslationKeyPipe,
-        DocumentIconComponent,
         NoopAnimationsModule,
       ],
       providers: [
@@ -103,9 +104,13 @@ describe(InformatieObjectViewComponent.name, () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(InformatieObjectViewComponent, {
+        remove: { imports: [InformatieObjectEditComponent] },
+        add: { imports: [InformatieObjectEditStubComponent] },
+      })
+      .compileComponents();
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
     jest
@@ -137,24 +142,6 @@ describe(InformatieObjectViewComponent.name, () => {
 
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "readZaakByID").mockReturnValue(of(zaak));
-
-    const identityService = TestBed.inject(IdentityService);
-    testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
-      id: "1234",
-      naam: "Test User",
-    });
-
-    const configuratieService = TestBed.inject(ConfiguratieService);
-    jest.spyOn(configuratieService, "listTalen").mockReturnValue(of([]));
-    testQueryClient.setQueryData(
-      configuratieService.readAllowedFileTypesQuery().queryKey,
-      [],
-    );
-
-    const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
-    jest
-      .spyOn(foutAfhandelingService, "httpErrorAfhandelen")
-      .mockReturnValue(of());
 
     fixture = TestBed.createComponent(InformatieObjectViewComponent);
     component = fixture.componentInstance;

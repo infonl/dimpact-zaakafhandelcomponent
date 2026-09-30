@@ -63,6 +63,8 @@
         #cardElement
         appearance="raised"
         class="dashboard-card"
+        role="region"
+        [attr.aria-label]="'dashboard.card.' + card?.id | translate"
         *ngFor="let card of column"
         cdkDrag
       >

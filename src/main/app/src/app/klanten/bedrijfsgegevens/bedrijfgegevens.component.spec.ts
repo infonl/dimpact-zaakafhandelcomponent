@@ -5,11 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -17,7 +13,6 @@ import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideTanStackQuery,
@@ -89,13 +84,7 @@ describe(BedrijfsgegevensComponent.name, () => {
         TranslateModule.forRoot(),
         NoopAnimationsModule,
       ],
-      providers: [
-        KlantenService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-        provideTanStackQuery(queryClient),
-      ],
+      providers: [KlantenService, provideTanStackQuery(queryClient)],
     });
 
     klantenService = TestBed.inject(KlantenService);

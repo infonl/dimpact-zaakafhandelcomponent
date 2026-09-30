@@ -3,57 +3,47 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import { provideNativeDateAdapter } from "@angular/material/core";
+import { Component, input } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, provideRouter } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import { of } from "rxjs";
-import { createQueryOptions, fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
-import { ZoekenService } from "../../zoeken/zoeken.service";
+import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.component";
 import { BAGViewComponent } from "./bag-view.component";
+
+@Component({
+  selector: "zac-bag-zaken-tabel",
+  template: `<p>zaken of: {{ BagObjectIdentificatie() }}</p>`,
+  standalone: true,
+})
+class BagZakenTabelStubComponent {
+  readonly BagObjectIdentificatie = input<string>();
+}
 
 describe(BAGViewComponent.name, () => {
   const setTitle = jest.fn();
-  const list = jest.fn();
 
   function zaakSearchedFor() {
-    const zoekParameters = list.mock.lastCall![0] as Parameters<
-      ZoekenService["list"]
-    >[0];
-    return zoekParameters.zoeken?.ZAAK_BAGOBJECTEN;
+    return screen
+      .getByText(/^zaken of:/)
+      .textContent?.replace("zaken of: ", "");
   }
 
   async function setup(bagObject: GeneratedType<"RESTBAGObject">) {
-    list.mockReturnValue(
-      createQueryOptions(
-        fromPartial<ZoekResultaat<ZaakZoekObject>>({
-          totaal: 0,
-          resultaten: [],
-          filters: {},
-        }),
-      ),
-    );
+    TestBed.overrideComponent(BAGViewComponent, {
+      remove: { imports: [BagZakenTabelComponent] },
+      add: { imports: [BagZakenTabelStubComponent] },
+    });
 
     await render(BAGViewComponent, {
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideQueryClient(testQueryClient),
-        provideHttpClient(),
-        provideRouter([]),
-        provideNativeDateAdapter(),
         { provide: ActivatedRoute, useValue: { data: of({ bagObject }) } },
-        {
-          provide: ZoekenService,
-          useValue: fromPartial<ZoekenService>({ list }),
-        },
         {
           provide: UtilService,
           useValue: fromPartial<UtilService>({
@@ -63,8 +53,6 @@ describe(BAGViewComponent.name, () => {
         },
       ],
     });
-
-    await sleep();
   }
 
   it("titles the page after the bag object it shows", async () => {

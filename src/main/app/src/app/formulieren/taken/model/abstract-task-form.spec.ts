@@ -5,8 +5,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
@@ -15,7 +13,6 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
@@ -136,12 +133,7 @@ describe(AbstractTaskForm.name, () => {
         TranslateModule.forRoot(),
         RouterModule.forRoot([]),
       ],
-      providers: [
-        FormBuilder,
-        provideMomentDateAdapter(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+      providers: [],
     }).compileComponents();
 
     formulier = TestBed.runInInjectionContext(() => new TestForm());
