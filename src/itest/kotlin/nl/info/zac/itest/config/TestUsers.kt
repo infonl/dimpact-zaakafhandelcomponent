@@ -138,9 +138,6 @@ val ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1 = TestUser(
     email = "zaakspecifiek-autorisatie-behandelaar-test-1@example.com"
 )
 
-/**
- * A behandelaar in domein test 1 who holds only the brp_zoeken application role in domein test 2.
- */
 val BEHANDELAAR_1_EN_BRP_ZOEKER_2 = TestUser(
     username = "behandelaar1brpzoeker2",
     password = "behandelaar1brpzoeker2",
