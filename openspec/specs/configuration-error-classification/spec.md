@@ -17,29 +17,28 @@ resolved by returning an unmodified `WebApplicationException` status, at `Level.
 - **THEN** the system SHALL log the exception at `Level.FINE` or higher before returning the response
 
 ### Requirement: Misconfiguration-only exceptions are classified as server errors
-An exception SHALL be classified as a server error (HTTP 500) and logged at
-`org.jboss.logmanager.Level.ERROR` when no caller-supplied input can cause it to be thrown — only an
-admin or deployment configuration gap can.
+An exception SHALL be classified as a server error (HTTP 500) and logged at `Level.SEVERE` when no
+caller-supplied input can cause it to be thrown — only an admin or deployment configuration gap can.
 
 #### Scenario: SmartDocuments feature disabled
 - **WHEN** a document-creation request is handled while the SmartDocuments integration is disabled
   by deployment configuration
-- **THEN** the system SHALL return HTTP 500 and log the failure at `org.jboss.logmanager.Level.ERROR`
+- **THEN** the system SHALL return HTTP 500 and log the failure at `Level.SEVERE`
 
 #### Scenario: SmartDocuments template or group not found upstream
 - **WHEN** a zaaktype's configured SmartDocuments template or group id no longer exists in
   SmartDocuments
-- **THEN** the system SHALL return HTTP 500 and log the failure at `org.jboss.logmanager.Level.ERROR`
+- **THEN** the system SHALL return HTTP 500 and log the failure at `Level.SEVERE`
 
 #### Scenario: BRP protocollering configuration invalid
 - **WHEN** the configured BRP doelbinding/protocollering values do not form a valid configuration
-- **THEN** the system SHALL return HTTP 500 and log the failure at `org.jboss.logmanager.Level.ERROR`
+- **THEN** the system SHALL return HTTP 500 and log the failure at `Level.SEVERE`
 
 ### Requirement: Reference table lookup status depends on whether the code is caller-supplied
 A reference table lookup by a code or id taken from caller-supplied request input (a path or query
 parameter) SHALL return HTTP 404 on a miss. A reference table lookup by a hardcoded system reference
 table code, where no request parameter names the table, SHALL return HTTP 500 and be logged at
-`org.jboss.logmanager.Level.ERROR` on a miss.
+`Level.SEVERE` on a miss.
 
 #### Scenario: Caller-supplied reference table id not found
 - **WHEN** a request looks up a reference table by an id or code taken from a path parameter
@@ -50,7 +49,7 @@ table code, where no request parameter names the table, SHALL return HTTP 500 an
 - **WHEN** the system looks up a reference table using a hardcoded system reference table code, with
   no corresponding request parameter
 - **AND** no reference table with that code exists
-- **THEN** the system SHALL return HTTP 500 and log the failure at `org.jboss.logmanager.Level.ERROR`
+- **THEN** the system SHALL return HTTP 500 and log the failure at `Level.SEVERE`
 
 ### Requirement: Stale Keycloak group or user references are logged without changing the response
 When a groepId or userId persisted on a zaak or task no longer resolves in Keycloak, the system SHALL

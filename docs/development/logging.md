@@ -9,9 +9,8 @@ required follow-up changes to bring logging in line with GDPR/AVG requirements �
 
 ZAC's logging draws a hard line between server errors and client errors:
 
-* Server errors (5xx) are always logged at `ERROR` (`nl.info.zac.log.ERROR`, same severity as JUL's
-`SEVERE` — see [Level usage](#level-usage) below), with enough context (typically the zaak UUID/identificatie,
-not personal data) to troubleshoot without needing to reproduce the failure.
+* Server errors (5xx) are always logged at `SEVERE`, with enough context (typically the zaak UUID/identificatie, not personal data) to 
+troubleshoot without needing to reproduce the failure. 
 
 * Client errors (4xx) are either not logged at all, or logged at log level `FINE` — i.e. not logged at all in production by design, 
 since these represent expected/handled conditions (bad input, conflicts, forbidden access) rather than defects. 
@@ -42,8 +41,6 @@ fun log(logger: Logger, level: Level, message: String, throwable: Throwable) = l
 fun log(logger: Logger, level: Level, message: String) = logger.log(level, message)
 ```
 
-The same file also defines the `ERROR` level - see [Level usage](#level-usage) below.
-
 `PolicyService.kt` is the one exception to the `LOG` naming convention: it accepts a `Logger` as a
 function parameter named `logger`.
 
@@ -73,17 +70,10 @@ Observed usage of `java.util.logging.Level` in this codebase:
 
 | Level | Typical use |
 |---|---|
-| `ERROR` | Unrecoverable failures: async-processing guards, mail send failures, unexpected reindexing failures, external API calls that failed outright (e.g. KVK search) |
+| `SEVERE` | Unrecoverable failures: async-processing guards, mail send failures, unexpected reindexing failures, external API calls that failed outright (e.g. KVK search) |
 | `WARNING` | Recoverable/expected-but-unwanted conditions: unknown enum values from external systems, failed lookups, validation problems, external client failures that have a fallback |
 | `INFO` | Notable lifecycle events: zaak status transitions, case/process start, database migration status, reindexing start/finish, notifications sent/received |
 | `FINE` | Verbose diagnostic detail: websocket connection lifecycle, per-item progress, cache eviction, individual delegate execution steps |
-
-`ERROR` is [`nl.info.zac.log.ERROR`](../../src/main/kotlin/nl/info/zac/log/LogUtils.kt), not
-`java.util.logging.Level.SEVERE`: both share the same numeric severity (1000), but JUL's own `SEVERE` name
-isn't recognized by log-aggregation tools such as Grafana/Loki, which expect the `ERROR`/`WARN`/`INFO`/`DEBUG`
-naming used by Log4j/SLF4J/syslog. `nl.info.zac.log.ERROR` is a plain `java.util.logging.Level` subclass
-named `"ERROR"` with the same numeric value as `SEVERE`, defined precisely for this reason, so call sites log
-server errors via `LOG.log(ERROR, ...)` instead of `LOG.severe(...)` or `Level.SEVERE`.
 
 ### Where logging is concentrated
 

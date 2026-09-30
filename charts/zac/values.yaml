@@ -422,7 +422,7 @@ opa:
     annotations: {}
   image:
     repository: docker.io/openpolicyagent/opa
-    tag: "1.21.0-static@sha256:9eb36ac3ceb3b855e776e60926a8a5142f96109a219a5fcd490fa1744c755bec"
+    tag: "1.21.1-static@sha256:4675ab04ad1627f74741d2d9c5142698c79e18b7b09f192587d31d6dba20838e"
     pullPolicy: IfNotPresent
    # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
   autoscaling:
@@ -511,7 +511,7 @@ solr-operator:
        # -- solr busybox image reposity
       repository: library/busybox
        # -- solr busybox image tag
-      tag: 1.38.0-glibc@sha256:3ba030337caebbfc2232b22b1e435eb213b28e5844a34942c74555bf904a265a
+      tag: 1.38.0-glibc@sha256:99813cb178ace2cd9c6c53ee3bddef5d2f5708aa438335111d7a9e3c5e1aaebe
      # -- enable configuration of a solrcloud
     enabled: true
      # solr image parameters
@@ -521,7 +521,7 @@ solr-operator:
        # -- solr image repository
       repository: library/solr
        # -- solr image tag
-      tag: 9.10.1-slim@sha256:0a931f52cfd9a9afd6d958d246e64115648099c788e41a01adad9f09e6f73594
+      tag: 9.10.1-slim@sha256:9987e11a90a0b115cc3f52b74d3d87788e3c1fa479deeaece80d33515480204a
      # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
      # jobs settings
@@ -753,7 +753,7 @@ nginx:
   image:
     repository: docker.io/nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.6@sha256:31e97ebaac04c19c8e7da6012c5776e86a4414695565200719d6113cb68d0b78
+    tag: 1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5
   service:
     type: ClusterIP
     port: 80

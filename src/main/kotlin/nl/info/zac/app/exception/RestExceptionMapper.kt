@@ -48,7 +48,6 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
-import nl.info.zac.log.ERROR
 import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
@@ -147,7 +146,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
                 exception = exception,
-                logLevel = ERROR
+                logLevel = Level.SEVERE
             )
             is ZaakWithABesluitCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
@@ -317,7 +316,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         errorCode = errorCode ?: ERROR_CODE_SERVER_GENERIC,
         exception = exception,
         exceptionMessage = exceptionMessage,
-        logLevel = ERROR
+        logLevel = Level.SEVERE
     )
 
     private fun getJSONMessage(errorMessage: String, exceptionMessage: String? = null) =
@@ -326,7 +325,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exceptionMessage?.let { errorJsonHashMap["exception"] = it }
             ObjectMapper().writeValueAsString(errorJsonHashMap)
         } catch (jsonProcessingException: JsonProcessingException) {
-            log(LOG, ERROR, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
+            log(LOG, Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
             JSON_CONVERSION_ERROR_MESSAGE
         }
 }

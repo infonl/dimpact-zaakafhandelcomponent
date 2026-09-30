@@ -6,7 +6,6 @@ package net.atos.zac.signalering.event;
 
 import static nl.info.client.zgw.shared.ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-import static nl.info.zac.log.LogUtilsKt.ERROR;
 
 import java.net.URI;
 import java.util.Optional;
@@ -101,7 +100,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 signaleringService.sendSignalering(signalering);
             }
         } catch (final Throwable ex) {
-            LOG.log(ERROR, "asynchronous guard", ex);
+            LOG.log(Level.SEVERE, "asynchronous guard", ex);
         }
     }
 

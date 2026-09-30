@@ -4,9 +4,15 @@
  *
  */
 
-import { HttpTestingController } from "@angular/common/http/testing";
+import { provideHttpClient } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import "@angular/compiler";
 import { TestBed } from "@angular/core/testing";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
+import { provideRouter } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
 
@@ -150,9 +156,20 @@ export const testQueryClient = new QueryClient({
 export const mockMutationFn = (timeout = MUTATION_TIMEOUT) =>
   new Promise((resolve) => sleep(timeout).then(resolve));
 
+// A spec that needs other values for these, provides its own; those override these.
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      provideRouter([]),
+      provideMomentDateAdapter(),
+    ],
+  });
+});
+
 afterEach(() => {
-  // Only the specs that provide `provideHttpClientTesting()` have one to verify.
-  // Asking for it instantiates the test module, so hand it back reset — this hook
+  // Asking for the controller instantiates the test module, so hand it back reset — this hook
   // runs after the one the Angular preset uses to do that itself.
   try {
     TestBed.inject(HttpTestingController, null, { optional: true })?.verify();
