@@ -288,27 +288,28 @@ class ZaakKoppelenRestService @Inject constructor(
         sourceZaaktype: ZaakType,
         targetZaak: ZaakZoekObject,
         relationType: RelatieType
-    ): ZaakNotLinkableReason? {
-        val targetZaakLinkData = targetZaak.toZaakLinkData()
-        return when (relationType) {
-            // "The case you are searching for here will become the main case"
-            RelatieType.HOOFDZAAK -> sourceZaak.statusNotLinkableReason(targetZaakLinkData)
+    ): ZaakNotLinkableReason? = when (relationType) {
+        // "The case you are searching for here will become the main case"
+        RelatieType.HOOFDZAAK -> targetZaak.toZaakLinkData().let { targetZaakLinkData ->
+            sourceZaak.statusNotLinkableReason(targetZaakLinkData)
                 ?: targetZaakLinkData.hoofdzaakDeelzaakNotLinkableReason(
                     deelzaak = sourceZaak,
                     allowedDeelzaaktypes = ztcClientService
                         .readZaaktype(UUID.fromString(targetZaak.zaaktypeUuid))
                         .getDeelzaaktypenSet()
                 )
-            RelatieType.DEELZAAK -> sourceZaak.statusNotLinkableReason(targetZaakLinkData)
+        }
+        RelatieType.DEELZAAK -> targetZaak.toZaakLinkData().let { targetZaakLinkData ->
+            sourceZaak.statusNotLinkableReason(targetZaakLinkData)
                 ?: sourceZaak.hoofdzaakDeelzaakNotLinkableReason(
                     deelzaak = targetZaakLinkData,
                     allowedDeelzaaktypes = sourceZaaktype.getDeelzaaktypenSet()
                 )
-            RelatieType.GERELATEERD -> sourceZaak.gerelateerdNotLinkableReason()
-            else -> throw IllegalArgumentException(
-                "RelatieType $relationType cannot be used for linking zaken"
-            )
         }
+        RelatieType.GERELATEERD -> sourceZaak.gerelateerdNotLinkableReason()
+        else -> throw IllegalArgumentException(
+            "RelatieType $relationType cannot be used for linking zaken"
+        )
     }
 
     private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(notLinkableReason: ZaakNotLinkableReason?) =

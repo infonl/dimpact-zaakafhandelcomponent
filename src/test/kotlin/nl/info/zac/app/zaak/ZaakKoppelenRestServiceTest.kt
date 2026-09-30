@@ -108,8 +108,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
 
         `when`("findLinkableZaken with GERELATEERD is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
-
             val result = zaakKoppelenRestService.findLinkableZaken(
                 sourceZaak.uuid,
                 createRestFindLinkableZakenRequest(
@@ -140,8 +138,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     searchService.search(any())
                     zaakService.readZaakTypeByZaak(sourceZaak)
                     policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
-                    policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
+            }
+
+            and("the rechten of the found zaak are not read") {
+                verify(exactly = 0) { policyService.readZaakRechtenForZaakZoekObject(any()) }
             }
         }
 
@@ -244,10 +245,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { searchService.search(any()) } returns zoekResultaat
         every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
         every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         `when`("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 sourceZaak.uuid,
                 createRestFindLinkableZakenRequest(
@@ -895,7 +897,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { searchService.search(capture(zoekParametersSlot)) } returns zoekResultaat
             every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
             every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("all search fields are set") {
