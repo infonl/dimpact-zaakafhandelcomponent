@@ -8,9 +8,9 @@ of zaaktypen the user is allowed to read, so users never see cases they cannot o
 ### Requirement: Search results only contain zaaktypen the user holds a read role for
 
 A werklijst, zoekresultaat or Koppelen search query SHALL only return zaken, taken and documenten of a
-zaaktype for which the requesting user holds at least one read role (`raadpleger`, `behandelaar`,
-`coordinator`, `recordmanager` or `beheerder`), either assigned for that zaaktype or held as an overall role
-(a role not scoped to a specific zaaktype). Holding only other application roles for a zaaktype, such as
+zaaktype for which the requesting user holds at least one zaaktype-specific role and the roles for that
+zaaktype, together with any overall roles, contain at least one read role (`raadpleger`, `behandelaar`,
+`coordinator`, `recordmanager` or `beheerder`). Holding only other application roles for a zaaktype, such as
 `brp_zoeken` or `zaakspecifiek_geautoriseerd`, SHALL NOT make that zaaktype's zaken, taken or documenten
 appear in the results. The existing exclusion of zaakspecifiek geautoriseerde zaken SHALL continue to apply
 on top of this rule.
