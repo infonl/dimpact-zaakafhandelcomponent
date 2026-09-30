@@ -24,6 +24,7 @@ import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isLinkedTo
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -57,6 +58,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.ZaakLinkData
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.alreadyGerelateerdReason
 import nl.info.zac.zaak.model.canBeHoofdzaakFor
 import nl.info.zac.zaak.model.canBeRelatedTo
 import nl.info.zac.zaak.model.canBeUnlinkedFromDeelzaak
@@ -115,6 +117,7 @@ class ZaakKoppelenRestService @Inject constructor(
         val (zaakToLinkTo, zaakToLinkToZaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(
             restZaakLinkData.teKoppelenZaakUuid
         )
+        assertPolicy(!zaak.isLinkedTo(zaakToLinkTo.uuid))
         when (restZaakLinkData.relatieType) {
             RelatieType.GERELATEERD -> assertPolicy(
                 zaak.toZaakLinkData(user, zaakType).canBeRelatedTo(
@@ -272,7 +275,8 @@ class ZaakKoppelenRestService @Inject constructor(
             searchResults.items.map {
                 val zaakZoekObject = it as ZaakZoekObject
                 zaakZoekObject.toRestZaakKoppelenZoekObject(
-                    notLinkableReason(koppelData, zaaktype, zaakZoekObject, relationType),
+                    zaak.alreadyGerelateerdReason(UUID.fromString(zaakZoekObject.getObjectId()))
+                        ?: notLinkableReason(koppelData, zaaktype, zaakZoekObject, relationType),
                 )
             },
             searchResults.count

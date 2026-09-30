@@ -53,6 +53,7 @@ const makeFakeSearchResult = (
 const NOT_LINKABLE_REASONS: NonNullable<
   GeneratedType<"RestZaakKoppelenZoekObject">["nietKoppelbaarReden"]
 >[] = [
+  "ALREADY_GERELATEERD",
   "AFGEHANDELD",
   "OPEN",
   "IS_DEELZAAK",

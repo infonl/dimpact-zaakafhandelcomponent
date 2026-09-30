@@ -17,9 +17,12 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { AbstractControl, FormBuilder } from "@angular/forms";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen, within } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
@@ -40,9 +43,27 @@ describe("HumanTaskDoComponent", () => {
   let foutAfhandelingService: FoutAfhandelingService;
   let httpTestingController: HttpTestingController;
 
+  const zaak = fromPartial<GeneratedType<"RestZaak">>({
+    zaaktype: {
+      uuid: "fakeZaaktypeUuid",
+      omschrijving: "fakeZaaktypeOmschrijving",
+    },
+  });
+  const sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
+  const humanTaskPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+    type: "HUMAN_TASK",
+    formulierDefinitie: "ADVIES",
+  });
+
   // `form` is built up dynamically, so its controls are not statically typed
   function getFormControl(key: string) {
     return component["form"].get(key) as AbstractControl<unknown> | null;
+  }
+
+  async function initialise() {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
   }
 
   beforeEach(async () => {
@@ -80,20 +101,91 @@ describe("HumanTaskDoComponent", () => {
       );
 
     fixture = TestBed.createComponent(HumanTaskDoComponent);
-
     component = fixture.componentInstance;
-    component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-      type: "HUMAN_TASK",
-      formulierDefinitie: "ADVIES",
-    });
-    component.zaak = fromPartial<GeneratedType<"RestZaak">>({
-      zaaktype: {
-        uuid: "test-zaaktype-uuid",
-        omschrijving: "test-zaaktype-omschrijving",
-      },
-    });
+    fixture.componentRef.setInput("zaak", zaak);
+    fixture.componentRef.setInput("sideNav", sideNav);
 
     loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  describe("without a plan item", () => {
+    it("should show a spinner and build no form", async () => {
+      const getAngularRequestFormBuilderSpy = jest.spyOn(
+        taakFormulierenService,
+        "getAngularRequestFormBuilder",
+      );
+
+      await initialise();
+
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+      expect(getAngularRequestFormBuilderSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("the panel", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
+        .mockResolvedValue([]);
+      const translateService = TestBed.inject(TranslateService);
+      translateService.setTranslation("nl", {
+        "title.taak.starten": "Taak {{ taak }} starten",
+      });
+      translateService.use("nl");
+    });
+
+    it("should show the name of the plan item in its title", async () => {
+      fixture.componentRef.setInput(
+        "planItem",
+        fromPartial<GeneratedType<"RESTPlanItem">>({
+          type: "HUMAN_TASK",
+          naam: "fakePlanItemNaam",
+        }),
+      );
+
+      await initialise();
+
+      expect(
+        screen.getByRole("heading", { name: /Taak fakePlanItemNaam starten/ }),
+      ).toBeInTheDocument();
+    });
+
+    it("should keep the form it built for a new plan item, and only show the new name in its title", async () => {
+      fixture.componentRef.setInput(
+        "planItem",
+        fromPartial<GeneratedType<"RESTPlanItem">>({
+          type: "HUMAN_TASK",
+          naam: "fakePlanItemNaam1",
+        }),
+      );
+      await initialise();
+
+      fixture.componentRef.setInput(
+        "planItem",
+        fromPartial<GeneratedType<"RESTPlanItem">>({
+          type: "HUMAN_TASK",
+          naam: "fakePlanItemNaam2",
+        }),
+      );
+      await initialise();
+
+      expect(
+        screen.getByRole("heading", { name: /Taak fakePlanItemNaam2 starten/ }),
+      ).toBeInTheDocument();
+      expect(
+        taakFormulierenService.getAngularRequestFormBuilder,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it("should close the side nav when the user closes the panel", async () => {
+      const user = userEvent.setup();
+      fixture.componentRef.setInput("planItem", humanTaskPlanItem);
+      await initialise();
+
+      await user.click(within(screen.getByRole("heading")).getByRole("button"));
+
+      expect(sideNav.close).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("basic angular form", () => {
@@ -101,34 +193,46 @@ describe("HumanTaskDoComponent", () => {
       jest
         .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
         .mockResolvedValue([]);
+      fixture.componentRef.setInput("planItem", humanTaskPlanItem);
     });
 
     it("should create the default form controls", async () => {
-      await component.ngOnInit();
+      await initialise();
 
       const fields = await loader.getAllHarnesses(MatFormFieldHarness);
       expect(fields).toHaveLength(2); // `Group` and `User` inputs
     });
 
+    it("should build the form for the zaak and the plan item", async () => {
+      await initialise();
+
+      expect(
+        taakFormulierenService.getAngularRequestFormBuilder,
+      ).toHaveBeenCalledWith(zaak, humanTaskPlanItem);
+    });
+
     it("should call listBehandelaarGroupsForZaaktype with the zaaktype omschrijving", async () => {
-      await component.ngOnInit();
+      await initialise();
 
       expect(
         identityService.listBehandelaarGroupsForZaaktype,
-      ).toHaveBeenCalledWith("test-zaaktype-omschrijving");
+      ).toHaveBeenCalledWith("fakeZaaktypeOmschrijving");
     });
 
     it("should pre-select the group and load users when planItem.groepId matches a group", async () => {
       const listUsersInGroupSpy = jest
         .spyOn(identityService, "listUsersInGroup")
         .mockReturnValue(of([]));
-      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-        type: "HUMAN_TASK",
-        formulierDefinitie: "ADVIES",
-        groepId: "1",
-      });
+      fixture.componentRef.setInput(
+        "planItem",
+        fromPartial<GeneratedType<"RESTPlanItem">>({
+          type: "HUMAN_TASK",
+          formulierDefinitie: "ADVIES",
+          groepId: "1",
+        }),
+      );
 
-      await component.ngOnInit();
+      await initialise();
 
       expect(listUsersInGroupSpy).toHaveBeenCalledWith("1");
     });
@@ -141,14 +245,16 @@ describe("HumanTaskDoComponent", () => {
       jest
         .spyOn(identityService, "listUsersInGroup")
         .mockReturnValue(of(mockUsers));
-      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-        type: "HUMAN_TASK",
-        formulierDefinitie: "ADVIES",
-        groepId: "1",
-      });
+      fixture.componentRef.setInput(
+        "planItem",
+        fromPartial<GeneratedType<"RESTPlanItem">>({
+          type: "HUMAN_TASK",
+          formulierDefinitie: "ADVIES",
+          groepId: "1",
+        }),
+      );
 
-      await component.ngOnInit();
-      fixture.detectChanges();
+      await initialise();
 
       expect(component["form"].get("group")?.value).toEqual(
         fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
@@ -165,12 +271,8 @@ describe("HumanTaskDoComponent", () => {
         identityService,
         "listUsersInGroup",
       );
-      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-        type: "HUMAN_TASK",
-        formulierDefinitie: "ADVIES",
-      });
 
-      await component.ngOnInit();
+      await initialise();
 
       expect(listUsersInGroupSpy).not.toHaveBeenCalled();
     });
@@ -183,7 +285,7 @@ describe("HumanTaskDoComponent", () => {
         .spyOn(identityService, "listUsersInGroup")
         .mockReturnValue(of(mockUsers));
 
-      await component.ngOnInit();
+      await initialise();
 
       getFormControl("group")?.setValue(
         fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
@@ -201,7 +303,7 @@ describe("HumanTaskDoComponent", () => {
     it("should reset and disable the user control when the group is cleared", async () => {
       jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
 
-      await component.ngOnInit();
+      await initialise();
 
       getFormControl("group")?.setValue(
         fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
@@ -218,10 +320,11 @@ describe("HumanTaskDoComponent", () => {
       jest
         .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
         .mockResolvedValue([{ type: "input", key: "question" }]);
+      fixture.componentRef.setInput("planItem", humanTaskPlanItem);
     });
 
     it("should create the form controls", async () => {
-      await component.ngOnInit();
+      await initialise();
 
       const input = await loader.getHarness(MatInputHarness);
       expect(input).not.toBeNull(); // `question` input
@@ -234,11 +337,14 @@ describe("HumanTaskDoComponent", () => {
         taakFormulierenService,
         "getAngularRequestFormBuilder",
       );
-      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-        type: "PROCESS_TASK",
-      });
+      fixture.componentRef.setInput(
+        "planItem",
+        fromPartial<GeneratedType<"RESTPlanItem">>({
+          type: "PROCESS_TASK",
+        }),
+      );
 
-      await component.ngOnInit();
+      await initialise();
 
       expect(getAngularRequestFormBuilderSpy).not.toHaveBeenCalled();
       expect(component["formFields"]).toHaveLength(0);
@@ -254,13 +360,16 @@ describe("HumanTaskDoComponent", () => {
         .spyOn(foutAfhandelingService, "foutAfhandelen")
         .mockReturnValue(undefined as never);
       jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
-      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-        id: "test-plan-item-id",
-        type: "HUMAN_TASK",
-        formulierDefinitie: "ADVIES",
-      });
+      fixture.componentRef.setInput(
+        "planItem",
+        fromPartial<GeneratedType<"RESTPlanItem">>({
+          id: "test-plan-item-id",
+          type: "HUMAN_TASK",
+          formulierDefinitie: "ADVIES",
+        }),
+      );
 
-      await component.ngOnInit();
+      await initialise();
       getFormControl("question")?.setValue("test answer");
       getFormControl("group")?.setValue(
         fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
@@ -338,8 +447,9 @@ describe("HumanTaskDoComponent", () => {
       const openFoutDialogSpy = jest
         .spyOn(foutAfhandelingService, "openFoutDialog")
         .mockReturnValue(of(undefined) as never);
+      fixture.componentRef.setInput("planItem", humanTaskPlanItem);
 
-      await component.ngOnInit();
+      await initialise();
 
       expect(openFoutDialogSpy).toHaveBeenCalledWith(
         "Onbekende formulierDefinitie for Angular form: FAKE",

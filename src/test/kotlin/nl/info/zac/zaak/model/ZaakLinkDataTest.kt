@@ -7,6 +7,8 @@ package nl.info.zac.zaak.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import java.util.UUID
 
 class ZaakLinkDataTest : BehaviorSpec({
@@ -451,6 +453,62 @@ class ZaakLinkDataTest : BehaviorSpec({
                 val reason = zaak.gerelateerdNotLinkableReason(foundZaak)
 
                 then("lezen rights on the found zaak are enough to relate it") {
+                    reason shouldBe null
+                }
+            }
+        }
+    }
+
+    context("alreadyGerelateerdReason") {
+        val foundZaak = createZaak()
+
+        given("a zaak that has the found zaak as gerelateerde zaak") {
+            val zaak = createZaak().apply {
+                addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = foundZaak.url })
+            }
+
+            `when`("the reason is determined") {
+                val reason = zaak.alreadyGerelateerdReason(foundZaak.uuid)
+
+                then("the existing relation blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.ALREADY_GERELATEERD
+                }
+            }
+        }
+
+        given("a zaak that has the found zaak as hoofdzaak") {
+            val zaak = createZaak(hoofdzaakUri = foundZaak.url)
+
+            `when`("the reason is determined") {
+                val reason = zaak.alreadyGerelateerdReason(foundZaak.uuid)
+
+                then("the existing relation blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.ALREADY_GERELATEERD
+                }
+            }
+        }
+
+        given("a zaak that has the found zaak as deelzaak") {
+            val zaak = createZaak(deelzaken = listOf(foundZaak.url))
+
+            `when`("the reason is determined") {
+                val reason = zaak.alreadyGerelateerdReason(foundZaak.uuid)
+
+                then("the existing relation blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.ALREADY_GERELATEERD
+                }
+            }
+        }
+
+        given("a zaak that is only related to other zaken") {
+            val zaak = createZaak(hoofdzaakUri = createZaak().url, deelzaken = listOf(createZaak().url)).apply {
+                addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = createZaak().url })
+            }
+
+            `when`("the reason is determined") {
+                val reason = zaak.alreadyGerelateerdReason(foundZaak.uuid)
+
+                then("nothing blocks the link") {
                     reason shouldBe null
                 }
             }

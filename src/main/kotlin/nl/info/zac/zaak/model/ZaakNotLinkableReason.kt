@@ -6,6 +6,7 @@
 package nl.info.zac.zaak.model
 
 enum class ZaakNotLinkableReason {
+    ALREADY_GERELATEERD,
     AFGEHANDELD,
     OPEN,
     IS_DEELZAAK,

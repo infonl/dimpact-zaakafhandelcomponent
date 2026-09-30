@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -87,10 +87,10 @@
                     &nbsp;
                   </th>
                   <td mat-cell *matCellDef="let row">
-                    <mat-icon *ngIf="!row.valide && expandedRow !== row"
+                    <mat-icon *ngIf="needsAttention(row) && expandedRow !== row"
                       >keyboard_arrow_down</mat-icon
                     >
-                    <mat-icon *ngIf="!row.valide && expandedRow === row"
+                    <mat-icon *ngIf="needsAttention(row) && expandedRow === row"
                       >keyboard_arrow_up</mat-icon
                     >
                   </td>
@@ -141,10 +141,34 @@
                     mat-sort-header="valide"
                   ></th>
                   <td mat-cell *matCellDef="let row">
-                    <mat-icon outlined *ngIf="row.valide" color="primary"
+                    <mat-icon
+                      outlined
+                      *ngIf="row.valide && !row.heeftWaarschuwingen"
+                      color="primary"
+                      aria-hidden="false"
+                      [attr.aria-label]="
+                        'healthCheck.zaaktype.status.valide' | translate
+                      "
                       >check_circle</mat-icon
                     >
-                    <mat-icon outlined *ngIf="!row.valide" color="warn"
+                    <mat-icon
+                      outlined
+                      *ngIf="row.valide && row.heeftWaarschuwingen"
+                      class="warning"
+                      aria-hidden="false"
+                      [attr.aria-label]="
+                        'healthCheck.zaaktype.status.waarschuwing' | translate
+                      "
+                      >warning</mat-icon
+                    >
+                    <mat-icon
+                      outlined
+                      *ngIf="!row.valide"
+                      color="warn"
+                      aria-hidden="false"
+                      [attr.aria-label]="
+                        'healthCheck.zaaktype.status.niet-valide' | translate
+                      "
                       >error</mat-icon
                     >
                   </td>
@@ -212,6 +236,22 @@
                       </div>
                       <div *ngIf="!row.brpInstellingenCorrect">
                         {{ "brp-protocollering" | translate }}
+                      </div>
+                      <div
+                        *ngIf="
+                          row.isZaakspecifiekeAutorisatieEigenschapAanwezig &&
+                          !row.isZaakspecifiekeAutorisatieRoltypeAanwezig
+                        "
+                      >
+                        {{ "rol" | translate }}
+                      </div>
+                      <div
+                        *ngIf="
+                          row.isZaakspecifiekeAutorisatieRoltypeAanwezig &&
+                          !row.isZaakspecifiekeAutorisatieEigenschapAanwezig
+                        "
+                      >
+                        {{ "eigenschap" | translate }}
                       </div>
                     </div>
                   </td>
@@ -340,6 +380,28 @@
                             | translate
                         }}
                       </div>
+                      <div
+                        *ngIf="
+                          row.isZaakspecifiekeAutorisatieEigenschapAanwezig &&
+                          !row.isZaakspecifiekeAutorisatieRoltypeAanwezig
+                        "
+                      >
+                        {{
+                          "healthCheck.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt"
+                            | translate
+                        }}
+                      </div>
+                      <div
+                        *ngIf="
+                          row.isZaakspecifiekeAutorisatieRoltypeAanwezig &&
+                          !row.isZaakspecifiekeAutorisatieEigenschapAanwezig
+                        "
+                      >
+                        {{
+                          "healthCheck.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt"
+                            | translate
+                        }}
+                      </div>
                     </div>
                   </td>
                 </ng-container>
@@ -370,11 +432,11 @@
                 ></tr>
                 <tr
                   (click)="
-                    !row.valide
+                    needsAttention(row)
                       ? (expandedRow = expandedRow === row ? null : row)
                       : null
                   "
-                  [class]="row.valide ? 'ok' : 'error'"
+                  [class]="rowStateClass(row)"
                   class="main-row"
                   mat-row
                   *matRowDef="let row; columns: columnsToDisplay"

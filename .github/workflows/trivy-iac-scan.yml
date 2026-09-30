@@ -10,12 +10,16 @@ on:
     paths:
       - "Dockerfile"
       - "charts/**"
+      - ".trivyignore.yaml"
+      - ".github/trivy-data/**"
       - ".github/workflows/trivy-iac-scan.yml"
   push:
     branches: [main]
     paths:
       - "Dockerfile"
       - "charts/**"
+      - ".trivyignore.yaml"
+      - ".github/trivy-data/**"
       - ".github/workflows/trivy-iac-scan.yml"
   schedule:
     - cron: "0 3 * * 1"
@@ -59,6 +63,7 @@ jobs:
           # `required` values can be rendered and scanned. Trivy attributes the findings
           # to the original charts/zac/templates/*.yaml files (not a rendered temp file)
           TRIVY_HELM_VALUES: 'charts/zac/ci/zac-chart-test-values.yaml'
+          TRIVY_CONFIG_DATA: '.github/trivy-data'
         with:
           # scan the repository for misconfigurations in the Dockerfile,
           # Helm charts and Kubernetes manifests
@@ -72,6 +77,7 @@ jobs:
           # report misconfigurations of all severities to the GitHub Security tab
           limit-severities-for-sarif: false
           severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+          trivyignores: '.trivyignore.yaml'
 
       - name: Upload Trivy IaC Scan Results to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2

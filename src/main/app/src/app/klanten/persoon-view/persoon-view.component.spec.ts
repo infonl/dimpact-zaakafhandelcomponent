@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { UtilService } from "../../core/service/util.service";
@@ -19,20 +20,20 @@ import { PersoonViewComponent } from "./persoon-view.component";
 
 @Component({
   selector: "zac-klant-zaken-tabel",
-  template: "",
+  template: "<p>zaken of klant {{ klant().naam }} ({{ klant().bsn }})</p>",
   standalone: true,
 })
 class KlantZakenTabelStubComponent {
-  @Input() klant: GeneratedType<"RestPersoon"> | null = null;
+  readonly klant = input.required<GeneratedType<"RestPersoon">>();
 }
 
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
-  template: "",
+  template: "<p>contactmomenten of bsn {{ bsn() }}</p>",
   standalone: true,
 })
 class KlantContactmomentenTabelStubComponent {
-  @Input() bsn!: GeneratedType<"RestPersoon">["bsn"];
+  readonly bsn = input.required<GeneratedType<"RestPersoon">["bsn"]>();
 }
 
 const makePersoon = (
@@ -110,11 +111,6 @@ describe(PersoonViewComponent.name, () => {
     });
 
     describe("persoonsgegevens card", () => {
-      const getStaticTexts = (
-        fixtureRef: ComponentFixture<PersoonViewComponent>,
-      ) =>
-        fixtureRef.debugElement.queryAll((de) => de.name === "zac-static-text");
-
       it("renders all required persoon fields", () => {
         const labels = [
           "naam",
@@ -124,58 +120,43 @@ describe(PersoonViewComponent.name, () => {
           "telefoonnummer",
           "emailadres",
         ];
-        const renderedLabels = getStaticTexts(fixture).map(
-          (de) => de.componentInstance.label,
-        );
         for (const label of labels) {
-          expect(renderedLabels).toContain(label);
+          expect(screen.getByText(label)).toBeInTheDocument();
         }
       });
 
       it("passes naam value to static-text", () => {
-        const element = getStaticTexts(fixture).find(
-          (de) => de.componentInstance.label === "naam",
-        );
-        expect(element?.componentInstance.value).toBe("Jan de Vries");
+        expect(screen.getByText("naam")).toBeInTheDocument();
+        expect(screen.getByText("Jan de Vries")).toBeInTheDocument();
       });
 
       it("passes bsn value to burgerservicenummer static-text", () => {
-        const element = getStaticTexts(fixture).find(
-          (de) => de.componentInstance.label === "burgerservicenummer",
-        );
-        expect(element?.componentInstance.value).toBe("123456789");
+        expect(screen.getByText("burgerservicenummer")).toBeInTheDocument();
+        expect(screen.getByText("123456789")).toBeInTheDocument();
       });
     });
 
     describe("zaken tabel", () => {
       it("renders zac-klant-zaken-tabel", () => {
-        expect(
-          fixture.nativeElement.querySelector("zac-klant-zaken-tabel"),
-        ).toBeTruthy();
+        expect(screen.getByText(/^zaken of klant/)).toBeInTheDocument();
       });
 
       it("passes persoon as klant input to zaken tabel", () => {
-        const element = fixture.debugElement.query(
-          (de) => de.name === "zac-klant-zaken-tabel",
-        );
-        expect(element?.componentInstance.klant).toEqual(makePersoon());
+        expect(
+          screen.getByText("zaken of klant Jan de Vries (123456789)"),
+        ).toBeInTheDocument();
       });
     });
 
     describe("contactmomenten tabel", () => {
       it("renders zac-klant-contactmomenten-tabel when persoon has bsn", () => {
-        expect(
-          fixture.nativeElement.querySelector(
-            "zac-klant-contactmomenten-tabel",
-          ),
-        ).toBeTruthy();
+        expect(screen.getByText(/^contactmomenten of bsn/)).toBeInTheDocument();
       });
 
       it("passes bsn to contactmomenten tabel", () => {
-        const element = fixture.debugElement.query(
-          (de) => de.name === "zac-klant-contactmomenten-tabel",
-        );
-        expect(element?.componentInstance.bsn).toBe("123456789");
+        expect(
+          screen.getByText("contactmomenten of bsn 123456789"),
+        ).toBeInTheDocument();
       });
     });
   });
@@ -190,15 +171,13 @@ describe(PersoonViewComponent.name, () => {
     });
 
     it("does not render zac-klant-zaken-tabel", () => {
-      expect(
-        fixture.nativeElement.querySelector("zac-klant-zaken-tabel"),
-      ).toBeNull();
+      expect(screen.queryByText(/^zaken of klant/)).not.toBeInTheDocument();
     });
 
     it("does not render zac-klant-contactmomenten-tabel", () => {
       expect(
-        fixture.nativeElement.querySelector("zac-klant-contactmomenten-tabel"),
-      ).toBeNull();
+        screen.queryByText(/^contactmomenten of bsn/),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -213,14 +192,12 @@ describe(PersoonViewComponent.name, () => {
 
     it("does not render zac-klant-contactmomenten-tabel", () => {
       expect(
-        fixture.nativeElement.querySelector("zac-klant-contactmomenten-tabel"),
-      ).toBeNull();
+        screen.queryByText(/^contactmomenten of bsn/),
+      ).not.toBeInTheDocument();
     });
 
     it("still renders zac-klant-zaken-tabel", () => {
-      expect(
-        fixture.nativeElement.querySelector("zac-klant-zaken-tabel"),
-      ).toBeTruthy();
+      expect(screen.getByText(/^zaken of klant/)).toBeInTheDocument();
     });
   });
 });

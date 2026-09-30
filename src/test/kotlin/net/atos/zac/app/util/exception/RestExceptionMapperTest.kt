@@ -30,6 +30,7 @@ import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
 import nl.info.zac.admin.exception.SystemReferenceTableNotConfiguredException
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
@@ -44,6 +45,9 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
+import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
+import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import org.apache.http.HttpHost
@@ -55,6 +59,7 @@ import java.lang.reflect.InvocationTargetException
 import java.net.UnknownHostException
 import java.util.logging.Level
 
+@Suppress("LargeClass")
 class RestExceptionMapperTest : BehaviorSpec({
     val restExceptionMapper = RestExceptionMapper()
 
@@ -669,6 +674,66 @@ class RestExceptionMapperTest : BehaviorSpec({
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.system.reference.table.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("A MailTemplateNotConfiguredException exception") {
+            val exception = MailTemplateNotConfiguredException(Mail.ZAAK_ONTVANKELIJK)
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the mail template not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.mailtemplate.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("A CatalogusNotFoundException exception") {
+            val exception = CatalogusNotFoundException("fakeMessage")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the catalogus not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.catalogus.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        given("An OpaRuleNotConfiguredException exception") {
+            val exception = OpaRuleNotConfiguredException("zaak/zaak_rechten")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the OPA rule not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.opa.rule.not.configured",
                         expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                     )
                 }

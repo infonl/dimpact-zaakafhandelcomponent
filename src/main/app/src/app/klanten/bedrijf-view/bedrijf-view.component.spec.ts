@@ -3,17 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter, Routes } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -32,20 +31,21 @@ class TestErrorRouteComponent {}
 
 @Component({
   selector: "zac-klant-zaken-tabel",
-  template: "",
+  template: "<p>zaken of klant {{ klant().naam }}</p>",
   standalone: true,
 })
 class KlantZakenTabelStubComponent {
-  @Input() klant: GeneratedType<"RestBedrijf"> | null = null;
+  readonly klant = input.required<GeneratedType<"RestBedrijf">>();
 }
 
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
-  template: "",
+  template: "<p>contactmomenten of vestiging {{ vestigingsnummer() }}</p>",
   standalone: true,
 })
 class KlantContactmomentenTabelStubComponent {
-  @Input() vestigingsnummer: GeneratedType<"RestBedrijf">["vestigingsnummer"];
+  readonly vestigingsnummer =
+    input.required<GeneratedType<"RestBedrijf">["vestigingsnummer"]>();
 }
 
 const testRoutes: Routes = [
@@ -91,10 +91,20 @@ function makeBedrijfsprofiel(
   });
 }
 
+function expectStaticText(label: string, value: string) {
+  expect(screen.getByText(label)).toBeInTheDocument();
+  expect(screen.getByText(value)).toBeInTheDocument();
+}
+
+function profielOphalenButton() {
+  return screen.getByRole("button", { name: "bedrijf.profiel.ophalen" });
+}
+
 describe(BedrijfViewComponent.name, () => {
+  const user = userEvent.setup();
+
   let component: BedrijfViewComponent;
   let fixture: ComponentFixture<BedrijfViewComponent>;
-  let harnessLoader: HarnessLoader;
   let utilService: UtilService;
   let klantenService: KlantenService;
 
@@ -145,7 +155,6 @@ describe(BedrijfViewComponent.name, () => {
 
     fixture = TestBed.createComponent(BedrijfViewComponent);
     component = fixture.componentInstance;
-    harnessLoader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("initialisation", () => {
@@ -207,52 +216,31 @@ describe(BedrijfViewComponent.name, () => {
     });
 
     it("renders bedrijfsnaam static-text field", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "bedrijfsnaam");
-      expect(element).toBeTruthy();
+      expectStaticText("bedrijfsnaam", "Test Bedrijf BV");
     });
 
     it("renders kvknummer when kvkNummer is present", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "kvknummer");
-      expect(element).toBeTruthy();
+      expectStaticText("kvknummer", "12345678");
     });
 
     it("renders vestigingsnummer when present", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "vestigingsnummer");
-      expect(element).toBeTruthy();
+      expectStaticText("vestigingsnummer", "000011112222");
     });
 
     it("renders type field", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "type");
-      expect(element).toBeTruthy();
+      expectStaticText("type", "RECHTSPERSOON");
     });
 
     it("renders adres when no profiel is loaded", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "bezoekadres");
-      expect(element).toBeTruthy();
+      expectStaticText("bezoekadres", "Teststraat 1, 1234AB Amsterdam");
     });
 
     it("renders telefoonnummer field", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "telefoonnummer");
-      expect(element).toBeTruthy();
+      expectStaticText("telefoonnummer", "0201234567");
     });
 
     it("renders emailadres field", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "emailadres");
-      expect(element).toBeTruthy();
+      expectStaticText("emailadres", "info@testbedrijf.nl");
     });
   });
 
@@ -260,12 +248,9 @@ describe(BedrijfViewComponent.name, () => {
     it("renders warning icon when kvkNummer is missing", () => {
       routeDataSubject.next({ bedrijf: makeBedrijf({ kvkNummer: undefined }) });
       fixture.detectChanges();
-      const kvkFields = fixture.debugElement.queryAll(
-        (de) =>
-          de.name === "zac-static-text" &&
-          de.componentInstance.label === "kvknummer",
-      );
-      expect(kvkFields.length).toBe(1);
+
+      expectStaticText("kvknummer", "msg.error.kvk.unknown");
+      expect(screen.getByText("warning")).toBeInTheDocument();
     });
 
     it("does not render warning icon when kvkNummer is present", () => {
@@ -273,12 +258,9 @@ describe(BedrijfViewComponent.name, () => {
         bedrijf: makeBedrijf({ kvkNummer: "12345678" }),
       });
       fixture.detectChanges();
-      const kvkFields = fixture.debugElement.queryAll(
-        (de) =>
-          de.name === "zac-static-text" &&
-          de.componentInstance.label === "kvknummer",
-      );
-      expect(kvkFields.length).toBe(1);
+
+      expectStaticText("kvknummer", "12345678");
+      expect(screen.queryByText("warning")).not.toBeInTheDocument();
     });
   });
 
@@ -291,10 +273,7 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      const button = await harnessLoader.getHarness(
-        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
-      );
-      await expect(button.isDisabled()).resolves.toBe(false);
+      expect(profielOphalenButton()).toBeEnabled();
     });
 
     it("is enabled when type is RECHTSPERSOON with kvkNummer", async () => {
@@ -306,10 +285,7 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      const button = await harnessLoader.getHarness(
-        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
-      );
-      await expect(button.isDisabled()).resolves.toBe(false);
+      expect(profielOphalenButton()).toBeEnabled();
     });
 
     it("is disabled when vestigingsnummer is absent and no kvkNummer", async () => {
@@ -320,10 +296,7 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      const button = await harnessLoader.getHarness(
-        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
-      );
-      await expect(button.isDisabled()).resolves.toBe(true);
+      expect(profielOphalenButton()).toBeDisabled();
     });
 
     it("calls readVestigingsprofiel when vestigingsnummer is present", async () => {
@@ -337,10 +310,7 @@ describe(BedrijfViewComponent.name, () => {
       jest
         .spyOn(klantenService, "readVestigingsprofiel")
         .mockReturnValue(of(makeBedrijfsprofiel()));
-      const button = await harnessLoader.getHarness(
-        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
-      );
-      await button.click();
+      await user.click(profielOphalenButton());
       fixture.detectChanges();
       expect(klantenService.readVestigingsprofiel).toHaveBeenCalledWith(
         "000011112222",
@@ -359,10 +329,7 @@ describe(BedrijfViewComponent.name, () => {
       jest
         .spyOn(klantenService, "readBasisprofiel")
         .mockReturnValue(of(makeBedrijfsprofiel()));
-      const button = await harnessLoader.getHarness(
-        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
-      );
-      await button.click();
+      await user.click(profielOphalenButton());
       fixture.detectChanges();
       expect(klantenService.readBasisprofiel).toHaveBeenCalledWith("12345678");
     });
@@ -441,38 +408,26 @@ describe(BedrijfViewComponent.name, () => {
     });
 
     it("hides adres field when profiel is loaded", () => {
-      const adresField = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "adres");
-      expect(adresField).toBeFalsy();
+      expect(screen.getAllByText("bezoekadres")).toHaveLength(1);
+      expect(
+        screen.getAllByText("Teststraat 1, 1234AB Amsterdam"),
+      ).toHaveLength(1);
     });
 
     it("renders totaalWerkzamePersonen when profiel is loaded", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "totaalWerkzamePersonen");
-      expect(element).toBeTruthy();
+      expectStaticText("totaalWerkzamePersonen", "12");
     });
 
     it("renders hoofdactiviteit when profiel is loaded", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "hoofdactiviteit");
-      expect(element).toBeTruthy();
+      expectStaticText("hoofdactiviteit", "Software ontwikkeling");
     });
 
     it("renders activiteiten when profiel is loaded", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "activiteiten");
-      expect(element).toBeTruthy();
+      expectStaticText("activiteiten", "Software ontwikkeling, Consultancy");
     });
 
     it("renders website when profiel is loaded", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "website");
-      expect(element).toBeTruthy();
+      expectStaticText("website", "https://testbedrijf.nl");
     });
   });
 
@@ -480,10 +435,8 @@ describe(BedrijfViewComponent.name, () => {
     it("does not render rsin before profiel is loaded", () => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "rsin");
-      expect(element).toBeFalsy();
+
+      expect(screen.queryByText("rsin")).not.toBeInTheDocument();
     });
 
     it("renders rsin when profiel is loaded", () => {
@@ -494,10 +447,8 @@ describe(BedrijfViewComponent.name, () => {
         .mockReturnValue(of(makeBedrijfsprofiel({ rsin: "123456789" })));
       component["ophalenProfiel"]();
       fixture.detectChanges();
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "rsin");
-      expect(element).toBeTruthy();
+
+      expectStaticText("rsin", "123456789");
     });
   });
 
@@ -525,54 +476,46 @@ describe(BedrijfViewComponent.name, () => {
     });
 
     it("renders rechtsvorm when profiel is loaded", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "rechtsvorm");
-      expect(element).toBeTruthy();
+      expectStaticText("rechtsvorm", "BV");
     });
 
     it("renders uitgebreideRechtsvorm when profiel is loaded", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "uitgebreideRechtsvorm");
-      expect(element).toBeTruthy();
+      expectStaticText("uitgebreideRechtsvorm", "Besloten Vennootschap");
     });
 
     it("renders statutaireNaam when profiel is loaded", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "statutaireNaam");
-      expect(element).toBeTruthy();
+      expectStaticText("statutaireNaam", "Test BV Statutair");
     });
   });
 
   describe("zac-klant-zaken-tabel", () => {
-    it("renders when bedrijf is available", () => {
+    it("renders the zaken of the bedrijf when bedrijf is available", () => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
+
       expect(
-        fixture.nativeElement.querySelector("zac-klant-zaken-tabel"),
-      ).toBeTruthy();
+        screen.getByText("zaken of klant Test Bedrijf BV"),
+      ).toBeInTheDocument();
     });
 
     it("does not render when bedrijf is null", () => {
       routeDataSubject.next({ bedrijf: null });
       fixture.detectChanges();
-      expect(
-        fixture.nativeElement.querySelector("zac-klant-zaken-tabel"),
-      ).toBeFalsy();
+
+      expect(screen.queryByText(/^zaken of klant/)).not.toBeInTheDocument();
     });
   });
 
   describe("zac-klant-contactmomenten-tabel", () => {
-    it("renders when bedrijf has vestigingsnummer", () => {
+    it("renders the contactmomenten of the vestiging when bedrijf has vestigingsnummer", () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({ vestigingsnummer: "000011112222" }),
       });
       fixture.detectChanges();
+
       expect(
-        fixture.nativeElement.querySelector("zac-klant-contactmomenten-tabel"),
-      ).toBeTruthy();
+        screen.getByText("contactmomenten of vestiging 000011112222"),
+      ).toBeInTheDocument();
     });
 
     it("does not render when bedrijf has no vestigingsnummer", () => {
@@ -580,17 +523,19 @@ describe(BedrijfViewComponent.name, () => {
         bedrijf: makeBedrijf({ vestigingsnummer: undefined }),
       });
       fixture.detectChanges();
+
       expect(
-        fixture.nativeElement.querySelector("zac-klant-contactmomenten-tabel"),
-      ).toBeFalsy();
+        screen.queryByText(/^contactmomenten of vestiging/),
+      ).not.toBeInTheDocument();
     });
 
     it("does not render when bedrijf is null", () => {
       routeDataSubject.next({ bedrijf: null });
       fixture.detectChanges();
+
       expect(
-        fixture.nativeElement.querySelector("zac-klant-contactmomenten-tabel"),
-      ).toBeFalsy();
+        screen.queryByText(/^contactmomenten of vestiging/),
+      ).not.toBeInTheDocument();
     });
   });
 });

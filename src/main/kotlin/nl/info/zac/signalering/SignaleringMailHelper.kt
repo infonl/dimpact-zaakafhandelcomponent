@@ -40,7 +40,7 @@ class SignaleringMailHelper @Inject constructor(
         }
 
     fun getMailTemplate(signalering: Signalering): MailTemplate =
-        mailTemplateService.readMailtemplate(
+        mailTemplateService.readDefaultMailTemplate(
             when (signalering.type.type) {
                 SignaleringType.Type.TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM
                 SignaleringType.Type.TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN

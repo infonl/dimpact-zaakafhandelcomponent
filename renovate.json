@@ -479,6 +479,45 @@
       ]
     },
     {
+      "groupName": "OPA docker image",
+      "matchPackageNames": [
+        "openpolicyagent/opa",
+        "docker.io/openpolicyagent/opa"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "description": [
+        "The Helm chart names the image with its registry, Docker Compose and DEPENDENCIES.md without; update them in a single PR"
+      ]
+    },
+    {
+      "groupName": "Gotenberg docker image",
+      "matchPackageNames": [
+        "gotenberg/gotenberg",
+        "docker.io/gotenberg/gotenberg"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "description": [
+        "The Helm chart names the image with its registry, Docker Compose and DEPENDENCIES.md without; update them in a single PR"
+      ]
+    },
+    {
+      "groupName": "nginx-unprivileged docker image",
+      "matchPackageNames": [
+        "nginxinc/nginx-unprivileged",
+        "docker.io/nginxinc/nginx-unprivileged"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "description": [
+        "The Helm chart names the image with its registry, Docker Compose and DEPENDENCIES.md without; update them in a single PR"
+      ]
+    },
+    {
       "description": "Disable digest pinning for DEPENDENCIES.md - we only want version tags there",
       "matchFileNames": [
         "DEPENDENCIES.md"

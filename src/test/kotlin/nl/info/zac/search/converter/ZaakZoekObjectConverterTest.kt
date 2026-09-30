@@ -23,7 +23,6 @@ import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.createResultsOfZaakObjecten
@@ -39,6 +38,8 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.search.ReindexSupportService
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -49,13 +50,15 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zgwApiService = mockk<ZgwApiService>()
     val identityService = mockk<IdentityService>()
     val flowableTaskService = mockk<FlowableTaskService>()
+    val reindexSupportService = mockk<ReindexSupportService>()
 
     val zaakZoekenObjectConverter = ZaakZoekObjectConverter(
         zrcClientService,
         ztcClientService,
         zgwApiService,
         identityService,
-        flowableTaskService
+        flowableTaskService,
+        reindexSupportService
     )
 
     afterEach {
@@ -105,15 +108,18 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak, rollenZaak) } returns rolInitiator
         every { zgwApiService.findGroepForZaak(zaak, rollenZaak) } returns null
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, rollenZaak) } returns rolMedewerkerBehandelaar
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
         } returns userBehandelaar
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readResultaattype(resultaat.resultaattype) } returns resultaatType
         every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
-            createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak) } returns createZaakAutorisatieGegevens(
+            isZaakspecifiekGeautoriseerd = true,
+            geautoriseerdeMedewerkers = listOf(
+                rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie,
+                "fakeZaakspecifiekGeautoriseerdeMedewerkerId"
+            )
         )
 
         `when`("the zaak is converted to a zaak zoek object") {
@@ -152,9 +158,17 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     }
                     getZaakIndicaties() shouldNotContain ZaakIndicatie.HEROPEND
                     resultaattypeOmschrijving shouldBe resultaatType.omschrijving
-                    zaakGeautoriseerdeMedewerkers shouldBe
-                        listOf(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
                 }
+            }
+
+            then(
+                "every geautoriseerde medewerker of the zaak is indexed, so that a medewerker holding only " +
+                    "the 'Zaakspecifiek geautoriseerde medewerker' rol can find the zaak"
+            ) {
+                zaakZoekObject.zaakGeautoriseerdeMedewerkers shouldBe listOf(
+                    rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie,
+                    "fakeZaakspecifiekGeautoriseerdeMedewerkerId"
+                )
             }
         }
     }
@@ -203,7 +217,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             list = zaakObjectenList,
             count = zaakObjectenList.size
         )
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak) } returns ZaakAutorisatieGegevens(
+            isZaakspecifiekGeautoriseerd = false
+        ) {
+            error("the geautoriseerde medewerkers of a zaak that is not zaakspecifiek geautoriseerd are never resolved")
+        }
 
         `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
@@ -260,7 +278,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             list = zaakObjectenList,
             count = zaakObjectenList.size
         )
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak) } returns ZaakAutorisatieGegevens(
+            isZaakspecifiekGeautoriseerd = false
+        ) {
+            error("the geautoriseerde medewerkers of a zaak that is not zaakspecifiek geautoriseerd are never resolved")
+        }
 
         `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())

@@ -381,10 +381,19 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       behandelaarGebruikersnaam: "user2",
     });
 
+    const groepZonderBehandelaar = { groep: { id: "groupA" } };
+    const groepMetBehandelaar = {
+      groep: { id: "groupA" },
+      medewerker: { id: "user3", naam: "Derde Gebruiker" },
+    };
+
     let openSnackbar: jest.SpyInstance;
+    let showProgress: jest.SpyInstance;
     let dialogData: ZaakZoekObject[] | undefined;
 
-    async function setupWithMockedBatchProcess() {
+    async function setupWithMockedBatchProcess(
+      dialogResult: unknown = groepZonderBehandelaar,
+    ) {
       await setup();
       openSnackbar = jest
         .spyOn(TestBed.inject(UtilService), "openSnackbar")
@@ -395,7 +404,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       jest
         .spyOn(component["batchProcessService"], "update")
         .mockImplementation(() => undefined);
-      jest
+      showProgress = jest
         .spyOn(component["batchProcessService"], "showProgress")
         .mockImplementation(() => undefined);
       jest
@@ -403,18 +412,27 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         .mockImplementation((_component, config) => {
           dialogData = config?.data as ZaakZoekObject[];
           return fromPartial<MatDialogRef<unknown>>({
-            beforeClosed: () => of({ groep: { id: "groupA" } }),
+            beforeClosed: () => of(dialogResult),
           });
         });
     }
 
-    it("names only the zaakspecifiek geautoriseerde reason when that is the only one", async () => {
+    it("hands a zaakspecifiek geautoriseerde zaak over when the dialog returns a behandelaar", async () => {
+      await setupWithMockedBatchProcess(groepMetBehandelaar);
+      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
+
+      component["openVerdelenScherm"]();
+
+      expect(dialogData).toEqual([geautoriseerdeZaak, gewoneZaak]);
+      expect(openSnackbar).not.toHaveBeenCalled();
+    });
+
+    it("names only the zaakspecifiek geautoriseerde reason when the dialog returns no behandelaar", async () => {
       await setupWithMockedBatchProcess();
       component["selection"].select(geautoriseerdeZaak, gewoneZaak);
 
       component["openVerdelenScherm"]();
 
-      expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
         "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud",
         { aantal: 1 },
@@ -432,11 +450,34 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
       component["openVerdelenScherm"]();
 
-      expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
         "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.meervoud",
         { aantal: 2 },
         8,
+      );
+    });
+
+    it("counts a handed-over zaakspecifiek geautoriseerde zaak in the progress message", async () => {
+      await setupWithMockedBatchProcess(groepMetBehandelaar);
+      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
+
+      component["openVerdelenScherm"]();
+
+      expect(showProgress).toHaveBeenCalledWith(
+        "msg.verdeeld.zaken",
+        expect.anything(),
+      );
+    });
+
+    it("leaves a skipped zaakspecifiek geautoriseerde zaak out of the progress message", async () => {
+      await setupWithMockedBatchProcess();
+      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
+
+      component["openVerdelenScherm"]();
+
+      expect(showProgress).toHaveBeenCalledWith(
+        "msg.verdeeld.zaak",
+        expect.anything(),
       );
     });
 

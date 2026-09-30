@@ -449,7 +449,9 @@ export class ZaakViewComponent
       .subscribe((rechten) => (this.notitieRechten = rechten));
   }
 
-  protected initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
+  protected initiatorGeselecteerd(
+    initiator: GeneratedType<"RestPersoon" | "RestBedrijf">,
+  ) {
     this.betrokkenenService.initiatorGeselecteerd(this.zaak, initiator);
   }
 

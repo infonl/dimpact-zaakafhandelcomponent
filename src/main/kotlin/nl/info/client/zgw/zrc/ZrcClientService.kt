@@ -107,17 +107,13 @@ class ZrcClientService @Inject constructor(
         zrcClient.zaakinformatieobjectRead(zaakinformatieobjectUUID)
 
     fun updateRol(zaak: Zaak, rol: Rol<*>, toelichting: String?) {
-        val rollen = listRollen(zaak).toMutableList().apply { add(rol) }
-        updateRollen(zaak, rollen, toelichting)
-    }
-
-    fun deleteRol(zaak: Zaak, betrokkeneType: BetrokkeneTypeEnum?, toelichting: String?) {
-        val rollen = listRollen(zaak).toMutableList().apply {
-            firstOrNull { it.betrokkeneType == betrokkeneType }?.let { betrokkene ->
-                removeAll { it.equalBetrokkeneRol(betrokkene) }
-            }
+        val current = listRollen(zaak)
+        current
+            .filter { it.equalBetrokkeneRol(rol) && it != rol }
+            .forEach { deleteRol(it, toelichting) }
+        if (current.none { it == rol }) {
+            createRol(rol, toelichting)
         }
-        updateRollen(zaak, rollen, toelichting)
     }
 
     fun readRol(rolURI: URI): Rol<*> {
@@ -267,55 +263,6 @@ class ZrcClientService @Inject constructor(
         uuid: UUID,
         zaakEigenschap: ZaakEigenschap
     ): ZaakEigenschap = zrcClient.zaakEigenschapUpdate(zaakUUID, uuid, zaakEigenschap)
-
-    private fun deleteDeletedRollen(
-        currentRoles: List<Rol<*>>,
-        rolesToBeDeleted: List<Rol<*>>,
-        description: String?
-    ) {
-        currentRoles
-            .filter { currentRole -> rolesToBeDeleted.none { it.equalBetrokkeneRol(currentRole) } }
-            .forEach { deleteRol(it, description) }
-    }
-
-    /**
-     * Updates the [Rol]s for a [Zaak].
-     * Replaces all existing [Rol]s with the provided roles.
-     *
-     * @param zaak the zaak
-     * @param rollen the roles to be updated
-     */
-    private fun updateRollen(zaak: Zaak, rollen: List<Rol<*>>, toelichting: String?) {
-        val current = listRollen(zaak)
-        deleteDeletedRollen(current, rollen, toelichting)
-        deleteUpdatedRollen(current, rollen, toelichting)
-        createUpdatedRollen(current, rollen, toelichting)
-        createCreatedRollen(current, rollen, toelichting)
-    }
-
-    private fun deleteUpdatedRollen(
-        currentRoles: List<Rol<*>>,
-        rolesToBeDeleted: List<Rol<*>>,
-        description: String?
-    ) = currentRoles
-        .filter { oud -> rolesToBeDeleted.any { it.equalBetrokkeneRol(oud) && it != oud } }
-        .forEach { deleteRol(it, description) }
-
-    private fun createUpdatedRollen(
-        currentRoles: List<Rol<*>>,
-        rolesToBeUpdated: List<Rol<*>>,
-        description: String?
-    ) = rolesToBeUpdated
-        .filter { newRole -> currentRoles.any { it.equalBetrokkeneRol(newRole) && it != newRole } }
-        .forEach { createRol(it, description) }
-
-    private fun createCreatedRollen(
-        currentRoles: List<Rol<*>>,
-        rolesToBeCreated: List<Rol<*>>,
-        description: String?
-    ) = rolesToBeCreated
-        .filter { newRole -> currentRoles.none { it.equalBetrokkeneRol(newRole) } }
-        .forEach { createRol(it, description) }
 
     /**
      * A non-`Point` `zaakgeometrie` (e.g. a `Polygon`) fails JSON-B deserialization before the

@@ -10,12 +10,16 @@ import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZaakHelper
@@ -28,6 +32,7 @@ import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
@@ -42,10 +47,13 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BEHANDELAAR
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
+import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_MEDEAANVRAGER
+import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
@@ -82,6 +90,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.RECORDMANAGER_1
+import nl.info.zac.itest.config.TestGroup
 import nl.info.zac.itest.config.TestUser
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import nl.info.zac.itest.util.WebSocketTestListener
@@ -100,6 +109,12 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 const val ZAAK_OMSCHRIJVING_MAX_LENGTH = 80
+
+private data class OpenZaakRollen(
+    val behandelaarIds: Set<String>,
+    val geautoriseerdeIds: Set<String>,
+    val groepIds: Set<String>
+)
 
 @Suppress("LargeClass")
 @Isolate
@@ -163,16 +178,74 @@ class ZaakRestServiceTest : BehaviorSpec({
             testUser = testUser
         )
 
-    fun behandelaarRolUuid(zaakUuid: UUID): UUID? =
+    fun rollenForZaak(zaakUuid: UUID) =
         JSONObject(openZaakClient.getRolesForZaak(zaakUuid).bodyAsString)
             .getJSONArray("results")
-            .let { results ->
-                (0 until results.length())
-                    .map(results::getJSONObject)
-                    .firstOrNull { it.getString("betrokkeneType") == "medewerker" }
-                    ?.getString("uuid")
-                    ?.run(UUID::fromString)
+            .let { results -> (0 until results.length()).map(results::getJSONObject) }
+
+    fun behandelaarRolUuid(zaakUuid: UUID): UUID? =
+        rollenForZaak(zaakUuid)
+            .firstOrNull {
+                it.getString("omschrijving") == ROLTYPE_NAME_BEHANDELAAR &&
+                    it.getString("betrokkeneType") == "medewerker"
             }
+            ?.getString("uuid")
+            ?.run(UUID::fromString)
+
+    fun rolIdentificaties(
+        rollen: List<JSONObject>,
+        omschrijving: String,
+        betrokkeneType: String
+    ) = rollen
+        .filter {
+            it.getString("omschrijving") == omschrijving &&
+                it.getString("betrokkeneType") == betrokkeneType
+        }
+        .map { it.getJSONObject("betrokkeneIdentificatie").getString("identificatie") }
+        .toSet()
+
+    fun openZaakRollen(zaakUuid: UUID): OpenZaakRollen {
+        val rollen = rollenForZaak(zaakUuid)
+        return OpenZaakRollen(
+            behandelaarIds = rolIdentificaties(rollen, ROLTYPE_NAME_BEHANDELAAR, "medewerker"),
+            geautoriseerdeIds = rolIdentificaties(
+                rollen,
+                ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                "medewerker"
+            ),
+            groepIds = rolIdentificaties(rollen, ROLTYPE_NAME_BEHANDELAAR, "organisatorische_eenheid")
+        )
+    }
+
+    fun assignZaak(
+        zaakUuid: UUID,
+        group: TestGroup,
+        behandelaar: TestUser,
+        reason: String,
+        testUser: TestUser
+    ) = itestHttpClient.performPatchRequest(
+        url = "$ZAC_API_URI/zaken/toekennen",
+        requestBodyAsString = """
+            {
+                "zaakUUID": "$zaakUuid",
+                "groepId": "${group.name}",
+                "behandelaarGebruikersnaam": "${behandelaar.username}",
+                "reden": "$reason"
+            }
+        """.trimIndent(),
+        testUser = testUser
+    )
+
+    fun zaakHistoryEntries(zaakUuid: UUID, testUser: TestUser) =
+        itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
+            testUser = testUser
+        ).let { response ->
+            response.code shouldBe HTTP_OK
+            JSONArray(response.bodyAsString).let { entries ->
+                (0 until entries.length()).map(entries::getJSONObject)
+            }
+        }
 
     context("Listing zaaktypes for creating zaken") {
         given(
@@ -1373,27 +1446,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     behandelaarRolUuid(zaakUuid).shouldNotBeNull()
                 }
             }
-
-            `when`("an attempt is made to assign the zaak to a different behandelaar") {
-                val response = itestHttpClient.performPatchRequest(
-                    url = "$ZAC_API_URI/zaken/toekennen",
-                    requestBodyAsString = """
-                        {
-                            "zaakUUID": "$zaakUuid",
-                            "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
-                            "behandelaarGebruikersnaam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
-                            "reden": "fakeReason"
-                        }
-                    """.trimIndent(),
-                    testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
-                )
-
-                then("the request is refused with its own error code") {
-                    response.code shouldBe HTTP_BAD_REQUEST
-                    JSONObject(response.bodyAsString).getString("message") shouldBe
-                        "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned"
-                }
-            }
         }
 
         given("a zaak of a zaaktype that is not zaakspecifiek autoriseerbaar") {
@@ -1495,6 +1547,445 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    }
+                }
+            }
+        }
+    }
+
+    context("Handing a zaakspecifiek geautoriseerde zaak over to another behandelaar") {
+        given(
+            """
+            a zaakspecifiek geautoriseerde zaak whose behandelaar does not hold the
+            zaakspecifiek_geautoriseerd application role
+            """
+        ) {
+            val handoverReason = "fakeHandoverReason"
+            val handBackReason = "fakeHandBackReason"
+            val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                group = GROUP_BEHANDELAARS_TEST_1,
+                indexZaak = true,
+                testUser = BEHANDELAAR_1,
+                behandelaarId = BEHANDELAAR_1.username,
+                behandelaarName = BEHANDELAAR_1.displayName
+            )
+            markZaakspecifiekGeautoriseerd(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
+
+            `when`("the behandelaar hands the zaak over to a behandelaar of another group") {
+                val response = assignZaak(
+                    zaakUuid = zaakUuid,
+                    group = GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1,
+                    behandelaar = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1,
+                    reason = handoverReason,
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the zaak is assigned to the new behandelaar, who can read it") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    JSONObject(responseBody).getJSONObject("behandelaar").getString("id") shouldBe
+                        ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                    zacClient.retrieveZaak(zaakUuid, ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1).code shouldBe HTTP_OK
+                }
+
+                and("the previous behandelaar keeps reading it as a zaakspecifiek geautoriseerde medewerker") {
+                    openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                        behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
+                        geautoriseerdeIds = setOf(BEHANDELAAR_1.username),
+                        groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
+                    )
+                    with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
+                        code shouldBe HTTP_OK
+                        JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    }
+                }
+
+                and("the previous behandelaar still finds the reindexed zaak in a werklijst") {
+                    eventually(30.seconds) {
+                        with(findZaakInWerklijst(zaakIdentificatie, BEHANDELAAR_1)) {
+                            code shouldBe HTTP_OK
+                            with(JSONObject(bodyAsString)) {
+                                getInt("totaal") shouldBe 1
+                                getJSONArray("resultaten").getJSONObject(0)
+                                    .getString("behandelaarGebruikersnaam") shouldBe
+                                    ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                            }
+                        }
+                    }
+                }
+
+                and("neither the previous nor the new behandelaar is listed as a betrokkene") {
+                    with(
+                        itestHttpClient.performGetRequest(
+                            url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/betrokkene",
+                            testUser = BEHANDELAAR_1
+                        )
+                    ) {
+                        code shouldBe HTTP_OK
+                        val responseBody = bodyAsString
+                        logger.info { "Response: $responseBody" }
+                        responseBody shouldNotContain BEHANDELAAR_1.username
+                        responseBody shouldNotContain ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                        responseBody shouldNotContain ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
+                    }
+                }
+
+                and("the zaak history records the rol changes that together make up the handover") {
+                    val handoverHistory = zaakHistoryEntries(zaakUuid, BEHANDELAAR_1)
+                        .filter { it.optString("toelichting") == handoverReason }
+                        .map {
+                            listOf(
+                                it.optString("actie"),
+                                it.optString("attribuutLabel"),
+                                it.optString("oudeWaarde"),
+                                it.optString("nieuweWaarde")
+                            )
+                        }
+                    logger.info { "Handover history entries: $handoverHistory" }
+
+                    handoverHistory shouldContainAll listOf(
+                        listOf(
+                            "GEKOPPELD",
+                            ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                            "",
+                            BEHANDELAAR_1.displayName
+                        ),
+                        listOf("ONTKOPPELD", ROLTYPE_NAME_BEHANDELAAR, BEHANDELAAR_1.displayName, ""),
+                        listOf(
+                            "GEKOPPELD",
+                            ROLTYPE_NAME_BEHANDELAAR,
+                            "",
+                            ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.displayName
+                        )
+                    )
+                }
+            }
+
+            `when`("the new behandelaar hands the zaak back to the original behandelaar") {
+                val response = assignZaak(
+                    zaakUuid = zaakUuid,
+                    group = GROUP_BEHANDELAARS_TEST_1,
+                    behandelaar = BEHANDELAAR_1,
+                    reason = handBackReason,
+                    testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+                )
+
+                then("the original behandelaar is the behandelaar again") {
+                    response.code shouldBe HTTP_OK
+                    JSONObject(response.bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                        BEHANDELAAR_1.username
+                }
+
+                and(
+                    """
+                    the behandelaar that is replaced is granted an individual authorisation in turn,
+                    while the original behandelaar gives up theirs
+                    """
+                ) {
+                    openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                        behandelaarIds = setOf(BEHANDELAAR_1.username),
+                        geautoriseerdeIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
+                        groepIds = setOf(GROUP_BEHANDELAARS_TEST_1.name)
+                    )
+                }
+            }
+
+            `when`("the zaak is handed over to the other behandelaar a second time") {
+                val response = assignZaak(
+                    zaakUuid = zaakUuid,
+                    group = GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1,
+                    behandelaar = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1,
+                    reason = handoverReason,
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("each behandelaar holds either the behandelaar rol or an individual authorisation, never both") {
+                    response.code shouldBe HTTP_OK
+                    openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                        behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
+                        geautoriseerdeIds = setOf(BEHANDELAAR_1.username),
+                        groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
+                    )
+                }
+            }
+        }
+    }
+
+    context("Open Zaak rollen after switching behandelaars of a zaakspecifiek geautoriseerde zaak") {
+        data class Switch(
+            val behandelaar: TestUser,
+            val group: TestGroup
+        )
+
+        data class HandoverCase(
+            val description: String,
+            val switches: List<Switch>,
+            val expected: List<OpenZaakRollen>
+        )
+
+        fun rollen(
+            behandelaar: TestUser,
+            group: TestGroup,
+            vararg geautoriseerd: TestUser
+        ) = OpenZaakRollen(
+            behandelaarIds = setOf(behandelaar.username),
+            geautoriseerdeIds = geautoriseerd.map { it.username }.toSet(),
+            groepIds = setOf(group.name)
+        )
+
+        val behandelaarA = BEHANDELAAR_1
+        val groepA = GROUP_BEHANDELAARS_TEST_1
+        val behandelaarB = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+        val groepB = GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1
+        val behandelaarC = BEHANDELAAR_LONG_NAME_TEST
+        val groepC = GROUP_BEHANDELAARS_LONG_NAME_TEST
+
+        listOf(
+            HandoverCase(
+                description = "A → A leaves Open Zaak unchanged",
+                switches = listOf(Switch(behandelaarA, groepA)),
+                expected = listOf(rollen(behandelaarA, groepA))
+            ),
+            HandoverCase(
+                description = "A → B → B does not grant B a zaakspecifiek geautoriseerde rol",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarB, groepB)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarB, groepB, behandelaarA)
+                )
+            ),
+            HandoverCase(
+                description = "A → B → A: A is behandelaar again and gives up the geautoriseerde rol to B",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarA, groepA)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarA, groepA, behandelaarB)
+                )
+            ),
+            HandoverCase(
+                description = "A → B → C: C is behandelaar, A and B are zaakspecifiek geautoriseerd",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarC, groepC)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarC, groepC, behandelaarA, behandelaarB)
+                )
+            ),
+            HandoverCase(
+                description = "A → B → C → A: A is behandelaar again and no longer zaakspecifiek geautoriseerd",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarC, groepC),
+                    Switch(behandelaarA, groepA)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarC, groepC, behandelaarA, behandelaarB),
+                    rollen(behandelaarA, groepA, behandelaarB, behandelaarC)
+                )
+            ),
+            HandoverCase(
+                description = "A → B → C → B: B is behandelaar again and no longer zaakspecifiek geautoriseerd",
+                switches = listOf(
+                    Switch(behandelaarB, groepB),
+                    Switch(behandelaarC, groepC),
+                    Switch(behandelaarB, groepB)
+                ),
+                expected = listOf(
+                    rollen(behandelaarB, groepB, behandelaarA),
+                    rollen(behandelaarC, groepC, behandelaarA, behandelaarB),
+                    rollen(behandelaarB, groepB, behandelaarA, behandelaarC)
+                )
+            )
+        ).forEach { handoverCase ->
+            given(handoverCase.description) {
+                val (_, zaakUuid) = zaakHelper.createZaak(
+                    zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                    group = groepA,
+                    testUser = behandelaarA,
+                    behandelaarId = behandelaarA.username,
+                    behandelaarName = behandelaarA.displayName
+                )
+                markZaakspecifiekGeautoriseerd(zaakUuid, behandelaarA).code shouldBe HTTP_OK
+
+                `when`("the behandelaar is switched according to the case") {
+                    then("Open Zaak has the expected behandelaar, geautoriseerde medewerkers and groep after every switch") {
+                        var actor = behandelaarA
+                        handoverCase.switches.zip(handoverCase.expected).forEach { (switch, expectedRollen) ->
+                            assignZaak(
+                                zaakUuid = zaakUuid,
+                                group = switch.group,
+                                behandelaar = switch.behandelaar,
+                                reason = "fakeHandoverReason",
+                                testUser = actor
+                            ).code shouldBe HTTP_OK
+                            openZaakRollen(zaakUuid) shouldBe expectedRollen
+                            actor = switch.behandelaar
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    context("Assigning and releasing a zaakspecifiek geautoriseerde zaak from the werkvoorraad") {
+        val skippedEventPolling = eventuallyConfig {
+            duration = 30.seconds
+            interval = 1.seconds
+        }
+
+        fun zaakRollenWebsocketListener(zaakUuid: UUID) =
+            WebSocketTestListener(
+                textToBeSentOnOpen = """
+                {
+                    "subscriptionType": "CREATE",
+                    "event": {
+                        "opcode": "ANY",
+                        "objectType": "$SCREEN_EVENT_TYPE_ZAAK_ROLLEN",
+                        "objectId": {
+                            "resource": "$zaakUuid"
+                        },
+                        "_key": "ANY;$SCREEN_EVENT_TYPE_ZAAK_ROLLEN;$zaakUuid"
+                    }
+                }
+                """.trimIndent()
+            ).also {
+                itestHttpClient.connectNewWebSocket(
+                    url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
+                    webSocketListener = it,
+                    testUser = COORDINATOR_1
+                )
+            }
+
+        suspend fun createZaakspecifiekGeautoriseerdeZaak(): UUID {
+            val (_, zaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                group = GROUP_BEHANDELAARS_TEST_1,
+                testUser = BEHANDELAAR_1,
+                behandelaarId = BEHANDELAAR_1.username,
+                behandelaarName = BEHANDELAAR_1.displayName
+            )
+            markZaakspecifiekGeautoriseerd(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
+            return zaakUuid
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak with a behandelaar, and a logged-in coordinator") {
+            val zaakUuid = createZaakspecifiekGeautoriseerdeZaak()
+
+            `when`("the 'assign zaken from list' endpoint is called with both a group and a behandelaar") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zaken/lijst/verdelen",
+                    requestBodyAsString = """
+                        {
+                            "uuids": [ "$zaakUuid" ],
+                            "groepId": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
+                            "behandelaarGebruikersnaam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
+                            "reden": "fakeLijstVerdelenReason"
+                        }
+                    """.trimIndent(),
+                    testUser = COORDINATOR_1
+                )
+
+                then("the zaak is assigned to the new behandelaar") {
+                    response.code shouldBe HTTP_NO_CONTENT
+                    eventually(30.seconds) {
+                        with(zacClient.retrieveZaak(zaakUuid, ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1)) {
+                            code shouldBe HTTP_OK
+                            JSONObject(bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                                ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
+                        }
+                    }
+                }
+
+                and("the previous behandelaar keeps access as a zaakspecifiek geautoriseerde medewerker") {
+                    eventually(30.seconds) {
+                        openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                            behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
+                            geautoriseerdeIds = setOf(BEHANDELAAR_1.username),
+                            groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
+                        )
+                    }
+                    zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak with a behandelaar, and a websocket listening for its rol changes") {
+            val zaakUuid = createZaakspecifiekGeautoriseerdeZaak()
+            val websocketListener = zaakRollenWebsocketListener(zaakUuid)
+
+            `when`("the 'assign zaken from list' endpoint is called with a group but without a behandelaar") {
+                then("the zaak is reported as skipped and keeps both its behandelaar and its group") {
+                    // the batch job changes nothing about a zaak it skips, so the call is repeated until
+                    // ZAC has registered the websocket subscription and the skipped event is received
+                    eventually(skippedEventPolling) {
+                        itestHttpClient.performPutRequest(
+                            url = "$ZAC_API_URI/zaken/lijst/verdelen",
+                            requestBodyAsString = """
+                                {
+                                    "uuids": [ "$zaakUuid" ],
+                                    "groepId": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
+                                    "reden": "fakeLijstVerdelenReason"
+                                }
+                            """.trimIndent(),
+                            testUser = COORDINATOR_1
+                        ).code shouldBe HTTP_NO_CONTENT
+                        websocketListener.messagesReceived.forAtLeastOne {
+                            JSONObject(it).getString("opcode") shouldBe "SKIPPED"
+                        }
+                    }
+                    with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
+                        code shouldBe HTTP_OK
+                        JSONObject(bodyAsString).apply {
+                            getJSONObject("behandelaar").getString("id") shouldBe BEHANDELAAR_1.username
+                            getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                        }
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            another zaakspecifiek geautoriseerde zaak with a behandelaar, and a websocket listening for
+            its rol changes
+            """
+        ) {
+            val zaakUuid = createZaakspecifiekGeautoriseerdeZaak()
+            val websocketListener = zaakRollenWebsocketListener(zaakUuid)
+
+            `when`("the 'release zaken from list' endpoint is called for the zaak") {
+                then("the zaak is reported as skipped and keeps its behandelaar") {
+                    // as above, releasing a zaak that is skipped changes nothing, so the call is repeated
+                    eventually(skippedEventPolling) {
+                        itestHttpClient.performPutRequest(
+                            url = "$ZAC_API_URI/zaken/lijst/vrijgeven",
+                            requestBodyAsString = """
+                                {
+                                    "uuids": [ "$zaakUuid" ],
+                                    "reden": "fakeLijstVrijgevenReason"
+                                }
+                            """.trimIndent(),
+                            testUser = COORDINATOR_1
+                        ).code shouldBe HTTP_NO_CONTENT
+                        websocketListener.messagesReceived.forAtLeastOne {
+                            JSONObject(it).getString("opcode") shouldBe "SKIPPED"
+                        }
+                    }
+                    with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
+                        code shouldBe HTTP_OK
+                        JSONObject(bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                            BEHANDELAAR_1.username
                     }
                 }
             }

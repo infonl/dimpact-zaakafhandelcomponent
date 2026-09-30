@@ -45,6 +45,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterVeld
+import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.ZoekVeld
@@ -279,7 +280,144 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("A source zaak that is already related to a found zaak which is also closed") {
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+        )
+        val sourceZaak = createZaak(archiefnominatie = null).apply {
+            addGerelateerdeZakenItem(
+                GerelateerdeZaak().apply { url = URI("https://example.com/zaak/${zaakZoekObject.getObjectId()}") }
+            )
+        }
+        val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType()
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.search(any()) } returns ZoekResultaat(listOf(zaakZoekObject), 1)
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        listOf(RelatieType.HOOFDZAAK, RelatieType.DEELZAAK, RelatieType.GERELATEERD).forEach { relationType ->
+            `when`("findLinkableZaken with $relationType is called") {
+                val result = zaakKoppelenRestService.findLinkableZaken(
+                    sourceZaak.uuid,
+                    createRestFindLinkableZakenRequest(
+                        zoekZaakIdentifier = zaakZoekObject.identificatie,
+                        relationType = relationType
+                    )
+                )
+
+                then("the existing relation is given as reason, ahead of the status") {
+                    result.results.first().nietKoppelbaarReden shouldBe ZaakNotLinkableReason.ALREADY_GERELATEERD
+                }
+            }
+        }
+    }
+
+    given("An open source zaak and a closed found zaak on which the user has no koppelen rights") {
+        val sourceZaak = createZaak(archiefnominatie = null)
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+        )
+        val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply {
+            deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+        }
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.search(any()) } returns ZoekResultaat(listOf(zaakZoekObject), 1)
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every {
+            policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
+        } returns createZaakRechten(koppelen = false)
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        listOf(RelatieType.HOOFDZAAK, RelatieType.DEELZAAK).forEach { relationType ->
+            `when`("findLinkableZaken with $relationType is called") {
+                val result = zaakKoppelenRestService.findLinkableZaken(
+                    sourceZaak.uuid,
+                    createRestFindLinkableZakenRequest(
+                        zoekZaakIdentifier = zaakZoekObject.identificatie,
+                        relationType = relationType
+                    )
+                )
+
+                then("the status is given as reason, ahead of the authorisation") {
+                    result.results.first().nietKoppelbaarReden shouldBe ZaakNotLinkableReason.AFGEHANDELD
+                }
+            }
+        }
+    }
+
+    given("An open source zaak and a closed found zaak that is already a deelzaak of another zaak") {
+        val sourceZaak = createZaak(archiefnominatie = null)
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+            indicatie = ZaakIndicatie.DEELZAAK
+        )
+        val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply {
+            deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+        }
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.search(any()) } returns ZoekResultaat(listOf(zaakZoekObject), 1)
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        `when`("findLinkableZaken with DEELZAAK is called") {
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                sourceZaak.uuid,
+                createRestFindLinkableZakenRequest(
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.DEELZAAK
+                )
+            )
+
+            then("the status is given as reason, ahead of the relation structure") {
+                result.results.first().nietKoppelbaarReden shouldBe ZaakNotLinkableReason.AFGEHANDELD
+            }
+        }
+    }
+
     context("Linking a zaak") {
+        given("A zaak that is already related to the zaak to link") {
+            val teKoppelenZaak = createZaak()
+            val teKoppelenZaakType = createZaakType()
+            val zaak = createZaak().apply {
+                addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = teKoppelenZaak.url })
+            }
+            val zaakType = createZaakType()
+            val restZaakLinkData = createRestZaakLinkData(
+                zaakUuid = zaak.uuid,
+                teKoppelenZaakUuid = teKoppelenZaak.uuid,
+                relatieType = RelatieType.GERELATEERD
+            )
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(teKoppelenZaak.uuid)
+            } returns Pair(teKoppelenZaak, teKoppelenZaakType)
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
+
+            `when`("the zaken are linked again") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakKoppelenRestService.linkZaak(restZaakLinkData)
+                }
+
+                then("the link is refused and the zaak is not patched") {
+                    policyException shouldNotBe null
+                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                }
+            }
+        }
+
         given("Two open zaken with zaak link data using a 'hoofdzaak' relatie and no reverse relation") {
             val zaak = createZaak()
             val zaakType = createZaakType()

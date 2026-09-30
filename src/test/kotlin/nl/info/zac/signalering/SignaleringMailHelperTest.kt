@@ -118,13 +118,13 @@ class SignaleringMailHelperTest : BehaviorSpec({
         ).forEach { (signaleringType, expectedMail) ->
             given("A signalering of type $signaleringType") {
                 val signalering = createSignalering(type = createSignaleringType(type = signaleringType))
-                every { mailTemplateService.readMailtemplate(expectedMail) } returns fakeMailTemplate
+                every { mailTemplateService.readDefaultMailTemplate(expectedMail) } returns fakeMailTemplate
 
                 `when`("getMailTemplate is called") {
                     val result = signaleringMailHelper.getMailTemplate(signalering)
 
-                    then("readMailtemplate is called with $expectedMail") {
-                        verify { mailTemplateService.readMailtemplate(expectedMail) }
+                    then("readDefaultMailTemplate is called with $expectedMail") {
+                        verify { mailTemplateService.readDefaultMailTemplate(expectedMail) }
                         result shouldBe fakeMailTemplate
                     }
                 }
@@ -135,13 +135,13 @@ class SignaleringMailHelperTest : BehaviorSpec({
             val signalering = createSignalering(
                 type = createSignaleringType(type = SignaleringType.Type.ZAAK_VERLOPEND)
             ).apply { setDetailFromSignaleringDetail(SignaleringDetail.STREEFDATUM) }
-            every { mailTemplateService.readMailtemplate(Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM) } returns fakeMailTemplate
+            every { mailTemplateService.readDefaultMailTemplate(Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM) } returns fakeMailTemplate
 
             `when`("getMailTemplate is called") {
                 val result = signaleringMailHelper.getMailTemplate(signalering)
 
-                then("readMailtemplate is called with SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM") {
-                    verify { mailTemplateService.readMailtemplate(Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM) }
+                then("readDefaultMailTemplate is called with SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM") {
+                    verify { mailTemplateService.readDefaultMailTemplate(Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM) }
                     result shouldBe fakeMailTemplate
                 }
             }
@@ -151,13 +151,13 @@ class SignaleringMailHelperTest : BehaviorSpec({
             val signalering = createSignalering(
                 type = createSignaleringType(type = SignaleringType.Type.ZAAK_VERLOPEND)
             ).apply { setDetailFromSignaleringDetail(SignaleringDetail.FATALE_DATUM) }
-            every { mailTemplateService.readMailtemplate(Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM) } returns fakeMailTemplate
+            every { mailTemplateService.readDefaultMailTemplate(Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM) } returns fakeMailTemplate
 
             `when`("getMailTemplate is called") {
                 val result = signaleringMailHelper.getMailTemplate(signalering)
 
-                then("readMailtemplate is called with SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM") {
-                    verify { mailTemplateService.readMailtemplate(Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM) }
+                then("readDefaultMailTemplate is called with SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM") {
+                    verify { mailTemplateService.readDefaultMailTemplate(Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM) }
                     result shouldBe fakeMailTemplate
                 }
             }
