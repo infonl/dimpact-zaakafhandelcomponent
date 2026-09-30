@@ -6,7 +6,6 @@
 import { ComponentFixture } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideAngularQuery,
@@ -21,7 +20,6 @@ import { sleep } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BpmnService } from "../bpmn.service";
 import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions.component";
@@ -90,9 +88,8 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     });
 
     const rendered = await render(BpmnProcessDefinitionsComponent, {
-      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideRouter([]),
         provideAngularQuery(
           new QueryClient({ defaultOptions: { queries: { retry: false } } }),
         ),

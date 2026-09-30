@@ -20,8 +20,6 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../material/material.module";
 import { ZacDate } from "./date";
 
 interface TestForm extends Record<string, AbstractControl> {
@@ -42,13 +40,7 @@ describe(ZacDate.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZacDate,
-        MaterialModule,
-        TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
-        NoopAnimationsModule,
-      ],
+      imports: [ZacDate, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [TranslateService],
     }).compileComponents();
 
