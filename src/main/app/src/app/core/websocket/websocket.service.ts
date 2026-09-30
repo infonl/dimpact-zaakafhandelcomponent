@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import { DOCUMENT, DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { TranslateService } from "@ngx-translate/core";
@@ -12,14 +13,16 @@ import {
   Subject,
   forkJoin,
   fromEvent,
+  lastValueFrom,
   race,
   throwError,
   timer,
 } from "rxjs";
 import { catchError, filter, switchMap, take, timeout } from "rxjs/operators";
 import { WebSocketSubject } from "rxjs/webSocket";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
-import { StaleTimes } from "../../shared/http/zac-query-client";
+import { HttpClient } from "../../shared/http/http-client";
 import { UtilService } from "../service/util.service";
 import { isCausedByCurrentUser } from "./is-caused-by-current-user";
 import { EventCallback } from "./model/event-callback";
@@ -82,6 +85,8 @@ export class WebsocketService {
 
   private readonly queryClient = inject(QueryClient);
   private readonly identityService = inject(IdentityService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly httpClient = inject(HttpClient);
   private readonly webSocketFactory = inject(WEBSOCKET_FACTORY);
   private readonly document = inject(DOCUMENT);
   private readonly translate = inject(TranslateService);
@@ -148,17 +153,20 @@ export class WebsocketService {
     this.reconnect(url);
   }
 
-  // A websocket cannot follow the login redirect; a REST call can, via the existing status-0 handling.
+  // A websocket cannot follow the login redirect; a REST call can.
   private reconnectIfLoggedIn(url: string) {
-    this.queryClient
-      .fetchQuery({
-        ...this.identityService.readLoggedInUser(),
-        staleTime: StaleTimes.Instant,
-      })
-      .then(() => this.reconnect(url))
-      .catch(() => {
-        // The QueryCache reports the failure, which sends a logged-out user to the login page.
-      });
+    // Not via QueryClient: its global error handling would show a dialog.
+    lastValueFrom(this.httpClient.GET("/rest/identity/loggedInUser")).then(
+      () => this.reconnect(url),
+      (error: unknown) => {
+        // Status 0 = blocked login redirect; anything else is retried.
+        if (error instanceof HttpErrorResponse && error.status === 0) {
+          this.foutAfhandelingService.foutAfhandelen(error);
+          return;
+        }
+        this.reconnect(url);
+      },
+    );
   }
 
   private reconnect(url: string) {

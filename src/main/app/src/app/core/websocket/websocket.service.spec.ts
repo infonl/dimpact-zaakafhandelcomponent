@@ -3,14 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import { EnvironmentInjector, createEnvironmentInjector } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Subject, of } from "rxjs";
+import { Subject, of, throwError } from "rxjs";
 import type { WebSocketSubjectConfig } from "rxjs/webSocket";
 import { flushMicrotasks, fromPartial } from "src/test-helpers";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
+import { HttpClient } from "../../shared/http/http-client";
 import { UtilService } from "../service/util.service";
 import { ObjectType } from "./model/object-type";
 import { Opcode } from "./model/opcode";
@@ -34,8 +37,9 @@ describe(WebsocketService.name, () => {
   let sockets: Subject<unknown>[];
   let socketConfigs: WebSocketSubjectConfig<unknown>[];
   let isServerReachable: boolean;
-  let fetchQuery: jest.Mock;
+  let readLoggedInUser: jest.Mock;
   let invalidateQueries: jest.Mock;
+  let foutAfhandelen: jest.Mock;
 
   const closeWithCode = (socketIndex: number, code: number) => {
     socketConfigs[socketIndex].closeObserver?.next(
@@ -57,8 +61,9 @@ describe(WebsocketService.name, () => {
     sockets = [];
     socketConfigs = [];
     isServerReachable = true;
-    fetchQuery = jest.fn().mockResolvedValue({});
+    readLoggedInUser = jest.fn().mockReturnValue(of({}));
     invalidateQueries = jest.fn().mockResolvedValue(undefined);
+    foutAfhandelen = jest.fn().mockReturnValue(of());
     const webSocketFactory = jest.fn(
       (config: WebSocketSubjectConfig<unknown>) => {
         const socket = new Subject<unknown>();
@@ -84,13 +89,21 @@ describe(WebsocketService.name, () => {
         { provide: UtilService, useValue: { openSnackbar: jest.fn() } },
         {
           provide: QueryClient,
-          useValue: { getQueryData: jest.fn(), fetchQuery, invalidateQueries },
+          useValue: { getQueryData: jest.fn(), invalidateQueries },
         },
         {
           provide: IdentityService,
           useValue: {
             readLoggedInUser: jest.fn().mockReturnValue({ queryKey: [] }),
           },
+        },
+        {
+          provide: HttpClient,
+          useValue: fromPartial<HttpClient>({ GET: readLoggedInUser }),
+        },
+        {
+          provide: FoutAfhandelingService,
+          useValue: fromPartial<FoutAfhandelingService>({ foutAfhandelen }),
         },
         { provide: WEBSOCKET_FACTORY, useValue: webSocketFactory },
       ],
@@ -256,8 +269,8 @@ describe(WebsocketService.name, () => {
     closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
     await flushMicrotasks();
 
-    expect(fetchQuery).toHaveBeenCalledWith(
-      expect.objectContaining({ staleTime: 0 }),
+    expect(readLoggedInUser).toHaveBeenCalledWith(
+      "/rest/identity/loggedInUser",
     );
     expect(sockets.length).toBe(1);
 
@@ -266,13 +279,28 @@ describe(WebsocketService.name, () => {
     expect(sockets.length).toBe(2);
   });
 
-  it("stops reconnecting after the server denies the connection to a user who is no longer logged in", async () => {
-    fetchQuery.mockRejectedValue(new Error("logged out"));
+  it("stops reconnecting and hands the failure to the error handling after the server denies the connection to a user who is no longer logged in", async () => {
+    const loggedOutError = new HttpErrorResponse({ status: 0 });
+    readLoggedInUser.mockReturnValue(throwError(() => loggedOutError));
 
     closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
     await flushMicrotasks();
     jest.advanceTimersByTime(LONGEST_RECONNECT_DELAY_MS);
 
+    expect(foutAfhandelen).toHaveBeenCalledWith(loggedOutError);
     expect(sockets.length).toBe(1);
+  });
+
+  it("keeps reconnecting without reporting an error when checking the login fails for another reason than being logged out", async () => {
+    readLoggedInUser.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 404 })),
+    );
+
+    closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
+    await flushMicrotasks();
+    jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
+
+    expect(foutAfhandelen).not.toHaveBeenCalled();
+    expect(sockets.length).toBe(2);
   });
 });
