@@ -5,9 +5,8 @@
 
 package net.atos.zac.util.event;
 
-import static nl.info.zac.log.LogUtilsKt.ERROR;
-
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -46,7 +45,7 @@ public class JobEventObserver {
                 zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications();
             }
         } catch (final Throwable ex) {
-            LOG.log(ERROR, "asynchronous guard", ex);
+            LOG.log(Level.SEVERE, "asynchronous guard", ex);
         }
     }
 }

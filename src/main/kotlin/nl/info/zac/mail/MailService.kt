@@ -48,7 +48,7 @@ import java.io.ByteArrayInputStream
 import java.time.LocalDate
 import java.util.Base64
 import java.util.Optional
-import nl.info.zac.log.ERROR
+import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.ByteArray
 import kotlin.String
@@ -137,7 +137,7 @@ class MailService @Inject constructor(
                 )
             }
         } catch (messagingException: MessagingException) {
-            LOG.log(ERROR, "Failed to send mail with subject '$subject'.", messagingException)
+            LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", messagingException)
             return null
         }
 
@@ -215,7 +215,7 @@ class MailService @Inject constructor(
 
     private fun logPdfConversionFailure(subject: String, exception: Exception) =
         LOG.log(
-            ERROR,
+            Level.SEVERE,
             "Failed to convert the sent e-mail with subject '$subject' to PDF. No zaak document was created.",
             exception
         )
