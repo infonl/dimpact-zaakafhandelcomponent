@@ -27,8 +27,8 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-forms**: 3.5.9
 - **open-notificaties**: 1.16.2
 - **open-archiefbeheer**: 2.0.0
-- **pabc-migrations**: 2.0.0-prerelease
-- **pabc-api**: 2.0.0-prerelease
+- **pabc-migrations**: 2.1.0-prerelease
+- **pabc-api**: 2.1.0-prerelease
 
 ## Update Process
 
