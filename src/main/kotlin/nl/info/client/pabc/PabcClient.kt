@@ -55,6 +55,13 @@ const val ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD = "zaakspecifiek_geautoriseerd"
  */
 const val ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN = "systeemrol_behandelaar_alle_zaaktypen"
 
+/**
+ * PABC application role names that grant `lezen` on a zaak, taak or document of a zaaktype.
+ * Must match the roles listed in the `lezen` rules of `zaak-rechten.rego`, `taak-rechten.rego` and
+ * `document-rechten.rego`.
+ */
+val READ_ROLE_NAMES = setOf("raadpleger", "behandelaar", "coordinator", "recordmanager", "beheerder")
+
 @RegisterRestClient(configKey = "PABC-API-Client")
 @RegisterClientHeaders(PabcClientHeadersFactory::class)
 @Path("/api/v1")

@@ -570,6 +570,39 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        given("Two open zaken with zaak link data using a 'gerelateerd' relatie to a zaak the user cannot read") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val teKoppelenZaak = createZaak()
+            val teKoppelenZaakType = createZaakType()
+            val restZaakLinkData = createRestZaakLinkData(
+                zaakUuid = zaak.uuid,
+                teKoppelenZaakUuid = teKoppelenZaak.uuid,
+                relatieType = RelatieType.GERELATEERD
+            )
+            val loggedInUser = createLoggedInUser()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(teKoppelenZaak.uuid)
+            } returns Pair(teKoppelenZaak, teKoppelenZaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser)
+            } returns createZaakRechten(lezen = false)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the zaken are linked with relatie type GERELATEERD") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakKoppelenRestService.linkZaak(restZaakLinkData)
+                }
+
+                then("the link is refused and the zaak is not patched") {
+                    policyException shouldNotBe null
+                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                }
+            }
+        }
     }
 
     context("Unlinking a zaak") {

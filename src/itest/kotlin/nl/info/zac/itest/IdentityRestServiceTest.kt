@@ -13,6 +13,7 @@ import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.BEHANDELAAR_INACTIVE_GROUP_1
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
@@ -21,6 +22,7 @@ import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.COORDINATOR_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_BRP_ZOEKERS_TEST_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_2
 import nl.info.zac.itest.config.GROUP_BEHEERDERS_ELK_DOMEIN
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
@@ -101,6 +103,11 @@ val TEST_GROUPS_ACTIVE =
                 {
                     "id": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
                     "naam": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.description}",
+                    "active": true
+                },
+                {
+                    "id": "${GROUP_BRP_ZOEKERS_TEST_2.name}",
+                    "naam": "${GROUP_BRP_ZOEKERS_TEST_2.description}",
                     "active": true
                 }
             ]
@@ -248,6 +255,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
                                     "naam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.displayName}"
+                                },
+                                {
+                                    "id": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
+                                    "naam": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName}"
                                 }
                             ]
                     """.trimIndent()
@@ -272,6 +283,10 @@ class IdentityServiceTest : BehaviorSpec({
                             {
                                 "id": "${BEHANDELAAR_1.username}",
                                 "naam": "${BEHANDELAAR_1.displayName}"
+                            },
+                            {
+                                "id": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
+                                "naam": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName}"
                             }
                         ]
                     """.trimIndent()

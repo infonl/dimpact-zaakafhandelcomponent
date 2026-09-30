@@ -304,7 +304,7 @@ class ZaakKoppelenRestService @Inject constructor(
                     deelzaak = targetZaakLinkData,
                     allowedDeelzaaktypes = sourceZaaktype.getDeelzaaktypenSet()
                 )
-            RelatieType.GERELATEERD -> sourceZaak.gerelateerdNotLinkableReason(targetZaakLinkData)
+            RelatieType.GERELATEERD -> sourceZaak.gerelateerdNotLinkableReason()
             else -> throw IllegalArgumentException(
                 "RelatieType $relationType cannot be used for linking zaken"
             )

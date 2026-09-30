@@ -61,7 +61,6 @@ const NOT_LINKABLE_REASONS: NonNullable<
   "HAS_DEELZAKEN",
   "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
   "NOT_AUTHORISED_TO_KOPPELEN",
-  "NOT_AUTHORISED_TO_LEZEN",
 ];
 
 describe(ZaakLinkComponent.name, () => {

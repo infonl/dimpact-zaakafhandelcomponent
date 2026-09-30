@@ -116,6 +116,11 @@ Notes:
   and therefore no task can be started.
 - The policies listed above are backend policies. Whether the related functionality is available to the user in the
   frontend (browser) is, for a large part, also determined by these policies, but differences may apply.
+- **Werklijsten and zoekresultaten only contain zaken, taken and documenten of zaaktypen for which the
+  medewerker holds a role that grants `lezen`** (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`
+  or `beheerder`), either for that zaaktype or as a role not tied to a zaaktype. This also applies to the
+  list of zaken offered when relating a zaak. Holding only `brp_zoeken` or `zaakspecifiek_geautoriseerd` for
+  a zaaktype does not make its zaken appear there, matching the fact that such a medewerker cannot open them.
 - The `zaakspecifiek_geautoriseerd` application role is not listed as a separate column in the table above
   because it does not grant any permission on its own. It is a flag: when a medewerker holds
   `zaakspecifiek_geautoriseerd` for a zaaktype *in addition to* one of the normal application roles above

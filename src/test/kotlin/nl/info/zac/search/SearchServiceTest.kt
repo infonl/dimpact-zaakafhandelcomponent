@@ -69,8 +69,8 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaakType1 to setOf("fakeApplicationRole1"),
-                zaakType2 to setOf("fakeApplicationRole2")
+                zaakType1 to setOf("behandelaar"),
+                zaakType2 to setOf("raadpleger")
             )
         )
 
@@ -172,7 +172,7 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaakType1 to setOf("fakeApplicationRole1")
+                zaakType1 to setOf("behandelaar")
             )
         )
 
@@ -258,7 +258,7 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaakType1 to setOf("fakeApplicationRole1")
+                zaakType1 to setOf("behandelaar")
             )
         )
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -328,7 +328,7 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaakType1 to setOf("fakeApplicationRole1", "fakeApplicationRole2")
+                zaakType1 to setOf("behandelaar", "raadpleger")
             )
         )
 
@@ -490,8 +490,8 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaaktypeWithFlag to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
-                zaaktypeWithoutFlag to setOf("fakeApplicationRole1")
+                zaaktypeWithFlag to setOf("behandelaar", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
+                zaaktypeWithoutFlag to setOf("behandelaar")
             )
         )
 
@@ -527,8 +527,8 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaaktype1 to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
-                zaaktype2 to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
+                zaaktype1 to setOf("behandelaar", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
+                zaaktype2 to setOf("behandelaar", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
             )
         )
 
@@ -561,7 +561,7 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaaktypeWithoutFlag to setOf("fakeApplicationRole1")
+                zaaktypeWithoutFlag to setOf("behandelaar")
             ),
             overallRoles = setOf(ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
         )
@@ -595,7 +595,7 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             id = "fakeBehandelaarId",
-            applicationRolesPerZaaktype = mapOf(zaaktypeWithoutFlag to setOf("fakeApplicationRole1"))
+            applicationRolesPerZaaktype = mapOf(zaaktypeWithoutFlag to setOf("behandelaar"))
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
