@@ -235,9 +235,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         this.zaakafhandelParametersService.listResultaattypes(
           this.bpmnZaakafhandelParameters.zaaktype.uuid,
         ),
-          this.identityService.listBehandelaarGroupsForZaaktype(
-              this.bpmnZaakafhandelParameters.zaaktype.omschrijving!
-          )
+        this.identityService.listBehandelaarGroupsForZaaktype(
+          this.bpmnZaakafhandelParameters.zaaktype.omschrijving!,
+        ),
       ]).subscribe(
         async ([
           brpSearchValues,
@@ -246,7 +246,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           brpDoelbindingSetupEnabled,
           zaakbeeindigRedenen,
           resultaattypes,
-          groepen
+          groepen,
         ]) => {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
@@ -310,7 +310,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       });
 
     if (defaultGroepId) {
-      const defaultGroup = this.groepen?.find(({ id }) => id === defaultGroepId);
+      const defaultGroup = this.groepen?.find(
+        ({ id }) => id === defaultGroepId,
+      );
       this.algemeenFormGroup.controls.defaultGroep.setValue(
         defaultGroup ?? this.groepen?.at(0) ?? null,
       );
