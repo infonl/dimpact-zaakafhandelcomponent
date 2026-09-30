@@ -16,12 +16,17 @@ import { ObjectType } from "./model/object-type";
 import { Opcode } from "./model/opcode";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
+import {
+  FIRST_SPREAD_MS,
+  MAX_SPREAD_MS,
+  MIN_DELAY_MS,
+} from "./reconnect-delay";
 import { WEBSOCKET_FACTORY } from "./websocket-factory";
 import { WebsocketService } from "./websocket.service";
 
-const LONGEST_FIRST_RECONNECT_DELAY_MS = 6000;
-const LONGEST_SECOND_RECONNECT_DELAY_MS = 11_000;
-const LONGEST_RECONNECT_DELAY_MS = 61_000;
+const LONGEST_FIRST_RECONNECT_DELAY_MS = MIN_DELAY_MS + FIRST_SPREAD_MS;
+const LONGEST_SECOND_RECONNECT_DELAY_MS = MIN_DELAY_MS + FIRST_SPREAD_MS * 2;
+const LONGEST_RECONNECT_DELAY_MS = MIN_DELAY_MS + MAX_SPREAD_MS;
 const POLICY_VIOLATION_CLOSE_CODE = 1008;
 
 describe(WebsocketService.name, () => {
