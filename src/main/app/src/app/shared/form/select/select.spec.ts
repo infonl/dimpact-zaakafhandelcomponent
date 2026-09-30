@@ -12,8 +12,6 @@ import {
 } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../material/material.module";
 import { ZacSelect } from "./select";
 
 interface TestOption {
@@ -48,9 +46,7 @@ describe(ZacSelect.name, () => {
       imports: [
         ZacSelect,
         ReactiveFormsModule,
-        MaterialModule,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [TranslateService],
