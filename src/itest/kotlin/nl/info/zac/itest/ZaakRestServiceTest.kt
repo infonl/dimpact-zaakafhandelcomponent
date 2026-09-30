@@ -1908,11 +1908,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
 
                 and("the previous behandelaar keeps access as a zaakspecifiek geautoriseerde medewerker") {
-                    openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
-                        behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
-                        geautoriseerdeIds = setOf(BEHANDELAAR_1.username),
-                        groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
-                    )
+                    eventually(30.seconds) {
+                        openZaakRollen(zaakUuid) shouldBe OpenZaakRollen(
+                            behandelaarIds = setOf(ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username),
+                            geautoriseerdeIds = setOf(BEHANDELAAR_1.username),
+                            groepIds = setOf(GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name)
+                        )
+                    }
                     zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
                 }
             }

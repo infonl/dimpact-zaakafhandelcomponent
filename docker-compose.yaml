@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
     ports:
       - "54326:5432"
     healthcheck:
@@ -180,7 +180,7 @@ services:
   # It passes the `openzaak.local` Host on unchanged, so Open Zaak keeps generating the URLs that
   # ZAC validates its responses against.
   openzaak.local:
-    image: nginxinc/nginx-unprivileged:1.31.6@sha256:31e97ebaac04c19c8e7da6012c5776e86a4414695565200719d6113cb68d0b78
+    image: nginxinc/nginx-unprivileged:1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5
     ports:
       - "8001:8000"
     volumes:
@@ -196,7 +196,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.6.7@sha256:7dc197ef2b542b872622b6711345a8cb3e705e737f868f1fdc0c57050e928c32
+    image: redis:8.6.7@sha256:a323342084bc0350cc66feb7f6e11282c8d853b5e7e729de3b0e81ed88381196
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -281,7 +281,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:0a931f52cfd9a9afd6d958d246e64115648099c788e41a01adad9f09e6f73594
+    image: solr:9.10.1-slim@sha256:9987e11a90a0b115cc3f52b74d3d87788e3c1fa479deeaece80d33515480204a
     ports:
       - "8983:8983"
     volumes:
@@ -325,7 +325,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
     ports:
       - "54325:5432"
     healthcheck:
@@ -716,7 +716,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.6@sha256:31e97ebaac04c19c8e7da6012c5776e86a4414695565200719d6113cb68d0b78
+    image: nginxinc/nginx-unprivileged:1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5
     ports:
       - "8005:8080"
     volumes:
@@ -727,7 +727,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
     ports:
       - "54329:5432"
     environment:
@@ -790,7 +790,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
     ports:
       - "54320:5432"
     healthcheck:
@@ -916,7 +916,7 @@ services:
     profiles: ["zac"]
 
   openformulieren-database:
-    image: postgres:17.11@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
     ports:
       - "54330:5432"
     healthcheck:
@@ -1127,7 +1127,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.6@sha256:31e97ebaac04c19c8e7da6012c5776e86a4414695565200719d6113cb68d0b78
+    image: nginxinc/nginx-unprivileged:1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5
     ports:
       - "8007:8080"
     volumes:
