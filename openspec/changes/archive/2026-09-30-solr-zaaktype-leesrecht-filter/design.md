@@ -55,8 +55,9 @@ Alternative: ask OPA which zaaktypen are readable. No such policy exists and it 
 search for a value derivable locally.
 
 ### Remove `NOT_AUTHORISED_TO_LEZEN`, keep the read check in `canBeRelatedTo`
-- Drop the enum value and the `!to.lezen` branch from `gerelateerdNotLinkableReason`.
-- Redefine `canBeRelatedTo` as `to.lezen && gerelateerdNotLinkableReason(to) == null` so `linkZaak` still
+- Drop the enum value and the `!to.lezen` branch from `gerelateerdNotLinkableReason`. The function then only
+  depends on the current zaak's `koppelen` right, so it no longer takes the found zaak as an argument.
+- Redefine `canBeRelatedTo` as `to.lezen && gerelateerdNotLinkableReason() == null` so `linkZaak` still
   refuses an unreadable target.
 - Regenerate the OpenAPI spec and frontend types; remove the i18n keys in `nl.json` and `en.json` and the
   value from the reason list in `zaak-link.component.spec.ts`. That spec already uses Testing Library, so

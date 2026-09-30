@@ -7,8 +7,8 @@
 
 ## 2. Remove the NOT_AUTHORISED_TO_LEZEN koppel reason
 
-- [x] 2.1 Remove `NOT_AUTHORISED_TO_LEZEN` from `ZaakNotLinkableReason` and the `!to.lezen` branch from `gerelateerdNotLinkableReason`; redefine `canBeRelatedTo` as `to.lezen && gerelateerdNotLinkableReason(to) == null`; verify `./gradlew compileKotlin` succeeds
-- [x] 2.2 Update `ZaakLinkDataTest`: the gerelateerd reason for an unreadable found zaak is `null`, while `canBeRelatedTo` returns `false` for it; verify with `./gradlew test --tests "nl.info.zac.zaak.model.ZaakLinkDataTest"`
+- [x] 2.1 Remove `NOT_AUTHORISED_TO_LEZEN` from `ZaakNotLinkableReason` and the `!to.lezen` branch from `gerelateerdNotLinkableReason`, dropping its now unused found-zaak argument; redefine `canBeRelatedTo` as `to.lezen && gerelateerdNotLinkableReason() == null`; verify `./gradlew compileKotlin` succeeds
+- [x] 2.2 Update `ZaakLinkDataTest`: the gerelateerd reason only reports a missing `koppelen` right on the current zaak, while `canBeRelatedTo` returns `false` for an unreadable found zaak; verify with `./gradlew test --tests "nl.info.zac.zaak.model.ZaakLinkDataTest"`
 - [x] 2.3 Check `ZaakKoppelenRestServiceTest` (and any other test referencing the removed value) still compiles and passes, adding a case that `linkZaak` with relation type GERELATEERD to an unreadable zaak throws a policy exception if none exists; verify with `./gradlew test --tests "*ZaakKoppelenRestService*"`
 - [x] 2.4 Regenerate the OpenAPI spec and frontend types (`./gradlew generateOpenApiSpec`, then the frontend type generation) and verify the generated enum no longer contains `NOT_AUTHORISED_TO_LEZEN`
 
