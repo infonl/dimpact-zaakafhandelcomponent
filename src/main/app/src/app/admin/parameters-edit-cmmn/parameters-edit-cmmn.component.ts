@@ -45,7 +45,7 @@ import { MatStepperModule } from "@angular/material/stepper";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { forkJoin, Subject, Subscription, takeUntil } from "rxjs";
+import {forkJoin, Subject, Subscription, takeUntil} from "rxjs";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -257,7 +257,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
-  protected groepen = this.identityService.listGroups();
+  protected groepen: GeneratedType<"RestGroup">[] = [];
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   protected formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] =
@@ -323,6 +323,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
         configuratieService.readBrpDoelbindingSetupEnabled(),
+        identityService.listBehandelaarGroupsForZaaktype(
+            this.parameters.zaaktype.omschrijving ?? ""
+        )
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -336,6 +339,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           brpViewValues,
           brpProcessingValues,
           brpDoelbindingSetupEnabled,
+          groepen
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -348,6 +352,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
           this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
+          this.groepen = groepen
           await this.createForm();
         },
       );
@@ -458,8 +463,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       });
 
     if (defaultGroepId) {
-      const groups = await this.groepen.toPromise();
-      const defaultGroup = groups?.find(({ id }) => id === defaultGroepId);
+      const defaultGroup = this.groepen?.find(({ id }) => id === defaultGroepId);
       this.algemeenFormGroup.controls.defaultGroep.setValue(
         defaultGroup ?? null,
       );
