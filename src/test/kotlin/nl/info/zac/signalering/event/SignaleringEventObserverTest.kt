@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.signalering.event
+package nl.info.zac.signalering.event
 
-import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -14,6 +14,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.signalering.event.SignaleringEvent
+import net.atos.zac.signalering.event.SignaleringEventId
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -216,8 +218,12 @@ class SignaleringEventObserverTest : BehaviorSpec({
             every { zrcClientService.readRol(rolURI) } throws NotImplementedError("fakeError")
 
             `when`("the event is handled") {
-                then("the error does not escape the observer") {
-                    shouldNotThrowAny { signaleringEventObserver.onFire(signaleringEvent) }
+                val notImplementedError = shouldThrow<NotImplementedError> {
+                    signaleringEventObserver.onFire(signaleringEvent)
+                }
+
+                then("the error is passed on to the caller, so that the failure of the async event is logged") {
+                    notImplementedError.message shouldBe "fakeError"
                 }
             }
         }
