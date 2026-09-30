@@ -69,7 +69,7 @@ class SignaleringEventObserver @Inject constructor(
     }
 
     private fun handle(event: SignaleringEvent<*>) {
-        LOG.fine { "Signalering event ontvangen: $event" }
+        LOG.fine { "Signalering event received: $event" }
         event.delay()
 
         val signalering = buildSignalering(event) ?: run {
