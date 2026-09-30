@@ -279,7 +279,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:0a931f52cfd9a9afd6d958d246e64115648099c788e41a01adad9f09e6f73594
+    image: solr:9.10.1-slim@sha256:9987e11a90a0b115cc3f52b74d3d87788e3c1fa479deeaece80d33515480204a
     ports:
       - "8983:8983"
     volumes:
