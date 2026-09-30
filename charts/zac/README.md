@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.330](https://img.shields.io/badge/Version-1.0.330-informational?style=flat-square) ![AppVersion: 5.8](https://img.shields.io/badge/AppVersion-5.8-informational?style=flat-square)
+![Version: 1.0.331](https://img.shields.io/badge/Version-1.0.331-informational?style=flat-square) ![AppVersion: 5.8](https://img.shields.io/badge/AppVersion-5.8-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -357,7 +357,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:3ba030337caebbfc2232b22b1e435eb213b28e5844a34942c74555bf904a265a"` | solr busybox image tag |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:99813cb178ace2cd9c6c53ee3bddef5d2f5708aa438335111d7a9e3c5e1aaebe"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
