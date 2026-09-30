@@ -38,7 +38,7 @@ npm run dev                         # Dev server with HMR
 
 ### Unit Tests
 ```bash
-./gradlew test                      # Run all unit tests (backend + frontend)
+./gradlew test                      # Run all backend unit tests
 ./gradlew test --tests "nl.info.zac.SomeTest"  # Run single backend test class
 cd src/main/app && npm test         # Frontend tests only
 ```
@@ -71,6 +71,7 @@ cd src/main/app && npm run lint     # Frontend ESLint check
 ```
 
 Run `./gradlew spotlessApply detektApply` before committing backend changes.
+`detektApply` only fixes formatting rules; fix the other issues that `./gradlew detekt` reports, such as `ExpressionBodySyntax`, by hand.
 
 ## Architecture
 
@@ -79,7 +80,7 @@ Run `./gradlew spotlessApply detektApply` before committing backend changes.
 - **Language**: Kotlin (primary); any Java code encountered should be converted to Kotlin, not modified
 - **DI**: Weld CDI with **constructor-based injection** (not field injection)
 - **Logging**: Use lambda syntax — `logger.debug { "Value: $value" }` — to avoid unnecessary string interpolation
-- **Database**: PostgreSQL with Flyway migrations (`src/main/resources/db/migration/`)
+- **Database**: PostgreSQL with Flyway migrations (`src/main/resources/schemas/`)
 - **Search**: Apache Solr
 - **Auth**: Keycloak (OpenID Connect) + Open Policy Agent for authorization
 - **Workflows**: Flowable (CMMN case management + BPMN processes)
@@ -103,56 +104,15 @@ ZAC connects to: Open Zaak (ZGW APIs), Open Klant, Open Notificaties, HaalCentra
 
 Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### Angular Component Specs (Frontend Tests)
-- **No `NO_ERRORS_SCHEMA`** — never use it in specs; use real imports so the compiler catches missing declarations
-- **No `any`** — no `any`, `as any`, or `eslint-disable no-explicit-any` anywhere in specs or components
-- Standalone components declare all template dependencies in their `imports` array — import the component under test directly, no `NO_ERRORS_SCHEMA` needed
-- Use `fromPartial` from `@total-typescript/shoehorn` to create partial mocks of generated types
+Language-specific conventions live in path-scoped rule files, which Claude Code loads when it works on matching files.
+Other AI tools should read the file that matches the code they change:
+- [Kotlin](.claude/rules/kotlin.md) — `src/**/*.kt`
+- [Kotlin tests](.claude/rules/kotlin-tests.md) — `src/test/**`, `src/itest/**`
+- [Angular](.claude/rules/angular.md) — `src/main/app/src/**`
+- [Angular specs](.claude/rules/angular-specs.md) — `src/main/app/src/**/*.spec.ts`
 
-#### Query the DOM through Testing Library, not through Angular
-New and modified specs use [Testing Library](https://testing-library.com/docs/queries/about/#priority)
-to reach the DOM. Prefer `getByRole` with an accessible name; fall back to `getByLabelText`
-and `getByText` only when no role fits. A spec that queries by role fails when the markup
-stops being accessible, which is behaviour worth testing on its own.
-
-Do not use `fixture.debugElement.query(By.css(...))` or `nativeElement.querySelector(...)`.
-Both are flagged by `no-restricted-syntax`, and by Testing Library's own `no-node-access`.
-
-```ts
-// Before
-const row = fixture.nativeElement.querySelector("tr.zaak-row");
-// After
-const row = screen.getByRole("row", { name: /ZAAK-001/ });
-```
-
-Around 60 older specs still use the Angular style. They are warnings project-wide, but
-**errors on any spec file a pull request touches** — so a spec you edit has to be migrated
-before it merges. See [linting-strategy.md](docs/development/linting-strategy.md) for the
-command that reproduces that check locally.
-
-Where a third-party widget renders nothing queryable — `ngx-editor` sets no role on its
-ProseMirror element, OpenLayers draws to a canvas, a file input is `display: none` —
-disable the rule on that line with a comment saying which widget forces it.
-
-### Reuse existing TanStack Query definitions
-Before writing a new `injectQuery`/`ensureQueryData` call, check whether the relevant service already exposes
-a `queryOptions()`-based method for that endpoint (e.g. `SmartDocumentsService.getTemplatesMappingQuery`,
-`InformatieObjectenService.listEnkelvoudigInformatieobjectenQuery`). Reuse it instead of inlining a new
-`{ queryKey, queryFn }` object — duplicating the query key and fetch logic across components risks the keys
-drifting out of sync (breaking the shared cache) and multiplies the places a bug must be fixed.
-```ts
-// Before
-private readonly someQuery = injectQuery(() => ({
-  queryKey: ["smartDocumentsTemplatesMapping", this.zaaktypeUuid],
-  queryFn: () => lastValueFrom(this.smartDocumentsService.getTemplatesMapping(this.zaaktypeUuid)),
-}));
-// After
-private readonly someQuery = injectQuery(() =>
-  this.smartDocumentsService.getTemplatesMappingQuery(this.zaaktypeUuid),
-);
-```
-If no shared method exists yet for the endpoint you need, add one to the relevant service using
-`queryOptions()` from `@tanstack/angular-query-experimental`, so future callers can reuse it too.
+Conventions that a linter enforces are not repeated here; run the linters listed above and fix what they report.
+[linting-strategy.md](docs/development/linting-strategy.md) lists which conventions they cover.
 
 ### SPDX License Headers
 All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
@@ -177,104 +137,17 @@ When modifying an existing file that already has an SPDX header, add `, <YEAR> I
 For example, if the SPDX header already contains `2025 INFO.nl`, leave it as is and do not add the current year.
 For example `2025, 2026 INFO.nl` is wrong.
 
-### Simplify Kotlin functions
-When you see a Kotlin function with a single expression body, convert it to an expression body syntax:
-```kotlin
-// Before
-fun add(a: Int, b: Int): Int {
-    return a + b
-}   
-// After
-fun add(a: Int, b: Int): Int = a + b
-```
-This makes the code more concise and easier to read.
-
-### Omit return types when they are obvious
-When a Kotlin function has an expression body (`=`) and its right-hand side already makes the return type
-unambiguous — constructing a specific type via `Foo().apply { ... }`, or delegating to another function whose
-own return type is already clear — omit the explicit return type declaration. This applies even to public API
-functions; this project deliberately diverges from the general Kotlin style guide's recommendation to always
-declare return types on public declarations.
-```kotlin
-// Before
-fun convert(mailTemplate: MailTemplate): RESTMailtemplate =
-    RESTMailtemplate().apply { ... }
-// After
-fun convert(mailTemplate: MailTemplate) =
-    RESTMailtemplate().apply { ... }
-```
-Keep the explicit return type when the body is a block (`{ ... return ... }`, where Kotlin requires it anyway)
-or when omitting it would genuinely obscure what the function returns.
-
 ### Use `https` for dummy URLs
 When you encounter placeholder or test URLs in code or documentation, use `https://` instead of `http://` to follow best practices for secure URLs.
 
-### Use variable names that are the same as their type where possible
-When you see a variable declaration where the variable name is different from its type, rename the variable to match the type. For example, if you have `val user: User`, rename it to `val user: User` instead of `val u: User` or `val usr: User`. This improves readability and makes it clear what the variable represents.
-This includes exceptions.
-For example `catch (e: Exception)` should be `catch (exception: Exception)`.
-
-### Catch narrow exceptions, not generic ones
-Never write `catch (exception: Exception)`, `catch (throwable: Throwable)` or `runCatching { }`. Catch the specific
-exception types the code in the `try` block can actually throw, and let everything else propagate. A generic catch
-swallows bugs — a `NullPointerException` or an `IllegalStateException` from a mistake in the `try` block gets treated
-as an expected failure and is silently handled.
+### Do not use abbreviated variable names
+Use human-readable names for all variables, including those used in tests.
 
 ```kotlin
 // Before
-try {
-    drcClient.enkelvoudigInformatieobjectDelete(uuid)
-} catch (exception: Exception) {
-    LOG.warning { "Failed to delete document: ${exception.message}" }
-}
+val restEio = createRestEnkelvoudigInformatieobject()
 // After
-try {
-    drcClient.enkelvoudigInformatieobjectDelete(uuid)
-} catch (drcRuntimeException: DrcRuntimeException) {
-    LOG.warning { "Failed to delete document: ${drcRuntimeException.message}" }
-} catch (processingException: ProcessingException) {
-    LOG.warning { "Failed to delete document: ${processingException.message}" }
-}
-```
-
-When the goal is cleanup on any failure rather than handling a failure, use `finally` — it needs no catch at all:
-
-```kotlin
-// Before
-try {
-    return writeTo(path)
-} catch (exception: Exception) {
-    Files.deleteIfExists(path)
-    throw exception
-}
-// After
-var isWritten = false
-try {
-    return writeTo(path).also { isWritten = true }
-} finally {
-    if (!isWritten) Files.deleteIfExists(path)
-}
-```
-
-The same goes for `@Suppress("TooGenericExceptionCaught")`: it is a signal that the catch is too broad, not a way to
-silence Detekt.
-
-### Avoid the use of `requireNotNull`
-When you encounter a nullable variable that is being forcefully unwrapped using `requireNotNull`, consider refactoring the code to handle the null case more gracefully, for example by making the variable non-nullable.
-This can improve the robustness of the code and prevent potential crashes.
-
-### Never reference Jira tickets in code
-Jira ticket references (`PZ-XXX`, `DRT-XXX`) belong in commit messages, PR descriptions and branch names — never in
-source code, comments or KDoc. A ticket number tells a future reader nothing without access to Jira, and it goes stale.
-Describe the behaviour itself instead, or leave it out.
-
-```kotlin
-// Before
-/**
- * Regression test for PZ-12241, where a shadowed lambda parameter matched every resultaattype to the first one.
- */
-// After
-// (no comment: the test name already states the expected behaviour)
+val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
 ```
 
 ### Do not write comments that narrate the code
@@ -314,266 +187,6 @@ spec "given an item that is already linked to a case,
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
 
-### Follow the Kotlin Coding Conventions
-Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
-Place `companion object` at the **top** of a class body, before any functions or properties.
-This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
-Rename existing classes to comply with the following Kotlin code convention:
-When using an acronym as part of a declaration name, follow these rules:
-— For two-letter acronyms, use uppercase for both letters. For example, IOStream.
-— For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
-
-### Name boolean properties with an `is`/`has` prefix
-Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
-name boolean properties and variables with an `is`, `has`, or similar prefix, e.g. `isInformatieobjectDeleted`
-rather than `informatieobjectDeleted`. This applies to REST model classes as well as regular code.
-For a boolean property on a class serialized with JSON-B (e.g. a `RestXxx` model), add
-`@get:JsonbProperty("isXxx")` above the property so the JSON field name matches the Kotlin property
-name exactly:
-```kotlin
-// Before
-var informatieobjectDeleted: Boolean = true
-// After
-@get:JsonbProperty("isInformatieobjectDeleted")
-var isInformatieobjectDeleted: Boolean = true
-```
-
-### Use kebab-case for the last segment of frontend i18n message keys
-In `src/main/app/src/assets/i18n/nl.json` and `en.json`, when the last segment of a message key is
-multi-word, write it in kebab-case, not camelCase — e.g. `msg.document.verwijderen.inbox.niet-verwijderd`,
-not `msg.document.verwijderen.inbox.nietVerwijderd`. This applies even when the segment is named after
-a camelCase variable (such as an `isXxx` boolean) elsewhere in the code — the i18n key still uses kebab-case.
-
-### Prefer Kotlin data classes for simple data holders
-When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
-use a Kotlin `data class`.
-When used by dependency injection frameworks, such as is the case in REST services, ensure that the data class has the following annotations:
-```
-@NoArgConstructor
-@AllOpen
-```
-
-### Use named parameters in Kotlin
-When calling a Kotlin function that has multiple parameters, especially if they are of the same type, use named parameters to improve readability. For example:
-```kotlin
-// Before
-val user = createUser("John", "Doe", 30)
-// After
-val user = createUser(firstName = "John", lastName = "Doe", age = 30)
-```
-This makes it clear what each argument represents and reduces the chance of accidentally swapping parameters.
-
-### Do not use abbreviated variable names
-Use human-readable names for all variables, including those used in tests.
-
-```kotlin
-// Before
-val restEio = createRestEnkelvoudigInformatieobject()
-// After
-val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
-```
-
-### Prefer concise lambda syntax in Kotlin
-When you have a lambda function that can be simplified to a single expression, use the concise syntax. For example:
-
-    // Before
-    val sum = numbers.map { number -> number * 2 }.sum()
-    // After
-    val sum = numbers.map { it * 2 }.sum()
-This makes the code more concise and easier to read.
-
-### Use method references in Kotlin
-When you have a lambda function that simply calls another function, use a method reference to make the code more concise. For example:
-```kotlin// Before
-val param.map { someFunction(it) }
-// After
-val param.map(::someFunction)
-```
-
-### Use .apply for object configuration in Kotlin
-When you need to configure an object after creating it, use the `.apply` scope function to make the code more concise and readable. For example:
-```kotlin// Before
-val user = User()
-user.firstName = "John"
-user.lastName = "Doe"
-// After
-val user = User().apply {
-    firstName = "John"
-    lastName = "Doe"
-}
-```
-This allows you to initialize the object in a more fluent way.
-
-Prefer `.apply` over `.also` for this even inside an extension function, where the extension receiver and the
-object being configured are two different values in scope at once. Qualify references to the extension receiver
-with `this@functionName` so every unqualified assignment inside the `apply` block unambiguously targets the new
-object:
-```kotlin
-// Before (.also, only needed because of the two receivers)
-fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().also {
-    it.mailTemplateNaam = mailTemplateNaam
-}
-// After (.apply, receiver disambiguated explicitly)
-fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().apply {
-    mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam
-}
-```
-`.also`'s `it`/named parameter is for side effects on an existing value; configuring a freshly constructed object's
-fields is not a side effect, so reach for `.apply` regardless of how many receivers are in scope.
-
-### Distinguish between `findXxx` and `readXxx` functions in low-level Kotlin CRUD services
-Use the following convention:
-
-`findXxx(itemId)` function: returns `null` if the item in question could not be found
-`readXXX(itemId)` - throws 'Item not found' exception when the item in question could not be found
-
-For example:
-```kotlin
-  fun findReferenceTable(code: String): ReferenceTable? =
-    entityManager.criteriaBuilder.let { criteriaBuilder ->
-        criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
-            query.from(ReferenceTable::class.java).let { root ->
-                criteriaBuilder.equal(root.get<Any>("code"), code.uppercase()).let { predicate ->
-                    query.select(root).where(predicate)
-                }
-            }
-            entityManager.createQuery(query).resultList
-        }
-    }.firstOrNull()
-```
-
-and:
-```kotlin
-fun readReferenceTable(code: String): ReferenceTable =
-        findReferenceTable(code) ?: run {
-            throw ReferenceTableNotFoundException("No reference table found with code '$code'")
-        }
-```
-
-### Kotlin repository entity classes must have the @AllOpen annotation
-Kotlin repository entity classes must have the @AllOpen annotation.
-
-```kotlin// Before
-@Entity
-@Table(schema = SCHEMA, name = "inbox_document")
-@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
-class InboxDocument
-// After
-@Entity
-@Table(schema = SCHEMA, name = "inbox_document")
-@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
-@AllOpen
-class InboxDocument
-```
-
-### In Kotlin repository entity classes use `lateinit var` for variables that are nullable
-In Kotlin repository entity classes use `lateinit var` for variables that are nullable instead of a nullable variable.
-
-```kotlin// Before
-@NotNull
-@Column(name = "creatiedatum", nullable = false)
-var creatiedatum: LocalDate? = null
-// After
-@NotNull
-@Column(name = "creatiedatum", nullable = false)
-lateinit var creatiedatum: LocalDate
-```
-
-### Use `XxxRepository` naming convention for Kotlin repository classes
-Name Kotlin classes that perform logic on the ZAC database using JPA `XxxRepository`
-
-```kotlin// Before
-class DetachedDocumentService
-// After
-class DetachedDocumentRepository
-```
-
-### Use proper Transaction annotations in Kotlin service classes
-Use proper Transaction annotations in Kotlin service classes.
-Follow these rules:
-- Use `@Transactional(SUPPORTS)` at class level when a service class contains functions that update data in the database.
-- Use `@Transactional(REQUIRED)` at function level for functions that update data in the database (create, update, delete)
-- Read functions do not need a `@Transactional` annotation.
-- Do not use any transactional annotations at function level for functions that only read from the database.
-  For these functions, the transactional annotation at class level is used.
-
-### In Kotlin unit tests the 'shouldThrow' should be in the 'When' block
-In Kotlin unit tests the 'shouldThrow' should be in the '`when`' and not in the 'then' block.
-Also the exception message should be checked in the 'then' block.
-
-```kotlin// Before
-{
-`when`("calling the service") {
-    then("should throw IllegalArgumentException") {
-        shouldThrow<IllegalArgumentException> {
-            service.add(1, 2)
-        }
-    }
-}
-// After
-`when`("calling the service") {
-    val illegalArgumentException = shouldThrow<IllegalArgumentException> {
-        service.add(1, 2)
-    }
-    
-    then("should throw IllegalArgumentException") {
-        illegalArgumentException.message shouldBe "Expected exception message"
-    }
-}    
-``` 
-
-## Test conventions
-
-### Kotest (Backend Tests)
-Use BDD style with `context`/`given`/`` `when` ``/`then` blocks, and always add `afterEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
-```kotlin
-class MyServiceTest : BehaviorSpec({
-    afterEach { checkUnnecessaryStub() }
-    context("A function in the service under test") {
-        given("some state") {
-            `when`("action occurs") {
-                then("expected result") { ... }
-            }
-        }
-    }
-})
-```
-
-Use the lowercase `and(...)` block for an additional assertion group after a `then(...)`, not the capitalized `And(...)`. Kotest's `BehaviorSpec` provides both, but mixing cases (lowercase `given`/`when`/`then` with capitalized `And`) is exactly what CodeQL's `java/confusing-method-name` query flags as confusing. This is an in-progress migration — many existing specs still use `And(...)` — but new and touched specs should use `and(...)`.
-```kotlin
-// Before
-then("expected result") { ... }
-And("an additional assertion") { ... }
-// After
-then("expected result") { ... }
-and("an additional assertion") { ... }
-```
-
-### Use `fakeXXX` for test values where possible
-
-For example, instead of:
-```kotlin
-createRestUser(id = "user1", name = "User One")
-```
-
-use:
-```kotlin
-createRestUser(id = "fakeUserId1", name = "fakeUserName1")
-```
-
-### Let the `given`/`when`/`then` names carry the explanation, not comments
-Tests must be self-documenting through their `context`/`given`/`` `when` ``/`then` descriptions and their variable
-names. Do not add comments describing the scenario, the setup or the assertion — put that information in the block
-description instead. This also applies to class-level KDoc summarising what a test class covers.
-
-```kotlin
-// Before
-// the new zaaktype deliberately lists 'Verlengd' first so that a positional mapping produces the wrong result
-val newZaaktype = createZaakType(resultTypes = listOf(...))
-// After
-given("a previous configuration whose resultaattypen are not the first ones of the new zaaktype") { ... }
-```
-
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
 Replace `PZ-XXX` with the relevant Jira ticket number.
@@ -594,4 +207,5 @@ Detailed guides live in `docs/development/`:
 - `documentFileSizes.md` — the two maximum document sizes and how to raise them
 - `endToEndTypeSafety.md` — type safety approach
 - `paging.md` — REST paging conventions
+- `linting-strategy.md` — what the linters check, and the stricter check on specs a pull request touches
 - `logging.md` — logging conventions and GDPR/AVG-required follow-up changes

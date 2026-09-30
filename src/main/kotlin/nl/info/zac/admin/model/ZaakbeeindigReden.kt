@@ -41,7 +41,5 @@ class ZaakbeeindigReden {
         return naam == other.naam
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(naam)
-    }
+    override fun hashCode(): Int = Objects.hashCode(naam)
 }

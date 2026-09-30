@@ -208,8 +208,6 @@ class MailTemplateHelperTest : BehaviorSpec({
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
-            val zaakStatus = createZaakStatus()
-            val statusType = createStatusType(omschrijving = "fakeStatusTypeDescription")
             val zaakTonenURL = URI("https://example.com/fakeURL")
             val bsn = "123456789"
             val rolNietNatuurlijkPersoon = createRolNatuurlijkPersoon(
@@ -239,8 +237,6 @@ class MailTemplateHelperTest : BehaviorSpec({
             val userName = "fakeUserName"
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
             every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
-            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
-            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every {
                 brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
@@ -276,8 +272,6 @@ class MailTemplateHelperTest : BehaviorSpec({
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
-            val zaakStatus = createZaakStatus()
-            val statusType = createStatusType(omschrijving = "fakeStatusTypeDescription")
             val zaakTonenURL = URI("https://example.com/fakeURL")
             val bsn = "123456789"
             val rolNietNatuurlijkPersoon = createRolNatuurlijkPersoon(
@@ -292,8 +286,6 @@ class MailTemplateHelperTest : BehaviorSpec({
             val userName = "fakeUserName"
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
             every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
-            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
-            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every {
                 brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
@@ -321,8 +313,6 @@ class MailTemplateHelperTest : BehaviorSpec({
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
-            val zaakStatus = createZaakStatus()
-            val statusType = createStatusType(omschrijving = "fakeStatusTypeDescription")
             val zaakTonenURL = URI("https://example.com/fakeURL")
             val vestigingsnummer = "123456789"
             val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
@@ -333,8 +323,6 @@ class MailTemplateHelperTest : BehaviorSpec({
             val resultaatItem = createResultaatItem()
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
             every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
-            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
-            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every { kvkClientService.findVestiging(vestigingsnummer) } returns resultaatItem
 

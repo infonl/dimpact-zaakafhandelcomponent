@@ -9,11 +9,9 @@ import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
 class KvkClientNoResultResponseExceptionMapper : ResponseExceptionMapper<KvkClientNoResultException> {
-    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean {
-        return status == Response.Status.NOT_FOUND.statusCode
-    }
+    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean =
+        status == Response.Status.NOT_FOUND.statusCode
 
-    override fun toThrowable(response: Response): KvkClientNoResultException {
-        return KvkClientNoResultException("No results found for KVK search")
-    }
+    override fun toThrowable(response: Response): KvkClientNoResultException =
+        KvkClientNoResultException("No results found for KVK search")
 }

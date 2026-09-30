@@ -7,7 +7,8 @@ package nl.info.zac.test.config
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.extensions.Extension
 import nl.info.zac.test.listener.MockkClearingTestListener
+import nl.info.zac.test.listener.UnnecessaryStubCheckingTestListener
 
 object ZacTestProjectConfig : AbstractProjectConfig() {
-    override val extensions: List<Extension> = listOf(MockkClearingTestListener())
+    override val extensions: List<Extension> = listOf(MockkClearingTestListener(), UnnecessaryStubCheckingTestListener())
 }

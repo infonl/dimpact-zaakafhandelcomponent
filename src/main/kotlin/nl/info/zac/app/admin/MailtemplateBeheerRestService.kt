@@ -101,7 +101,5 @@ class MailtemplateBeheerRestService @Inject constructor(
 
     @GET
     @Path("variabelen/{mail}")
-    fun getMailTemplateVariables(@PathParam("mail") mail: Mail): Set<MailTemplateVariables> {
-        return mail.mailTemplateVariables
-    }
+    fun getMailTemplateVariables(@PathParam("mail") mail: Mail): Set<MailTemplateVariables> = mail.mailTemplateVariables
 }

@@ -106,6 +106,4 @@ fun createRandomVestigingsNumber() = createRandomDigitsString(12)
 
 fun createRandomKvkNumber() = createRandomDigitsString(8)
 
-fun createRandomDigitsString(length: Int): String {
-    return (1..length).map { Random.nextInt(0, 10) }.joinToString("")
-}
+fun createRandomDigitsString(length: Int) = (1..length).map { Random.nextInt(0, 10) }.joinToString("")
