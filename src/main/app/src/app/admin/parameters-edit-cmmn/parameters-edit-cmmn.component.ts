@@ -324,7 +324,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         referentieTabelService.listBrpProcessingValues(),
         configuratieService.readBrpDoelbindingSetupEnabled(),
         identityService.listBehandelaarGroupsForZaaktype(
-            this.parameters.zaaktype.omschrijving ?? ""
+            this.parameters.zaaktype.omschrijving!
         )
       ]).subscribe(
         async ([
