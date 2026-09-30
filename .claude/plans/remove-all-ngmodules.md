@@ -7,7 +7,7 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 8 of 18 modules removed, step 4 done
+## Progress — 9 of 18 modules removed once step 6 merges; 5a merged, 5b pending
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
@@ -15,9 +15,9 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [x] **Step 3** — ngx-editor out of the eager graph (PZ-12707) — **−77 kB** (merged, #7088)
 - [x] **Step 4** — dissolve `PipesModule` — pure deletion, −0.6 kB
 - [ ] **Step 5** — dissolve `MaterialModule`, split in two PRs:
-  - [ ] **5a** — all 20 specs that import one of our NgModules (PZ-12820, branch `refactor/PZ-12820-spec-files-import-components-directly-instead-of-through-modules`)
-  - [ ] **5b** — 14 non-spec files (local branch `temp-ng20-step5b`, rebase on main after 5a merges)
-- [ ] **Step 6** — dissolve `MaterialFormBuilderModule` (17 non-spec, 0 specs after 5a)
+  - [x] **5a** — all 20 specs that import one of our NgModules (PZ-12820, merged, #7205)
+  - [ ] **5b** — 14 non-spec files (local branch `temp-ng20-step5b`, commit `155f23db3`; applies cleanly on main `231146b26`, re-measure on top of step 6)
+- [x] **Step 6** — `MaterialFormBuilderModule` removed — **−9.8 kB** (PZ-12845, PR pending; independent of 5b)
 - [ ] **Step 7** — dissolve `SharedModule` (8 non-spec, 0 specs after 5a) — last, it re-exports the others
 - [ ] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
       `documenten`, `productaanvragen`)
@@ -25,7 +25,7 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [ ] **Step 10** — `bootstrapApplication` + delete `CoreModule`
 
 Bundle so far: **672.06 -> 443.64 kB** initial transfer (**−34%**), the 77 kB of that in
-the PZ-12707 PR (step 3) and the last 0.6 kB in step 4.
+the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB).
 
 **These figures are only comparable within the step that measured them.** Main moves underneath
 the branch, so an absolute `Initial total` goes stale as soon as it is merged — the same branch
@@ -85,7 +85,7 @@ configured to compress, so a local run on :8080 ships the full raw size.
 | [x] | `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 | −18 kB with the container |
 | [x] | `informatie-objecten/informatie-objecten.module.ts` | container + provider | 2 | (same) |
 | [ ] | `shared/material/material.module.ts` | barrel | 5 | **+27 kB** transfer, −60 kB raw (measured) |
-| [ ] | `shared/material-form-builder/material-form-builder.module.ts` | barrel | 6 | **−77 kB** already banked in step 3 |
+| [ ] | `shared/material-form-builder/material-form-builder.module.ts` | barrel | 6 | **−9.8 kB** (measured), on top of the −77 kB banked in step 3 |
 | [ ] | `shared/shared.module.ts` | barrel | 7 | not yet measured |
 | [x] | `shared/pipes/pipes.module.ts` | barrel | 4 | −0.6 kB (measured) |
 | [ ] | `taken/taken-routing.module.ts` | routing (lazy) | 8 | none |
@@ -306,7 +306,18 @@ Gotchas hit:
 - `AppComponent` needs `MatSidenavModule` in `AppModule`.
 - The production `ng build` must run outside the sandbox (exit 134 otherwise).
 
-### Step 6 — `MaterialFormBuilderModule` — 17 non-spec, 0 specs (cleared by 5a)
+### Step 6 — `MaterialFormBuilderModule` — DONE (PZ-12845, PR pending)
+
+**Result.** On main `231146b26`: `Initial total` 2.19 MB / 459.67 kB -> 2.16 MB / 449.84 kB (**−9.8 kB transfer**). 3326/3326 tests, lint 0 errors, no spec file touched. 21 files, +96 / −148. Does not depend on 5b; 5b goes after it as its own PR.
+
+**What was done.** 16 components import their `Zac*` fields and `EmptyPipe` directly (4 of them only lose the module line); `shared.module.ts` drops `forRoot()` and the export; the module file is deleted. The date providers became `provideZacDateAdapter()` in `shared/form/date/provide-zac-date-adapter.ts` (`provideMomentDateAdapter(ZAC_DATE_FORMATS, { strict: false })`), used by `CoreModule` and by `setupJest.ts`. The `parse`/`display` keys that sat in the old `MAT_MOMENT_DATE_ADAPTER_OPTIONS` were dropped: `MomentDateAdapter` reads only `strict` and `useUtc`. `withJsonpSupport()` and the barrel's `provideHttpClient` went without replacement; the app has no JSONP calls and no HTTP interceptors.
+
+**Gotchas hit:**
+- A template scan over `.html` files misses inline templates: `klant-koppel-betrokkene` uses `zac-select`/`zac-input` in `template:` and needed both. The production build caught it (NG8001); scan `.ts` files with `template:` too.
+- The claim below that 5a made the specs provide the date adapter themselves was wrong for 4 specs (`zaak-brondatum-zetten-dialog`, `zaak-afhandelen-dialog`, `informatie-object-add`, `informatie-object-edit`, 12 tests). They got the app's `YYYY-MM-DD` format through the component's own barrel import, and fell back to `setupJest`'s default `provideMomentDateAdapter()`, whose format does not parse it, so the date stayed invalid and the submit button disabled. Fixed without touching a spec: `setupJest.ts` now uses `provideZacDateAdapter()`, so specs run on the app's real date config. `setupJest.ts` is not a `*.spec.ts`, so the touched-spec lint gate does not apply.
+- `ng test` must run outside the sandbox too (watchman cannot write its LaunchAgent).
+
+Original scope:
 
 - `admin/`: `mailtemplate`, `parameters-edit-bpmn`, `parameters-edit-cmmn`,
   `parameters-select-process-model-method`
@@ -393,7 +404,7 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 Step 3: done, −77 kB, merged (#7088).
 Step 4: done, −0.6 kB — no consumer needed touching; the work was migrating 3 touched specs to
 Testing Library.
-Steps 5–7: order forced by the barrels' own dependencies. Step 5 is implemented (5a specs, 5b non-spec) and measured +27 kB transfer on its own; any Material win needs 6 and 7 together.
+Steps 5–7: order forced by the barrels' own dependencies. 5a merged; 5b measured +27 kB transfer on its own and waits for re-measurement on top of step 6. Step 6 done, −9.8 kB.
 Steps 8–9: low risk, sequential, no behaviour change, no win.
 Step 10: the gate — all of the risk, none of the payoff, so last.
 

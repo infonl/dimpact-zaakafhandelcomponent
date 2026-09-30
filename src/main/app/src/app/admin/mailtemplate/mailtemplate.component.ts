@@ -26,9 +26,10 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../../shared/form/html-editor/html-editor";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
 import { PostBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -47,7 +48,8 @@ import { mailSelectList } from "../model/mail-utils";
     RouterModule,
     TranslateModule,
     SideNavComponent,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacInput,
     ZacHtmlEditor,
     ZacFormActions,
   ],

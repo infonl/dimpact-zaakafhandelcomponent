@@ -35,7 +35,9 @@ import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
-import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
+import { ZacDate } from "../../../shared/form/date/date";
+import { ZacInput } from "../../../shared/form/input/input";
+import { ZacSelect } from "../../../shared/form/select/select";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import {
@@ -53,7 +55,9 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   styleUrls: ["./persoon-zoek.component.less"],
   standalone: true,
   imports: [
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacInput,
+    ZacDate,
     ReactiveFormsModule,
     MatTableModule,
     MatSortModule,

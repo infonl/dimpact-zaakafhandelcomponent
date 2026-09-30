@@ -11,10 +11,10 @@ import {
 } from "@angular/common/http/testing";
 import "@angular/compiler";
 import { TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { provideRouter } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
+import { provideZacDateAdapter } from "./src/app/shared/form/date/provide-zac-date-adapter";
 
 const cryptoPolyfill = {
   randomUUID: () => {
@@ -163,7 +163,7 @@ beforeEach(() => {
       provideHttpClient(),
       provideHttpClientTesting(),
       provideRouter([]),
-      provideMomentDateAdapter(),
+      provideZacDateAdapter(),
     ],
   });
 });

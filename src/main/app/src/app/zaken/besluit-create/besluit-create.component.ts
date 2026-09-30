@@ -23,11 +23,11 @@ import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
+import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -49,7 +49,7 @@ import { ZakenService } from "../zaken.service";
     ZacDate,
     ZacTextarea,
     ZacFormActions,
-    MaterialFormBuilderModule,
+    ZacDocuments,
   ],
 })
 export class BesluitCreateComponent implements OnInit {
