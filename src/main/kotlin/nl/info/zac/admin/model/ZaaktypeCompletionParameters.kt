@@ -59,9 +59,8 @@ class ZaaktypeCompletionParameters : UserModifiable<ZaaktypeCompletionParameters
         return Objects.hash(zaakbeeindigReden.id, resultaattype)
     }
 
-    override fun isModifiedFrom(original: ZaaktypeCompletionParameters): Boolean {
-        return zaakbeeindigReden == original.zaakbeeindigReden && resultaattype != original.resultaattype
-    }
+    override fun isModifiedFrom(original: ZaaktypeCompletionParameters): Boolean =
+        zaakbeeindigReden == original.zaakbeeindigReden && resultaattype != original.resultaattype
 
     override fun applyChanges(changes: ZaaktypeCompletionParameters) {
         resultaattype = changes.resultaattype

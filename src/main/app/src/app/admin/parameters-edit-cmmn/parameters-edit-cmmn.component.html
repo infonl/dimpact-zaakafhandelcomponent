@@ -132,7 +132,7 @@
           <zac-select
             class="col-12 col-lg-6"
             key="defaultGroep"
-            label="groep"
+            label="groep.standaard"
             optionDisplayValue="naam"
             [form]="algemeenFormGroup"
             [options]="groepen"
@@ -142,7 +142,7 @@
           <zac-select
             class="col-12 col-lg-6"
             key="defaultBehandelaar"
-            label="behandelaar"
+            label="behandelaar.standaard"
             optionDisplayValue="naam"
             [form]="algemeenFormGroup"
             [options]="medewerkers"
@@ -276,7 +276,7 @@
             </div>
             <div class="flex-row flex-wrap">
               <mat-form-field class="w33 w100-md" floatLabel="always">
-                <mat-label>{{ "groep" | translate }}</mat-label>
+                <mat-label>{{ "groep.standaard" | translate }}</mat-label>
                 <mat-select
                   placeholder="{{ 'groep.-geen-' | translate }}"
                   formControlName="defaultGroep"
@@ -286,7 +286,7 @@
                     "groep.-geen-" | translate
                   }}</mat-option>
                   <mat-option
-                    *ngFor="let groep of groepen | async"
+                    *ngFor="let groep of groepen"
                     [value]="groep.id"
                     >{{ groep.naam }}</mat-option
                   >

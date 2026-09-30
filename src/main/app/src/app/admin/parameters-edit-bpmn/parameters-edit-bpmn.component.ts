@@ -116,7 +116,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
 
   protected bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] =
     [];
-  protected groepen = this.identityService.listGroups();
+  protected groepen: GeneratedType<"RestGroup">[] = [];
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
@@ -235,6 +235,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         this.zaakafhandelParametersService.listResultaattypes(
           this.bpmnZaakafhandelParameters.zaaktype.uuid,
         ),
+        this.identityService.listBehandelaarGroupsForZaaktype(
+          this.bpmnZaakafhandelParameters.zaaktype.omschrijving!,
+        ),
       ]).subscribe(
         async ([
           brpSearchValues,
@@ -243,6 +246,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           brpDoelbindingSetupEnabled,
           zaakbeeindigRedenen,
           resultaattypes,
+          groepen,
         ]) => {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
@@ -250,6 +254,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
           this.zaakbeeindigRedenen = zaakbeeindigRedenen;
           this.resultaattypes = resultaattypes;
+          this.groepen = groepen;
           await this.createForm();
         },
       );
@@ -305,10 +310,11 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       });
 
     if (defaultGroepId) {
-      const groups = await this.groepen.toPromise();
-      const defaultGroup = groups?.find(({ id }) => id === defaultGroepId);
+      const defaultGroup = this.groepen?.find(
+        ({ id }) => id === defaultGroepId,
+      );
       this.algemeenFormGroup.controls.defaultGroep.setValue(
-        defaultGroup ?? groups?.at(0) ?? null,
+        defaultGroup ?? null,
       );
     }
 

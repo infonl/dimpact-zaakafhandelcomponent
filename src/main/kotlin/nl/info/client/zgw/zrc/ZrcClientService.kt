@@ -55,9 +55,8 @@ class ZrcClientService @Inject constructor(
 ) {
     fun createRol(rol: Rol<*>) = createRol(rol, null)
 
-    fun createRol(rol: Rol<*>, auditExplanation: String?): Rol<*> {
-        return zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolCreate(rol) }
-    }
+    fun createRol(rol: Rol<*>, auditExplanation: String?): Rol<*> =
+        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolCreate(rol) }
 
     fun deleteRol(rol: Rol<*>, auditExplanation: String?) {
         zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolDelete(rol.uuid!!) }
@@ -136,9 +135,8 @@ class ZrcClientService @Inject constructor(
     fun listZaakobjecten(zaakobjectListParameters: ZaakobjectListParameters): Results<Zaakobject> =
         zrcClient.zaakobjectList(zaakobjectListParameters)
 
-    fun patchZaak(zaakUUID: UUID, zaak: Zaak, explanation: String?): Zaak {
-        return zgwClientHeadersFactory.withAuditExplanation(explanation) { patchZaak(zaakUUID, zaak) }
-    }
+    fun patchZaak(zaakUUID: UUID, zaak: Zaak, explanation: String?): Zaak =
+        zgwClientHeadersFactory.withAuditExplanation(explanation) { patchZaak(zaakUUID, zaak) }
 
     fun patchZaak(zaakUUID: UUID, zaak: Zaak): Zaak = zrcClient.zaakPartialUpdate(zaakUUID, zaak)
 
@@ -228,15 +226,13 @@ class ZrcClientService @Inject constructor(
     fun listAuditTrail(zaakUUID: UUID): List<ZRCAuditTrailRegel> =
         zrcClient.listAuditTrail(zaakUUID)
 
-    fun closeCase(zaakUUID: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten {
-        return zrcClient.zaakAfsluiten(zaakUUID, zaakAfsluiten)
-    }
+    fun closeCase(zaakUUID: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten =
+        zrcClient.zaakAfsluiten(zaakUUID, zaakAfsluiten)
 
     fun deleteResultaat(resultaatUUID: UUID) = zrcClient.resultaatDelete(resultaatUUID)
 
-    fun createZaak(zaak: Zaak): Zaak {
-        return zgwClientHeadersFactory.withAuditExplanation(zaak.toelichting) { zrcClient.zaakCreate(zaak) }
-    }
+    fun createZaak(zaak: Zaak): Zaak =
+        zgwClientHeadersFactory.withAuditExplanation(zaak.toelichting) { zrcClient.zaakCreate(zaak) }
 
     fun createStatus(zaakUuid: UUID, status: StatusSub): StatusSub {
         val zaakBijwerken = ZaakBijwerken().apply {
@@ -247,13 +243,10 @@ class ZrcClientService @Inject constructor(
         }
     }
 
-    fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap {
-        return zrcClient.zaakeigenschapCreate(zaakUUID, zaakEigenschap)
-    }
+    fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap =
+        zrcClient.zaakeigenschapCreate(zaakUUID, zaakEigenschap)
 
-    fun listZaakeigenschappen(zaakUUID: UUID): List<ZaakEigenschap> {
-        return zrcClient.zaakeigenschapList(zaakUUID)
-    }
+    fun listZaakeigenschappen(zaakUUID: UUID): List<ZaakEigenschap> = zrcClient.zaakeigenschapList(zaakUUID)
 
     fun readZaakeigenschap(zaakUUID: UUID, zaakeigenschapUUID: UUID): ZaakEigenschap =
         zrcClient.zaakeigenschapRead(zaakUUID, zaakeigenschapUUID)

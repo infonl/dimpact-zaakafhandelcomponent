@@ -10,10 +10,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { SharedModule } from "src/app/shared/shared.module";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
+import { KlantKoppelBetrokkeneComponent } from "../klant-koppel-betrokkene/klant-koppel-betrokkene.component";
+import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-initiator.component";
 import { KlantKoppelComponent } from "./klant-koppel.component";
 
 const fakeKlantGegevens = new KlantGegevens(
@@ -70,10 +71,11 @@ describe(KlantKoppelComponent.name, () => {
       ],
     })
       .overrideComponent(KlantKoppelComponent, {
-        set: {
+        remove: {
+          imports: [KlantKoppelInitiator, KlantKoppelBetrokkeneComponent],
+        },
+        add: {
           imports: [
-            SharedModule,
-            TranslateModule,
             KlantKoppelInitiatorStubComponent,
             KlantKoppelBetrokkeneStubComponent,
           ],

@@ -6,11 +6,8 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { HttpEventType, provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpEventType } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -21,7 +18,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
@@ -35,8 +31,6 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
@@ -108,17 +102,12 @@ describe(InformatieObjectEditComponent.name, () => {
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
-        MaterialModule,
         TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
         provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
         provideTanStackQuery(testQueryClient),
         provideQueryClient(testQueryClient),
         VertrouwelijkaanduidingToTranslationKeyPipe,

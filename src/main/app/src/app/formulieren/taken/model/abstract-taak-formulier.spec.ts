@@ -20,13 +20,12 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatRadioGroupHarness } from "@angular/material/radio/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
 import { ZacComposedForm } from "../../../shared/form/composed-form/composed-form.component";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
-import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AbstractTaskForm } from "./abstract-task-form";
 
@@ -131,9 +130,8 @@ describe(AbstractTaskForm.name, () => {
         ReactiveFormsModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
       ],
-      providers: [FormBuilder, provideRouter([])],
+      providers: [],
     }).compileComponents();
 
     formulier = TestBed.runInInjectionContext(() => new TestForm());
@@ -206,31 +204,26 @@ describe(AbstractTaskForm.name, () => {
       expect(autocomplete).not.toBeNull();
     });
 
-    // No Material harness available — zac-documents is a custom component
     it("should render a documents field", () => {
-      expect(
-        fixture.nativeElement.querySelector("zac-documents"),
-      ).not.toBeNull();
+      expect(screen.getByText("documents-label")).toBeInTheDocument();
+      expect(screen.getByRole("table")).toBeInTheDocument();
     });
 
-    // No Material harness available — zac-html-editor wraps ngx-editor
     it("should render an html-editor field", () => {
-      expect(
-        fixture.nativeElement.querySelector("zac-html-editor"),
-      ).not.toBeNull();
+      expect(screen.getByText("Html-editor-label")).toBeInTheDocument();
+      expect(screen.getByText("some html")).toBeInTheDocument();
     });
 
-    // No Material harness available — plain-text renders as a <section>
     it("should render a plain-text field", () => {
-      expect(
-        fixture.nativeElement.querySelector("fieldset section"),
-      ).not.toBeNull();
+      expect(screen.getByText("plain-text-label")).toBeInTheDocument();
+      expect(screen.getByText("some text")).toBeInTheDocument();
     });
 
     it("should not render hidden fields", () => {
-      // @if (!field.hidden) suppresses the hidden field — only one zac-input in the DOM
-      const zacInputs = fixture.nativeElement.querySelectorAll("zac-input");
-      expect(zacInputs.length).toBe(1);
+      expect(screen.queryByText(/hidden-label/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByDisplayValue("hidden-value"),
+      ).not.toBeInTheDocument();
     });
   });
 });

@@ -48,7 +48,10 @@ describe("Algemeen form step", () => {
       caseDefinition,
       defaultGroepId: "test-group-id",
       defaultBehandelaarId: "test-user-id",
-      zaaktype: { uuid: "test-uuid" },
+      zaaktype: {
+        uuid: "test-uuid",
+        omschrijving: "fakeZaaktypeOmschrijving",
+      },
       zaakNietOntvankelijkResultaattype: {
         id: "resultaat-1",
         naam: "Afgehandeld",
@@ -126,7 +129,12 @@ describe("Algemeen form step", () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listGroups: () => of(groups),
+            listBehandelaarGroupsForZaaktype: (zaaktypeDescription: string) =>
+              of(
+                zaaktypeDescription === "fakeZaaktypeOmschrijving"
+                  ? groups
+                  : [],
+              ),
             listUsersInGroup: (groupId: string) =>
               of(groupId === "test-group-id" ? usersOfDefaultGroup : []),
           }),
@@ -177,11 +185,23 @@ describe("Algemeen form step", () => {
       "Case Definition 1",
     );
     await chooseOption(
-      within(algemeen).getByRole("combobox", { name: /^groep$/i }),
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
       "test-group",
     );
 
     expect(opslaan).toBeEnabled();
+  });
+
+  it("offers only the behandelaar groepen of the zaaktype as groep", async () => {
+    const algemeen = await setup();
+
+    await user.click(
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
+    );
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
+    ).toEqual(["test-group", "test-group-2"]);
   });
 
   it("shows a zaaktype without zaakspecifieke autorisatie as such", async () => {
@@ -225,12 +245,12 @@ describe("Algemeen form step", () => {
     const algemeen = await setup();
 
     await chooseOption(
-      within(algemeen).getByRole("combobox", { name: /^groep$/i }),
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
       "test-group-2",
     );
 
     const behandelaar = within(algemeen).getByRole("combobox", {
-      name: /behandelaar/i,
+      name: /behandelaar.standaard/i,
     });
     expect(behandelaar).not.toHaveTextContent("test-user");
 

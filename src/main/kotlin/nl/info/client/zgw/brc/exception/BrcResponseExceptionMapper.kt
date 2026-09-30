@@ -9,9 +9,8 @@ import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
 class BrcResponseExceptionMapper : ResponseExceptionMapper<RuntimeException> {
-    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean {
-        return status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
-    }
+    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean =
+        status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
 
     override fun toThrowable(response: Response) =
         BrcRuntimeException(

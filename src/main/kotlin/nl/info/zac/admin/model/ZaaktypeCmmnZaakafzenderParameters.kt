@@ -79,7 +79,5 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
         return mail == other.mail && defaultMail == other.defaultMail && Objects.equals(replyTo, other.replyTo)
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(mail, defaultMail, replyTo)
-    }
+    override fun hashCode(): Int = Objects.hash(mail, defaultMail, replyTo)
 }

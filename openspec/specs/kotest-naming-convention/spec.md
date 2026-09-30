@@ -11,6 +11,6 @@ All `BehaviorSpec` BDD block calls in backend test files SHALL use the camelCase
 - **WHEN** a Kotest `BehaviorSpec` test file is inspected in `src/itest/kotlin/`
 - **THEN** all BDD block calls MUST appear as `context(`, `given(`, `` `when`( ``, `then(` with no PascalCase equivalents
 
-#### Scenario: CLAUDE.md documents the lowercase convention
-- **WHEN** the CLAUDE.md test-conventions section is read
+#### Scenario: The Kotlin test rules document the lowercase convention
+- **WHEN** `.claude/rules/kotlin-tests.md` is read
 - **THEN** code examples SHALL show `context`, `given`, `` `when` ``, `then` (not PascalCase)
