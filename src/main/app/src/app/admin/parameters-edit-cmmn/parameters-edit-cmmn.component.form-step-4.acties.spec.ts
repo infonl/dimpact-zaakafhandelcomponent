@@ -121,7 +121,8 @@ describe("Acties form step", () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listGroups: () => of([{ id: "test-group-id", naam: "test-group" }]),
+            listBehandelaarGroupsForZaaktype: () =>
+              of([{ id: "test-group-id", naam: "test-group" }]),
             listUsersInGroup: () =>
               of([{ id: "test-user-id", naam: "test-user" }]),
           }),
