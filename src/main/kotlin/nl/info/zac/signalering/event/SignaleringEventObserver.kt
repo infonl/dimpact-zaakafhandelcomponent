@@ -94,15 +94,14 @@ class SignaleringEventObserver @Inject constructor(
                 LOG.warning { "Ignored SignaleringType ${event.objectType}" }
                 null
             }
-            else -> null
         }
 
     private fun getSignaleringVoorBehandelaarRol(event: SignaleringEvent<*>, rol: Rol<*>): Signalering? {
         val zaak = zrcClientService.readZaak(rol.zaak!!)
-        return when (rol.betrokkeneType) {
-            BetrokkeneTypeEnum.MEDEWERKER -> getSignaleringVoorRol(event = event, zaak = zaak, rol = rol)
-            BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID ->
-                getSignaleringVoorGroup(event = event, zaak = zaak, rol = rol as RolOrganisatorischeEenheid)
+        return when (rol) {
+            is RolMedewerker -> getSignaleringVoorMedewerker(event = event, zaak = zaak, rolMedewerker = rol)
+            is RolOrganisatorischeEenheid ->
+                getSignaleringVoorGroup(event = event, zaak = zaak, rolOrganisatorischeEenheid = rol)
             else -> {
                 LOG.warning { "Unexpected BetrokkeneType ${rol.betrokkeneType}" }
                 null
@@ -110,21 +109,32 @@ class SignaleringEventObserver @Inject constructor(
         }
     }
 
-    private fun getSignaleringVoorRol(event: SignaleringEvent<*>, zaak: Zaak, rol: Rol<*>) =
-        signaleringService.signaleringInstance(event.objectType)
-            .apply { setSubject(zaak) }
-            .let { addTarget(signalering = it, rol = rol) }
+    private fun getSignaleringVoorMedewerker(event: SignaleringEvent<*>, zaak: Zaak, rolMedewerker: RolMedewerker) =
+        signaleringService.signaleringInstance(event.objectType).apply {
+            setSubject(zaak)
+            setTarget(identityService.readUser(rolMedewerker.betrokkeneIdentificatie!!.identificatie))
+        }
 
-    private fun getSignaleringVoorGroup(event: SignaleringEvent<*>, zaak: Zaak, rol: RolOrganisatorischeEenheid) =
-        if (getRolBehandelaarMedewerker(zaak) == null) getSignaleringVoorRol(event = event, zaak = zaak, rol = rol) else null
+    private fun getSignaleringVoorGroup(
+        event: SignaleringEvent<*>,
+        zaak: Zaak,
+        rolOrganisatorischeEenheid: RolOrganisatorischeEenheid
+    ) = if (getRolBehandelaarMedewerker(zaak) == null) {
+        signaleringService.signaleringInstance(event.objectType).apply {
+            setSubject(zaak)
+            setTarget(identityService.readGroup(rolOrganisatorischeEenheid.betrokkeneIdentificatie!!.identificatie))
+        }
+    } else {
+        null
+    }
 
     private fun getSignaleringVoorBehandelaar(
         event: SignaleringEvent<*>,
         zaak: Zaak,
         zaakInformatieObject: ZaakInformatieObject
     ) = getRolBehandelaarMedewerker(zaak)?.let { behandelaar ->
-        getSignaleringVoorRol(event = event, zaak = zaak, rol = behandelaar)
-            ?.apply { setDetailFromZaakInformatieobject(zaakInformatieObject) }
+        getSignaleringVoorMedewerker(event = event, zaak = zaak, rolMedewerker = behandelaar)
+            .apply { setDetailFromZaakInformatieobject(zaakInformatieObject) }
     }
 
     private fun getSignaleringVoorBehandelaar(event: SignaleringEvent<*>, task: TaskInfo) =
@@ -152,28 +162,12 @@ class SignaleringEventObserver @Inject constructor(
         OmschrijvingGeneriekEnum.valueOf(rol.omschrijvingGeneriek.uppercase()) == OmschrijvingGeneriekEnum.BEHANDELAAR &&
             rol.omschrijving == ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 
-    private fun getRolBehandelaarMedewerker(zaak: Zaak): Rol<*>? =
+    private fun getRolBehandelaarMedewerker(zaak: Zaak) =
         zrcClientService.listRollen(
             RolListParameters(
                 zaak = zaak.url,
                 roltype = zgwApiService.readBehandelaarRoltype(zaak.zaaktype).url,
                 betrokkeneType = BetrokkeneTypeEnum.MEDEWERKER
             )
-        ).singleResult
-
-    private fun addTarget(signalering: Signalering, rol: Rol<*>): Signalering? =
-        when (rol.betrokkeneType) {
-            BetrokkeneTypeEnum.MEDEWERKER -> signalering.apply {
-                setTarget(identityService.readUser((rol as RolMedewerker).betrokkeneIdentificatie!!.identificatie))
-            }
-            BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID -> signalering.apply {
-                setTarget(
-                    identityService.readGroup((rol as RolOrganisatorischeEenheid).betrokkeneIdentificatie!!.identificatie)
-                )
-            }
-            else -> {
-                LOG.warning { "Unknown BetrokkeneType '${rol.betrokkeneType}'" }
-                null
-            }
-        }
+        ).singleResult as RolMedewerker?
 }
