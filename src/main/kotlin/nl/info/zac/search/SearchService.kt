@@ -169,7 +169,6 @@ class SearchService @Inject constructor(
             }
         }
 
-    // Builds the allowed-zaaktypen filter query for the current user; returns null only when no LoggedInUser is available.
     // Mirrors OPA's `lezen` rules, which evaluate the roles for the zaaktype together with the overall roles.
     private fun getAllowedZaaktypenFilterQuery(): String? =
         loggedInUserInstance.get()?.let { loggedInUser ->
