@@ -349,6 +349,32 @@ describe(ZaakTakenComponent.name, () => {
     });
   });
 
+  describe("the groep column", () => {
+    it("marks an inactive groep as inactief", async () => {
+      await setup([
+        taak({
+          groep: { id: "fakeGroepId", naam: "fakeGroepNaam", active: false },
+        }),
+      ]);
+
+      expect(
+        within(rowOf("fakeTaakNaam")).getByText("(inactief)"),
+      ).toBeVisible();
+    });
+
+    it("does not mark an active groep as inactief", async () => {
+      await setup([
+        taak({
+          groep: { id: "fakeGroepId", naam: "fakeGroepNaam", active: true },
+        }),
+      ]);
+
+      expect(
+        within(rowOf("fakeTaakNaam")).queryByText("(inactief)"),
+      ).toBeNull();
+    });
+  });
+
   describe("the status chip", () => {
     function chipOf(status: string) {
       // eslint-disable-next-line testing-library/no-node-access -- the mat-chip display chip exposes no role; the test asserts its style class

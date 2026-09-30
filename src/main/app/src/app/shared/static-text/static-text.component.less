@@ -17,6 +17,13 @@
     font-size: 14px;
     margin-top: 5px;
     word-break: break-all;
+
+    ::ng-deep [position="content-after"] {
+      display: inline-block;
+      margin-inline-start: 0.25em;
+      white-space: nowrap;
+      word-break: normal;
+    }
   }
 
   .label-icon {
