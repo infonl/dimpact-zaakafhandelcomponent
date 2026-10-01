@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
+import { LowerCasePipe, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -76,6 +76,7 @@ import { TakenService } from "../../taken/taken.service";
     DatumPipe,
     EmptyPipe,
     StaticTextComponent,
+    LowerCasePipe,
   ],
 })
 export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
