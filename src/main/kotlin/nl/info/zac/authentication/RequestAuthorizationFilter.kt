@@ -17,6 +17,7 @@ import jakarta.ws.rs.HttpMethod.DELETE
 import jakarta.ws.rs.HttpMethod.GET
 import jakarta.ws.rs.HttpMethod.POST
 import nl.info.zac.identity.model.ZacApplicationRole
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -25,7 +26,8 @@ import nl.info.zac.util.NoArgConstructor
  * Checks an explicit set of unauthenticated endpoints for allowed HTTP methods.
  * For authenticated endpoints, it expects that the user has already logged in and performs basic authorization.
  *
- * General access: user must have at least one application role on at least one zaaktype.
+ * General access: user must have at least one read ('lezen') application role on at least one zaaktype,
+ * or as an overall role, or the 'systeemrol_behandelaar_alle_zaaktypen' role.
  * For admin URIs (/admin/, /rest/admin/): User must have the 'beheerder' role for at least one zaaktype
  *
  * This filter must run after [UserPrincipalFilter], so [UserPrincipalFilter] can
@@ -35,7 +37,9 @@ import nl.info.zac.util.NoArgConstructor
 @WebFilter(filterName = "RequestAuthorizationFilter")
 @AllOpen
 @NoArgConstructor
-class RequestAuthorizationFilter @Inject constructor() : Filter {
+class RequestAuthorizationFilter @Inject constructor(
+    private val policyService: PolicyService
+) : Filter {
     companion object {
         private val ADMIN_URI_PREFIXES = listOf(
             "/rest/admin/",
@@ -93,16 +97,18 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
         return if (isAdmin) {
             hasBeheerderApplicationRole(user)
         } else {
-            hasAnyApplicationRole(user)
+            hasAnyReadApplicationRole(user)
         }
     }
 
-    /**
-     * Checks if the user has at least one application role for at least one zaaktype,
-     * or if the user has any overall roles.
-     */
-    private fun hasAnyApplicationRole(user: LoggedInUser): Boolean =
-        user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() } || user.overallRoles.isNotEmpty()
+    private fun hasAnyReadApplicationRole(user: LoggedInUser): Boolean {
+        val applicationRoles = user.applicationRolesPerZaaktype.values.flatten().toSet() + user.overallRoles
+        return when {
+            applicationRoles.isEmpty() -> false
+            ZacApplicationRole.SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN.value in applicationRoles -> true
+            else -> policyService.readLeesrollen().any(applicationRoles::contains)
+        }
+    }
 
     /**
      * Checks if the user has the 'beheerder' role for at least one zaaktype,

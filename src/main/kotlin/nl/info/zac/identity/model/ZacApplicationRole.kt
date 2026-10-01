@@ -12,5 +12,6 @@ package nl.info.zac.identity.model
  */
 enum class ZacApplicationRole(val value: String) {
     BEHEERDER("beheerder"),
-    BEHANDELAAR("behandelaar")
+    BEHANDELAAR("behandelaar"),
+    SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN("systeemrol_behandelaar_alle_zaaktypen")
 }

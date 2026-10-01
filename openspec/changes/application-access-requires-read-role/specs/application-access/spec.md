@@ -1,0 +1,66 @@
+## Purpose
+
+Decides which logged-in users ZAC lets in, so that a user who cannot read any zaak gets the "no permission" error
+page instead of a dashboard that only shows permission errors.
+
+## ADDED Requirements
+
+### Requirement: Only users with a read role get access to ZAC
+
+ZAC SHALL serve a request on an authenticated, non-admin path only when the logged-in user holds at least one read
+role (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager` or `beheerder`), for at least one zaaktype or as
+an overall role, or holds the `systeemrol_behandelaar_alle_zaaktypen` role. ZAC SHALL answer every other request on
+an authenticated, non-admin path with HTTP 403. A 403 on a page request SHALL show the existing error page
+"U heeft geen toestemming om deze pagina te bekijken." with only a log-out button. Holding only other application
+roles, such as `brp_zoeken` or `zaakspecifiek_geautoriseerd`, SHALL NOT give access.
+
+#### Scenario: A user with only brp_zoeken gets the no-permission page
+- **WHEN** a user who holds only `brp_zoeken`, for one or more zaaktypen and as an overall role, logs in and opens
+  ZAC
+- **THEN** ZAC answers with HTTP 403 and shows the "U heeft geen toestemming om deze pagina te bekijken." page with
+  only a log-out button, and does not show the dashboard
+
+#### Scenario: A user with only non-read roles cannot call the REST API
+- **WHEN** a user who holds only `brp_zoeken` and `zaakspecifiek_geautoriseerd` sends a request to a ZAC REST
+  endpoint that requires authentication
+- **THEN** ZAC answers with HTTP 403
+
+#### Scenario: A user without any application role still gets the no-permission page
+- **WHEN** a user who holds no ZAC application role at all opens ZAC
+- **THEN** ZAC answers with HTTP 403 and shows the "U heeft geen toestemming om deze pagina te bekijken." page,
+  exactly as before this change
+
+#### Scenario: A read role for one zaaktype gives access
+- **WHEN** a user holds `brp_zoeken` for zaaktype A and `raadpleger` for zaaktype B, and opens ZAC
+- **THEN** ZAC serves the request
+
+#### Scenario: Each read role on its own gives access
+- **WHEN** a user holds only one of `raadpleger`, `behandelaar`, `coordinator`, `recordmanager` or `beheerder`,
+  for one zaaktype, and opens ZAC
+- **THEN** ZAC serves the request
+
+#### Scenario: A read role held as an overall role gives access
+- **WHEN** a user holds `behandelaar` as an overall role and no zaaktype-specific roles, and opens ZAC
+- **THEN** ZAC serves the request
+
+#### Scenario: The systeemrol for all zaaktypen gives access
+- **WHEN** a user holds only `systeemrol_behandelaar_alle_zaaktypen` and opens ZAC
+- **THEN** ZAC serves the request
+
+### Requirement: Admin and public paths keep their existing access rules
+
+Requests on admin paths (`/admin` and `/rest/admin/`) SHALL still require the `beheerder` role, for at least one
+zaaktype or as an overall role. Requests on the paths that ZAC serves without authentication SHALL still be
+allowed for the same HTTP methods as before, whatever roles the user holds.
+
+#### Scenario: A user with only non-read roles cannot reach admin paths
+- **WHEN** a user who holds only `brp_zoeken` requests a path under `/rest/admin/`
+- **THEN** ZAC answers with HTTP 403
+
+#### Scenario: A beheerder can reach admin paths
+- **WHEN** a user who holds `beheerder` for one zaaktype requests a path under `/rest/admin/`
+- **THEN** ZAC serves the request
+
+#### Scenario: Public paths stay reachable for a user with only non-read roles
+- **WHEN** a user who holds only `brp_zoeken` requests `/sign-out` or a file under `/assets/` with HTTP GET
+- **THEN** ZAC serves the request, so the error page can load its assets and the log-out button works
