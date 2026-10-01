@@ -110,6 +110,15 @@ val USER_WITHOUT_ANY_ROLE = TestUser(
     password = "userwithoutanyrole",
     displayName = "Test User Without Any Role"
 )
+
+/**
+ * Only holds application roles without read rights: 'brp_zoeken' and 'zaakspecifiek_geautoriseerd' in domein test 1.
+ */
+val USER_WITHOUT_READ_ROLE = TestUser(
+    username = "zonderleesrol1",
+    password = "zonderleesrol1",
+    displayName = "Test Zonder Leesrol 1"
+)
 val PABC_ADMIN = TestUser(
     username = "pabcadmin",
     password = "pabcadmin",

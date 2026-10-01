@@ -25,7 +25,8 @@ import nl.info.zac.util.NoArgConstructor
  * Checks an explicit set of unauthenticated endpoints for allowed HTTP methods.
  * For authenticated endpoints, it expects that the user has already logged in and performs basic authorization.
  *
- * General access: user must have at least one application role on at least one zaaktype.
+ * General access: user must have at least one read ('lezen') application role on at least one zaaktype,
+ * or as an overall role.
  * For admin URIs (/admin/, /rest/admin/): User must have the 'beheerder' role for at least one zaaktype
  *
  * This filter must run after [UserPrincipalFilter], so [UserPrincipalFilter] can
@@ -93,16 +94,9 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
         return if (isAdmin) {
             hasBeheerderApplicationRole(user)
         } else {
-            hasAnyApplicationRole(user)
+            user.hasReadApplicationRole
         }
     }
-
-    /**
-     * Checks if the user has at least one application role for at least one zaaktype,
-     * or if the user has any overall roles.
-     */
-    private fun hasAnyApplicationRole(user: LoggedInUser): Boolean =
-        user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() } || user.overallRoles.isNotEmpty()
 
     /**
      * Checks if the user has the 'beheerder' role for at least one zaaktype,
