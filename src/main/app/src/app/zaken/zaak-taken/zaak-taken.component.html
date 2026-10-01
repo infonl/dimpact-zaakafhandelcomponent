@@ -101,8 +101,8 @@
           <td mat-cell *matCellDef="let taak">
             {{ taak.data.groep | empty: "naam" }}
             @if (!taak.data.groep?.active) {
-              <em position="content-after"
-                >&nbsp;({{ "inactief" | translate | lowercase }})</em
+              <em class="inactive-label"
+                >({{ "inactief" | translate | lowercase }})</em
               >
             }
           </td>
