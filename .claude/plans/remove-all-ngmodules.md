@@ -358,7 +358,11 @@ Three components import both barrels (MFB + `SharedModule`): `klant-koppel-betro
 Last, because until the other three are gone it is still the thing re-exporting them. Its own
 exports are 21 standalone components, directives and pipes plus `CommonModule`, `FormsModule`, `TranslateModule` and `DragDropModule`, which consumers list directly instead.
 
-**Its providers move in this step** (to `CoreModule.providers`), because step 10 comes after it: `Title`, the `MatPaginatorIntl` factory, the paginator-language `provideAppInitializer`, and `VertrouwelijkaanduidingToTranslationKeyPipe`. Watch the `MatPaginatorIntl` trap from step 2: specs inherit that provider transitively and lose their translated paginator accessible names when it moves; expect a few specs to need the factory provided locally.
+**Its providers move in this step** (to `CoreModule.providers`), because step 10 comes after it: the `MatPaginatorIntl` factory and the paginator-language `provideAppInitializer`. Watch the `MatPaginatorIntl` trap from step 2: specs inherit that provider transitively and lose their translated paginator accessible names when it moves; expect a few specs to need the factory provided locally. The other two need no app-wide home (verified 2026-10-01):
+- `Title` is `providedIn: 'root'` in `@angular/platform-browser` (`app.component` and `util.service` inject it); drop the provider, do not move it.
+- `VertrouwelijkaanduidingToTranslationKeyPipe` is injected as a service only by `informatie-objecten/informatie-object-create-attended` (constructor parameter); give that component its own `providers: [VertrouwelijkaanduidingToTranslationKeyPipe]` instead of moving it to `CoreModule`. Its template users import the pipe directly and are unaffected.
+
+`core.module.ts` imports `SharedModule` too, not only `app.module.ts`; both lines go in this step. The two `admin/bpmn-process-definitions` specs carry a comment that the component "imports SharedModule, so it injects MatDialog from its own standalone injector", which is why they spy on `MatDialog.prototype.open`. Re-check that reasoning and the comment when the import goes; the spies themselves still work either way.
 
 ## Step 8 — `loadChildren` targets: NgModule -> `Routes` (`taken`, `documenten`, `productaanvragen`)
 
@@ -376,7 +380,9 @@ Only the *shape* of the import target changes: it resolves to an NgModule instea
 ## Step 9 — `app-routing.module.ts` -> `app.routes.ts`
 
 `RouterModule.forRoot(routes)` becomes `provideRouter(APP_ROUTES)`, staged into `AppModule`'s
-providers so this step stands alone. Last routing module gone.
+providers so this step stands alone. Last routing module gone. `forRoot` is called without a
+config object (verified 2026-10-01), so no `withRouterConfig`/`withInMemoryScrolling`-style
+feature is needed to keep behaviour identical.
 
 ## Step 10 — `bootstrapApplication` + delete `CoreModule`
 
@@ -386,15 +392,20 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
   `bootstrapApplication(AppComponent, { providers: [...] })`. Keep `alterMoment()`.
 - Delete `app.module.ts`; `AppComponent` becomes standalone with its own `imports`.
 - Delete `core/core.module.ts` and `core/ensure-module-loaded-once.guard.ts`
-  (`EnsureModuleLoadedOnceGuard` has no other user).
+  (`EnsureModuleLoadedOnceGuard` has no other user, verified 2026-10-01).
+- **Move `registerLocaleData(localeNl, "nl-NL")` before deleting `core.module.ts`.** It is a
+  top-level side effect of that file (line 28), outside the class, so it is in no provider list.
+  Drop the file without it and every `DatePipe`/`DecimalPipe`/`CurrencyPipe` under
+  `LOCALE_ID "nl-NL"` throws NG0701 "Missing locale data" at runtime; build and specs will not
+  catch it. Put it in `main.ts` next to `alterMoment()`, before `bootstrapApplication`.
 - Provider consolidation:
   - `TranslateModule.forRoot({...})` -> `provideTranslateService({...})`, keeping
     the cache-busting loader and `fallbackLang: "nl"`.
   - Everything in `CoreModule.providers` and `AppModule.providers` -> bootstrap providers. By then
     that is: `LOCALE_ID`, `MAT_DATE_LOCALE`, `MAT_DIALOG_DEFAULT_OPTIONS`, `UtilService`,
-    `MAT_SNACK_BAR_DEFAULT_OPTIONS` (step 5), `provideZacDateAdapter()` (step 6), `Title`,
-    `MatPaginatorIntl`, the paginator initializer and `VertrouwelijkaanduidingToTranslationKeyPipe`
-    (step 7), `provideRouter(APP_ROUTES)` (step 9), `APP_BASE_HREF`, `LocationStrategy`,
+    `MAT_SNACK_BAR_DEFAULT_OPTIONS` (step 5), `provideZacDateAdapter()` (step 6),
+    `MatPaginatorIntl` and the paginator initializer (step 7; `Title` and
+    `VertrouwelijkaanduidingToTranslationKeyPipe` no longer app-wide, see step 7), `provideRouter(APP_ROUTES)` (step 9), `APP_BASE_HREF`, `LocationStrategy`,
     `RouteReuseStrategy`, `provideTanStackQuery(...)` with devtools and `provideStartupPrefetch()`.
   - `AppComponent`'s own `imports`: `ToolbarComponent`, `ZoekComponent`, `MatSidenavModule` (step 5)
     and whatever else its template uses that `AppModule` supplies today.
@@ -402,14 +413,15 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
     has a history of NG05100 from animation providers being imported more than once.
     `provideAnimationsAsync()` is worth 11.7 kB but breaks 9 tab specs — see the parked
     findings before reaching for it here.
-  - `provideHttpClient(withInterceptorsFromDi())` appears in `app` and `core` (MFB's copy goes in
-    step 6). Collapse to one.
+  - `provideHttpClient(withInterceptorsFromDi())` appears in `app` and `core` (MFB's copy went in
+    step 6). Collapse to one. No `HTTP_INTERCEPTORS` is registered anywhere (verified
+    2026-10-01), so the remaining one can be a plain `provideHttpClient()`.
 - Rehome `AppModule`'s constructor side effects — icon registry default font set,
   `window.__TANSTACK_QUERY_CLIENT__`, `persistQueryClient` with its
   session-storage persister — into `provideAppInitializer(...)` or
   `AppComponent`'s constructor. This is the most substantive piece of the step.
-- `AppModule.injector` is assigned but **read nowhere**. Confirmed dead; delete it
-  rather than porting it.
+- `AppModule.injector` is assigned but **read nowhere**. Confirmed dead (re-verified
+  2026-10-01); delete it rather than porting it.
 
 ## Order summary
 
@@ -419,6 +431,8 @@ Testing Library.
 Steps 5–7: order forced by the barrels' own dependencies. 5a merged; step 6 merged (#7227), −9.8 kB. 5b re-measured on top of step 6: still +13.5 kB transfer (−120 kB raw); goes in anyway as the prerequisite for step 7, which is where the Material win has to come from.
 Steps 8–9: low risk, sequential, no behaviour change, no win.
 Step 10: the gate — all of the risk, none of the payoff, so last.
+
+Remaining after 5b (code checked 2026-10-01): 8 `@NgModule` files on disk, 7 once 5b merges — `shared.module.ts` (step 7), `taken.module.ts` + `taken-routing.module.ts`, `documenten-routing.module.ts`, `productaanvragen-routing.module.ts` (step 8), `app-routing.module.ts` (step 9), `app.module.ts` + `core/core.module.ts` (step 10).
 
 ## Findings parked outside this plan
 
