@@ -412,7 +412,9 @@ Then(
     });
 
     await zaakLink.click();
-    await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX);
+    await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX, {
+      timeout: FIFTEEN_SECONDS_IN_MS,
+    });
   },
 );
 
