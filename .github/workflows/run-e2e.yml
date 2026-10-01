@@ -50,29 +50,29 @@ jobs:
       - name: Run your tests
         run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\", \"openForms\": \"${{ secrets.OPEN_FORMS_URL }}\" }, \"headless\": true, \"users\": { \"Bob\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}\"}, \"Oscar\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}\"}}}"'
       - name: Make a playwright report
-        if: always()
+        if: ${{ !cancelled() }}
         run: "cd src/e2e && npm run e2e:generate:report"
       - name: Extract metrics from Cucumber report
-        if: always()
+        if: ${{ !cancelled() }}
         run: "cd src/e2e && npm run e2e:extract:metrics"
       - name: copy report to separate folder
-        if: always()
+        if: ${{ !cancelled() }}
         run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           path: src/e2e/reports
           retention-days: 7
       - name: Create .env file from secrets
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           echo "${{ secrets.E2E_ENV_FILE }}" > src/e2e/.env
       - name: BDD playwright
         run: cd src/e2e && npm run bdd:ci
-        if: always()
+        if: ${{ !cancelled() }}
         continue-on-error: true
       - name: Upload BDD test artifacts
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bdd-test-artifacts
