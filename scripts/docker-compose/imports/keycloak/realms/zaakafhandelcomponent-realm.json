@@ -186,6 +186,15 @@
         "clientRole": false,
         "containerId": "zaakafhandelcomponent",
         "attributes": {}
+      },
+      {
+        "id": "14e70140-625c-4b54-9fc0-66234e017c90",
+        "name": "zonder_leesrol_domein_test_1",
+        "description": "Functional role for domain 'domein_test_1' that only maps to application roles without read rights",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
       }
     ],
     "client": {
@@ -3018,6 +3027,31 @@
       "realmRoles": ["default-roles-zac"],
       "notBefore": 0,
       "groups": ["/behandelaars-test-1", "/brp-zoekers-test-2"]
+    },
+    {
+      "id": "0e53feba-b920-48a1-86ff-451dc81c3492",
+      "username": "zonderleesrol1",
+      "firstName": "Test",
+      "lastName": "Zonder Leesrol 1",
+      "emailVerified": false,
+      "createdTimestamp": 1790853600000,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "643e6490-726c-4519-901b-4227ec6d48ea",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1790853600000,
+          "secretData": "{\"value\":\"gGElCW8Spzeou0Kg/Vruf61KB9Bmul9dVr7kk8q/RGg=\",\"salt\":\"ihGjz5ENfb6EX12eDE9DZA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac", "zonder_leesrol_domein_test_1"],
+      "notBefore": 0,
+      "groups": []
     }
   ]
 }

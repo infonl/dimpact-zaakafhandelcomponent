@@ -43,6 +43,7 @@ import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
 import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
+import nl.info.zac.itest.config.USER_WITHOUT_READ_ROLE
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
@@ -259,6 +260,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
                                     "naam": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName}"
+                                },
+                                {
+                                    "id": "${USER_WITHOUT_READ_ROLE.username}",
+                                    "naam": "${USER_WITHOUT_READ_ROLE.displayName}"
                                 }
                             ]
                     """.trimIndent()

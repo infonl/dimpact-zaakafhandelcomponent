@@ -9,12 +9,15 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
+import nl.info.zac.itest.config.USER_WITHOUT_READ_ROLE
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_MOVED_TEMP
@@ -219,6 +222,43 @@ class AppContainerTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/sign-out",
                 testUser = USER_WITHOUT_ANY_ROLE
+            )
+            then("the response should redirect to the ZAC root") {
+                response.code shouldBe HTTP_MOVED_TEMP
+                response.headers["Location"] shouldBe "$ZAC_BASE_URI/"
+            }
+        }
+    }
+
+    given(
+        "A logged-in user who only has ZAC application roles without read rights: brp_zoeken and " +
+            "zaakspecifiek_geautoriseerd"
+    ) {
+        `when`("The ZAC base URI is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = ZAC_BASE_URI,
+                testUser = USER_WITHOUT_READ_ROLE
+            )
+            then("the response is forbidden and shows the no-permission page instead of the ZAC app") {
+                response.code shouldBe HTTP_FORBIDDEN
+                response.bodyAsString shouldContain "U heeft geen toestemming om deze pagina te bekijken."
+            }
+        }
+
+        `when`("A ZAC REST endpoint is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/identity/loggedInUser",
+                testUser = USER_WITHOUT_READ_ROLE
+            )
+            then("the response is forbidden") {
+                response.code shouldBe HTTP_FORBIDDEN
+            }
+        }
+
+        `when`("The ZAC logout URI is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/sign-out",
+                testUser = USER_WITHOUT_READ_ROLE
             )
             then("the response should redirect to the ZAC root") {
                 response.code shouldBe HTTP_MOVED_TEMP
