@@ -100,6 +100,11 @@
           </th>
           <td mat-cell *matCellDef="let taak">
             {{ taak.data.groep | empty: "naam" }}
+            @if (taak.data.groep?.active === false) {
+              <em class="inactive-label"
+                >({{ "inactief" | translate | lowercase }})</em
+              >
+            }
           </td>
         </ng-container>
         <ng-container matColumnDef="behandelaar">

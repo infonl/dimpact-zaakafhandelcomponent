@@ -53,7 +53,10 @@ import {
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacRadio } from "../../shared/form/radio/radio";
+import { ZacSelect } from "../../shared/form/select/select";
+import { ZacToggle } from "../../shared/form/toggle/toggle";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -105,7 +108,10 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     MatStepperModule,
     MatTableModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacToggle,
+    ZacRadio,
+    ZacInput,
     SharedModule,
     SmartDocumentsFormComponent,
   ],
@@ -257,7 +263,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
-  protected groepen = this.identityService.listGroups();
+  protected groepen: GeneratedType<"RestGroup">[] = [];
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   protected formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] =
@@ -323,6 +329,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
         configuratieService.readBrpDoelbindingSetupEnabled(),
+        identityService.listBehandelaarGroupsForZaaktype(
+          this.parameters.zaaktype.omschrijving!,
+        ),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -336,6 +345,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           brpViewValues,
           brpProcessingValues,
           brpDoelbindingSetupEnabled,
+          groepen,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -348,6 +358,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
           this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
+          this.groepen = groepen;
           await this.createForm();
         },
       );
@@ -458,8 +469,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       });
 
     if (defaultGroepId) {
-      const groups = await this.groepen.toPromise();
-      const defaultGroup = groups?.find(({ id }) => id === defaultGroepId);
+      const defaultGroup = this.groepen?.find(
+        ({ id }) => id === defaultGroepId,
+      );
       this.algemeenFormGroup.controls.defaultGroep.setValue(
         defaultGroup ?? null,
       );

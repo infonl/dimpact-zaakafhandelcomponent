@@ -148,8 +148,8 @@
                     class="flex-item"
                   >
                     @if (taak?.groep?.active === false) {
-                      <em position="content-after"
-                        >&nbsp;({{ "inactief" | translate | lowercase }})</em
+                      <em position="content-after" class="inactive-label"
+                        >({{ "inactief" | translate | lowercase }})</em
                       >
                     }
                   </zac-static-text>

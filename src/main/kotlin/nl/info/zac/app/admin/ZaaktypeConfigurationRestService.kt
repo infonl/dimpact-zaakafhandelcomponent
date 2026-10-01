@@ -309,11 +309,10 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     @Path("smartdocuments-template-group")
     fun getSmartDocumentsGroup(
         group: RestSmartDocumentsPath
-    ): RestSmartDocumentsTemplateGroup {
+    ): RestSmartDocumentsTemplateGroup =
         // No authorization to allow BPMN tasks (form.io) to read template group names and display them
         // We should consider a proper authorization with PABC
-        return smartDocumentsTemplatesService.getTemplateGroup(group.path)
-    }
+        smartDocumentsTemplatesService.getTemplateGroup(group.path)
 
     @GET
     @Path("{zaakafhandelUUID}/smartdocuments-templates-mapping")

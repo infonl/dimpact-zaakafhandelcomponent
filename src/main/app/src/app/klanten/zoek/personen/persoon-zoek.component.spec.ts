@@ -5,8 +5,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import {
   ComponentFixture,
   fakeAsync,
@@ -18,15 +16,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of, Subject } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "src/app/shared/material/material.module";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
@@ -61,16 +57,11 @@ describe(PersoonZoekComponent.name, () => {
         PersoonZoekComponent,
         FormsModule,
         ReactiveFormsModule,
-        MaterialFormBuilderModule,
         MatIconModule,
-        MaterialModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
         {
           provide: UtilService,
           useValue: {

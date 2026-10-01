@@ -18,6 +18,7 @@ import {
 } from "@angular/material/dialog";
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from "@angular/material/snack-bar";
 import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { provideZacDateAdapter } from "../shared/form/date/provide-zac-date-adapter";
 import { SharedModule } from "../shared/shared.module";
 import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
 import { LoadingComponent } from "./loading/loading.component";
@@ -44,6 +45,7 @@ registerLocaleData(localeNl, "nl-NL");
     UtilService,
     { provide: LOCALE_ID, useValue: "nl-NL" },
     { provide: MAT_DATE_LOCALE, useValue: "nl-NL" },
+    provideZacDateAdapter(),
     {
       provide: MAT_DIALOG_DEFAULT_OPTIONS,
       useValue: {

@@ -42,7 +42,6 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.util.toBase64String
 import org.eclipse.jetty.http.HttpStatus
-import nl.info.zac.log.ERROR
 import java.time.LocalDate
 import java.util.UUID
 import java.util.logging.Logger
@@ -308,7 +307,7 @@ class RestInformatieobjectConverter @Inject constructor(
                 if (zgwErrorException.zgwError.status != HttpStatus.NOT_FOUND_404) {
                     throw zgwErrorException
                 }
-                LOG.log(ERROR) { "Document niet gevonden: $enkelvoudigInformatieobjectUUID" }
+                LOG.severe { "Document niet gevonden: $enkelvoudigInformatieobjectUUID" }
                 null
             }
         }

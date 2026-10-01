@@ -16,19 +16,13 @@ enum class IndicatieInternExtern(private val value: String) : AbstractEnum {
 
     EXTERN("extern");
 
-    override fun toValue(): String {
-        return value
-    }
+    override fun toValue(): String = value
 
     internal class Adapter : AbstractEnum.Adapter<IndicatieInternExtern>() {
-        override fun getEnums(): Array<IndicatieInternExtern> {
-            return entries.toTypedArray()
-        }
+        override fun getEnums(): Array<IndicatieInternExtern> = entries.toTypedArray()
     }
 
     companion object {
-        fun fromValue(value: String): IndicatieInternExtern {
-            return AbstractEnum.fromValue(entries.toTypedArray(), value)
-        }
+        fun fromValue(value: String): IndicatieInternExtern = AbstractEnum.fromValue(entries.toTypedArray(), value)
     }
 }

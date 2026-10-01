@@ -18,9 +18,12 @@ import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { ZacDocuments } from "../../shared/form/documents/documents";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../../shared/form/html-editor/html-editor";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -41,7 +44,10 @@ import { MailService } from "../mail.service";
     MatExpansionPanelActionRow,
     MatFormFieldModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacFormActions,
+    ZacInput,
+    ZacDocuments,
     ZacHtmlEditor,
   ],
 })

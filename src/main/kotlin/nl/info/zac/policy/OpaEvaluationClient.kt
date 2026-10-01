@@ -4,10 +4,12 @@
  */
 package nl.info.zac.policy
 
+import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.client.opa.model.RoleNamesResponse
 import nl.info.client.opa.model.RuleQuery
 import nl.info.client.opa.model.RuleResponse
 import nl.info.zac.policy.input.BrpInput
@@ -36,6 +38,7 @@ interface OpaEvaluationClient {
         const val OVERIGE_RECHTEN_PATH = "overig/overige_rechten"
         const val WERKLIJST_RECHTEN_PATH = "werklijst/werklijst_rechten"
         const val BRP_RECHTEN_PATH = "brp/brp_rechten"
+        const val LEESROLLEN_PATH = "rol/leesrollen"
     }
 
     @POST
@@ -65,4 +68,8 @@ interface OpaEvaluationClient {
     @POST
     @Path(BRP_RECHTEN_PATH)
     fun readBrpRechten(query: RuleQuery<BrpInput>): RuleResponse<BrpRechten>
+
+    @GET
+    @Path(LEESROLLEN_PATH)
+    fun readLeesrollen(): RoleNamesResponse
 }

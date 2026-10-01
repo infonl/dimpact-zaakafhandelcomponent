@@ -28,7 +28,6 @@ import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { PostBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { toDocumentFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
@@ -53,7 +52,6 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
     ZacInput,
     ZacFile,
     ZacSelect,
-    MaterialFormBuilderModule,
   ],
 })
 export class InformatieObjectAddComponent {

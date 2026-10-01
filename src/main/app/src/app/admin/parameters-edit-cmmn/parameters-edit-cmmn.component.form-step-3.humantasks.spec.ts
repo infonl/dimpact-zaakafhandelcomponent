@@ -173,12 +173,14 @@ describe("Human tasks form step", () => {
       .mockReturnValue(of([]));
 
     identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listGroups").mockReturnValue(
-      of([
-        { id: "test-group-id", naam: "test-group" },
-        { id: "test-group-id-2", naam: "test-group-2" },
-      ]),
-    );
+    jest
+      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+      .mockReturnValue(
+        of([
+          { id: "test-group-id", naam: "test-group" },
+          { id: "test-group-id-2", naam: "test-group-2" },
+        ]),
+      );
     jest
       .spyOn(identityService, "listUsersInGroup")
       .mockReturnValueOnce(

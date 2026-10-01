@@ -18,6 +18,7 @@ import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.app.search.model.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
@@ -47,7 +48,13 @@ class SearchServiceTest : BehaviorSpec({
         every { createSolrClient(any()) } returns solrClient
     }
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val zoekService = SearchService(loggedInUserInstance, solrClientFactory)
+    val policyService = mockk<PolicyService>()
+    val leesrollen = setOf("raadpleger", "behandelaar", "coordinator", "recordmanager", "beheerder")
+    val zoekService = SearchService(
+        loggedInUserInstance = loggedInUserInstance,
+        policyService = policyService,
+        solrClientFactory = solrClientFactory
+    )
 
     afterEach {
         checkUnnecessaryStub()
@@ -69,12 +76,13 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaakType1 to setOf("fakeApplicationRole1"),
-                zaakType2 to setOf("fakeApplicationRole2")
+                zaakType1 to setOf("behandelaar"),
+                zaakType2 to setOf("raadpleger")
             )
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
@@ -172,11 +180,12 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaakType1 to setOf("fakeApplicationRole1")
+                zaakType1 to setOf("behandelaar")
             )
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
@@ -258,10 +267,11 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaakType1 to setOf("fakeApplicationRole1")
+                zaakType1 to setOf("behandelaar")
             )
         )
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
@@ -328,11 +338,12 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaakType1 to setOf("fakeApplicationRole1", "fakeApplicationRole2")
+                zaakType1 to setOf("behandelaar", "raadpleger")
             )
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
 
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
@@ -418,6 +429,7 @@ class SearchServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
@@ -490,12 +502,13 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaaktypeWithFlag to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
-                zaaktypeWithoutFlag to setOf("fakeApplicationRole1")
+                zaaktypeWithFlag to setOf("behandelaar", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
+                zaaktypeWithoutFlag to setOf("behandelaar")
             )
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -527,12 +540,13 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaaktype1 to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
-                zaaktype2 to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
+                zaaktype1 to setOf("behandelaar", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
+                zaaktype2 to setOf("behandelaar", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
             )
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -561,12 +575,13 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             applicationRolesPerZaaktype = mapOf(
-                zaaktypeWithoutFlag to setOf("fakeApplicationRole1")
+                zaaktypeWithoutFlag to setOf("behandelaar")
             ),
             overallRoles = setOf(ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -595,10 +610,11 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
             id = "fakeBehandelaarId",
-            applicationRolesPerZaaktype = mapOf(zaaktypeWithoutFlag to setOf("fakeApplicationRole1"))
+            applicationRolesPerZaaktype = mapOf(zaaktypeWithoutFlag to setOf("behandelaar"))
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0

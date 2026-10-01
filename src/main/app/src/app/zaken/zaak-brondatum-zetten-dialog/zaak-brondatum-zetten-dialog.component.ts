@@ -28,10 +28,10 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
+import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
@@ -51,7 +51,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
     MatFormFieldModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacDate,
   ],
 })
 export class ZaakBrondatumZettenDialogComponent {

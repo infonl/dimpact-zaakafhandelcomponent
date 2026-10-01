@@ -13,7 +13,8 @@ import {
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
+import { ZacInput } from "src/app/shared/form/input/input";
+import { ZacSelect } from "src/app/shared/form/select/select";
 import { SharedModule } from "src/app/shared/shared.module";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantenService } from "../../../klanten.service";
@@ -26,10 +27,11 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   imports: [
     SharedModule,
     TranslateModule,
-    MaterialFormBuilderModule,
     ReactiveFormsModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,
+    ZacSelect,
+    ZacInput,
   ],
   template: `
     <div>

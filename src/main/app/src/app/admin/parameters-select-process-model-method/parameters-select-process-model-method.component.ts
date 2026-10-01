@@ -11,7 +11,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
+import { ZacRadio } from "src/app/shared/form/radio/radio";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   ProcessModelMethod,
@@ -27,7 +27,7 @@ import {
     MatIconModule,
     MatButtonModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacRadio,
   ],
 })
 export class ParameterSelectProcessModelMethodComponent {
