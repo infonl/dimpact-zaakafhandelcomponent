@@ -45,6 +45,25 @@ module.exports = {
             caughtErrorsIgnorePattern: "^_",
           },
         ],
+        "no-restricted-imports": [
+          "error",
+          {
+            paths: [
+              {
+                name: "@angular/core",
+                importNames: ["NO_ERRORS_SCHEMA"],
+                message:
+                  "Import the real dependencies instead, so the compiler catches a missing declaration.",
+              },
+            ],
+          },
+        ],
+        // Jira ticket references belong in commit messages and pull request descriptions, not in code.
+        // ESLint has no rule with a custom message for comment contents, so this one reports the matched term.
+        "no-warning-comments": [
+          "error",
+          { terms: ["pz-", "drt-"], location: "anywhere" },
+        ],
       },
     },
     {
@@ -82,6 +101,12 @@ module.exports = {
             selector: "MemberExpression[property.name=/^querySelector(All)?$/]",
             message:
               "Use Testing Library instead of querySelector: query by role or label, e.g. screen.getByRole('row', { name: '…' }) with within(). See https://testing-library.com/docs/queries/about/#priority",
+          },
+          {
+            selector:
+              "TSAsExpression > TSAsExpression[typeAnnotation.type='TSUnknownKeyword'] > ObjectExpression.expression",
+            message:
+              "Use fromPartial<T>({ … }) from src/test-helpers instead of casting an object literal through unknown: it keeps the fields you do write type-checked.",
           },
         ],
       },

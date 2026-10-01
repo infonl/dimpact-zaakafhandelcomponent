@@ -36,7 +36,7 @@ fun Zaak.alreadyGerelateerdReason(foundZaakUuid: UUID) =
     ZaakNotLinkableReason.ALREADY_GERELATEERD.takeIf { isLinkedTo(foundZaakUuid) }
 
 fun ZaakLinkData.canBeRelatedTo(to: ZaakLinkData): Boolean =
-    gerelateerdNotLinkableReason(to) == null
+    to.lezen && gerelateerdNotLinkableReason() == null
 
 fun ZaakLinkData.canBeHoofdzaakFor(
     deelzaak: ZaakLinkData,
@@ -73,11 +73,8 @@ fun ZaakLinkData.hoofdzaakDeelzaakNotLinkableReason(
     else -> null
 }
 
-fun ZaakLinkData.gerelateerdNotLinkableReason(to: ZaakLinkData): ZaakNotLinkableReason? = when {
-    !koppelen -> ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
-    !to.lezen -> ZaakNotLinkableReason.NOT_AUTHORISED_TO_LEZEN
-    else -> null
-}
+fun ZaakLinkData.gerelateerdNotLinkableReason(): ZaakNotLinkableReason? =
+    ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN.takeIf { !koppelen }
 
 private fun allowGerelateerd(from: ZaakLinkData, to: ZaakLinkData) =
     from.koppelen && to.lezen

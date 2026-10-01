@@ -5,7 +5,6 @@
 
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
@@ -17,7 +16,6 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   imports: [
     SharedModule,
     TranslateModule,
-    MaterialFormBuilderModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,
   ],

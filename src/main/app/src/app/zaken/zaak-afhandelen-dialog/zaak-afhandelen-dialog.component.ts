@@ -33,10 +33,13 @@ import moment, { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
@@ -61,7 +64,10 @@ import { ZakenService } from "../zaken.service";
     MatProgressSpinnerModule,
     TranslateModule,
     StaticTextComponent,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    EmptyPipe,
+    ZacInput,
+    ZacDate,
   ],
 })
 export class ZaakAfhandelenDialogComponent {

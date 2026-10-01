@@ -99,7 +99,7 @@ describe(ParametersEditCmmnComponent.name, () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listGroups: () =>
+            listBehandelaarGroupsForZaaktype: () =>
               of([{ id: "fakeGroupId", naam: "fakeGroupNaam" }]),
             listUsersInGroup: () =>
               of([{ id: "fakeUserId", naam: "fakeUserNaam" }]),

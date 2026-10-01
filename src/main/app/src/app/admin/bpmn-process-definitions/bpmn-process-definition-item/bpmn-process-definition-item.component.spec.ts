@@ -16,7 +16,6 @@ import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
-import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
@@ -119,7 +118,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     const rendered = await render(BpmnProcessDefinitionItemComponent, {
       inputs: { processDefinition },
       on: { bpmnFormListChanged },
-      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideQueryClient(testQueryClient),
         { provide: BpmnService, useValue: bpmnService },

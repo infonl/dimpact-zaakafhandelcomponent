@@ -28,9 +28,9 @@ the next reader something untrue about the value.
 
 ## Testing Library rules
 
-`.eslintrc.js` prefers Testing Library queries over reaching into the DOM through Angular.
-Around sixty older specs still query with `By.css` or `querySelector`, so those rules are
-warnings project-wide and a whole-project `npm run lint` stays green on them.
+`.eslintrc.js` prefers Testing Library queries over reaching into the DOM through Angular, and
+`fromPartial` over casting an object literal through `unknown`. Older specs still break these
+rules, so they are warnings project-wide and a whole-project `npm run lint` stays green on them.
 
 They are **errors on every spec file a pull request touches**, which is what
 `.eslintrc.strict-specs.js` is for: a spec you edit has to meet the standard before it merges.
@@ -49,6 +49,20 @@ New specs should use `getByRole` with an accessible name, falling back to `getBy
 is `display: none` — disable the rule on that line with a comment saying which widget forces it.
 
 Migrating the remaining specs so these rules can become errors everywhere is the next phase.
+
+## Conventions enforced by linters
+
+Coding conventions that a linter can check are enforced there rather than only described in
+`CLAUDE.md` and `.claude/rules/`:
+
+| Convention                                                    | Enforced by                                                      |
+| ------------------------------------------------------------- | ---------------------------------------------------------------- |
+| No Jira ticket references (`PZ-…`, `DRT-…`) in code comments  | detekt `ForbiddenComment`, ESLint `no-warning-comments`          |
+| Single-expression Kotlin functions use an expression body     | detekt `ExpressionBodySyntax`                                    |
+| Kotlin files start with an SPDX header                        | detekt `AbsentOrWrongFileLicense`                                |
+| No `catch (exception: Exception)` in main code                | detekt `TooGenericExceptionCaught` (default)                     |
+| No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |
+| No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
 
 ## Using Visual Studio Code
 

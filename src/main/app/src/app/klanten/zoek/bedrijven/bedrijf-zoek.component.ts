@@ -25,7 +25,9 @@ import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
-import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
+import { ZacInput } from "../../../shared/form/input/input";
+import { ZacSelect } from "../../../shared/form/select/select";
+import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import {
   BSN_LENGTH,
   KVK_LENGTH,
@@ -44,7 +46,9 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   styleUrls: ["./bedrijf-zoek.component.less"],
   standalone: true,
   imports: [
-    MaterialFormBuilderModule,
+    ZacSelect,
+    EmptyPipe,
+    ZacInput,
     ReactiveFormsModule,
     MatTableModule,
     MatSortModule,

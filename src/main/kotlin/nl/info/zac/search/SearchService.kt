@@ -9,6 +9,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterResultaat
@@ -39,6 +40,7 @@ import java.time.format.DateTimeFormatter.ISO_INSTANT
 @NoArgConstructor
 class SearchService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val policyService: PolicyService,
     solrClientFactory: SolrClientFactory
 ) {
     companion object {
@@ -168,10 +170,13 @@ class SearchService @Inject constructor(
             }
         }
 
-    // Builds the allowed-zaaktypen filter query for the current user; returns null only when no LoggedInUser is available
+    // Mirrors OPA's `lezen` rules, which evaluate the roles for the zaaktype together with the overall roles.
     private fun getAllowedZaaktypenFilterQuery(): String? =
         loggedInUserInstance.get()?.let { loggedInUser ->
-            val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype.keys
+            val leesrollen = policyService.readLeesrollen()
+            val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype
+                .filterValues { roles -> (roles + loggedInUser.overallRoles).any(leesrollen::contains) }
+                .keys
             if (allowedZaaktypen.isEmpty()) {
                 "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
             } else {
