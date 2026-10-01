@@ -32,6 +32,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder
+import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrDocument
@@ -83,7 +84,7 @@ class SearchServiceTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
         every { solrDocumentList.iterator() } returns listOf(
@@ -136,17 +137,16 @@ class SearchServiceTest : BehaviorSpec({
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaakType1" OR zaaktypeOmschrijving:"$zaakType2"""",
-                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId") """ +
-                            """OR (zaaktypeOmschrijving:"$zaakType2" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaakType1\n$zaakType2",
+                        "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
                         "type:ZAAK",
                         "zaak_omschrijving:($zaakDescriptionSearchField)",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1" OR "$zaakType2")""",
                         """{!tag=BEHANDELAAR}behandelaarNaam:("$behandelaarFilterValue1" OR "$behandelaarFilterValue2")"""
                     )
+                    get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1\n$zaakType2"
                     get("facet") shouldBe "true"
                     get("facet.mincount") shouldBe "1"
                     get("facet.missing") shouldBe "true"
@@ -186,7 +186,7 @@ class SearchServiceTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
         every {
@@ -231,13 +231,14 @@ class SearchServiceTest : BehaviorSpec({
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaakType1"""",
-                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaakType1",
+                        "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
                         "type:TAAK",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
                     )
+                    get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1"
                     get("facet") shouldBe "true"
                     get("facet.mincount") shouldBe "1"
                     get("facet.missing") shouldBe "true"
@@ -272,7 +273,7 @@ class SearchServiceTest : BehaviorSpec({
         )
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
         every {
@@ -304,11 +305,12 @@ class SearchServiceTest : BehaviorSpec({
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaakType1"""",
-                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaakType1",
+                        "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
                         "type:DOCUMENT"
                     )
+                    get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1"
                     get("facet") shouldBe "true"
                     get("facet.mincount") shouldBe "1"
                     get("facet.missing") shouldBe "true"
@@ -345,7 +347,7 @@ class SearchServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
 
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
         every { solrDocumentList.iterator() } returns
@@ -391,13 +393,14 @@ class SearchServiceTest : BehaviorSpec({
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaakType1"""",
-                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaakType1",
+                        "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
                         "type:TAAK",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
                     )
+                    get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1"
                     get("facet") shouldBe "true"
                     get("facet.mincount") shouldBe "1"
                     get("facet.missing") shouldBe "true"
@@ -430,7 +433,7 @@ class SearchServiceTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
         every { solrDocumentList.iterator() } returns listOf(
@@ -509,7 +512,7 @@ class SearchServiceTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
         every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
@@ -522,11 +525,12 @@ class SearchServiceTest : BehaviorSpec({
             then("only the zaaktype without the flag is excluded from zaakspecifiek geautoriseerde results") {
                 with(solrParamsSlot.captured) {
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaaktypeWithFlag" OR zaaktypeOmschrijving:"$zaaktypeWithoutFlag"""",
-                        """-((zaaktypeOmschrijving:"$zaaktypeWithoutFlag" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithFlag\n$zaaktypeWithoutFlag",
+                        "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
                         "type:ZAAK"
                     )
+                    get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaaktypeWithoutFlag"
                 }
             }
         }
@@ -547,7 +551,7 @@ class SearchServiceTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
         every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
@@ -560,7 +564,7 @@ class SearchServiceTest : BehaviorSpec({
             then("no zaakspecifiek geautoriseerd exclusion filter is added") {
                 with(solrParamsSlot.captured) {
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaaktype1" OR zaaktypeOmschrijving:"$zaaktype2"""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktype1\n$zaaktype2",
                         "type:ZAAK"
                     )
                 }
@@ -582,7 +586,7 @@ class SearchServiceTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
         every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
@@ -595,7 +599,7 @@ class SearchServiceTest : BehaviorSpec({
             then("no zaakspecifiek geautoriseerd exclusion filter is added, consistent with OPA granting the flag for every zaaktype") {
                 with(solrParamsSlot.captured) {
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaaktypeWithoutFlag"""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithoutFlag",
                         "type:ZAAK"
                     )
                 }
@@ -615,7 +619,7 @@ class SearchServiceTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
         every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
@@ -628,11 +632,12 @@ class SearchServiceTest : BehaviorSpec({
             then("rows of which that user is the zaak behandelaar are exempted from the exclusion") {
                 with(solrParamsSlot.captured) {
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaaktypeWithoutFlag"""",
-                        """-((zaaktypeOmschrijving:"$zaaktypeWithoutFlag" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeBehandelaarId"))""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithoutFlag",
+                        "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeBehandelaarId\")",
                         "type:ZAAK"
                     )
+                    get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaaktypeWithoutFlag"
                 }
             }
         }

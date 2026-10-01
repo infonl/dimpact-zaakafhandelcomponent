@@ -20,6 +20,7 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.solr.SolrClientFactory
+import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrDocument
@@ -59,7 +60,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
         every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
@@ -72,13 +73,12 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
             then("only the zaaktype with the read role is allowed") {
                 with(solrParamsSlot.captured) {
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaaktypeWithReadRole"""",
-                        """-((zaaktypeOmschrijving:"$zaaktypeWithoutReadRole" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId") """ +
-                            """OR (zaaktypeOmschrijving:"$zaaktypeWithReadRole" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithReadRole",
+                        "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
                         "type:ZAAK"
                     )
+                    get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaaktypeWithoutReadRole\n$zaaktypeWithReadRole"
                 }
             }
         }
@@ -99,7 +99,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
         every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
@@ -112,11 +112,12 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
             then("only the zaaktype with the read role is allowed and the zaakspecifiek geautoriseerd filter is unchanged") {
                 with(solrParamsSlot.captured) {
                     getParams("fq") shouldBe arrayOf(
-                        """zaaktypeOmschrijving:"$zaaktypeWithReadRole"""",
-                        """-((zaaktypeOmschrijving:"$zaaktypeWithReadRole" AND zaakspecifiekGeautoriseerd:true """ +
-                            """AND -zaakGeautoriseerdeMedewerkers:"fakeId"))""",
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithReadRole",
+                        "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
                         "type:TAAK"
                     )
+                    get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaaktypeWithReadRole"
                 }
             }
         }
@@ -134,7 +135,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
         every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
@@ -146,7 +147,41 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
 
             then("the zaaktype is allowed because the overall read role applies to it") {
                 with(solrParamsSlot.captured) {
-                    getParams("fq")[0] shouldBe """zaaktypeOmschrijving:"$zaaktype""""
+                    getParams("fq")[0] shouldBe "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktype"
+                }
+            }
+        }
+    }
+
+    given("A logged-in user who may read a zaaktype whose omschrijving contains a comma") {
+        val zaaktypeWithComma = "fakeZaaktype, with a comma"
+        val otherZaaktype = "fakeOtherZaaktype"
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaaktypeWithComma to setOf("behandelaar"),
+                otherZaaktype to setOf("behandelaar")
+            )
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 0
+        every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
+        every { solrDocumentList.numFound } returns 0
+        every { queryResponse.facetFields } returns emptyList()
+
+        `when`("searching for all documents of type ZAAK") {
+            zoekService.search(createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK))
+
+            then("the zaaktypen are separated by a newline so that the comma does not split the zaaktype in two") {
+                with(solrParamsSlot.captured) {
+                    getParams("fq")[0] shouldBe
+                        "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithComma\n$otherZaaktype"
                 }
             }
         }
@@ -164,7 +199,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readLeesrollen() } returns leesrollen
-        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
         every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
