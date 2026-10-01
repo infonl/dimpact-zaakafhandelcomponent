@@ -16,6 +16,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import nl.info.client.opa.model.RoleNamesResponse
 import nl.info.client.opa.model.RuleQuery
 import nl.info.client.opa.model.RuleResponse
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -751,6 +752,38 @@ class PolicyServiceTest : BehaviorSpec({
                 then("it should throw OpaRuleNotConfiguredException naming the rule path") {
                     opaRuleNotConfiguredException.message shouldBe
                         "OPA returned no result for rule path 'werklijst/werklijst_rechten'. " +
+                        "The rule may be missing from the policy bundle."
+                }
+            }
+        }
+    }
+
+    context("Reading leesrollen") {
+        given("An OPA policy bundle that defines the leesrollen") {
+            every {
+                opaEvaluationClient.readLeesrollen()
+            } returns RoleNamesResponse(setOf("fakeLeesrol1", "fakeLeesrol2"))
+
+            `when`("the leesrollen are requested") {
+                val leesrollen = policyService.readLeesrollen()
+
+                then("the role names defined in OPA are returned") {
+                    leesrollen shouldContainExactlyInAnyOrder listOf("fakeLeesrol1", "fakeLeesrol2")
+                }
+            }
+        }
+
+        given("An OPA policy bundle without the leesrollen") {
+            every { opaEvaluationClient.readLeesrollen() } returns RoleNamesResponse(null)
+
+            `when`("the leesrollen are requested") {
+                val opaRuleNotConfiguredException = shouldThrow<OpaRuleNotConfiguredException> {
+                    policyService.readLeesrollen()
+                }
+
+                then("it should throw OpaRuleNotConfiguredException naming the rule path") {
+                    opaRuleNotConfiguredException.message shouldBe
+                        "OPA returned no result for rule path 'rol/leesrollen'. " +
                         "The rule may be missing from the policy bundle."
                 }
             }

@@ -25,6 +25,7 @@ nl.info.zac.itest.InboxDocumentRestServiceTest
 nl.info.zac.itest.InboxProductaanvraagRestServiceTest
 nl.info.zac.itest.MailRestServiceTest
 nl.info.zac.itest.NotificationTest
+nl.info.zac.itest.SearchRestServiceLeesrechtTest
 nl.info.zac.itest.StaticCacheFilterTest
 nl.info.zac.itest.TaskRestServiceTest
 nl.info.zac.itest.WebDavServletTest
