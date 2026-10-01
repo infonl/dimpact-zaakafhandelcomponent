@@ -8,7 +8,8 @@ let common = [
   "--require-module ts-node/register", // Load TypeScript module
   "--require support/worlds/*.ts", // Load support files
   "--require step-definitions/**/*.ts", // Load step definitions
-  "--format progress-bar", // Progress bar formatter (built-in)
+  // The progress formatter writes no line breaks, so GitHub Actions shows nothing until the run ends.
+  process.env.CI ? "--format pretty" : "--format progress-bar",
   "--format json:reports/e2e-report.json", // JSON report consumed by the HTML reporter
 ].join(" ");
 
