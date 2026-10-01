@@ -30,8 +30,8 @@ import { CoreModule } from "./core/core.module";
 import { provideStartupPrefetch } from "./core/startup-prefetch";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { RouteReuseStrategyService } from "./informatie-objecten/route-reuse-strategy.service";
-import { Paths } from "./shared/http/http-client";
 import { QUERY_CLIENT } from "./shared/http/query-client";
+import { shouldDehydrateQuery } from "./shared/http/should-dehydrate-query";
 import { SharedModule } from "./shared/shared.module";
 import { ZoekComponent } from "./zoeken/zoek/zoek.component";
 
@@ -81,20 +81,7 @@ export class AppModule {
         storage: window.sessionStorage,
         key: "zac:tanstack:query",
       }),
-      dehydrateOptions: {
-        shouldDehydrateQuery: ({ queryKey }) => {
-          const [url] = queryKey;
-          if (!url) return false;
-
-          const sessionStoragePersistedEndpoints: (keyof Paths)[] = [
-            "/rest/identity/loggedInUser",
-            "/rest/configuratie/file-types",
-          ];
-          return sessionStoragePersistedEndpoints.includes(
-            String(url) as keyof Paths,
-          );
-        },
-      },
+      dehydrateOptions: { shouldDehydrateQuery },
     });
   }
 }
