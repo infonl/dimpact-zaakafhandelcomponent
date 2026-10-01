@@ -147,7 +147,7 @@
                     [value]="taak?.groep?.naam"
                     class="flex-item"
                   >
-                    @if (!taak?.groep?.active) {
+                    @if (taak?.groep?.active === false) {
                       <em position="content-after" class="inactive-label"
                         >({{ "inactief" | translate | lowercase }})</em
                       >
