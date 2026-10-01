@@ -15,6 +15,6 @@
 ## 4. Verification
 
 - [x] 4.1 Run `./gradlew spotlessApply detektApply`, then `./gradlew detekt`, and verify it reports no issues
-- [ ] 4.2 Run the integration tests (`./gradlew buildDockerImage itest`) and verify none fail, so users with read roles keep access
+- [x] 4.2 Run the integration tests (`./gradlew buildDockerImage itest`) and verify none fail, so users with read roles keep access
 - [ ] 4.3 In the local Docker Compose stack, log in as a user who holds only `brp_zoeken`, and verify that ZAC shows the "U heeft geen toestemming om deze pagina te bekijken." page with only a log-out button, and that the log-out button works
 - [x] 4.4 Run `openspec validate application-access-requires-read-role --strict` and verify it passes
