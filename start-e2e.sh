@@ -22,7 +22,7 @@ echo "Cleanup screenshots ..."
 rm -rf reports/*
 
 echo "Define world-parameters JSON ..."
-world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"}, "headless": '${HEADLESS:-false}', "users": {"Bob": {"username": "'$E2E_TEST_USER_1_USERNAME'", "password": "'$E2E_TEST_USER_1_PASSWORD'"}, "Oscar": {"username": "'$E2E_TEST_USER_2_USERNAME'", "password": "'$E2E_TEST_USER_2_PASSWORD'"}}, "groupIds": {"TestGroupA": "'${E2E_TEST_GROUP_A_ID:-test-group-a}'", "TestGroupB": "'${E2E_TEST_GROUP_B_ID:-test-group-b}'"}}'
+world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"}, "headless": '${HEADLESS:-false}', "users": {"Bob": {"username": "'$E2E_TEST_USER_1_USERNAME'", "password": "'$E2E_TEST_USER_1_PASSWORD'"}, "Oscar": {"username": "'$E2E_TEST_USER_2_USERNAME'", "password": "'$E2E_TEST_USER_2_PASSWORD'"}}}'
 
 echo "Run your Playwright tests ..."
 if [ "$EXCLUDE_LIVE_SCENARIO_TAGS" = "true" ]; then

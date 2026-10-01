@@ -14,12 +14,7 @@ import {
 } from "../support/time-constants";
 import { groups } from "../support/worlds/groups";
 import { CustomWorld } from "../support/worlds/world";
-import {
-  worldGroups,
-  worldUsers,
-  zaakResult,
-  zaakStatus,
-} from "../utils/schemes";
+import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
 const E2E_PROCESS_DEFINITION_NAME = "E2E Test BPMN Process Definition";
 const E2E_PROCESS_DEFINITION_BPMN_FILE = "E2ETestProcessDefinition.bpmn";
@@ -356,12 +351,9 @@ Then(
     const form = formioForm(this.page);
     const groupTextbox = form.getByRole("textbox", { name: "Group" });
     await waitForFormioContent(this.page, groupTextbox);
-    await expect(groupTextbox).toHaveValue(
-      this.worldParameters.groupIds.TestGroupA,
-      {
-        timeout: FORTY_SECONDS_IN_MS,
-      },
-    );
+    await expect(groupTextbox).toHaveValue(groups.TestGroupA.id, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
       testUser1Id,
       { timeout: FORTY_SECONDS_IN_MS },
@@ -435,10 +427,8 @@ Then(
     groupName: string,
     userName: string,
   ) {
-    const groupKey = worldGroups.parse(
-      Object.entries(groups).find(([, group]) => group.name === groupName)?.[0],
-    );
-    const groupId = this.worldParameters.groupIds[groupKey];
+    const group = Object.values(groups).find(({ name }) => name === groupName);
+    if (!group) throw new Error(`Unknown group "${groupName}"`);
     const behandelaarField = this.page.getByRole("textbox", {
       name: "zaakBehandelaar",
     });
@@ -451,7 +441,7 @@ Then(
       await this.page.getByRole("button", { name: "Zaakdata" }).click();
       await expect(
         this.page.getByRole("textbox", { name: "zaakGroep" }),
-      ).toHaveValue(groupId, { timeout: TEN_SECONDS_IN_MS });
+      ).toHaveValue(group.id, { timeout: TEN_SECONDS_IN_MS });
 
       const isLastAttempt = attempt === maxAttempts;
       if (isLastAttempt) {
