@@ -51,7 +51,8 @@ interface BpmnProcessDefinitionGroupNode {
 }
 
 type Node =
-  BpmnProcessDefinitionGroupNode | GeneratedType<"RestBpmnProcessDefinition">;
+  | BpmnProcessDefinitionGroupNode
+  | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
   standalone: true,
