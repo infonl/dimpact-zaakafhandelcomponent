@@ -18,5 +18,6 @@ const ZAC_DATE_FORMATS: MatDateFormats = {
   },
 };
 
-export const provideZacDateAdapter = () =>
-  provideMomentDateAdapter(ZAC_DATE_FORMATS, { strict: false });
+export function provideZacDateAdapter() {
+  return provideMomentDateAdapter(ZAC_DATE_FORMATS, { strict: false });
+}
