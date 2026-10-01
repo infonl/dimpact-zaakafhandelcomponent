@@ -29,6 +29,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
+import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.common.params.SimpleParams
 import java.io.IOException
@@ -48,6 +49,15 @@ class SearchService @Inject constructor(
 
         private val NON_EXISTING_ZAAKTYPE = quoted("-NON-EXISTING-ZAAKTYPE-")
         private const val ZAAKTYPE_OMSCHRIJVING_VELD = "zaaktypeOmschrijving"
+
+        // The terms query parser does not support escaping, and a zaaktype omschrijving may contain the default
+        // separator, a comma, but is not expected to contain a newline.
+        private const val TERMS_SEPARATOR = "\n"
+
+        // A request parameter rather than inline values, because inside a boolean query the end of a nested
+        // terms query's values cannot be told apart from the rest of the query.
+        private const val ZAAKTYPEN_ZONDER_ZAAKSPECIFIEK_GEAUTORISEERD_PARAMETER =
+            "zaaktypenZonderZaakspecifiekGeautoriseerd"
     }
 
     init {
@@ -58,7 +68,7 @@ class SearchService @Inject constructor(
     fun search(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
         getAllowedZaaktypenFilterQuery()?.let(query::addFilterQuery)
-        getZaakspecifiekGeautoriseerdFilterQuery()?.let(query::addFilterQuery)
+        addZaakspecifiekGeautoriseerdFilterQuery(query)
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
         getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
@@ -102,7 +112,8 @@ class SearchService @Inject constructor(
 
     private fun solrSearch(query: SolrQuery): ZoekResultaat<out ZoekObject> {
         try {
-            val response = solrClient.query(query)
+            // POST, because the filter queries for a user with many zaaktypen exceed the maximum header size of a GET
+            val response = solrClient.query(query, SolrRequest.METHOD.POST)
             val zoekObjecten = response.results
                 .map {
                     val zoekObjectType = ZoekObjectType.valueOf(it["type"].toString())
@@ -180,31 +191,39 @@ class SearchService @Inject constructor(
             if (allowedZaaktypen.isEmpty()) {
                 "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
             } else {
-                allowedZaaktypen.joinToString(" OR ") { "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}" }
+                "{!terms f=$ZAAKTYPE_OMSCHRIJVING_VELD separator='$TERMS_SEPARATOR'}" +
+                    allowedZaaktypen.joinToString(TERMS_SEPARATOR)
             }
         }
 
     // Excludes zaakspecifiek geautoriseerde rows for zaaktypen the user holds a role for but not the
-    // zaakspecifiek_geautoriseerd flag; returns null when every allowed zaaktype has the flag (or none is
+    // zaakspecifiek_geautoriseerd flag; adds nothing when every allowed zaaktype has the flag (or none is
     // allowed). Mirrors OPA's `user.rollen`, which also grants the flag for every zaaktype once it is held
     // as an overall role (i.e. one not scoped to a specific zaaktype), and OPA's exception for medewerkers
     // individually authorised for a zaak.
-    private fun getZaakspecifiekGeautoriseerdFilterQuery(): String? =
-        loggedInUserInstance.get()?.let { loggedInUser ->
-            if (ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in loggedInUser.overallRoles) {
-                return@let null
-            }
-            val zaaktypenWithoutFlag = loggedInUser.applicationRolesPerZaaktype
+    private fun addZaakspecifiekGeautoriseerdFilterQuery(query: SolrQuery) {
+        val loggedInUser = loggedInUserInstance.get() ?: return
+        val zaaktypenWithoutFlag = getZaaktypenWithoutZaakspecifiekGeautoriseerd(loggedInUser)
+        if (zaaktypenWithoutFlag.isNotEmpty()) {
+            query.set(
+                ZAAKTYPEN_ZONDER_ZAAKSPECIFIEK_GEAUTORISEERD_PARAMETER,
+                zaaktypenWithoutFlag.joinToString(TERMS_SEPARATOR)
+            )
+            query.addFilterQuery(
+                "-({!terms f=$ZAAKTYPE_OMSCHRIJVING_VELD separator='$TERMS_SEPARATOR' " +
+                    "v=\$$ZAAKTYPEN_ZONDER_ZAAKSPECIFIEK_GEAUTORISEERD_PARAMETER} " +
+                    "AND ${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}:true " +
+                    "AND -${ZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD}:${quoted(loggedInUser.id)})"
+            )
+        }
+    }
+
+    private fun getZaaktypenWithoutZaakspecifiekGeautoriseerd(loggedInUser: LoggedInUser) =
+        if (ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in loggedInUser.overallRoles) {
+            emptySet()
+        } else {
+            loggedInUser.applicationRolesPerZaaktype
                 .filterValues { roles -> ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD !in roles }
                 .keys
-            if (zaaktypenWithoutFlag.isEmpty()) {
-                null
-            } else {
-                "-(" + zaaktypenWithoutFlag.joinToString(" OR ") {
-                    "($ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)} " +
-                        "AND ${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}:true " +
-                        "AND -${ZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD}:${quoted(loggedInUser.id)})"
-                } + ")"
-            }
         }
 }
