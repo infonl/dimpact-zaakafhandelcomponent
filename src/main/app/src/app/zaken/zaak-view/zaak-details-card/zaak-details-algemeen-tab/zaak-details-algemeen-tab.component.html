@@ -23,7 +23,7 @@
 
     <zac-static-text label="groep" [value]="zaak().groep?.naam | empty">
       @if (zaak().groep?.active === false) {
-        <em position="content-after"
+        <em position="content-after" class="inactive-label"
           >({{ "inactief" | translate | lowercase }})</em
         >
       }
