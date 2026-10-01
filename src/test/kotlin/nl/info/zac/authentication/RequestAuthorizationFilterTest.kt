@@ -15,6 +15,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
+import nl.info.client.pabc.ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.policy.PolicyService
 
@@ -469,26 +470,32 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        given("An authenticated user with only the systeemrol_behandelaar_alle_zaaktypen role accesses '/app/home'") {
+        given(
+            "An authenticated user who, through a PABC misconfiguration, holds only the systeemrol for all " +
+                "zaaktypen for a zaaktype, accesses '/app/home'"
+        ) {
             val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(
-                overallRoles = setOf(ZacApplicationRole.SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN.value)
+                applicationRolesPerZaaktype = mapOf(
+                    "fakeZaaktype1" to setOf(ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN)
+                )
             )
             setSessionUser(user)
+            every { policyService.readLeesrollen() } returns leesrollen
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/app/home"
             every { httpServletRequest.method } returns "GET"
-            every { filterChain.doFilter(any(), any()) } just runs
+            every { httpServletResponse.sendError(any()) } just runs
 
             `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                then("the request is allowed without asking OPA for the read roles") {
+                then("a 403 is returned, because the systeemrol is not a read role") {
                     verify(exactly = 1) {
-                        filterChain.doFilter(httpServletRequest, httpServletResponse)
+                        httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
                     verify(exactly = 0) {
-                        policyService.readLeesrollen()
+                        filterChain.doFilter(any(), any())
                     }
                 }
             }

@@ -9,10 +9,10 @@ page instead of a dashboard that only shows permission errors.
 
 ZAC SHALL serve a request on an authenticated, non-admin path only when the logged-in user holds at least one read
 role (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager` or `beheerder`), for at least one zaaktype or as
-an overall role, or holds the `systeemrol_behandelaar_alle_zaaktypen` role. ZAC SHALL answer every other request on
-an authenticated, non-admin path with HTTP 403. A 403 on a page request SHALL show the existing error page
-"U heeft geen toestemming om deze pagina te bekijken." with only a log-out button. Holding only other application
-roles, such as `brp_zoeken` or `zaakspecifiek_geautoriseerd`, SHALL NOT give access.
+an overall role. ZAC SHALL answer every other request on an authenticated, non-admin path with HTTP 403. A 403 on a
+page request SHALL show the existing error page "U heeft geen toestemming om deze pagina te bekijken." with only a
+log-out button. Holding only other application roles, such as `brp_zoeken`, `zaakspecifiek_geautoriseerd` or
+`systeemrol_behandelaar_alle_zaaktypen`, SHALL NOT give access.
 
 #### Scenario: A user with only brp_zoeken gets the no-permission page
 - **WHEN** a user who holds only `brp_zoeken`, for one or more zaaktypen and as an overall role, logs in and opens
@@ -43,9 +43,10 @@ roles, such as `brp_zoeken` or `zaakspecifiek_geautoriseerd`, SHALL NOT give acc
 - **WHEN** a user holds `behandelaar` as an overall role and no zaaktype-specific roles, and opens ZAC
 - **THEN** ZAC serves the request
 
-#### Scenario: The systeemrol for all zaaktypen gives access
-- **WHEN** a user holds only `systeemrol_behandelaar_alle_zaaktypen` and opens ZAC
-- **THEN** ZAC serves the request
+#### Scenario: The systeemrol for all zaaktypen does not give access
+- **WHEN** a user holds only `systeemrol_behandelaar_alle_zaaktypen` for a zaaktype, because PABC is misconfigured to
+  hand it out, and opens ZAC
+- **THEN** ZAC answers with HTTP 403
 
 ### Requirement: Admin and public paths keep their existing access rules
 

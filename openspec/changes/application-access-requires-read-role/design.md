@@ -10,8 +10,9 @@ The read roles are already defined once, as the `leesrollen` set in `rollen.rego
 `PolicyService.readLeesrollen()` (used by `SearchService` since the `zoekresultaten-leesrecht` change).
 `PolicyService` is `@ApplicationScoped`, so the filter can inject it.
 
-`systeemrol_behandelaar_alle_zaaktypen` is not in `leesrollen`, but `zaak-rechten.rego` grants it `lezen` on every
-zaak on its own. A user with only that role must keep access.
+`systeemrol_behandelaar_alle_zaaktypen` is only hardcoded to the internal system users in `LoggedInUserProvider`,
+which never send HTTP requests, and `UserPrincipalFilter` strips it from a real user's overall roles. So the filter
+never needs to admit it.
 
 ## Goals / Non-Goals
 
@@ -21,8 +22,6 @@ zaak on its own. A user with only that role must keep access.
 **Non-Goals:**
 - No change to the admin-path check or to the public paths.
 - No change to `leesrollen` in OPA or to the OPA `lezen` rules.
-- No change to `SearchService`, which does not take `systeemrol_behandelaar_alle_zaaktypen` into account. That is a
-  separate question.
 - No frontend change.
 
 ## Decisions
@@ -30,8 +29,7 @@ zaak on its own. A user with only that role must keep access.
 ### Read the read roles from OPA, not from a Kotlin constant
 
 The filter calls `policyService.readLeesrollen()` and admits the user when any role in
-`applicationRolesPerZaaktype` values or `overallRoles` is in that set, or when `overallRoles` or any zaaktype's
-roles contain `systeemrol_behandelaar_alle_zaaktypen`.
+`applicationRolesPerZaaktype` values or `overallRoles` is in that set.
 
 Alternative: hard-code the five read roles in `ZacApplicationRole`. Rejected, because then the read roles are
 defined in two places and `rollen.rego` says ZAC reads them from OPA.
@@ -39,14 +37,14 @@ defined in two places and `rollen.rego` says ZAC reads them from OPA.
 ### Check the cheap conditions first
 
 The filter returns `false` without calling OPA when there is no session, no logged-in user, or the user holds no
-application role at all. It returns `true` without calling OPA when the user holds
-`systeemrol_behandelaar_alle_zaaktypen`. Only otherwise it calls OPA. So users without roles cost nothing extra,
+application role at all. Only otherwise it calls OPA. So users without roles cost nothing extra,
 and the existing no-role behaviour does not depend on OPA.
 
-### Add `systeemrol_behandelaar_alle_zaaktypen` to `ZacApplicationRole`
+### Do not add `systeemrol_behandelaar_alle_zaaktypen` to `leesrollen` or to the filter
 
-The enum lists the roles that need specific handling in code, which now applies to this role. This avoids a string
-literal in the filter.
+Adding it to `leesrollen` would grant it `lezen` in `taak-rechten.rego` and `document-rechten.rego`, where it now has
+no rights, and change search results. Handling it in the filter is dead code for the system users, and would let in
+a real user to whom a misconfigured PABC hands it out per zaaktype, which `UserPrincipalFilter` does not strip.
 
 ### Keep the admin check as it is
 

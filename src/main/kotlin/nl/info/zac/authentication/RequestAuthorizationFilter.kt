@@ -27,7 +27,7 @@ import nl.info.zac.util.NoArgConstructor
  * For authenticated endpoints, it expects that the user has already logged in and performs basic authorization.
  *
  * General access: user must have at least one read ('lezen') application role on at least one zaaktype,
- * or as an overall role, or the 'systeemrol_behandelaar_alle_zaaktypen' role.
+ * or as an overall role.
  * For admin URIs (/admin/, /rest/admin/): User must have the 'beheerder' role for at least one zaaktype
  *
  * This filter must run after [UserPrincipalFilter], so [UserPrincipalFilter] can
@@ -103,11 +103,7 @@ class RequestAuthorizationFilter @Inject constructor(
 
     private fun hasAnyReadApplicationRole(user: LoggedInUser): Boolean {
         val applicationRoles = user.applicationRolesPerZaaktype.values.flatten().toSet() + user.overallRoles
-        return when {
-            applicationRoles.isEmpty() -> false
-            ZacApplicationRole.SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN.value in applicationRoles -> true
-            else -> policyService.readLeesrollen().any(applicationRoles::contains)
-        }
+        return applicationRoles.isNotEmpty() && policyService.readLeesrollen().any(applicationRoles::contains)
     }
 
     /**

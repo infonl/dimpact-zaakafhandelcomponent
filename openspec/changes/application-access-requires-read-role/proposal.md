@@ -9,8 +9,7 @@ te bekijken." page, with only a log-out button, that a user without any ZAC appl
 
 - `RequestAuthorizationFilter` admits a request on an authenticated, non-admin path only when the logged-in user
   holds at least one read role (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager` or `beheerder`),
-  either for a zaaktype or as an overall role, or holds `systeemrol_behandelaar_alle_zaaktypen`. Before this
-  change, any application role was enough.
+  either for a zaaktype or as an overall role. Before this change, any application role was enough.
 - The read roles are taken from the existing OPA `leesrollen` rule, so OPA stays the single source of truth for
   which roles grant read rights.
 - A user who holds only non-read roles, such as `brp_zoeken` or `zaakspecifiek_geautoriseerd`, gets a 403 on
@@ -28,9 +27,8 @@ te bekijken." page, with only a log-out button, that a user without any ZAC appl
 
 ## Impact
 
-- Code: `src/main/kotlin/nl/info/zac/authentication/RequestAuthorizationFilter.kt` (now injects `PolicyService`),
-  `src/main/kotlin/nl/info/zac/identity/model/ZacApplicationRole.kt` (adds
-  `systeemrol_behandelaar_alle_zaaktypen`), and their unit tests. An integration test may be added.
+- Code: `src/main/kotlin/nl/info/zac/authentication/RequestAuthorizationFilter.kt` (now injects `PolicyService`)
+  and its unit tests.
 - Runtime: the filter makes one extra OPA call (`rol/leesrollen`) per authenticated request from a user who holds
   application roles. If OPA does not return the rule, the request fails instead of being let through.
 - Users: users with only non-read roles lose access to the ZAC UI and REST API. They had no working
