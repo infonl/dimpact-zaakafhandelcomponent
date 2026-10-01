@@ -7,9 +7,9 @@ package nl.info.zac.search
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import nl.info.client.pabc.READ_ROLE_NAMES
 import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterResultaat
@@ -40,6 +40,7 @@ import java.time.format.DateTimeFormatter.ISO_INSTANT
 @NoArgConstructor
 class SearchService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val policyService: PolicyService,
     solrClientFactory: SolrClientFactory
 ) {
     companion object {
@@ -172,8 +173,9 @@ class SearchService @Inject constructor(
     // Mirrors OPA's `lezen` rules, which evaluate the roles for the zaaktype together with the overall roles.
     private fun getAllowedZaaktypenFilterQuery(): String? =
         loggedInUserInstance.get()?.let { loggedInUser ->
+            val leesrollen = policyService.readLeesrollen()
             val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype
-                .filterValues { roles -> (roles + loggedInUser.overallRoles).any(READ_ROLE_NAMES::contains) }
+                .filterValues { roles -> (roles + loggedInUser.overallRoles).any(leesrollen::contains) }
                 .keys
             if (allowedZaaktypen.isEmpty()) {
                 "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"

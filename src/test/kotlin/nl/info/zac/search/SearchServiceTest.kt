@@ -18,6 +18,7 @@ import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.app.search.model.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
@@ -47,7 +48,13 @@ class SearchServiceTest : BehaviorSpec({
         every { createSolrClient(any()) } returns solrClient
     }
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val zoekService = SearchService(loggedInUserInstance, solrClientFactory)
+    val policyService = mockk<PolicyService>()
+    val leesrollen = setOf("raadpleger", "behandelaar", "coordinator", "recordmanager", "beheerder")
+    val zoekService = SearchService(
+        loggedInUserInstance = loggedInUserInstance,
+        policyService = policyService,
+        solrClientFactory = solrClientFactory
+    )
 
     afterEach {
         checkUnnecessaryStub()
@@ -75,6 +82,7 @@ class SearchServiceTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
@@ -177,6 +185,7 @@ class SearchServiceTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
@@ -262,6 +271,7 @@ class SearchServiceTest : BehaviorSpec({
             )
         )
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
@@ -333,6 +343,7 @@ class SearchServiceTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
 
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
@@ -418,6 +429,7 @@ class SearchServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
@@ -496,6 +508,7 @@ class SearchServiceTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -533,6 +546,7 @@ class SearchServiceTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -567,6 +581,7 @@ class SearchServiceTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -599,6 +614,7 @@ class SearchServiceTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0

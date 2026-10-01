@@ -1,6 +1,6 @@
 ## 1. Read-role based search filter
 
-- [x] 1.1 Add a read-role name set (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`, `beheerder`) next to the role constants in `PabcClient.kt`, documented as mirroring the `lezen` rules in the rego policies; verify with a unit test that pins its contents
+- [x] 1.1 Add a `leesrollen` set (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`, `beheerder`) to `rollen.rego`, use it in the `lezen` rules of the zaak, taak and document policies, and let `SearchService` read it from OPA through `PolicyService.readLeesrollen()`; verify with `opa test` and a `PolicyServiceTest` case
 - [x] 1.2 Change `SearchService.getAllowedZaaktypenFilterQuery` to only admit zaaktypen whose roles, united with `overallRoles`, contain a read role, keeping the non-existing-zaaktype fallback when none remain; verify `./gradlew compileKotlin` succeeds
 - [x] 1.3 Add `SearchServiceTest` cases: only `brp_zoeken` for one zaaktype and `behandelaar` for another (only the latter in the filter query); only `zaakspecifiek_geautoriseerd` for a zaaktype (zaaktype excluded, zaakspecifiek filter unchanged for the rest); read role mixed with non-read roles (included); overall `raadpleger` with only `brp_zoeken` for a zaaktype (included); no read role at all (non-existing-zaaktype filter); verify with `./gradlew test --tests "nl.info.zac.search.SearchServiceTest"`
 - [x] 1.4 Confirm existing `SearchServiceTest` scenarios for users with read roles still pass unchanged, proving users with a read role see the same results as before

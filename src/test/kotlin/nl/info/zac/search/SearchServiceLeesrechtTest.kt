@@ -17,6 +17,7 @@ import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.app.search.model.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.solr.SolrClientFactory
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -31,7 +32,13 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
         every { createSolrClient(any()) } returns solrClient
     }
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val zoekService = SearchService(loggedInUserInstance, solrClientFactory)
+    val policyService = mockk<PolicyService>()
+    val leesrollen = setOf("raadpleger", "behandelaar", "coordinator", "recordmanager", "beheerder")
+    val zoekService = SearchService(
+        loggedInUserInstance = loggedInUserInstance,
+        policyService = policyService,
+        solrClientFactory = solrClientFactory
+    )
 
     afterEach {
         checkUnnecessaryStub()
@@ -51,6 +58,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -90,6 +98,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -124,6 +133,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0
@@ -153,6 +163,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
         )
 
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readLeesrollen() } returns leesrollen
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 0

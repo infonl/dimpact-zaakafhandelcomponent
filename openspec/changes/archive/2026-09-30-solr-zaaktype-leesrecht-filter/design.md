@@ -44,15 +44,17 @@ Alternatives considered:
   and costs one OPA call per hit.
 - *Index read-role information in Solr*: roles are per user; nothing to index.
 
-### Define the read roles once in Kotlin
-Add a named set of read role names next to the existing role constants in `PabcClient.kt`
-(`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`, `beheerder`), with the same "must match
-`rollen.rego`" note the other constants carry. The rego files stay the source of truth for OPA; the Kotlin
-set only mirrors the `lezen` rule for query building. A unit test pins the set so that a change to one side
-shows up in review.
+### Define the read roles once in rego and read them from OPA
+Add a `leesrollen` set (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`, `beheerder`) to
+`rollen.rego` and use it in the `lezen` rules of `zaak-rechten.rego`, `taak-rechten.rego` and
+`document-rechten.rego`. ZAC reads the set per search through OPA's data API
+(`GET v1/data/net/atos/zac/rol/leesrollen`), so the rego files are the only place the read roles are defined.
 
-Alternative: ask OPA which zaaktypen are readable. No such policy exists and it adds a remote call per
-search for a value derivable locally.
+Alternatives considered:
+- *A Kotlin constant that mirrors the rego set, pinned by a unit test*: the two sides can drift apart and
+  only review catches it.
+- *Ask OPA which zaaktypen are readable*: moves the whole decision into rego, but needs a new rule, new input
+  and output models and a rego refactoring; left for a follow-up.
 
 ### Remove `NOT_AUTHORISED_TO_LEZEN`, keep the read check in `canBeRelatedTo`
 - Drop the enum value and the `!to.lezen` branch from `gerelateerdNotLinkableReason`. The function then only
