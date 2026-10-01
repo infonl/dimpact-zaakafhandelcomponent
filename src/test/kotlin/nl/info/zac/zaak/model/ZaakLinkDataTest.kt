@@ -406,38 +406,11 @@ class ZaakLinkDataTest : BehaviorSpec({
     }
 
     context("gerelateerdNotLinkableReason") {
-        given("a found zaak the user cannot read") {
-            val zaak = createZaakLinkData()
-            val foundZaak = createZaakLinkData(lezen = false)
-
-            `when`("the reason is determined") {
-                val reason = zaak.gerelateerdNotLinkableReason(foundZaak)
-
-                then("the missing lezen right blocks the link") {
-                    reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_LEZEN
-                }
-            }
-        }
-
-        given("a closed found zaak of a zaaktype that is not an allowed deelzaaktype") {
-            val zaak = createZaakLinkData(isOpen = true)
-            val foundZaak = createZaakLinkData(isOpen = false, zaaktypeUUID = UUID.randomUUID())
-
-            `when`("the reason is determined") {
-                val reason = zaak.gerelateerdNotLinkableReason(foundZaak)
-
-                then("neither the status nor the zaaktype blocks relating the zaken") {
-                    reason shouldBe null
-                }
-            }
-        }
-
-        given("a current zaak the user has no koppelen rights on and a readable found zaak") {
+        given("a current zaak the user has no koppelen rights on") {
             val zaak = createZaakLinkData(koppelen = false)
-            val foundZaak = createZaakLinkData(lezen = true)
 
             `when`("the reason is determined") {
-                val reason = zaak.gerelateerdNotLinkableReason(foundZaak)
+                val reason = zaak.gerelateerdNotLinkableReason()
 
                 then("the missing koppelen right on the current zaak blocks the link") {
                     reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
@@ -445,14 +418,13 @@ class ZaakLinkDataTest : BehaviorSpec({
             }
         }
 
-        given("a found zaak the user can read but has no koppelen rights on") {
+        given("a current zaak the user has koppelen rights on") {
             val zaak = createZaakLinkData(koppelen = true)
-            val foundZaak = createZaakLinkData(lezen = true, koppelen = false)
 
             `when`("the reason is determined") {
-                val reason = zaak.gerelateerdNotLinkableReason(foundZaak)
+                val reason = zaak.gerelateerdNotLinkableReason()
 
-                then("lezen rights on the found zaak are enough to relate it") {
+                then("nothing blocks relating the zaken") {
                     reason shouldBe null
                 }
             }

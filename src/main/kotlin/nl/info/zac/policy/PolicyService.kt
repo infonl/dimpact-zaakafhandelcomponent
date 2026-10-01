@@ -283,6 +283,10 @@ class PolicyService @Inject constructor(
             )
         ).requireResult(OpaEvaluationClient.BRP_RECHTEN_PATH)
 
+    fun readLeesrollen(): Set<String> =
+        evaluationClient.readLeesrollen().result
+            ?: throw OpaRuleNotConfiguredException(OpaEvaluationClient.LEESROLLEN_PATH)
+
     private fun <T : OpaRuleResult> RuleResponse<T>.requireResult(rulePath: String): T =
         result ?: throw OpaRuleNotConfiguredException(rulePath)
 }
