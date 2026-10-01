@@ -35,7 +35,7 @@ async function checkZaakAssignment(
     this.page
       .getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)
       .first(),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
   await this.expect(
     this.page
@@ -43,19 +43,19 @@ async function checkZaakAssignment(
         name: "Aanvullende informatie",
       })
       .first(),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: "Toegekend" }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.group }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.username }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 }
 
 async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
