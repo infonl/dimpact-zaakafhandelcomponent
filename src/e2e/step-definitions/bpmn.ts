@@ -12,8 +12,14 @@ import {
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
+import { groups } from "../support/worlds/groups";
 import { CustomWorld } from "../support/worlds/world";
-import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
+import {
+  worldGroups,
+  worldUsers,
+  zaakResult,
+  zaakStatus,
+} from "../utils/schemes";
 
 const E2E_PROCESS_DEFINITION_NAME = "E2E Test BPMN Process Definition";
 const E2E_PROCESS_DEFINITION_BPMN_FILE = "E2ETestProcessDefinition.bpmn";
@@ -95,7 +101,6 @@ async function selectFirstOption(form: Locator, label: string) {
     .click();
 }
 
-const e2eTestGroupAId = "test-group-a";
 const e2eTestGroupAName = "Test groep A";
 const testUser1Id = "e2etestuser1";
 const testUser1Name = "E2etest User1";
@@ -351,9 +356,12 @@ Then(
     const form = formioForm(this.page);
     const groupTextbox = form.getByRole("textbox", { name: "Group" });
     await waitForFormioContent(this.page, groupTextbox);
-    await expect(groupTextbox).toHaveValue(e2eTestGroupAId, {
-      timeout: FORTY_SECONDS_IN_MS,
-    });
+    await expect(groupTextbox).toHaveValue(
+      this.worldParameters.groupIds.TestGroupA,
+      {
+        timeout: FORTY_SECONDS_IN_MS,
+      },
+    );
     await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
       testUser1Id,
       { timeout: FORTY_SECONDS_IN_MS },
@@ -427,6 +435,10 @@ Then(
     groupName: string,
     userName: string,
   ) {
+    const groupKey = worldGroups.parse(
+      Object.entries(groups).find(([, group]) => group.name === groupName)?.[0],
+    );
+    const groupId = this.worldParameters.groupIds[groupKey];
     const behandelaarField = this.page.getByRole("textbox", {
       name: "zaakBehandelaar",
     });
@@ -439,7 +451,7 @@ Then(
       await this.page.getByRole("button", { name: "Zaakdata" }).click();
       await expect(
         this.page.getByRole("textbox", { name: "zaakGroep" }),
-      ).toHaveValue(groupName, { timeout: TEN_SECONDS_IN_MS });
+      ).toHaveValue(groupId, { timeout: TEN_SECONDS_IN_MS });
 
       const isLastAttempt = attempt === maxAttempts;
       if (isLastAttempt) {

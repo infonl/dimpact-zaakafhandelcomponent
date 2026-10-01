@@ -11,6 +11,7 @@ import { z } from "zod";
 
 export const worldPossibleZacUrls = z.enum(["zac"]);
 export const worldUsers = z.enum(["Bob", "Oscar"]);
+export const worldGroups = z.enum(["TestGroupA", "TestGroupB"]);
 export const zaakStatus = z.enum([
   "Intake",
   "Wacht op aanvullende informatie",
@@ -40,5 +41,14 @@ export const worldParametersScheme = z.object({
       }),
     }),
     headless: z.boolean(),
+    groupIds: z
+      .object({
+        [worldGroups.enum.TestGroupA]: z.string(),
+        [worldGroups.enum.TestGroupB]: z.string(),
+      })
+      .default({
+        [worldGroups.enum.TestGroupA]: "test-group-a",
+        [worldGroups.enum.TestGroupB]: "test-group-b",
+      }),
   }),
 });
