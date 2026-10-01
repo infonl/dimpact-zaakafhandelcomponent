@@ -7,7 +7,7 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 9 of 18 modules removed once step 6 merges; 5a merged, 5b pending
+## Progress — 9 of 18 modules removed, 10 once 5b merges; 5a and 6 merged, 5b ready for PR
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
@@ -16,8 +16,8 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [x] **Step 4** — dissolve `PipesModule` — pure deletion, −0.6 kB
 - [ ] **Step 5** — dissolve `MaterialModule`, split in two PRs:
   - [x] **5a** — all 20 specs that import one of our NgModules (PZ-12820, merged, #7205)
-  - [ ] **5b** — 14 non-spec files (local branch `temp-ng20-step5b`, commit `155f23db3`; applies cleanly on main `231146b26`, re-measure on top of step 6)
-- [x] **Step 6** — `MaterialFormBuilderModule` removed — **−9.8 kB** (PZ-12845, PR pending; independent of 5b)
+  - [ ] **5b** — 14 non-spec files + 2 pre-existing `MatButtonModule` gaps with their specs (PZ-12856, branch `refactor/PZ-12856-angular-v20-migration-to-standalone----components-import-material-directly-instead-of-through-MaterialModule`, on main `c2523a8ab`) — **+13.5 kB** transfer, −120 kB raw, re-measured on top of step 6
+- [x] **Step 6** — `MaterialFormBuilderModule` removed — **−9.8 kB** (PZ-12845, merged, #7227)
 - [ ] **Step 7** — dissolve `SharedModule` (8 non-spec, 0 specs after 5a) — last, it re-exports the others
 - [ ] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
       `documenten`, `productaanvragen`)
@@ -25,7 +25,7 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [ ] **Step 10** — `bootstrapApplication` + delete `CoreModule`
 
 Bundle so far: **672.06 -> 443.64 kB** initial transfer (**−34%**), the 77 kB of that in
-the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB).
+the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB). Step 5b gives back +13.5 kB on its own base (450.26 -> 463.74 kB, main `c2523a8ab`).
 
 **These figures are only comparable within the step that measured them.** Main moves underneath
 the branch, so an absolute `Initial total` goes stale as soon as it is merged — the same branch
@@ -36,7 +36,7 @@ before and after *on the same commit base* and record the delta; treat the absol
 never tree-shakes; its `imports` are shaken away when nothing uses them. So the barrels only
 cost what they *export*, and step 3 — the single export line that anchored ngx-editor — was the
 biggest measured win. Step 4 confirmed the rest of the pattern: a barrel whose exports every
-consumer already imports directly is worth ~0. Step 5 was expected to pay but measured a regression (+27 kB transfer), see step 5. Any remaining win needs steps 6 and 7 together. Everything else is bookkeeping toward zero `@NgModule`, ordered by risk, not payoff.
+consumer already imports directly is worth ~0. Step 5 was expected to pay but measured a regression: +27 kB transfer at first, still +13.5 kB re-measured on top of step 6 (see step 5). Step 6 is merged, so any remaining Material win now depends on step 7. Everything else is bookkeeping toward zero `@NgModule`, ordered by risk, not payoff.
 
 ### Where the initial bundle stood before step 3 (measured 2026-09-15, production build)
 
@@ -84,7 +84,7 @@ configured to compress, so a local run on :8080 ships the full raw size.
 | [x] | `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | 2 | none (0.4 kB) |
 | [x] | `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 | −18 kB with the container |
 | [x] | `informatie-objecten/informatie-objecten.module.ts` | container + provider | 2 | (same) |
-| [ ] | `shared/material/material.module.ts` | barrel | 5 | **+27 kB** transfer, −60 kB raw (measured) |
+| [ ] | `shared/material/material.module.ts` | barrel | 5 | **+13.5 kB** transfer, −120 kB raw (re-measured on top of step 6; +27 kB / −60 kB before it) |
 | [x] | `shared/material-form-builder/material-form-builder.module.ts` | barrel | 6 | **−9.8 kB** (measured), on top of the −77 kB banked in step 3 |
 | [ ] | `shared/shared.module.ts` | barrel | 7 | not yet measured |
 | [x] | `shared/pipes/pipes.module.ts` | barrel | 4 | −0.6 kB (measured) |
@@ -210,7 +210,7 @@ Result: 538.75 kB -> 520.80 kB initial transfer.
 tree-shakes; its `imports` are shaken away once nothing uses them. So a barrel costs only what
 it *exports* — and `AppModule -> SharedModule -> MaterialModule / MaterialFormBuilderModule`
 is what keeps Material eager. That remaining edge is cut in steps 5–7, where those barrels
-are dissolved. Step 5 alone measured +27 kB (see step 5), so any win left needs 6 and 7.
+are dissolved. Step 5 alone measured +27 kB, and still +13.5 kB on top of step 6 (see step 5), so any win left needs step 7.
 
 `MaterialFormBuilderModule` imported `NgxEditorModule` *and* exported `ZacHtmlEditor`, so every
 first paint carried the whole WYSIWYG editor. It is used on four lazy screens only: mail-create,
@@ -242,7 +242,7 @@ not in the build.
 
 Every file that imports a barrel has to be given its own imports before the file can go — that is
 the work, not the deletion. Order is forced by the dependencies: smallest first, `SharedModule`
-last because it re-exports the other three. Step 5 measured +27 kB on its own; any Material win needs 6 and 7 together. Step 4 was cleanup, and mostly touched spec files, which ship to nobody.
+last because it re-exports the other three. Step 5 measured +27 kB on its own and +13.5 kB on top of step 6; any Material win now needs step 7. Step 4 was cleanup, and mostly touched spec files, which ship to nobody.
 
 **A barrel's `providers` are app-wide only because `AppModule -> SharedModule` imports it.** Each dissolving step must move those providers somewhere explicit (`CoreModule` until step 10) in the same PR, or they silently vanish at runtime while specs still pass. Step 5 did this for `MAT_SNACK_BAR_DEFAULT_OPTIONS`; steps 6 and 7 carry more (see there).
 
@@ -253,7 +253,7 @@ PR that touches them, because `no-restricted-syntax` is an **error** on any spec
 Step 4 cleared `shared/form/input`, `shared/form/radio` and `klanten/bedrijfsgegevens`;
 `admin/bpmn-process-definitions` + its `-item` were cleared in 5a.
 
-**Done in 5a (PZ-12820): no spec imports any of our NgModules any more.** On main 20 specs imported one (`MaterialModule` 14, `MaterialFormBuilderModule` 12, `SharedModule` 3, overlapping); 5a clears all 20, so steps 5b, 6 and 7 touch no spec. Specs lost two providers they had inherited from `MaterialFormBuilderModule`: the moment `DateAdapter` (now `provideMomentDateAdapter()` in `date`, `abstract-task-form`, `abstract-taak-formulier`) and `HttpClient` (now `provideHttpClient()` + `provideHttpClientTesting()` in the two abstract form specs). Four more specs kept the app's date formats through their component's own barrel import; step 6 moved that to `setupJest.ts`. The 10 `querySelector` strict-lint errors in `abstract-taak-formulier`, `abstract-task-form` and `zaak-create` were migrated to Testing Library. In `zaak-create`, the sidenav content is inside a closed `mat-sidenav`, so `getByRole` sees an empty name even with `hidden: true`; `getByText` is used there.
+**Done in 5a (PZ-12820): no spec imports any of our NgModules any more.** On main 20 specs imported one (`MaterialModule` 14, `MaterialFormBuilderModule` 12, `SharedModule` 3, overlapping); 5a clears all 20, so steps 5b, 6 and 7 need to touch no spec for the barrels. (5b still touches 2 specs, but only to add tests for a pre-existing gap it fixes; see step 5.) Specs lost two providers they had inherited from `MaterialFormBuilderModule`: the moment `DateAdapter` (now `provideMomentDateAdapter()` in `date`, `abstract-task-form`, `abstract-taak-formulier`) and `HttpClient` (now `provideHttpClient()` + `provideHttpClientTesting()` in the two abstract form specs). Four more specs kept the app's date formats through their component's own barrel import; step 6 moved that to `setupJest.ts`. The 10 `querySelector` strict-lint errors in `abstract-taak-formulier`, `abstract-task-form` and `zaak-create` were migrated to Testing Library. In `zaak-create`, the sidenav content is inside a closed `mat-sidenav`, so `getByRole` sees an empty name even with `hidden: true`; `getByText` is used there.
 
 ## Step 4 — `PipesModule` — DONE
 
@@ -293,20 +293,32 @@ doing it:
   `render()` host that projects a button and queries it by role. 5a did this for the remaining
   specs; it is per-spec work, not a mechanical find-and-replace.
 
-### Step 5 — `MaterialModule` — 14 non-spec, 20 specs — IMPLEMENTED, split in two PRs
+### Step 5 — `MaterialModule` — 14 (+2) non-spec, 20 (+2) specs — 5a MERGED, 5b READY FOR PR
 
-**Measured: a bundle regression, not a win.** On main `d4e8a2c3a`: `Initial total` 2.19 MB / 459.59 kB -> 2.13 MB / 486.59 kB (**+27 kB transfer**, −60 kB raw). Only stepper, tree and bottom-sheet left the initial set; the rest of Material stays eager through `MaterialFormBuilderModule` and `SharedModule`'s standalone components, and splitting it into small chunks gzips worse (initial chunks 61 -> 90). Verified by component selector in the initial chunks: `mat-stepper`, `mat-tree`, `mat-bottom-sheet-container` gone; `mat-mdc-table`, `mat-calendar`, `mat-datepicker-content`, `mat-mdc-tab-group`, `mat-expansion-panel`, `mat-mdc-paginator`, `mat-sort-header`, `mat-mdc-autocomplete`, `mat-mdc-chip` still there. The win expected here needs steps 6 and 7, or cutting `SharedModule` out of `AppModule`/`CoreModule`.
+**Measured: a bundle regression, not a win — twice.** First on main `d4e8a2c3a`, before step 6: `Initial total` 2.19 MB / 459.59 kB -> 2.13 MB / 486.59 kB (**+27 kB transfer**, −60 kB raw), initial chunks 61 -> 90. Re-measured on main `c2523a8ab`, with step 6 merged, both builds `--configuration production` from the same commit base (base in a detached worktree): **2.16 MB / 450.26 kB -> 2.04 MB / 463.74 kB (+13.5 kB transfer, −120 kB raw)**, initial JS chunks 55 -> 82. Step 6 halved the regression and doubled the raw gain, but transfer still goes up: Material is split into more, smaller initial chunks, which gzip worse.
 
-- **5a — 20 specs (PZ-12820):** drop every NgModule of ours from every spec (see above); among them `MaterialModule` from 14 specs; `klant-koppel.component.spec.ts` drops `SharedModule` and turns its override from `set` into `remove`/`add` of the two child components. Green on its own: 3326/3326 tests, `tsc --project .` at 0, strict touched-spec lint clean. With 5b on top also green: 3326/3326, `tsc` 0, production build 486.59 kB.
-- **5b — 14 non-spec (`temp-ng20-step5b`):** direct Material imports in `admin/bpmn-process-definitions` + `-item`, `fout-afhandeling/dialog/fout-detailed-dialog`, `klanten/koppel/klanten/{klant-koppel,klant-koppel-betrokkene,klant-koppel-initiator}`, `shared/indicaties/{besluit,informatie-object,persoon,zaak}-indicaties`; `MaterialModule` out of `shared.module.ts`; `material.module.ts` deleted; `app.module.ts` and `core.module.ts` adjusted. Cannot go before 5a: specs on main still import the file it deletes. Rebase on main once 5a is merged.
+Which Material components 5b moves out of the initial chunks, on top of step 6, checked by the quoted selector string (`"mat-…"`) across every initial JS chunk of both builds: `mat-stepper`, `mat-tree`, `mat-bottom-sheet-container` (as in the first measurement) and now also `mat-autocomplete`, `mat-slide-toggle`, `mat-radio-button`. The first measurement listed autocomplete as still eager; slide-toggle and radio were not checked then.
+
+Still eager after 5b (not yet attributed per component; the likely anchors are `SharedModule`'s standalone exports, which `AppModule` and `CoreModule` import, and the eager toolbar/zoek/app shell): `mat-table`, `mat-paginator`, `mat-sort-header`, `mat-calendar`, `mat-datepicker-content`, `mat-tab-group`, `mat-expansion-panel`, `mat-select`, `mat-menu`, `mat-checkbox`, `mat-chip-listbox`, `mat-card`, `mat-list`, `mat-toolbar`, `mat-sidenav-container`, `mat-dialog-container`, `mat-form-field`, `mat-icon`, `mat-divider`, `mat-progress-bar`, `mat-progress-spinner`. The win expected here needs step 7, or cutting `SharedModule` out of `AppModule`/`CoreModule`.
+
+- **5a — 20 specs (PZ-12820, merged, #7205):** drop every NgModule of ours from every spec (see above); among them `MaterialModule` from 14 specs; `klant-koppel.component.spec.ts` drops `SharedModule` and turns its override from `set` into `remove`/`add` of the two child components. Green on its own: 3326/3326 tests, `tsc --project .` at 0, strict touched-spec lint clean.
+- **5b — 14 non-spec + 2 gap fixes (PZ-12856):** direct Material imports in `admin/bpmn-process-definitions` + `-item`, `fout-afhandeling/dialog/fout-detailed-dialog`, `klanten/koppel/klanten/{klant-koppel,klant-koppel-betrokkene,klant-koppel-initiator}`, `shared/indicaties/{besluit,informatie-object,persoon,zaak}-indicaties`; `MaterialModule` out of `shared.module.ts`; `material.module.ts` deleted; `app.module.ts` and `core.module.ts` adjusted. Plus `MatButtonModule` in `taken/taken-vrijgeven-dialog` and `zaken/zaken-vrijgeven-dialog`, each with a spec asserting the close button carries `mat-mdc-icon-button` (both fail without the import). 18 files, +146 / −104 against main `c2523a8ab`. Verified on the committed branch: production build green, `tsc --project .` at 0, `ng lint` on the touched files 0 errors (8 `prefer-inject` warnings, all on constructors 5b does not touch), strict touched-spec lint (`.eslintrc.strict-specs.js`) clean on both specs, `ng test` 3352/3352.
+
+**Pre-existing gap found, not caused by 5b.** The two vrijgeven dialogs used `mat-icon-button` without `MatButtonModule` already on main; neither ever imported `SharedModule`, so the barrel never covered them. Their close button rendered as an unstyled native button. Fixed in 5b because the audit below found it; `zaken-vrijgeven-dialog`'s close button still has no `aria-label` (its spec finds it by the icon text `close`), left as is.
+
+**How 5b was proven complete — the build alone is not enough.** AOT hard-errors on an unknown *element* (NG8001), an unknown *bound* property (NG8002) and an unknown `exportAs` (NG8003), but a *static attribute* directive with no matching import is silently ignored: `mat-icon-button`, `matTooltip="…"`, `matInput`, `matSuffix`, a static `formControlName`. So on top of the build, every component's template (`templateUrl` and inline `template:`) was scanned for Material and reactive-forms selectors and checked against the Material packages in that component's own `imports` (for `AppComponent`: `AppModule`'s). Results: the two vrijgeven dialogs above, plus false positives only — `matSuffix` used purely as a content-projection slot into `zac-input` needs no directive, and `<mat-selection-list` matching a `<mat-select` regex. `parameters-edit-cmmn` (imports `SharedModule`, not in the diff) was checked by hand: covered.
+
+**No provider was lost.** Besides `MAT_SNACK_BAR_DEFAULT_OPTIONS`, the Material NgModules that `MaterialModule` re-exported carry their own module-level providers (menu/select/autocomplete/datepicker/tooltip scroll strategies, `MAT_CHIPS_DEFAULT_OPTIONS`, `MatSortHeaderIntl`, `MatPaginatorIntl`, `MatDatepickerIntl`, `MatStepperIntl`, `ErrorStateMatcher`, `MatDialog`, `MatSnackBar`, `MatBottomSheet`). Checked in `node_modules/@angular/material/fesm2022`: every one is `providedIn: 'root'` too, so none goes missing when the barrel stops being app-wide. Our own `MatPaginatorIntl` override stays in `SharedModule.providers` until step 7.
 
 Gotchas hit:
 - `MaterialModule` also exported `ReactiveFormsModule`; `klant-koppel-betrokkene` needed it directly.
 - `MAT_SNACK_BAR_DEFAULT_OPTIONS` was its only provider; moved to `CoreModule`.
 - `AppComponent` needs `MatSidenavModule` in `AppModule`.
-- The production `ng build` must run outside the sandbox (exit 134 otherwise).
+- The production `ng build` must run outside the sandbox (exit 134, no output, otherwise).
+- Measure with `--configuration production` explicitly: without it, the build log shows only a `Raw size` column and no transfer estimate.
+- When scripting the selector check over the build log: the chunk names in it carry ANSI colour codes, and in zsh an unquoted `$var` is not word-split, so a `for c in $chunks` loop runs once over the whole list. Both give a silent all-zero result; sanity-check with `mat-icon`, which must be eager.
 
-### Step 6 — `MaterialFormBuilderModule` — DONE (PZ-12845, PR pending)
+### Step 6 — `MaterialFormBuilderModule` — DONE (PZ-12845, merged, #7227)
 
 **Result.** On main `231146b26`: `Initial total` 2.19 MB / 459.67 kB -> 2.16 MB / 449.84 kB (**−9.8 kB transfer**). 3326/3326 tests, lint 0 errors, no spec file touched. 21 files, +96 / −148. Does not depend on 5b; 5b goes after it as its own PR.
 
@@ -404,7 +416,7 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 Step 3: done, −77 kB, merged (#7088).
 Step 4: done, −0.6 kB — no consumer needed touching; the work was migrating 3 touched specs to
 Testing Library.
-Steps 5–7: order forced by the barrels' own dependencies. 5a merged; 5b measured +27 kB transfer on its own and waits for re-measurement on top of step 6. Step 6 done, −9.8 kB.
+Steps 5–7: order forced by the barrels' own dependencies. 5a merged; step 6 merged (#7227), −9.8 kB. 5b re-measured on top of step 6: still +13.5 kB transfer (−120 kB raw); goes in anyway as the prerequisite for step 7, which is where the Material win has to come from.
 Steps 8–9: low risk, sequential, no behaviour change, no win.
 Step 10: the gate — all of the risk, none of the payoff, so last.
 
