@@ -27,9 +27,9 @@ te bekijken." page, with only a log-out button, that a user without any ZAC appl
 
 ## Impact
 
-- Code: `src/main/kotlin/nl/info/zac/authentication/RequestAuthorizationFilter.kt` (now injects `PolicyService`)
-  and its unit tests.
-- Runtime: the filter makes one extra OPA call (`rol/leesrollen`) per authenticated request from a user who holds
-  application roles. If OPA does not return the rule, the request fails instead of being let through.
+- Code: `UserPrincipalFilter` (now injects `PolicyService`), `LoggedInUser` (new `hasReadApplicationRole` flag),
+  `RequestAuthorizationFilter`, and their unit tests.
+- Runtime: one extra OPA call (`rol/leesrollen`) per session, at login, for a user who holds application roles. If
+  OPA does not return the rule, the first request of the session fails instead of the user being let in.
 - Users: users with only non-read roles lose access to the ZAC UI and REST API. They had no working
   functionality before. No change for users with a read role.

@@ -17,7 +17,6 @@ import jakarta.ws.rs.HttpMethod.DELETE
 import jakarta.ws.rs.HttpMethod.GET
 import jakarta.ws.rs.HttpMethod.POST
 import nl.info.zac.identity.model.ZacApplicationRole
-import nl.info.zac.policy.PolicyService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -37,9 +36,7 @@ import nl.info.zac.util.NoArgConstructor
 @WebFilter(filterName = "RequestAuthorizationFilter")
 @AllOpen
 @NoArgConstructor
-class RequestAuthorizationFilter @Inject constructor(
-    private val policyService: PolicyService
-) : Filter {
+class RequestAuthorizationFilter @Inject constructor() : Filter {
     companion object {
         private val ADMIN_URI_PREFIXES = listOf(
             "/rest/admin/",
@@ -97,13 +94,8 @@ class RequestAuthorizationFilter @Inject constructor(
         return if (isAdmin) {
             hasBeheerderApplicationRole(user)
         } else {
-            hasAnyReadApplicationRole(user)
+            user.hasReadApplicationRole
         }
-    }
-
-    private fun hasAnyReadApplicationRole(user: LoggedInUser): Boolean {
-        val applicationRoles = user.applicationRolesPerZaaktype.values.flatten().toSet() + user.overallRoles
-        return applicationRoles.isNotEmpty() && policyService.readLeesrollen().any(applicationRoles::contains)
     }
 
     /**

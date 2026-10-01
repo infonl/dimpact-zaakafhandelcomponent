@@ -8,7 +8,10 @@ change: once the filter refuses the Angular app's page request, the user sees th
 
 The read roles are already defined once, as the `leesrollen` set in `rollen.rego`, and read by ZAC through
 `PolicyService.readLeesrollen()` (used by `SearchService` since the `zoekresultaten-leesrecht` change).
-`PolicyService` is `@ApplicationScoped`, so the filter can inject it.
+
+The filter is mapped to `/*` in `web.xml`, and Angular serves its chunks from the root. So `index.html`, every JS
+chunk and every REST call pass through it, which comes to dozens of requests on a cold load. `UserPrincipalFilter`
+builds the `LoggedInUser` from PABC once per session and stores it in the HTTP session.
 
 `systeemrol_behandelaar_alle_zaaktypen` is only hardcoded to the internal system users in `LoggedInUserProvider`,
 which never send HTTP requests, and `UserPrincipalFilter` strips it from a real user's overall roles. So the filter
@@ -26,19 +29,30 @@ never needs to admit it.
 
 ## Decisions
 
-### Read the read roles from OPA, not from a Kotlin constant
+### Determine "has a read role" once per session, in `UserPrincipalFilter`
 
-The filter calls `policyService.readLeesrollen()` and admits the user when any role in
-`applicationRolesPerZaaktype` values or `overallRoles` is in that set.
+When `UserPrincipalFilter` builds the `LoggedInUser`, it calls `policyService.readLeesrollen()` and sets
+`LoggedInUser.hasReadApplicationRole` to whether any role in `applicationRolesPerZaaktype` values or `overallRoles`
+is in that set. `RequestAuthorizationFilter` only reads that flag, so it makes no OPA call.
+
+The flag has the same lifetime as the roles it is derived from, which are also fixed for the session. The flag
+defaults to `false`, so a `LoggedInUser` built elsewhere, such as the internal system users, never passes the filter.
+
+Alternative: call OPA from `RequestAuthorizationFilter` on every request. Rejected, because the filter runs for
+every static file and REST call, so a cold load would make dozens of OPA calls.
+
+Alternative: cache `leesrollen` in the filter. Rejected, because it adds invalidation questions when the policy
+bundle changes, while the per-session flag needs no cache at all.
+
+### Read the read roles from OPA, not from a Kotlin constant
 
 Alternative: hard-code the five read roles in `ZacApplicationRole`. Rejected, because then the read roles are
 defined in two places and `rollen.rego` says ZAC reads them from OPA.
 
-### Check the cheap conditions first
+### Skip OPA for users without application roles
 
-The filter returns `false` without calling OPA when there is no session, no logged-in user, or the user holds no
-application role at all. Only otherwise it calls OPA. So users without roles cost nothing extra,
-and the existing no-role behaviour does not depend on OPA.
+`UserPrincipalFilter` sets the flag to `false` without calling OPA when the user holds no application role at all.
+So the existing no-role behaviour does not depend on OPA.
 
 ### Do not add `systeemrol_behandelaar_alle_zaaktypen` to `leesrollen` or to the filter
 
@@ -49,22 +63,14 @@ a real user to whom a misconfigured PABC hands it out per zaaktype, which `UserP
 ### Keep the admin check as it is
 
 `beheerder` is a read role, so every user who passes the admin check also passes the new check. The admin branch
-stays separate and does not call OPA.
-
-### Per-request OPA call instead of caching
-
-`leesrollen` is a constant in the policy bundle, and the call is a cheap data lookup. ZAC already makes several OPA
-calls per REST request. Caching would add invalidation questions when the policy bundle changes, for a small gain.
-
-Alternative: compute "has read access" once in `UserPrincipalFilter` and store it on `LoggedInUser`. Rejected for
-now, because roles in the session are already rebuilt per session and the extra field is not needed for a
-one-call lookup. It can be added later if profiling shows the call matters.
+stays separate.
 
 ## Risks / Trade-offs
 
-- [OPA unavailable or `rol/leesrollen` missing] → `readLeesrollen()` throws, and the request fails with a 500
-  instead of being let through. This fails closed, which is the right default for an authorization check. Users
-  without any role still get the 403 page, because that check runs before the OPA call.
-- [Extra latency per request] → One small OPA call for users with roles. Acceptable, see Decisions.
+- [OPA unavailable or `rol/leesrollen` missing at login] → `readLeesrollen()` throws, and the first request of the
+  session fails with a 500 instead of the user being let in. This fails closed, which is the right default for an
+  authorization check. Users without any role still get the 403 page, because they skip the OPA call.
+- [`leesrollen` changes during a session] → The flag keeps its old value until the next session, the same as the
+  roles from PABC already do.
 - [Users with only non-read roles lose access] → Intended. They could not use ZAC before. Mention it in the PR, so
   that functional administrators know these users need a read role.
