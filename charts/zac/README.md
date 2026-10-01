@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.335](https://img.shields.io/badge/Version-1.0.335-informational?style=flat-square) ![AppVersion: 5.9](https://img.shields.io/badge/AppVersion-5.9-informational?style=flat-square)
+![Version: 1.0.336](https://img.shields.io/badge/Version-1.0.336-informational?style=flat-square) ![AppVersion: 5.9](https://img.shields.io/badge/AppVersion-5.9-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.174.1 |
+| @opentelemetry | opentelemetry-collector | 0.174.2 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
