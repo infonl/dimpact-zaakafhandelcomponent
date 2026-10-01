@@ -46,7 +46,9 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "src/app/shared/confirm-dialog/confirm-dialog.component";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
+import { ZacInput } from "src/app/shared/form/input/input";
+import { ZacRadio } from "src/app/shared/form/radio/radio";
+import { ZacSelect } from "src/app/shared/form/select/select";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -95,7 +97,9 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     MatSlideToggleModule,
     MatTableModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacRadio,
+    ZacInput,
     StaticTextComponent,
     SmartDocumentsFormComponent,
   ],

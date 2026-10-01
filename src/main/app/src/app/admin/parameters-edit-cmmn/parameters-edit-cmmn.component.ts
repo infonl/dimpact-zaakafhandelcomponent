@@ -53,7 +53,10 @@ import {
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacRadio } from "../../shared/form/radio/radio";
+import { ZacSelect } from "../../shared/form/select/select";
+import { ZacToggle } from "../../shared/form/toggle/toggle";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -105,7 +108,10 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     MatStepperModule,
     MatTableModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacToggle,
+    ZacRadio,
+    ZacInput,
     SharedModule,
     SmartDocumentsFormComponent,
   ],
