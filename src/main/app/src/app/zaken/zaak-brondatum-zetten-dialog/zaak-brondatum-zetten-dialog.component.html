@@ -9,7 +9,7 @@
     {{ "planitem." + data.planItem.userEventListenerActie | translate }}
   </span>
   <span class="flex-grow-1" *ngIf="!data.planItem">
-    {{ "actie.zaak.brondatumZetten" | translate }}
+    {{ "actie.zaak.brondatum-zetten" | translate }}
   </span>
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
@@ -46,7 +46,7 @@
       >
         <mat-spinner diameter="18"></mat-spinner>
       </mat-icon>
-      {{ "actie.zaak.brondatumZetten" | translate }}
+      {{ "actie.zaak.brondatum-zetten" | translate }}
     </button>
     <button
       mat-raised-button

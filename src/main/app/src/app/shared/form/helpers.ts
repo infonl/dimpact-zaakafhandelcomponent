@@ -11,6 +11,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
+import { toI18nKey } from "../utils/i18n-key";
 
 export class FormHelper {
   static getErrorMessage(
@@ -28,7 +29,10 @@ export class FormHelper {
       return translateService?.instant(String(message), rest);
     }
 
-    return translateService?.instant(`validators.${error}`, parameters);
+    return translateService?.instant(
+      toI18nKey(`validators.${error}`),
+      parameters,
+    );
   }
 
   static getValidatorValue(

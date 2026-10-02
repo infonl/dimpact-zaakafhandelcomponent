@@ -114,7 +114,7 @@ describe(BagZakenTabelComponent.name, () => {
     expect(lastSearch().alleenOpenstaandeZaken).toBe(true);
 
     await user.click(
-      screen.getByRole("switch", { name: "toonAfgerondeZaken" }),
+      screen.getByRole("switch", { name: "toon-afgeronde-zaken" }),
     );
     await settle();
 
@@ -129,7 +129,7 @@ describe(BagZakenTabelComponent.name, () => {
     expect(lastSearch().page).toBe(1);
 
     await user.click(
-      screen.getByRole("switch", { name: "toonAfgerondeZaken" }),
+      screen.getByRole("switch", { name: "toon-afgeronde-zaken" }),
     );
     await settle();
 

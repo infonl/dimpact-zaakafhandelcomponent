@@ -589,7 +589,7 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-  describe("actie.zaak.brondatumZetten", () => {
+  describe("actie.zaak.brondatum-zetten", () => {
     const brondatumZettenZaak = {
       ...zaak,
       rechten: {
@@ -615,7 +615,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       expect(button).toBeTruthy();
@@ -631,7 +631,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       expect(button).toBeNull();
@@ -655,7 +655,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       expect(button).toBeNull();
@@ -668,7 +668,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       expect(button).toBeNull();
@@ -680,7 +680,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       await button.click();
@@ -698,7 +698,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
@@ -721,7 +721,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       await button.click();

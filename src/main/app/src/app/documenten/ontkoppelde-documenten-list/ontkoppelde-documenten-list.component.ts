@@ -170,7 +170,7 @@ export class OntkoppeldeDocumentenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.documenten.ontkoppeldeDocumenten");
+    this.utilService.setTitle("title.documenten.ontkoppelde-documenten");
     this.listParameters = SessionStorageUtil.getItem(
       "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),

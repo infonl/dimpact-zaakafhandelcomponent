@@ -73,7 +73,7 @@ describe(BagZoekComponent.name, () => {
 
   async function search(trefwoorden: string) {
     if (trefwoorden) {
-      await user.type(screen.getByLabelText("bagObjecten"), trefwoorden);
+      await user.type(screen.getByLabelText("bag-objecten"), trefwoorden);
     }
     await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
     await sleep();
@@ -110,7 +110,7 @@ describe(BagZoekComponent.name, () => {
     await user.click(screen.getByRole("button", { name: "actie.wissen" }));
     detectChanges();
 
-    expect(screen.getByLabelText("bagObjecten")).toHaveValue("");
+    expect(screen.getByLabelText("bag-objecten")).toHaveValue("");
     expect(screen.queryByRole("row", { name: /0363010000012345/ })).toBeNull();
     expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });

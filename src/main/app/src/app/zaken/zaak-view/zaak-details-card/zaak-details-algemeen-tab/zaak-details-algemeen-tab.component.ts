@@ -83,13 +83,13 @@ export class ZaakDetailsAlgemeenTabComponent {
       },
       {
         show: Boolean(zaak.startdatumBewaartermijn),
-        label: "startdatumBewaartermijn",
+        label: "startdatum-bewaartermijn",
         value: zaak.startdatumBewaartermijn ?? null,
         format: "date",
       },
       {
         show: Boolean(bronArchiefprocedure?.afleidingswijze),
-        label: "afleidingswijzeBrondatum",
+        label: "afleidingswijze-brondatum",
         value: this.afleidingswijzeBrondatumValue(
           zaak,
           bronArchiefprocedure?.afleidingswijze,
@@ -103,7 +103,7 @@ export class ZaakDetailsAlgemeenTabComponent {
       },
       {
         show: zaak.archiefNominatie === "BLIJVEND_BEWAREN",
-        label: "archiefNominatie",
+        label: "archief-nominatie",
         value: String(
           this.translate.instant(`archiefNominatie.${zaak.archiefNominatie}`),
         ),

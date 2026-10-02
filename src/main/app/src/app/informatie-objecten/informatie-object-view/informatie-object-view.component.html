@@ -109,7 +109,7 @@
               </div>
               <div class="flex flex-row justify-start gap-10">
                 <zac-static-text
-                  label="documentType"
+                  label="document-type"
                   [value]="infoObject.informatieobjectTypeOmschrijving"
                   class="flex-item"
                 />
@@ -217,7 +217,7 @@
                     </th>
                     <td mat-cell *matCellDef="let regel">
                       <read-more
-                        [text]="regel.attribuutLabel | translate"
+                        [text]="regel.attribuutLabel | i18nKey | translate"
                         [maxLength]="20"
                       ></read-more>
                     </td>
@@ -330,7 +330,7 @@
               />
               <zac-static-text
                 class="flex-1 w33"
-                label="einddatumGepland"
+                label="einddatum-gepland"
                 [value]="zaak.zaakEinddatumGepland | datum"
               />
             </div>

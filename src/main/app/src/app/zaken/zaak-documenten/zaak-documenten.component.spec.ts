@@ -165,7 +165,7 @@ describe(ZaakDocumentenComponent.name, () => {
   };
 
   const linkedDocumentsToggle = () =>
-    screen.queryByRole("switch", { name: "toonGekoppeldeZaakDocumenten" });
+    screen.queryByRole("switch", { name: "toon-gekoppelde-zaak-documenten" });
 
   const openRowMenu = async (titel: string) => {
     await user.click(
@@ -406,10 +406,10 @@ describe(ZaakDocumentenComponent.name, () => {
     await setup(fakeZaakMetRelaties);
 
     expect(
-      screen.getByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.getByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeVisible();
     expect(
-      screen.getByRole("columnheader", { name: "relatieType" }),
+      screen.getByRole("columnheader", { name: "relatie-type" }),
     ).toBeVisible();
   });
 
@@ -420,10 +420,10 @@ describe(ZaakDocumentenComponent.name, () => {
     await flushList([fakeDocument]);
 
     expect(
-      screen.queryByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.queryByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeNull();
     expect(
-      screen.queryByRole("columnheader", { name: "relatieType" }),
+      screen.queryByRole("columnheader", { name: "relatie-type" }),
     ).toBeNull();
   });
 
@@ -431,7 +431,7 @@ describe(ZaakDocumentenComponent.name, () => {
     await setup();
 
     expect(
-      screen.queryByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.queryByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeNull();
   });
 

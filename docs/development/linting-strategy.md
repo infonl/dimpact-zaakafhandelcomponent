@@ -75,6 +75,8 @@ Coding conventions that a linter can check are enforced there rather than only d
 | No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
 | Component inputs use `input()`, not the `@Input()` decorator  | ESLint `@angular-eslint/prefer-signals`                          |
 | No `ngOnChanges`, also in specs; react to inputs with `computed()`/`effect()` | ESLint `no-restricted-imports` (`OnChanges`, `SimpleChange(s)`), `no-restricted-properties` (calls), `@typescript-eslint/naming-convention` (members named `ngOnChanges`) |
+| The last segment of an i18n key is kebab-case, not camelCase  | `src/main/app/src/app/core/translations.spec.ts` (`npm test`)    |
+| `nl.json` and `en.json` hold the same i18n keys               | `src/main/app/src/app/core/translations.spec.ts` (`npm test`)    |
 
 ### Fixing exception findings
 

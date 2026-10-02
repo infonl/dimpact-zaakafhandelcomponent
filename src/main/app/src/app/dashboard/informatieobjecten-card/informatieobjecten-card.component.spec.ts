@@ -242,8 +242,8 @@ describe(InformatieobjectenCardComponent.name, () => {
 
     expect(labels).toEqual([
       "documenttitel",
-      "registratiedatumTijd",
-      "informatieobjectTypeOmschrijving",
+      "registratiedatum-tijd",
+      "informatieobject-type-omschrijving",
       "auteur",
     ]);
   });
@@ -272,7 +272,9 @@ describe(InformatieobjectenCardComponent.name, () => {
     fixture.detectChanges();
 
     const informatieobjectTypeOmschrijvingHeader = await loader.getHarness(
-      MatSortHeaderHarness.with({ label: "informatieobjectTypeOmschrijving" }),
+      MatSortHeaderHarness.with({
+        label: "informatieobject-type-omschrijving",
+      }),
     );
     const table = await loader.getHarness(MatTableHarness);
 
@@ -313,7 +315,7 @@ describe(InformatieobjectenCardComponent.name, () => {
     fixture.detectChanges();
 
     const registratiedatumTijdHeader = await loader.getHarness(
-      MatSortHeaderHarness.with({ label: "registratiedatumTijd" }),
+      MatSortHeaderHarness.with({ label: "registratiedatum-tijd" }),
     );
     const table = await loader.getHarness(MatTableHarness);
 

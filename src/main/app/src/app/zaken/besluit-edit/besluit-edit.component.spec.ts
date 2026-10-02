@@ -68,6 +68,12 @@ const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
   });
 
 describe(BesluitEditComponent.name, () => {
+  let user: ReturnType<typeof userEvent.setup>;
+
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
+
   let fixture: ComponentFixture<BesluitEditComponent>;
   let httpTestingController: HttpTestingController;
 
@@ -135,17 +141,17 @@ describe(BesluitEditComponent.name, () => {
 
   const fillDate = async (label: string, value: string) => {
     const field = screen.getByLabelText(label);
-    await userEvent.clear(field);
-    await userEvent.type(field, value);
-    await userEvent.tab();
+    await user.clear(field);
+    await user.type(field, value);
+    await user.tab();
   };
 
   const fillText = async (label: string, value: string) => {
     const field = screen.getByLabelText(label);
-    await userEvent.clear(field);
-    await userEvent.click(field);
-    await userEvent.paste(value);
-    await userEvent.tab();
+    await user.clear(field);
+    await user.click(field);
+    await user.paste(value);
+    await user.tab();
   };
 
   const documentRow = (titel: string) =>
@@ -157,7 +163,7 @@ describe(BesluitEditComponent.name, () => {
     expect(screen.getByLabelText("Besluit")).toHaveValue("Besluittype 1");
     expect(screen.getByLabelText("Ingangsdatum")).toHaveValue("2026-01-01");
     expect(screen.getByLabelText("Vervaldatum")).toHaveValue("2026-12-31");
-    expect(screen.getByLabelText("BesluitToelichting")).toHaveValue(
+    expect(screen.getByLabelText("Besluit-toelichting")).toHaveValue(
       "Bestaande toelichting",
     );
   });
@@ -193,7 +199,7 @@ describe(BesluitEditComponent.name, () => {
   it("cannot be submitted without a reden", async () => {
     await setup();
 
-    await fillText("BesluitToelichting", "Andere toelichting");
+    await fillText("Besluit-toelichting", "Andere toelichting");
 
     expect(submitButton()).toBeDisabled();
   });
@@ -210,7 +216,7 @@ describe(BesluitEditComponent.name, () => {
     await setup();
     await fillText("Wijziging.reden", "Wijziging reden");
 
-    await userEvent.clear(screen.getByLabelText("Ingangsdatum"));
+    await user.clear(screen.getByLabelText("Ingangsdatum"));
 
     expect(submitButton()).toBeDisabled();
   });
@@ -242,9 +248,9 @@ describe(BesluitEditComponent.name, () => {
   it("accepts a toelichting of 1000 characters and takes no more", async () => {
     await setup();
 
-    await fillText("BesluitToelichting", "a".repeat(1001));
+    await fillText("Besluit-toelichting", "a".repeat(1001));
 
-    expect(screen.getByLabelText("BesluitToelichting")).toHaveValue(
+    expect(screen.getByLabelText("Besluit-toelichting")).toHaveValue(
       "a".repeat(1000),
     );
   });
@@ -312,7 +318,7 @@ describe(BesluitEditComponent.name, () => {
     await setup(makeBesluit({ besluittype: publicationBesluittype }));
     await fillDate("Publicatiedatum", "2026-03-01");
 
-    await userEvent.clear(screen.getByLabelText("Publicatiedatum"));
+    await user.clear(screen.getByLabelText("Publicatiedatum"));
 
     expect(screen.getByLabelText("Uiterlijkereactiedatum")).toHaveValue("");
   });
@@ -321,7 +327,7 @@ describe(BesluitEditComponent.name, () => {
     const { besluitGewijzigd, utilService } = await setup();
     await fillText("Wijziging.reden", "Wijziging reden");
 
-    await userEvent.click(submitButton());
+    await user.click(submitButton());
     await sleep();
 
     const request = httpTestingController.expectOne({
@@ -357,7 +363,7 @@ describe(BesluitEditComponent.name, () => {
     );
     await fillText("Wijziging.reden", "Wijziging reden");
 
-    await userEvent.click(submitButton());
+    await user.click(submitButton());
     await sleep();
 
     const request = httpTestingController.expectOne({
@@ -378,7 +384,7 @@ describe(BesluitEditComponent.name, () => {
     const { besluitGewijzigd, sideNav, foutAfhandelingService } = await setup();
     await fillText("Wijziging.reden", "Wijziging reden");
 
-    await userEvent.click(submitButton());
+    await user.click(submitButton());
     await sleep();
     httpTestingController
       .expectOne({ method: "PUT", url: UPDATE_URL })
@@ -393,9 +399,7 @@ describe(BesluitEditComponent.name, () => {
   it("closes the side panel when the cancel button is used", async () => {
     const { sideNav } = await setup();
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "actie.annuleren" }),
-    );
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
 
     expect(sideNav.close).toHaveBeenCalled();
   });

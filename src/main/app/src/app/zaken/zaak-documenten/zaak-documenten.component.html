@@ -6,7 +6,7 @@
 <mat-card>
   <mat-card-header class="flex-row">
     <mat-card-title>{{
-      "enkelvoudigInformatieObjecten" | translate
+      "enkelvoudig-informatie-objecten" | translate
     }}</mat-card-title>
     <mat-slide-toggle
       *ngIf="heeftGerelateerdeZaken()"
@@ -16,7 +16,7 @@
       color="primary"
       class="flex-row"
       id="gekoppeldeZaakDocumentenToon_toggle"
-      >{{ "toonGekoppeldeZaakDocumenten" | translate }}</mat-slide-toggle
+      >{{ "toon-gekoppelde-zaak-documenten" | translate }}</mat-slide-toggle
     >
   </mat-card-header>
   <mat-card-content>
@@ -96,7 +96,7 @@
           "
         >
           <th mat-sort-header mat-header-cell *matHeaderCellDef>
-            {{ column | translate }}
+            {{ column | i18nKey | translate }}
           </th>
           <td mat-cell *matCellDef="let row">
             <ng-container *ngIf="column == 'zaakIdentificatie'">{{

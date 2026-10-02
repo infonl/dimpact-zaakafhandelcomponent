@@ -21,6 +21,7 @@ import {
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { toI18nKey } from "../utils/i18n-key";
 import { FormHelper } from "./helpers";
 
 /**
@@ -57,6 +58,10 @@ export class SingleInputFormField<
   public readonly key = input.required<Key & string>();
   public readonly label = input<string>();
   public readonly readonly = input(false, { transform: booleanAttribute });
+
+  protected readonly labelKey = computed(() =>
+    toI18nKey(this.label() ?? this.key()),
+  );
 
   constructor() {
     effect(() => {

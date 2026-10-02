@@ -79,7 +79,7 @@
               {{
                 (zaakOpschorting()?.duurDagen === 1
                   ? "duurDagenOpschorting.enkelvoud"
-                  : "duurDagenOpschorting"
+                  : "duur-dagen-opschorting"
                 ) | translate: { duur: zaakOpschorting()?.duurDagen }
               }}
             </div>
@@ -88,7 +88,7 @@
             <div class="flex-row items-center gap-5">
               <mat-icon>update</mat-icon>
               {{
-                "duurVerlenging" | translate: { duur: zaak().duurVerlenging }
+                "duur-verlenging" | translate: { duur: zaak().duurVerlenging }
               }}
             </div>
           }

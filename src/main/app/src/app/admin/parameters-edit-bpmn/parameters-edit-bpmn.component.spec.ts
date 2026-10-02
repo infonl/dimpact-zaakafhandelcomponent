@@ -208,7 +208,7 @@ describe(ParametersEditBpmnComponent.name, () => {
 
     it("should show 'nee' for a zaaktype without the eigenschap", () => {
       expect(fixture.nativeElement.textContent).toContain(
-        "zaakspecifiekAutoriseerbaar",
+        "zaakspecifiek-autoriseerbaar",
       );
       expect(fixture.nativeElement.textContent).toContain("actie.nee");
     });

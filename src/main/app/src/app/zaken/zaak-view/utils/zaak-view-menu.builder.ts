@@ -278,7 +278,7 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
   ) {
     actionMenuItems.push(
       new ButtonMenuItem(
-        "actie.zaak.brondatumZetten",
+        "actie.zaak.brondatum-zetten",
         () => dialogs.openBrondatumZetten(zaak),
         "calendar_today",
       ),
