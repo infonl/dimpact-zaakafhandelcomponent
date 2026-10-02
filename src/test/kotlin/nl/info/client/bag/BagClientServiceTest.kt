@@ -67,7 +67,14 @@ class BagClientServiceTest : BehaviorSpec({
         val woonplaatsIdentificatie = "validId"
         val woonplaatsIOHal = createWoonplaatsIOHal()
         every {
-            woonplaatsApi.woonplaatsIdentificatie(woonplaatsIdentificatie, null, null, null, null, null)
+            woonplaatsApi.woonplaatsIdentificatie(
+                identificatie = woonplaatsIdentificatie,
+                geldigOp = null,
+                beschikbaarOp = null,
+                expand = null,
+                acceptCrs = null,
+                huidig = null
+            )
         } returns woonplaatsIOHal
 
         `when`("readWoonplaats is called with a valid ID") {
@@ -76,7 +83,14 @@ class BagClientServiceTest : BehaviorSpec({
             then("it should return the expected WoonplaatsIOHal") {
                 returnedWoonplaatsIOHal shouldBe woonplaatsIOHal
                 verify(exactly = 1) {
-                    woonplaatsApi.woonplaatsIdentificatie(woonplaatsIdentificatie, null, null, null, null, null)
+                    woonplaatsApi.woonplaatsIdentificatie(
+                        identificatie = woonplaatsIdentificatie,
+                        geldigOp = null,
+                        beschikbaarOp = null,
+                        expand = null,
+                        acceptCrs = null,
+                        huidig = null
+                    )
                 }
             }
         }
@@ -87,11 +101,11 @@ class BagClientServiceTest : BehaviorSpec({
         val nummeraanduidingIOHal = createNummeraanduidingIOHal()
         every {
             nummeraanduidingApi.nummeraanduidingIdentificatie(
-                nummeraanduidingIdentificatie,
-                null,
-                null,
-                "ligtAanOpenbareRuimte, ligtInWoonplaats",
-                null
+                nummeraanduidingIdentificatie = nummeraanduidingIdentificatie,
+                geldigOp = null,
+                beschikbaarOp = null,
+                expand = "ligtAanOpenbareRuimte, ligtInWoonplaats",
+                huidig = null
             )
         } returns nummeraanduidingIOHal
 
@@ -101,7 +115,13 @@ class BagClientServiceTest : BehaviorSpec({
             then("it should call the nummeraanduiding API and return the expected NummeraanduidingIOHal") {
                 returnedNummeraanduidingIOHal shouldBe nummeraanduidingIOHal
                 verify(exactly = 1) {
-                    nummeraanduidingApi.nummeraanduidingIdentificatie(any(), any(), any(), any(), any())
+                    nummeraanduidingApi.nummeraanduidingIdentificatie(
+                        nummeraanduidingIdentificatie = any(),
+                        geldigOp = any(),
+                        beschikbaarOp = any(),
+                        expand = any(),
+                        huidig = any()
+                    )
                 }
             }
         }
@@ -111,7 +131,13 @@ class BagClientServiceTest : BehaviorSpec({
         val pandIdentificatie = "fakePandId"
         val pandIOHal = createPandIOHal()
         every {
-            pandApi.pandIdentificatie(pandIdentificatie, null, null, "epsg:28992", null)
+            pandApi.pandIdentificatie(
+                identificatie = pandIdentificatie,
+                geldigOp = null,
+                beschikbaarOp = null,
+                acceptCrs = "epsg:28992",
+                huidig = null
+            )
         } returns pandIOHal
 
         `when`("readPand is called") {
@@ -120,7 +146,13 @@ class BagClientServiceTest : BehaviorSpec({
             then("it should call the pand API and return the expected PandIOHal") {
                 returnedPandIOHal shouldBe pandIOHal
                 verify(exactly = 1) {
-                    pandApi.pandIdentificatie(any(), any(), any(), any(), any())
+                    pandApi.pandIdentificatie(
+                        identificatie = any(),
+                        geldigOp = any(),
+                        beschikbaarOp = any(),
+                        acceptCrs = any(),
+                        huidig = any()
+                    )
                 }
             }
         }
@@ -131,11 +163,11 @@ class BagClientServiceTest : BehaviorSpec({
         val openbareRuimteIOHal = createOpenbareRuimteIOHal()
         every {
             openbareRuimteApi.openbareruimteIdentificatie(
-                openbareRuimteIdentificatie,
-                null,
-                null,
-                "ligtInWoonplaats",
-                null
+                openbareRuimteIdentificatie = openbareRuimteIdentificatie,
+                geldigOp = null,
+                beschikbaarOp = null,
+                expand = "ligtInWoonplaats",
+                huidig = null
             )
         } returns openbareRuimteIOHal
 
@@ -145,7 +177,13 @@ class BagClientServiceTest : BehaviorSpec({
             then("it should call the openbare ruimte API and return the expected OpenbareRuimteIOHal") {
                 returnedOpenbareRuimteIOHal shouldBe openbareRuimteIOHal
                 verify(exactly = 1) {
-                    openbareRuimteApi.openbareruimteIdentificatie(any(), any(), any(), any(), any())
+                    openbareRuimteApi.openbareruimteIdentificatie(
+                        openbareRuimteIdentificatie = any(),
+                        geldigOp = any(),
+                        beschikbaarOp = any(),
+                        expand = any(),
+                        huidig = any()
+                    )
                 }
             }
         }

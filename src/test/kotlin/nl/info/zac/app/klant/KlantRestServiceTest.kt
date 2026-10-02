@@ -64,14 +64,14 @@ class KlantRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val klantRestService = KlantRestService(
-        brpClientService,
-        kvkClientService,
-        ztcClientService,
-        klantClientService,
-        identificationService,
-        policyService,
-        loggedInUserInstance,
-        Dispatchers.IO
+        brpClientService = brpClientService,
+        kvkClientService = kvkClientService,
+        ztcClientService = ztcClientService,
+        klantClientService = klantClientService,
+        identificationService = identificationService,
+        policyService = policyService,
+        loggedInUserInstance = loggedInUserInstance,
+        dispatcher = Dispatchers.IO
     )
 
     afterEach {

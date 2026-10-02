@@ -132,13 +132,13 @@ private fun setupContext(): TestContext {
     val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
 
     val reindexSupportService = ReindexSupportService(
-        converterInstances,
-        zrcClientService,
-        drcClientService,
-        flowableTaskService,
-        zaakspecifiekeAutorisatieService,
-        solrClientFactory,
-        Dispatchers.IO
+        converterInstances = converterInstances,
+        zrcClientService = zrcClientService,
+        drcClientService = drcClientService,
+        flowableTaskService = flowableTaskService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
+        solrClientFactory = solrClientFactory,
+        dispatcher = Dispatchers.IO
     )
     val zaakGedrevenReindexService = ZaakGedrevenReindexService(
         reindexSupportService,
@@ -150,14 +150,14 @@ private fun setupContext(): TestContext {
         taakZoekObjectConverter
     )
     val indexingService = IndexingService(
-        reindexSupportService,
-        zaakGedrevenReindexService,
-        zrcClientService,
-        flowableTaskService,
-        documentZoekObjectConverter,
-        zaakZoekObjectConverter,
-        taakZoekObjectConverter,
-        testDispatcher
+        reindexSupportService = reindexSupportService,
+        zaakGedrevenReindexService = zaakGedrevenReindexService,
+        zrcClientService = zrcClientService,
+        flowableTaskService = flowableTaskService,
+        documentZoekObjectConverter = documentZoekObjectConverter,
+        zaakZoekObjectConverter = zaakZoekObjectConverter,
+        taakZoekObjectConverter = taakZoekObjectConverter,
+        dispatcher = testDispatcher
     )
 
     return TestContext(

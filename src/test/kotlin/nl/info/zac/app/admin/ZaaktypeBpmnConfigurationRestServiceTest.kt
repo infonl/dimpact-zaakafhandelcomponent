@@ -50,13 +50,13 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val zaaktypeBpmnConfigurationRestService =
         ZaaktypeBpmnConfigurationRestService(
-            zaaktypeBpmnConfigurationService,
-            zaaktypeBpmnConfigurationBeheerService,
-            zaaktypeCmmnConfigurationBeheerService,
-            policyService,
-            ztcClientService,
-            zaakbeeindigParameterConverter,
-            smartDocumentsService
+            zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
+            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
+            zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
+            policyService = policyService,
+            ztcClientService = ztcClientService,
+            restZaakbeeindigParameterConverter = zaakbeeindigParameterConverter,
+            smartDocumentsService = smartDocumentsService
         )
 
     afterEach {

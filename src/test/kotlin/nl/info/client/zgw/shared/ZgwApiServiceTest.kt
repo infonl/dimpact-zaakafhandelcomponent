@@ -813,7 +813,12 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
             `when`("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", brondatum)
+                zgwApiService.closeZaak(
+                    zaak = zaak,
+                    resultaatTypeUUID = resultaatTypeUUID,
+                    description = "toelichting",
+                    brondatum = brondatum
+                )
 
                 then("it should update the existing zaakeigenschap") {
                     verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschapUUID, any()) }
@@ -863,7 +868,12 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
             `when`("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", brondatum)
+                zgwApiService.closeZaak(
+                    zaak = zaak,
+                    resultaatTypeUUID = resultaatTypeUUID,
+                    description = "toelichting",
+                    brondatum = brondatum
+                )
 
                 then("it should create a new zaakeigenschap") {
                     verify { zrcClientService.createEigenschap(zaak.uuid, any()) }
@@ -910,7 +920,12 @@ class ZgwApiServiceTest : BehaviorSpec({
 
             `when`("closeZaak is called") {
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", brondatum)
+                    zgwApiService.closeZaak(
+                        zaak = zaak,
+                        resultaatTypeUUID = resultaatTypeUUID,
+                        description = "toelichting",
+                        brondatum = brondatum
+                    )
                 }
 
                 then("an InputValidationFailedException is thrown and the zaak is not closed") {
@@ -1020,7 +1035,12 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, any()) } returns zaakAfsluitenResult
 
             `when`("closeZaak is called with a brondatum") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", LocalDate.of(2023, 12, 1))
+                zgwApiService.closeZaak(
+                    zaak = zaak,
+                    resultaatTypeUUID = resultaatTypeUUID,
+                    description = "toelichting",
+                    brondatum = LocalDate.of(2023, 12, 1)
+                )
 
                 then("the zaak is closed without processing a brondatum procedure") {
                     verify(exactly = 1) {

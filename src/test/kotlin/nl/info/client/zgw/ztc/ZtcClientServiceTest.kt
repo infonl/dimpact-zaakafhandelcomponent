@@ -171,10 +171,10 @@ class ZtcClientServiceTest : BehaviorSpec({
 
         every {
             ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getPage() == 1 })
-        } returns Results(1, listOf(firstPageZaakType), nextPageUri, null)
+        } returns Results(countValue = 1, resultsValue = listOf(firstPageZaakType), nextValue = nextPageUri, previousValue = null)
         every {
             ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getPage() == 2 })
-        } returns Results(1, listOf(secondPageZaakType), null, null)
+        } returns Results(countValue = 1, resultsValue = listOf(secondPageZaakType), nextValue = null, previousValue = null)
 
         `when`("listZaaktypen is called") {
             val zaaktypen = ztcClientService.listZaaktypen(catalogusUri)
