@@ -219,6 +219,10 @@ class LoggedInUserProviderTest : BehaviorSpec({
                     warnings.size shouldBe 1
                     warnings.first().message shouldContain "LoggedInUserProviderTest"
                 }
+
+                and("the warning tells developers how to name the user explicitly") {
+                    logRecords.first { it.level == Level.WARNING }.message shouldContain "runAsSystemUser"
+                }
             }
         }
     }

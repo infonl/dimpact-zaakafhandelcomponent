@@ -23,6 +23,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.createBehandelaarRolType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.signalering.SignaleringService
@@ -75,7 +76,11 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 isDashboard = true,
                 isMail = false
             )
-            every { signaleringService.storeSignalering(capture(storedSignalering)) } answers { firstArg() }
+            var wasSystemUserWhileStoring: Boolean? = null
+            every { signaleringService.storeSignalering(capture(storedSignalering)) } answers {
+                wasSystemUserWhileStoring = LoggedInUserProvider.systemUser.get()
+                firstArg()
+            }
 
             `when`("the event is handled") {
                 signaleringEventObserver.onFire(signaleringEvent)
@@ -85,6 +90,75 @@ class SignaleringEventObserverTest : BehaviorSpec({
                         targettype shouldBe SignaleringTarget.USER
                         target shouldBe user.id
                         subject shouldBe zaak.uuid.toString()
+                    }
+                }
+
+                and("it is stored as the system user, which is no longer set once the event has been handled") {
+                    wasSystemUserWhileStoring shouldBe true
+                    LoggedInUserProvider.systemUser.get() shouldBe false
+                }
+            }
+        }
+
+        given("a behandelaar rol for a medewerker who only wants a mail") {
+            val user = createUser(id = "fakeBehandelaarId")
+            val rolMedewerker = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype),
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.id)
+            )
+            val sentSignalering = slot<Signalering>()
+            every { zrcClientService.readRol(rolURI) } returns rolMedewerker
+            every { zrcClientService.readZaak(zaak.url) } returns zaak
+            every {
+                signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
+            } returns createSignalering(zaak = null)
+            every { identityService.readUser(user.id) } returns user
+            every { signaleringService.isNecessary(any(), null) } returns true
+            every { signaleringService.readInstellingen(any()) } returns createSignaleringInstellingen(
+                isDashboard = false,
+                isMail = true
+            )
+            every { signaleringService.sendSignalering(capture(sentSignalering)) } returns Unit
+
+            `when`("the event is handled") {
+                signaleringEventObserver.onFire(signaleringEvent)
+
+                then("the medewerker is mailed, and nothing is stored on the dashboard") {
+                    sentSignalering.captured.target shouldBe user.id
+                    verify(exactly = 0) { signaleringService.storeSignalering(any()) }
+                }
+            }
+        }
+
+        given("a behandelaar rol for a medewerker who caused the event themselves") {
+            val user = createUser(id = "fakeBehandelaarId")
+            val rolMedewerker = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype),
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.id)
+            )
+            val signaleringEventByBehandelaar = SignaleringEvent(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                SignaleringEventId(rolURI, null),
+                user
+            )
+            every { zrcClientService.readRol(rolURI) } returns rolMedewerker
+            every { zrcClientService.readZaak(zaak.url) } returns zaak
+            every {
+                signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
+            } returns createSignalering(zaak = null)
+            every { identityService.readUser(user.id) } returns user
+            every { signaleringService.isNecessary(any(), user.id) } returns false
+
+            `when`("the event is handled") {
+                signaleringEventObserver.onFire(signaleringEventByBehandelaar)
+
+                then("no signalering is stored or sent, because it is not necessary") {
+                    verify(exactly = 0) {
+                        signaleringService.readInstellingen(any())
+                        signaleringService.storeSignalering(any())
+                        signaleringService.sendSignalering(any())
                     }
                 }
             }
