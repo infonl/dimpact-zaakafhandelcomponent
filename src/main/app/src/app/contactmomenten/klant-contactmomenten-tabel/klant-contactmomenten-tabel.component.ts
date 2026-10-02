@@ -7,7 +7,7 @@ import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
-  Input,
+  input,
   OnChanges,
   OnInit,
   ViewChild,
@@ -42,8 +42,8 @@ import { ContactmomentenService } from "../contactmomenten.service";
 export class KlantContactmomentenTabelComponent
   implements OnInit, AfterViewInit, OnChanges
 {
-  @Input() bsn?: string;
-  @Input() vestigingsnummer?: string;
+  readonly bsn = input<string>();
+  readonly vestigingsnummer = input<string>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestContactmoment">
@@ -67,8 +67,8 @@ export class KlantContactmomentenTabelComponent
   ) {}
 
   ngOnInit(): void {
-    this.listParameters.bsn = this.bsn;
-    this.listParameters.vestigingsnummer = this.vestigingsnummer;
+    this.listParameters.bsn = this.bsn();
+    this.listParameters.vestigingsnummer = this.vestigingsnummer();
   }
 
   ngAfterViewInit(): void {

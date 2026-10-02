@@ -7,11 +7,11 @@ import { NgFor } from "@angular/common";
 import {
   Component,
   EventEmitter,
-  Input,
   OnChanges,
   OnInit,
   Output,
   SimpleChanges,
+  input,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -34,9 +34,9 @@ import { GeneratedType } from "../../utils/generated-types";
 })
 export class FacetFilterComponent implements OnInit, OnChanges {
   protected selected = new FormControl<string | undefined>(undefined);
-  @Input() filter?: GeneratedType<"FilterParameters">;
-  @Input() opties?: GeneratedType<"FilterResultaat">[] = [];
-  @Input({ required: true }) label!: string;
+  readonly filter = input<GeneratedType<"FilterParameters">>();
+  readonly opties = input<GeneratedType<"FilterResultaat">[] | undefined>([]);
+  readonly label = input.required<string>();
   @Output() changed = new EventEmitter<GeneratedType<"FilterParameters">>();
 
   /* veld: prefix */
@@ -47,7 +47,7 @@ export class FacetFilterComponent implements OnInit, OnChanges {
   };
 
   protected getFilters() {
-    return this.opties?.sort((a, b) => a.naam.localeCompare(b.naam));
+    return this.opties()?.sort((a, b) => a.naam.localeCompare(b.naam));
   }
 
   ngOnInit() {
@@ -61,7 +61,7 @@ export class FacetFilterComponent implements OnInit, OnChanges {
   }
 
   private setSelected() {
-    this.selected.setValue(this.filter?.values?.[0] ?? null);
+    this.selected.setValue(this.filter()?.values?.[0] ?? null);
   }
 
   protected isVertaalbaar(veld: string) {

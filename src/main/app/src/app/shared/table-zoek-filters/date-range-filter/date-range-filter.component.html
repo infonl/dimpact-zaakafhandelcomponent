@@ -1,13 +1,13 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <mat-form-field subscriptSizing="dynamic" floatLabel="always">
-  @if (showLabel) {
+  @if (showLabel()) {
     <mat-label>
       <ng-content select="mat-label">
-        {{ label | translate | capitalizeFirstLetter }}
+        {{ label() | translate | capitalizeFirstLetter }}
       </ng-content>
     </mat-label>
   }

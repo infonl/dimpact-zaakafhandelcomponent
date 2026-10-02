@@ -7,9 +7,9 @@ import { CommonModule } from "@angular/common";
 import {
   Component,
   EventEmitter,
-  Input,
   Output,
   ViewChild,
+  input,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -56,10 +56,11 @@ import { BAGService } from "../bag.service";
 })
 export class BagZoekComponent {
   @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();
-  @Input() gekoppeldeBagObjecten:
+  readonly gekoppeldeBagObjecten = input<
     | GeneratedType<"RESTBAGObject">[]
-    | FormControl<GeneratedType<"RESTBAGObject">[] | null> = [];
-  @Input({ required: true }) sideNav!: MatSidenav | MatDrawer;
+    | FormControl<GeneratedType<"RESTBAGObject">[] | null>
+  >([]);
+  readonly sideNav = input.required<MatSidenav | MatDrawer>();
   @ViewChild(MatTable) private table!: MatTable<GeneratedType<"RESTBAGObject">>;
   protected trefwoorden = new FormControl("", [Validators.maxLength(255)]);
   protected bagObjecten = new MatTableDataSource<
@@ -99,13 +100,14 @@ export class BagZoekComponent {
   }
 
   protected selectBagObject(bagObject: GeneratedType<"RESTBAGObject">) {
-    if (this.gekoppeldeBagObjecten instanceof FormControl) {
-      this.gekoppeldeBagObjecten.setValue([
-        ...(this.gekoppeldeBagObjecten.value ?? []),
+    const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
+    if (gekoppeldeBagObjecten instanceof FormControl) {
+      gekoppeldeBagObjecten.setValue([
+        ...(gekoppeldeBagObjecten.value ?? []),
         bagObject,
       ]);
     } else {
-      this.gekoppeldeBagObjecten.push(bagObject);
+      gekoppeldeBagObjecten.push(bagObject);
     }
     this.bagObject.emit(bagObject);
   }
@@ -171,10 +173,11 @@ export class BagZoekComponent {
   }
 
   protected reedsGekoppeld(row: GeneratedType<"RESTBAGObject">): boolean {
+    const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
     const objects =
-      this.gekoppeldeBagObjecten instanceof FormControl
-        ? (this.gekoppeldeBagObjecten.value ?? [])
-        : this.gekoppeldeBagObjecten;
+      gekoppeldeBagObjecten instanceof FormControl
+        ? (gekoppeldeBagObjecten.value ?? [])
+        : gekoppeldeBagObjecten;
     return objects.some(
       (b) =>
         b.identificatie === row.identificatie &&
@@ -183,7 +186,7 @@ export class BagZoekComponent {
   }
 
   protected openBagTonenPagina(bagObject: GeneratedType<"RESTBAGObject">) {
-    this.sideNav?.close();
+    this.sideNav().close();
     this.router.navigate([
       "/bag-objecten",
       bagObject.bagObjectType?.toLowerCase(),

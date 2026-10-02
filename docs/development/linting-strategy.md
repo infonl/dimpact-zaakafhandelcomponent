@@ -63,6 +63,7 @@ Coding conventions that a linter can check are enforced there rather than only d
 | No `catch (exception: Exception)` in main code                | detekt `TooGenericExceptionCaught` (default)                     |
 | No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |
 | No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
+| Component inputs use `input()`, not the `@Input()` decorator  | ESLint `@angular-eslint/prefer-signals`                          |
 
 ## Using Visual Studio Code
 

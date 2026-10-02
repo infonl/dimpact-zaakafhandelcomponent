@@ -6,7 +6,7 @@
 <mat-toolbar role="heading" class="gap-16" *ngIf="bagObject.observed">
   <mat-icon>add_home_work</mat-icon>
   <h3 class="flex-grow-1">{{ "actie.bagObject.koppelen" | translate }}</h3>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button></mat-toolbar
 >
@@ -157,7 +157,7 @@
   </p>
   <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
   <mat-action-row class="px-3">
-    <button mat-raised-button (click)="sideNav.close()">
+    <button mat-raised-button (click)="sideNav().close()">
       {{ "actie.annuleren" | translate }}
     </button>
   </mat-action-row>

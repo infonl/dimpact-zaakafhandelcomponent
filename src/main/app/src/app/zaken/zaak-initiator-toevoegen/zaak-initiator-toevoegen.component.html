@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2023 Atos
+  ~ SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -10,7 +10,7 @@
       <div class="hide-sm">{{ "msg.zaak.geen.initiator" | translate }}</div>
       <div class="hide-gt-sm">-</div>
       <button
-        *ngIf="toevoegenToegestaan"
+        *ngIf="toevoegenToegestaan()"
         (click)="add.emit()"
         [title]="'actie.initiator.koppelen' | translate"
         mat-icon-button

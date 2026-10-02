@@ -11,7 +11,7 @@ import {
   Component,
   EventEmitter,
   inject,
-  Input,
+  input,
   OnDestroy,
   Output,
   ViewChild,
@@ -105,7 +105,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   ],
 })
 export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
-  @Input({ required: false }) selectedIndexStart: number = 0;
+  readonly selectedIndexStart = input<number>(0);
   @Output() switchModellingMethod =
     new EventEmitter<ProcessModelMethodSelection>();
 

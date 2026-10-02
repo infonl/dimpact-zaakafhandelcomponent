@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -19,7 +19,7 @@
       [selected]="isSelected(column.key)"
       checkboxPosition="before"
       [value]="column.key"
-      *ngFor="let column of columns | keyvalue | sort: 'value'"
+      *ngFor="let column of columns() | keyvalue | sort: 'value'"
     >
       {{ column.value }}
     </mat-list-option>
