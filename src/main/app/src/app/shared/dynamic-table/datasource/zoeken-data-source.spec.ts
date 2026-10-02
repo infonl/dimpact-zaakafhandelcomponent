@@ -5,9 +5,10 @@
 
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { of, throwError } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../../core/service/util.service";
+import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekParameters } from "../../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../../zoeken/zoeken.service";
@@ -104,6 +105,46 @@ describe(ZoekenDataSource.name, () => {
     });
 
     it("remembers the page of those rows for the next visit", () => {
+      expect(
+        SessionStorageUtil.getItem<ZoekParameters>(
+          "WERKVOORRAAD_ZAKEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
+        )?.page,
+      ).toBe(1);
+    });
+  });
+
+  describe("given overlapping searches for different pages", () => {
+    it("restores the paginator to the page of the rows when the later search fails", () => {
+      const firstPageZaak = fromPartial<ZaakZoekObject>({
+        identificatie: "ZAAK-001",
+      });
+      const firstPageResponse = new Subject<ZoekResultaat<ZaakZoekObject>>();
+      const secondPageResponse = new Subject<ZoekResultaat<ZaakZoekObject>>();
+      const paginator = fromPartial<MatPaginator>({
+        pageIndex: 1,
+        pageSize: 25,
+      });
+      list$.mockReturnValueOnce(firstPageResponse);
+      dataSource.setViewChilds(
+        paginator,
+        fromPartial<MatSort>({ active: "", direction: "" }),
+      );
+      jest.runAllTimers();
+
+      paginator.pageIndex = 2;
+      list$.mockReturnValueOnce(secondPageResponse);
+      dataSource.load();
+      jest.runAllTimers();
+
+      firstPageResponse.next({
+        totaal: 75,
+        resultaten: [firstPageZaak],
+        filters: {},
+      });
+      secondPageResponse.error(new Error("fakeError"));
+
+      expect(dataSource.data).toEqual([firstPageZaak]);
+      expect(paginator.pageIndex).toBe(1);
       expect(
         SessionStorageUtil.getItem<ZoekParameters>(
           "WERKVOORRAAD_ZAKEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,

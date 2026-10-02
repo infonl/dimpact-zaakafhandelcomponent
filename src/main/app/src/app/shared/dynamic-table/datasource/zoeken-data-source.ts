@@ -111,8 +111,10 @@ export abstract class ZoekenDataSource<
   load(delay = 0) {
     setTimeout(() => {
       this.utilService.setLoading(true);
+      const zoekParameters = this.updateZoekParameters();
+      const requestedPageIndex = zoekParameters.page ?? 0;
       this.zoekenService
-        .list$(this.updateZoekParameters())
+        .list$(zoekParameters)
         .pipe(
           finalize(() => this.utilService.setLoading(false)),
           catchError(() => {
@@ -126,7 +128,7 @@ export abstract class ZoekenDataSource<
           }),
         )
         .subscribe((zaakResponse) => {
-          this.lastLoadedPageIndex = this.paginator.pageIndex;
+          this.lastLoadedPageIndex = requestedPageIndex;
           this.setData(zaakResponse as ZoekResultaat<OBJECT>);
         });
     }, delay);
