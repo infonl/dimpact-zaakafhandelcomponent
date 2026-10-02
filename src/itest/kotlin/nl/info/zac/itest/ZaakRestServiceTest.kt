@@ -1141,11 +1141,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                         )
                     ) {
                         code shouldBe HTTP_OK
-                        JSONObject(bodyAsString).apply {
-                            getJSONObject("behandelaar").apply {
-                                getString("id") shouldBe BEHANDELAAR_1.username
-                                getString("naam") shouldBe BEHANDELAAR_1.displayName
-                            }
+                        JSONObject(bodyAsString).getJSONObject("behandelaar").apply {
+                            getString("id") shouldBe BEHANDELAAR_1.username
+                            getString("naam") shouldBe BEHANDELAAR_1.displayName
                         }
                     }
                 }

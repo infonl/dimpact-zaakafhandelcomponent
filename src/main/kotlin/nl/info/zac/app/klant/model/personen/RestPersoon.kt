@@ -53,7 +53,7 @@ data class RestPersoon(
     override var emailadres: String? = null,
     override var telefoonnummer: String? = null,
     val indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
-) : RestKlant() {
+) : RestKlant {
     override fun getIdentificatieType(): IdentificatieType? = IdentificatieType.BSN
 }
 

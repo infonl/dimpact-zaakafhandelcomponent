@@ -59,16 +59,16 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         }
 
     fun submit(restTask: RestTask, task: Task, zaak: Zaak): Task {
-        var task = task
+        var submittedTask = task
         taakVariabelenService.setTaskinformation(task, restTask.taakinformatie)
         taakVariabelenService.setTaskData(task, restTask.taakdata)
 
-        val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata ?: emptyMap())
+        val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata.orEmpty())
 
         if (bpmnTaskFormData.toelichting != null || bpmnTaskFormData.taakFataleDatum != null) {
             // Writing the task variables above bumped the task revision, so re-read it before updating.
             // Saving the instance we still hold would fail with an optimistic locking exception.
-            task = flowableTaskService.readOpenTask(task.id).apply {
+            submittedTask = flowableTaskService.readOpenTask(task.id).apply {
                 bpmnTaskFormData.toelichting?.let {
                     description = it
                 }
@@ -76,12 +76,12 @@ class BpmnTaskFormRuntimeService @Inject constructor(
                     dueDate = convertToDate(it)
                 }
             }
-            task = flowableTaskService.updateTask(task)
+            submittedTask = flowableTaskService.updateTask(submittedTask)
         }
         if (bpmnTaskFormData.zaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
-                ChronoUnit.DAYS.between(LocalDate.now(), convertToLocalDate(task.dueDate!!)),
+                ChronoUnit.DAYS.between(LocalDate.now(), convertToLocalDate(submittedTask.dueDate!!)),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }
@@ -96,7 +96,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
             zaakVariabelenService.readProcessZaakdata(zaak.uuid) + bpmnTaskFormData.zaakVariabelen
         )
 
-        return task
+        return submittedTask
     }
 
     private fun copyJsonObject(jsonObject: JsonObject, resolveDefaultValueContext: ResolveDefaultValueContext) =

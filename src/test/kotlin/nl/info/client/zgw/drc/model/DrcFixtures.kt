@@ -122,6 +122,7 @@ fun createOndertekening(
     this.datum = date
 }
 
+@Suppress("LongParameterList")
 fun createBestandsDeel(
     uuid: UUID = UUID.randomUUID(),
     url: URI = URI("https://example.com/bestandsdelen/$uuid"),
@@ -133,6 +134,7 @@ fun createBestandsDeel(
     lock?.let { this.lock = it }
 }
 
+@Suppress("LongParameterList")
 fun createEnkelvoudigInformatieObjectCreateLockSub(
     uuid: UUID = UUID.randomUUID(),
     url: URI = URI("https://example.com/$uuid"),

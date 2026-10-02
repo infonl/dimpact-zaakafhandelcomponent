@@ -34,7 +34,7 @@ class DocumentZoekObjectConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val reindexSupportService: ReindexSupportService
-) : AbstractZoekObjectConverter<DocumentZoekObject>() {
+) : ZoekObjectConverter<DocumentZoekObject> {
 
     override fun convert(id: String): DocumentZoekObject? =
         convert(id, reindexSupportService::zaakAutorisatieGegevens)

@@ -98,7 +98,7 @@ constructor(
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
             // functional roles are Keycloak realm roles
-            val functionalRoles = accessToken.realmAccessClaim?.roles?.toSet() ?: emptySet()
+            val functionalRoles = accessToken.realmAccessClaim?.roles?.toSet().orEmpty()
             val applicationRoleMappings = if (functionalRoles.isNotEmpty()) {
                 buildApplicationRoleMappingsFromPabc(functionalRoles)
             } else {
@@ -170,9 +170,9 @@ constructor(
             .filter {
                 it.entityType?.type.equals(ENTITY_TYPE_GEMEENTE) &&
                     !it.entityType.id.isNullOrBlank() &&
-                    it.applicationRoles.any {
-                        it.application.equals(APPLICATION_NAME_ZAC) &&
-                            it.name.equals(ROLE_NAME_BRP_ZOEKEN)
+                    it.applicationRoles.any { applicationRole ->
+                        applicationRole.application.equals(APPLICATION_NAME_ZAC) &&
+                            applicationRole.name.equals(ROLE_NAME_BRP_ZOEKEN)
                     }
             }
             .associate { it.entityType.id to it.entityType.name }

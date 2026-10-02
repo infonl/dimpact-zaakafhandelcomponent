@@ -5,6 +5,7 @@
 package nl.info.client.zgw.shared.exception
 
 import nl.info.client.zgw.shared.model.ZgwError
+import java.util.Locale
 
 /**
  * Exception thrown when an error occurred in the ZGW APIs.
@@ -13,6 +14,7 @@ class ZgwErrorException(val zgwError: ZgwError) : RuntimeException() {
 
     override val message: String
         get() = "%s [%d %s] %s (%s %s)".format(
+            Locale.ROOT,
             zgwError.title,
             zgwError.status,
             zgwError.code,

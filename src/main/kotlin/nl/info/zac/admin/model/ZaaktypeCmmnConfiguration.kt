@@ -94,7 +94,7 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     private var zaaktypeCmmnZaakafzenderParameters: MutableSet<ZaaktypeCmmnZaakafzenderParameters>? = null
 
     fun getHumanTaskParametersCollection(): Set<ZaaktypeCmmnHumantaskParameters> =
-        zaaktypeCmmnHumantaskParametersCollection ?: emptySet()
+        zaaktypeCmmnHumantaskParametersCollection.orEmpty()
 
     fun setHumanTaskParametersCollection(
         desired: Collection<ZaaktypeCmmnHumantaskParameters>
@@ -111,7 +111,7 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     }
 
     fun getMailtemplateKoppelingen(): Set<ZaaktypeCmmnMailtemplateParameters> =
-        zaaktypeCmmnMailtemplateKoppelingen ?: emptySet()
+        zaaktypeCmmnMailtemplateKoppelingen.orEmpty()
 
     fun setMailtemplateKoppelingen(
         desired: Collection<ZaaktypeCmmnMailtemplateParameters>
@@ -128,7 +128,7 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     fun getAutomaticEmailConfirmation(): ZaaktypeCmmnEmailParameters? = zaaktypeCmmnEmailParameters
 
     fun getUserEventListenerParametersCollection(): Set<ZaaktypeCmmnUsereventlistenerParameters> =
-        zaaktypeCmmnUsereventlistenerParametersCollection ?: emptySet()
+        zaaktypeCmmnUsereventlistenerParametersCollection.orEmpty()
 
     fun setUserEventListenerParametersCollection(
         desired: Collection<ZaaktypeCmmnUsereventlistenerParameters>
@@ -143,7 +143,7 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     }
 
     fun getZaakAfzenders(): Set<ZaaktypeCmmnZaakafzenderParameters> =
-        zaaktypeCmmnZaakafzenderParameters ?: emptySet()
+        zaaktypeCmmnZaakafzenderParameters.orEmpty()
 
     fun setZaakAfzenders(desired: Collection<ZaaktypeCmmnZaakafzenderParameters>) {
         if (zaaktypeCmmnZaakafzenderParameters == null) {

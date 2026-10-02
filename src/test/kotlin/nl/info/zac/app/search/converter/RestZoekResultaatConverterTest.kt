@@ -107,7 +107,7 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
                 then("filters from zoekResultaat are carried over") {
-                    val zaaktypeFilters = result.filters[FilterVeld.ZAAKTYPE]!!
+                    val zaaktypeFilters = result.filters.getValue(FilterVeld.ZAAKTYPE)
                     zaaktypeFilters shouldHaveSize 1
                     zaaktypeFilters.first().naam shouldBe "fakeZaaktype"
                     zaaktypeFilters.first().aantal shouldBe 5
@@ -130,7 +130,7 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
                 then("missing filter values are added with count 0") {
-                    val behandelaarFilters = result.filters[FilterVeld.BEHANDELAAR]!!
+                    val behandelaarFilters = result.filters.getValue(FilterVeld.BEHANDELAAR)
                     behandelaarFilters shouldHaveSize 1
                     behandelaarFilters.first().naam shouldBe "fakeMissingBehandelaar"
                     behandelaarFilters.first().aantal shouldBe 0

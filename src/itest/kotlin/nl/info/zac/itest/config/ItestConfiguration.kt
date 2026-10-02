@@ -473,7 +473,7 @@ object ItestConfiguration {
     const val BPMN_PERMISSION_CHECK_PROCESS_RESOURCE_PATH = "bpmn/permission-check/permissionCheckProcess.bpmn"
     const val BPMN_PERMISSION_CHECK_PROCESS_CHOOSE_FORM_RESOURCE_PATH = "bpmn/permission-check/chooseTestProcess.json"
 
-    val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UUID =
+    val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UUID: UUID =
         UUID.fromString("9b0c1d2e-f3a4-5678-9b0c-1d2ef3a45678")
     const val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_BRON_KENMERK =
         "d4e5f6a7-b8c9-0123-d4e5-f6a7b8c90123"

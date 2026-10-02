@@ -162,7 +162,7 @@ class RestZaakConverter @Inject constructor(
             },
             startdatum = zaak.startdatum,
             startdatumBewaartermijn = zaak.startdatumBewaartermijn,
-            status = status?.takeIf { statustype != null }?.let { toRestZaakStatus(statustype!!, it) },
+            status = statustype?.let { type -> status?.let { toRestZaakStatus(type, it) } },
             toelichting = zaak.toelichting,
             uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
             uuid = zaak.uuid,

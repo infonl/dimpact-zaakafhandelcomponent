@@ -14,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import kotlinx.coroutines.Dispatchers
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.brp.model.createPersoon
@@ -67,7 +68,8 @@ class KlantRestServiceTest : BehaviorSpec({
         klantClientService,
         identificationService,
         policyService,
-        loggedInUserInstance
+        loggedInUserInstance,
+        Dispatchers.IO
     )
 
     afterEach {
