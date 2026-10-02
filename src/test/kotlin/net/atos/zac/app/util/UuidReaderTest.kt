@@ -10,7 +10,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import java.util.UUID
 
-class UUIDReaderTest : DescribeSpec({
+class UuidReaderTest : DescribeSpec({
 
     val uuidReader = UUIDReader()
 

@@ -4,6 +4,6 @@
  */
 package nl.info.zac.app.admin.model
 
-data class RESTDeletedSignaleringenResponse(
+data class RestDeletedSignaleringenResponse(
     val deletedSignaleringenCount: Int
 )

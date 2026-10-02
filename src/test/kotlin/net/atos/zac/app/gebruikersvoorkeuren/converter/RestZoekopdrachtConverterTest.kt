@@ -10,7 +10,7 @@ import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
 import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import java.time.ZonedDateTime
 
-class RESTZoekopdrachtConverterTest : BehaviorSpec({
+class RestZoekopdrachtConverterTest : BehaviorSpec({
     context("convert(Zoekopdracht)") {
         given("a Zoekopdracht domain model") {
             val zoekopdracht = createZoekopdracht(

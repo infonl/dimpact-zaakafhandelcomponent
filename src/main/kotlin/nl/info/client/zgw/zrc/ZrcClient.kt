@@ -27,7 +27,7 @@ import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
-import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.shared.model.audit.ZrcAuditTrailRegel
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.zrc.exception.ZrcResponseExceptionMapper
 import nl.info.client.zgw.zrc.model.ZaakUuid
@@ -202,7 +202,7 @@ interface ZrcClient {
 
     @GET
     @Path("zaken/{zaak_uuid}/audittrail")
-    fun listAuditTrail(@PathParam("zaak_uuid") zaakUUID: UUID): List<ZRCAuditTrailRegel>
+    fun listAuditTrail(@PathParam("zaak_uuid") zaakUUID: UUID): List<ZrcAuditTrailRegel>
 
     @GET
     @Path("zaakinformatieobjecten/{uuid}")

@@ -68,6 +68,7 @@ Coding conventions that a linter can check are enforced there rather than only d
 | No Jira ticket references (`PZ-…`, `DRT-…`) in code comments  | detekt `ForbiddenComment`, ESLint `no-warning-comments`          |
 | Single-expression Kotlin functions use an expression body     | detekt `ExpressionBodySyntax`                                    |
 | Kotlin files start with an SPDX header                        | detekt `AbsentOrWrongFileLicense`                                |
+| Acronyms in Kotlin class names: `IOStream`, `XmlFormatter`    | detekt `ClassNaming` (`classPattern`)                            |
 | No `catch (exception: Exception)` in main code                | detekt `TooGenericExceptionCaught` (default)                     |
 | No `requireNotNull` or `runCatching`                          | detekt `ForbiddenMethodCall`                                     |
 | No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |

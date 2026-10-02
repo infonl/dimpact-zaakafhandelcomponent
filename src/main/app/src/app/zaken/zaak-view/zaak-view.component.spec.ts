@@ -49,7 +49,7 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
-const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+const planItemsQuery = (planItems: GeneratedType<"RestPlanItem">[]) =>
   queryOptions({
     queryKey: ["fakePlanItems", planItems],
     queryFn: () => planItems,
@@ -151,7 +151,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -162,7 +162,7 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
         planItemsQuery([
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),

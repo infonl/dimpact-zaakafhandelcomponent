@@ -42,7 +42,7 @@ export class TaakFormulierenService {
 
   public async getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
-    planItem?: GeneratedType<"RESTPlanItem">,
+    planItem?: GeneratedType<"RestPlanItem">,
   ): Promise<FormField[]> {
     const formulierDefinitie = planItem?.formulierDefinitie;
     switch (formulierDefinitie) {

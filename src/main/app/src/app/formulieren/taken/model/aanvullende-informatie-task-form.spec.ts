@@ -269,7 +269,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
     describe("taakFataleDatum", () => {
       it("should not pre-fill taakFataleDatum when planItem has no fataleDatum", async () => {
-        const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({});
+        const planItem = fromPartial<GeneratedType<"RestPlanItem">>({});
 
         const fields = await formulier.requestForm(mockZaak, planItem);
 
@@ -286,7 +286,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
       it("should pre-fill taakFataleDatum from planItem.fataleDatum", async () => {
         const fataleDatum = "2026-06-01";
-        const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
           fataleDatum,
         });
 

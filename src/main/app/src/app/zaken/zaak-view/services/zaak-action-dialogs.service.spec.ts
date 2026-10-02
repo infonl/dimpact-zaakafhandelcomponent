@@ -175,7 +175,7 @@ describe(ZaakActionDialogsService.name, () => {
 
   describe("loadOpschorting", () => {
     it("fetches the details for a zaak that is opgeschort", () => {
-      const opschorting = fromPartial<GeneratedType<"RESTZaakOpschorting">>({
+      const opschorting = fromPartial<GeneratedType<"RestZaakOpschorting">>({
         duurDagen: 14,
       });
       const readSpy = jest
@@ -199,7 +199,7 @@ describe(ZaakActionDialogsService.name, () => {
 
     it("clears previously loaded opschorting when the zaak is no longer opgeschort", () => {
       service.opschorting.set(
-        fromPartial<GeneratedType<"RESTZaakOpschorting">>({ duurDagen: 14 }),
+        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
       );
 
       service.loadOpschorting(fromPartial({ ...zaak, isOpgeschort: false }));
@@ -217,7 +217,7 @@ describe(ZaakActionDialogsService.name, () => {
   describe("openHervatten", () => {
     it("passes the expected opschort duration from the loaded opschorting", () => {
       service.opschorting.set(
-        fromPartial<GeneratedType<"RESTZaakOpschorting">>({ duurDagen: 14 }),
+        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
       );
       const hervattenSpy = jest
         .spyOn(zaakDialogService, "openHervatten")
@@ -233,7 +233,7 @@ describe(ZaakActionDialogsService.name, () => {
 
     it("clears the opschorting after a successful hervatten, so the details card stops showing the expected duration", () => {
       service.opschorting.set(
-        fromPartial<GeneratedType<"RESTZaakOpschorting">>({ duurDagen: 14 }),
+        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
       );
       jest
         .spyOn(zaakDialogService, "openHervatten")
@@ -248,7 +248,7 @@ describe(ZaakActionDialogsService.name, () => {
 
     it("does not read the opschorting of a zaak it has just resumed", () => {
       service.opschorting.set(
-        fromPartial<GeneratedType<"RESTZaakOpschorting">>({ duurDagen: 14 }),
+        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
       );
       const readSpy = jest.spyOn(zakenService, "readOpschortingZaak");
       jest
@@ -382,7 +382,7 @@ describe(ZaakActionDialogsService.name, () => {
   });
 
   describe("openPlanItemStarten", () => {
-    const intakePlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+    const intakePlanItem = fromPartial<GeneratedType<"RestPlanItem">>({
       userEventListenerActie: "INTAKE_AFRONDEN",
     });
 
@@ -399,7 +399,7 @@ describe(ZaakActionDialogsService.name, () => {
         ...zaak,
         isOpgeschort: true,
       });
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         userEventListenerActie: "ZAAK_AFHANDELEN",
       });
 
@@ -414,7 +414,7 @@ describe(ZaakActionDialogsService.name, () => {
       expect(() =>
         service.openPlanItemStarten(
           zaak,
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             userEventListenerActie: undefined,
           }),
         ),

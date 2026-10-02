@@ -12,7 +12,7 @@ import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
 @NoArgConstructor
-data class RESTHumanTaskData(
+data class RestHumanTaskData(
     var planItemInstanceId: String,
 
     @field:NotNull
@@ -31,5 +31,5 @@ data class RESTHumanTaskData(
 
     var taakdata: Map<String, String>? = null,
 
-    var taakStuurGegevens: RESTTaakStuurGegevens?
+    var taakStuurGegevens: RestTaakStuurGegevens?
 )

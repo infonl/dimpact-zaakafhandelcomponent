@@ -18,7 +18,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.mail.model.createRestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
@@ -34,8 +34,8 @@ import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.UserEventListenerActie
-import nl.info.zac.app.planitems.model.createRESTHumanTaskData
-import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
+import nl.info.zac.app.planitems.model.createRestHumanTaskData
+import nl.info.zac.app.planitems.model.createRestTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRestUserEventListenerData
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.authentication.LoggedInUser
@@ -63,7 +63,7 @@ import java.util.UUID
 @Suppress("LargeClass")
 class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val planItemConverter = mockk<RestPlanItemConverter>()
@@ -106,7 +106,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     context("doHumanTaskplanItem") {
 
         given("Valid REST human task data without a fatal date") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf("fakeKey" to "fakeValue"),
                 fataledatum = null
@@ -167,7 +167,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
         given("Valid REST human task data with a fatal date and with zaak opschorten set to true") {
             val opgeschorteZaak = createZaak()
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue",
@@ -217,7 +217,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("REST human task data with a user-set fatal date that comes after the fatal date of the related zaak") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue"
@@ -253,7 +253,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("REST human task data with a calculated fatal date after the fatal date of the related zaak") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue"
@@ -308,7 +308,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         given("Additional info human task with a fatal date after the fatal date of the related zaak") {
             val numberOfDays = 3L
             val additionalInfoPlanItemInstanceId = FormulierDefinitie.AANVULLENDE_INFORMATIE.toString()
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = additionalInfoPlanItemInstanceId,
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue"
@@ -376,7 +376,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("Task data with send mail information") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "taakStuurGegevens.sendMail" to "true",
@@ -453,13 +453,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("Send mail information in TaakStuurGegevens object") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "emailadres" to "example@example.com",
                     "body" to "body"
                 ),
-                taakStuurGegevens = createRESTTaakStuurGegevens(true, "TAAK_AANVULLENDE_INFORMATIE"),
+                taakStuurGegevens = createRestTaakStuurGegevens(true, "TAAK_AANVULLENDE_INFORMATIE"),
                 fataledatum = null
             )
             val taskDataSlot = slot<Map<String, String>>()

@@ -46,7 +46,7 @@ describe(ZaakDetailsCardComponent.name, () => {
   const renderCard = (
     inputs: Partial<{
       zaak: GeneratedType<"RestZaak">;
-      zaakOpschorting: GeneratedType<"RESTZaakOpschorting">;
+      zaakOpschorting: GeneratedType<"RestZaakOpschorting">;
       bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[];
       showBetrokkeneKoppelingen: boolean;
     }> = {},
@@ -264,7 +264,7 @@ describe(ZaakDetailsCardComponent.name, () => {
   describe("wiring to the tab components", () => {
     it("passes the zaakOpschorting through to the algemeen tab", () => {
       renderCard({
-        zaakOpschorting: fromPartial<GeneratedType<"RESTZaakOpschorting">>({
+        zaakOpschorting: fromPartial<GeneratedType<"RestZaakOpschorting">>({
           duurDagen: 5,
         }),
       });

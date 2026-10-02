@@ -10,14 +10,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.zac.app.planitems.model.PlanItemType
 import org.flowable.cmmn.api.repository.CaseDefinition
 import org.flowable.cmmn.model.HumanTask
 import org.flowable.cmmn.model.UserEventListener
 
-class RESTCaseDefinitionConverterTest : BehaviorSpec({
-    val cmmnService = mockk<CMMNService>()
+class RestCaseDefinitionConverterTest : BehaviorSpec({
+    val cmmnService = mockk<CmmnService>()
     val converter = RESTCaseDefinitionConverter(cmmnService)
 
     afterEach { checkUnnecessaryStub() }
@@ -95,7 +95,7 @@ class RESTCaseDefinitionConverterTest : BehaviorSpec({
             `when`("convertToRESTCaseDefinition is called with a key string") {
                 val result = converter.convertToRESTCaseDefinition(fakeCaseDefinitionKey, false)
 
-                then("CMMNService.readCaseDefinition is called and the result is converted") {
+                then("CmmnService.readCaseDefinition is called and the result is converted") {
                     result.key shouldBe fakeCaseDefinitionKey
                 }
             }

@@ -55,7 +55,7 @@ const EIGENSCHAP_ONTBREEKT_MESSAGE =
   "healthCheck.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt";
 
 const volledigIngerichtZaaktype = fromPartial<
-  GeneratedType<"RESTZaaktypeInrichtingscheck">
+  GeneratedType<"RestZaaktypeInrichtingscheck">
 >({
   zaaktype: {
     uuid: "fakeZaaktypeUuid1",
@@ -85,7 +85,7 @@ const volledigIngerichtZaaktype = fromPartial<
 });
 
 const nietValideZaaktype = fromPartial<
-  GeneratedType<"RESTZaaktypeInrichtingscheck">
+  GeneratedType<"RestZaaktypeInrichtingscheck">
 >({
   ...volledigIngerichtZaaktype,
   zaaktype: {
@@ -99,7 +99,7 @@ const nietValideZaaktype = fromPartial<
 });
 
 const zaaktypeZonderRoltype = fromPartial<
-  GeneratedType<"RESTZaaktypeInrichtingscheck">
+  GeneratedType<"RestZaaktypeInrichtingscheck">
 >({
   ...volledigIngerichtZaaktype,
   zaaktype: {
@@ -114,7 +114,7 @@ const zaaktypeZonderRoltype = fromPartial<
 });
 
 const zaaktypeZonderEigenschap = fromPartial<
-  GeneratedType<"RESTZaaktypeInrichtingscheck">
+  GeneratedType<"RestZaaktypeInrichtingscheck">
 >({
   ...volledigIngerichtZaaktype,
   zaaktype: {
@@ -428,7 +428,9 @@ describe(InrichtingscheckComponent.name, () => {
     setValideFilter(ToggleSwitchOptions.INDETERMINATE);
     expect(component["dataSource"].filteredData.length).toBe(4);
 
-    const event = { target: { value: "Zaaktype A" } } as unknown as Event;
+    const event = fromPartial<Event>({
+      target: fromPartial<HTMLInputElement>({ value: "Zaaktype A" }),
+    });
     component["applyFilter"](event);
     expect(component["dataSource"].filteredData.length).toBe(1);
     expect(component["dataSource"].filteredData[0].zaaktype.omschrijving).toBe(

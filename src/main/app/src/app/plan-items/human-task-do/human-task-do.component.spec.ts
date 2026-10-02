@@ -50,7 +50,7 @@ describe("HumanTaskDoComponent", () => {
     },
   });
   const sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
-  const humanTaskPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+  const humanTaskPlanItem = fromPartial<GeneratedType<"RestPlanItem">>({
     type: "HUMAN_TASK",
     formulierDefinitie: "ADVIES",
   });
@@ -137,7 +137,7 @@ describe("HumanTaskDoComponent", () => {
     it("should show the name of the plan item in its title", async () => {
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           naam: "fakePlanItemNaam",
         }),
@@ -153,7 +153,7 @@ describe("HumanTaskDoComponent", () => {
     it("should keep the form it built for a new plan item, and only show the new name in its title", async () => {
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           naam: "fakePlanItemNaam1",
         }),
@@ -162,7 +162,7 @@ describe("HumanTaskDoComponent", () => {
 
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           naam: "fakePlanItemNaam2",
         }),
@@ -225,7 +225,7 @@ describe("HumanTaskDoComponent", () => {
         .mockReturnValue(of([]));
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           formulierDefinitie: "ADVIES",
           groepId: "1",
@@ -247,7 +247,7 @@ describe("HumanTaskDoComponent", () => {
         .mockReturnValue(of(mockUsers));
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           formulierDefinitie: "ADVIES",
           groepId: "1",
@@ -339,7 +339,7 @@ describe("HumanTaskDoComponent", () => {
       );
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "PROCESS_TASK",
         }),
       );
@@ -362,7 +362,7 @@ describe("HumanTaskDoComponent", () => {
       jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           id: "test-plan-item-id",
           type: "HUMAN_TASK",
           formulierDefinitie: "ADVIES",

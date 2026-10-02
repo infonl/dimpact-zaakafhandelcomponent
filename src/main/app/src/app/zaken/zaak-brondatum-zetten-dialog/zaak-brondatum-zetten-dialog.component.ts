@@ -60,7 +60,7 @@ export class ZaakBrondatumZettenDialogComponent {
   );
   public readonly data = inject(MAT_DIALOG_DATA) as {
     zaak: GeneratedType<"RestZaak">;
-    planItem?: GeneratedType<"RESTPlanItem">;
+    planItem?: GeneratedType<"RestPlanItem">;
   };
   private readonly formBuilder = inject(FormBuilder);
   private readonly zacQueryClient = inject(ZacQueryClient);
@@ -150,7 +150,7 @@ export class ZaakBrondatumZettenDialogComponent {
     }
   }
 
-  private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
+  private planItemAfhandelen(planItem: GeneratedType<"RestPlanItem">) {
     const { value } = this.form;
 
     this.planItemAfhandelenMutation.mutate({

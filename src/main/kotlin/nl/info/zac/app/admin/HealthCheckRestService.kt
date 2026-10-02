@@ -14,8 +14,8 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.zac.app.admin.model.RESTBuildInformation
-import nl.info.zac.app.admin.model.RESTZaaktypeInrichtingscheck
+import nl.info.zac.app.admin.model.RestBuildInformation
+import nl.info.zac.app.admin.model.RestZaaktypeInrichtingscheck
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
@@ -38,7 +38,7 @@ class HealthCheckRestService @Inject constructor(
 ) {
     @GET
     @Path("zaaktypes")
-    fun listZaaktypeInrichtingschecks(): List<RESTZaaktypeInrichtingscheck> {
+    fun listZaaktypeInrichtingschecks(): List<RestZaaktypeInrichtingscheck> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return listZaaktypes().map {
             convertToREST(healthCheckService.controleerZaaktype(it.url))
@@ -82,7 +82,7 @@ class HealthCheckRestService @Inject constructor(
     @Path("build-informatie")
     fun readBuildInformatie() =
         healthCheckService.readBuildInformatie().let {
-            RESTBuildInformation(it.commit, it.buildId, it.buildDateTime, it.versionNumber)
+            RestBuildInformation(it.commit, it.buildId, it.buildDateTime, it.versionNumber)
         }
 
     private fun listZaaktypes() =
@@ -90,8 +90,8 @@ class HealthCheckRestService @Inject constructor(
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
 
-    private fun convertToREST(check: ZaaktypeInrichtingscheck): RESTZaaktypeInrichtingscheck =
-        RESTZaaktypeInrichtingscheck(
+    private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =
+        RestZaaktypeInrichtingscheck(
             zaaktype = check.zaaktype.toRestZaaktypeOverzicht(),
             besluittypeAanwezig = check.isBesluittypeAanwezig,
             resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit,

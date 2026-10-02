@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @NoArgConstructor
-data class RESTPlanItem(
+data class RestPlanItem(
     var id: String,
 
     var naam: String,
