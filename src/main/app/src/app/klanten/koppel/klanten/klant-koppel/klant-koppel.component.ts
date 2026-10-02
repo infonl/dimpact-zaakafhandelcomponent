@@ -4,7 +4,13 @@
  */
 
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatTabsModule } from "@angular/material/tabs";
+import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
@@ -15,6 +21,12 @@ import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-ini
   selector: "zac-klant-koppel",
   standalone: true,
   imports: [
+    MatButtonModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatTabsModule,
+    MatToolbarModule,
     KlantKoppelBetrokkeneComponent,
     KlantKoppelInitiator,
     SharedModule,

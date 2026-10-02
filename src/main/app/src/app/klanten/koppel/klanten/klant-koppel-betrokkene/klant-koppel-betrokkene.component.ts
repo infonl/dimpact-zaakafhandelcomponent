@@ -11,7 +11,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
@@ -27,6 +27,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   imports: [
     SharedModule,
     TranslateModule,
+    ReactiveFormsModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,
     ZacSelect,

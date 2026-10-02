@@ -5,9 +5,11 @@
 
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
-import { MaterialModule } from "../../material/material.module";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { DatumPipe } from "../../pipes/datum.pipe";
 import { GeneratedType } from "../../utils/generated-types";
@@ -15,7 +17,13 @@ import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
   selector: "zac-informatie-object-indicaties",
-  imports: [MaterialModule, TranslateModule, CommonModule],
+  imports: [
+    MatChipsModule,
+    MatIconModule,
+    MatTooltipModule,
+    TranslateModule,
+    CommonModule,
+  ],
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
 })

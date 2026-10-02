@@ -24,7 +24,6 @@ import { ExportButtonComponent } from "./export-button/export-button.component";
 import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besluit-indicaties.component";
 import { PersoonIndicatiesComponent } from "./indicaties/persoon-indicaties/persoon-indicaties.component";
 import { ZaakIndicatiesComponent } from "./indicaties/zaak-indicaties/zaak-indicaties.component";
-import { MaterialModule } from "./material/material.module";
 import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.directive";
 import { BackButtonDirective } from "./navigation/back-button.directive";
 import { paginatorLanguageInitializerFactory } from "./paginator/paginator-language-initializer";
@@ -60,7 +59,6 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     FormsModule,
-    MaterialModule,
     TranslateModule,
     VertrouwelijkaanduidingToTranslationKeyPipe,
     EmptyPipe,
@@ -79,7 +77,6 @@ import { VersionComponent } from "./version/version.component";
     BackButtonDirective,
     StaticTextComponent,
     ReadMoreComponent,
-    MaterialModule,
     DateRangeFilterComponent,
     FacetFilterComponent,
     TekstFilterComponent,

@@ -6,6 +6,7 @@
 import { NgIf } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -28,6 +29,7 @@ import { ZakenService } from "../zaken.service";
   imports: [
     NgIf,
     ReactiveFormsModule,
+    MatButtonModule,
     MatToolbarModule,
     MatIconModule,
     MatDialogModule,
