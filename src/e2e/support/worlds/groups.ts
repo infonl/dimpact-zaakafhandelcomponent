@@ -4,10 +4,12 @@
  */
 
 const TestGroupA = {
+  id: "test_group_a",
   name: "Test groep A",
 };
 
 const TestGroupB = {
+  id: "test_group_b",
   name: "Test groep B",
 };
 

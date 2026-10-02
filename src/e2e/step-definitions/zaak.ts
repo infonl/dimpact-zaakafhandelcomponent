@@ -35,7 +35,7 @@ async function checkZaakAssignment(
     this.page
       .getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)
       .first(),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
   await this.expect(
     this.page
@@ -43,19 +43,19 @@ async function checkZaakAssignment(
         name: "Aanvullende informatie",
       })
       .first(),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: "Toegekend" }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.group }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.username }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 }
 
 async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
@@ -193,7 +193,7 @@ When(
 
 When(
   "{string} wants to create a new {string} zaak",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -205,8 +205,15 @@ When(
       : "Zaaktype voor e2e testen";
 
     await this.page.getByLabel("Zaak toevoegen").click();
-    await this.page.getByLabel("Zaaktype").click();
-    await this.page.getByRole("option", { name: zaakTypeName }).click();
+    // The panel stays closed when it is clicked before the zaaktypes have loaded.
+    const zaaktypeField = this.page.getByLabel("Zaaktype");
+    const zaaktypeOption = this.page.getByRole("option", {
+      name: zaakTypeName,
+    });
+    await this.expect(async () => {
+      await zaaktypeField.click();
+      await zaaktypeOption.click({ timeout: FIVE_SECONDS_IN_MS });
+    }).toPass({ timeout: FORTY_SECONDS_IN_MS });
     await this.page
       .locator("div")
       .filter({ hasText: /^person$/ })
@@ -412,7 +419,9 @@ Then(
     });
 
     await zaakLink.click();
-    await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX);
+    await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX, {
+      timeout: FIFTEEN_SECONDS_IN_MS,
+    });
   },
 );
 

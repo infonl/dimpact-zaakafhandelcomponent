@@ -22,6 +22,7 @@ export default defineConfig({
   reporter: [["html", { open: "never" }]],
   retries: process.env.CI ? 2 : 1,
   use: {
+    channel: process.env.CI ? "msedge" : undefined,
     baseURL: ENV.baseUrl,
     locale: ENV.businessLanguage,
     trace: "on",

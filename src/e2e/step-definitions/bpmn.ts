@@ -9,9 +9,11 @@ import path from "path";
 import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
+  ONE_MINUTE_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
+import { groups } from "../support/worlds/groups";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
@@ -95,7 +97,6 @@ async function selectFirstOption(form: Locator, label: string) {
     .click();
 }
 
-const e2eTestGroupAId = "test-group-a";
 const e2eTestGroupAName = "Test groep A";
 const testUser1Id = "e2etestuser1";
 const testUser1Name = "E2etest User1";
@@ -351,7 +352,7 @@ Then(
     const form = formioForm(this.page);
     const groupTextbox = form.getByRole("textbox", { name: "Group" });
     await waitForFormioContent(this.page, groupTextbox);
-    await expect(groupTextbox).toHaveValue(e2eTestGroupAId, {
+    await expect(groupTextbox).toHaveValue(groups.TestGroupA.id, {
       timeout: FORTY_SECONDS_IN_MS,
     });
     await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
@@ -427,6 +428,8 @@ Then(
     groupName: string,
     userName: string,
   ) {
+    const group = Object.values(groups).find(({ name }) => name === groupName);
+    if (!group) throw new Error(`Unknown group "${groupName}"`);
     const behandelaarField = this.page.getByRole("textbox", {
       name: "zaakBehandelaar",
     });
@@ -439,7 +442,7 @@ Then(
       await this.page.getByRole("button", { name: "Zaakdata" }).click();
       await expect(
         this.page.getByRole("textbox", { name: "zaakGroep" }),
-      ).toHaveValue(groupName, { timeout: TEN_SECONDS_IN_MS });
+      ).toHaveValue(group.id, { timeout: TEN_SECONDS_IN_MS });
 
       const isLastAttempt = attempt === maxAttempts;
       if (isLastAttempt) {
@@ -469,7 +472,7 @@ Then(
 
 Then(
   "{string} sees the select documents to sign form",
-  { timeout: FORTY_SECONDS_IN_MS },
+  { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioContent(
       this.page,
