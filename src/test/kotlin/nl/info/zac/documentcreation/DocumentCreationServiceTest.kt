@@ -140,10 +140,10 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
         `when`("SmartDocuments finish page URL is requested") {
             val finishPageUrl = documentCreationService.documentCreationFinishPageUrl(
-                "1",
-                "1",
-                "document name",
-                "result"
+                zaakId = "1",
+                taskId = "1",
+                documentName = "document name",
+                result = "result"
             )
 
             then("correct URL is built") {
@@ -322,13 +322,13 @@ class DocumentCreationServiceTest : BehaviorSpec({
         `when`("Document creation URL is requested for zaak") {
             val uri = documentCreationService.documentCreationCallbackUrl(
                 zaakUuid = zaakUuid,
-                null,
-                templateGroupId,
-                templateId,
-                title,
-                description,
-                creationDate,
-                userName
+                taskId = null,
+                templateGroupId = templateGroupId,
+                templateId = templateId,
+                title = title,
+                description = description,
+                creationDate = creationDate,
+                userName = userName
             )
 
             then("Correct URL is provided") {
@@ -346,14 +346,14 @@ class DocumentCreationServiceTest : BehaviorSpec({
         `when`("Document creation URL is requested for taak") {
             val taakUuid = UUID.randomUUID().toString()
             val uri = documentCreationService.documentCreationCallbackUrl(
-                zaakUuid,
-                taakUuid,
-                templateGroupId,
-                templateId,
-                title,
-                description,
-                creationDate,
-                userName
+                zaakUuid = zaakUuid,
+                taskId = taakUuid,
+                templateGroupId = templateGroupId,
+                templateId = templateId,
+                title = title,
+                description = description,
+                creationDate = creationDate,
+                userName = userName
             )
 
             then("Correct URL is provided") {
