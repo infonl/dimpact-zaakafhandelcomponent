@@ -32,6 +32,7 @@ import { PostBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { mailSelectList } from "../model/mail-utils";
@@ -138,7 +139,7 @@ export class MailtemplateComponent
         ...mailTemplate,
         mail: mailTemplate?.mail
           ? {
-              label: "mail." + mailTemplate.mail,
+              label: toI18nKey("mail." + mailTemplate.mail),
               value: mailTemplate.mail,
             }
           : null,
@@ -148,7 +149,7 @@ export class MailtemplateComponent
       this.mailControlLocked = true;
 
       this.mailTemplates.push({
-        label: "mail." + mailTemplate.mail,
+        label: toI18nKey("mail." + mailTemplate.mail),
         value: mailTemplate.mail,
       });
       this.form.controls.mail.disable();

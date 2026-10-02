@@ -10,7 +10,7 @@
       [formControl]="toonAfgerondeTaken"
       color="primary"
       (change)="filterTakenOpStatus()"
-      >{{ "toonAfgerondeTaken" | translate }}</mat-slide-toggle
+      >{{ "toon-afgeronde-taken" | translate }}</mat-slide-toggle
     >
   </mat-card-header>
   <mat-card-content>
@@ -55,7 +55,7 @@
               [color]="taskStatusChipColor(taak.data.status)"
               [highlighted]="true"
             >
-              {{ "taak.status." + taak.data.status | translate }}
+              {{ "taak.status." + taak.data.status | i18nKey | translate }}
             </mat-chip>
           </td>
         </ng-container>
@@ -149,7 +149,7 @@
               <div class="flex-row flex-wrap gap-10">
                 <zac-static-text
                   label="uitkomst"
-                  [value]="row.data.taakinformatie?.uitkomst | translate"
+                  [value]="uitkomst(row.data) | translate"
                 />
                 <zac-static-text
                   label="bijlage"

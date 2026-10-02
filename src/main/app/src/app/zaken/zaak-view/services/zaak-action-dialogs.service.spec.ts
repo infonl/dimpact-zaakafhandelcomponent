@@ -437,7 +437,7 @@ describe(ZaakActionDialogsService.name, () => {
       closedWith(true);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
+        "msg.planitem.uitgevoerd.intake-afronden",
       );
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,

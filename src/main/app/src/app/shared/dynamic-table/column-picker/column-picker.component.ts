@@ -21,6 +21,7 @@ import {
 } from "@angular/material/list";
 import { MatMenu, MatMenuTrigger } from "@angular/material/menu";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { toI18nKey } from "../../utils/i18n-key";
 import { ZoekenColumn } from "../model/zoeken-column";
 import { SortPipe } from "../pipes/sort.pipe";
 import { ColumnPickerValue } from "./column-picker-value";
@@ -59,7 +60,7 @@ export class ColumnPickerComponent {
         .filter((key) => columns.get(key) !== ColumnPickerValue.STICKY)
         .map((key): [ZoekenColumn, string] => [
           key,
-          this.translate.instant(key),
+          this.translate.instant(toI18nKey(key)),
         ]),
     );
   });

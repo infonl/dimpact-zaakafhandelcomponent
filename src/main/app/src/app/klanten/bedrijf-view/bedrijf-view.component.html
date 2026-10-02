@@ -40,7 +40,10 @@
               label="vestigingsnummer"
               [value]="bedrijf?.vestigingsnummer"
             />
-            <zac-static-text label="type" [value]="bedrijf?.type | translate" />
+            <zac-static-text
+              label="type"
+              [value]="bedrijf?.type | i18nKey | translate"
+            />
             <zac-static-text
               *ngIf="profiel"
               label="rsin"
@@ -63,7 +66,7 @@
             <zac-static-text label="emailadres" [value]="bedrijf?.emailadres" />
             <zac-static-text
               *ngIf="profiel"
-              label="totaalWerkzamePersonen"
+              label="totaal-werkzame-personen"
               [value]="profiel.totaalWerkzamePersonen"
             />
             <zac-static-text
@@ -88,12 +91,12 @@
             />
             <zac-static-text
               *ngIf="profiel?.uitgebreideRechtsvorm"
-              label="uitgebreideRechtsvorm"
+              label="uitgebreide-rechtsvorm"
               [value]="profiel?.uitgebreideRechtsvorm"
             />
             <zac-static-text
               *ngIf="profiel?.statutaireNaam"
-              label="statutaireNaam"
+              label="statutaire-naam"
               [value]="profiel?.statutaireNaam"
             />
           </div>

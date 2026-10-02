@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -13,7 +13,7 @@
     </ng-container>
     <ng-container matColumnDef="creatiedatum">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="TAAK_CREATIEDATUM">
-        {{ "creatiedatumTijd" | translate }}
+        {{ "creatiedatum-tijd" | translate }}
       </th>
       <td mat-cell *matCellDef="let object">
         {{ object.creatiedatum | datum | empty }}
@@ -21,7 +21,7 @@
     </ng-container>
     <ng-container matColumnDef="zaakIdentificatie">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="TAAK_ZAAK_ID">
-        {{ "zaakIdentificatie" | translate }}
+        {{ "zaak-identificatie" | translate }}
       </th>
       <td mat-cell *matCellDef="let object">{{ object.zaakIdentificatie }}</td>
     </ng-container>

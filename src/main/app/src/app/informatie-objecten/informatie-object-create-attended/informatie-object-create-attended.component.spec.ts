@@ -157,7 +157,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   }
 
   async function fillInValidForm() {
-    await choose("sjabloonGroep", "Group One");
+    await choose("sjabloon-groep", "Group One");
     await choose("sjabloon", "Template One");
     await user.type(field("titel"), "Aanvraag formulier");
   }
@@ -171,7 +171,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("offers the template groups configured for the zaaktype", async () => {
     await setup();
 
-    await user.click(field("sjabloonGroep"));
+    await user.click(field("sjabloon-groep"));
 
     expect(screen.getByRole("option", { name: "Group One" })).toBeVisible();
     expect(screen.getByRole("option", { name: "Group Two" })).toBeVisible();
@@ -207,7 +207,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       .flush([informatieobjecttype]);
 
     // Deliberately not flushed yet: the SmartDocuments fetch for the template groups is still in flight.
-    await user.click(field("sjabloonGroep"));
+    await user.click(field("sjabloon-groep"));
 
     expect(
       screen.queryByRole("option", { name: "Group One" }),
@@ -226,7 +226,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("offers the templates of the chosen template group", async () => {
     await setup();
 
-    await choose("sjabloonGroep", "Group One");
+    await choose("sjabloon-groep", "Group One");
     await user.click(field("sjabloon"));
 
     expect(screen.getByRole("option", { name: "Template One" })).toBeVisible();
@@ -236,7 +236,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("chooses the only template of a group without asking", async () => {
     await setup();
 
-    await choose("sjabloonGroep", "Group Two");
+    await choose("sjabloon-groep", "Group Two");
 
     expect(field("sjabloon")).toHaveValue("Template Three");
     expect(field("sjabloon")).toBeDisabled();
@@ -245,8 +245,8 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("locks the template group it was opened for", async () => {
     await setup({ smartDocumentsGroupId: "fakeGroupId1" });
 
-    expect(field("sjabloonGroep")).toHaveValue("Group One");
-    expect(field("sjabloonGroep")).toBeDisabled();
+    expect(field("sjabloon-groep")).toHaveValue("Group One");
+    expect(field("sjabloon-groep")).toBeDisabled();
     expect(field("sjabloon")).toHaveValue("");
   });
 
@@ -256,7 +256,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       smartDocumentsTemplateId: "fakeTemplateId1",
     });
 
-    expect(field("sjabloonGroep")).toHaveValue("Group One");
+    expect(field("sjabloon-groep")).toHaveValue("Group One");
     expect(field("sjabloon")).toHaveValue("Template One");
     expect(field("sjabloon")).toBeDisabled();
   });
@@ -264,12 +264,12 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("fills in the informatieobjecttype and vertrouwelijkheid of the template", async () => {
     await setup();
 
-    await choose("sjabloonGroep", "Group One");
+    await choose("sjabloon-groep", "Group One");
     await choose("sjabloon", "Template One");
 
-    expect(field("informatieobjectType")).toHaveValue("Bijlage");
+    expect(field("informatieobject-type")).toHaveValue("Bijlage");
     expect(field("vertrouwelijkheidaanduiding")).toHaveValue(
-      "vertrouwelijkheidaanduiding.OPENBAAR",
+      "vertrouwelijkheidaanduiding.openbaar",
     );
   });
 

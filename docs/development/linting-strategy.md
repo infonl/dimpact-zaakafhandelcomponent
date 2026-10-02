@@ -58,6 +58,27 @@ with its compile classpath. Rules that need that type information, such as
 runs the same tasks, so CI checks the same rules. `detektApply` runs without type information and
 only applies the fixes that detekt can make by itself.
 
+## i18n message keys
+
+`src/main/app/src/app/core/translations.spec.ts` reads `nl.json` and `en.json` and runs with
+`npm test`. It checks two things:
+
+- Every key is lowercase kebab-case in every segment. A segment contains only `a-z` and `0-9`,
+  with a single `-` between words, and segments are separated by `.`. So the key is
+  `afleidingswijze-brondatum.ingangsdatum-besluit`, not `afleidingswijzeBrondatum.INGANGSDATUM_BESLUIT`.
+- `nl.json` and `en.json` hold the same keys.
+
+The keys `" 1 "` to `" 14 "` and `" 7b "` are exempt. They only divide the JSON files into
+sections, and no code looks them up.
+
+When the check fails, rename the key in both files and change every place that uses it. Many keys
+are built at runtime from a prefix and a backend enum value, a field name or a value from an
+external register, such as `"taak.status." + taak.status`. The code converts these with `toI18nKey`
+or the `i18nKey` pipe, which writes every segment in lowercase kebab-case
+(`taak.status.NIET_TOEGEKEND` becomes `taak.status.niet-toegekend`). Rename such a key to what
+`toI18nKey` makes of it. If you add a key that is built at runtime, convert it the same way,
+otherwise the user sees the raw key.
+
 ## Conventions enforced by linters
 
 Coding conventions that a linter can check are enforced there rather than only described in
@@ -74,6 +95,8 @@ Coding conventions that a linter can check are enforced there rather than only d
 | No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |
 | No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
 | Component inputs use `input()`, not the `@Input()` decorator  | ESLint `@angular-eslint/prefer-signals`                          |
+| Every segment of an i18n key is lowercase kebab-case          | `src/main/app/src/app/core/translations.spec.ts` (`npm test`)    |
+| `nl.json` and `en.json` hold the same i18n keys               | `src/main/app/src/app/core/translations.spec.ts` (`npm test`)    |
 
 ### Fixing exception findings
 

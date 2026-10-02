@@ -16,7 +16,7 @@
         "actie.zoeken.bedrijf" | translate
       }}</ng-container>
       <ng-container *ngIf="zoekType == ZoekType.BAG_OBJECTEN">{{
-        "actie.zoeken.bagObject" | translate
+        "actie.zoeken.bag-object" | translate
       }}</ng-container>
     </div>
     <button
@@ -58,7 +58,7 @@
       type="button"
       matSuffix
       id="bagObjecten-button"
-      title="{{ 'actie.zoeken.bagObject' | translate }}"
+      title="{{ 'actie.zoeken.bag-object' | translate }}"
       [color]="zoekType === ZoekType.BAG_OBJECTEN ? 'primary' : null"
       (click)="setZoektype(ZoekType.BAG_OBJECTEN)"
     >
@@ -73,22 +73,22 @@
         (selectionChange)="zoekVeldChanged()"
       >
         <mat-option [value]="ZoekVeld.ALLE">{{
-          "zoekVeld.ALLE" | translate
+          "zoek-veld.alle" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_OMSCHRIJVING">{{
-          "zoekVeld.ZAAK_OMSCHRIJVING" | translate
+          "zoek-veld.zaak-omschrijving" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_TOELICHTING">{{
-          "zoekVeld.ZAAK_TOELICHTING" | translate
+          "zoek-veld.zaak-toelichting" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.TAAK_TOELICHTING">{{
-          "zoekVeld.TAAK_TOELICHTING" | translate
+          "zoek-veld.taak-toelichting" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.DOCUMENT_TITEL">{{
-          "zoekVeld.DOCUMENT_TITEL" | translate
+          "zoek-veld.document-titel" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.DOCUMENT_BESCHRIJVING">{{
-          "zoekVeld.DOCUMENT_BESCHRIJVING" | translate
+          "zoek-veld.document-beschrijving" | translate
         }}</mat-option>
       </mat-select>
     </mat-form-field>

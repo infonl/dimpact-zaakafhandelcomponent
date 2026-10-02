@@ -2,7 +2,6 @@
 paths:
   - "src/main/app/src/**/*.ts"
   - "src/main/app/src/**/*.html"
-  - "src/main/app/src/assets/i18n/*.json"
 ---
 
 # Angular conventions
@@ -27,8 +26,6 @@ private readonly someQuery = injectQuery(() =>
 If no shared method exists yet for the endpoint you need, add one to the relevant service using
 `queryOptions()` from `@tanstack/angular-query-experimental`, so future callers can reuse it too.
 
-## Use kebab-case for the last segment of frontend i18n message keys
-In `src/main/app/src/assets/i18n/nl.json` and `en.json`, when the last segment of a message key is
-multi-word, write it in kebab-case, not camelCase — e.g. `msg.document.verwijderen.inbox.niet-verwijderd`,
-not `msg.document.verwijderen.inbox.nietVerwijderd`. This applies even when the segment is named after
-a camelCase variable (such as an `isXxx` boolean) elsewhere in the code — the i18n key still uses kebab-case.
+## Look up an i18n key built at runtime through `toI18nKey`
+When you build a key from a prefix and an enum value, field name or external value, pass it through
+`toI18nKey` or the `i18nKey` pipe before you translate it: `{{ "taak.status." + taak.status | i18nKey | translate }}`.

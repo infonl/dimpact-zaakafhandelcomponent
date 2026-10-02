@@ -17,6 +17,7 @@ import { EmptyPipe } from "../../../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { StaticTextComponent } from "../../../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../../shared/utils/i18n-key";
 
 type ZaakDetailField = {
   /** omitting this renders the field; only an explicit `false` hides it */
@@ -83,13 +84,13 @@ export class ZaakDetailsAlgemeenTabComponent {
       },
       {
         show: Boolean(zaak.startdatumBewaartermijn),
-        label: "startdatumBewaartermijn",
+        label: "startdatum-bewaartermijn",
         value: zaak.startdatumBewaartermijn ?? null,
         format: "date",
       },
       {
         show: Boolean(bronArchiefprocedure?.afleidingswijze),
-        label: "afleidingswijzeBrondatum",
+        label: "afleidingswijze-brondatum",
         value: this.afleidingswijzeBrondatumValue(
           zaak,
           bronArchiefprocedure?.afleidingswijze,
@@ -97,15 +98,17 @@ export class ZaakDetailsAlgemeenTabComponent {
       },
       {
         show: zaak.archiefNominatie === "VERNIETIGEN",
-        label: `archiefNominatie.datum.${zaak.archiefNominatie}`,
+        label: toI18nKey(`archief-nominatie.datum.${zaak.archiefNominatie}`),
         value: zaak.archiefActiedatum ?? null,
         format: "date",
       },
       {
         show: zaak.archiefNominatie === "BLIJVEND_BEWAREN",
-        label: "archiefNominatie",
+        label: "archief-nominatie",
         value: String(
-          this.translate.instant(`archiefNominatie.${zaak.archiefNominatie}`),
+          this.translate.instant(
+            toI18nKey(`archief-nominatie.${zaak.archiefNominatie}`),
+          ),
         ),
       },
     ];
@@ -127,7 +130,7 @@ export class ZaakDetailsAlgemeenTabComponent {
 
     return String(
       this.translate.instant(
-        `afleidingswijzeBrondatum.${afleidingswijzeBrondatum}`,
+        toI18nKey(`afleidingswijze-brondatum.${afleidingswijzeBrondatum}`),
       ),
     );
   }

@@ -10,7 +10,7 @@
 >
   <mat-card-title-group>
     <mat-card-title>{{
-      "zoeken.filter." + (label() | lowercase) | translate
+      "zoeken.filter." + (label() | lowercase) | i18nKey | translate
     }}</mat-card-title>
     <mat-icon (click)="invert()" class="on" *ngIf="!inverse"
       >toggle_off</mat-icon
@@ -28,7 +28,11 @@
       >
         <read-more
           *ngIf="isVertaalbaar(label())"
-          [text]="VERTAALBARE_FACETTEN[label()] + facetWaarde.naam | translate"
+          [text]="
+            VERTAALBARE_FACETTEN[label()] + facetWaarde.naam
+              | i18nKey
+              | translate
+          "
           [maxLength]="30"
         ></read-more>
         <read-more

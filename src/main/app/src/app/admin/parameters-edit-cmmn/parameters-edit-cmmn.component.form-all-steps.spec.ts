@@ -25,7 +25,7 @@ import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 // rendering this seven step form once per test needs more room than the default timeout
 describe(ParametersEditCmmnComponent.name, () => {
   const stepLabels = [
-    "gegevens.proces-model-methode.CMMN",
+    "gegevens.proces-model-methode.cmmn",
     "gegevens.algemeen",
     "gegevens.humantasks",
     "gegevens.acties",

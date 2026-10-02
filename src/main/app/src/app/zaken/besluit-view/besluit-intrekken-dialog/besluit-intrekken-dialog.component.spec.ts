@@ -94,7 +94,7 @@ describe(BesluitIntrekkenDialogComponent.name, () => {
     await user.click(screen.getByLabelText("Besluit.vervalreden"));
     await user.click(
       screen.getByRole("option", {
-        name: "besluit.vervalreden.ingetrokken_overheid",
+        name: "besluit.vervalreden.ingetrokken-overheid",
       }),
     );
   };
@@ -119,8 +119,8 @@ describe(BesluitIntrekkenDialogComponent.name, () => {
     expect(
       screen.getAllByRole("option").map((option) => option.textContent?.trim()),
     ).toEqual([
-      "besluit.vervalreden.ingetrokken_overheid",
-      "besluit.vervalreden.ingetrokken_belanghebbende",
+      "besluit.vervalreden.ingetrokken-overheid",
+      "besluit.vervalreden.ingetrokken-belanghebbende",
     ]);
   });
 

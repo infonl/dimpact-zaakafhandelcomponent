@@ -32,6 +32,7 @@ import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
@@ -39,6 +40,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   styleUrls: ["./zaak-brondatum-zetten-dialog.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     ReactiveFormsModule,
     MatToolbarModule,

@@ -12,12 +12,14 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { DatumPipe } from "../../pipes/datum.pipe";
+import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
   selector: "zac-informatie-object-indicaties",
   imports: [
+    I18nKeyPipe,
     MatChipsModule,
     MatIconModule,
     MatTooltipModule,

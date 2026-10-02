@@ -135,11 +135,11 @@ describe(IntakeAfrondenDialogComponent.name, () => {
   }
 
   function afrondenButton() {
-    return screen.getByRole("button", { name: "planitem.INTAKE_AFRONDEN" });
+    return screen.getByRole("button", { name: "planitem.intake-afronden" });
   }
 
   function sendMailCheckbox() {
-    return screen.queryByRole("checkbox", { name: "sendMail" });
+    return screen.queryByRole("checkbox", { name: "send-mail" });
   }
 
   function contactEmailButton() {
@@ -244,7 +244,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       expect(afrondenButton()).toBeDisabled();
 
       await user.type(
-        screen.getByLabelText("redenNietOntvankelijk"),
+        screen.getByLabelText("reden-niet-ontvankelijk"),
         "fakeReden",
       );
 
@@ -257,7 +257,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await answerOntvankelijk("actie.nee");
       await answerOntvankelijk("actie.ja");
 
-      expect(screen.queryByLabelText("redenNietOntvankelijk")).toBeNull();
+      expect(screen.queryByLabelText("reden-niet-ontvankelijk")).toBeNull();
       expect(afrondenButton()).toBeEnabled();
     });
   });
@@ -267,7 +267,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await setup(createZaak("BESCHIKBAAR_UIT"));
       await answerOntvankelijk("actie.ja");
 
-      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+      await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
 
       expect(afrondenButton()).toBeDisabled();
     });
@@ -276,8 +276,8 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await setup(createZaak("BESCHIKBAAR_UIT"));
       await answerOntvankelijk("actie.ja");
 
-      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
-      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+      await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
+      await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
 
       expect(afrondenButton()).toBeEnabled();
     });
@@ -360,10 +360,10 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await setup(createZaak("BESCHIKBAAR_UIT"));
       await answerOntvankelijk("actie.nee");
       await user.type(
-        screen.getByLabelText("redenNietOntvankelijk"),
+        screen.getByLabelText("reden-niet-ontvankelijk"),
         "fakeReden",
       );
-      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+      await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
       await user.type(
         screen.getByLabelText("ontvanger"),
         "fakeOntvanger@example.com",

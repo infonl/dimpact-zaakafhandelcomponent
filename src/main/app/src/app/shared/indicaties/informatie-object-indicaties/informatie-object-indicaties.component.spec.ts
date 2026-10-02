@@ -9,6 +9,7 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
 import { GeneratedType } from "../../utils/generated-types";
+import { toI18nKey } from "../../utils/i18n-key";
 import { IndicatiesLayout } from "../indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "./informatie-object-indicaties.component";
 
@@ -46,8 +47,8 @@ const tooltipOf = (
   toelichting: string,
 ) =>
   toelichting
-    ? `indicatie.${indicatie}: ${toelichting}`
-    : `indicatie.${indicatie}`;
+    ? `${toI18nKey(`indicatie.${indicatie}`)}: ${toelichting}`
+    : toI18nKey(`indicatie.${indicatie}`);
 
 const setup = (inputs: {
   layout: IndicatiesLayout;
@@ -147,9 +148,9 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
 
       const options = screen.getAllByRole("option");
       expect(options).toHaveLength(3);
-      expect(options[0]).toHaveAccessibleName("indicatie.VERGRENDELD");
-      expect(options[1]).toHaveAccessibleName("indicatie.ONDERTEKEND");
-      expect(options[2]).toHaveAccessibleName("indicatie.BESLUIT");
+      expect(options[0]).toHaveAccessibleName("indicatie.vergrendeld");
+      expect(options[1]).toHaveAccessibleName("indicatie.ondertekend");
+      expect(options[2]).toHaveAccessibleName("indicatie.besluit");
     });
 
     it("EXTENDED labels the chip with the indicatie name and puts only the toelichting in the tooltip", async () => {
@@ -160,7 +161,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
 
       const chip = chipWithTooltip("Vergrendeld door fakeGelockedDoorNaam");
       expect(
-        within(chip).getByRole("option", { name: "indicatie.VERGRENDELD" }),
+        within(chip).getByRole("option", { name: "indicatie.vergrendeld" }),
       ).toBeInTheDocument();
     });
 
@@ -177,7 +178,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
 
       expect(screen.getAllByRole("option")).toHaveLength(1);
       expect(
-        chipWithTooltip("indicatie.BESLUIT: Vastgelegd in een besluit"),
+        chipWithTooltip("indicatie.besluit: Vastgelegd in een besluit"),
       ).toBeInTheDocument();
       expect(warn).toHaveBeenCalledWith(expect.stringContaining("ONBEKEND"));
     });
@@ -194,7 +195,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
 
       const options = screen.getAllByRole("option");
       expect(options).toHaveLength(1);
-      expect(options[0]).toHaveAccessibleName("indicatie.BESLUIT");
+      expect(options[0]).toHaveAccessibleName("indicatie.besluit");
     });
   });
 
@@ -288,7 +289,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
     expect(screen.getAllByRole("option")).toHaveLength(1);
     expect(
       chipWithTooltip(
-        "indicatie.VERGRENDELD: Vergrendeld door fakeVergrendeldDoor",
+        "indicatie.vergrendeld: Vergrendeld door fakeVergrendeldDoor",
       ),
     ).toBeInTheDocument();
   });

@@ -164,27 +164,27 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
     it("uses the plural translation key when the zaak is opgeschort for several days", () => {
       renderOpschorting(5);
 
-      expect(hasRemarkKey("duurDagenOpschorting")).toBe(true);
-      expect(hasRemarkKey("duurDagenOpschorting.enkelvoud")).toBe(false);
+      expect(hasRemarkKey("duur-dagen-opschorting")).toBe(true);
+      expect(hasRemarkKey("duur-dagen-opschorting.enkelvoud")).toBe(false);
     });
 
     it("uses the singular translation key when the zaak is opgeschort for one day", () => {
       renderOpschorting(1);
 
-      expect(hasRemarkKey("duurDagenOpschorting.enkelvoud")).toBe(true);
+      expect(hasRemarkKey("duur-dagen-opschorting.enkelvoud")).toBe(true);
     });
 
     it("shows the verlenging duur when the zaak has been verlengd", () => {
       renderZaak({ ...zaak, duurVerlenging: "3" });
 
-      expect(hasRemarkKey("duurVerlenging")).toBe(true);
+      expect(hasRemarkKey("duur-verlenging")).toBe(true);
     });
 
     it("shows no remark when the zaak is neither opgeschort nor verlengd", () => {
       renderZaak(zaak);
 
-      expect(hasRemarkKey("duurDagenOpschorting")).toBe(false);
-      expect(hasRemarkKey("duurVerlenging")).toBe(false);
+      expect(hasRemarkKey("duur-dagen-opschorting")).toBe(false);
+      expect(hasRemarkKey("duur-verlenging")).toBe(false);
     });
   });
 
@@ -233,7 +233,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       renderZaak(zaakWithAfleidingswijze("TERMIJN"));
 
       expect(
-        screen().getByText("afleidingswijzeBrondatum.TERMIJN"),
+        screen().getByText("afleidingswijze-brondatum.termijn"),
       ).toBeInTheDocument();
     });
 
@@ -250,7 +250,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
     it("should not show the field when resultaat is absent", () => {
       renderZaak({ ...zaak, resultaat: null });
 
-      expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
+      expect(hasDetailField("afleidingswijze-brondatum")).toBe(false);
     });
 
     it("should not show the field when resultaattype is absent", () => {
@@ -261,7 +261,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         }),
       });
 
-      expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
+      expect(hasDetailField("afleidingswijze-brondatum")).toBe(false);
     });
 
     it("should not show the field when bronArchiefprocedure is absent", () => {
@@ -274,7 +274,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         }),
       });
 
-      expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
+      expect(hasDetailField("afleidingswijze-brondatum")).toBe(false);
     });
   });
 
@@ -316,9 +316,9 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         "registratiedatum",
         "resultaat",
         "einddatum",
-        "startdatumBewaartermijn",
-        "afleidingswijzeBrondatum",
-        "archiefNominatie",
+        "startdatum-bewaartermijn",
+        "afleidingswijze-brondatum",
+        "archief-nominatie",
       ]) {
         expect(hasDetailField(label)).toBe(true);
       }
@@ -338,13 +338,13 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         "status",
         "registratiedatum",
         "resultaat",
-        "archiefNominatie.datum.VERNIETIGEN",
+        "archief-nominatie.datum.vernietigen",
       ]) {
         expect(hasDetailField(label)).toBe(true);
       }
       expect(hasDetailField("einddatum")).toBe(false);
-      expect(hasDetailField("startdatumBewaartermijn")).toBe(false);
-      expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
+      expect(hasDetailField("startdatum-bewaartermijn")).toBe(false);
+      expect(hasDetailField("afleidingswijze-brondatum")).toBe(false);
     });
 
     it("offers no edit button when the user may not edit the zaak", async () => {

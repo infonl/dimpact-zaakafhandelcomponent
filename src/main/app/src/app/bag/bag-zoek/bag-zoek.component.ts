@@ -30,6 +30,7 @@ import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 
@@ -39,6 +40,7 @@ import { BAGService } from "../bag.service";
   styleUrls: ["./bag-zoek.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CommonModule,
     EmptyPipe,
     MatButtonModule,

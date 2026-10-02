@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <div class="table-wrapper">
@@ -12,7 +12,7 @@
     </ng-container>
     <ng-container matColumnDef="streefdatum">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="einddatumGepland">
-        {{ "einddatumGepland" | translate }}
+        {{ "einddatum-gepland" | translate }}
       </th>
       <td mat-cell *matCellDef="let zaak">
         <div class="flex-row items-center gap-10">
@@ -28,7 +28,7 @@
     </ng-container>
     <ng-container matColumnDef="dagenTotStreefdatum">
       <th mat-header-cell *matHeaderCellDef>
-        {{ "dagenTotStreefdatum" | translate }}
+        {{ "dagen-tot-streefdatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let zaak">
         {{ zaak.einddatumGepland | dagen }}
@@ -40,7 +40,7 @@
         *matHeaderCellDef
         mat-sort-header="uiterlijkeEinddatumAfdoening"
       >
-        {{ "uiterlijkeEinddatumAfdoening" | translate }}
+        {{ "uiterlijke-einddatum-afdoening" | translate }}
       </th>
       <td mat-cell *matCellDef="let zaak">
         <div class="flex-row items-center gap-10">
@@ -58,7 +58,7 @@
     </ng-container>
     <ng-container matColumnDef="dagenTotFataledatum">
       <th mat-header-cell *matHeaderCellDef>
-        {{ "dagenTotFataledatum" | translate }}
+        {{ "dagen-tot-fataledatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let zaak">
         {{ zaak.uiterlijkeEinddatumAfdoening | dagen }}

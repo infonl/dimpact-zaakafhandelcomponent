@@ -72,7 +72,7 @@ describe(BagZoekComponent.name, () => {
   async function search(...resultaten: GeneratedType<"RESTBAGObject">[]) {
     mockSearchResults(...resultaten);
     await user.type(
-      screen.getByRole("textbox", { name: "bagObjecten" }),
+      screen.getByRole("textbox", { name: "bag-objecten" }),
       "fakeTrefwoord",
     );
     await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
@@ -273,7 +273,7 @@ describe(BagZoekComponent.name, () => {
       listenForSelectedBagObjects();
 
       const [header] = screen.getAllByRole("heading", {
-        name: "actie.bagObject.koppelen",
+        name: "actie.bag-object.koppelen",
       });
       await user.click(within(header).getByRole("button"));
 
@@ -291,7 +291,7 @@ describe(BagZoekComponent.name, () => {
       await user.click(
         within(screen.getByRole("row", { name: /0363010000000001/ })).getByRole(
           "button",
-          { name: "actie.bagObject.bekijken" },
+          { name: "actie.bag-object.bekijken" },
         ),
       );
 

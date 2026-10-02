@@ -227,8 +227,8 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("vestigingsnummer", "000011112222");
     });
 
-    it("renders type field", () => {
-      expectStaticText("type", "RECHTSPERSOON");
+    it("renders the type through its lowercase kebab-case i18n key", () => {
+      expectStaticText("type", "rechtspersoon");
     });
 
     it("renders adres when no profiel is loaded", () => {
@@ -415,7 +415,7 @@ describe(BedrijfViewComponent.name, () => {
     });
 
     it("renders totaalWerkzamePersonen when profiel is loaded", () => {
-      expectStaticText("totaalWerkzamePersonen", "12");
+      expectStaticText("totaal-werkzame-personen", "12");
     });
 
     it("renders hoofdactiviteit when profiel is loaded", () => {
@@ -480,11 +480,11 @@ describe(BedrijfViewComponent.name, () => {
     });
 
     it("renders uitgebreideRechtsvorm when profiel is loaded", () => {
-      expectStaticText("uitgebreideRechtsvorm", "Besloten Vennootschap");
+      expectStaticText("uitgebreide-rechtsvorm", "Besloten Vennootschap");
     });
 
     it("renders statutaireNaam when profiel is loaded", () => {
-      expectStaticText("statutaireNaam", "Test BV Statutair");
+      expectStaticText("statutaire-naam", "Test BV Statutair");
     });
   });
 

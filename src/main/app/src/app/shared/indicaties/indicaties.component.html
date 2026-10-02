@@ -21,7 +21,7 @@
         {{ indicatie.icon }}
       </mat-icon>
       <span>
-        {{ "indicatie." + indicatie.naam | translate }}
+        {{ "indicatie." + indicatie.naam | i18nKey | translate }}
       </span>
     </div>
   </mat-chip-option>
@@ -39,7 +39,7 @@
     [color]="indicatie.primary ? 'accent' : null"
     [highlighted]="indicatie.primary"
     [matTooltip]="
-      ('indicatie.' + indicatie.naam | translate) +
+      ('indicatie.' + indicatie.naam | i18nKey | translate) +
       (indicatie.toelichting ? ': ' + indicatie.toelichting : '')
     "
   >

@@ -73,7 +73,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
   }
 
   function submitButton() {
-    return screen.getByRole("button", { name: "actie.zaak.brondatumZetten" });
+    return screen.getByRole("button", { name: "actie.zaak.brondatum-zetten" });
   }
 
   async function fillInBrondatum(date: moment.Moment) {

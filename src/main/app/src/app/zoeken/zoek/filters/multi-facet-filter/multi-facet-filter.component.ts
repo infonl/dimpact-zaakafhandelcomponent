@@ -18,6 +18,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
 import { ZacNarrowMatCheckboxDirective } from "../../../../shared/material/narrow-checkbox.directive";
+import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { ReadMoreComponent } from "../../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
@@ -27,6 +28,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styleUrls: ["./multi-facet-filter.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     NgFor,
     LowerCasePipe,
@@ -58,12 +60,12 @@ export class MultiFacetFilterComponent implements OnInit {
   protected VERTAALBARE_FACETTEN: Record<string, string> = {
     TAAK_STATUS: "taak.status.",
     TYPE: "type.",
-    TOEGEKEND: "zoeken.filter.jaNee.",
+    TOEGEKEND: "zoeken.filter.ja-nee.",
     ZAAK_INDICATIES: "indicatie.",
     DOCUMENT_INDICATIES: "indicatie.",
     DOCUMENT_STATUS: "informatieobject.status.",
     ZAAK_VERTROUWELIJKHEIDAANDUIDING: "vertrouwelijkheidaanduiding.",
-    ZAAK_ARCHIEF_NOMINATIE: "archiefNominatie.",
+    ZAAK_ARCHIEF_NOMINATIE: "archief-nominatie.",
   } as const;
 
   ngOnInit(): void {

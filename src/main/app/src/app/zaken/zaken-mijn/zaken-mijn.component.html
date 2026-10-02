@@ -306,7 +306,7 @@
         *matHeaderCellDef
         mat-sort-header="ZAAK_STREEFDATUM"
       >
-        {{ "einddatumGepland" | translate }}
+        {{ "einddatum-gepland" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         <div class="flex-row items-center gap-10">
@@ -326,7 +326,7 @@
     </ng-container>
     <ng-container matColumnDef="dagenTotStreefdatum">
       <th mat-header-cell cdkDrag *matHeaderCellDef>
-        {{ "dagenTotStreefdatum" | translate }}
+        {{ "dagen-tot-streefdatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.einddatumGepland | dagen | empty }}
@@ -353,7 +353,7 @@
         *matHeaderCellDef
         mat-sort-header="ZAAK_FATALE_DATUM"
       >
-        {{ "uiterlijkeEinddatumAfdoening" | translate }}
+        {{ "uiterlijke-einddatum-afdoening" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         <div class="flex-row items-center gap-10">
@@ -373,7 +373,7 @@
     </ng-container>
     <ng-container matColumnDef="dagenTotFataledatum">
       <th mat-header-cell cdkDrag *matHeaderCellDef>
-        {{ "dagenTotFataledatum" | translate }}
+        {{ "dagen-tot-fataledatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.uiterlijkeEinddatumAfdoening | dagen | empty }}
@@ -410,7 +410,7 @@
         *matHeaderCellDef
         mat-sort-header="ZAAK_AANTAL_OPENSTAANDE_TAKEN"
       >
-        {{ "openstaandeTaken" | translate | empty }}
+        {{ "openstaande-taken" | translate | empty }}
       </th>
       <td mat-cell *matCellDef="let row">{{ row.aantalOpenstaandeTaken }}</td>
     </ng-container>
@@ -501,57 +501,57 @@
                 [value]="row.einddatumGepland | datum"
                 [icon]="einddatumGeplandIcon"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.DAGEN_TOT_STREEFDATUM"
                 [value]="row.einddatumGepland | dagen"
                 [icon]="einddatumGeplandIcon"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.UITERLIJKE_EINDDATUM_AFDOENING"
                 [value]="row.uiterlijkeEinddatumAfdoening | datum"
                 [icon]="uiterlijkeEinddatumAfdoeningIcon"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.DAGEN_TOT_FATALEDATUM"
                 [value]="row.uiterlijkeEinddatumAfdoening | dagen"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STARTDATUM"
                 [value]="row.startdatum | datum"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ZAAK_DOT_IDENTIFICATIE"
                 [value]="row.identificatie"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.GROEP"
                 [value]="row.groepNaam"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.REGISTRATIEDATUM"
                 [value]="row.registratiedatum | datum"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.COMMUNICATIEKANAAL"
                 [value]="row.communicatiekanaal"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.VERTROUWELIJKHEIDAANDUIDING"
@@ -563,29 +563,29 @@
                     : '-'
                 "
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ZAAKTYPE"
                 [value]="row.zaaktypeOmschrijving"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STATUS"
                 [value]="row.statustypeOmschrijving"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.OPENSTAANDE_TAKEN"
                 [value]="row.aantalOpenstaandeTaken"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchDefault
-                [label]="column"
+                [label]="column | i18nKey"
                 [value]="row[column] | translate"
                 class="flex-1 w33"
               />

@@ -10,6 +10,7 @@ import { mapStringToDocumentenStrings } from "../../../documenten/document-utils
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../shared/utils/i18n-key";
 import { Goedkeuring } from "../goedkeuring.enum";
 import { AbstractTaskForm } from "./abstract-task-form";
 
@@ -156,6 +157,7 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
         options: Object.values(Goedkeuring).map(
           (value) => `goedkeuren.${value}`,
         ),
+        optionDisplayValue: (option) => toI18nKey(String(option)),
         control: goedkeurenControl,
       },
     ];

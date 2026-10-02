@@ -34,6 +34,7 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../shared/utils/i18n-key";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { buildBedrijfRouteLink } from "../../bedrijf-route-link";
 import { KlantenService } from "../../klanten.service";
@@ -82,6 +83,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     "NEVENVESTIGING",
     "RECHTSPERSOON",
   ] satisfies GeneratedType<"BedrijfType">[];
+  protected readonly typeLabel = toI18nKey;
   uuid = crypto.randomUUID();
   private readonly destroy$ = new Subject<void>();
 

@@ -43,6 +43,7 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -65,6 +66,7 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
   ],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     MatSidenavModule,
     MatTableModule,

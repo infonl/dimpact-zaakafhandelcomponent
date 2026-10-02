@@ -122,17 +122,19 @@ describe(MailtemplateComponent.name, () => {
 
   async function editTemplateName(extra: string) {
     await user.type(
-      screen.getByRole("textbox", { name: "MailTemplateNaam" }),
+      screen.getByRole("textbox", { name: "Mail-template-naam" }),
       extra,
     );
   }
 
   async function fillInNewTemplate() {
-    await user.click(screen.getByRole("textbox", { name: "MailTemplateNaam" }));
+    await user.click(
+      screen.getByRole("textbox", { name: "Mail-template-naam" }),
+    );
     await user.paste("Nieuw template");
     await user.click(screen.getByRole("combobox"));
     await user.click(
-      screen.getByRole("option", { name: "mail.TAAK_ONTVANGSTBEVESTIGING" }),
+      screen.getByRole("option", { name: "mail.taak-ontvangstbevestiging" }),
     );
     await user.click(htmlEditor("Onderwerp"));
     await user.paste("Onderwerp");
@@ -167,7 +169,7 @@ describe(MailtemplateComponent.name, () => {
     await setup(bestaandTemplate);
 
     expect(
-      screen.getByRole("textbox", { name: "MailTemplateNaam" }),
+      screen.getByRole("textbox", { name: "Mail-template-naam" }),
     ).toHaveValue("Bestaand template");
     expect(htmlEditor("Onderwerp")).toHaveTextContent("Bestaand onderwerp");
     expect(htmlEditor("Body")).toHaveTextContent("Bestaand body");
@@ -195,7 +197,7 @@ describe(MailtemplateComponent.name, () => {
 
     await user.click(screen.getByRole("combobox"));
     await user.click(
-      screen.getByRole("option", { name: "mail.TAAK_ONTVANGSTBEVESTIGING" }),
+      screen.getByRole("option", { name: "mail.taak-ontvangstbevestiging" }),
     );
     await user.click(screen.getAllByRole("button", { name: "variabelen" })[0]);
 
@@ -204,7 +206,7 @@ describe(MailtemplateComponent.name, () => {
     ).toHaveBeenCalledWith("TAAK_ONTVANGSTBEVESTIGING");
     expect(
       screen.getByRole("menuitem", {
-        name: "GEMEENTE: mailtemplate.variabele.GEMEENTE",
+        name: "GEMEENTE: mailtemplate.variabele.gemeente",
       }),
     ).toBeVisible();
   });

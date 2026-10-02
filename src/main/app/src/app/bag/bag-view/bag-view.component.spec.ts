@@ -75,7 +75,7 @@ describe(BAGViewComponent.name, () => {
       }),
     );
 
-    expect(screen.getByText("objecttype.ADRES")).toBeVisible();
+    expect(screen.getByText("objecttype.adres")).toBeVisible();
     expect(screen.getByText("Teststraat 1, Amsterdam")).toBeVisible();
     expect(zaakSearchedFor()).toBe("0363200000218908");
   });
@@ -89,7 +89,7 @@ describe(BAGViewComponent.name, () => {
       }),
     );
 
-    expect(screen.getByText("objecttype.WOONPLAATS")).toBeVisible();
+    expect(screen.getByText("objecttype.woonplaats")).toBeVisible();
     expect(screen.getByText("3594")).toBeVisible();
     expect(zaakSearchedFor()).toBe("3594");
   });
@@ -103,7 +103,7 @@ describe(BAGViewComponent.name, () => {
       }),
     );
 
-    expect(screen.getByText("objecttype.PAND")).toBeVisible();
+    expect(screen.getByText("objecttype.pand")).toBeVisible();
     expect(screen.getByText("0363100012165490")).toBeVisible();
     expect(zaakSearchedFor()).toBe("0363100012165490");
   });
@@ -132,7 +132,7 @@ describe(BAGViewComponent.name, () => {
       }),
     );
 
-    expect(screen.getByText("objecttype.NUMMERAANDUIDING")).toBeVisible();
+    expect(screen.getByText("objecttype.nummeraanduiding")).toBeVisible();
     expect(screen.getByText("Teststraat 1")).toBeVisible();
     expect(zaakSearchedFor()).toBe("0363200000218908");
   });

@@ -188,7 +188,7 @@ describe(ZaakDetailsCardComponent.name, () => {
         },
       });
 
-      expect(await tabLabels()).toContain("gerelateerdeZaken");
+      expect(await tabLabels()).toContain("gerelateerde-zaken");
     });
 
     it("adds the betrokkenen tab when betrokkene koppelingen are configured", async () => {
@@ -210,7 +210,7 @@ describe(ZaakDetailsCardComponent.name, () => {
         ],
       });
 
-      expect(await tabLabels()).toContain("bagObjecten");
+      expect(await tabLabels()).toContain("bag-objecten");
     });
   });
   describe("locatie tab", () => {
@@ -271,7 +271,7 @@ describe(ZaakDetailsCardComponent.name, () => {
 
       expect(
         screen().queryAllByText((content) =>
-          content.trim().endsWith("duurDagenOpschorting"),
+          content.trim().endsWith("duur-dagen-opschorting"),
         ).length,
       ).toBeGreaterThan(0);
     });
@@ -298,7 +298,7 @@ describe(ZaakDetailsCardComponent.name, () => {
         ontkoppelen: true,
       });
       renderCard({ zaak: { ...zaak, gerelateerdeZaken: [gerelateerdeZaak] } });
-      await openTab(/gerelateerdeZaken/);
+      await openTab(/gerelateerde-zaken/);
       fixture.componentInstance.zaakOntkoppelen.subscribe(zaakOntkoppelen);
 
       screen().getByRole("button", { name: "actie.zaak.ontkoppelen" }).click();
@@ -318,13 +318,13 @@ describe(ZaakDetailsCardComponent.name, () => {
         }),
       });
       renderCard({ bagObjecten: [gekoppeldBagObject] });
-      await openTab(/bagObjecten/);
+      await openTab(/bag-objecten/);
       fixture.componentInstance.bagObjectVerwijderen.subscribe(
         bagObjectVerwijderen,
       );
 
       screen()
-        .getByRole("button", { name: "actie.bagObject.ontkoppelen" })
+        .getByRole("button", { name: "actie.bag-object.ontkoppelen" })
         .click();
 
       expect(bagObjectVerwijderen).toHaveBeenCalledWith(gekoppeldBagObject);
@@ -343,10 +343,12 @@ describe(ZaakDetailsCardComponent.name, () => {
           }),
         ],
       });
-      await openTab(/bagObjecten/);
+      await openTab(/bag-objecten/);
 
       expect(
-        screen().queryByRole("button", { name: "actie.bagObject.ontkoppelen" }),
+        screen().queryByRole("button", {
+          name: "actie.bag-object.ontkoppelen",
+        }),
       ).toBeNull();
     });
   });

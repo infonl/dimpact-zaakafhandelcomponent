@@ -58,6 +58,7 @@ import { ExportButtonComponent } from "../../shared/export-button/export-button.
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
@@ -77,6 +78,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CdkDrag,
     CdkDropList,
     DagenPipe,
