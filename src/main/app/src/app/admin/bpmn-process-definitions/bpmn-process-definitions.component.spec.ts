@@ -43,8 +43,8 @@ const processDefinition = fromPartial<
   name: "Process A",
   version: 1,
   details: {
-    inUse: false,
-    forms: [{ formKey: "f1", title: "Form 1", uploaded: true }],
+    isInUse: false,
+    forms: [{ formKey: "f1", title: "Form 1", isUploaded: true }],
     orphanedForms: [],
   },
 });
@@ -205,7 +205,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
         ...processDefinition,
         details: {
           ...processDefinition.details,
-          forms: [{ formKey: "f1", title: "Form 1", uploaded: false }],
+          forms: [{ formKey: "f1", title: "Form 1", isUploaded: false }],
         },
       }),
     ]);

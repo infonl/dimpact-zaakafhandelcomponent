@@ -163,16 +163,16 @@ export class InrichtingscheckComponent
     zaaktypeInrichtingscheck: GeneratedType<"RestZaaktypeInrichtingscheck">,
   ) {
     return (
-      !zaaktypeInrichtingscheck.valide ||
-      Boolean(zaaktypeInrichtingscheck.heeftWaarschuwingen)
+      !zaaktypeInrichtingscheck.isValide ||
+      Boolean(zaaktypeInrichtingscheck.hasWaarschuwingen)
     );
   }
 
   protected rowStateClass(
     zaaktypeInrichtingscheck: GeneratedType<"RestZaaktypeInrichtingscheck">,
   ) {
-    if (!zaaktypeInrichtingscheck.valide) return "error";
-    return zaaktypeInrichtingscheck.heeftWaarschuwingen ? "warning" : "ok";
+    if (!zaaktypeInrichtingscheck.isValide) return "error";
+    return zaaktypeInrichtingscheck.hasWaarschuwingen ? "warning" : "ok";
   }
 
   protected applyFilter(event?: Event) {
@@ -234,7 +234,7 @@ export class InrichtingscheckComponent
             isAsc,
           );
         case "valide":
-          return this.compare(a.valide ?? false, b.valide ?? false, isAsc);
+          return this.compare(a.isValide ?? false, b.isValide ?? false, isAsc);
         default:
           return 0;
       }

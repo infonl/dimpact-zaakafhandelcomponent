@@ -155,7 +155,7 @@ export class ZaakAfhandelenDialogComponent {
     effect(() => {
       const afzenders = this.afzendersQuery.data();
       this.form.controls.verzender.setValue(
-        afzenders?.find((afzender) => afzender.defaultMail) ?? null,
+        afzenders?.find((afzender) => afzender.isDefaultMail) ?? null,
       );
     });
 
@@ -196,7 +196,7 @@ export class ZaakAfhandelenDialogComponent {
     this.form.controls.resultaattype.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (value?.besluitVerplicht && !this.data.zaak.besluiten?.length) {
+        if (value?.isBesluitVerplicht && !this.data.zaak.besluiten?.length) {
           this.form.controls.toelichting.disable();
           this.form.controls.sendMail.disable();
           this.form.controls.verzender.disable();
@@ -208,7 +208,7 @@ export class ZaakAfhandelenDialogComponent {
           this.form.controls.ontvanger.enable();
         }
 
-        if (value?.datumKenmerkVerplicht) {
+        if (value?.isDatumKenmerkVerplicht) {
           this.brondatumLabel = value?.datumKenmerkOmschrijving;
         }
         this.form.controls.brondatum.updateValueAndValidity();
@@ -267,7 +267,7 @@ export class ZaakAfhandelenDialogComponent {
             ontvanger: value.ontvanger!,
             onderwerp: mailtemplate.onderwerp,
             body: mailtemplate.body,
-            createDocumentFromMail: true,
+            shouldCreateDocumentFromMail: true,
             vertrouwelijkheidaanduiding: "OPENBAAR",
           } satisfies GeneratedType<"RestMailGegevens">)
         : undefined;

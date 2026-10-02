@@ -35,7 +35,7 @@ const makeZaak = (
     einddatumGepland: null,
     uiterlijkeEinddatumAfdoening: null,
     einddatum: null,
-    rechten: { lezen: true },
+    rechten: { canLezen: true },
     ...fields,
   }) as Partial<
     GeneratedType<"RestZaakOverzicht">
@@ -188,7 +188,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     const zaken = [
       makeZaak({
         rechten: fromPartial<GeneratedType<"RestZaakOverzicht">["rechten"]>({
-          lezen: true,
+          canLezen: true,
         }),
       }),
     ];
@@ -207,7 +207,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     const zaken = [
       makeZaak({
         rechten: fromPartial<GeneratedType<"RestZaakOverzicht">["rechten"]>({
-          lezen: false,
+          canLezen: false,
         }),
       }),
     ];

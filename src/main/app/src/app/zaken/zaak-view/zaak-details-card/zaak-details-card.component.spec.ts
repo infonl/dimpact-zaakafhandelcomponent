@@ -35,7 +35,7 @@ describe(ZaakDetailsCardComponent.name, () => {
       omschrijving: "fakeZaaktypeOmschrijving",
     }),
     indicaties: [],
-    rechten: { behandelen: true },
+    rechten: { canBehandelen: true },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
     gerelateerdeZaken: [],
@@ -182,7 +182,7 @@ describe(ZaakDetailsCardComponent.name, () => {
           gerelateerdeZaken: [
             fromPartial<GeneratedType<"RestGerelateerdeZaak">>({
               identificatie: "ZAAK-2026-0002",
-              rechten: { lezen: true },
+              rechten: { canLezen: true },
             }),
           ],
         },
@@ -220,7 +220,7 @@ describe(ZaakDetailsCardComponent.name, () => {
         type: "POINT",
         point: { latitude: 52.1, longitude: 5.2 },
       }),
-      rechten: { ...zaak.rechten, wijzigenLocatie },
+      rechten: { ...zaak.rechten, canWijzigenLocatie: wijzigenLocatie },
     });
 
     it("shows the coordinates of the zaakgeometrie", async () => {
@@ -279,7 +279,7 @@ describe(ZaakDetailsCardComponent.name, () => {
     it("re-emits editCaseDetails from the algemeen tab", async () => {
       const editCaseDetails = jest.fn();
       renderCard({
-        zaak: { ...zaak, rechten: { ...zaak.rechten, wijzigen: true } },
+        zaak: { ...zaak, rechten: { ...zaak.rechten, canWijzigen: true } },
       });
       fixture.componentInstance.editCaseDetails.subscribe(editCaseDetails);
 
@@ -294,8 +294,8 @@ describe(ZaakDetailsCardComponent.name, () => {
         GeneratedType<"RestGerelateerdeZaak">
       >({
         identificatie: "ZAAK-2026-0002",
-        rechten: { lezen: true },
-        ontkoppelen: true,
+        rechten: { canLezen: true },
+        canOntkoppelen: true,
       });
       renderCard({ zaak: { ...zaak, gerelateerdeZaken: [gerelateerdeZaak] } });
       await openTab(/gerelateerde-zaken/);
@@ -332,7 +332,7 @@ describe(ZaakDetailsCardComponent.name, () => {
 
     it("offers no bag object ontkoppelen button when the user may not behandelen", async () => {
       renderCard({
-        zaak: { ...zaak, rechten: { ...zaak.rechten, behandelen: false } },
+        zaak: { ...zaak, rechten: { ...zaak.rechten, canBehandelen: false } },
         bagObjecten: [
           fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
             bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({

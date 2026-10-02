@@ -49,7 +49,7 @@ const mockDocuments = [
 const publicationBesluittype = fromPartial<GeneratedType<"RestBesluitType">>({
   id: "besluittype-id-2",
   naam: "Besluittype 2",
-  publication: { enabled: true, responseTermDays: 6 },
+  publication: { isEnabled: true, responseTermDays: 6 },
 });
 
 const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
@@ -58,7 +58,7 @@ const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
     besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
       id: "besluittype-id-1",
       naam: "Besluittype 1",
-      publication: { enabled: false },
+      publication: { isEnabled: false },
     }),
     ingangsdatum: "2026-01-01",
     vervaldatum: "2026-12-31",

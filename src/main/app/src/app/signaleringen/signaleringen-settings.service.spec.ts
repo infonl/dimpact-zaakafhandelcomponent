@@ -39,7 +39,7 @@ describe(SignaleringenSettingsService.name, () => {
     it("puts the instellingen the user changed", async () => {
       const instellingen = fromPartial<
         GeneratedType<"RestSignaleringInstellingen">
-      >({ id: 1, type: "ZAAK_OP_NAAM", dashboard: true, mail: false });
+      >({ id: 1, type: "ZAAK_OP_NAAM", isDashboardEnabled: true, isMailEnabled: false });
 
       runMutation(testQueryClient, service.put(), instellingen).subscribe();
       await sleep();

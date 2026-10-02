@@ -39,7 +39,7 @@ describe(SignaleringenSettingsBeheerService.name, () => {
     it("addresses the group by path and puts the changed instellingen", async () => {
       const instellingen = fromPartial<
         GeneratedType<"RestSignaleringInstellingen">
-      >({ id: 1, type: "ZAAK_OP_NAAM", dashboard: true, mail: false });
+      >({ id: 1, type: "ZAAK_OP_NAAM", isDashboardEnabled: true, isMailEnabled: false });
 
       runMutation(
         testQueryClient,

@@ -37,8 +37,8 @@ const mockTabelGegevens: TabelGegevens = {
   aantalPerPagina: 25,
   pageSizeOptions: [10, 25, 50],
   werklijstRechten: fromPartial<GeneratedType<"RestWerklijstRechten">>({
-    inbox: true,
-    zakenTaken: true,
+    canInbox: true,
+    canZakenTaken: true,
   }),
 };
 

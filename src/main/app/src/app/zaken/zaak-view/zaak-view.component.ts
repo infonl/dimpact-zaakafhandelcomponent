@@ -423,13 +423,13 @@ export class ZaakViewComponent
   }
 
   protected editCaseDetails() {
-    if (this.zaak.rechten.wijzigen || this.zaak.rechten.toekennen) {
+    if (this.zaak.rechten.canWijzigen || this.zaak.rechten.canToekennen) {
       this.sideActions.open("actie.zaak.wijzigen");
     }
   }
 
   protected editLocationDetails() {
-    if (this.zaak.rechten.wijzigen) {
+    if (this.zaak.rechten.canWijzigen) {
       this.sideActions.open("actie.zaak.locatie.koppelen");
     }
   }
@@ -598,6 +598,6 @@ export class ZaakViewComponent
   }
 
   protected hasBrpSearchRight() {
-    return Boolean(this.brpRechtenQuery.data()?.zoeken);
+    return Boolean(this.brpRechtenQuery.data()?.canZoeken);
   }
 }

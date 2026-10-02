@@ -126,7 +126,7 @@ describe(ZaakViewComponent.name, () => {
     }),
     indicaties: [],
     rechten: {
-      behandelen: true,
+      canBehandelen: true,
     },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
@@ -306,15 +306,15 @@ describe(ZaakViewComponent.name, () => {
       isOpen: true,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
+        canBehandelen: true,
       },
       zaaktype: {
         ...zaak.zaaktype,
-        opschortingMogelijk: true,
+        isOpschortingMogelijk: true,
       },
       isHeropend: false,
       isOpgeschort: false,
-      eerdereOpschorting: false,
+      hasEerdereOpschorting: false,
       isProcesGestuurd: false,
     } satisfies GeneratedType<"RestZaak">;
 
@@ -334,7 +334,7 @@ describe(ZaakViewComponent.name, () => {
         mockActivatedRoute.data.next({
           zaak: {
             ...opschortenZaak,
-            eerdereOpschorting: true,
+            hasEerdereOpschorting: true,
           },
         });
       });
@@ -354,7 +354,7 @@ describe(ZaakViewComponent.name, () => {
       isOpgeschort: true,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
+        canBehandelen: true,
       },
       isProcesGestuurd: false,
     } satisfies GeneratedType<"RestZaak">;
@@ -377,7 +377,7 @@ describe(ZaakViewComponent.name, () => {
             ...hervattenZaak,
             rechten: {
               ...hervattenZaak.rechten,
-              behandelen: false,
+              canBehandelen: false,
             },
           },
         });
@@ -431,11 +431,11 @@ describe(ZaakViewComponent.name, () => {
   describe("actie.ontvangstbevestiging.versturen", () => {
     const baseZaak = {
       ...zaak,
-      heeftOntvangstbevestigingVerstuurd: false,
+      isOntvangstbevestigingVerstuurd: false,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
-        versturenOntvangstbevestiging: true,
+        canBehandelen: true,
+        canVersturenOntvangstbevestiging: true,
       },
       isProcesGestuurd: false,
       indicaties: ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
@@ -460,10 +460,10 @@ describe(ZaakViewComponent.name, () => {
         mockActivatedRoute.data.next({
           zaak: {
             ...baseZaak,
-            heeftOntvangstbevestigingVerstuurd: false,
+            isOntvangstbevestigingVerstuurd: false,
             rechten: {
               ...baseZaak.rechten,
-              behandelen: false,
+              canBehandelen: false,
             },
           },
         });
@@ -508,7 +508,7 @@ describe(ZaakViewComponent.name, () => {
             ...baseZaak,
             rechten: {
               ...baseZaak.rechten,
-              versturenOntvangstbevestiging: false,
+              canVersturenOntvangstbevestiging: false,
             },
           },
         });
@@ -530,7 +530,7 @@ describe(ZaakViewComponent.name, () => {
         mockActivatedRoute.data.next({
           zaak: {
             ...baseZaak,
-            heeftOntvangstbevestigingVerstuurd: true,
+            isOntvangstbevestigingVerstuurd: true,
           },
         });
         fixture.detectChanges();
@@ -594,7 +594,7 @@ describe(ZaakViewComponent.name, () => {
       ...zaak,
       rechten: {
         ...zaak.rechten,
-        brondatumZetten: true,
+        canBrondatumZetten: true,
       },
       resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
         resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
@@ -625,7 +625,10 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...brondatumZettenZaak,
-          rechten: { ...brondatumZettenZaak.rechten, brondatumZetten: false },
+          rechten: {
+            ...brondatumZettenZaak.rechten,
+            canBrondatumZetten: false,
+          },
         },
       });
 
@@ -736,16 +739,16 @@ describe(ZaakViewComponent.name, () => {
       isOpen: true,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
+        canBehandelen: true,
       },
       isProcesGestuurd: false,
       isHeropend: false,
       isOpgeschort: false,
-      eerdereOpschorting: false,
+      hasEerdereOpschorting: false,
       zaaktype: {
         ...zaak.zaaktype,
-        opschortingMogelijk: false,
-        verlengingMogelijk: false,
+        isOpschortingMogelijk: false,
+        isVerlengingMogelijk: false,
       },
     } satisfies GeneratedType<"RestZaak">;
 
@@ -785,7 +788,7 @@ describe(ZaakViewComponent.name, () => {
           isOpen: false,
           rechten: {
             ...baseZaak.rechten,
-            heropenen: true,
+            canHeropenen: true,
           },
         },
       });
@@ -903,7 +906,7 @@ describe(ZaakViewComponent.name, () => {
           ...zaak,
           rechten: {
             ...zaak.rechten,
-            behandelen: true,
+            canBehandelen: true,
           },
         },
       });
@@ -999,7 +1002,7 @@ describe(ZaakViewComponent.name, () => {
       isOpen: true,
       isInIntakeFase: false,
       isBesluittypeAanwezig: true,
-      heeftOntvangstbevestigingVerstuurd: false,
+      isOntvangstbevestigingVerstuurd: false,
       zaakdata: { fakeZaakdataKey: "fakeZaakdataValue" },
       zaakgeometrie: undefined,
       bpmnProcessDefinition: fromPartial<
@@ -1007,15 +1010,15 @@ describe(ZaakViewComponent.name, () => {
       >({ processDefinitionKey: "fakeProcessDefinitionKey" }),
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
-        wijzigen: true,
-        wijzigenLocatie: true,
-        creerenDocument: true,
-        versturenEmail: true,
-        versturenOntvangstbevestiging: true,
-        bekijkenZaakdata: true,
-        toevoegenBagObject: true,
-        toevoegenInitiatorBedrijf: true,
+        canBehandelen: true,
+        canWijzigen: true,
+        canWijzigenLocatie: true,
+        canCreerenDocument: true,
+        canVersturenEmail: true,
+        canVersturenOntvangstbevestiging: true,
+        canBekijkenZaakdata: true,
+        canToevoegenBagObject: true,
+        canToevoegenInitiatorBedrijf: true,
       },
       zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
         ...zaak.zaaktype,
@@ -1025,8 +1028,11 @@ describe(ZaakViewComponent.name, () => {
           caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
             key: "fakeCaseDefinitionKey",
           }),
-          smartDocuments: { enabledForZaaktype: true, enabledGlobally: true },
-          betrokkeneKoppelingen: { kvkKoppelen: true },
+          smartDocuments: {
+            isEnabledForZaaktype: true,
+            isEnabledGlobally: true,
+          },
+          betrokkeneKoppelingen: { isKvkKoppelenEnabled: true },
         }),
       }),
     });

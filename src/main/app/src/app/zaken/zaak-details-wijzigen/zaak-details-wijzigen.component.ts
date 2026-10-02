@@ -74,7 +74,7 @@ export class CaseDetailsEditComponent implements OnInit {
   protected readonly groupDisplayValue = (
     group: GeneratedType<"RestGroup">,
   ): string =>
-    group.active === false
+    group.isActive === false
       ? `${group.naam ?? ""} (${this.translateService.instant("inactief").toLowerCase()})`
       : (group.naam ?? "");
   protected readonly users = signal<GeneratedType<"RestUser">[]>([]);
@@ -117,7 +117,8 @@ export class CaseDetailsEditComponent implements OnInit {
 
   protected readonly showZaakspecifiekGeautoriseerd = computed(() =>
     Boolean(
-      this.zaak().zaaktype.zaakafhandelparameters?.zaakspecifiekAutoriseerbaar,
+      this.zaak().zaaktype.zaakafhandelparameters
+        ?.isZaakspecifiekAutoriseerbaar,
     ),
   );
 
@@ -152,7 +153,7 @@ export class CaseDetailsEditComponent implements OnInit {
   ngOnInit() {
     const zaak = this.zaak();
     const dateChangesAllowed = Boolean(
-      zaak.rechten.wijzigen && zaak.rechten.wijzigenDoorlooptijd,
+      zaak.rechten.canWijzigen && zaak.rechten.canWijzigenDoorlooptijd,
     );
 
     this.groups = this.identityService
@@ -167,23 +168,23 @@ export class CaseDetailsEditComponent implements OnInit {
         }),
       );
 
-    if (!zaak.rechten.wijzigen) {
+    if (!zaak.rechten.canWijzigen) {
       this.form.controls.communicatiekanaal.disable();
       this.form.controls.vertrouwelijkheidaanduiding.disable();
       this.form.controls.omschrijving.disable();
       this.form.controls.toelichting.disable();
     }
 
-    if (!zaak.zaaktype.servicenorm) {
+    if (!zaak.zaaktype.hasServicenorm) {
       this.form.controls.einddatumGepland.disable();
     }
 
     this.form.controls.behandelaar.disable();
-    if (!zaak.rechten.toekennen) {
+    if (!zaak.rechten.canToekennen) {
       this.form.controls.groep.disable();
     }
 
-    if (zaak.isZaakspecifiekGeautoriseerd || !zaak.rechten.wijzigen) {
+    if (zaak.isZaakspecifiekGeautoriseerd || !zaak.rechten.canWijzigen) {
       this.form.controls.isZaakspecifiekGeautoriseerd.disable();
     }
 
@@ -235,7 +236,7 @@ export class CaseDetailsEditComponent implements OnInit {
           return;
         }
 
-        if (zaak.rechten.toekennen) {
+        if (zaak.rechten.canToekennen) {
           this.form.controls.behandelaar.enable();
         }
 

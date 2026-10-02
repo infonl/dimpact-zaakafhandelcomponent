@@ -91,7 +91,7 @@ export class BpmnProcessDefinitionItemComponent {
 
   protected readonly missingForms = computed(() =>
     (this.processDefinition().details?.forms ?? []).filter(
-      (form) => !form.uploaded,
+      (form) => !form.isUploaded,
     ),
   );
 

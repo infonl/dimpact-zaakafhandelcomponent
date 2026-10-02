@@ -106,8 +106,10 @@ export class ParametersComponent
           return String(item.zaaktype.omschrijving);
         case "model":
           return String(item.caseDefinition?.naam);
+        case "valide":
+          return Number(item.isValide);
         case "geldig":
-          return Number(item.zaaktype.nuGeldig);
+          return Number(item.zaaktype.isNuGeldig);
         case "beginGeldigheid":
           return String(item.zaaktype.beginGeldigheid);
         case "eindeGeldigheid":
@@ -129,7 +131,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchBoolean(
-            Boolean(data.valide),
+            Boolean(data.isValide),
             parsedFilter.valide === ToggleSwitchOptions.CHECKED,
           );
       }
@@ -138,7 +140,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchBoolean(
-            Boolean(data.zaaktype.nuGeldig),
+            Boolean(data.zaaktype.isNuGeldig),
             parsedFilter.geldig === ToggleSwitchOptions.CHECKED,
           );
       }

@@ -79,13 +79,13 @@
           />
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="besluit.besluittype?.publication?.enabled"
+            *ngIf="besluit.besluittype?.publication?.isEnabled"
             label="publicatiedatum"
             [value]="besluit.publicationDate | datum"
           />
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="besluit.besluittype?.publication?.enabled"
+            *ngIf="besluit.besluittype?.publication?.isEnabled"
             label="uiterlijkereactiedatum"
             [value]="besluit.lastResponseDate | datum"
           />

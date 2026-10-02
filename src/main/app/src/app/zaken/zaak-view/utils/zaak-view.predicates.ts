@@ -42,7 +42,9 @@ export function showInitiator(zaak: Zaak) {
   const koppelingen = betrokkeneKoppelingen(zaak);
   if (!koppelingen) return false;
 
-  return Boolean(koppelingen.brpKoppelen || koppelingen.kvkKoppelen);
+  return Boolean(
+    koppelingen.isBrpKoppelenEnabled || koppelingen.isKvkKoppelenEnabled,
+  );
 }
 
 export function initiatorViewType(zaak: Zaak): InitiatorViewType {
@@ -50,8 +52,9 @@ export function initiatorViewType(zaak: Zaak): InitiatorViewType {
 
   if (koppelingen) {
     const type = zaak.initiatorIdentificatie?.type ?? "";
-    if (koppelingen.brpKoppelen && ["BSN"].includes(type)) return "PERSON";
-    if (koppelingen.kvkKoppelen && ["VN", "RSIN"].includes(type))
+    if (koppelingen.isBrpKoppelenEnabled && ["BSN"].includes(type))
+      return "PERSON";
+    if (koppelingen.isKvkKoppelenEnabled && ["VN", "RSIN"].includes(type))
       return "COMPANY";
   }
 
@@ -62,15 +65,15 @@ export function initiatorViewType(zaak: Zaak): InitiatorViewType {
 
 export function allowBedrijf(zaak: Zaak) {
   return Boolean(
-    zaak.rechten.toevoegenInitiatorBedrijf &&
-      betrokkeneKoppelingen(zaak)?.kvkKoppelen,
+    zaak.rechten.canToevoegenInitiatorBedrijf &&
+      betrokkeneKoppelingen(zaak)?.isKvkKoppelenEnabled,
   );
 }
 
 export function allowPersoon(zaak: Zaak, hasBrpSearchRight: boolean) {
   return Boolean(
-    zaak.rechten.toevoegenInitiatorPersoon &&
-      betrokkeneKoppelingen(zaak)?.brpKoppelen &&
+    zaak.rechten.canToevoegenInitiatorPersoon &&
+      betrokkeneKoppelingen(zaak)?.isBrpKoppelenEnabled &&
       hasBrpSearchRight,
   );
 }
@@ -78,9 +81,11 @@ export function allowPersoon(zaak: Zaak, hasBrpSearchRight: boolean) {
 export function allowedToAddBetrokkene(zaak: Zaak, hasBrpSearchRight: boolean) {
   const koppelingen = betrokkeneKoppelingen(zaak);
   const brpAllowed =
-    Boolean(koppelingen?.brpKoppelen) && zaak.rechten.toevoegenInitiatorPersoon;
+    Boolean(koppelingen?.isBrpKoppelenEnabled) &&
+    zaak.rechten.canToevoegenInitiatorPersoon;
   const kvkAllowed =
-    Boolean(koppelingen?.kvkKoppelen) && zaak.rechten.toevoegenInitiatorBedrijf;
+    Boolean(koppelingen?.isKvkKoppelenEnabled) &&
+    zaak.rechten.canToevoegenInitiatorBedrijf;
 
   return Boolean((brpAllowed && hasBrpSearchRight) || kvkAllowed);
 }
@@ -92,6 +97,7 @@ export function showBetrokkeneKoppelingen(
   const koppelingen = betrokkeneKoppelingen(zaak);
 
   return Boolean(
-    (koppelingen?.brpKoppelen || koppelingen?.kvkKoppelen) && betrokkenenCount,
+    (koppelingen?.isBrpKoppelenEnabled || koppelingen?.isKvkKoppelenEnabled) &&
+      betrokkenenCount,
   );
 }

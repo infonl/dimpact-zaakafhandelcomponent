@@ -119,7 +119,7 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
       taak.taakdata?.["relevanteDocumenten"],
     );
 
-    const readonly = taak.status === "AFGEROND" || !taak.rechten?.wijzigen;
+    const readonly = taak.status === "AFGEROND" || !taak.rechten?.canWijzigen;
 
     const documentsToSign = readonly
       ? await this.readSignedDocuments(taak)

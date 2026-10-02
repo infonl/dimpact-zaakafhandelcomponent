@@ -100,7 +100,7 @@
           </th>
           <td mat-cell *matCellDef="let taak">
             {{ taak.data.groep | empty: "naam" }}
-            @if (taak.data.groep?.active === false) {
+            @if (taak.data.groep?.isActive === false) {
               <em class="inactive-label"
                 >({{ "inactief" | translate | lowercase }})</em
               >
@@ -120,7 +120,7 @@
           <td mat-cell *matCellDef="let row">
             <div class="flex-row">
               <a
-                *ngIf="row.data.rechten.lezen"
+                *ngIf="row.data.rechten.canLezen"
                 mat-icon-button
                 [routerLink]="['/taken', row.data.id]"
                 (click)="$event.stopPropagation()"
