@@ -32,10 +32,8 @@ For example `catch (e: IOException)` should be `catch (ioException: IOException)
 ## Follow the Kotlin Coding Conventions
 Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
 Place `companion object` at the **top** of a class body, before any functions or properties.
-This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
-Write two-letter acronyms in names in uppercase (`IOStream`) and capitalize only the first letter of longer ones
-(`XmlFormatter`, `HttpInputStream`). detekt `ClassNaming` enforces this for top-level class, interface and object
-names only; apply it by hand to nested classes, functions and properties (`toRestZaak`, not `toRESTZaak`).
+In the names of nested classes, functions and properties, capitalize only the first letter of an acronym longer than
+two letters: `toRestZaak`, not `toRESTZaak`.
 
 ## Name boolean properties with an `is`/`has` prefix
 Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
