@@ -14,11 +14,8 @@ generate({
   openReportInBrowser: false,
   displayDuration: true,
   customData: {
-    title: "Run info",
-    data: [
-      { label: "App", value: "Dimpact e2e test" },
-      { label: "Test Environment", value: "Test" },
-    ],
+    App: "Dimpact e2e test",
+    "Test Environment": "Test",
   },
 });
 await writeVideoHtmlPage()

@@ -53,6 +53,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: "cd src/e2e && npm run e2e:generate:report"
       - name: Extract metrics from Cucumber report
+        id: metrics
         if: ${{ !cancelled() }}
         run: "cd src/e2e && npm run e2e:extract:metrics"
       - name: copy report to separate folder
@@ -88,7 +89,8 @@ jobs:
           publish_branch: gh-pages # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
-        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        # Branches with "e2e" in their name also post, so changes to the e2e setup can be tried out in Slack.
+        if: ${{ !cancelled() && (github.ref == 'refs/heads/main' || contains(github.ref_name, 'e2e')) }}
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -136,6 +138,13 @@ jobs:
                       }
                     },
                     {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": ${{ steps.metrics.outputs.slack_summary || '"No e2e metrics available for this run."' }}
+                      }
+                    },
+                    {
                       "type": "actions",
                       "elements": [
                         {
@@ -150,7 +159,7 @@ jobs:
                           "type": "button",
                           "text": {
                             "type": "plain_text",
-                            "text": "View Run"
+                            "text": "View Run & Timings"
                           },
                           "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                         },

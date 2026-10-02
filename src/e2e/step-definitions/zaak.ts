@@ -12,6 +12,8 @@ import {
   FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
+  SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS,
+  SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS,
   TWO_MINUTES_IN_MS,
   TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
@@ -35,7 +37,7 @@ async function checkZaakAssignment(
     this.page
       .getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)
       .first(),
-  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page
@@ -43,19 +45,19 @@ async function checkZaakAssignment(
         name: "Aanvullende informatie",
       })
       .first(),
-  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: "Toegekend" }),
-  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.group }),
-  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.username }),
-  ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
 }
 
 async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
@@ -193,7 +195,7 @@ When(
 
 When(
   "{string} wants to create a new {string} zaak",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -420,7 +422,7 @@ Then(
 
     await zaakLink.click();
     await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX, {
-      timeout: FIFTEEN_SECONDS_IN_MS,
+      timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS,
     });
   },
 );

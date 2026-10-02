@@ -9,7 +9,7 @@ import path from "path";
 import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
-  ONE_MINUTE_IN_MS,
+  SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
@@ -472,7 +472,7 @@ Then(
 
 Then(
   "{string} sees the select documents to sign form",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioContent(
       this.page,

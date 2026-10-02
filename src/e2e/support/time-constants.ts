@@ -13,3 +13,7 @@ export const FORTY_SECONDS_IN_MS = ONE_SECOND_IN_MS * 40;
 export const ONE_MINUTE_IN_MS = ONE_SECOND_IN_MS * 60;
 export const TWO_MINUTES_IN_MS = ONE_MINUTE_IN_MS * 2;
 export const FIVE_MINUTES_IN_MS = ONE_MINUTE_IN_MS * 5;
+
+// The Test environment is known to be slow; these allow for it in one place, so they can be tightened once it is faster.
+export const SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS = FIFTEEN_SECONDS_IN_MS;
+export const SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS = TWO_MINUTES_IN_MS;
