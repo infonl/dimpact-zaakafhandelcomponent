@@ -13,7 +13,7 @@ import jakarta.ws.rs.WebApplicationException
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.util.JsonbUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.or.`object`.ObjectsClientService
@@ -76,7 +76,7 @@ class ProductaanvraagService @Inject constructor(
     private val inboxDocumentService: InboxDocumentService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val productaanvraagEmailService: ProductaanvraagEmailService,
-    private val cmmnService: CMMNService,
+    private val cmmnService: CmmnService,
     private val bpmnService: BpmnService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val configurationService: ConfigurationService,

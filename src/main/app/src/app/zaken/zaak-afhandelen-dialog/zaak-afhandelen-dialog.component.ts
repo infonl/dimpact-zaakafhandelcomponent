@@ -76,7 +76,7 @@ export class ZaakAfhandelenDialogComponent {
   );
   public readonly data = inject(MAT_DIALOG_DATA) as {
     zaak: GeneratedType<"RestZaak">;
-    planItem?: GeneratedType<"RESTPlanItem">;
+    planItem?: GeneratedType<"RestPlanItem">;
   };
   private readonly formBuilder = inject(FormBuilder);
   private readonly zakenService = inject(ZakenService);
@@ -253,7 +253,7 @@ export class ZaakAfhandelenDialogComponent {
     });
   }
 
-  private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
+  private planItemAfhandelen(planItem: GeneratedType<"RestPlanItem">) {
     const { value } = this.form;
     const mailtemplate = this.mailtemplateQuery.data();
 

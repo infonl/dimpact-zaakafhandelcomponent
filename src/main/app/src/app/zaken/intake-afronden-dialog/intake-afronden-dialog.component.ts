@@ -81,7 +81,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     @Inject(MAT_DIALOG_DATA)
     public data: {
       zaak: GeneratedType<"RestZaak">;
-      planItem: GeneratedType<"RESTPlanItem">;
+      planItem: GeneratedType<"RestPlanItem">;
     },
     private formBuilder: FormBuilder,
     private translateService: TranslateService,

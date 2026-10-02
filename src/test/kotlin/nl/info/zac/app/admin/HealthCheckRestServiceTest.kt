@@ -61,7 +61,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             val result = healthCheckRestService.listZaaktypeInrichtingschecks()
 
             then(
-                "it should return a list of RESTZaaktypeInrichtingscheck objects where the first is valid and the second is invalid"
+                "it should return a list of RestZaaktypeInrichtingscheck objects where the first is valid and the second is invalid"
             ) {
                 result.size shouldBe 2
                 with(result[0]) {

@@ -86,7 +86,7 @@ describe(VersionComponent.name, () => {
   });
 
   describe("with build information", () => {
-    const buildInfo: GeneratedType<"RESTBuildInformation"> = {
+    const buildInfo: GeneratedType<"RestBuildInformation"> = {
       versienummer: "1.2.3",
       buildId: "build-42",
       buildDatumTijd: "2024-01-15T12:00:00",

@@ -20,7 +20,7 @@ export abstract class AbstractTaskForm implements OnDestroy {
 
   abstract requestForm(
     zaak: GeneratedType<"RestZaak">,
-    planItem?: GeneratedType<"RESTPlanItem">,
+    planItem?: GeneratedType<"RestPlanItem">,
   ): Promise<FormField[]>;
   abstract handleForm(
     taak: GeneratedType<"RestTask">,

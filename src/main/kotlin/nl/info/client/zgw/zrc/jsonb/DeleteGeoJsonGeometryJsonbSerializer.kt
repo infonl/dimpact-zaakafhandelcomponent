@@ -7,16 +7,16 @@ package nl.info.client.zgw.zrc.jsonb
 import jakarta.json.bind.serializer.JsonbSerializer
 import jakarta.json.bind.serializer.SerializationContext
 import jakarta.json.stream.JsonGenerator
-import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.DeleteGeoJsonGeometry
 
 /**
- * Custom JSONB serializer for [DeleteGeoJSONGeometry] objects.
+ * Custom JSONB serializer for [DeleteGeoJsonGeometry] objects.
  * Writes a `null` value to indicate that the geometry field should be deleted, as per the ZGW ZRC API specification.
  */
-class DeleteGeoJSONGeometryJsonbSerializer : JsonbSerializer<DeleteGeoJSONGeometry> {
+class DeleteGeoJsonGeometryJsonbSerializer : JsonbSerializer<DeleteGeoJsonGeometry> {
 
     override fun serialize(
-        deleteGeoJSONGeometry: DeleteGeoJSONGeometry,
+        deleteGeoJsonGeometry: DeleteGeoJsonGeometry,
         jsonGenerator: JsonGenerator,
         ctx: SerializationContext
     ) {

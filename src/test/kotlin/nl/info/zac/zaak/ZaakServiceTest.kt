@@ -23,7 +23,7 @@ import java.util.UUID
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
@@ -87,7 +87,7 @@ class ZaakServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val pabcClientService = mockk<PabcClientService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val zaakService = ZaakService(
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,

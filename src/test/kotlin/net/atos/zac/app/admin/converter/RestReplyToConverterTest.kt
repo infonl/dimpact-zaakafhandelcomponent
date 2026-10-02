@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 
-class RESTReplyToConverterTest : BehaviorSpec({
+class RestReplyToConverterTest : BehaviorSpec({
     context("convertReplyTo") {
         given("a ReferenceTableValue with a name") {
             val waarde = ReferenceTableValue().apply {

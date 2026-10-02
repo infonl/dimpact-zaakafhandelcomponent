@@ -59,7 +59,7 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
-const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+const planItemsQuery = (planItems: GeneratedType<"RestPlanItem">[]) =>
   queryOptions({
     queryKey: ["fakePlanItems", planItems],
     queryFn: () => planItems,
@@ -215,7 +215,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -226,7 +226,7 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
         planItemsQuery([
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
@@ -759,7 +759,7 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
         .mockReturnValue(
           planItemsQuery([
-            fromPartial<GeneratedType<"RESTPlanItem">>({
+            fromPartial<GeneratedType<"RestPlanItem">>({
               userEventListenerActie: "INTAKE_AFRONDEN",
             }),
           ]),
@@ -892,7 +892,7 @@ describe(ZaakViewComponent.name, () => {
               "Document verzenden",
               "Advies intern",
             ].map((naam) =>
-              fromPartial<GeneratedType<"RESTPlanItem">>({ naam }),
+              fromPartial<GeneratedType<"RestPlanItem">>({ naam }),
             ),
           ),
         );
@@ -935,7 +935,7 @@ describe(ZaakViewComponent.name, () => {
 
     let httpTestingController: HttpTestingController;
 
-    const flushPlanItems = (humanTasks: GeneratedType<"RESTPlanItem">[]) => {
+    const flushPlanItems = (humanTasks: GeneratedType<"RestPlanItem">[]) => {
       httpTestingController
         .match((request) => request.url === humanTaskPlanItemsUrl)
         .forEach((request) => request.flush(humanTasks));
@@ -952,7 +952,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         planItemsService.listHumanTaskPlanItemsQuery(zaak.uuid).queryKey,
         [
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             id: "fakeStalePlanItemId",
             naam: "verouderdeTaakNaam",
           }),
@@ -971,7 +971,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       flushPlanItems([
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           id: "fakeFreshPlanItemId",
           naam: "verseTaakNaam",
         }),

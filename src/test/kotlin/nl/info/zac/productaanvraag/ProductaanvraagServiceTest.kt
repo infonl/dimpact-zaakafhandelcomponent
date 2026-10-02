@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpSession
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.kvk.model.createRandomKvkNumber
@@ -87,7 +87,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val inboxDocumentService = mockk<InboxDocumentService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
     val productaanvraagEmailService = mockk<ProductaanvraagEmailService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val bpmnService = mockk<BpmnService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val configurationService = mockk<ConfigurationService>()

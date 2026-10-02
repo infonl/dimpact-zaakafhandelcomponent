@@ -51,7 +51,7 @@ describe("TaakFormulierenService", () => {
       const spy = jest
         .spyOn(TestBed.inject(DefaultTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         formulierDefinitie: "DEFAULT_TAAKFORMULIER",
       });
 
@@ -64,7 +64,7 @@ describe("TaakFormulierenService", () => {
       const spy = jest
         .spyOn(TestBed.inject(GoedkeurenTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         formulierDefinitie: "GOEDKEUREN",
       });
 
@@ -77,7 +77,7 @@ describe("TaakFormulierenService", () => {
       const spy = jest
         .spyOn(TestBed.inject(AanvullendeInformatieTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         formulierDefinitie: "AANVULLENDE_INFORMATIE",
       });
 
@@ -90,7 +90,7 @@ describe("TaakFormulierenService", () => {
       const spy = jest
         .spyOn(TestBed.inject(AdviesTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         formulierDefinitie: "ADVIES",
       });
 
@@ -100,7 +100,7 @@ describe("TaakFormulierenService", () => {
     });
 
     it("should throw for an unknown formulierDefinitie", async () => {
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         formulierDefinitie: "UNKNOWN" as GeneratedType<"FormulierDefinitie">,
       });
 
@@ -119,7 +119,7 @@ describe("TaakFormulierenService", () => {
       const spy = jest
         .spyOn(TestBed.inject(DocumentVerzendenPostTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         formulierDefinitie: "DOCUMENT_VERZENDEN_POST",
       });
 

@@ -86,8 +86,8 @@ export class InrichtingscheckComponent
   protected readonly versionLayout = VersionLayout;
   protected readonly rowOf = rowOf;
   protected dataSource: MatTableDataSource<
-    GeneratedType<"RESTZaaktypeInrichtingscheck">
-  > = new MatTableDataSource<GeneratedType<"RESTZaaktypeInrichtingscheck">>();
+    GeneratedType<"RestZaaktypeInrichtingscheck">
+  > = new MatTableDataSource<GeneratedType<"RestZaaktypeInrichtingscheck">>();
   protected loadingZaaktypes = true;
   protected loadingCommunicatiekanaal = true;
   protected columnsToDisplay = [
@@ -97,7 +97,7 @@ export class InrichtingscheckComponent
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  protected expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null =
+  protected expandedRow: GeneratedType<"RestZaaktypeInrichtingscheck"> | null =
     null;
   protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   private filterValue = "";
@@ -160,7 +160,7 @@ export class InrichtingscheckComponent
   }
 
   protected needsAttention(
-    zaaktypeInrichtingscheck: GeneratedType<"RESTZaaktypeInrichtingscheck">,
+    zaaktypeInrichtingscheck: GeneratedType<"RestZaaktypeInrichtingscheck">,
   ) {
     return (
       !zaaktypeInrichtingscheck.valide ||
@@ -169,7 +169,7 @@ export class InrichtingscheckComponent
   }
 
   protected rowStateClass(
-    zaaktypeInrichtingscheck: GeneratedType<"RESTZaaktypeInrichtingscheck">,
+    zaaktypeInrichtingscheck: GeneratedType<"RestZaaktypeInrichtingscheck">,
   ) {
     if (!zaaktypeInrichtingscheck.valide) return "error";
     return zaaktypeInrichtingscheck.heeftWaarschuwingen ? "warning" : "ok";

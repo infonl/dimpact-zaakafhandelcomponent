@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import java.lang.IllegalArgumentException
 
-class BSNValidatorTest : BehaviorSpec({
+class BsnValidatorTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()

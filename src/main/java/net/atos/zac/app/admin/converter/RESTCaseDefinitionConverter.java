@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,10 +16,10 @@ import org.flowable.cmmn.model.UserEventListener;
 
 import net.atos.zac.app.admin.model.RESTCaseDefinition;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
-import net.atos.zac.flowable.cmmn.CMMNService;
+import net.atos.zac.flowable.cmmn.CmmnService;
 
 public class RESTCaseDefinitionConverter {
-    private CMMNService cmmnService;
+    private CmmnService cmmnService;
 
     /**
      * No-arg constructor for CDI.
@@ -28,7 +28,7 @@ public class RESTCaseDefinitionConverter {
     }
 
     @Inject
-    public RESTCaseDefinitionConverter(final CMMNService cmmnService) {
+    public RESTCaseDefinitionConverter(final CmmnService cmmnService) {
         this.cmmnService = cmmnService;
     }
 

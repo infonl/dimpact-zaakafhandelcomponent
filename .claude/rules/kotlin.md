@@ -15,11 +15,11 @@ functions; this project deliberately diverges from the general Kotlin style guid
 declare return types on public declarations.
 ```kotlin
 // Before
-fun convert(mailTemplate: MailTemplate): RESTMailtemplate =
-    RESTMailtemplate().apply { ... }
+fun convert(mailTemplate: MailTemplate): RestMailtemplate =
+    RestMailtemplate().apply { ... }
 // After
 fun convert(mailTemplate: MailTemplate) =
-    RESTMailtemplate().apply { ... }
+    RestMailtemplate().apply { ... }
 ```
 Keep the explicit return type when the body is a block (`{ ... return ... }`, where Kotlin requires it anyway)
 or when omitting it would genuinely obscure what the function returns.
@@ -33,10 +33,9 @@ For example `catch (e: IOException)` should be `catch (ioException: IOException)
 Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
 Place `companion object` at the **top** of a class body, before any functions or properties.
 This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
-Rename existing classes to comply with the following Kotlin code convention:
-When using an acronym as part of a declaration name, follow these rules:
-— For two-letter acronyms, use uppercase for both letters. For example, IOStream.
-— For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
+Write two-letter acronyms in names in uppercase (`IOStream`) and capitalize only the first letter of longer ones
+(`XmlFormatter`, `HttpInputStream`). detekt `ClassNaming` enforces this for top-level class, interface and object
+names only; apply it by hand to nested classes, functions and properties (`toRestZaak`, not `toRESTZaak`).
 
 ## Name boolean properties with an `is`/`has` prefix
 Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
@@ -109,11 +108,11 @@ with `this@functionName` so every unqualified assignment inside the `apply` bloc
 object:
 ```kotlin
 // Before (.also, only needed because of the two receivers)
-fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().also {
+fun MailTemplate.toRestMailtemplate() = RestMailtemplate().also {
     it.mailTemplateNaam = mailTemplateNaam
 }
 // After (.apply, receiver disambiguated explicitly)
-fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().apply {
+fun MailTemplate.toRestMailtemplate() = RestMailtemplate().apply {
     mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam
 }
 ```

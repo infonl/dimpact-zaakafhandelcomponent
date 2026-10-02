@@ -9,7 +9,7 @@ import jakarta.ws.rs.ProcessingException
 import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
-import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.shared.model.audit.ZrcAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
@@ -42,7 +42,7 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
     }
 
     fun convertPartialUpdate(
-        auditTrailLine: ZRCAuditTrailRegel,
+        auditTrailLine: ZrcAuditTrailRegel,
         historyAction: HistoryAction?,
         oldValues: Map<String, *>,
         newValues: Map<String, *>

@@ -23,7 +23,7 @@ import net.atos.zac.app.admin.model.RESTReplyTo
 import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RestZaakbeeindigReden
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
@@ -66,7 +66,7 @@ import java.util.UUID
 class ZaaktypeConfigurationRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
-    private val cmmnService: CMMNService,
+    private val cmmnService: CmmnService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,

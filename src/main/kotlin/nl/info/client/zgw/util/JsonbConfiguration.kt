@@ -8,7 +8,7 @@ import jakarta.json.bind.Jsonb
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import jakarta.ws.rs.ext.ContextResolver
-import nl.info.client.zgw.zrc.jsonb.DeleteGeoJSONGeometryJsonbSerializer
+import nl.info.client.zgw.zrc.jsonb.DeleteGeoJsonGeometryJsonbSerializer
 import nl.info.client.zgw.zrc.jsonb.RolJsonbDeserializer
 import nl.info.client.zgw.zrc.jsonb.ZaakObjectJsonbDeserializer
 
@@ -24,10 +24,10 @@ class JsonbConfiguration : ContextResolver<Jsonb> {
             .withDeserializers(
                 RolJsonbDeserializer(),
                 ZaakObjectJsonbDeserializer(),
-                URIJsonbDeserializer()
+                UriJsonbDeserializer()
             )
             .withSerializers(
-                DeleteGeoJSONGeometryJsonbSerializer()
+                DeleteGeoJsonGeometryJsonbSerializer()
             )
     )
 }

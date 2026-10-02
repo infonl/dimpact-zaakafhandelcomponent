@@ -17,8 +17,8 @@ import jakarta.json.stream.JsonParser
 import java.lang.reflect.Type
 import java.net.URISyntaxException
 
-class URIJsonbDeserializerTest : BehaviorSpec({
-    val deserializer = URIJsonbDeserializer()
+class UriJsonbDeserializerTest : BehaviorSpec({
+    val deserializer = UriJsonbDeserializer()
     val parser = mockk<JsonParser>()
     val deserializationContext = mockk<DeserializationContext>()
     val runtimeType = mockk<Type>()
