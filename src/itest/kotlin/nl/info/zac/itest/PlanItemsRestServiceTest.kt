@@ -64,7 +64,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 // plan item: 'aanvullende informatie'
                 JSONArray(responseBody).length() shouldBe 1
                 with(JSONArray(responseBody)[0].toString()) {
-                    shouldContainJsonKeyValue("actief", "true")
+                    shouldContainJsonKeyValue("isActief", "true")
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
                     shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
@@ -85,7 +85,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue("actief", "true")
+                    shouldContainJsonKeyValue("isActief", "true")
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
                     shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
