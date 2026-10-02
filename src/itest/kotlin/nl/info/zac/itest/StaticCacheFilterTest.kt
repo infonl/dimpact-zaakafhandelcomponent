@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -48,9 +49,7 @@ class StaticCacheFilterTest : BehaviorSpec({
             "$ZAC_BASE_URI/index.html",
             testUser = BEHEERDER_1
         ).bodyAsString
-        val scriptName = requireNotNull(HASHED_SCRIPT_REGEX.find(indexBody)?.groupValues?.get(1)) {
-            "Could not find a hashed JS bundle URL in index.html"
-        }
+        val scriptName = HASHED_SCRIPT_REGEX.find(indexBody)?.groupValues?.get(1).shouldNotBeNull()
         `when`("the bundle is requested") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/$scriptName",

@@ -6,6 +6,8 @@ package nl.info.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.persistence.PersistenceException
+import jakarta.ws.rs.WebApplicationException
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -266,20 +268,32 @@ class BrpClientService @Inject constructor(
         resolveFunction: (ZaaktypeCmmnConfiguration) -> String?,
         buildFunction: (resolvedValue: String?, ZaaktypeCmmnConfiguration) -> String?
     ): String? =
-        zaaktypeUuid?.runCatching {
-            LOG.fine("Resolving purpose for zaak with UUID: $this")
-            resolveValueFromZaaktypeCmmnConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
-        }?.onFailure {
-            LOG.log(Level.WARNING, "Failed to resolve $valueDescription for zaaktype $zaaktypeUuid", it)
-        }?.getOrElse {
-            LOG.info("Using default $valueDescription '$defaultValue' for zaaktype $zaaktypeUuid")
-            null
+        zaaktypeUuid?.let {
+            LOG.fine("Resolving purpose for zaak with UUID: $it")
+            try {
+                it.resolveValueFromZaaktypeCmmnConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
+            } catch (webApplicationException: WebApplicationException) {
+                logBrpValueResolutionFailure(valueDescription, defaultValue, it, webApplicationException)
+            } catch (persistenceException: PersistenceException) {
+                logBrpValueResolutionFailure(valueDescription, defaultValue, it, persistenceException)
+            }
         } ?: run {
             val reason = zaaktypeUuid?.let { "No $valueDescription found for zaaktype $zaaktypeUuid" }
                 ?: "No zaak identification provided"
             LOG.info("$reason. Using default $valueDescription '$defaultValue'")
             defaultValue
         }
+
+    private fun logBrpValueResolutionFailure(
+        valueDescription: String,
+        defaultValue: String?,
+        zaaktypeUuid: UUID,
+        exception: RuntimeException
+    ): String? {
+        LOG.log(Level.WARNING, "Failed to resolve $valueDescription for zaaktype $zaaktypeUuid", exception)
+        LOG.info("Using default $valueDescription '$defaultValue' for zaaktype $zaaktypeUuid")
+        return null
+    }
 
     /**
      * Resolves a value using the zaakafhandelparameters settings of the zaaktype
