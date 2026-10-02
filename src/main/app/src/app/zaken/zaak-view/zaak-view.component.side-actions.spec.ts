@@ -86,7 +86,7 @@ describe(ZaakViewComponent.name, () => {
     }),
     indicaties: [],
     rechten: {
-      behandelen: true,
+      canBehandelen: true,
     },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
@@ -447,7 +447,11 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,
-          rechten: { ...zaak.rechten, wijzigen: true, wijzigenLocatie: true },
+          rechten: {
+            ...zaak.rechten,
+            canWijzigen: true,
+            canWijzigenLocatie: true,
+          },
         },
       });
       fixture.detectChanges();

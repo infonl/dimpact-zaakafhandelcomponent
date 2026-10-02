@@ -209,7 +209,7 @@ export class ZakenWerkvoorraadComponent
       [ZoekenColumn.INDICATIES, ColumnPickerValue.VISIBLE],
       [ZoekenColumn.URL, ColumnPickerValue.STICKY],
     ]);
-    if (!this.werklijstRechten.zakenTakenVerdelen) {
+    if (!this.werklijstRechten.canZakenTakenVerdelen) {
       columns.delete(ZoekenColumn.SELECT);
     }
     return columns;
@@ -301,7 +301,7 @@ export class ZakenWerkvoorraadComponent
   }
 
   protected showAssignToMe(zaakZoekObject: ZaakZoekObject) {
-    if (!zaakZoekObject.rechten.toekennen) return false;
+    if (!zaakZoekObject.rechten.canToekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
     if (loggedInUser.id === zaakZoekObject.behandelaarGebruikersnaam)

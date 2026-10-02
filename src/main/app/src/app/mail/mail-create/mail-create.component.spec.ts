@@ -48,16 +48,16 @@ const zaakMetInitiator = fromPartial<GeneratedType<"RestZaak">>({
 
 const afzenders = [
   fromPartial<GeneratedType<"RestZaakAfzender">>({
-    defaultMail: true,
+    isDefaultMail: true,
     id: 1,
     mail: "beheerder@example.com",
-    speciaal: true,
+    isSpeciaal: true,
     suffix: "gegevens.mail.afzender.MEDEWERKER",
   }),
   fromPartial<GeneratedType<"RestZaakAfzender">>({
-    defaultMail: false,
+    isDefaultMail: false,
     mail: "gemeente@example.com",
-    speciaal: true,
+    isSpeciaal: true,
     suffix: "gegevens.mail.afzender.GEMEENTE",
   }),
 ];
@@ -315,7 +315,7 @@ describe(MailCreateComponent.name, () => {
       onderwerp: "Bevestiging ontvangst",
       body: mailtemplate.body,
       bijlagen: "doc-1",
-      createDocumentFromMail: true,
+      shouldCreateDocumentFromMail: true,
     });
 
     request.flush({});

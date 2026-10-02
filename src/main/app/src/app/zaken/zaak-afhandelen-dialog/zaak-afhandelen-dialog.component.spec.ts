@@ -55,16 +55,16 @@ const resultaattypeMetBrondatum = fromPartial<
 >({
   id: "fakeResultaattypeId1",
   naam: "fakeResultaatMetBrondatum",
-  besluitVerplicht: false,
-  datumKenmerkVerplicht: true,
+  isBesluitVerplicht: false,
+  isDatumKenmerkVerplicht: true,
 });
 
 const resultaattypeMetBesluit = fromPartial<GeneratedType<"RestResultaattype">>(
   {
     id: "fakeResultaattypeId2",
     naam: "fakeResultaatMetBesluit",
-    besluitVerplicht: true,
-    datumKenmerkVerplicht: false,
+    isBesluitVerplicht: true,
+    isDatumKenmerkVerplicht: false,
   },
 );
 
@@ -73,8 +73,8 @@ const resultaattypeZonderVerplichtingen = fromPartial<
 >({
   id: "fakeResultaattypeId3",
   naam: "fakeResultaatZonderVerplichtingen",
-  besluitVerplicht: false,
-  datumKenmerkVerplicht: false,
+  isBesluitVerplicht: false,
+  isDatumKenmerkVerplicht: false,
 });
 
 const resultaattypes = [
@@ -393,7 +393,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         ontvanger: "recipient@example.com",
         onderwerp: mailtemplate.onderwerp,
         body: mailtemplate.body,
-        createDocumentFromMail: true,
+        shouldCreateDocumentFromMail: true,
         vertrouwelijkheidaanduiding: "OPENBAAR",
       });
 

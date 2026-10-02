@@ -151,7 +151,7 @@ export class MailCreateComponent implements OnInit {
       onderwerp: value.onderwerp!,
       body: value.body!,
       bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
-      createDocumentFromMail: true,
+      shouldCreateDocumentFromMail: true,
     });
   }
 

@@ -49,7 +49,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
 
   async function setup(
     werklijstRechten: GeneratedType<"RestWerklijstRechten"> = fromPartial({
-      inboxProductaanvragenVerwijderen: true,
+      canInboxProductaanvragenVerwijderen: true,
     }),
   ) {
     const { fixture: renderedFixture } = await render(
@@ -398,7 +398,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
   });
 
   it("offers no delete without the right to remove inbox productaanvragen", async () => {
-    await setup(fromPartial({ inboxProductaanvragenVerwijderen: false }));
+    await setup(fromPartial({ canInboxProductaanvragenVerwijderen: false }));
     await showProductaanvragen([inboxProductaanvraag]);
 
     expect(

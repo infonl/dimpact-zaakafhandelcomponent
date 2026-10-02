@@ -108,7 +108,7 @@
             class="col-12 col-lg-6"
             label="zaakspecifiek-autoriseerbaar"
             [value]="
-              (parameters.zaakspecifiekAutoriseerbaar
+              (parameters.isZaakspecifiekAutoriseerbaar
                 ? 'actie.ja'
                 : 'actie.nee'
               ) | translate
@@ -158,7 +158,7 @@
             <span matSuffix>{{ "kalenderdagen" | translate }}</span>
           </zac-input>
           <zac-input
-            *ngIf="parameters.zaaktype.servicenorm"
+            *ngIf="parameters.zaaktype.hasServicenorm"
             class="col-12 col-lg-6"
             key="einddatumGeplandWaarschuwing"
             [form]="algemeenFormGroup"
@@ -460,7 +460,7 @@
                   <td mat-cell *matCellDef="let afzender">
                     <mat-radio-button
                       (click)="updateZaakAfzenders(afzender.mail)"
-                      [checked]="afzender.defaultMail"
+                      [checked]="afzender.isDefaultMail"
                     >
                     </mat-radio-button>
                   </td>
@@ -473,7 +473,7 @@
                   ></th>
                   <td mat-cell *matCellDef="let afzender">
                     {{
-                      afzender.speciaal
+                      afzender.isSpeciaal
                         ? ("gegevens.mail.afzender." + afzender.mail
                           | i18nKey
                           | translate)
@@ -534,7 +534,7 @@
                   <td mat-cell *matCellDef="let row">
                     <button
                       mat-icon-button
-                      *ngIf="!row.speciaal"
+                      *ngIf="!row.isSpeciaal"
                       id="afzender-verwijderen"
                       title="{{ 'actie.verwijderen' | translate }}"
                       (click)="removeZaakAfzender(row.mail)"
@@ -893,8 +893,10 @@
       </mat-card>
       <smart-documents-form
         [zaakTypeUuid]="parameters.zaaktype.uuid"
-        [enabledGlobally]="parameters.smartDocuments.enabledGlobally"
-        [enabledForZaaktype]="parameters.smartDocuments.enabledForZaaktype"
+        [enabledGlobally]="parameters.smartDocuments.isEnabledGlobally ?? false"
+        [enabledForZaaktype]="
+          parameters.smartDocuments.isEnabledForZaaktype ?? false
+        "
         #smartDocumentsFormRef
       ></smart-documents-form>
       <div class="button-group flex-row flex-wrap">

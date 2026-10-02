@@ -52,7 +52,7 @@ export class TaakEditComponent {
   protected readonly groupDisplayValue = (
     group: GeneratedType<"RestGroup">,
   ): string =>
-    group.active === false
+    group.isActive === false
       ? `${group.naam ?? ""} (${this.translateService.instant("inactief").toLowerCase()})`
       : (group.naam ?? "");
 
@@ -93,7 +93,10 @@ export class TaakEditComponent {
           });
         });
 
-      if (this.task().status === "AFGEROND" || !this.task().rechten.toekennen) {
+      if (
+        this.task().status === "AFGEROND" ||
+        !this.task().rechten.canToekennen
+      ) {
         this.form.disable();
       }
     });

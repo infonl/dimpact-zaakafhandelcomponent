@@ -125,7 +125,7 @@ export class CaseLocationEditComponent
   private readonly locationMap = new OpenLayersLocationMap(this.pointStyle);
 
   ngOnInit(): void {
-    this.readonly = !this.zaak().rechten.wijzigenLocatie;
+    this.readonly = !this.zaak().rechten.canWijzigenLocatie;
     this.reasonControl.disable();
 
     this.searchControl.valueChanges

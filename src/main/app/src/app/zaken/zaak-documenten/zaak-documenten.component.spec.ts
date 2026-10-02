@@ -55,7 +55,7 @@ const fakeDocument = fromPartial<
   bestandsnaam: "test.pdf",
   formaat: "application/pdf",
   vertrouwelijkheidaanduiding: "OPENBAAR",
-  rechten: { lezen: true, wijzigen: false },
+  rechten: { canLezen: true, canWijzigen: false },
   isBesluitDocument: false,
 });
 
@@ -68,7 +68,7 @@ const fakeEditableDocument = fromPartial<
   formaat:
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   vertrouwelijkheidaanduiding: "OPENBAAR",
-  rechten: { lezen: true, wijzigen: true },
+  rechten: { canLezen: true, canWijzigen: true },
   isBesluitDocument: false,
 });
 
@@ -313,7 +313,7 @@ describe(ZaakDocumentenComponent.name, () => {
     const { listRequest } = await setup(fakeZaakMetRelaties);
 
     expect(listRequest.request.body).toEqual(
-      expect.objectContaining({ gekoppeldeZaakDocumenten: true }),
+      expect.objectContaining({ shouldIncludeGekoppeldeZaakDocumenten: true }),
     );
   });
 
@@ -321,7 +321,7 @@ describe(ZaakDocumentenComponent.name, () => {
     const { listRequest } = await setup();
 
     expect(listRequest.request.body).toEqual(
-      expect.objectContaining({ gekoppeldeZaakDocumenten: false }),
+      expect.objectContaining({ shouldIncludeGekoppeldeZaakDocumenten: false }),
     );
   });
 
@@ -548,7 +548,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await setup(fakeZaak, [
         fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
           ...fakeEditableDocument,
-          rechten: { lezen: true, wijzigen: false },
+          rechten: { canLezen: true, canWijzigen: false },
         }),
       ]);
 
@@ -563,7 +563,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await setup(fakeZaak, [
         fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
           ...fakeDocument,
-          rechten: { lezen: true, wijzigen: true },
+          rechten: { canLezen: true, canWijzigen: true },
         }),
       ]);
 

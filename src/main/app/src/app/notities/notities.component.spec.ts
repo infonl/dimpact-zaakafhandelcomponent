@@ -44,7 +44,7 @@ describe(NotitiesComponent.name, () => {
   const editableNotitie = fromPartial<GeneratedType<"RestNote">>({
     id: 1,
     tekst: "fakeTekst1",
-    bewerkenToegestaan: true,
+    isBewerkenToegestaan: true,
   });
 
   async function openNotities() {
@@ -101,8 +101,8 @@ describe(NotitiesComponent.name, () => {
   describe("for a user who may change notities", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("notitieRechten", {
-        lezen: true,
-        wijzigen: true,
+        canLezen: true,
+        canWijzigen: true,
       });
       fixture.detectChanges();
     });
@@ -245,8 +245,8 @@ describe(NotitiesComponent.name, () => {
         .mocked(notitieService.listNotities)
         .mockReturnValue(of([editableNotitie]));
       fixture.componentRef.setInput("notitieRechten", {
-        lezen: true,
-        wijzigen: false,
+        canLezen: true,
+        canWijzigen: false,
       });
       fixture.detectChanges();
     });
@@ -268,8 +268,8 @@ describe(NotitiesComponent.name, () => {
       await openNotities();
 
       fixture.componentRef.setInput("notitieRechten", {
-        lezen: true,
-        wijzigen: true,
+        canLezen: true,
+        canWijzigen: true,
       });
       fixture.detectChanges();
 

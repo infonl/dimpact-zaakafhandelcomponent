@@ -57,7 +57,7 @@
                   [value]="zaakgeometrie | location"
                   class="flex-item"
                 />
-                @if (zaak().rechten.wijzigenLocatie) {
+                @if (zaak().rechten.canWijzigenLocatie) {
                   @let editLocatieLabel =
                     "actie.zaak.locatie.wijzigen" | translate;
                   <button
@@ -124,7 +124,7 @@
           </ng-template>
           <zac-zaak-details-bag-objecten-tab
             [bagObjecten]="bagObjecten()"
-            [isOntkoppelenToegestaan]="!!zaak().rechten.behandelen"
+            [isOntkoppelenToegestaan]="!!zaak().rechten.canBehandelen"
             (bagObjectVerwijderen)="bagObjectVerwijderen.emit($event)"
           ></zac-zaak-details-bag-objecten-tab>
         </mat-tab>

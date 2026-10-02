@@ -51,10 +51,10 @@ const taak = (fields: Partial<GeneratedType<"RestTask">> = {}) =>
     behandelaar: { id: "fakeBehandelaarId", naam: "fakeBehandelaarNaam" },
     zaakUuid: "fakeZaakUuid",
     rechten: {
-      lezen: true,
-      toekennen: true,
-      wijzigen: true,
-      toevoegenDocument: true,
+      canLezen: true,
+      canToekennen: true,
+      canWijzigen: true,
+      canToevoegenDocument: true,
     },
     taakdata: {},
     tabellen: {},
@@ -354,7 +354,7 @@ describe(ZaakTakenComponent.name, () => {
     it("marks an inactive groep as inactief", async () => {
       await setup([
         taak({
-          groep: { id: "fakeGroepId", naam: "fakeGroepNaam", active: false },
+          groep: { id: "fakeGroepId", naam: "fakeGroepNaam", isActive: false },
         }),
       ]);
 
@@ -366,7 +366,7 @@ describe(ZaakTakenComponent.name, () => {
     it("does not mark an active groep as inactief", async () => {
       await setup([
         taak({
-          groep: { id: "fakeGroepId", naam: "fakeGroepNaam", active: true },
+          groep: { id: "fakeGroepId", naam: "fakeGroepNaam", isActive: true },
         }),
       ]);
 
@@ -417,7 +417,7 @@ describe(ZaakTakenComponent.name, () => {
       await setup([
         taak({
           rechten: fromPartial<GeneratedType<"RestTaakRechten">>({
-            toekennen: false,
+            canToekennen: false,
           }),
         }),
       ]);

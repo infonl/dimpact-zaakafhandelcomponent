@@ -136,8 +136,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
     smartDocuments: {
-      enabledGlobally: false,
-      enabledForZaaktype: false,
+      isEnabledGlobally: false,
+      isEnabledForZaaktype: false,
     },
     zaakAfzenders: [],
     userEventListenerParameters: [],
@@ -145,8 +145,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       uuid: "",
     },
     betrokkeneKoppelingen: {
-      brpKoppelen: false,
-      kvkKoppelen: false,
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
     },
     brpDoelbindingen: {
       zoekWaarde: "",
@@ -155,7 +155,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
-      enabled: false,
+      isEnabled: false,
       templateName: null,
       emailSender: null,
       emailReply: null,
@@ -637,10 +637,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private createBetrokkeneKoppelingenForm() {
     this.betrokkeneKoppelingen = this.formBuilder.group({
       kvkKoppelen: [
-        this.parameters.betrokkeneKoppelingen?.kvkKoppelen ?? false,
+        this.parameters.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false,
       ],
       brpKoppelen: [
-        this.parameters.betrokkeneKoppelingen?.brpKoppelen ?? false,
+        this.parameters.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false,
       ],
     });
 
@@ -718,7 +718,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       emailReply: this.replyTos.find(
         ({ mail }) => mail === automaticEmailConfirmation!.emailReply,
       ),
-      enabled: automaticEmailConfirmation!.enabled ?? false,
+      enabled: automaticEmailConfirmation!.isEnabled ?? false,
     });
   }
 
@@ -803,8 +803,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.zaakAfzendersDataSource.data = this.parameters
       .zaakAfzenders!.slice()
       .sort((a, b) => {
-        return a.speciaal !== b.speciaal
-          ? a.speciaal
+        return a.isSpeciaal !== b.isSpeciaal
+          ? a.isSpeciaal
             ? -1
             : 1
           : (a.mail?.localeCompare(b.mail ?? "") ?? 0);
@@ -814,8 +814,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected addZaakAfzender(afzender: string): void {
     const zaakAfzender: GeneratedType<"RestZaakAfzender"> & { index: number } =
       {
-        speciaal: false,
-        defaultMail: false,
+        isSpeciaal: false,
+        isDefaultMail: false,
         mail: afzender,
         replyTo: undefined,
         index: 0,
@@ -835,7 +835,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected updateZaakAfzenders(afzender: string): void {
     for (const zaakAfzender of this.parameters.zaakAfzenders!) {
-      zaakAfzender.defaultMail = zaakAfzender.mail === afzender;
+      zaakAfzender.isDefaultMail = zaakAfzender.mail === afzender;
     }
     this.mailFormGroup.updateValueAndValidity({ emitEvent: false });
   }
@@ -1036,14 +1036,14 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       )?.value;
     }
 
-    this.parameters.smartDocuments.enabledForZaaktype =
+    this.parameters.smartDocuments.isEnabledForZaaktype =
       this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false;
 
     this.parameters.betrokkeneKoppelingen = {
-      kvkKoppelen: Boolean(
+      isKvkKoppelenEnabled: Boolean(
         this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
       ),
-      brpKoppelen: Boolean(
+      isBrpKoppelenEnabled: Boolean(
         this.betrokkeneKoppelingen.controls.brpKoppelen.value,
       ),
     };
@@ -1056,7 +1056,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       templateName: templateName?.mailTemplateNaam,
       emailReply: emailReply?.mail,
       emailSender: emailSender?.mail,
-      enabled: Boolean(enabled),
+      isEnabled: Boolean(enabled),
     };
 
     this.zaakafhandelParametersService
@@ -1095,7 +1095,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   private afzenderValidator: ValidatorFn = (): ValidationErrors | null => {
     const hasDefaultAfzender = this.parameters.zaakAfzenders?.some(
-      (afzender) => afzender.defaultMail,
+      (afzender) => afzender.isDefaultMail,
     );
     return hasDefaultAfzender ? null : { noDefaultAfzender: true };
   };

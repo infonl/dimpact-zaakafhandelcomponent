@@ -66,8 +66,8 @@ describe(BedrijfsgegevensComponent.name, () => {
   const testZaak = fromPartial<GeneratedType<"RestZaak">>({
     initiatorIdentificatie: betrokkeneIdentificatie,
     rechten: {
-      toevoegenInitiatorBedrijf: false,
-      verwijderenInitiator: false,
+      canToevoegenInitiatorBedrijf: false,
+      canVerwijderenInitiator: false,
     },
   });
 
@@ -123,8 +123,8 @@ describe(BedrijfsgegevensComponent.name, () => {
         fromPartial<GeneratedType<"RestZaak">>({
           ...testZaak,
           rechten: {
-            toevoegenInitiatorBedrijf: true,
-            verwijderenInitiator: false,
+            canToevoegenInitiatorBedrijf: true,
+            canVerwijderenInitiator: false,
           },
         }),
       );
@@ -153,8 +153,8 @@ describe(BedrijfsgegevensComponent.name, () => {
         fromPartial<GeneratedType<"RestZaak">>({
           ...testZaak,
           rechten: {
-            toevoegenInitiatorBedrijf: false,
-            verwijderenInitiator: true,
+            canToevoegenInitiatorBedrijf: false,
+            canVerwijderenInitiator: true,
           },
         }),
       );

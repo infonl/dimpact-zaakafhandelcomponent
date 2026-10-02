@@ -206,7 +206,7 @@ export class BpmnProcessDefinitionsComponent
 
   protected hasAllFormsUploaded(node: BpmnProcessDefinitionGroupNode): boolean {
     const forms = node.definition.details?.forms ?? [];
-    return forms.length > 0 && forms.every((form) => form.uploaded);
+    return forms.length > 0 && forms.every((form) => form.isUploaded);
   }
 
   private buildTreeData(

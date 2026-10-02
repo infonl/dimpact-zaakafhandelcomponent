@@ -89,7 +89,7 @@ describe(ZaakViewComponent.name, () => {
     }),
     indicaties: [],
     rechten: {
-      behandelen: true,
+      canBehandelen: true,
     },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
@@ -274,9 +274,9 @@ describe(ZaakViewComponent.name, () => {
           queryOptions({
             queryKey: ["fakeBrpRechten"],
             queryFn: () =>
-              fromPartial<GeneratedType<"RestBrpRechten">>({ zoeken: true }),
+              fromPartial<GeneratedType<"RestBrpRechten">>({ canZoeken: true }),
             initialData: fromPartial<GeneratedType<"RestBrpRechten">>({
-              zoeken: true,
+              canZoeken: true,
             }),
           }) as ReturnType<PolicyService["readBrpRechten"]>,
         );
@@ -321,7 +321,7 @@ describe(ZaakViewComponent.name, () => {
     it("should render <zac-notities> when notitieRechten.lezen is true", () => {
       jest
         .spyOn(policyService, "readNotitieRechten")
-        .mockReturnValue(of({ lezen: true, wijzigen: false }));
+        .mockReturnValue(of({ canLezen: true, canWijzigen: false }));
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
@@ -333,7 +333,7 @@ describe(ZaakViewComponent.name, () => {
     it("should render <zac-notities> when notitieRechten.wijzigen is true", () => {
       jest
         .spyOn(policyService, "readNotitieRechten")
-        .mockReturnValue(of({ lezen: false, wijzigen: true }));
+        .mockReturnValue(of({ canLezen: false, canWijzigen: true }));
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
@@ -345,7 +345,7 @@ describe(ZaakViewComponent.name, () => {
     it("should not render <zac-notities> when both notitieRechten.lezen and wijzigen are false", () => {
       jest
         .spyOn(policyService, "readNotitieRechten")
-        .mockReturnValue(of({ lezen: false, wijzigen: false }));
+        .mockReturnValue(of({ canLezen: false, canWijzigen: false }));
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
@@ -391,7 +391,7 @@ describe(ZaakViewComponent.name, () => {
       fromPartial<GeneratedType<"RestZaak">>({
         ...zaak,
         zaakdata: { fakeKey: "fakeValue" },
-        rechten: { ...zaak.rechten, bekijkenZaakdata: true },
+        rechten: { ...zaak.rechten, canBekijkenZaakdata: true },
         isZaakdataGearchiveerd,
       });
 
@@ -424,15 +424,15 @@ describe(ZaakViewComponent.name, () => {
       isOpen: true,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
+        canBehandelen: true,
       },
       zaaktype: {
         ...zaak.zaaktype,
-        opschortingMogelijk: true,
+        isOpschortingMogelijk: true,
       },
       isHeropend: false,
       isOpgeschort: false,
-      eerdereOpschorting: false,
+      hasEerdereOpschorting: false,
       isProcesGestuurd: false,
     } satisfies GeneratedType<"RestZaak">;
 
@@ -460,7 +460,7 @@ describe(ZaakViewComponent.name, () => {
 
       zakenService.cacheZaak({
         ...opschortbareZaak,
-        rechten: { ...opschortbareZaak.rechten, behandelen: false },
+        rechten: { ...opschortbareZaak.rechten, canBehandelen: false },
       });
       fixture.detectChanges();
 

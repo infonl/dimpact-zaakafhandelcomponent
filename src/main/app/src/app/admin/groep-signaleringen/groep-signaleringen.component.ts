@@ -58,6 +58,13 @@ export class GroepSignaleringenComponent
   protected groepen!: Observable<GeneratedType<"RestGroup">[]>;
   protected groepId: string | undefined;
   protected columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
+  protected readonly settingPerColumn: Record<
+    string,
+    "isDashboardEnabled" | "isMailEnabled"
+  > = {
+    dashboard: "isDashboardEnabled",
+    mail: "isMailEnabled",
+  };
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestSignaleringInstellingen">
   >();
@@ -92,7 +99,7 @@ export class GroepSignaleringenComponent
   ): void {
     if (!this.groepId) return;
     this.utilService.setLoading(true);
-    (row as Record<string, unknown>)[column] = checked;
+    row[this.settingPerColumn[column]] = checked;
     this.service
       .put(this.groepId, row)
       .pipe(finalize(() => this.utilService.setLoading(false)))

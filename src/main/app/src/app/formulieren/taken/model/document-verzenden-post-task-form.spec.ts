@@ -199,7 +199,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       zaakUuid: "zaak-uuid",
       taakdata: {},
       status: "OPEN" as GeneratedType<"TaakStatus">,
-      rechten: fromPartial({ wijzigen: true }),
+      rechten: fromPartial({ canWijzigen: true }),
     });
 
     describe("field structure", () => {
@@ -394,7 +394,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         const fields = await formulier.handleForm(
           fromPartial<GeneratedType<"RestTask">>({
             ...baseTaak,
-            rechten: fromPartial({ wijzigen: false }),
+            rechten: fromPartial({ canWijzigen: false }),
           }),
         );
 

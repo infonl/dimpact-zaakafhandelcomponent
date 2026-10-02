@@ -70,14 +70,14 @@ describe("Human tasks form step", () => {
     zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
       {
-        speciaal: false,
-        defaultMail: false,
+        isSpeciaal: false,
+        isDefaultMail: false,
         mail: "test@example.com",
         replyTo: undefined,
       },
       {
-        speciaal: false,
-        defaultMail: false,
+        isSpeciaal: false,
+        isDefaultMail: false,
         mail: "test2@example.com",
         replyTo: undefined,
       },
@@ -85,9 +85,12 @@ describe("Human tasks form step", () => {
     humanTaskParameters,
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+    smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
     userEventListenerParameters: [],
-    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+    betrokkeneKoppelingen: {
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
+    },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -95,7 +98,7 @@ describe("Human tasks form step", () => {
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
-      enabled: false,
+      isEnabled: false,
       templateName: null,
       emailSender: null,
       emailReply: null,

@@ -35,10 +35,10 @@ export type DocumentZoekObject =
     bestandsnaam: string;
     bestandsomvang: number;
     documentType: string;
-    indicatieOndertekend: boolean;
+    isOndertekend: boolean;
     inhoudUrl: string;
-    indicatieVergrendeld: boolean;
-    indicatieGebruiksrecht: boolean;
+    isVergrendeld: boolean;
+    hasGebruiksrecht: boolean;
     vergrendeldDoor: string;
     indicaties: GeneratedType<"DocumentIndicatie">[];
     rechten: GeneratedType<"RestDocumentRechten">;

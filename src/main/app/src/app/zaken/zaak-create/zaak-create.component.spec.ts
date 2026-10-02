@@ -589,7 +589,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: false,
+              isKvkKoppelenEnabled: false,
+            },
           },
         }),
       );
@@ -609,7 +612,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: true, kvkKoppelen: false },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: true,
+              isKvkKoppelenEnabled: false,
+            },
           },
         }),
       );
@@ -620,7 +626,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: true },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: false,
+              isKvkKoppelenEnabled: true,
+            },
           },
         }),
       );

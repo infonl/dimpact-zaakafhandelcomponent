@@ -63,7 +63,7 @@ function makeBedrijf(
     type: "RECHTSPERSOON",
     adres: {
       type: "bezoekadres",
-      afgeschermd: false,
+      isAfgeschermd: false,
       volledigAdres: "Teststraat 1, 1234AB Amsterdam",
     },
     telefoonnummer: "0201234567",

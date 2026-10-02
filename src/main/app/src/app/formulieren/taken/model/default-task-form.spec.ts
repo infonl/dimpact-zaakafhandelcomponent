@@ -84,7 +84,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
       });
@@ -147,7 +147,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: { afhandeling: "eerder opgeslagen afhandeling" },
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -160,7 +160,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -172,7 +172,7 @@ describe(DefaultTaskForm.name, () => {
         const fields = await formulier.handleForm(
           fromPartial<GeneratedType<"RestTask">>({
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -187,7 +187,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "AFGEROND" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -200,7 +200,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: false }),
+            rechten: fromPartial({ canWijzigen: false }),
           }),
         );
         expect(

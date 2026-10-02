@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -25,7 +25,7 @@ export type ZaakZoekObject =
     vertrouwelijkheidaanduiding: string;
     archiefActiedatum: string;
     archiefNominatie: string;
-    afgehandeld: boolean;
+    isAfgehandeld: boolean;
     isZaakspecifiekGeautoriseerd: boolean;
     groepId: string;
     groepNaam: string;
@@ -33,19 +33,19 @@ export type ZaakZoekObject =
     behandelaarGebruikersnaam: string;
     initiatorIdentificatie: string;
     locatie: string;
-    indicatieVerlenging: boolean;
+    isVerlengd: boolean;
     duurVerlenging: string;
     redenVerlenging: string;
-    indicatieOpschorting: boolean;
+    isOpgeschort: boolean;
     redenOpschorting: string;
     zaaktypeUuid: string;
     zaaktypeOmschrijving: string;
     resultaattypeOmschrijving: string;
     resultaatToelichting: string;
     statustypeOmschrijving: string;
-    indicatieDeelzaak: boolean;
-    indicatieHoofdzaak: boolean;
-    indicatieHeropend: boolean;
+    isDeelzaak: boolean;
+    isHoofdzaak: boolean;
+    isHeropend: boolean;
     statusToelichting: string;
     rechten: GeneratedType<"RestZaakRechten">;
     indicaties: GeneratedType<"ZaakIndicatie">[];
