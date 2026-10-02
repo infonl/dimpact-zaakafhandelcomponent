@@ -210,10 +210,10 @@ class ZaakGedrevenReindexService @Inject constructor(
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
             reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
                 reindexPage(
-                    pageNumber,
-                    numberOfZaken,
-                    scope,
-                    alreadyIndexedInformatieobjectUUIDs
+                    pageNumber = pageNumber,
+                    totalCount = numberOfZaken,
+                    scope = scope,
+                    alreadyIndexedInformatieobjectUUIDs = alreadyIndexedInformatieobjectUUIDs
                 )
             }?.let { counts += it }
         }

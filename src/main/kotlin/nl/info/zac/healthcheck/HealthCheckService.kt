@@ -119,10 +119,10 @@ class HealthCheckService @Inject constructor(
             null
         }
         return BuildInformation(
-            commitHash.orElse(null),
-            branchName.orElse(null),
-            buildDateTime,
-            versionNumber.orElse(DEV_BUILD_ID)
+            commit = commitHash.orElse(null),
+            buildId = branchName.orElse(null),
+            buildDateTime = buildDateTime,
+            versionNumber = versionNumber.orElse(DEV_BUILD_ID)
         )
     }
 

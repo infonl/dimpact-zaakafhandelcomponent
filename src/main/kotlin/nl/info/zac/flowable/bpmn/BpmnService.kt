@@ -313,10 +313,10 @@ class BpmnService @Inject constructor(
                 }
         }
         return BpmnProcessDefinitionMetadata(
-            documentation,
-            modificationDate,
-            getUploadDate(processDefinition.deploymentId),
-            formKeys,
+            documentation = documentation,
+            modificationDate = modificationDate,
+            uploadDate = getUploadDate(processDefinition.deploymentId),
+            formKeys = formKeys,
         )
     }
 

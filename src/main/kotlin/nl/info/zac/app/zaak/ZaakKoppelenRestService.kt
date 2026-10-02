@@ -276,7 +276,12 @@ class ZaakKoppelenRestService @Inject constructor(
                 val zaakZoekObject = it as ZaakZoekObject
                 zaakZoekObject.toRestZaakKoppelenZoekObject(
                     zaak.alreadyGerelateerdReason(UUID.fromString(zaakZoekObject.getObjectId()))
-                        ?: notLinkableReason(koppelData, zaaktype, zaakZoekObject, relationType),
+                        ?: notLinkableReason(
+                            sourceZaak = koppelData,
+                            sourceZaaktype = zaaktype,
+                            targetZaak = zaakZoekObject,
+                            relationType = relationType
+                        ),
                 )
             },
             searchResults.count

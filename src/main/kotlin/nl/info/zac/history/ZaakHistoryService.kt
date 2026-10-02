@@ -69,10 +69,10 @@ class ZaakHistoryService @Inject constructor(
             ACTION_PARTIAL_UPDATE if old != null &&
                 new != null
             -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                auditTrailLine,
-                convertActie(auditTrailLine.resource, auditTrailLine.actie),
-                old,
-                new
+                auditTrailLine = auditTrailLine,
+                historyAction = convertActie(auditTrailLine.resource, auditTrailLine.actie),
+                oldValues = old,
+                newValues = new
             )
 
             ACTION_CREATE, ACTION_UPDATE, ACTION_DESTROY

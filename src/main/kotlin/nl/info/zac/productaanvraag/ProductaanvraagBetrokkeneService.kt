@@ -217,9 +217,22 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
         zaak: Zaak
     ) {
         ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
-            .also { logRoltypenWarnings(it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
+            .also {
+                logRoltypenWarnings(
+                    types = it,
+                    zaak = zaak,
+                    roltypeOmschrijving = roltypeOmschrijvingGeneriek.toString(),
+                    generiek = true
+                )
+            }
             .firstOrNull()?.let {
-                addRole(betrokkene, it, zaak, roltypeOmschrijvingGeneriek.toString(), true)
+                addRole(
+                    betrokkene = betrokkene,
+                    type = it,
+                    zaak = zaak,
+                    roltypeOmschrijving = roltypeOmschrijvingGeneriek.toString(),
+                    genericRolType = true
+                )
             }
     }
 
@@ -230,7 +243,9 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
     ) {
         ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
             .also { logRoltypenWarnings(it, zaak, roltypeOmschrijving) }
-            .firstOrNull()?.let { addRole(betrokkene, it, zaak, roltypeOmschrijving) }
+            .firstOrNull()?.let {
+                addRole(betrokkene = betrokkene, type = it, zaak = zaak, roltypeOmschrijving = roltypeOmschrijving)
+            }
             ?: LOG.warning(
                 "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
                     "productaanvraag. No betrokkene role created for zaak ${zaak.identificatie}."
@@ -248,10 +263,10 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
             onNatuurlijkPersoonIdentity = { addNatuurlijkPersoonRole(type, it, zaak.url) },
             onKvkIdentity = { kvkNummer, vestigingsNummer ->
                 addRechtspersoonOrVestiging(
-                    type,
-                    kvkNummer,
-                    vestigingsNummer,
-                    zaak.url
+                    rolType = type,
+                    kvkNummer = kvkNummer,
+                    vestigingsNummer = vestigingsNummer,
+                    zaakUri = zaak.url
                 )
             },
             onNoIdentity = {
@@ -288,10 +303,10 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
     private fun addNatuurlijkPersoonRole(rolType: RolType, bsn: String, zaak: URI) {
         zrcClientService.createRol(
             RolNatuurlijkPersoon(
-                zaak,
-                rolType,
-                ROL_TOELICHTING,
-                NatuurlijkPersoonIdentificatie().apply { this.inpBsn = bsn }
+                zaak = zaak,
+                roltype = rolType,
+                roltoelichting = ROL_TOELICHTING,
+                betrokkeneIdentificatie = NatuurlijkPersoonIdentificatie().apply { this.inpBsn = bsn }
             )
         )
     }
@@ -312,10 +327,10 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
             // note that niet-natuurlijk persoon roles can be used both for KVK niet-natuurlijk personen (with an RSIN)
             // and for KVK vestigingen
             RolNietNatuurlijkPersoon(
-                zaakUri,
-                rolType,
-                ROL_TOELICHTING,
-                NietNatuurlijkPersoonIdentificatie().apply {
+                zaak = zaakUri,
+                roltype = rolType,
+                roltoelichting = ROL_TOELICHTING,
+                betrokkeneIdentificatie = NietNatuurlijkPersoonIdentificatie().apply {
                     this.vestigingsNummer = vestigingsNummer
                     this.kvkNummer = kvkNummer
                 }

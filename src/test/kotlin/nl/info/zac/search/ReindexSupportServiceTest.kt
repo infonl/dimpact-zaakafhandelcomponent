@@ -95,13 +95,13 @@ private fun setupContext(): ReindexSupportServiceTestContext {
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
 
     val reindexSupportService = ReindexSupportService(
-        converterInstances,
-        zrcClientService,
-        drcClientService,
-        flowableTaskService,
-        zaakspecifiekeAutorisatieService,
-        solrClientFactory,
-        Dispatchers.IO
+        converterInstances = converterInstances,
+        zrcClientService = zrcClientService,
+        drcClientService = drcClientService,
+        flowableTaskService = flowableTaskService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
+        solrClientFactory = solrClientFactory,
+        dispatcher = Dispatchers.IO
     )
 
     return ReindexSupportServiceTestContext(

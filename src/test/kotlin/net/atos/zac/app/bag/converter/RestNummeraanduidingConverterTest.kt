@@ -119,20 +119,20 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
             val fakeObjectUri = URI("https://example.com/bag/nummeraanduiding/fakeObjectUri")
             val fakeZaakUri = URI("https://example.com/zaken/fakeZaakUri")
             val objectNummeraanduiding = ObjectNummeraanduiding(
-                "fakeIdentificatie",
-                15,
-                "B",
-                "fakeToevoeging",
-                "9876ZZ",
-                TypeAdresseerbaarObject.LIGPLAATS.toString(),
-                StatusNaamgeving.NAAMGEVING_UITGEGEVEN.toString()
+                identificatie = "fakeIdentificatie",
+                huisnummer = 15,
+                huisletter = "B",
+                huisnummertoevoeging = "fakeToevoeging",
+                postcode = "9876ZZ",
+                typeAdresseerbaarObject = TypeAdresseerbaarObject.LIGPLAATS.toString(),
+                status = StatusNaamgeving.NAAMGEVING_UITGEGEVEN.toString()
             )
             val zaakobjectNummeraanduiding = ZaakobjectNummeraanduiding(
-                fakeZaakUri,
-                fakeObjectUri,
-                objectNummeraanduiding,
-                URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
-                UUID.randomUUID()
+                zaak = fakeZaakUri,
+                bagObjectUri = fakeObjectUri,
+                nummeraanduiding = objectNummeraanduiding,
+                url = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+                uuid = UUID.randomUUID()
             )
 
             `when`("convertToREST is called") {

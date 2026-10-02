@@ -61,16 +61,6 @@ When used by dependency injection frameworks, such as is the case in REST servic
 @AllOpen
 ```
 
-## Use named parameters in Kotlin
-When calling a Kotlin function that has multiple parameters, especially if they are of the same type, use named parameters to improve readability. For example:
-```kotlin
-// Before
-val user = createUser("John", "Doe", 30)
-// After
-val user = createUser(firstName = "John", lastName = "Doe", age = 30)
-```
-This makes it clear what each argument represents and reduces the chance of accidentally swapping parameters.
-
 ## Prefer concise lambda syntax in Kotlin
 When you have a lambda function that can be simplified to a single expression, use the concise syntax. For example:
 

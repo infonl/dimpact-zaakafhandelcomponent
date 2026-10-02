@@ -196,11 +196,24 @@ class RestZaakConverter @Inject constructor(
         zaak.deelzaken
             ?.map(zrcClientService::readZaak)
             ?.map {
-                restGerelateerdeZaakConverter.convert(zaak, fromZaakRechten, it, loggedInUser, RelatieType.DEELZAAK)
+                restGerelateerdeZaakConverter.convert(
+                    fromZaak = zaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = it,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.DEELZAAK
+                )
             }
             ?.forEach(gerelateerdeZaken::add)
         zaak.gerelateerdeZaken
-            ?.map { restGerelateerdeZaakConverter.convert(zaak, fromZaakRechten, it, loggedInUser) }
+            ?.map {
+                restGerelateerdeZaakConverter.convert(
+                    fromZaak = zaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = it,
+                    loggedInUser = loggedInUser
+                )
+            }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }

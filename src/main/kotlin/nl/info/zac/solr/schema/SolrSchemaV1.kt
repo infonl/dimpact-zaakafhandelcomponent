@@ -43,10 +43,10 @@ class SolrSchemaV1 : SolrSchemaUpdate {
         addField("isToegekend", BOOLEAN, docValues = true),
         addField("startdatum", PDATE),
         addField("streefdatum", PDATE),
-        addFieldMultiValued("text", TEXT_NL, indexed = true, stored = false),
-        addFieldMultiValued("text_exact", TEXT_WS, indexed = true, stored = false),
-        addFieldMultiValued("text_rev", TEXT_GENERAL_REV, indexed = true, stored = false),
-        addDynamicField("*_coordinate", PDOUBLE, indexed = true, stored = false),
+        addFieldMultiValued(name = "text", type = TEXT_NL, indexed = true, stored = false),
+        addFieldMultiValued(name = "text_exact", type = TEXT_WS, indexed = true, stored = false),
+        addFieldMultiValued(name = "text_rev", type = TEXT_GENERAL_REV, indexed = true, stored = false),
+        addDynamicField(name = "*_coordinate", type = PDOUBLE, indexed = true, stored = false),
         addCopyField("id", "text", "text_exact")
     )
 
@@ -105,7 +105,7 @@ class SolrSchemaV1 : SolrSchemaUpdate {
         addCopyField("zaak_resultaatToelichting", "text"),
         addField("zaak_aantalOpenstaandeTaken", PINT),
         addFieldMultiValued("zaak_indicaties", STRING, docValues = true),
-        addField("zaak_indicaties_sort", PLONG, indexed = true, stored = false, docValues = true)
+        addField(name = "zaak_indicaties_sort", type = PLONG, indexed = true, stored = false, docValues = true)
     )
 
     private fun createTaakSchema(): List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
@@ -146,7 +146,7 @@ class SolrSchemaV1 : SolrSchemaUpdate {
         addCopyField("informatieobject_identificatie", "text", "text_exact"),
         addField("informatieobject_titel", TEXT_NL),
         addCopyField("informatieobject_titel", "text"),
-        addField("informatieobject_titel_sort", STRING, indexed = true, stored = false),
+        addField(name = "informatieobject_titel_sort", type = STRING, indexed = true, stored = false),
         addCopyField("informatieobject_titel", "informatieobject_titel_sort"),
         addField("informatieobject_beschrijving", TEXT_NL),
         addCopyField("informatieobject_beschrijving", "text"),
@@ -166,7 +166,7 @@ class SolrSchemaV1 : SolrSchemaUpdate {
         addField("informatieobject_vertrouwelijkheidaanduiding", STRING, docValues = true),
         addField("informatieobject_auteur", TEXT_NL),
         addCopyField("informatieobject_auteur", "text"),
-        addField("informatieobject_auteur_sort", STRING, indexed = true, stored = false),
+        addField(name = "informatieobject_auteur_sort", type = STRING, indexed = true, stored = false),
         addCopyField("informatieobject_auteur", "informatieobject_auteur_sort"),
         addField("informatieobject_status", STRING, docValues = true),
         addCopyField("informatieobject_status", "text"),
@@ -187,6 +187,6 @@ class SolrSchemaV1 : SolrSchemaUpdate {
         addField("informatieobject_vergrendeldDoorNaam", STRING, docValues = true),
         addField("informatieobject_vergrendeldDoorGebruikersnaam", STRING),
         addFieldMultiValued("informatieobject_indicaties", STRING, docValues = true),
-        addField("informatieobject_indicaties_sort", PLONG, indexed = true, stored = false, docValues = true)
+        addField(name = "informatieobject_indicaties_sort", type = PLONG, indexed = true, stored = false, docValues = true)
     )
 }

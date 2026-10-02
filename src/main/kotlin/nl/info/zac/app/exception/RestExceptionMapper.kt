@@ -325,7 +325,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exceptionMessage?.let { errorJsonHashMap["exception"] = it }
             ObjectMapper().writeValueAsString(errorJsonHashMap)
         } catch (jsonProcessingException: JsonProcessingException) {
-            log(LOG, Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
+            log(
+                logger = LOG,
+                level = Level.SEVERE,
+                message = JSON_CONVERSION_ERROR_MESSAGE,
+                throwable = jsonProcessingException
+            )
             JSON_CONVERSION_ERROR_MESSAGE
         }
 }
