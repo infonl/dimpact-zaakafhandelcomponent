@@ -21,7 +21,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{ "healthCheck.synchroniseer.ztc.title" | translate }}
+          {{ "health-check.synchroniseer.ztc.title" | translate }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -37,12 +37,12 @@
                 <mat-icon>{{
                   loadingZaaktypes ? "sync_lock" : "sync"
                 }}</mat-icon>
-                {{ "healthCheck.synchroniseer.ztc.button" | translate }}
+                {{ "health-check.synchroniseer.ztc.button" | translate }}
               </button>
             </mat-panel-title>
             <mat-panel-description>
               {{
-                "healthCheck.synchroniseer.ztc.description"
+                "health-check.synchroniseer.ztc.description"
                   | translate
                     : {
                         ztcCacheTime: (ztcCacheTime | datum: "medium"),
@@ -52,8 +52,8 @@
             <mat-icon>help</mat-icon>
           </mat-expansion-panel-header>
           <p>
-            {{ "healthCheck.synchroniseer.ztc.uitleg.1" | translate }}
-            <br />{{ "healthCheck.synchroniseer.ztc.uitleg.2" | translate }}
+            {{ "health-check.synchroniseer.ztc.uitleg.1" | translate }}
+            <br />{{ "health-check.synchroniseer.ztc.uitleg.2" | translate }}
           </p>
         </mat-expansion-panel>
       </mat-card-content>
@@ -62,7 +62,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{ "healthCheck.zaaktype.inrichtingscheck" | translate }}
+          {{ "health-check.zaaktype.inrichtingscheck" | translate }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -147,7 +147,7 @@
                       color="primary"
                       aria-hidden="false"
                       [attr.aria-label]="
-                        'healthCheck.zaaktype.status.valide' | translate
+                        'health-check.zaaktype.status.valide' | translate
                       "
                       >check_circle</mat-icon
                     >
@@ -157,7 +157,7 @@
                       class="warning"
                       aria-hidden="false"
                       [attr.aria-label]="
-                        'healthCheck.zaaktype.status.waarschuwing' | translate
+                        'health-check.zaaktype.status.waarschuwing' | translate
                       "
                       >warning</mat-icon
                     >
@@ -167,7 +167,7 @@
                       color="warn"
                       aria-hidden="false"
                       [attr.aria-label]="
-                        'healthCheck.zaaktype.status.niet-valide' | translate
+                        'health-check.zaaktype.status.niet-valide' | translate
                       "
                       >error</mat-icon
                     >
@@ -271,37 +271,37 @@
                     >
                       <div *ngIf="!row.zaakafhandelParametersValide">
                         {{
-                          "healthCheck.zaaktype.zaakafhandel-parameters-ongeldig"
+                          "health-check.zaaktype.zaakafhandel-parameters-ongeldig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeIntakeAanwezig">
                         {{
-                          "healthCheck.zaaktype.geen-statustype-intake-aanwezig"
+                          "health-check.zaaktype.geen-statustype-intake-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeInBehandelingAanwezig">
                         {{
-                          "healthCheck.zaaktype.geen-statustype-in-behandeling-aanwezig"
+                          "health-check.zaaktype.geen-statustype-in-behandeling-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeHeropendAanwezig">
                         {{
-                          "healthCheck.zaaktype.geen-statustype-heropend-aanwezig"
+                          "health-check.zaaktype.geen-statustype-heropend-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeAanvullendeInformatieVereist">
                         {{
-                          "healthCheck.zaaktype.geen-statustype-aanvullende-informatie-vereist"
+                          "health-check.zaaktype.geen-statustype-aanvullende-informatie-vereist"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeAfgerondAanwezig">
                         {{
-                          "healthCheck.zaaktype.geen-statustype-afgerond-aanwezig"
+                          "health-check.zaaktype.geen-statustype-afgerond-aanwezig"
                             | translate
                         }}
                       </div>
@@ -312,49 +312,49 @@
                         "
                       >
                         {{
-                          "healthCheck.zaaktype.statustype-afgerond-laatste-volgnummer"
+                          "health-check.zaaktype.statustype-afgerond-laatste-volgnummer"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.resultaattypeAanwezig">
                         {{
-                          "healthCheck.zaaktype.geen-resultaattype-aanwezig"
+                          "health-check.zaaktype.geen-resultaattype-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.aantalInitiatorroltypen">
                         {{
-                          "healthCheck.zaaktype.geen-rol-initiator-aanwezig"
+                          "health-check.zaaktype.geen-rol-initiator-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.aantalBehandelaarroltypen">
                         {{
-                          "healthCheck.zaaktype.geen-rol-behandelaar-aanwezig"
+                          "health-check.zaaktype.geen-rol-behandelaar-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="(row.aantalInitiatorroltypen ?? 0) > 1">
                         {{
-                          "healthCheck.zaaktype.te-veel-rol-initiator-aanwezig"
+                          "health-check.zaaktype.te-veel-rol-initiator-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="(row.aantalBehandelaarroltypen ?? 0) > 1">
                         {{
-                          "healthCheck.zaaktype.te-veel-rol-behandelaar-aanwezig"
+                          "health-check.zaaktype.te-veel-rol-behandelaar-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.rolOverigeAanwezig">
                         {{
-                          "healthCheck.zaaktype.geen-rol-overige-aanwezig"
+                          "health-check.zaaktype.geen-rol-overige-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.informatieobjecttypeEmailAanwezig">
                         {{
-                          "healthCheck.zaaktype.geen-informatieobjecttype-email-aanwezig"
+                          "health-check.zaaktype.geen-informatieobjecttype-email-aanwezig"
                             | translate
                         }}
                       </div>
@@ -364,7 +364,7 @@
                           !row.besluittypeAanwezig
                         "
                         [innerHTML]="
-                          'healthCheck.zaaktype.geen-besluittype-aanwezig'
+                          'health-check.zaaktype.geen-besluittype-aanwezig'
                             | translate
                               : {
                                   resultaattypes:
@@ -376,7 +376,7 @@
                       ></div>
                       <div *ngIf="!row.brpInstellingenCorrect">
                         {{
-                          "healthCheck.zaaktype.onjuiste-brp-headerwaarde"
+                          "health-check.zaaktype.onjuiste-brp-headerwaarde"
                             | translate
                         }}
                       </div>
@@ -387,7 +387,7 @@
                         "
                       >
                         {{
-                          "healthCheck.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt"
+                          "health-check.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt"
                             | translate
                         }}
                       </div>
@@ -398,7 +398,7 @@
                         "
                       >
                         {{
-                          "healthCheck.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt"
+                          "health-check.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt"
                             | translate
                         }}
                       </div>
@@ -469,7 +469,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{ "healthCheck.referentielijsten.inrichtingscheck" | translate }}
+          {{ "health-check.referentielijsten.inrichtingscheck" | translate }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -498,20 +498,20 @@
                 >error
               </mat-icon>
               <div>
-                {{ "healthCheck.communicatiekanaal.e-formulier" | translate }}
+                {{ "health-check.communicatiekanaal.e-formulier" | translate }}
               </div>
             </mat-panel-title>
             <mat-panel-description>
               <div *ngIf="!loadingCommunicatiekanaal">
                 <ng-container *ngIf="bestaatCommunicatiekanaalEformulier">
                   {{
-                    "healthCheck.communicatiekanaal.e-formulier.beschikbaar"
+                    "health-check.communicatiekanaal.e-formulier.beschikbaar"
                       | translate
                   }}
                 </ng-container>
                 <ng-container *ngIf="!bestaatCommunicatiekanaalEformulier">
                   {{
-                    "healthCheck.communicatiekanaal.e-formulier.niet.beschikbaar"
+                    "health-check.communicatiekanaal.e-formulier.niet.beschikbaar"
                       | translate
                   }}
                 </ng-container>
@@ -519,7 +519,7 @@
             </mat-panel-description>
             <mat-icon>help</mat-icon>
           </mat-expansion-panel-header>
-          {{ "healthCheck.communicatiekanaal.e-formulier.uitleg" | translate }}
+          {{ "health-check.communicatiekanaal.e-formulier.uitleg" | translate }}
         </mat-expansion-panel>
       </mat-card-content>
     </mat-card>
@@ -527,7 +527,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{ "healthCheck.build_informatie" | translate }}
+          {{ "health-check.build-informatie" | translate }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>

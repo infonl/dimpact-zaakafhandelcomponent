@@ -114,6 +114,7 @@
             }}</ng-container>
             <ng-container *ngIf="column == 'status'">{{
               (row[column] ? "informatieobject.status." + row[column] : "")
+                | i18nKey
                 | translate
                 | empty
             }}</ng-container>

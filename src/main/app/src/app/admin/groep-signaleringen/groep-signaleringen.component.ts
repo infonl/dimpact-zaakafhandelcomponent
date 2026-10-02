@@ -22,6 +22,7 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { runMutation } from "../../shared/http/run-mutation";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -32,6 +33,7 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
   styleUrls: ["./groep-signaleringen.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     AsyncPipe,
     NgClass,
     NgFor,

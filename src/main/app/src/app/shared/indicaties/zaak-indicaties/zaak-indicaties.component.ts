@@ -11,6 +11,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
 import { IndicatieItem } from "../../model/indicatie-item";
+import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
@@ -20,6 +21,7 @@ import { IndicatiesComponent } from "../indicaties.component";
   styleUrls: ["../indicaties.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CommonModule,
     MatChipsModule,
     MatIconModule,

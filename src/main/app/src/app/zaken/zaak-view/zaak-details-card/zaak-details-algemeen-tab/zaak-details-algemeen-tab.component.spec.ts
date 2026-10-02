@@ -165,13 +165,13 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       renderOpschorting(5);
 
       expect(hasRemarkKey("duur-dagen-opschorting")).toBe(true);
-      expect(hasRemarkKey("duurDagenOpschorting.enkelvoud")).toBe(false);
+      expect(hasRemarkKey("duur-dagen-opschorting.enkelvoud")).toBe(false);
     });
 
     it("uses the singular translation key when the zaak is opgeschort for one day", () => {
       renderOpschorting(1);
 
-      expect(hasRemarkKey("duurDagenOpschorting.enkelvoud")).toBe(true);
+      expect(hasRemarkKey("duur-dagen-opschorting.enkelvoud")).toBe(true);
     });
 
     it("shows the verlenging duur when the zaak has been verlengd", () => {
@@ -233,7 +233,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       renderZaak(zaakWithAfleidingswijze("TERMIJN"));
 
       expect(
-        screen().getByText("afleidingswijzeBrondatum.TERMIJN"),
+        screen().getByText("afleidingswijze-brondatum.termijn"),
       ).toBeInTheDocument();
     });
 
@@ -338,7 +338,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         "status",
         "registratiedatum",
         "resultaat",
-        "archiefNominatie.datum.VERNIETIGEN",
+        "archief-nominatie.datum.vernietigen",
       ]) {
         expect(hasDetailField(label)).toBe(true);
       }

@@ -10,13 +10,19 @@ import {
   QueryClient,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
-import { lastValueFrom } from "rxjs";
+import { lastValueFrom, map } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { toI18nKey } from "../shared/utils/i18n-key";
+
+function withI18nKeySuffix(afzender: GeneratedType<"RestZaakAfzender">) {
+  if (!afzender?.suffix) return afzender;
+  return { ...afzender, suffix: toI18nKey(afzender.suffix) };
+}
 
 /** Fields the "zaakgegevens bewerken" form may update; all optional (partial PATCH). */
 type ZaakDetailsUpdate = Partial<
@@ -269,15 +275,15 @@ export class ZakenService {
   }
 
   listAfzendersVoorZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/afzender", {
-      path: { uuid },
-    });
+    return this.zacHttpClient
+      .GET("/rest/zaken/zaak/{uuid}/afzender", { path: { uuid } })
+      .pipe(map((afzenders) => afzenders.map(withI18nKeySuffix)));
   }
 
   readDefaultAfzenderVoorZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/afzender/default", {
-      path: { uuid },
-    });
+    return this.zacHttpClient
+      .GET("/rest/zaken/zaak/{uuid}/afzender/default", { path: { uuid } })
+      .pipe(map(withI18nKeySuffix));
   }
 
   afbreken(uuid: string, body: PatchBody<"/rest/zaken/zaak/{uuid}/afbreken">) {

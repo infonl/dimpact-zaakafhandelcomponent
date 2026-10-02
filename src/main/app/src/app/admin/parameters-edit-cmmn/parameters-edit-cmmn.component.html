@@ -14,7 +14,7 @@
   -->
   <mat-step *ngIf="cmmnBpmnFormGroup" [stepControl]="cmmnBpmnFormGroup">
     <ng-template matStepLabel>{{
-      "gegevens.proces-model-methode.CMMN" | translate
+      "gegevens.proces-model-methode.cmmn" | translate
     }}</ng-template>
 
     <header>
@@ -252,7 +252,7 @@
               <mat-form-field class="w33 w100-md" floatLabel="always">
                 <mat-label>{{ "formulier-definitie" | translate }}</mat-label>
                 <mat-select
-                  placeholder="{{ 'formulierDefinitie.-kies-' | translate }}"
+                  placeholder="{{ 'formulier-definitie.kies' | translate }}"
                   (selectionChange)="
                     formulierDefinitieChanged($event, humanTaskParameter)
                   "
@@ -268,7 +268,7 @@
                     *ngFor="let formDef of formulierDefinities"
                     [value]="formDef.id"
                     >{{
-                      "formulierDefinitie." + formDef.id | translate
+                      "formulier-definitie." + formDef.id | i18nKey | translate
                     }}</mat-option
                   >
                 </mat-select>
@@ -278,12 +278,12 @@
               <mat-form-field class="w33 w100-md" floatLabel="always">
                 <mat-label>{{ "groep.standaard" | translate }}</mat-label>
                 <mat-select
-                  placeholder="{{ 'groep.-geen-' | translate }}"
+                  placeholder="{{ 'groep.geen' | translate }}"
                   formControlName="defaultGroep"
                   [compareWith]="compareObject"
                 >
                   <mat-option [value]="">{{
-                    "groep.-geen-" | translate
+                    "groep.geen" | translate
                   }}</mat-option>
                   <mat-option
                     *ngFor="let groep of groepen"
@@ -317,10 +317,10 @@
             >
               <mat-form-field class="w33 w100-md" floatLabel="always">
                 <mat-label>{{
-                  "referentietabel." + veld.naam | translate
+                  "referentietabel." + veld.naam | i18nKey | translate
                 }}</mat-label>
                 <mat-select
-                  placeholder="{{ 'referentietabel.-geen-' | translate }}"
+                  placeholder="{{ 'referentietabel.geen' | translate }}"
                   [formControlName]="'referentieTabel' + veld.naam"
                   [compareWith]="compareObject"
                 >
@@ -475,6 +475,7 @@
                     {{
                       afzender.speciaal
                         ? ("gegevens.mail.afzender." + afzender.mail
+                          | i18nKey
                           | translate)
                         : afzender.mail
                     }}
@@ -488,14 +489,14 @@
                   ></th>
                   <td mat-cell *matCellDef="let afzender">
                     <mat-select
-                      placeholder="{{ 'verzender.-geen-' | translate }}"
+                      placeholder="{{ 'verzender.geen' | translate }}"
                       [formControl]="
                         getZaakAfzenderControl(afzender, 'replyTo')
                       "
                       [compareWith]="compareObject"
                     >
                       <mat-option>{{
-                        "verzender.-geen-" | translate
+                        "verzender.geen" | translate
                       }}</mat-option>
                       <mat-option
                         *ngFor="let replyTo of replyTos"
@@ -575,7 +576,7 @@
               >
                 <mat-expansion-panel-header>
                   <mat-panel-title>
-                    {{ "mail." + mailtemplate | translate }}
+                    {{ "mail." + mailtemplate | i18nKey | translate }}
                   </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="flex-row flex-wrap">
@@ -587,7 +588,7 @@
                       "title.mailtemplate" | translate
                     }}</mat-label>
                     <mat-select
-                      placeholder="{{ 'mailtemplate.-kies-' | translate }}"
+                      placeholder="{{ 'mailtemplate.kies' | translate }}"
                       [formControl]="
                         getMailtemplateKoppelingControl(
                           mailtemplate,
@@ -724,7 +725,7 @@
                   ></th>
                   <td mat-cell *matCellDef="let parameter">
                     <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      placeholder="{{ 'resultaat.kies' | translate }}"
                       [formControl]="
                         getZaakbeeindigControl(parameter, 'beeindigResultaat')
                       "
@@ -819,10 +820,10 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.zoek-waarde" | translate
+                      "brp-doelbinding.zoek-waarde" | translate
                     }}</mat-label>
                     <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      placeholder="{{ 'resultaat.kies' | translate }}"
                       [formControl]="
                         brpProtocoleringFormGroup.controls.zoekWaarde
                       "
@@ -839,10 +840,10 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.raadpleeg-waarde" | translate
+                      "brp-doelbinding.raadpleeg-waarde" | translate
                     }}</mat-label>
                     <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      placeholder="{{ 'resultaat.kies' | translate }}"
                       [formControl]="
                         brpProtocoleringFormGroup.controls.raadpleegWaarde
                       "
@@ -859,10 +860,10 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.verwerkingregister-waarde" | translate
+                      "brp-doelbinding.verwerkingregister-waarde" | translate
                     }}</mat-label>
                     <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      placeholder="{{ 'resultaat.kies' | translate }}"
                       [formControl]="
                         brpProtocoleringFormGroup.controls
                           .verwerkingregisterWaarde

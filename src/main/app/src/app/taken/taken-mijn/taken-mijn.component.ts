@@ -49,6 +49,7 @@ import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruike
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
@@ -58,6 +59,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     DragDropModule,
     MatTableModule,
     MatSortModule,

@@ -238,7 +238,7 @@ describe(BagZoekComponent.name, () => {
 
     await user.click(
       within(await rowOf("0363010000012345")).getByRole("button", {
-        name: "actie.bagObject.bekijken",
+        name: "actie.bag-object.bekijken",
       }),
     );
 
@@ -254,7 +254,7 @@ describe(BagZoekComponent.name, () => {
     await setup({ onBagObject: jest.fn() });
 
     const [header] = screen.getAllByRole("heading", {
-      name: "actie.bagObject.koppelen",
+      name: "actie.bag-object.koppelen",
     });
     await user.click(within(header).getByRole("button"));
 

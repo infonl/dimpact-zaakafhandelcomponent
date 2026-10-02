@@ -12,7 +12,7 @@
     <zac-static-text label="zaaktype" [value]="taak().zaaktypeOmschrijving" />
     <zac-static-text
       label="status"
-      [value]="'taak.status.' + taak().status | translate"
+      [value]="'taak.status.' + taak().status | i18nKey | translate"
     />
   </div>
   <div class="flex-1 w33">

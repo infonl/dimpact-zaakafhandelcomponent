@@ -40,7 +40,9 @@
       </th>
       <td mat-cell *matCellDef="let regel">
         <read-more
-          [text]="regel.actie && ('action.case.' + regel.actie | translate)"
+          [text]="
+            regel.actie && ('action.case.' + regel.actie | i18nKey | translate)
+          "
           [maxLength]="20"
         ></read-more>
       </td>

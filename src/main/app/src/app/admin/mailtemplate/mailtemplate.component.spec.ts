@@ -134,7 +134,7 @@ describe(MailtemplateComponent.name, () => {
     await user.paste("Nieuw template");
     await user.click(screen.getByRole("combobox"));
     await user.click(
-      screen.getByRole("option", { name: "mail.TAAK_ONTVANGSTBEVESTIGING" }),
+      screen.getByRole("option", { name: "mail.taak-ontvangstbevestiging" }),
     );
     await user.click(htmlEditor("Onderwerp"));
     await user.paste("Onderwerp");
@@ -197,7 +197,7 @@ describe(MailtemplateComponent.name, () => {
 
     await user.click(screen.getByRole("combobox"));
     await user.click(
-      screen.getByRole("option", { name: "mail.TAAK_ONTVANGSTBEVESTIGING" }),
+      screen.getByRole("option", { name: "mail.taak-ontvangstbevestiging" }),
     );
     await user.click(screen.getAllByRole("button", { name: "variabelen" })[0]);
 
@@ -206,7 +206,7 @@ describe(MailtemplateComponent.name, () => {
     ).toHaveBeenCalledWith("TAAK_ONTVANGSTBEVESTIGING");
     expect(
       screen.getByRole("menuitem", {
-        name: "GEMEENTE: mailtemplate.variabele.GEMEENTE",
+        name: "GEMEENTE: mailtemplate.variabele.gemeente",
       }),
     ).toBeVisible();
   });

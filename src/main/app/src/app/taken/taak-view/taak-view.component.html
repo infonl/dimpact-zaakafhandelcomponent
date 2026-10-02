@@ -117,7 +117,9 @@
                   />
                   <zac-static-text
                     label="taak.status"
-                    [value]="'taak.status.' + taak?.status | translate"
+                    [value]="
+                      'taak.status.' + taak?.status | i18nKey | translate
+                    "
                     class="flex-item"
                   />
                 </div>

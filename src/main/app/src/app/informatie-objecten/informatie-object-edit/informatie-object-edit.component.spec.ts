@@ -255,7 +255,7 @@ describe(InformatieObjectEditComponent.name, () => {
       status: { label: "In bewerking", value: "IN_BEWERKING" },
       informatieobjectType: mockInformatieObjectTypes[0],
       vertrouwelijkheidaanduiding: {
-        label: "vertrouwelijkheidaanduiding.INTERN",
+        label: "vertrouwelijkheidaanduiding.intern",
         value: "INTERN",
       },
       auteur: "Test Author",
@@ -365,7 +365,7 @@ describe(InformatieObjectEditComponent.name, () => {
         status: { label: "In bewerking", value: "IN_BEWERKING" },
         informatieobjectType: mockInformatieObjectTypes[0],
         vertrouwelijkheidaanduiding: {
-          label: "vertrouwelijkheidaanduiding.INTERN",
+          label: "vertrouwelijkheidaanduiding.intern",
           value: "INTERN",
         },
         auteur: "Test Author",

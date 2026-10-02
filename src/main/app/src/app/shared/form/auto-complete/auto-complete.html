@@ -37,7 +37,7 @@
   <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith">
     <mat-option *ngIf="isLoading()" disabled="true">
       {{
-        "-laden.generiek-"
+        "laden.generiek"
           | translate: { label: (labelKey() | translate | lowercase) }
       }}
       <mat-spinner diameter="15" matPrefix></mat-spinner>

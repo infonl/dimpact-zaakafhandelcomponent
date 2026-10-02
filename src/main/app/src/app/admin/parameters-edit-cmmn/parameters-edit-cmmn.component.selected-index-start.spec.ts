@@ -135,7 +135,7 @@ describe(ParametersEditCmmnComponent.name, () => {
       await setup();
 
       expect(selectedStep()).toHaveAccessibleName(
-        /gegevens.proces-model-methode.CMMN/,
+        /gegevens.proces-model-methode.cmmn/,
       );
     });
 
@@ -152,7 +152,7 @@ describe(ParametersEditCmmnComponent.name, () => {
       fixture.detectChanges();
 
       expect(selectedStep()).toHaveAccessibleName(
-        /gegevens.proces-model-methode.CMMN/,
+        /gegevens.proces-model-methode.cmmn/,
       );
     });
   });

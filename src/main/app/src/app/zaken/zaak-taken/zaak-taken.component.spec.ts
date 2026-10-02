@@ -29,6 +29,7 @@ import { WebsocketListener } from "../../core/websocket/model/websocket-listener
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { ZaakTakenComponent } from "./zaak-taken.component";
 
 const zaak = fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid" });
@@ -377,8 +378,9 @@ describe(ZaakTakenComponent.name, () => {
 
   describe("the status chip", () => {
     function chipOf(status: string) {
+      const label = screen.getByText(toI18nKey(`taak.status.${status}`));
       // eslint-disable-next-line testing-library/no-node-access -- the mat-chip display chip exposes no role; the test asserts its style class
-      return screen.getByText(`taak.status.${status}`).closest("mat-chip");
+      return label.closest("mat-chip");
     }
 
     it("marks an afgeronde taak as a success", async () => {

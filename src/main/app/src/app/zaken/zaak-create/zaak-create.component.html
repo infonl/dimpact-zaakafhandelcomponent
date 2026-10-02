@@ -21,7 +21,7 @@
       class="side-nav-container"
     ></zac-klant-koppel>
     <zac-bag-zoek
-      *ngSwitchCase="'actie.bagObject.koppelen'"
+      *ngSwitchCase="'actie.bag-object.koppelen'"
       [gekoppeldeBagObjecten]="form.controls.bagObjecten"
       (bagObject)="bagObjectSelected()"
       [sideNav]="actionsSidenav"
@@ -79,7 +79,7 @@
           class="col-12 col-md-6 bag-display-field"
           [form]="form"
           [displayValue]="bagDisplayValue"
-          (click)="openSideNav('actie.bagObject.koppelen')"
+          (click)="openSideNav('actie.bag-object.koppelen')"
         >
           <button
             type="button"
@@ -88,7 +88,7 @@
             (click)="
               hasBagObject()
                 ? clearBagObjecten()
-                : openSideNav('actie.bagObject.koppelen');
+                : openSideNav('actie.bag-object.koppelen');
               $event.stopPropagation()
             "
           >

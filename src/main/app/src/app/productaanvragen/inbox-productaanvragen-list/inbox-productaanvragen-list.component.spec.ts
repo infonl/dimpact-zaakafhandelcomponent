@@ -246,7 +246,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await setup();
     await showProductaanvragen([inboxProductaanvraag]);
 
-    await user.click(screen.getByRole("combobox", { name: "filter.-alle-" }));
+    await user.click(screen.getByRole("combobox", { name: "filter.alle" }));
     await user.click(screen.getByRole("option", { name: "type-B" }));
 
     expect(await lastListRequestBody()).toMatchObject({
@@ -419,7 +419,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     );
 
     expect(
-      screen.getByText("msg.inboxProductaanvraag.verwijderen.bevestigen"),
+      screen.getByText("msg.inbox-productaanvraag.verwijderen.bevestigen"),
     ).toBeVisible();
     httpTestingController.expectNone("/rest/inbox-productaanvragen/42");
   });

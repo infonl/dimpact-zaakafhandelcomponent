@@ -1,11 +1,11 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <mat-card>
   <mat-card-title>{{
-    "zoeken.filter.zaak_betrokkene" | translate
+    "zoeken.filter.zaak-betrokkene" | translate
   }}</mat-card-title>
   <mat-card-content class="zaak-betrokkene-filter">
     <mat-form-field class="full-width" appearance="fill">
@@ -15,28 +15,28 @@
         (selectionChange)="roltypeChanged()"
       >
         <mat-option [value]="ZoekVeld.ZAAK_BETROKKENEN">{{
-          "betrokkeneRoltype.-alle-" | translate
+          "betrokkene-roltype.alle" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_INITIATOR">{{
-          "betrokkeneRoltype.INITIATOR" | translate
+          "betrokkene-roltype.initiator" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR">{{
-          "betrokkeneRoltype.MEDE_INITIATOR" | translate
+          "betrokkene-roltype.mede-initiator" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE">{{
-          "betrokkeneRoltype.BELANGHEBBENDE" | translate
+          "betrokkene-roltype.belanghebbende" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BESLISSER">{{
-          "betrokkeneRoltype.BESLISSER" | translate
+          "betrokkene-roltype.beslisser" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ADVISEUR">{{
-          "betrokkeneRoltype.ADVISEUR" | translate
+          "betrokkene-roltype.adviseur" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_KLANTCONTACTER">{{
-          "betrokkeneRoltype.KLANTCONTACTER" | translate
+          "betrokkene-roltype.klantcontacter" | translate
         }}</mat-option>
         <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR">{{
-          "betrokkeneRoltype.ZAAKCOORDINATOR" | translate
+          "betrokkene-roltype.zaakcoordinator" | translate
         }}</mat-option>
       </mat-select>
     </mat-form-field>

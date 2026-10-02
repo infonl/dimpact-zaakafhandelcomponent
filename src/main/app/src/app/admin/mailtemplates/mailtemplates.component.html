@@ -60,7 +60,7 @@
             </th>
             <td mat-cell *matCellDef="let row">
               <read-more
-                [text]="'mail.' + row.mail | translate"
+                [text]="'mail.' + row.mail | i18nKey | translate"
                 [maxLength]="100"
               ></read-more>
             </td>

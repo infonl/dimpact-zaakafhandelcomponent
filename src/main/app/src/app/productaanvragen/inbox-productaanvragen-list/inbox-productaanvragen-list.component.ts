@@ -311,7 +311,7 @@ export class InboxProductaanvragenListComponent
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
-          "msg.inboxProductaanvraag.verwijderen.bevestigen",
+          "msg.inbox-productaanvraag.verwijderen.bevestigen",
         ),
       })
       .afterClosed()

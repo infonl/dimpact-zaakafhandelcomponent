@@ -44,6 +44,7 @@ import { forkJoin, Subscription } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { injectMutation } from "../shared/http/inject-mutation";
+import { I18nKeyPipe } from "../shared/pipes/i18n-key.pipe";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { SignaleringenService } from "../signaleringen.service";
@@ -62,6 +63,7 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   styleUrls: ["./dashboard.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     NgFor,
     NgClass,

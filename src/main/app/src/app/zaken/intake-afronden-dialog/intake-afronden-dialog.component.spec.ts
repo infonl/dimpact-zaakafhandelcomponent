@@ -135,7 +135,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
   }
 
   function afrondenButton() {
-    return screen.getByRole("button", { name: "planitem.INTAKE_AFRONDEN" });
+    return screen.getByRole("button", { name: "planitem.intake-afronden" });
   }
 
   function sendMailCheckbox() {

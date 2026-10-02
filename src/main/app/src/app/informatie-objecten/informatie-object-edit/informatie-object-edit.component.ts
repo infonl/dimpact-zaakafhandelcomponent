@@ -29,6 +29,7 @@ import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { toDocumentFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 
@@ -205,7 +206,7 @@ export class InformatieObjectEditComponent {
       status: infoObject.status
         ? {
             label: this.translateService.instant(
-              "informatieobject.status." + infoObject.status,
+              toI18nKey("informatieobject.status." + infoObject.status),
             ),
             value: infoObject.status,
           }

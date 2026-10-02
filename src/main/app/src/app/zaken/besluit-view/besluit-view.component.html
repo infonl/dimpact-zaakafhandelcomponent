@@ -63,13 +63,17 @@
             [icon]="besluit.vervalreden ? toolTipIcon : null"
             [matTooltip]="
               besluit.vervalreden
-                ? ('besluit.vervalreden.' + besluit.vervalreden | translate)
+                ? ('besluit.vervalreden.' + besluit.vervalreden
+                  | i18nKey
+                  | translate)
                 : null
             "
             [attr.role]="besluit.vervalreden ? 'tooltip' : null"
             [attr.aria-label]="
               besluit.vervalreden
-                ? ('besluit.vervalreden.' + besluit.vervalreden | translate)
+                ? ('besluit.vervalreden.' + besluit.vervalreden
+                  | i18nKey
+                  | translate)
                 : null
             "
           />

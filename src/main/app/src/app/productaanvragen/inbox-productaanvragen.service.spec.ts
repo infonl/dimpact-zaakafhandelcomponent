@@ -58,7 +58,7 @@ describe(InboxProductaanvragenService.name, () => {
       await runMutationOnSuccess(service.delete(), 42);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
+        "msg.inbox-productaanvraag.verwijderen.uitgevoerd",
       );
     });
 

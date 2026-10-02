@@ -151,7 +151,7 @@ describe("Beeindiging form step", () => {
 
   async function chooseResultaat(row: HTMLElement, naam: string) {
     // the select of a table cell has no form field around it, so the click has to land inside the select
-    await user.click(within(row).getByText("resultaat.-kies-"));
+    await user.click(within(row).getByText("resultaat.kies"));
     await user.click(screen.getByRole("option", { name: naam }));
   }
 

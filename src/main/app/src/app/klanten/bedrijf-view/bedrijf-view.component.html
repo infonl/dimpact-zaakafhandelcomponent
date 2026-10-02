@@ -40,7 +40,10 @@
               label="vestigingsnummer"
               [value]="bedrijf?.vestigingsnummer"
             />
-            <zac-static-text label="type" [value]="bedrijf?.type | translate" />
+            <zac-static-text
+              label="type"
+              [value]="bedrijf?.type | i18nKey | translate"
+            />
             <zac-static-text
               *ngIf="profiel"
               label="rsin"

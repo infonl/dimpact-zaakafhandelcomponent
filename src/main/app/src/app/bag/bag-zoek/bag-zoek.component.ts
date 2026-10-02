@@ -33,6 +33,7 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 
@@ -42,6 +43,7 @@ import { BAGService } from "../bag.service";
   styleUrls: ["./bag-zoek.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CommonModule,
     EmptyPipe,
     MatButtonModule,

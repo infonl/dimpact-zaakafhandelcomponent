@@ -59,8 +59,8 @@ export class SingleInputFormField<
   public readonly label = input<string>();
   public readonly readonly = input(false, { transform: booleanAttribute });
 
-  protected readonly labelKey = computed(() =>
-    toI18nKey(this.label() ?? this.key()),
+  protected readonly labelKey = computed(
+    () => this.label() ?? toI18nKey(this.key()),
   );
 
   constructor() {

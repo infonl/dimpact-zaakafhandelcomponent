@@ -5,9 +5,12 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { isCamelCaseSegment } from "../shared/utils/i18n-key";
+import { isI18nKey } from "../shared/utils/i18n-key";
 
 const LANGUAGES = ["nl", "en"] as const;
+
+// Keys such as " 7b " only divide the JSON files into sections; no code looks them up.
+const SECTION_HEADER = /^ \d+[a-z]? $/;
 
 function readKeys(language: (typeof LANGUAGES)[number]) {
   const file = join(__dirname, "../../assets/i18n", `${language}.json`);
@@ -16,13 +19,13 @@ function readKeys(language: (typeof LANGUAGES)[number]) {
 
 describe("the i18n message keys", () => {
   it.each(LANGUAGES)(
-    "should write the last segment of every key in %s.json in kebab-case, not camelCase",
+    "should write every segment of every key in %s.json in lowercase kebab-case",
     (language) => {
-      const camelCaseKeys = readKeys(language).filter((key) =>
-        isCamelCaseSegment(key.slice(key.lastIndexOf(".") + 1)),
+      const keysInOtherCasing = readKeys(language).filter(
+        (key) => !SECTION_HEADER.test(key) && !isI18nKey(key),
       );
 
-      expect(camelCaseKeys).toEqual([]);
+      expect(keysInOtherCasing).toEqual([]);
     },
   );
 

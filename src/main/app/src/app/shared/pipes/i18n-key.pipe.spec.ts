@@ -14,6 +14,12 @@ describe(I18nKeyPipe.name, () => {
     );
   });
 
+  it("should turn a key built from an UPPER_SNAKE enum value into its lowercase kebab-case i18n key", () => {
+    expect(pipe.transform("taak.status.NIET_TOEGEKEND")).toBe(
+      "taak.status.niet-toegekend",
+    );
+  });
+
   it.each([null, undefined, ""])(
     "should turn %p into an empty key, so a missing label translates to nothing",
     (key) => {

@@ -134,7 +134,9 @@
                 <zac-static-text
                   label="informatieobject.status"
                   [value]="
-                    'informatieobject.status.' + infoObject.status | translate
+                    'informatieobject.status.' + infoObject.status
+                      | i18nKey
+                      | translate
                   "
                   *ngIf="infoObject.status"
                   class="flex-item"
@@ -231,6 +233,7 @@
                         [text]="
                           regel.actie
                             ? ('action.document.' + regel.actie
+                              | i18nKey
                               | translate
                               | empty)
                             : ('action.document.onbekend' | translate)

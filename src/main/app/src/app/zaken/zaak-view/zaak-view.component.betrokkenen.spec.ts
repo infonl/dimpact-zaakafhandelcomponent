@@ -552,7 +552,7 @@ describe(ZaakViewComponent.name, () => {
         zaakobject: bagObject,
       });
       expect(list).toHaveBeenCalledWith(zaak.uuid);
-      expect(openSnackbar).toHaveBeenCalledWith("msg.bagObject.gekoppeld");
+      expect(openSnackbar).toHaveBeenCalledWith("msg.bag-object.gekoppeld");
     });
   });
 });

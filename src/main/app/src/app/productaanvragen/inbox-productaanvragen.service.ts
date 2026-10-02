@@ -35,7 +35,7 @@ export class InboxProductaanvragenService {
             queryKey: ["/rest/inbox-productaanvragen"],
           });
           this.utilService.openSnackbar(
-            "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
+            "msg.inbox-productaanvraag.verwijderen.uitgevoerd",
           );
         },
       },
