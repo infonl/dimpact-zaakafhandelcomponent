@@ -4,6 +4,7 @@
  */
 
 import { Given, When } from "@cucumber/cucumber";
+import { expect } from "@playwright/test";
 import {
   FIFTEEN_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
@@ -102,14 +103,17 @@ Given(
   async function (this: CustomWorld, user: keyof typeof users) {
     const expectedUrl = this.worldParameters.urls["zac"];
     await this.openUrl(expectedUrl);
+    let loggedIn = await isLoggedIn(this, user);
     let tries = 0;
-    while (!(await isLoggedIn(this, user)) && tries++ < 4) {
+    while (!loggedIn && tries++ < 4) {
       await logout(this);
       if (await isLoginFormShown(this)) {
         await loginToZac.call(this, user);
       } else {
         await this.openUrl(expectedUrl);
       }
+      loggedIn = await isLoggedIn(this, user);
     }
+    expect(loggedIn, `Failed to log in to ZAC as "${user}"`).toBe(true);
   },
 );

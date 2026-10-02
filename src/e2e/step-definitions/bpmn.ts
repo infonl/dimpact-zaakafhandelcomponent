@@ -429,7 +429,7 @@ Then(
     userName: string,
   ) {
     const group = Object.values(groups).find(({ name }) => name === groupName);
-    if (!group) throw new Error(`Unknown group "${groupName}"`);
+    expect(group, `Unknown group "${groupName}"`).toBeDefined();
     const behandelaarField = this.page.getByRole("textbox", {
       name: "zaakBehandelaar",
     });
@@ -442,7 +442,7 @@ Then(
       await this.page.getByRole("button", { name: "Zaakdata" }).click();
       await expect(
         this.page.getByRole("textbox", { name: "zaakGroep" }),
-      ).toHaveValue(group.id, { timeout: TEN_SECONDS_IN_MS });
+      ).toHaveValue(group!.id, { timeout: TEN_SECONDS_IN_MS });
 
       const isLastAttempt = attempt === maxAttempts;
       if (isLastAttempt) {
