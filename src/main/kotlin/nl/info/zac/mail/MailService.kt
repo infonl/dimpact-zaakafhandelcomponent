@@ -187,11 +187,11 @@ class MailService @Inject constructor(
             verzenddatum = LocalDate.now()
         }
         zgwApiService.createZaakInformatieobjectForZaak(
-            zaak,
-            enkelvoudigInformatieobjectWithInhoud,
-            subject,
-            subject,
-            ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+            zaak = zaak,
+            enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieobjectWithInhoud,
+            titel = subject,
+            beschrijving = subject,
+            omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
         )
     }
 

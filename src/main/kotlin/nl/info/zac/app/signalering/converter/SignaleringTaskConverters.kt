@@ -12,10 +12,10 @@ import org.flowable.task.api.TaskInfo
 
 fun TaskInfo.toRestSignaleringTaakSummary() =
     RestSignaleringTaskSummary(
-        this.id,
-        this.name,
-        readZaakIdentificatie(this),
-        readZaaktypeOmschrijving(this),
+        id = this.id,
+        naam = this.name,
+        zaakIdentificatie = readZaakIdentificatie(this),
+        zaaktypeOmschrijving = readZaaktypeOmschrijving(this),
         creatiedatumTijd = this.createTime?.let(::convertToZonedDateTime)
             ?: error("Task '${this.id}' has no createTime")
     )

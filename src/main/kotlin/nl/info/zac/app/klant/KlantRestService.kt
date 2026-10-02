@@ -220,8 +220,10 @@ class KlantRestService @Inject constructor(
             ?.let { bsn ->
                 listOfNotNull(
                     brpClientService.retrievePersoon(
-                        bsn, zaaktypeUuid, loggedInUserInstance.get().id,
-                        restListPersonenParameters.gemeenteVanInschrijving
+                        burgerservicenummer = bsn,
+                        zaaktypeUuid = zaaktypeUuid,
+                        userName = loggedInUserInstance.get().id,
+                        gemeenteVanInschrijving = restListPersonenParameters.gemeenteVanInschrijving
                     )
                 )
                     .map { it.toRestPersoon() }

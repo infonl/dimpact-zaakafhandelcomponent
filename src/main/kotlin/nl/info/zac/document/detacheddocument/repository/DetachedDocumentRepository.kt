@@ -138,20 +138,20 @@ class DetachedDocumentRepository @Inject constructor(
         }
         listParameters.creatiedatum?.let {
             addDatumRangePredicates(
-                it,
-                DetachedDocument.CREATIEDATUM_PROPERTY_NAME,
-                predicates,
-                root,
-                builder
+                dateRange = it,
+                veld = DetachedDocument.CREATIEDATUM_PROPERTY_NAME,
+                predicates = predicates,
+                root = root,
+                builder = builder
             )
         }
         listParameters.ontkoppeldOp?.let {
             addDatumRangePredicates(
-                it,
-                DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME,
-                predicates,
-                root,
-                builder
+                dateRange = it,
+                veld = DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME,
+                predicates = predicates,
+                root = root,
+                builder = builder
             )
         }
         @Suppress("SpreadOperator")
