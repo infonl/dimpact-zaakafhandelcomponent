@@ -53,7 +53,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         }
         return bpmnService.listProcessDefinitions()
             .map {
-                RestBpmnProcessDefinition(it.id, it.name, it.version, it.key)
+                RestBpmnProcessDefinition(id = it.id, name = it.name, version = it.version, key = it.key)
             }
     }
 
@@ -72,27 +72,27 @@ class BpmnProcessDefinitionRestService @Inject constructor(
             .map {
                 val metadata = bpmnService.getProcessDefinitionMetadata(it)
                 RestBpmnProcessDefinition(
-                    it.id,
-                    it.name,
-                    it.version,
-                    it.key,
-                    RestBpmnProcessDefinitionDetails(
+                    id = it.id,
+                    name = it.name,
+                    version = it.version,
+                    key = it.key,
+                    details = RestBpmnProcessDefinitionDetails(
                         isInUse = uniqueBpmnProcessDefinitionKeysFromProcessInstances.contains(it.key) ||
                             uniqueBpmnProcessDefinitionKeysFromConfigurations.contains(it.key),
                         documentation = metadata.documentation,
                         modificationDate = metadata.modificationDate,
                         uploadDate = metadata.uploadDate,
                         forms = getRestBpmnProcessDefinitionForms(
-                            it.key,
-                            it.version,
-                            metadata.formKeys,
-                            uploadedFormTitleMap
+                            bpmnProcessDefinitionKey = it.key,
+                            bpmnProcessDefinitionVersion = it.version,
+                            formKeys = metadata.formKeys,
+                            uploadedFormTitleMap = uploadedFormTitleMap
                         ),
                         orphanedForms = getRestBpmnProcessDefinitionOrphanedForms(
-                            it.key,
-                            it.version,
-                            metadata.formKeys,
-                            uploadedForms
+                            bpmnProcessDefinitionKey = it.key,
+                            bpmnProcessDefinitionVersion = it.version,
+                            formKeys = metadata.formKeys,
+                            forms = uploadedForms
                         )
                     )
                 )

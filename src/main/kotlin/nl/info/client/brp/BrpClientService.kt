@@ -273,9 +273,19 @@ class BrpClientService @Inject constructor(
             try {
                 it.resolveValueFromZaaktypeCmmnConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
             } catch (webApplicationException: WebApplicationException) {
-                logBrpValueResolutionFailure(valueDescription, defaultValue, it, webApplicationException)
+                logBrpValueResolutionFailure(
+                    valueDescription = valueDescription,
+                    defaultValue = defaultValue,
+                    zaaktypeUuid = it,
+                    exception = webApplicationException
+                )
             } catch (persistenceException: PersistenceException) {
-                logBrpValueResolutionFailure(valueDescription, defaultValue, it, persistenceException)
+                logBrpValueResolutionFailure(
+                    valueDescription = valueDescription,
+                    defaultValue = defaultValue,
+                    zaaktypeUuid = it,
+                    exception = persistenceException
+                )
             }
         } ?: run {
             val reason = zaaktypeUuid?.let { "No $valueDescription found for zaaktype $zaaktypeUuid" }

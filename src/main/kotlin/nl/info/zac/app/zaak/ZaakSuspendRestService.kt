@@ -67,7 +67,12 @@ class ZaakSuspendRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         val resumedZaak = suspensionZaakHelper.resumeZaak(zaak, resumeData.reason)
-        return restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser)
+        return restZaakConverter.toRestZaak(
+            zaak = resumedZaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser
+        )
     }
 
     @PATCH
@@ -84,6 +89,11 @@ class ZaakSuspendRestService @Inject constructor(
             numberOfDays = suspendData.numberOfDays,
             suspensionReason = suspendData.reason
         )
-        return restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser)
+        return restZaakConverter.toRestZaak(
+            zaak = suspendedZaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser
+        )
     }
 }
