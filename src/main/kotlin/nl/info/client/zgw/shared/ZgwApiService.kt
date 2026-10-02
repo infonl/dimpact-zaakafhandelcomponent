@@ -253,6 +253,7 @@ class ZgwApiService @Inject constructor(
      * [EnkelvoudigInformatieObject]
      * @return Created [ZaakInformatieObject].
      */
+    @Suppress("LongParameterList")
     fun createZaakInformatieobjectForZaak(
         zaak: Zaak,
         enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest,

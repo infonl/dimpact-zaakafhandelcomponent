@@ -7,7 +7,7 @@ package nl.info.zac.search
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -23,7 +23,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.systemUserContext
-import nl.info.zac.search.converter.AbstractZoekObjectConverter
+import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -65,12 +65,13 @@ internal data class ReindexSummary(val successCount: Int, val skippedCount: Int,
 @AllOpen
 @Suppress("TooManyFunctions")
 class ReindexSupportService @Inject constructor(
-    private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
+    private val converterInstances: Instance<ZoekObjectConverter<out ZoekObject>>,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService,
     private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
-    solrClientFactory: SolrClientFactory
+    solrClientFactory: SolrClientFactory,
+    dispatcher: CoroutineDispatcher
 ) {
     companion object {
         private const val SOLR_MAX_RESULTS = 100
@@ -80,7 +81,7 @@ class ReindexSupportService @Inject constructor(
         private val LOG = Logger.getLogger(ReindexSupportService::class.java.name)
     }
 
-    private val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
+    private val pageConversionDispatcher = dispatcher.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
     private val solrClient: SolrClient = solrClientFactory.createSolrClient(IndexingService.SOLR_CORE)
 
@@ -100,13 +101,13 @@ class ReindexSupportService @Inject constructor(
             this.page = page
         }
 
-    internal fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> =
+    internal fun getConverter(objectType: ZoekObjectType): ZoekObjectConverter<out ZoekObject> =
         converterInstances
             .firstOrNull { it.supports(objectType) }
             ?: throw IndexingException("[$objectType] No converter found")
 
     private fun convert(
-        converter: AbstractZoekObjectConverter<out ZoekObject>,
+        converter: ZoekObjectConverter<out ZoekObject>,
         objectType: ZoekObjectType,
         objectId: String,
         zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens

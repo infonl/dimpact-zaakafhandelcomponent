@@ -39,9 +39,7 @@ class IdentificationService @Inject constructor(
             BetrokkeneIdentificatie(
                 type = it,
                 bsn = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn,
-                temporaryPersonId = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn?.let {
-                    replaceBsnWithKey(it)
-                },
+                temporaryPersonId = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn?.let(::replaceBsnWithKey),
                 kvkNummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.kvkNummer,
                 rsin = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.innNnpId,
                 vestigingsnummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.vestigingsNummer

@@ -23,13 +23,13 @@ fun Persoon.toAddressString(): String {
 }
 
 private fun VerblijfadresBinnenland.toAddressString() =
-    (this.getOfficieleStraatnaam()?.takeIf { it.isNotBlank() } ?: "") +
+    this.getOfficieleStraatnaam()?.takeIf { it.isNotBlank() }.orEmpty() +
         " " +
         (this.getHuisnummer() ?: "") +
-        (this.getHuisletter()?.takeIf { it.isNotBlank() } ?: "") +
-        (this.getHuisnummertoevoeging()?.takeIf { it.isNotBlank() } ?: "") +
+        this.getHuisletter()?.takeIf { it.isNotBlank() }.orEmpty() +
+        this.getHuisnummertoevoeging()?.takeIf { it.isNotBlank() }.orEmpty() +
         ", " +
-        (this.getPostcode()?.takeIf { it.isNotBlank() } ?: "") +
+        this.getPostcode()?.takeIf { it.isNotBlank() }.orEmpty() +
         " " +
         this.getWoonplaats()
 

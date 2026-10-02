@@ -6,6 +6,7 @@ package nl.info.zac.zaak.model
 
 import java.util.UUID
 
+@Suppress("LongParameterList")
 fun createZaakLinkData(
     isOpen: Boolean = true,
     isHoofdzaak: Boolean = false,

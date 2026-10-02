@@ -15,7 +15,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
@@ -55,6 +55,7 @@ import nl.info.zac.app.klant.model.personen.toRestPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -78,7 +79,8 @@ class KlantRestService @Inject constructor(
     val klantClientService: KlantClientService,
     val identificationService: IdentificationService,
     val policyService: PolicyService,
-    val loggedInUserInstance: Instance<LoggedInUser>
+    val loggedInUserInstance: Instance<LoggedInUser>,
+    private val dispatcher: CoroutineDispatcher
 ) {
     companion object {
         const val ZAAKTYPE_UUID_HEADER = "X-ZAAKTYPE-UUID"
@@ -94,7 +96,7 @@ class KlantRestService @Inject constructor(
         val bsn = identificationService.replaceKeyWithBsn(requestedTemporaryPersonId)
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             supervisorScope {
                 val klantPersoonDigitalAddresses =
                     async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
@@ -176,7 +178,7 @@ class KlantRestService @Inject constructor(
         runBlocking {
             // run the two client calls concurrently in a coroutine scope,
             // so we do not need to wait for the first call to complete
-            withContext(Dispatchers.IO) {
+            withContext(dispatcher) {
                 supervisorScope {
                     val klantRechtspersoonDigitalAddresses =
                         async { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) }
@@ -274,10 +276,11 @@ class KlantRestService @Inject constructor(
     @PUT
     @Path("contactmomenten")
     fun listContactmomenten(parameters: RestListContactmomentenParameters): RESTResultaat<RestContactmoment> {
-        val number = if (parameters.bsn != null) parameters.bsn else parameters.vestigingsnummer
+        val number = parameters.bsn ?: parameters.vestigingsnummer ?: throw InputValidationFailedException(
+            message = "Either a BSN or a vestigingsnummer is required to list contactmomenten"
+        )
         // OpenKlant 2.x pages start from 1 (not 0-based). Page 0 is considered invalid number
-        // we currently assume that `number` is always non-null here; this will be refactored in a future PR
-        val betrokkenenWithKlantcontactList = klantClientService.listExpandBetrokkenen(number!!, parameters.page + 1)
+        val betrokkenenWithKlantcontactList = klantClientService.listExpandBetrokkenen(number, parameters.page + 1)
         val klantcontactListPage = betrokkenenWithKlantcontactList
             .mapNotNull { it.expand?.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
@@ -287,19 +290,18 @@ class KlantRestService @Inject constructor(
     private fun readVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             supervisorScope {
                 val klantVestigingDigitalAddresses =
                     async {
                         // we do not support retrieving contact details for a vestiging if no KVK number was provided
-                        kvkNummer?.let { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, it) }
-                            ?: emptyList()
+                        kvkNummer?.let { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, it) }.orEmpty()
                     }
                 val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
                 val restBedrijf = vestiging.await()?.toRestBedrijf()?.apply { if (kvkNummer == null) this.kvkNummer = null }
                     ?: throw VestigingNotFoundException(
                         "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
-                            (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
+                            kvkNummer?.let { " en KVK nummer '$it'" }.orEmpty()
                     )
                 klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
                     restBedrijf.apply {

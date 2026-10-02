@@ -40,8 +40,8 @@ class RestGerelateerdeZaakConverter @Inject constructor(
             zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
             startdatum = takeIf { zaakrechten.lezen }?.let { gerelateerdeZaak.startdatum },
             statustypeOmschrijving = takeIf { zaakrechten.lezen }?.let {
-                gerelateerdeZaak.status?.let {
-                    zrcClientService.readStatus(it).let { zaakstatus ->
+                gerelateerdeZaak.status?.let { statusURI ->
+                    zrcClientService.readStatus(statusURI).let { zaakstatus ->
                         ztcClientService.readStatustype(zaakstatus.statustype).omschrijving
                     }
                 }

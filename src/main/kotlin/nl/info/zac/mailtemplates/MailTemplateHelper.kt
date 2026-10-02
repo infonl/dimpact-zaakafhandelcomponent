@@ -272,7 +272,7 @@ class MailTemplateHelper @Inject constructor(
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
                 brpClientService.retrievePersoon(identificatie, zaaktypeUuid, userName)?.let {
                     replaceInitiatorVariablesPersoon(resolvedText, it)
-                } ?: ""
+                }.orEmpty()
 
             BetrokkeneTypeEnum.VESTIGING ->
                 replaceInitiatorVariablesResultaatItem(
@@ -348,12 +348,6 @@ class MailTemplateHelper @Inject constructor(
         mailTemplateVariable = MailTemplateVariables.ZAAK_INITIATOR_ADRES,
         value = address
     )
-
-    private fun <T> replaceVariable(
-        targetString: String,
-        mailTemplateVariable: MailTemplateVariables,
-        value: T
-    ) = replaceVariable(targetString, mailTemplateVariable, value.toString())
 
     private fun replaceVariable(
         targetString: String,

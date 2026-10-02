@@ -22,9 +22,9 @@ class RestDetachedDocumentConverter @Inject constructor(
     fun convert(detachedDocument: DetachedDocument, informatieobjectTypeUUID: UUID): RestDetachedDocument {
         val lock = lockService.findLock(detachedDocument.documentUUID)
         return RestDetachedDocument(
-            // conversion is always done from an existing detached document (in the database),
-            // so id is always present
-            id = detachedDocument.id!!,
+            id = checkNotNull(detachedDocument.id) {
+                "Detached document '${detachedDocument.documentUUID}' has not been persisted"
+            },
             documentUUID = detachedDocument.documentUUID,
             documentID = detachedDocument.documentID,
             informatieobjectTypeUUID = informatieobjectTypeUUID,

@@ -11,7 +11,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -71,7 +71,8 @@ class SignaleringService @Inject constructor(
     private val signaleringenMailHelper: SignaleringMailHelper,
     private val zrcClientService: ZrcClientService,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
-    private val loggedInUserInstance: Instance<LoggedInUser>
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+    dispatcher: CoroutineDispatcher
 ) {
     companion object {
         private val LOG = Logger.getLogger(SignaleringService::class.java.name)
@@ -85,7 +86,7 @@ class SignaleringService @Inject constructor(
         )
     }
 
-    private val zrcFanoutDispatcher = Dispatchers.IO.limitedParallelism(ZRC_FANOUT_PARALLELISM)
+    private val zrcFanoutDispatcher = dispatcher.limitedParallelism(ZRC_FANOUT_PARALLELISM)
 
     /**
      * Factory method for constructing Signalering instances.
