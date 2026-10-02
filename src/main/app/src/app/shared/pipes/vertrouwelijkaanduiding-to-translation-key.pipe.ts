@@ -5,6 +5,7 @@
 
 import { Pipe, PipeTransform } from "@angular/core";
 import { GeneratedType } from "../utils/generated-types";
+import { toI18nKey } from "../utils/i18n-key";
 
 @Pipe({
   name: "vertrouwelijkaanduidingToTranslationKey",
@@ -34,7 +35,7 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
       throw new Error(`Unexpected vertrouwelijkheidaanduiding: ${value}`);
     }
 
-    return `vertrouwelijkheidaanduiding.${value || "-geen-"}` as const;
+    return toI18nKey(`vertrouwelijkheidaanduiding.${value || "geen"}`);
   }
 
   public static readonly selectList =

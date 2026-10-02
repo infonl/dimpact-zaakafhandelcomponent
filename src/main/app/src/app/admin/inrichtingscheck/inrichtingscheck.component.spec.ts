@@ -46,13 +46,13 @@ import { VersionComponent } from "../../shared/version/version.component";
 import { HealthCheckService } from "../health-check.service";
 import { InrichtingscheckComponent } from "./inrichtingscheck.component";
 
-const VALIDE_ICON_LABEL = "healthCheck.zaaktype.status.valide";
-const WAARSCHUWING_ICON_LABEL = "healthCheck.zaaktype.status.waarschuwing";
-const NIET_VALIDE_ICON_LABEL = "healthCheck.zaaktype.status.niet-valide";
+const VALIDE_ICON_LABEL = "health-check.zaaktype.status.valide";
+const WAARSCHUWING_ICON_LABEL = "health-check.zaaktype.status.waarschuwing";
+const NIET_VALIDE_ICON_LABEL = "health-check.zaaktype.status.niet-valide";
 const ROLTYPE_ONTBREEKT_MESSAGE =
-  "healthCheck.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt";
+  "health-check.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt";
 const EIGENSCHAP_ONTBREEKT_MESSAGE =
-  "healthCheck.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt";
+  "health-check.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt";
 
 const volledigIngerichtZaaktype = fromPartial<
   GeneratedType<"RestZaaktypeInrichtingscheck">
@@ -407,7 +407,7 @@ describe(InrichtingscheckComponent.name, () => {
   it("should show 'beschikbaar' text when communicatiekanaal e-formulier exists", () => {
     expect(
       screen.getByText(
-        "healthCheck.communicatiekanaal.e-formulier.beschikbaar",
+        "health-check.communicatiekanaal.e-formulier.beschikbaar",
       ),
     ).toBeInTheDocument();
   });
@@ -419,7 +419,7 @@ describe(InrichtingscheckComponent.name, () => {
 
     expect(
       screen.getByText(
-        "healthCheck.communicatiekanaal.e-formulier.niet.beschikbaar",
+        "health-check.communicatiekanaal.e-formulier.niet.beschikbaar",
       ),
     ).toBeInTheDocument();
   });
@@ -452,7 +452,7 @@ describe(InrichtingscheckComponent.name, () => {
 
     expect(
       screen.getByRole("button", {
-        name: "healthCheck.synchroniseer.ztc.button",
+        name: "health-check.synchroniseer.ztc.button",
       }),
     ).toBeDisabled();
   });

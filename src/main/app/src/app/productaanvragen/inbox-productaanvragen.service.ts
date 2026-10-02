@@ -32,7 +32,7 @@ export class InboxProductaanvragenService {
       {
         onSuccess: () =>
           this.utilService.openSnackbar(
-            "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
+            "msg.inbox-productaanvraag.verwijderen.uitgevoerd",
           ),
       },
     );

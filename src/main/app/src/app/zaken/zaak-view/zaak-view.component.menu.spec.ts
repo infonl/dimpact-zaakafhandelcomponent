@@ -546,7 +546,7 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-  describe("planitem.INTAKE_AFRONDEN menu item", () => {
+  describe("planitem.intake-afronden menu item", () => {
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
@@ -562,7 +562,7 @@ describe(ZaakViewComponent.name, () => {
         .mockReturnValue(of("openBesluitVastleggen"));
 
       const listItem = await loader.getHarnessOrNull(
-        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
+        MatNavListItemHarness.with({ text: /planitem.intake-afronden/ }),
       );
 
       await listItem?.click();
@@ -576,13 +576,13 @@ describe(ZaakViewComponent.name, () => {
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of("otherValue"));
 
       const listItem = await loader.getHarnessOrNull(
-        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
+        MatNavListItemHarness.with({ text: /planitem.intake-afronden/ }),
       );
 
       await listItem?.click();
 
       expect(spy).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
+        "msg.planitem.uitgevoerd.intake-afronden",
       );
       expect(sideActions.activeAction()).toBe(null);
     });
@@ -1040,7 +1040,7 @@ describe(ZaakViewComponent.name, () => {
       ["actie.zaakdata.bekijken", "zac-zaakdata"],
       ["actie.procesverloop.bekijken", "zac-zaak-process-flow"],
       ["actie.betrokkene.koppelen", "zac-klant-koppel"],
-      ["actie.bagObject.koppelen", "zac-bag-zoek"],
+      ["actie.bag-object.koppelen", "zac-bag-zoek"],
       ["actie.zaak.koppelen", "zac-zaak-link"],
       ["actie.zaak.locatie.koppelen", "zac-case-location-edit"],
     ] as const;

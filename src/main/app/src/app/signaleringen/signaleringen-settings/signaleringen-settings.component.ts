@@ -10,6 +10,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenSettingsService } from "../signaleringen-settings.service";
 
@@ -18,6 +19,7 @@ import { SignaleringenSettingsService } from "../signaleringen-settings.service"
   styleUrls: ["./signaleringen-settings.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgClass,
     NgFor,
     NgIf,

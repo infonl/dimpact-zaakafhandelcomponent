@@ -54,7 +54,7 @@ describe(TaakZoekObjectComponent.name, () => {
 
   it.each([
     ["zaaktype", "fakeZaaktypeOmschrijving"],
-    ["status", "taak.status.AFGEROND"],
+    ["status", "taak.status.afgerond"],
     ["zaak-identificatie", "fakeZaakIdentificatie"],
     ["behandelaar", "fakeBehandelaarNaam"],
     ["groep", "fakeGroepNaam"],

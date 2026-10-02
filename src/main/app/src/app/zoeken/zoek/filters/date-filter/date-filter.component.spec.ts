@@ -54,7 +54,7 @@ describe(DateFilterComponent.name, () => {
   }
 
   function totField() {
-    return screen.getByRole("textbox", { name: "zoeken.filter.tot_en_met" });
+    return screen.getByRole("textbox", { name: "zoeken.filter.tot-en-met" });
   }
 
   async function typeDate(field: HTMLElement, typed: string) {

@@ -95,7 +95,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
 
       expect(
         screen.getAllByRole("option").map((option) => option.textContent),
-      ).toEqual(["informatieobjectType.-geen-", "Type A", "Type B"]);
+      ).toEqual(["informatieobject-type.geen", "Type A", "Type B"]);
     });
 
     it("does not announce a selection change when it is first shown", async () => {
@@ -133,7 +133,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
         await chooseInformatieobjecttype("Type B");
 
         expect(vertrouwelijkheidaanduiding()).toHaveValue(
-          "vertrouwelijkheidaanduiding.VERTROUWELIJK",
+          "vertrouwelijkheidaanduiding.vertrouwelijk",
         );
       });
 
@@ -167,7 +167,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
       await setup("fakeInformatieobjecttypeUuid1");
 
       expect(vertrouwelijkheidaanduiding()).toHaveValue(
-        "vertrouwelijkheidaanduiding.OPENBAAR",
+        "vertrouwelijkheidaanduiding.openbaar",
       );
     });
 
@@ -226,7 +226,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
           "fakeInformatieobjecttypeUuid1",
         );
 
-        await chooseInformatieobjecttype("informatieobjectType.-geen-");
+        await chooseInformatieobjecttype("informatieobject-type.geen");
 
         expect(selectionChange).toHaveBeenCalledTimes(1);
         expect(selectionChange).toHaveBeenCalledWith({
@@ -239,12 +239,12 @@ describe(SmartDocumentsFormItemComponent.name, () => {
       it("shows the template as not mapped, without a way to clear it", async () => {
         await setup("fakeInformatieobjecttypeUuid1");
 
-        await chooseInformatieobjecttype("informatieobjectType.-geen-");
+        await chooseInformatieobjecttype("informatieobject-type.geen");
 
         expect(mappedCheckbox()).not.toBeChecked();
         expect(mappedCheckbox()).toBeDisabled();
         expect(informatieobjecttypeSelect()).toHaveTextContent(
-          "informatieobjectType.-kies-",
+          "informatieobject-type.kies",
         );
       });
     });

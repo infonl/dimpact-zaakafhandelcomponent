@@ -324,7 +324,7 @@ describe(ZaakDetailsCardComponent.name, () => {
       );
 
       screen()
-        .getByRole("button", { name: "actie.bagObject.ontkoppelen" })
+        .getByRole("button", { name: "actie.bag-object.ontkoppelen" })
         .click();
 
       expect(bagObjectVerwijderen).toHaveBeenCalledWith(gekoppeldBagObject);
@@ -346,7 +346,9 @@ describe(ZaakDetailsCardComponent.name, () => {
       await openTab(/bag-objecten/);
 
       expect(
-        screen().queryByRole("button", { name: "actie.bagObject.ontkoppelen" }),
+        screen().queryByRole("button", {
+          name: "actie.bag-object.ontkoppelen",
+        }),
       ).toBeNull();
     });
   });

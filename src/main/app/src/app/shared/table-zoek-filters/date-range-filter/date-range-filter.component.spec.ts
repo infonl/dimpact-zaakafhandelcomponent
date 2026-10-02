@@ -48,7 +48,7 @@ describe(DateRangeFilterComponent.name, () => {
 
   const startInput = () => screen.getByPlaceholderText("zoeken.filter.van");
   const endInput = () =>
-    screen.getByPlaceholderText("zoeken.filter.tot_en_met");
+    screen.getByPlaceholderText("zoeken.filter.tot-en-met");
   const clearIcon = () => screen.queryByText("clear");
   const calendarToggle = () =>
     screen.queryByRole("button", { name: "Open calendar" });

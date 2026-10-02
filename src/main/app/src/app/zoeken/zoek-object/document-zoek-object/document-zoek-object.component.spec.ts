@@ -55,7 +55,7 @@ describe(DocumentZoekObjectComponent.name, () => {
 
   it.each([
     ["zaaktype", "fakeZaaktypeOmschrijving"],
-    ["status", "informatieobject.status.DEFINITIEF"],
+    ["status", "informatieobject.status.definitief"],
     ["zaak-identificatie", "fakeZaakIdentificatie"],
     ["document-type", "fakeDocumentType"],
     ["auteur", "fakeAuteur"],

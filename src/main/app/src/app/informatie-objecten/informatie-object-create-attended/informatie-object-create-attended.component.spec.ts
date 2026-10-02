@@ -269,7 +269,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
     expect(field("informatieobject-type")).toHaveValue("Bijlage");
     expect(field("vertrouwelijkheidaanduiding")).toHaveValue(
-      "vertrouwelijkheidaanduiding.OPENBAAR",
+      "vertrouwelijkheidaanduiding.openbaar",
     );
   });
 

@@ -93,17 +93,17 @@ describe(UtilService.name, () => {
     expect(headerTitleSpy).toHaveBeenCalledWith(translatedTitle);
   });
 
-  it("should return an array of objects with labels and values from enum", () => {
+  it("should return the label and value of every enum value, looking up the label by the lowercase kebab-case key", () => {
     // Arrange
     const enumValue = { A: "FIRST", B: "SECOND" };
-    const prefix = "enumPrefix";
+    const prefix = "enum-prefix";
 
     // Mocking translate.get to return an observable with a mock translation
     (translateService.get as jest.Mock).mockImplementation((key: string) => {
       switch (key) {
-        case `${prefix}.FIRST`:
+        case `${prefix}.first`:
           return of("First Value");
-        case `${prefix}.SECOND`:
+        case `${prefix}.second`:
           return of("Second Value");
         default:
           return of("");
@@ -115,8 +115,8 @@ describe(UtilService.name, () => {
 
     // Assert
     expect(translateService.get).toHaveBeenCalledTimes(2);
-    expect(translateService.get).toHaveBeenCalledWith(`${prefix}.FIRST`);
-    expect(translateService.get).toHaveBeenCalledWith(`${prefix}.SECOND`);
+    expect(translateService.get).toHaveBeenCalledWith(`${prefix}.first`);
+    expect(translateService.get).toHaveBeenCalledWith(`${prefix}.second`);
 
     // Expected result
     const expectedResult = [
@@ -127,18 +127,18 @@ describe(UtilService.name, () => {
     expect(result).toEqual(expectedResult);
   });
 
-  it("should return an array of objects with labels and values from enum, excluding specified values", () => {
+  it("should return the label and value of every enum value except the excluded ones, looking up the label by the lowercase kebab-case key", () => {
     // Arrange
     const enumValue = { A: "FIRST", B: "SECOND", C: "THIRD" };
-    const prefix = "enumPrefix";
+    const prefix = "enum-prefix";
     const exceptEnumValues: [string] = ["SECOND"]; // Use a tuple with one string
 
     // Mocking translate.get to return an observable with a mock translation
     (translateService.get as jest.Mock).mockImplementation((key: string) => {
       switch (key) {
-        case `${prefix}.FIRST`:
+        case `${prefix}.first`:
           return of("First Value");
-        case `${prefix}.THIRD`:
+        case `${prefix}.third`:
           return of("Third Value");
         default:
           return of("");
@@ -154,9 +154,9 @@ describe(UtilService.name, () => {
 
     // Assert
     expect(translateService.get).toHaveBeenCalledTimes(2);
-    expect(translateService.get).toHaveBeenCalledWith(`${prefix}.FIRST`);
-    expect(translateService.get).toHaveBeenCalledWith(`${prefix}.THIRD`);
-    expect(translateService.get).not.toHaveBeenCalledWith(`${prefix}.SECOND`);
+    expect(translateService.get).toHaveBeenCalledWith(`${prefix}.first`);
+    expect(translateService.get).toHaveBeenCalledWith(`${prefix}.third`);
+    expect(translateService.get).not.toHaveBeenCalledWith(`${prefix}.second`);
 
     // Expected result
     const expectedResult = [

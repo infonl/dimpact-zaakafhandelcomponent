@@ -59,35 +59,35 @@ describe(FormioSetupService.name, () => {
         expect(component.data.custom()).toEqual([
           {
             value: "OPENBAAR",
-            label: "translated:vertrouwelijkheidaanduiding.OPENBAAR",
+            label: "translated:vertrouwelijkheidaanduiding.openbaar",
           },
           {
             value: "BEPERKT_OPENBAAR",
-            label: "translated:vertrouwelijkheidaanduiding.BEPERKT_OPENBAAR",
+            label: "translated:vertrouwelijkheidaanduiding.beperkt-openbaar",
           },
           {
             value: "INTERN",
-            label: "translated:vertrouwelijkheidaanduiding.INTERN",
+            label: "translated:vertrouwelijkheidaanduiding.intern",
           },
           {
             value: "ZAAKVERTROUWELIJK",
-            label: "translated:vertrouwelijkheidaanduiding.ZAAKVERTROUWELIJK",
+            label: "translated:vertrouwelijkheidaanduiding.zaakvertrouwelijk",
           },
           {
             value: "VERTROUWELIJK",
-            label: "translated:vertrouwelijkheidaanduiding.VERTROUWELIJK",
+            label: "translated:vertrouwelijkheidaanduiding.vertrouwelijk",
           },
           {
             value: "CONFIDENTIEEL",
-            label: "translated:vertrouwelijkheidaanduiding.CONFIDENTIEEL",
+            label: "translated:vertrouwelijkheidaanduiding.confidentieel",
           },
           {
             value: "GEHEIM",
-            label: "translated:vertrouwelijkheidaanduiding.GEHEIM",
+            label: "translated:vertrouwelijkheidaanduiding.geheim",
           },
           {
             value: "ZEER_GEHEIM",
-            label: "translated:vertrouwelijkheidaanduiding.ZEER_GEHEIM",
+            label: "translated:vertrouwelijkheidaanduiding.zeer-geheim",
           },
         ]);
       });

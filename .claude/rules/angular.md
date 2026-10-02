@@ -2,7 +2,6 @@
 paths:
   - "src/main/app/src/**/*.ts"
   - "src/main/app/src/**/*.html"
-  - "src/main/app/src/assets/i18n/*.json"
 ---
 
 # Angular conventions
@@ -27,8 +26,6 @@ private readonly someQuery = injectQuery(() =>
 If no shared method exists yet for the endpoint you need, add one to the relevant service using
 `queryOptions()` from `@tanstack/angular-query-experimental`, so future callers can reuse it too.
 
-## Translate a camelCase identifier through `toI18nKey`
-`translations.spec.ts` requires the last segment of every i18n key to be kebab-case, so a key named
-after a column, form control or validator error (`zaakIdentificatie`) is `zaak-identificatie`. When the
-key is built from such an identifier at runtime, convert it with `toI18nKey` or the `i18nKey` pipe
-(`{{ column | i18nKey | translate }}`). Form fields already do this for their `key`.
+## Look up an i18n key built at runtime through `toI18nKey`
+When you build a key from a prefix and an enum value, field name or external value, pass it through
+`toI18nKey` or the `i18nKey` pipe before you translate it: `{{ "taak.status." + taak.status | i18nKey | translate }}`.

@@ -23,6 +23,7 @@ import { WebSocketSubject } from "rxjs/webSocket";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { HttpClient } from "../../shared/http/http-client";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { UtilService } from "../service/util.service";
 import { isCausedByCurrentUser } from "./is-caused-by-current-user";
 import { EventCallback } from "./model/event-callback";
@@ -262,14 +263,16 @@ export class WebsocketService {
 
       forkJoin({
         msgPart1: this.translate.get(
-          "msg.gewijzigd.objecttype." + event.objectType,
+          toI18nKey("msg.gewijzigd.objecttype." + event.objectType),
         ),
         msgPart2: this.translate.get(
           event.objectType.indexOf("_") < 0
             ? "msg.gewijzigd.2"
             : "msg.gewijzigd.2.details",
         ),
-        msgPart3: this.translate.get("msg.gewijzigd.operatie." + event.opcode),
+        msgPart3: this.translate.get(
+          toI18nKey("msg.gewijzigd.operatie." + event.opcode),
+        ),
         msgPart4: this.translate.get("msg.gewijzigd.4"),
       }).subscribe((result) => {
         callback(event);

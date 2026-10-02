@@ -15,7 +15,9 @@
     />
     <zac-static-text
       label="status"
-      [value]="'informatieobject.status.' + document().status | translate"
+      [value]="
+        'informatieobject.status.' + document().status | i18nKey | translate
+      "
     />
   </div>
   <div class="flex-1 w33">

@@ -11,7 +11,9 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BesluitIndicatie } from "../../model/indicatie";
 import { IndicatieItem } from "../../model/indicatie-item";
+import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
+import { toI18nKey } from "../../utils/i18n-key";
 import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
@@ -20,6 +22,7 @@ import { IndicatiesComponent } from "../indicaties.component";
   styleUrls: ["../indicaties.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CommonModule,
     MatChipsModule,
     MatIconModule,
@@ -48,6 +51,8 @@ export class BesluitIndicatiesComponent extends IndicatiesComponent {
   });
 
   private getIntrekToelichting(besluit: GeneratedType<"RestBesluit">) {
-    return this.translate.instant("besluit.vervalreden." + besluit.vervalreden);
+    return this.translate.instant(
+      toI18nKey("besluit.vervalreden." + besluit.vervalreden),
+    );
   }
 }

@@ -6,7 +6,9 @@
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>calendar_today</mat-icon>
   <span class="flex-grow-1" *ngIf="data.planItem">
-    {{ "planitem." + data.planItem.userEventListenerActie | translate }}
+    {{
+      "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
+    }}
   </span>
   <span class="flex-grow-1" *ngIf="!data.planItem">
     {{ "actie.zaak.brondatum-zetten" | translate }}

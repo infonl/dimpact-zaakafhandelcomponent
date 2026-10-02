@@ -3,20 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-const CAMEL_CASE_SEGMENT = /^[a-z][a-z0-9]*([A-Z][a-z0-9]*)+$/;
+const I18N_KEY = /^[a-z0-9]+(-[a-z0-9]+)*(\.[a-z0-9]+(-[a-z0-9]+)*)*$/;
 
-export function isCamelCaseSegment(segment: string) {
-  return CAMEL_CASE_SEGMENT.test(segment);
+export function isI18nKey(key: string) {
+  return I18N_KEY.test(key);
 }
 
 export function toI18nKey(key: string) {
-  const lastDot = key.lastIndexOf(".");
-  const prefix = key.slice(0, lastDot + 1);
-  const lastSegment = key.slice(lastDot + 1);
-  if (!isCamelCaseSegment(lastSegment)) return key;
+  return key.split(".").map(toKebabCaseSegment).join(".");
+}
 
-  return (
-    prefix +
-    lastSegment.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
-  );
+function toKebabCaseSegment(segment: string) {
+  return segment
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }

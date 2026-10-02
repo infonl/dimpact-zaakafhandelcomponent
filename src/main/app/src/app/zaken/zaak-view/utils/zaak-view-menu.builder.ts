@@ -7,6 +7,7 @@ import { ButtonMenuItem } from "../../../shared/side-nav/menu-item/button-menu-i
 import { HeaderMenuItem } from "../../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../../shared/side-nav/menu-item/menu-item";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../shared/utils/i18n-key";
 import {
   allowedToAddBetrokkene,
   hasAfleidingswijzeBrondatumEigenschap,
@@ -86,7 +87,7 @@ export function buildZaakMenu(
       ...planItems.userEventListener.map(
         (planItem) =>
           new ButtonMenuItem(
-            "planitem." + planItem.userEventListenerActie,
+            toI18nKey("planitem." + planItem.userEventListenerActie),
             () => dialogs.openPlanItemStarten(zaak, planItem),
             userEventListenerIcon(planItem.userEventListenerActie),
           ),
@@ -306,7 +307,7 @@ function createKoppelingenMenuItems(
 
   if (zaak.rechten.toevoegenBagObject) {
     menu.push(
-      new ButtonMenuItem("actie.bagObject.koppelen", open, "add_home_work"),
+      new ButtonMenuItem("actie.bag-object.koppelen", open, "add_home_work"),
     );
   }
 

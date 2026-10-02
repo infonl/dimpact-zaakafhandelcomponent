@@ -5,7 +5,9 @@
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>thumbs_up_down</mat-icon>
   <span class="flex-grow-1">
-    {{ "planitem." + data.planItem.userEventListenerActie | translate }}
+    {{
+      "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
+    }}
   </span>
   <button
     mat-icon-button
@@ -39,13 +41,13 @@
       <p
         *ngIf="this.data.zaak.isOpgeschort"
         [innerHTML]="
-          'planitem.INTAKE_AFRONDEN.toelichting.opgeshort' | translate
+          'planitem.intake-afronden.toelichting.opgeshort' | translate
         "
         class="readonly"
       ></p>
       <ng-container *ngIf="!this.data.zaak.isOpgeschort">
         <p
-          [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"
+          [innerHTML]="'planitem.intake-afronden.toelichting' | translate"
           class="readonly"
         ></p>
         <mat-form-field appearance="fill" class="full-width">
@@ -84,7 +86,7 @@
       >
         <mat-label>{{ "verzender" | translate }}</mat-label>
         <mat-select
-          placeholder="{{ 'verzender.-kies-' | translate }}"
+          placeholder="{{ 'verzender.kies' | translate }}"
           formControlName="verzender"
           [compareWith]="compareObject"
         >
@@ -166,7 +168,7 @@
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{ "planitem.INTAKE_AFRONDEN" | translate }}
+    {{ "planitem.intake-afronden" | translate }}
   </button>
   <button mat-raised-button [disabled]="loading" (click)="close()">
     {{ "actie.annuleren" | translate }}

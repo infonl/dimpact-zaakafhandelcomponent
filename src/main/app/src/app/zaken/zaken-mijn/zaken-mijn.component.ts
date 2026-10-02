@@ -47,6 +47,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
 
 import { detailExpand } from "../../shared/animations/animations";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 
 @Component({
   templateUrl: "./zaken-mijn.component.html",
@@ -54,6 +55,7 @@ import { detailExpand } from "../../shared/animations/animations";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CdkDrag,
     CdkDropList,
     NgFor,

@@ -273,7 +273,7 @@ describe(BagZoekComponent.name, () => {
       listenForSelectedBagObjects();
 
       const [header] = screen.getAllByRole("heading", {
-        name: "actie.bagObject.koppelen",
+        name: "actie.bag-object.koppelen",
       });
       await user.click(within(header).getByRole("button"));
 
@@ -291,7 +291,7 @@ describe(BagZoekComponent.name, () => {
       await user.click(
         within(screen.getByRole("row", { name: /0363010000000001/ })).getByRole(
           "button",
-          { name: "actie.bagObject.bekijken" },
+          { name: "actie.bag-object.bekijken" },
         ),
       );
 

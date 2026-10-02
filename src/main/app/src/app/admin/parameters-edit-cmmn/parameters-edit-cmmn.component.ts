@@ -57,8 +57,10 @@ import { ZacInput } from "../../shared/form/input/input";
 import { ZacRadio } from "../../shared/form/radio/radio";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacToggle } from "../../shared/form/toggle/toggle";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import {
@@ -92,6 +94,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   styleUrls: ["./parameters-edit-cmmn.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
@@ -253,12 +256,12 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   });
 
   mailOpties: {
-    label: `statusmail.optie.${GeneratedType<"ZaakafhandelparametersStatusMailOption">}`;
+    label: string;
     value: GeneratedType<"ZaakafhandelparametersStatusMailOption">;
   }[] = [
-    { label: "statusmail.optie.BESCHIKBAAR_AAN", value: "BESCHIKBAAR_AAN" },
-    { label: "statusmail.optie.BESCHIKBAAR_UIT", value: "BESCHIKBAAR_UIT" },
-    { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
+    { label: "statusmail.optie.beschikbaar-aan", value: "BESCHIKBAAR_AAN" },
+    { label: "statusmail.optie.beschikbaar-uit", value: "BESCHIKBAAR_UIT" },
+    { label: "statusmail.optie.niet-beschikbaar", value: "NIET_BESCHIKBAAR" },
   ];
 
   protected caseDefinitions =
@@ -1132,7 +1135,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">) {
     return replyTo.speciaal
-      ? "gegevens.mail.afzender." + replyTo.mail
+      ? toI18nKey("gegevens.mail.afzender." + replyTo.mail)
       : (replyTo.mail ?? "");
   }
 

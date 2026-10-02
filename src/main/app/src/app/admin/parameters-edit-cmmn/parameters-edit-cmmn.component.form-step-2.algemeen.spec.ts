@@ -238,7 +238,7 @@ describe("Algemeen form step", () => {
 
     expect(
       screen.getAllByRole("option").map((option) => option.textContent?.trim()),
-    ).toEqual(["-geen.generiek-", "test-user", "test-user-2"]);
+    ).toEqual(["geen.generiek", "test-user", "test-user-2"]);
   });
 
   it("forgets the behandelaar when another groep is chosen", async () => {
@@ -258,6 +258,6 @@ describe("Algemeen form step", () => {
 
     expect(
       screen.getAllByRole("option").map((option) => option.textContent?.trim()),
-    ).toEqual(["-geen.generiek-"]);
+    ).toEqual(["geen.generiek"]);
   });
 });

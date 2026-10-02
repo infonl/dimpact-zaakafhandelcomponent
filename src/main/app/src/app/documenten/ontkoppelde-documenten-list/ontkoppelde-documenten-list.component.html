@@ -58,10 +58,10 @@
                   [compareWith]="compareUser"
                   (selectionChange)="filtersChanged()"
                   id="ontkoppeldDoor_filter"
-                  placeholder="{{ 'filter.-alle-' | translate }}"
+                  placeholder="{{ 'filter.alle' | translate }}"
                   [value]="listParameters.ontkoppeldDoor"
                 >
-                  <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
+                  <mat-option>{{ "filter.alle" | translate }}</mat-option>
                   <mat-option
                     *ngFor="let value of filterOntkoppeldDoor"
                     [value]="value"
@@ -181,7 +181,7 @@
                 </button>
                 <div *ngIf="row.isVergrendeld" class="indication">
                   <mat-icon
-                    title="{{ 'indicatie.VERGRENDELD' | translate }}"
+                    title="{{ 'indicatie.vergrendeld' | translate }}"
                     class="mat-mdc-standard-chip mat-mdc-chip-highlighted mat-accent lock-icon"
                   >
                     lock

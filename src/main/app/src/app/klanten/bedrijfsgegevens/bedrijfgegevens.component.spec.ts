@@ -216,7 +216,7 @@ describe(BedrijfsgegevensComponent.name, () => {
     });
 
     it("renders the bedrijf type from bedrijfQuery data, not the identificatieType", () => {
-      expect(screen.getByText("fakeType1")).toBeInTheDocument();
+      expect(screen.getByText("fake-type1")).toBeInTheDocument();
     });
   });
 

@@ -227,8 +227,8 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("vestigingsnummer", "000011112222");
     });
 
-    it("renders type field", () => {
-      expectStaticText("type", "RECHTSPERSOON");
+    it("renders the type through its lowercase kebab-case i18n key", () => {
+      expectStaticText("type", "rechtspersoon");
     });
 
     it("renders adres when no profiel is loaded", () => {

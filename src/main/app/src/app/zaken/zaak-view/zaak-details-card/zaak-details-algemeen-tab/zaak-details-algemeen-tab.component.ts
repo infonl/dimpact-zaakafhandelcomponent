@@ -17,6 +17,7 @@ import { EmptyPipe } from "../../../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { StaticTextComponent } from "../../../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../../shared/utils/i18n-key";
 
 type ZaakDetailField = {
   /** omitting this renders the field; only an explicit `false` hides it */
@@ -97,7 +98,7 @@ export class ZaakDetailsAlgemeenTabComponent {
       },
       {
         show: zaak.archiefNominatie === "VERNIETIGEN",
-        label: `archiefNominatie.datum.${zaak.archiefNominatie}`,
+        label: toI18nKey(`archief-nominatie.datum.${zaak.archiefNominatie}`),
         value: zaak.archiefActiedatum ?? null,
         format: "date",
       },
@@ -105,7 +106,9 @@ export class ZaakDetailsAlgemeenTabComponent {
         show: zaak.archiefNominatie === "BLIJVEND_BEWAREN",
         label: "archief-nominatie",
         value: String(
-          this.translate.instant(`archiefNominatie.${zaak.archiefNominatie}`),
+          this.translate.instant(
+            toI18nKey(`archief-nominatie.${zaak.archiefNominatie}`),
+          ),
         ),
       },
     ];
@@ -127,7 +130,7 @@ export class ZaakDetailsAlgemeenTabComponent {
 
     return String(
       this.translate.instant(
-        `afleidingswijzeBrondatum.${afleidingswijzeBrondatum}`,
+        toI18nKey(`afleidingswijze-brondatum.${afleidingswijzeBrondatum}`),
       ),
     );
   }

@@ -35,6 +35,7 @@ import { UtilService } from "../../core/service/util.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
@@ -44,6 +45,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./intake-afronden-dialog.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     NgFor,
     AsyncPipe,
