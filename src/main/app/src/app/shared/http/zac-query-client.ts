@@ -149,7 +149,7 @@ export class ZacQueryClient {
         );
       },
       onSettled: () => this.utilService.setProgress(null),
-      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+      onError: this.reportError,
     });
   }
 

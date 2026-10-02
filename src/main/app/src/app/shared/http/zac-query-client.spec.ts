@@ -19,6 +19,7 @@ import { EMPTY, of } from "rxjs";
 import { fromPartial } from "../../../test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { mergeMutationOptions } from "./merge-mutation-options";
 import { ZacQueryClient } from "./zac-query-client";
 
 describe(ZacQueryClient.name, () => {
@@ -134,6 +135,25 @@ describe(ZacQueryClient.name, () => {
         fromPartial<MutationFunctionContext>({}),
       );
       expect(foutAfhandelenSpy).toHaveBeenCalled();
+    });
+
+    it("does not report the failure when reporting is disabled", () => {
+      const foutAfhandelenSpy = jest
+        .spyOn(foutAfhandelingService, "foutAfhandelen")
+        .mockReturnValue(EMPTY);
+      const baseOptions = zacQueryClient.POST_WITH_PROGRESS(path, parameters);
+      const options = mergeMutationOptions(baseOptions, {
+        meta: { reportErrors: false },
+      });
+
+      options.onError!(
+        { status: 500 } as never,
+        new FormData() as never,
+        undefined,
+        fromPartial<MutationFunctionContext>({ meta: { reportErrors: false } }),
+      );
+
+      expect(foutAfhandelenSpy).not.toHaveBeenCalled();
     });
   });
 
