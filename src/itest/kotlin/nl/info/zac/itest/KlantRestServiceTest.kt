@@ -527,10 +527,10 @@ class KlantRestServiceTest : BehaviorSpec({
                         adressen.length() shouldBe 1
                         with(JSONArray(adressen).get(0).toString()) {
                             shouldContainJsonKeyValue("type", "bezoekadres")
-                            shouldContainJsonKeyValue("afgeschermd", false)
+                            shouldContainJsonKeyValue("isAfgeschermd", false)
                             shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING1_PROFIEL_VOLLEDIG_ADRES)
                         }
-                        shouldContainJsonKeyValue("commercieleVestiging", true)
+                        shouldContainJsonKeyValue("isCommercieleVestiging", true)
                         shouldContainJsonKeyValue("deeltijdWerkzamePersonen", 1)
                         shouldContainJsonKeyValue("eersteHandelsnaam", TEST_KVK_EERSTE_HANDELSNAAM_1)
                         shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
@@ -573,7 +573,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         adressen.length() shouldBe 1
                         with(JSONArray(adressen).get(0).toString()) {
                             shouldContainJsonKeyValue("type", "bezoekadres")
-                            shouldContainJsonKeyValue("afgeschermd", false)
+                            shouldContainJsonKeyValue("isAfgeschermd", false)
                             shouldContainJsonKeyValue("volledigAdres", TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES)
                         }
                         shouldContainJsonKeyValue("eersteHandelsnaam", TEST_KVK_EERSTE_HANDELSNAAM_1)
@@ -913,23 +913,23 @@ class KlantRestServiceTest : BehaviorSpec({
                     adressen.length() shouldBe numberOfAdressen
                     with(JSONArray(adressen).get(0).toString()) {
                         shouldContainJsonKeyValue("type", "bezoekadres")
-                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("isAfgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_BEZOEKADRES_1)
                     }
                     with(JSONArray(adressen).get(1).toString()) {
                         shouldContainJsonKeyValue("type", "bezoekadres")
-                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("isAfgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_BEZOEKADRES_2)
                     }
                     with(JSONArray(adressen).get(2).toString()) {
                         shouldContainJsonKeyValue("type", "correspondentieadres")
-                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("isAfgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1)
                     }
                     val lastAdresIndex = 3
                     with(JSONArray(adressen).get(lastAdresIndex).toString()) {
                         shouldContainJsonKeyValue("type", "correspondentieadres")
-                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("isAfgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2)
                     }
                 }
@@ -980,7 +980,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     adressen.length() shouldBe 1
                     with(JSONArray(adressen).get(0).toString()) {
                         shouldContainJsonKeyValue("type", "bezoekadres")
-                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("isAfgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING3_PROFIEL_ADRES)
                     }
                 }
@@ -1032,7 +1032,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     adressen.length() shouldBe 1
                     with(JSONArray(adressen).get(0).toString()) {
                         shouldContainJsonKeyValue("type", "bezoekadres")
-                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("isAfgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING4_PROFIEL_ADRES)
                     }
                 }
