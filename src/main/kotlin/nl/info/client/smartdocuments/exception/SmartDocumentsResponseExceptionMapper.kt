@@ -12,7 +12,7 @@ class SmartDocumentsResponseExceptionMapper : ResponseExceptionMapper<RuntimeExc
     override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean =
         status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
 
-    override fun toThrowable(response: Response): RuntimeException = RuntimeException(
+    override fun toThrowable(response: Response): RuntimeException = SmartDocumentsRuntimeException(
         "Server response from SmartDocuments: ${response.location} ${response.status} (${response.statusInfo})"
     )
 }

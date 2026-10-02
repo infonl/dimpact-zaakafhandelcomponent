@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.time.ZonedDateTime
+import java.time.format.DateTimeParseException
 import java.util.UUID
 import java.util.logging.Logger
 import javax.imageio.ImageIO
@@ -323,7 +324,13 @@ class BpmnService @Inject constructor(
         return extensionElements["modificationdate"]
             ?.firstOrNull()
             ?.elementText
-            ?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
+            ?.let {
+                try {
+                    ZonedDateTime.parse(it)
+                } catch (dateTimeParseException: DateTimeParseException) {
+                    null
+                }
+            }
     }
 
     private fun getUploadDate(deploymentId: String): ZonedDateTime? {

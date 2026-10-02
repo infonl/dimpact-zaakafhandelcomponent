@@ -15,12 +15,17 @@ import jakarta.ws.rs.FormParam
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
+import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.client.smartdocuments.exception.SmartDocumentsRuntimeException
+import nl.info.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -34,6 +39,8 @@ import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationUserStore
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
+import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.smartdocuments.SmartDocumentsService
@@ -234,7 +241,7 @@ class DocumentCreationRestService @Inject constructor(
         fetchInformatieobjecttypeUuidFunction: (zaak: Zaak) -> UUID,
     ): Response {
         val zaak = zrcClientService.readZaak(zaakUuid)
-        return runCatching {
+        val result = try {
             val file = smartDocumentsService.downloadDocument(fileId)
             val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(zaak)
             documentCreationService.storeDownloadedDocument(
@@ -247,40 +254,46 @@ class DocumentCreationRestService @Inject constructor(
                 creationDate = creationDate,
                 userName = userName
             )
-            zaak
-        }.onFailure {
-            LOG.log(Level.WARNING, it) {
-                "Failed to create document for zaak $zaakUuid" +
-                    if (taskId != null) " and task $taskId" else ""
-            }
-        }.fold(
-            onSuccess = { successZaak ->
-                Response.seeOther(
-                    documentCreationService.documentCreationFinishPageUrl(
-                        zaakId = successZaak.identificatie,
-                        taskId = taskId,
-                        documentName = title,
-                        result = SmartDocumentsWizardResult.SUCCESS.value
-                    )
-                ).build()
-            },
-            onFailure = { exception ->
-                val result = if (exception is SmartDocumentsUnsupportedOutputFormatException) {
-                    SmartDocumentsWizardResult.UNSUPPORTED_OUTPUT_FORMAT
-                } else {
-                    SmartDocumentsWizardResult.FAILURE
-                }
-                Response.seeOther(
-                    documentCreationService.documentCreationFinishPageUrl(
-                        zaakId = zaak.identificatie,
-                        taskId = taskId,
-                        documentName = title,
-                        result = result.value
-                    )
-                ).build()
-            }
-        )
+            SmartDocumentsWizardResult.SUCCESS
+        } catch (smartDocumentsUnsupportedOutputFormatException: SmartDocumentsUnsupportedOutputFormatException) {
+            logDocumentCreationFailure(smartDocumentsUnsupportedOutputFormatException, zaakUuid, taskId)
+            SmartDocumentsWizardResult.UNSUPPORTED_OUTPUT_FORMAT
+        } catch (serverErrorException: ServerErrorException) {
+            logDocumentCreationFailure(serverErrorException, zaakUuid, taskId)
+            SmartDocumentsWizardResult.FAILURE
+        } catch (smartDocumentsRuntimeException: SmartDocumentsRuntimeException) {
+            logDocumentCreationFailure(smartDocumentsRuntimeException, zaakUuid, taskId)
+            SmartDocumentsWizardResult.FAILURE
+        } catch (zgwRuntimeException: ZgwRuntimeException) {
+            logDocumentCreationFailure(zgwRuntimeException, zaakUuid, taskId)
+            SmartDocumentsWizardResult.FAILURE
+        } catch (zgwErrorException: ZgwErrorException) {
+            logDocumentCreationFailure(zgwErrorException, zaakUuid, taskId)
+            SmartDocumentsWizardResult.FAILURE
+        } catch (inputValidationFailedException: InputValidationFailedException) {
+            logDocumentCreationFailure(inputValidationFailedException, zaakUuid, taskId)
+            SmartDocumentsWizardResult.FAILURE
+        } catch (webApplicationException: WebApplicationException) {
+            logDocumentCreationFailure(webApplicationException, zaakUuid, taskId)
+            SmartDocumentsWizardResult.FAILURE
+        } catch (processingException: ProcessingException) {
+            logDocumentCreationFailure(processingException, zaakUuid, taskId)
+            SmartDocumentsWizardResult.FAILURE
+        }
+        return Response.seeOther(
+            documentCreationService.documentCreationFinishPageUrl(
+                zaakId = zaak.identificatie,
+                taskId = taskId,
+                documentName = title,
+                result = result.value
+            )
+        ).build()
     }
+
+    private fun logDocumentCreationFailure(exception: RuntimeException, zaakUuid: UUID, taskId: String?) =
+        LOG.log(Level.WARNING, exception) {
+            "Failed to create document for zaak $zaakUuid" + if (taskId != null) " and task $taskId" else ""
+        }
 
     // if/else instead of `?.let`: CodeQL's model of `let` makes the HTML response look tainted by the token (java/xss)
     private fun consumeDocumentCreationUser(documentCreationToken: UUID?, zaakUuid: UUID): LoggedInUser? =

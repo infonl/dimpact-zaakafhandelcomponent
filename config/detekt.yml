@@ -30,6 +30,13 @@ style:
     maxLineLength: 140
   ExpressionBodySyntax:
     active: true
+  ForbiddenMethodCall:
+    active: true
+    methods:
+      - reason: 'Make the value non-nullable, or handle the null case explicitly.'
+        value: 'kotlin.requireNotNull'
+      - reason: 'runCatching catches every Throwable. Catch the specific exceptions that the code can throw.'
+        value: 'kotlin.runCatching'
   ForbiddenComment:
     comments:
       - reason: 'Forbidden FIXME todo marker in comment, please fix the problem.'

@@ -4,11 +4,11 @@
  */
 package nl.info.zac.app.informatieobjecten
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -212,12 +212,10 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns failingStream
 
         `when`("getZipStreamOutput is called and the stream is written") {
-            val thrownException = runCatching {
-                service.getZipStreamOutput(listOf(informatieobject)).write(ByteArrayOutputStream())
-            }.exceptionOrNull()
-
             then("an EnkelvoudigInformatieObjectDownloadException is thrown") {
-                thrownException.shouldBeInstanceOf<EnkelvoudigInformatieObjectDownloadException>()
+                shouldThrow<EnkelvoudigInformatieObjectDownloadException> {
+                    service.getZipStreamOutput(listOf(informatieobject)).write(ByteArrayOutputStream())
+                }
             }
         }
     }

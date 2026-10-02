@@ -4,9 +4,9 @@
  */
 package nl.info.zac.app.informatieobjecten
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -94,12 +94,10 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
         }
 
         `when`("convertEnkelvoudigInformatieObjectToPDF is called") {
-            val thrownException = runCatching {
-                service.convertEnkelvoudigInformatieObjectToPDF(document, uuid)
-            }.exceptionOrNull()
-
             then("an EnkelvoudigInformatieObjectConversionException is thrown") {
-                thrownException.shouldBeInstanceOf<EnkelvoudigInformatieObjectConversionException>()
+                shouldThrow<EnkelvoudigInformatieObjectConversionException> {
+                    service.convertEnkelvoudigInformatieObjectToPDF(document, uuid)
+                }
             }
         }
     }

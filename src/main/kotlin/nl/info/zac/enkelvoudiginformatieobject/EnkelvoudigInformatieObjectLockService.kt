@@ -55,7 +55,9 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
     @Transactional(REQUIRED)
     fun deleteLock(informationObjectUUID: UUID) =
         findLock(informationObjectUUID)?.let { lock ->
-            drcClientService.unlockEnkelvoudigInformatieobject(informationObjectUUID, requireNotNull(lock.lock))
+            drcClientService.unlockEnkelvoudigInformatieobject(informationObjectUUID, checkNotNull(lock.lock) {
+                    "Lock for EnkelvoudigInformatieObject with uuid '$informationObjectUUID' has no lock value"
+                })
             entityManager.remove(lock)
             entityManager.flush()
         }
