@@ -80,7 +80,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                     "zaakUuid":"$zaakUUID",
                     "planItemInstanceId":"$intakeId",
                     "actie":"$ACTIE_INTAKE_AFRONDEN",
-                    "zaakOntvankelijk":true
+                    "isZaakOntvankelijk":true
                 }
             """.trimIndent(),
             testUser = BEHANDELAAR_1

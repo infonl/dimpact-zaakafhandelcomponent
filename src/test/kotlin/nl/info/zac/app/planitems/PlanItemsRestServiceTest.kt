@@ -741,7 +741,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
             ).apply {
-                this.zaakOntvankelijk = false
+                this.isZaakOntvankelijk = false
                 this.resultaatToelichting = resultaatToelichting
                 this.planItemInstanceId = planItemInstanceId
             }
@@ -788,7 +788,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
             ).apply {
-                this.zaakOntvankelijk = true
+                this.isZaakOntvankelijk = true
                 this.planItemInstanceId = planItemInstanceId
             }
             val loggedInUser = createLoggedInUser()
@@ -824,7 +824,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
             ).apply {
-                this.zaakOntvankelijk = false
+                this.isZaakOntvankelijk = false
                 this.planItemInstanceId = planItemInstanceId
             }
             val geenResultaattypeZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(

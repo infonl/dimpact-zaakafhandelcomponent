@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.klant.model.bedrijven
 
+import jakarta.json.bind.annotation.JsonbProperty
 import net.atos.zac.util.StringUtil
 import net.atos.zac.util.StringUtil.NON_BREAKING_SPACE
 import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
@@ -17,21 +18,25 @@ data class RestBedrijfAdres(
      * Correspondentieadres en/of bezoekadres
      */
     var type: String,
-    var afgeschermd: Boolean,
+
+    @get:JsonbProperty("isAfgeschermd")
+    @set:JsonbProperty("isAfgeschermd")
+    var isAfgeschermd: Boolean,
+
     var volledigAdres: String,
     var postcode: String? = null
 )
 
 fun VestigingsprofielAdres.toRestBedrijfAdres() = RestBedrijfAdres(
     type = this.type,
-    afgeschermd = this.indAfgeschermd?.isIndicatie() == true,
+    isAfgeschermd = this.indAfgeschermd?.isIndicatie() == true,
     volledigAdres = this.toFormattedAddress().ifBlank { this.volledigAdres ?: "" },
     postcode = this.postcode
 )
 
 fun BasisprofielAdres.toRestBedrijfAdres() = RestBedrijfAdres(
     type = this.type,
-    afgeschermd = this.indAfgeschermd?.isIndicatie() == true,
+    isAfgeschermd = this.indAfgeschermd?.isIndicatie() == true,
     volledigAdres = this.toFormattedAddress().ifBlank { this.volledigAdres ?: "" },
     postcode = this.postcode
 )

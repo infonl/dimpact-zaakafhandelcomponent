@@ -107,7 +107,7 @@ data class TestTask(
     private val scopeType: String?,
     private val scopeDefinitionId: String?,
     private val taskDefinitionId: String?,
-    val suspended: Boolean,
+    private val isSuspended: Boolean,
     private val taskLocalVariables: Map<String, Any>,
     private val processVariables: Map<String, Any>,
     private val identityLinks: List<IdentityLinkInfo>,
@@ -170,5 +170,5 @@ data class TestTask(
     override fun setParentTaskId(parentTaskId: String) { this.parentTaskId = parentTaskId }
     override fun setTenantId(tenantId: String) { this.tenantId = tenantId }
     override fun setFormKey(formKey: String) { this.formKey = formKey }
-    override fun isSuspended() = suspended
+    override fun isSuspended() = isSuspended
 }

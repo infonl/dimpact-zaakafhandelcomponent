@@ -21,10 +21,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
             )
 
             `when`("isValid is called") {
-                val result = validator.isValid(identificatie, mockk())
+                val isValid = validator.isValid(identificatie, mockk())
 
                 then("it should return true") {
-                    result shouldBe true
+                    isValid shouldBe true
                 }
             }
         }
@@ -36,10 +36,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
             )
 
             `when`("isValid is called") {
-                val result = validator.isValid(identificatie, mockk())
+                val isValid = validator.isValid(identificatie, mockk())
 
                 then("it should return false") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -52,10 +52,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
             )
 
             `when`("isValid is called") {
-                val result = validator.isValid(identificatie, mockk())
+                val isValid = validator.isValid(identificatie, mockk())
 
                 then("it should return false") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -70,10 +70,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
             )
 
             `when`("isValid is called") {
-                val result = validator.isValid(identificatie, mockk())
+                val isValid = validator.isValid(identificatie, mockk())
 
                 then("it should return true") {
-                    result shouldBe true
+                    isValid shouldBe true
                 }
             }
         }
@@ -86,10 +86,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
             )
 
             `when`("isValid is called") {
-                val result = validator.isValid(identificatie, mockk())
+                val isValid = validator.isValid(identificatie, mockk())
 
                 then("it should return false") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -103,10 +103,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
             )
 
             `when`("isValid is called") {
-                val result = validator.isValid(identificatie, mockk())
+                val isValid = validator.isValid(identificatie, mockk())
 
                 then("it should return false") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -120,10 +120,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
             )
 
             `when`("isValid is called") {
-                val result = validator.isValid(identificatie, mockk())
+                val isValid = validator.isValid(identificatie, mockk())
 
                 then("it should return true") {
-                    result shouldBe true
+                    isValid shouldBe true
                 }
             }
         }
@@ -136,10 +136,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
             )
 
             `when`("isValid is called") {
-                val result = validator.isValid(identificatie, mockk())
+                val isValid = validator.isValid(identificatie, mockk())
 
                 then("it should return false") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -148,10 +148,10 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
     context("Validation of null input") {
         given("A null BetrokkeneIdentificatie") {
             `when`("isValid is called with null") {
-                val result = validator.isValid(null, mockk())
+                val isValid = validator.isValid(null, mockk())
 
                 then("it should return false") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }

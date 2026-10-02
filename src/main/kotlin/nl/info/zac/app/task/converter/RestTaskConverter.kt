@@ -50,25 +50,25 @@ class RestTaskConverter @Inject constructor(
             zaakUuid = readZaakUUID(taskInfo),
             zaakIdentificatie = readZaakIdentificatie(taskInfo),
             rechten = restTaakRechten,
-            zaaktypeOmschrijving = if (restTaakRechten.lezen) zaaktypeOmschrijving else null,
+            zaaktypeOmschrijving = if (restTaakRechten.canLezen) zaaktypeOmschrijving else null,
             zaaktypeUUID = readZaaktypeUUID(taskInfo),
-            toelichting = if (restTaakRechten.lezen) taskInfo.description else null,
-            creatiedatumTijd = if (restTaakRechten.lezen) {
+            toelichting = if (restTaakRechten.canLezen) taskInfo.description else null,
+            creatiedatumTijd = if (restTaakRechten.canLezen) {
                 taskInfo.createTime?.let(::convertToZonedDateTime)
             } else {
                 null
             },
-            toekenningsdatumTijd = if (restTaakRechten.lezen) {
+            toekenningsdatumTijd = if (restTaakRechten.canLezen) {
                 taskInfo.claimTime?.let(::convertToZonedDateTime)
             } else {
                 null
             },
-            fataledatum = if (restTaakRechten.lezen) {
+            fataledatum = if (restTaakRechten.canLezen) {
                 taskInfo.dueDate?.let(::convertToLocalDate)
             } else {
                 null
             },
-            behandelaar = if (restTaakRechten.lezen) {
+            behandelaar = if (restTaakRechten.canLezen) {
                 taskInfo.assignee?.let {
                     medewerkerConverter.convertUserId(
                         it
@@ -77,14 +77,14 @@ class RestTaskConverter @Inject constructor(
             } else {
                 null
             },
-            groep = if (restTaakRechten.lezen) {
+            groep = if (restTaakRechten.canLezen) {
                 extractGroupId(taskInfo.identityLinks)?.let { groepConverter.convertGroupId(it) }
             } else {
                 null
             },
-            taakinformatie = if (restTaakRechten.lezen) readTaskInformation(taskInfo) else null,
-            taakdata = if (restTaakRechten.lezen) readTaskData(taskInfo).toMutableMap() else null,
-            taakdocumenten = if (restTaakRechten.lezen) {
+            taakinformatie = if (restTaakRechten.canLezen) readTaskInformation(taskInfo) else null,
+            taakdata = if (restTaakRechten.canLezen) readTaskData(taskInfo).toMutableMap() else null,
+            taakdocumenten = if (restTaakRechten.canLezen) {
                 readTaskDocuments(
                     taskInfo
                 )

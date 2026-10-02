@@ -104,7 +104,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.vestigingsnummer shouldBe vestigingsnummer
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             postcode shouldBe adres.binnenlandsAdres!!.postcode
                             volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
                                 "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
@@ -177,7 +177,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.vestigingsnummer shouldBe vestigingsnummer
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             postcode shouldBe adres.binnenlandsAdres!!.postcode
                             volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
                                 "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
@@ -361,7 +361,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.type shouldBe type
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             this.postcode shouldBe postcode
                         }
                     }
@@ -468,7 +468,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.emailadres shouldBe "fake@example.com"
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             this.postcode shouldBe postcode
                         }
                     }
@@ -508,7 +508,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.emailadres shouldBe null
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             this.postcode shouldBe postcode
                         }
                     }
@@ -634,12 +634,12 @@ class KlantRestServiceTest : BehaviorSpec({
                             size shouldBe 2
                             with(this[0]) {
                                 type shouldBe "fakeType1"
-                                afgeschermd shouldBe false
+                                isAfgeschermd shouldBe false
                                 volledigAdres shouldBe "fakeVolledigAdres1"
                             }
                             with(this[1]) {
                                 type shouldBe "fakeType2"
-                                afgeschermd shouldBe true
+                                isAfgeschermd shouldBe true
                                 volledigAdres shouldBe "fakeVolledigAdres2"
                             }
                         }
@@ -712,12 +712,12 @@ class KlantRestServiceTest : BehaviorSpec({
                             size shouldBe 2
                             with(this[0]) {
                                 type shouldBe "fakeType1"
-                                afgeschermd shouldBe false
+                                isAfgeschermd shouldBe false
                                 volledigAdres shouldBe "fakeAdres1"
                             }
                             with(this[1]) {
                                 type shouldBe "fakeType2"
-                                afgeschermd shouldBe true
+                                isAfgeschermd shouldBe true
                                 volledigAdres shouldBe "fakeAdres2"
                             }
                         }

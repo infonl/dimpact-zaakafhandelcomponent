@@ -15,7 +15,7 @@ data class RestZaakVerlengGegevens(
 
     var duurDagen: Int = 0,
 
-    var takenVerlengen: Boolean,
+    var shouldTakenVerlengen: Boolean,
 
     var einddatumGepland: LocalDate? = null,
 

@@ -149,7 +149,7 @@ class SearchService @Inject constructor(
         return when {
             FilterWaarde.LEEG.isEqualTo(special) -> "{!tag=$filter}!${filter.veld}:(*)"
             FilterWaarde.NIET_LEEG.isEqualTo(special) -> "{!tag=$filter}${filter.veld}:(*)"
-            else -> "{!tag=$filter}${if (filterParameters.inverse) "-" else ""}" +
+            else -> "{!tag=$filter}${if (filterParameters.isInverse) "-" else ""}" +
                 "${filter.veld}:(${filterParameters.values.joinToString(" OR ") { quoted(it) }})"
         }
     }

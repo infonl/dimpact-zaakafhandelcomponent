@@ -15,10 +15,10 @@ class ReferenceTableTest : BehaviorSpec({
         val referenceTable2 = createReferenceTable()
 
         `when`("The values of the two objects are compared") {
-            val transitiveResult = referenceTable1 == referenceTable2 && referenceTable2 == referenceTable1
+            val isTransitivelyEqual = referenceTable1 == referenceTable2 && referenceTable2 == referenceTable1
 
             then("The objects should be considered equal") {
-                transitiveResult shouldBe true
+                isTransitivelyEqual shouldBe true
             }
         }
 
@@ -35,18 +35,18 @@ class ReferenceTableTest : BehaviorSpec({
         val referenceTable2 = createReferenceTable(isSystemReferenceTable = true)
 
         `when`("The values of the two objects are compared") {
-            val equalityResult = referenceTable1 == referenceTable2
+            val isEqual = referenceTable1 == referenceTable2
 
             then("The objects should be considered unequal") {
-                equalityResult shouldBe false
+                isEqual shouldBe false
             }
         }
 
         `when`("Transitive check is performed") {
-            val transitiveResult = referenceTable2 == referenceTable1
+            val isTransitivelyEqual = referenceTable2 == referenceTable1
 
             then("The objects should be considered unequal") {
-                transitiveResult shouldBe false
+                isTransitivelyEqual shouldBe false
             }
         }
 

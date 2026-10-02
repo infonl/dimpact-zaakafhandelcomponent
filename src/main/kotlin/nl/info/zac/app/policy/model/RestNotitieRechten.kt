@@ -7,11 +7,11 @@ package nl.info.zac.app.policy.model
 import nl.info.zac.policy.output.NotitieRechten
 
 data class RestNotitieRechten(
-    val lezen: Boolean,
-    val wijzigen: Boolean
+    val canLezen: Boolean,
+    val canWijzigen: Boolean
 )
 
 fun NotitieRechten.toRestNotitieRechten() = RestNotitieRechten(
-    lezen = this.lezen,
-    wijzigen = this.wijzigen
+    canLezen = this.canLezen,
+    canWijzigen = this.canWijzigen
 )

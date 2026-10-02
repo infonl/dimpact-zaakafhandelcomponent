@@ -29,8 +29,8 @@ fun createRestSignaleringInstellingen(
     id = id,
     type = type.type,
     subjecttype = type.subjecttype,
-    dashboard = isDashboard,
-    mail = isMail
+    isDashboardEnabled = isDashboard,
+    isMailEnabled = isMail
 )
 
 @Suppress("LongParameterList")

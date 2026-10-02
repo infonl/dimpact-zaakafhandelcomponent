@@ -85,26 +85,26 @@ class AppContainerTest : BehaviorSpec({
             and("it should include OpenZaak readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
-                var foundOpenZaakCheck = false
+                var isOpenZaakCheckFound = false
                 for (i in 0 until checks.length()) {
                     val check = checks.getJSONObject(i)
                     if (check.getString("name") == "nl.info.zac.health.OpenZaakReadinessHealthCheck") {
-                        foundOpenZaakCheck = true
+                        isOpenZaakCheckFound = true
                         check.getString("status") shouldBe "UP"
                         break
                     }
                 }
-                foundOpenZaakCheck shouldBe true
+                isOpenZaakCheckFound shouldBe true
             }
 
             and("it should include Solr readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
-                var foundSolrCheck = false
+                var isSolrCheckFound = false
                 for (i in 0 until checks.length()) {
                     val check = checks.getJSONObject(i)
                     if (check.getString("name") == "nl.info.zac.health.SolrReadinessHealthCheck") {
-                        foundSolrCheck = true
+                        isSolrCheckFound = true
                         check.getString("status") shouldBe "UP"
 
                         // Check that Solr-specific data is included
@@ -116,22 +116,22 @@ class AppContainerTest : BehaviorSpec({
                         break
                     }
                 }
-                foundSolrCheck shouldBe true
+                isSolrCheckFound shouldBe true
             }
 
             and("it should include PABC readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
-                var foundOpenZaakCheck = false
+                var isOpenZaakCheckFound = false
                 for (i in 0 until checks.length()) {
                     val check = checks.getJSONObject(i)
                     if (check.getString("name") == "nl.info.zac.health.PabcReadinessHealthCheck") {
-                        foundOpenZaakCheck = true
+                        isOpenZaakCheckFound = true
                         check.getString("status") shouldBe "UP"
                         break
                     }
                 }
-                foundOpenZaakCheck shouldBe true
+                isOpenZaakCheckFound shouldBe true
             }
         }
 

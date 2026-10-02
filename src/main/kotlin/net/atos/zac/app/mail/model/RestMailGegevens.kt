@@ -35,7 +35,7 @@ data class RestMailGegevens(
 
     var bijlagen: String? = null,
 
-    var createDocumentFromMail: Boolean = false,
+    var shouldCreateDocumentFromMail: Boolean = false,
 
     @field:NotNull
     var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding
@@ -48,6 +48,6 @@ fun RestMailGegevens.toMailGegevens(afzender: String) = MailGegevens(
     subject = onderwerp,
     body = body,
     attachments = bijlagen,
-    isCreateDocumentFromMail = createDocumentFromMail,
+    isCreateDocumentFromMail = shouldCreateDocumentFromMail,
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding.toDrcVertrouwelijkheidaanduidingEnum()
 )

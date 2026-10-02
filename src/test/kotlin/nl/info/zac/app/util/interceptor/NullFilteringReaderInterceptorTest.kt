@@ -81,49 +81,49 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
 
     given("a non-JSON request") {
         val context = mockk<ReaderInterceptorContext>(relaxed = true)
-        var proceedCalled = false
+        var isProceedCalled = false
 
         every { context.mediaType } returns MediaType.TEXT_PLAIN_TYPE
-        every { context.proceed() } answers { proceedCalled = true }
+        every { context.proceed() } answers { isProceedCalled = true }
 
         `when`("the interceptor processes the request") {
             interceptor.aroundReadFrom(context)
 
             then("it should proceed without modification") {
-                proceedCalled shouldBe true
+                isProceedCalled shouldBe true
             }
         }
     }
 
     given("a request with null media type") {
         val context = mockk<ReaderInterceptorContext>(relaxed = true)
-        var proceedCalled = false
+        var isProceedCalled = false
 
         every { context.mediaType } returns null
-        every { context.proceed() } answers { proceedCalled = true }
+        every { context.proceed() } answers { isProceedCalled = true }
 
         `when`("the interceptor processes the request") {
             interceptor.aroundReadFrom(context)
 
             then("it should proceed without modification") {
-                proceedCalled shouldBe true
+                isProceedCalled shouldBe true
             }
         }
     }
 
     given("a JSON request with empty body") {
         val context = mockk<ReaderInterceptorContext>(relaxed = true)
-        var proceedCalled = false
+        var isProceedCalled = false
 
         every { context.mediaType } returns MediaType.APPLICATION_JSON_TYPE
         every { context.inputStream } returns ByteArrayInputStream("".toByteArray(StandardCharsets.UTF_8))
-        every { context.proceed() } answers { proceedCalled = true }
+        every { context.proceed() } answers { isProceedCalled = true }
 
         `when`("the interceptor processes the request") {
             interceptor.aroundReadFrom(context)
 
             then("it should proceed without modification") {
-                proceedCalled shouldBe true
+                isProceedCalled shouldBe true
             }
         }
     }

@@ -41,7 +41,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
                 zaak,
                 zaaktype,
                 loggedInUser
-            ).behandelen,
+            ).canBehandelen,
             LOG,
             "User '${loggedInUser.id}' is not authorised to handle zaak '${zaak.identificatie}'"
         )

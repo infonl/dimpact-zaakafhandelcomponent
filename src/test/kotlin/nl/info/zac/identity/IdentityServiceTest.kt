@@ -116,8 +116,8 @@ class IdentityServiceTest : BehaviorSpec({
 
                 then("all groups are returned with the active flag correctly set") {
                     groups.size shouldBe 2
-                    groups.first { it.name == "fakeActiveGroup" }.active shouldBe true
-                    groups.first { it.name == "fakeInactiveGroup" }.active shouldBe false
+                    groups.first { it.name == "fakeActiveGroup" }.isActive shouldBe true
+                    groups.first { it.name == "fakeInactiveGroup" }.isActive shouldBe false
                 }
             }
         }
@@ -435,8 +435,8 @@ class IdentityServiceTest : BehaviorSpec({
 
                 then("only active groups are returned and the inactive group is filtered out") {
                     groups.size shouldBe 2
-                    groups.first { it.name == "fakeGroupId1" }.active shouldBe true
-                    groups.first { it.name == "fakeGroupId2" }.active shouldBe true
+                    groups.first { it.name == "fakeGroupId1" }.isActive shouldBe true
+                    groups.first { it.name == "fakeGroupId2" }.isActive shouldBe true
                     groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
                 }
             }

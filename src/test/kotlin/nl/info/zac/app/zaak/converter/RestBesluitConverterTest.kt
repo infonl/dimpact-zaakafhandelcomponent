@@ -110,7 +110,7 @@ class RestBesluitConverterTest : BehaviorSpec({
                         toelichting shouldBe besluitType.toelichting
                         informatieobjecttypen shouldBe besluitType.informatieobjecttypen
                         with(publication) {
-                            enabled shouldBe true
+                            isEnabled shouldBe true
                             publicationTerm shouldBe "10 dagen"
                             publicationTermDays shouldBe 10
                             responseTerm shouldBe "2 dagen"

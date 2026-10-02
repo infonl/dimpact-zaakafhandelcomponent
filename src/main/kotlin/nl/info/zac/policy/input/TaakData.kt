@@ -7,15 +7,15 @@ package nl.info.zac.policy.input
 import jakarta.json.bind.annotation.JsonbProperty
 
 data class TaakData(
-    @field:JsonbProperty("open")
-    val open: Boolean = false,
+    @get:JsonbProperty("open")
+    val isOpen: Boolean = false,
 
     @field:JsonbProperty("zaaktype")
     val zaaktype: String? = null,
 
-    @field:JsonbProperty("zaakspecifiekGeautoriseerd")
-    val zaakspecifiekGeautoriseerd: Boolean = false,
+    @get:JsonbProperty("zaakspecifiekGeautoriseerd")
+    val isZaakspecifiekGeautoriseerd: Boolean = false,
 
-    @field:JsonbProperty("loggedInUserIsGeautoriseerdeMedewerker")
-    val loggedInUserIsGeautoriseerdeMedewerker: Boolean = false
+    @get:JsonbProperty("loggedInUserIsGeautoriseerdeMedewerker")
+    val isLoggedInUserGeautoriseerdeMedewerker: Boolean = false
 )

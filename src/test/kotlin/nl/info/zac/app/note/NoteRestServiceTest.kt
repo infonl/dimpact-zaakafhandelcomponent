@@ -45,7 +45,7 @@ class NoteRestServiceTest : BehaviorSpec({
         val notes = listOf(createNote(), createNote())
         val restNotes = listOf(createRestNote(), createRestNote())
 
-        every { policyService.readNotitieRechten().lezen } returns true
+        every { policyService.readNotitieRechten().canLezen } returns true
         every { noteService.listNotesForZaak(zaakUUID) } returns notes
         notes.forEachIndexed { index, note ->
             every { noteConverter.toRestNote(note) } returns restNotes[index]
@@ -64,7 +64,7 @@ class NoteRestServiceTest : BehaviorSpec({
         val restNote = createRestNote()
         val createdNote = createNote()
         val createdRestNote = createRestNote()
-        every { policyService.readNotitieRechten().wijzigen } returns true
+        every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.createNote(any()) } returns createdNote
         every { noteConverter.toRestNote(createdNote) } returns createdRestNote
         every { eventingService.send(any<ScreenEvent>()) } just Runs
@@ -87,7 +87,7 @@ class NoteRestServiceTest : BehaviorSpec({
         val updatedNote = createNote()
         val updatedRestNote = createRestNote()
 
-        every { policyService.readNotitieRechten().wijzigen } returns true
+        every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.updateNote(any()) } returns updatedNote
         every { noteConverter.toRestNote(updatedNote) } returns updatedRestNote
         every { eventingService.send(any<ScreenEvent>()) } just Runs
@@ -108,7 +108,7 @@ class NoteRestServiceTest : BehaviorSpec({
     given("An existing note and a user with permissions to update notes") {
         val nodeId = 123L
         val deletedNote = createNote()
-        every { policyService.readNotitieRechten().wijzigen } returns true
+        every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.deleteNote(nodeId) } returns deletedNote
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -126,7 +126,7 @@ class NoteRestServiceTest : BehaviorSpec({
 
     given("A note ID for a note that no longer exists") {
         val nodeId = 456L
-        every { policyService.readNotitieRechten().wijzigen } returns true
+        every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.deleteNote(nodeId) } returns null
 
         `when`("deleteNote is called") {
@@ -142,7 +142,7 @@ class NoteRestServiceTest : BehaviorSpec({
 
     given("A user who does not have permission to read notes") {
         val zaakUUID = UUID.randomUUID()
-        every { policyService.readNotitieRechten().lezen } returns false
+        every { policyService.readNotitieRechten().canLezen } returns false
 
         `when`("listNotes is called") {
             val exception = shouldThrow<PolicyException> {
@@ -156,7 +156,7 @@ class NoteRestServiceTest : BehaviorSpec({
 
     given("A user who does not have permission to create notes") {
         val restNote = createRestNote()
-        every { policyService.readNotitieRechten().wijzigen } returns false
+        every { policyService.readNotitieRechten().canWijzigen } returns false
 
         `when`("createNote is called") {
             val exception = shouldThrow<PolicyException> {

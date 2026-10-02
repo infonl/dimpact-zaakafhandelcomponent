@@ -35,10 +35,10 @@ class ProductaanvraagClaimRepositoryTest : BehaviorSpec({
             every { query.executeUpdate() } returns 1
 
             `when`("the productaanvraag is claimed") {
-                val claimed = productaanvraagClaimRepository.claim(productaanvraagObjectUUID)
+                val isClaimed = productaanvraagClaimRepository.claim(productaanvraagObjectUUID)
 
                 then("the claim succeeds using the configured staleness period") {
-                    claimed shouldBe true
+                    isClaimed shouldBe true
                     sqlStatement.captured shouldContain "ON CONFLICT"
                     verify(exactly = 1) {
                         query.setParameter("claimTimeoutMinutes", 42)
@@ -53,10 +53,10 @@ class ProductaanvraagClaimRepositoryTest : BehaviorSpec({
             every { query.executeUpdate() } returns 0
 
             `when`("the productaanvraag is claimed") {
-                val claimed = productaanvraagClaimRepository.claim(productaanvraagObjectUUID)
+                val isClaimed = productaanvraagClaimRepository.claim(productaanvraagObjectUUID)
 
                 then("the claim is rejected") {
-                    claimed shouldBe false
+                    isClaimed shouldBe false
                 }
             }
         }

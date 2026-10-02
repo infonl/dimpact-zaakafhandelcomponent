@@ -50,7 +50,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             // invalid zaaktype
             createZaaktypeInrichtingscheck(zaaktype = zaaktypen[1], statustypeIntakeAanwezig = false)
         )
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
         every { ztcClientService.listZaaktypen(catalogusURI) } returns zaaktypen
         zaaktypen.forEachIndexed { index, zaaktype ->
@@ -68,13 +68,13 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                     zaaktype.identificatie shouldBe zaaktypen[0].identificatie
                     zaaktype.omschrijving shouldBe zaaktypen[0].omschrijving
                     zaaktype.uuid shouldBe zaaktypen[0].url.extractUuid()
-                    valide shouldBe true
+                    isValide shouldBe true
                 }
                 with(result[1]) {
                     zaaktype.identificatie shouldBe zaaktypen[1].identificatie
                     zaaktype.omschrijving shouldBe zaaktypen[1].omschrijving
                     zaaktype.uuid shouldBe zaaktypen[1].url.extractUuid()
-                    valide shouldBe false
+                    isValide shouldBe false
                 }
             }
         }
@@ -83,7 +83,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     given("A zaaktype for which only the zaakspecifieke autorisatie eigenschap is configured") {
         val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
         val zaaktype = createZaakType()
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
         every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(zaaktype)
         every { healthCheckService.controleerZaaktype(zaaktype.url) } returns createZaaktypeInrichtingscheck(
@@ -102,17 +102,17 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                 }
             }
             and("the warning is mapped to the REST model") {
-                result.single().heeftWaarschuwingen shouldBe true
+                result.single().hasWaarschuwingen shouldBe true
             }
             and("the zaaktype is still reported as valid") {
-                result.single().valide shouldBe true
+                result.single().isValide shouldBe true
             }
         }
     }
 
     given("No zaaktypes are available") {
         val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
         every { ztcClientService.listZaaktypen(catalogusURI) } returns emptyList()
 
@@ -126,21 +126,21 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     }
 
     given("Communicatiekanaal EFormulier exists") {
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { healthCheckService.bestaatCommunicatiekanaalEformulier() } returns true
 
         `when`("the check for the existence of the EFormulier communication channel is performed") {
-            val result = healthCheckRestService.readBestaatCommunicatiekanaalEformulier()
+            val isCommunicatiekanaalEformulierAanwezig = healthCheckRestService.readBestaatCommunicatiekanaalEformulier()
 
             then("it should return true") {
-                result shouldBe true
+                isCommunicatiekanaalEformulierAanwezig shouldBe true
             }
         }
     }
 
     given("The user has the required 'beheren' permissions") {
         val now = ZonedDateTime.now()
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { ztcClientService.resetCacheTimeToNow() } returns now
         every { ztcClientService.clearCacheTime() } returns "fakeResult"
         every { ztcClientService.clearZaaktypeCache() } returns "fakeResult"
@@ -175,7 +175,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
 
     given("the user has the required permissions to manage rights") {
         val now = ZonedDateTime.now()
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { ztcClientService.resetCacheTimeToNow() } returns now
 
         `when`("readZTCCacheTime is called") {
@@ -210,7 +210,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     }
 
     given("The user does not have the required 'beheren' permissions") {
-        every { policyService.readOverigeRechten().beheren } returns false
+        every { policyService.readOverigeRechten().canBeheren } returns false
 
         `when`("listZaaktypeInrichtingschecks is called") {
             val exception = shouldThrow<PolicyException> {

@@ -9,15 +9,15 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.opa.model.OpaRuleResult
 
 data class DocumentRechten @JsonbCreator constructor(
-    @param:JsonbProperty("lezen") val lezen: Boolean,
-    @param:JsonbProperty("wijzigen") val wijzigen: Boolean,
-    @param:JsonbProperty("verwijderen") val verwijderen: Boolean,
-    @param:JsonbProperty("vergrendelen") val vergrendelen: Boolean,
-    @param:JsonbProperty("ontgrendelen") val ontgrendelen: Boolean,
-    @param:JsonbProperty("ondertekenen") val ondertekenen: Boolean,
-    @param:JsonbProperty("toevoegen_nieuwe_versie") val toevoegenNieuweVersie: Boolean,
-    @param:JsonbProperty("verplaatsen") val verplaatsen: Boolean,
-    @param:JsonbProperty("ontkoppelen") val ontkoppelen: Boolean,
-    @param:JsonbProperty("downloaden") val downloaden: Boolean,
-    @param:JsonbProperty("converteren") val converteren: Boolean
+    @param:JsonbProperty("lezen") val canLezen: Boolean,
+    @param:JsonbProperty("wijzigen") val canWijzigen: Boolean,
+    @param:JsonbProperty("verwijderen") val canVerwijderen: Boolean,
+    @param:JsonbProperty("vergrendelen") val canVergrendelen: Boolean,
+    @param:JsonbProperty("ontgrendelen") val canOntgrendelen: Boolean,
+    @param:JsonbProperty("ondertekenen") val canOndertekenen: Boolean,
+    @param:JsonbProperty("toevoegen_nieuwe_versie") val canToevoegenNieuweVersie: Boolean,
+    @param:JsonbProperty("verplaatsen") val canVerplaatsen: Boolean,
+    @param:JsonbProperty("ontkoppelen") val canOntkoppelen: Boolean,
+    @param:JsonbProperty("downloaden") val canDownloaden: Boolean,
+    @param:JsonbProperty("converteren") val canConverteren: Boolean
 ) : OpaRuleResult

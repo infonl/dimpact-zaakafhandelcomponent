@@ -39,7 +39,7 @@ class CsvRestService @Inject constructor(
     @POST
     @Path("export")
     fun downloadCSV(@Valid restZoekParameters: RestZoekParameters): Response {
-        assertPolicy(policyService.readWerklijstRechten().zakenTakenExporteren)
+        assertPolicy(policyService.readWerklijstRechten().canZakenTakenExporteren)
         val zoekParameters = restZoekParametersConverter.convert(restZoekParameters).let {
             // if no max nr of result rows are specified, resort to the default value
             if (it.rows == 0) {

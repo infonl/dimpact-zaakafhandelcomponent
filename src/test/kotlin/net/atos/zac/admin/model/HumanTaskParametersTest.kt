@@ -17,10 +17,10 @@ class HumanTaskParametersTest : BehaviorSpec({
         val humanTaskParameters2 = createHumanTaskParameters(referenceTables = listOf(createHumanTaskReferentieTabel()))
 
         `when`("The values of the two objects are compared") {
-            val equalityResult = humanTaskParameters1 == humanTaskParameters2
+            val isEqual = humanTaskParameters1 == humanTaskParameters2
 
             then("The objects should be considered equal") {
-                equalityResult shouldBe true
+                isEqual shouldBe true
             }
         }
     }
@@ -35,10 +35,10 @@ class HumanTaskParametersTest : BehaviorSpec({
         }
 
         `when`("The values of the two objects are compared") {
-            val equalityResult = humanTaskParameters1 == humanTaskParameters2
+            val isEqual = humanTaskParameters1 == humanTaskParameters2
 
             then("The objects should be considered different") {
-                equalityResult shouldBe false
+                isEqual shouldBe false
             }
         }
     }

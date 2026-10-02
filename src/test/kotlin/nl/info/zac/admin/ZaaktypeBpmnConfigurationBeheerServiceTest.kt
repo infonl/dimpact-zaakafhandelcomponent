@@ -515,12 +515,12 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                         bpmnProcessDefinitionKey shouldBe "fakeBpmnProcessDefinitionKey"
                         groepID shouldBe "fakeGroupId"
                         defaultBehandelaarId shouldBe "fakeDefaultBehandelaarId"
-                        smartDocumentsEnabled shouldBe true
+                        isSmartDocumentsEnabled shouldBe true
                         productaanvraagtype shouldBe "fakeProductaanvraagtype"
                         zaaktypeOmschrijving shouldBe zaakType.omschrijving
                         with(zaaktypeBetrokkeneParameters!!) {
-                            kvkKoppelen shouldBe true
-                            brpKoppelen shouldBe false
+                            isKvkKoppelenEnabled shouldBe true
+                            isBrpKoppelenEnabled shouldBe false
                         }
                         zaaktypeBrpParameters!!.raadpleegWaarde shouldBe "fakeRaadpleegWaarde"
                     }

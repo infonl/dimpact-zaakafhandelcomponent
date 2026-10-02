@@ -69,7 +69,7 @@ class RestPlanItemConverter @Inject constructor(
             zaaktypeCmmnConfiguration
                 .findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId)
                 ?.let { it ->
-                    actief = it.actief
+                    isActief = it.isActief
                     it.getFormulierDefinitieID()?.let { fd ->
                         formulierDefinitie = FormulierDefinitie.valueOf(fd)
                     }

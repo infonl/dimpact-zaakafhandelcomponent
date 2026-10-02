@@ -76,7 +76,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "onderwerp": "subject",
                     "body": "$body",
                     "bijlagen": "$informatieobjectUuid",
-                    "createDocumentFromMail": true,
+                    "shouldCreateDocumentFromMail": true,
                     "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                 }
                 """.trimIndent(),
@@ -139,7 +139,7 @@ class MailRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                         {
                             "zaakUUID": "$zaakUuid",
-                            "gekoppeldeZaakDocumenten": false
+                            "shouldIncludeGekoppeldeZaakDocumenten": false
                         }
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1
@@ -155,20 +155,20 @@ class MailRestServiceTest : BehaviorSpec({
                   "beschrijving" : "",
                   "creatiedatum" : "$today",
                   "formaat" : "application/pdf",
-                  "indicatieGebruiksrecht" : false,
+                  "hasGebruiksrecht" : false,
                   "indicaties" : [ "VERZONDEN" ],
                   "informatieobjectTypeOmschrijving" : "e-mail",
                   "informatieobjectTypeUUID" : "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
                   "isBesluitDocument" : false,
                   "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                   "rechten" : {
-                    "lezen" : true,
-                    "ondertekenen" : true,
-                    "ontgrendelen" : false,
-                    "toevoegenNieuweVersie" : false,
-                    "vergrendelen" : true,
-                    "verwijderen" : false,
-                    "wijzigen" : false
+                    "canLezen" : true,
+                    "canOndertekenen" : true,
+                    "canOntgrendelen" : false,
+                    "canToevoegenNieuweVersie" : false,
+                    "canVergrendelen" : true,
+                    "canVerwijderen" : false,
+                    "canWijzigen" : false
                   }
                 }
                 """.trimIndent()
@@ -180,7 +180,7 @@ class MailRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                         {
                             "zaakUUID": "$zaakUuid",
-                            "gekoppeldeZaakDocumenten": false
+                            "shouldIncludeGekoppeldeZaakDocumenten": false
                         }
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1
@@ -279,7 +279,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "body": "body",
                     "bijlagen": "",
                     "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM",
-                    "createDocumentFromMail": true
+                    "shouldCreateDocumentFromMail": true
                 }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
@@ -295,7 +295,7 @@ class MailRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                         {
                             "zaakUUID": "$zaakUuid",
-                            "gekoppeldeZaakDocumenten": false
+                            "shouldIncludeGekoppeldeZaakDocumenten": false
                         }
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1
@@ -331,7 +331,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "onderwerp": "Zaakdata test",
                     "body": "<p>Zaaktype: {ZAAKDATA:zaaktypeOmschrijving}</p>",
                     "bijlagen": "",
-                    "createDocumentFromMail": false,
+                    "shouldCreateDocumentFromMail": false,
                     "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                 }
                 """.trimIndent(),

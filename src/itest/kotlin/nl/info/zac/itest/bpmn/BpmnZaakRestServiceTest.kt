@@ -223,7 +223,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                         {
                             "zaakUUID": "$bpmnZaakUuid",
-                            "gekoppeldeZaakDocumenten": false
+                            "shouldIncludeGekoppeldeZaakDocumenten": false
                         }
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1

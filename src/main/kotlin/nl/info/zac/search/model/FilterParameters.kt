@@ -4,11 +4,14 @@
  */
 package nl.info.zac.search.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 data class FilterParameters(
     var values: List<String>,
 
-    var inverse: Boolean = false
+    @get:JsonbProperty("inverse")
+    @set:JsonbProperty("inverse")
+    var isInverse: Boolean = false
 )

@@ -86,18 +86,18 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "name": "Integration Tests BPMN Process Definition",
                     "version": 1,
                     "details": {
-                      "inUse": true,
+                      "isInUse": true,
                       "documentation": "Simple BPMN process definition to test various functionalities. Used in ZAC integration tests.",
                       "forms": [
                         {
                           "formKey": "summaryForm",
                           "title": "Summary form",
-                          "uploaded": true
+                          "isUploaded": true
                         },
                         {
                           "formKey": "testForm",
                           "title": "Test form",
-                          "uploaded": true
+                          "isUploaded": true
                         }
                       ],
                       "orphanedForms": []
@@ -108,13 +108,13 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "name": "Permission Check Process",
                     "version": 1,
                     "details": {
-                      "inUse": true,
+                      "isInUse": true,
                       "documentation": "Integration Test Process To Check Permissions",
                       "forms": [
                         {
                           "formKey": "chooseTestProcess",
                           "title": "Choose Test Process",
-                          "uploaded": true
+                          "isUploaded": true
                         }
                       ],
                       "orphanedForms": []
@@ -125,17 +125,17 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "name": "Send Confirmation Email And Sign Documents Process",
                     "version": 1,
                     "details": {
-                      "inUse": true,
+                      "isInUse": true,
                       "forms": [
                         {
                           "formKey": "selectDocumentsForm",
                           "title": "SelectDocumentsForm",
-                          "uploaded": true
+                          "isUploaded": true
                         },
                         {
                           "formKey": "signDocumentForm",
                           "title": "signDocumentForm",
-                          "uploaded": true
+                          "isUploaded": true
                         }
                       ],
                       "orphanedForms": []
@@ -146,22 +146,22 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "name": "Suspend & Resume",
                     "version": 1,
                     "details": {
-                      "inUse": true,
+                      "isInUse": true,
                       "forms": [
                         {
                           "formKey": "suspendForm",
                           "title": "Suspend form",
-                          "uploaded": true
+                          "isUploaded": true
                         },
                         {
                           "formKey": "resumeForm",
                           "title": "Resume form",
-                          "uploaded": true
+                          "isUploaded": true
                         },
                         {
                           "formKey": "extendForm",
                           "title": "Extend form",
-                          "uploaded": true
+                          "isUploaded": true
                         }
                       ],
                       "orphanedForms": []
@@ -172,32 +172,32 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "name": "User Management",
                     "version": 1,
                     "details": {
-                      "inUse": true,
+                      "isInUse": true,
                       "forms": [
                         {
                           "formKey": "zaakDefaults",
                           "title": "Zaak defaults",
-                          "uploaded": true
+                          "isUploaded": true
                         },
                         {
                           "formKey": "hardCoded",
                           "title": "Hard-coded",
-                          "uploaded": true
+                          "isUploaded": true
                         },
                         {
                           "formKey": "userGroupSelection",
                           "title": "User and group selection",
-                          "uploaded": true
+                          "isUploaded": true
                         },
                         {
                           "formKey": "newZaakDefaults",
                           "title": "New Zaak Defaults",
-                          "uploaded": true
+                          "isUploaded": true
                         },
                         {
                           "formKey": "copyUserGroup",
                           "title": "Copy user and group",
-                          "uploaded": true
+                          "isUploaded": true
                         }
                       ],
                       "orphanedForms": []

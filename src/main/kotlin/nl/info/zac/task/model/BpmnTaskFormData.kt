@@ -8,9 +8,9 @@ import nl.info.zac.util.time.LocalDateAdapter
 import java.time.LocalDate
 
 class BpmnTaskFormData(taakData: Map<String, Any>) {
-    var zaakOpschorten: Boolean = false
+    var shouldZaakOpschorten: Boolean = false
 
-    var zaakHervatten: Boolean = false
+    var shouldZaakHervatten: Boolean = false
 
     var taakFataleDatum: LocalDate? = null
 
@@ -54,11 +54,11 @@ class BpmnTaskFormData(taakData: Map<String, Any>) {
 
     init {
         taakData[ZAAK_OPSCHORTEN]?.let {
-            zaakOpschorten = it.toString().toBoolean()
+            shouldZaakOpschorten = it.toString().toBoolean()
             zaakVariabelen.remove(ZAAK_OPSCHORTEN)
         }
         taakData[ZAAK_HERVATTEN]?.let {
-            zaakHervatten = it.toString().toBoolean()
+            shouldZaakHervatten = it.toString().toBoolean()
             zaakVariabelen.remove(ZAAK_HERVATTEN)
         }
         taakData[TAAK_FATALE_DATUM]?.let {

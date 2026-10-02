@@ -59,16 +59,16 @@ class ValidationUtilTest : BehaviorSpec({
     }
 
     given("an email address") {
-        data class TestCase(val email: String, val expectedIsValidEmail: Boolean)
+        data class TestCase(val email: String, val isValidEmailExpected: Boolean)
 
         withData(
-            nameFn = { "email '${it.email}' is valid: ${it.expectedIsValidEmail}" },
+            nameFn = { "email '${it.email}' is valid: ${it.isValidEmailExpected}" },
             listOf(
-                TestCase(email = "fake.user@example.com", expectedIsValidEmail = true),
-                TestCase(email = "not-an-email-address", expectedIsValidEmail = false)
+                TestCase(email = "fake.user@example.com", isValidEmailExpected = true),
+                TestCase(email = "not-an-email-address", isValidEmailExpected = false)
             )
-        ) { (email, expectedIsValidEmail) ->
-            isValidEmail(email) shouldBe expectedIsValidEmail
+        ) { (email, isValidEmailExpected) ->
+            isValidEmail(email) shouldBe isValidEmailExpected
         }
     }
 })

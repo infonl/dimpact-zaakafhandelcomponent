@@ -76,9 +76,9 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 isDashboard = true,
                 isMail = false
             )
-            var wasSystemUserWhileStoring: Boolean? = null
+            var isSystemUserWhileStoring: Boolean? = null
             every { signaleringService.storeSignalering(capture(storedSignalering)) } answers {
-                wasSystemUserWhileStoring = LoggedInUserProvider.systemUser.get()
+                isSystemUserWhileStoring = LoggedInUserProvider.systemUser.get()
                 firstArg()
             }
 
@@ -94,7 +94,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 }
 
                 and("it is stored as the system user, which is no longer set once the event has been handled") {
-                    wasSystemUserWhileStoring shouldBe true
+                    isSystemUserWhileStoring shouldBe true
                     LoggedInUserProvider.systemUser.get() shouldBe false
                 }
             }

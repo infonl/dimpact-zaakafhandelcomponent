@@ -35,20 +35,22 @@ Place `companion object` at the **top** of a class body, before any functions or
 In the names of nested classes, functions and properties, capitalize only the first letter of an acronym longer than
 two letters: `toRestZaak`, not `toRESTZaak`.
 
-## Name boolean properties with an `is`/`has` prefix
-Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
-name boolean properties and variables with an `is`, `has`, or similar prefix, e.g. `isInformatieobjectDeleted`
-rather than `informatieobjectDeleted`. This applies to REST model classes as well as regular code.
-For a boolean property on a class serialized with JSON-B (e.g. a `RestXxx` model), add
-`@get:JsonbProperty("isXxx")` above the property so the JSON field name matches the Kotlin property
-name exactly:
+## Boolean properties on JSON-B models
+JSON-B strips the `is` prefix from a boolean property name. On a class serialized with JSON-B (e.g. a `RestXxx`
+model), add `@get:JsonbProperty("isXxx")` above an `is` boolean property, so that the JSON field name equals the
+Kotlin property name. On a `var`, also add `@set:JsonbProperty("isXxx")`: without it, JSON-B reads the field under
+the name without the `is` prefix and silently drops the value it receives:
 ```kotlin
 // Before
-var informatieobjectDeleted: Boolean = true
+var isInformatieobjectDeleted: Boolean = true
 // After
 @get:JsonbProperty("isInformatieobjectDeleted")
+@set:JsonbProperty("isInformatieobjectDeleted")
 var isInformatieobjectDeleted: Boolean = true
 ```
+When the JSON name is a contract that ZAC does not own, such as the API of an external client, the input of an
+OPA policy or a stored saved search, keep that name in the annotation instead, e.g.
+`@get:JsonbProperty("accessible")` above `var isAccessible`.
 
 ## Prefer Kotlin data classes for simple data holders
 When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,

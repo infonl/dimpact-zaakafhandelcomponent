@@ -464,7 +464,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres": {
                         "type": "bezoekadres",
-                        "afgeschermd": false,
+                        "isAfgeschermd": false,
                         "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
                       },
                       "emailadres": "$TEST_VESTIGING_EMAIL",
@@ -500,7 +500,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres": {
                         "type": "bezoekadres",
-                        "afgeschermd": false,
+                        "isAfgeschermd": false,
                         "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
                       },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
@@ -617,7 +617,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "resultaten" : [ {
                             "adres" : {
                               "type": "bezoekadres",
-                              "afgeschermd": false,
+                              "isAfgeschermd": false,
                               "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
                             },
                             "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
@@ -651,7 +651,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "resultaten" : [ {
                             "adres" : {
                               "type": "bezoekadres",
-                              "afgeschermd": false,
+                              "isAfgeschermd": false,
                               "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
                             },
                             "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
@@ -742,7 +742,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres" : {
                         "type": "bezoekadres",
-                        "afgeschermd": false,
+                        "isAfgeschermd": false,
                         "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
                       },
                       "identificatieType" : "RSIN",
@@ -773,7 +773,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres" : {
                         "type": "bezoekadres",
-                        "afgeschermd": false,
+                        "isAfgeschermd": false,
                         "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
                       },
                       "emailadres": "$TEST_KVK_EMAIL",
@@ -884,7 +884,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres": {
                         "type": "bezoekadres",
-                        "afgeschermd": false,
+                        "isAfgeschermd": false,
                         "volledigAdres": "$TEST_KVK_VESTIGING2_ADRES",
                         "postcode": "1234AB"
                       },
@@ -953,7 +953,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres": {
                         "type": "bezoekadres",
-                        "afgeschermd": false,
+                        "isAfgeschermd": false,
                         "volledigAdres": "$TEST_KVK_VESTIGING3_ADRES"
                       },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
@@ -1004,7 +1004,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres": {
                         "type": "bezoekadres",
-                        "afgeschermd": false,
+                        "isAfgeschermd": false,
                         "volledigAdres": "$TEST_KVK_VESTIGING4_ADRES",
                         "postcode": "4321DC"
                       },

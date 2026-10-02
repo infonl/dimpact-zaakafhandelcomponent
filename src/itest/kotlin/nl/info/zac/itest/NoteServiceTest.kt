@@ -66,7 +66,7 @@ class NoteServiceTest : BehaviorSpec({
                         "tekst": "fakeNoteText",
                         "gebruikersnaamMedewerker": "${BEHANDELAAR_1.username}",
                         "voornaamAchternaamMedewerker": "${BEHANDELAAR_1.displayName}",
-                        "bewerkenToegestaan": true
+                        "isBewerkenToegestaan": true
                     }
                 """.trimIndent()
                 with(JSONObject(responseBody)) {
@@ -93,7 +93,7 @@ class NoteServiceTest : BehaviorSpec({
                             "tekst": "fakeNoteText",
                             "gebruikersnaamMedewerker": "${BEHANDELAAR_1.username}",
                             "voornaamAchternaamMedewerker": "${BEHANDELAAR_1.displayName}",
-                            "bewerkenToegestaan": true
+                            "isBewerkenToegestaan": true
                         }
                     ]
                 """.trimIndent()
