@@ -651,9 +651,20 @@ tasks {
 
     withType<Detekt>().configureEach {
         config.setFrom("$rootDir/config/detekt.yml")
-        setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
         // our Detekt configuration build builds upon the default configuration
         buildUponDefaultConfig = true
+    }
+
+    // detektMain, detektTest and detektItest analyse the Kotlin source sets with type resolution, which rules such as
+    // UnsafeCallOnNullableType need to fire at all. The plain detekt task has no classpath, so it only covers the
+    // build script and runs the type resolution tasks for everything else.
+    named<Detekt>("detekt") {
+        setSource(files("build.gradle.kts"))
+        dependsOn("detektMain", "detektTest", "detektItest")
+    }
+
+    named<Detekt>("detektApply") {
+        setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
     }
 
     getByName("spotlessApply").finalizedBy(listOf("detektApply"))
