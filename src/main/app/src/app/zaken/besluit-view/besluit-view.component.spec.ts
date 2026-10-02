@@ -26,7 +26,7 @@ const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
     identificatie: "BESLUIT-001",
     besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
       naam: "Besluittype 1",
-      publication: { enabled: false },
+      publication: { isEnabled: false },
     }),
     ingangsdatum: "2026-01-01",
     vervaldatum: "2026-12-31",

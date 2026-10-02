@@ -9,7 +9,7 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.opa.model.OpaRuleResult
 
 data class OverigeRechten @JsonbCreator constructor(
-    @param:JsonbProperty("starten_zaak") val startenZaak: Boolean,
-    @param:JsonbProperty("beheren") val beheren: Boolean,
-    @param:JsonbProperty("zoeken") val zoeken: Boolean,
+    @param:JsonbProperty("starten_zaak") val canStartenZaak: Boolean,
+    @param:JsonbProperty("beheren") val canBeheren: Boolean,
+    @param:JsonbProperty("zoeken") val canZoeken: Boolean,
 ) : OpaRuleResult

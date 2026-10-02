@@ -22,7 +22,7 @@ class RestMailGegevensTest : BehaviorSpec({
             ).apply {
                 replyTo = "replyto@example.com"
                 bijlagen = "fakeAttachmentUuid"
-                createDocumentFromMail = true
+                shouldCreateDocumentFromMail = true
             }
 
             `when`("toMailGegevens is called") {

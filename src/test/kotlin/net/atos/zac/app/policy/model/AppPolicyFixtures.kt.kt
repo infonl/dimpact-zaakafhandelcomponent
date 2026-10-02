@@ -7,12 +7,12 @@ package net.atos.zac.app.policy.model
 import nl.info.zac.app.policy.model.RestDocumentRechten
 
 fun createRestDocumentRechten() = RestDocumentRechten(
-    lezen = true,
-    wijzigen = true,
-    verwijderen = true,
-    vergrendelen = true,
-    ontgrendelen = true,
-    ondertekenen = true,
-    toevoegenNieuweVersie = true,
-    converteren = true
+    canLezen = true,
+    canWijzigen = true,
+    canVerwijderen = true,
+    canVergrendelen = true,
+    canOntgrendelen = true,
+    canOndertekenen = true,
+    canToevoegenNieuweVersie = true,
+    canConverteren = true
 )

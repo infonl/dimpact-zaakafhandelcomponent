@@ -37,14 +37,14 @@ describe("Koppelingen form step", () => {
     zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
       {
-        speciaal: false,
-        defaultMail: false,
+        isSpeciaal: false,
+        isDefaultMail: false,
         mail: "test@example.com",
         replyTo: undefined,
       },
       {
-        speciaal: false,
-        defaultMail: false,
+        isSpeciaal: false,
+        isDefaultMail: false,
         mail: "test2@example.com",
         replyTo: undefined,
       },
@@ -52,9 +52,12 @@ describe("Koppelingen form step", () => {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+    smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
     userEventListenerParameters: [],
-    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+    betrokkeneKoppelingen: {
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
+    },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -62,7 +65,7 @@ describe("Koppelingen form step", () => {
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
-      enabled: false,
+      isEnabled: false,
       templateName: null,
       emailSender: null,
       emailReply: null,
@@ -242,14 +245,14 @@ describe("Koppelingen form step", () => {
   describe("Smart documents", () => {
     it("should initialize enabledForZaaktype from parameters", () => {
       const component = fixture.componentInstance;
-      expect(component.parameters.smartDocuments.enabledForZaaktype).toBe(
+      expect(component.parameters.smartDocuments.isEnabledForZaaktype).toBe(
         false,
       );
     });
 
     it("should not show smart documents form when enabledGlobally is false", () => {
       const component = fixture.componentInstance;
-      expect(component.parameters.smartDocuments.enabledGlobally).toBe(false);
+      expect(component.parameters.smartDocuments.isEnabledGlobally).toBe(false);
     });
   });
 

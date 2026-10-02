@@ -40,7 +40,7 @@ export class DefaultTaskForm extends AbstractTaskForm {
           taak.taakdata?.["afhandeling"] ?? null,
           [Validators.required, Validators.maxLength(1000)],
         ),
-        readonly: taak.status === "AFGEROND" || !taak.rechten?.wijzigen,
+        readonly: taak.status === "AFGEROND" || !taak.rechten?.canWijzigen,
       },
     ];
   }

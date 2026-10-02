@@ -132,10 +132,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
                         then("the previously detached document should no longer be present") {
                             listAfterDeleteResponse.code shouldBe HTTP_OK
-                            val stillPresent = (0 until resultatenAfterDelete.length())
+                            val isStillPresent = (0 until resultatenAfterDelete.length())
                                 .map { resultatenAfterDelete.getJSONObject(it) }
                                 .any { it.getString("documentUUID") == documentUuid.toString() }
-                            stillPresent shouldBe false
+                            isStillPresent shouldBe false
                         }
                     }
 

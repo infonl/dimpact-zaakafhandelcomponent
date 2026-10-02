@@ -131,14 +131,14 @@ export class InformatieObjectenService {
   listEnkelvoudigInformatieobjectenQuery(
     body: Pick<
       GeneratedType<"RestInformatieobjectZoekParameters">,
-      "zaakUUID" | "gekoppeldeZaakDocumenten"
+      "zaakUUID" | "shouldIncludeGekoppeldeZaakDocumenten"
     >,
   ) {
     return queryOptions({
       queryKey: [
         "/rest/informatieobjecten/informatieobjectenList",
         body.zaakUUID,
-        body.gekoppeldeZaakDocumenten,
+        body.shouldIncludeGekoppeldeZaakDocumenten,
       ],
       queryFn: () =>
         lastValueFrom(this.listEnkelvoudigInformatieobjecten(body)),

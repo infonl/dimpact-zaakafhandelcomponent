@@ -18,12 +18,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             val zaakafzenderParameters2 = createZaakAfzender(zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration)
 
             `when`("they are compared") {
-                val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
+                val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be equal") {
-                    comparisonResult shouldBe true
+                    isEqual shouldBe true
                 }
 
                 and("they should have the same hashcode") {
@@ -43,12 +43,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             )
 
             `when`("they are compared") {
-                val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
+                val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be different") {
-                    comparisonResult shouldBe false
+                    isEqual shouldBe false
                 }
 
                 and("they should have different hashcodes") {
@@ -68,12 +68,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             )
 
             `when`("they are compared") {
-                val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
+                val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be different") {
-                    comparisonResult shouldBe false
+                    isEqual shouldBe false
                 }
 
                 and("they should have different hashcodes") {
@@ -93,12 +93,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             )
 
             `when`("they are compared") {
-                val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
+                val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be different") {
-                    comparisonResult shouldBe false
+                    isEqual shouldBe false
                 }
 
                 and("they should have different hashcodes") {
@@ -120,12 +120,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             )
 
             `when`("they are compared") {
-                val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
+                val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be different") {
-                    comparisonResult shouldBe false
+                    isEqual shouldBe false
                 }
 
                 and("they should have different hashcodes") {

@@ -367,7 +367,7 @@ class MailTemplateHelper @Inject constructor(
         mailTemplateVariable: MailTemplateVariables,
         htmlEscapedValue: String?
     ): String {
-        val replacement = if (htmlEscapedValue.isNullOrBlank() && mailTemplateVariable.resolveVariableAsEmptyString) {
+        val replacement = if (htmlEscapedValue.isNullOrBlank() && mailTemplateVariable.shouldResolveVariableAsEmptyString) {
             ""
         } else {
             htmlEscapedValue

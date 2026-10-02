@@ -95,5 +95,5 @@ class ZaaktypeConfigurationService @Inject constructor(
     }
 
     fun isSmartDocumentsEnabled(zaaktypeUUID: UUID): Boolean =
-        readZaaktypeConfiguration(zaaktypeUUID)?.smartDocumentsEnabled ?: false
+        readZaaktypeConfiguration(zaaktypeUUID)?.isSmartDocumentsEnabled ?: false
 }

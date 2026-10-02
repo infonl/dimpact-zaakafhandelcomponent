@@ -360,14 +360,14 @@ export class TaakViewComponent
   }
 
   protected isReadonly() {
-    return this.taak?.status === "AFGEROND" || !this.taak?.rechten.wijzigen;
+    return this.taak?.status === "AFGEROND" || !this.taak?.rechten.canWijzigen;
   }
 
   private setupMenu() {
     this.menu = [];
     this.menu.push(new HeaderMenuItem("taak"));
 
-    if (this.taak?.rechten.toevoegenDocument) {
+    if (this.taak?.rechten.canToevoegenDocument) {
       this.menu.push(
         new ButtonMenuItem(
           "actie.document.toevoegen",
@@ -378,9 +378,9 @@ export class TaakViewComponent
 
       if (
         this.zaak?.zaaktype.zaakafhandelparameters?.smartDocuments
-          .enabledGlobally &&
+          .isEnabledGlobally &&
         this.zaak?.zaaktype?.zaakafhandelparameters.smartDocuments
-          .enabledForZaaktype
+          .isEnabledForZaaktype
       ) {
         this.menu.push(
           new ButtonMenuItem(

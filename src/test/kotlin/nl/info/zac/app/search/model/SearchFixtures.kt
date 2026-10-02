@@ -86,10 +86,10 @@ fun createRestZoekParameters(
     sorteerRichting = sorteerRichting,
     rows = rows,
     page = page,
-    alleenMijnZaken = alleenMijnZaken,
-    alleenOpenstaandeZaken = alleenOpenstaandeZaken,
-    alleenAfgeslotenZaken = alleenAfgeslotenZaken,
-    alleenMijnTaken = alleenMijnTaken
+    isAlleenMijnZaken = alleenMijnZaken,
+    isAlleenOpenstaandeZaken = alleenOpenstaandeZaken,
+    isAlleenAfgeslotenZaken = alleenAfgeslotenZaken,
+    isAlleenMijnTaken = alleenMijnTaken
 )
 
 fun createRestZoekKoppelenParameters(

@@ -75,7 +75,7 @@ export class BesluitEditComponent implements OnInit {
   protected readonly besluitGewijzigd = output<boolean>();
 
   protected readonly showPublicationSection = computed(
-    () => this.besluit().besluittype?.publication.enabled ?? false,
+    () => this.besluit().besluittype?.publication.isEnabled ?? false,
   );
 
   protected readonly documentenQuery = injectQuery(() => {
@@ -201,7 +201,7 @@ export class BesluitEditComponent implements OnInit {
 
     this.setVervaldatumMinDate(this.form.controls.ingangsdatum.value);
 
-    if (besluit.besluittype?.publication.enabled && besluit.vervaldatum) {
+    if (besluit.besluittype?.publication.isEnabled && besluit.vervaldatum) {
       this.setLastResponseDateMinDate(moment(besluit.vervaldatum));
     }
   }
@@ -225,7 +225,7 @@ export class BesluitEditComponent implements OnInit {
       vervaldatum: vervaldatum?.toISOString(),
       informatieobjecten:
         documenten?.map(({ uuid }) => uuid!).filter(Boolean) ?? [],
-      ...(besluit.besluittype?.publication.enabled
+      ...(besluit.besluittype?.publication.isEnabled
         ? {
             publicationDate: publicationDate?.toISOString(),
             lastResponseDate: lastResponseDate?.toISOString(),

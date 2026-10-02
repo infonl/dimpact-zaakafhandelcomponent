@@ -54,7 +54,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       });
 
     const defaultAfzender = afzendersVoorZaakOptions.find(
-      ({ defaultMail }: GeneratedType<"RestZaakAfzender">) => defaultMail,
+      ({ isDefaultMail }: GeneratedType<"RestZaakAfzender">) => isDefaultMail,
     );
     verzenderControl.setValue(defaultAfzender ?? null);
 
@@ -174,7 +174,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
           taak.taakdata?.["externAdvies"] ?? null,
           [Validators.required, Validators.maxLength(1000)],
         ),
-        readonly: taak.status === "AFGEROND" || !taak.rechten?.wijzigen,
+        readonly: taak.status === "AFGEROND" || !taak.rechten?.canWijzigen,
       },
     ];
   }

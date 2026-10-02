@@ -209,7 +209,7 @@ export class InformatieObjectViewComponent
   private toevoegenActies() {
     this.menu = [new HeaderMenuItem("informatieobject")];
 
-    if (this.laatsteVersieInfoObject?.rechten?.lezen) {
+    if (this.laatsteVersieInfoObject?.rechten?.canLezen) {
       this.menu.push(
         new HrefMenuItem(
           "actie.downloaden",
@@ -223,7 +223,7 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      this.laatsteVersieInfoObject?.rechten?.toevoegenNieuweVersie &&
+      this.laatsteVersieInfoObject?.rechten?.canToevoegenNieuweVersie &&
       this.zaak
     ) {
       this.menu.push(
@@ -246,7 +246,7 @@ export class InformatieObjectViewComponent
 
     if (
       this.zaak &&
-      this.laatsteVersieInfoObject?.rechten?.wijzigen &&
+      this.laatsteVersieInfoObject?.rechten?.canWijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
       this.menu.push(
@@ -269,7 +269,7 @@ export class InformatieObjectViewComponent
 
     if (
       !this.laatsteVersieInfoObject?.gelockedDoor &&
-      this.laatsteVersieInfoObject?.rechten?.vergrendelen
+      this.laatsteVersieInfoObject?.rechten?.canVergrendelen
     ) {
       const button = new ButtonMenuItem(
         "actie.lock",
@@ -293,7 +293,7 @@ export class InformatieObjectViewComponent
 
     if (
       this.laatsteVersieInfoObject?.gelockedDoor &&
-      this.laatsteVersieInfoObject?.rechten?.ontgrendelen
+      this.laatsteVersieInfoObject?.rechten?.canOntgrendelen
     ) {
       const button = new ButtonMenuItem(
         "actie.unlock",
@@ -316,7 +316,7 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      this.laatsteVersieInfoObject?.rechten?.verwijderen &&
+      this.laatsteVersieInfoObject?.rechten?.canVerwijderen &&
       !this.laatsteVersieInfoObject?.isBesluitDocument
     ) {
       this.menu.push(
@@ -330,7 +330,7 @@ export class InformatieObjectViewComponent
 
     if (
       !this.laatsteVersieInfoObject?.ondertekening &&
-      this.laatsteVersieInfoObject?.rechten?.ondertekenen
+      this.laatsteVersieInfoObject?.rechten?.canOndertekenen
     ) {
       this.menu.push(
         new ButtonMenuItem(
@@ -343,7 +343,7 @@ export class InformatieObjectViewComponent
 
     if (
       this.zaak &&
-      this.laatsteVersieInfoObject?.rechten?.converteren &&
+      this.laatsteVersieInfoObject?.rechten?.canConverteren &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
       this.menu.push(

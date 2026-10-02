@@ -78,15 +78,15 @@ describe(ToolbarComponent.name, () => {
     );
 
     testQueryClient.setQueryData(policyService.readOverigeRechten().queryKey, {
-      startenZaak: true,
-      beheren: false,
-      zoeken: false,
+      canStartenZaak: true,
+      canBeheren: false,
+      canZoeken: false,
     });
     jest.spyOn(policyService, "readWerklijstRechten").mockReturnValue(
       of(
         fromPartial<GeneratedType<"RestWerklijstRechten">>({
-          zakenTaken: false,
-          inbox: false,
+          canZakenTaken: false,
+          canInbox: false,
         }),
       ),
     );
@@ -131,7 +131,7 @@ describe(ToolbarComponent.name, () => {
     it("is not rendered when overigeRechten.startenZaak is false", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: false },
+        { canStartenZaak: false, canBeheren: false, canZoeken: false },
       );
       createComponent();
 
@@ -147,8 +147,8 @@ describe(ToolbarComponent.name, () => {
       jest.spyOn(policyService, "readWerklijstRechten").mockReturnValue(
         of(
           fromPartial<GeneratedType<"RestWerklijstRechten">>({
-            zakenTaken: true,
-            inbox: false,
+            canZakenTaken: true,
+            canInbox: false,
           }),
         ),
       );
@@ -181,8 +181,8 @@ describe(ToolbarComponent.name, () => {
       jest.spyOn(policyService, "readWerklijstRechten").mockReturnValue(
         of(
           fromPartial<GeneratedType<"RestWerklijstRechten">>({
-            zakenTaken: false,
-            inbox: true,
+            canZakenTaken: false,
+            canInbox: true,
           }),
         ),
       );
@@ -208,7 +208,7 @@ describe(ToolbarComponent.name, () => {
     it("is rendered when overigeRechten.zoeken is true", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: true },
+        { canStartenZaak: false, canBeheren: false, canZoeken: true },
       );
       createComponent();
 
@@ -230,7 +230,7 @@ describe(ToolbarComponent.name, () => {
     it("shows the clear button when hasSearched is true", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: true },
+        { canStartenZaak: false, canBeheren: false, canZoeken: true },
       );
       createComponent();
       TestBed.inject(ZoekenService).hasSearched.set(true);
@@ -247,7 +247,7 @@ describe(ToolbarComponent.name, () => {
     it("shows the search icon when hasSearched is false", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: true },
+        { canStartenZaak: false, canBeheren: false, canZoeken: true },
       );
       createComponent();
 
@@ -262,7 +262,7 @@ describe(ToolbarComponent.name, () => {
     it("opens the search side nav when enter is pressed in the search field", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: true },
+        { canStartenZaak: false, canBeheren: false, canZoeken: true },
       );
       createComponent();
 
@@ -277,7 +277,7 @@ describe(ToolbarComponent.name, () => {
     it("opens the search side nav from each search button", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: true },
+        { canStartenZaak: false, canBeheren: false, canZoeken: true },
       );
       createComponent();
 
@@ -297,7 +297,7 @@ describe(ToolbarComponent.name, () => {
     it("is rendered when overigeRechten.beheren is true", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: true, zoeken: false },
+        { canStartenZaak: false, canBeheren: true, canZoeken: false },
       );
       createComponent();
 

@@ -58,8 +58,8 @@ describe("Algemeen form step", () => {
       },
       zaakAfzenders: [
         {
-          speciaal: false,
-          defaultMail: true,
+          isSpeciaal: false,
+          isDefaultMail: true,
           mail: "test@example.com",
           replyTo: undefined,
         },
@@ -67,9 +67,12 @@ describe("Algemeen form step", () => {
       humanTaskParameters: [],
       mailtemplateKoppelingen: [],
       zaakbeeindigParameters: [],
-      smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+      smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
       userEventListenerParameters: [],
-      betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+      betrokkeneKoppelingen: {
+        isBrpKoppelenEnabled: false,
+        isKvkKoppelenEnabled: false,
+      },
       brpDoelbindingen: {
         zoekWaarde: "",
         raadpleegWaarde: "",
@@ -77,7 +80,7 @@ describe("Algemeen form step", () => {
       },
       productaanvraagtype: null,
       automaticEmailConfirmation: {
-        enabled: false,
+        isEnabled: false,
         templateName: null,
         emailSender: null,
         emailReply: null,
@@ -215,7 +218,7 @@ describe("Algemeen form step", () => {
 
   it("shows a zaaktype with zaakspecifieke autorisatie as such", async () => {
     const algemeen = await setup(
-      createParameters({ zaakspecifiekAutoriseerbaar: true }),
+      createParameters({ isZaakspecifiekAutoriseerbaar: true }),
     );
 
     expect(within(algemeen).getByText("actie.ja")).toBeVisible();

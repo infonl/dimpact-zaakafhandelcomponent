@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -57,20 +57,20 @@ public class MailtemplateKoppelingRestService {
     @GET
     @Path("{id}")
     public RESTMailtemplateKoppeling readMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten(null).getBeheren());
+        assertPolicy(policyService.readOverigeRechten(null).getCanBeheren());
         return RESTMailtemplateKoppelingConverter.convert(mailTemplateKoppelingenService.readMailtemplateKoppeling(id));
     }
 
     @DELETE
     @Path("{id}")
     public void deleteMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten(null).getBeheren());
+        assertPolicy(policyService.readOverigeRechten(null).getCanBeheren());
         mailTemplateKoppelingenService.delete(id);
     }
 
     @GET
     public List<RESTMailtemplateKoppeling> listMailtemplateKoppelingen() {
-        assertPolicy(policyService.readOverigeRechten(null).getBeheren());
+        assertPolicy(policyService.readOverigeRechten(null).getCanBeheren());
         final List<ZaaktypeCmmnMailtemplateParameters> zaaktypeCmmnMailtemplateParametersList = mailTemplateKoppelingenService
                 .listMailtemplateKoppelingen();
         return zaaktypeCmmnMailtemplateParametersList.stream().map(zaaktypeCmmnMailtemplateParameters -> {
@@ -87,7 +87,7 @@ public class MailtemplateKoppelingRestService {
     public RESTMailtemplateKoppeling storeMailtemplateKoppeling(
             final RESTMailtemplateKoppeling mailtemplateKoppeling
     ) {
-        assertPolicy(policyService.readOverigeRechten(null).getBeheren());
+        assertPolicy(policyService.readOverigeRechten(null).getCanBeheren());
         return RESTMailtemplateKoppelingConverter.convert(
                 mailTemplateKoppelingenService.storeMailtemplateKoppeling(
                         RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling)

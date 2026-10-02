@@ -8,9 +8,9 @@ import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.zac.authentication.LoggedInUser
 
 data class RestBrpRechten(
-    val zoeken: Boolean
+    val canZoeken: Boolean
 )
 
 fun LoggedInUser.toRestBrpRechten() = RestBrpRechten(
-    zoeken = this.overallRoles.contains(ROLE_NAME_BRP_ZOEKEN) || this.brpGemeenten.any(),
+    canZoeken = this.overallRoles.contains(ROLE_NAME_BRP_ZOEKEN) || this.brpGemeenten.any(),
 )

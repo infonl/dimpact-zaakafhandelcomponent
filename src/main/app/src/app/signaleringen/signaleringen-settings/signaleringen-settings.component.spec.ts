@@ -29,8 +29,8 @@ const zaakOpNaam = fromPartial<GeneratedType<"RestSignaleringInstellingen">>({
   id: 1,
   type: "ZAAK_OP_NAAM",
   subjecttype: "ZAAK",
-  dashboard: false,
-  mail: false,
+  isDashboardEnabled: false,
+  isMailEnabled: false,
 });
 
 describe(SignaleringenSettingsComponent.name, () => {
@@ -146,7 +146,7 @@ describe(SignaleringenSettingsComponent.name, () => {
     await respondWith([
       fromPartial<GeneratedType<"RestSignaleringInstellingen">>({
         ...zaakOpNaam,
-        dashboard: true,
+        isDashboardEnabled: true,
       }),
     ]);
 
@@ -158,7 +158,7 @@ describe(SignaleringenSettingsComponent.name, () => {
     await respondWith([
       fromPartial<GeneratedType<"RestSignaleringInstellingen">>({
         ...zaakOpNaam,
-        dashboard: null,
+        isDashboardEnabled: null,
       }),
     ]);
 
@@ -178,9 +178,12 @@ describe(SignaleringenSettingsComponent.name, () => {
     const request = httpTestingController.expectOne(INSTELLINGEN_URL);
 
     expect(request.request.method).toBe("PUT");
-    expect(request.request.body).toEqual({ ...zaakOpNaam, dashboard: true });
+    expect(request.request.body).toEqual({
+      ...zaakOpNaam,
+      isDashboardEnabled: true,
+    });
 
-    request.flush({ ...zaakOpNaam, dashboard: true });
+    request.flush({ ...zaakOpNaam, isDashboardEnabled: true });
     await sleep();
   });
 
@@ -195,7 +198,7 @@ describe(SignaleringenSettingsComponent.name, () => {
 
     httpTestingController
       .expectOne(INSTELLINGEN_URL)
-      .flush({ ...zaakOpNaam, mail: true });
+      .flush({ ...zaakOpNaam, isMailEnabled: true });
     await sleep();
 
     expect(utilService.setLoading).toHaveBeenCalledWith(false);

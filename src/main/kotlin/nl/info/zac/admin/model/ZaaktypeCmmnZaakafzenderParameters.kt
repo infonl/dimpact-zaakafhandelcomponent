@@ -48,7 +48,7 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
     lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 
     @Column(name = "default_mail", nullable = false)
-    var defaultMail: Boolean = false
+    var isDefaultMail: Boolean = false
 
     @Column(name = "mail", nullable = false)
     @field:NotBlank
@@ -59,13 +59,13 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
 
     override fun isModifiedFrom(original: ZaaktypeCmmnZaakafzenderParameters): Boolean {
         return Objects.equals(mail, original.mail) && (
-            !defaultMail == original.defaultMail ||
+            !isDefaultMail == original.isDefaultMail ||
                 !Objects.equals(replyTo, original.replyTo)
             )
     }
 
     override fun applyChanges(changes: ZaaktypeCmmnZaakafzenderParameters) {
-        this.defaultMail = changes.defaultMail
+        this.isDefaultMail = changes.isDefaultMail
         this.replyTo = changes.replyTo
     }
 
@@ -76,8 +76,8 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
 
     override fun equals(other: Any?): Boolean {
         if (other !is ZaaktypeCmmnZaakafzenderParameters) return false
-        return mail == other.mail && defaultMail == other.defaultMail && Objects.equals(replyTo, other.replyTo)
+        return mail == other.mail && isDefaultMail == other.isDefaultMail && Objects.equals(replyTo, other.replyTo)
     }
 
-    override fun hashCode(): Int = Objects.hash(mail, defaultMail, replyTo)
+    override fun hashCode(): Int = Objects.hash(mail, isDefaultMail, replyTo)
 }

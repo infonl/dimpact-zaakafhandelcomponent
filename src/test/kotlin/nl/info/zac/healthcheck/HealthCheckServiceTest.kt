@@ -146,7 +146,7 @@ class HealthCheckServiceTest : BehaviorSpec({
                     isBrpInstellingenCorrect shouldBe false
                     isZaakspecifiekeAutorisatieEigenschapAanwezig shouldBe false
                     isZaakspecifiekeAutorisatieRoltypeAanwezig shouldBe false
-                    heeftWaarschuwingen shouldBe false
+                    hasWaarschuwingen shouldBe false
                 }
             }
         }
@@ -256,7 +256,7 @@ class HealthCheckServiceTest : BehaviorSpec({
                     isBrpInstellingenCorrect shouldBe true
                     isZaakspecifiekeAutorisatieEigenschapAanwezig shouldBe false
                     isZaakspecifiekeAutorisatieRoltypeAanwezig shouldBe false
-                    heeftWaarschuwingen shouldBe false
+                    hasWaarschuwingen shouldBe false
                 }
             }
         }
@@ -350,7 +350,7 @@ class HealthCheckServiceTest : BehaviorSpec({
                 }
             }
             and("no warning is reported") {
-                zaaktypeInrichtingscheck.heeftWaarschuwingen shouldBe false
+                zaaktypeInrichtingscheck.hasWaarschuwingen shouldBe false
             }
             and("the zaakspecifiek geautoriseerde medewerker roltype is not counted as a behandelaar roltype") {
                 zaaktypeInrichtingscheck.aantalBehandelaarroltypen shouldBe 1
@@ -449,7 +449,7 @@ class HealthCheckServiceTest : BehaviorSpec({
                 }
             }
             and("a warning is reported") {
-                zaaktypeInrichtingscheck.heeftWaarschuwingen shouldBe true
+                zaaktypeInrichtingscheck.hasWaarschuwingen shouldBe true
             }
             and("the roltype with another omschrijving is not counted as a behandelaar roltype") {
                 zaaktypeInrichtingscheck.aantalBehandelaarroltypen shouldBe 1

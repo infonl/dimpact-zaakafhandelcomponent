@@ -43,7 +43,7 @@
         />
       </div>
       <div class="flex-row items-center gap-10 justify-end">
-        @if (processDefinition().details?.inUse) {
+        @if (processDefinition().details?.isInUse) {
           <div class="explanation flex-1">
             <mat-icon outlined color="primary">info</mat-icon>
             {{ "bpmn.process-definition.card.details.in-use" | translate }}
@@ -108,7 +108,7 @@
           <ng-container matColumnDef="uploaded">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              @if (row.uploaded) {
+              @if (row.isUploaded) {
                 <mat-icon
                   outlined
                   color="primary"
@@ -139,7 +139,7 @@
             <td
               mat-cell
               *matCellDef="let row"
-              [class.not-uploaded]="!row.uploaded"
+              [class.not-uploaded]="!row.isUploaded"
             >
               {{ row.formKey }}
             </td>
@@ -152,7 +152,7 @@
             <td
               mat-cell
               *matCellDef="let row"
-              [class.not-uploaded]="!row.uploaded"
+              [class.not-uploaded]="!row.isUploaded"
             >
               {{ row.title | empty }}
             </td>
@@ -161,10 +161,10 @@
           <ng-container matColumnDef="actions" stickyEnd>
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              @if (row.uploaded) {
+              @if (row.isUploaded) {
                 <span
                   [matTooltip]="
-                    processDefinition().details?.inUse
+                    processDefinition().details?.isInUse
                       ? ('bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use'
                         | translate)
                       : ('actie.verwijderen' | translate)
@@ -173,7 +173,7 @@
                   <button
                     mat-icon-button
                     id="delete"
-                    [disabled]="processDefinition().details?.inUse"
+                    [disabled]="processDefinition().details?.isInUse"
                     [attr.aria-label]="'actie.verwijderen' | translate"
                     (click)="deleteBpmnForm(row.formKey)"
                   >

@@ -21,10 +21,10 @@ class ZaaktypeInrichtingscheckTest : BehaviorSpec({
         )
 
         `when`("health checks are performed") {
-            val validity = zaaktypeInrichtingscheck.isValide
+            val isValide = zaaktypeInrichtingscheck.isValide
 
             then("it is reported as invalid") {
-                validity shouldBe false
+                isValide shouldBe false
             }
         }
     }
@@ -36,10 +36,10 @@ class ZaaktypeInrichtingscheckTest : BehaviorSpec({
         )
 
         `when`("health checks are performed") {
-            val validity = zaaktypeInrichtingscheck.isValide
+            val isValide = zaaktypeInrichtingscheck.isValide
 
             then("it is reported as invalid") {
-                validity shouldBe false
+                isValide shouldBe false
             }
         }
     }
@@ -48,10 +48,10 @@ class ZaaktypeInrichtingscheckTest : BehaviorSpec({
         val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
 
         `when`("health checks are performed") {
-            val validity = zaaktypeInrichtingscheck.isValide
+            val isValide = zaaktypeInrichtingscheck.isValide
 
             then("it is reported as valid") {
-                validity shouldBe true
+                isValide shouldBe true
             }
         }
     }
@@ -63,10 +63,10 @@ class ZaaktypeInrichtingscheckTest : BehaviorSpec({
         )
 
         `when`("health checks are performed") {
-            val heeftWaarschuwingen = zaaktypeInrichtingscheck.heeftWaarschuwingen
+            val hasWaarschuwingen = zaaktypeInrichtingscheck.hasWaarschuwingen
 
             then("no warning is reported because the zaaktype simply does not use zaakspecifieke autorisatie") {
-                heeftWaarschuwingen shouldBe false
+                hasWaarschuwingen shouldBe false
             }
             and("the zaakspecifieke autorisatie configuration is reported as complete") {
                 zaaktypeInrichtingscheck.isZaakspecifiekeAutorisatieOnvolledig shouldBe false
@@ -84,10 +84,10 @@ class ZaaktypeInrichtingscheckTest : BehaviorSpec({
         )
 
         `when`("health checks are performed") {
-            val heeftWaarschuwingen = zaaktypeInrichtingscheck.heeftWaarschuwingen
+            val hasWaarschuwingen = zaaktypeInrichtingscheck.hasWaarschuwingen
 
             then("no warning is reported because zaakspecifieke autorisatie is fully configured") {
-                heeftWaarschuwingen shouldBe false
+                hasWaarschuwingen shouldBe false
             }
             and("the zaakspecifieke autorisatie configuration is reported as complete") {
                 zaaktypeInrichtingscheck.isZaakspecifiekeAutorisatieOnvolledig shouldBe false
@@ -105,10 +105,10 @@ class ZaaktypeInrichtingscheckTest : BehaviorSpec({
         )
 
         `when`("health checks are performed") {
-            val heeftWaarschuwingen = zaaktypeInrichtingscheck.heeftWaarschuwingen
+            val hasWaarschuwingen = zaaktypeInrichtingscheck.hasWaarschuwingen
 
             then("a warning is reported") {
-                heeftWaarschuwingen shouldBe true
+                hasWaarschuwingen shouldBe true
             }
             and("the zaakspecifieke autorisatie configuration is reported as incomplete") {
                 zaaktypeInrichtingscheck.isZaakspecifiekeAutorisatieOnvolledig shouldBe true
@@ -126,10 +126,10 @@ class ZaaktypeInrichtingscheckTest : BehaviorSpec({
         )
 
         `when`("health checks are performed") {
-            val heeftWaarschuwingen = zaaktypeInrichtingscheck.heeftWaarschuwingen
+            val hasWaarschuwingen = zaaktypeInrichtingscheck.hasWaarschuwingen
 
             then("a warning is reported") {
-                heeftWaarschuwingen shouldBe true
+                hasWaarschuwingen shouldBe true
             }
             and("the zaakspecifieke autorisatie configuration is reported as incomplete") {
                 zaaktypeInrichtingscheck.isZaakspecifiekeAutorisatieOnvolledig shouldBe true
@@ -148,10 +148,10 @@ class ZaaktypeInrichtingscheckTest : BehaviorSpec({
         )
 
         `when`("health checks are performed") {
-            val heeftWaarschuwingen = zaaktypeInrichtingscheck.heeftWaarschuwingen
+            val hasWaarschuwingen = zaaktypeInrichtingscheck.hasWaarschuwingen
 
             then("a warning is reported") {
-                heeftWaarschuwingen shouldBe true
+                hasWaarschuwingen shouldBe true
             }
             and("it is reported as invalid for a reason unrelated to the warning") {
                 zaaktypeInrichtingscheck.isValide shouldBe false

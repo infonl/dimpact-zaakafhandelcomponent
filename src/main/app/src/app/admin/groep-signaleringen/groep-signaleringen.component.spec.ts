@@ -138,8 +138,8 @@ describe(GroepSignaleringenComponent.name, () => {
       {
         type: "ZAAK_OP_NAAM",
         subjecttype: "ZAAK",
-        dashboard: true,
-        mail: false,
+        isDashboardEnabled: true,
+        isMailEnabled: false,
       },
     ] as GeneratedType<"RestSignaleringInstellingen">[];
     (signaleringenServiceMock.list as jest.Mock).mockReturnValue(of(settings));
@@ -184,8 +184,8 @@ describe(GroepSignaleringenComponent.name, () => {
     const row = {
       type: "ZAAK_OP_NAAM",
       subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
+      isDashboardEnabled: false,
+      isMailEnabled: false,
     } as GeneratedType<"RestSignaleringInstellingen">;
 
     component.changed(row, "dashboard", true);
@@ -204,8 +204,8 @@ describe(GroepSignaleringenComponent.name, () => {
     const row = {
       type: "ZAAK_OP_NAAM",
       subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
+      isDashboardEnabled: false,
+      isMailEnabled: false,
     } as GeneratedType<"RestSignaleringInstellingen">;
 
     component.changed(row, "dashboard", true);
@@ -226,8 +226,8 @@ describe(GroepSignaleringenComponent.name, () => {
     const row = {
       type: "ZAAK_OP_NAAM",
       subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
+      isDashboardEnabled: false,
+      isMailEnabled: false,
     } as GeneratedType<"RestSignaleringInstellingen">;
 
     component.changed(row, "dashboard", true);
@@ -245,12 +245,12 @@ describe(GroepSignaleringenComponent.name, () => {
     const row = {
       type: "ZAAK_OP_NAAM",
       subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
+      isDashboardEnabled: false,
+      isMailEnabled: false,
     } as GeneratedType<"RestSignaleringInstellingen">;
 
     component.changed(row, "dashboard", true);
 
-    expect((row as Record<string, unknown>)["dashboard"]).toBe(true);
+    expect(row.isDashboardEnabled).toBe(true);
   });
 });

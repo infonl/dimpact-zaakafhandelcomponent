@@ -62,7 +62,7 @@ export class DocumentVerzendenPostTaskForm extends AbstractTaskForm {
         )
       : [];
 
-    const readonly = taak.status === "AFGEROND" || !taak.rechten?.wijzigen;
+    const readonly = taak.status === "AFGEROND" || !taak.rechten?.canWijzigen;
     const verzenddatum = taak.taakdata?.["verzenddatum"];
 
     return [

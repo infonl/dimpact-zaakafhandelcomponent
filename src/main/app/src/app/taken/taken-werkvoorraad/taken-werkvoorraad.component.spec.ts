@@ -33,8 +33,8 @@ describe(TakenWerkvoorraadComponent.name, () => {
     aantalPerPagina: 10,
     pageSizeOptions: [10, 25, 50],
     werklijstRechten: fromPartial<GeneratedType<"RestWerklijstRechten">>({
-      zakenTakenVerdelen: true,
-      zakenTakenExporteren: true,
+      canZakenTakenVerdelen: true,
+      canZakenTakenExporteren: true,
     }),
   };
 
@@ -88,7 +88,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
       (user: string, expectation: boolean) => {
         const taakZoekObject = fromPartial<TaakZoekObject>({
           id: "taak1",
-          rechten: { toekennen: true },
+          rechten: { canToekennen: true },
           groepID: "groupA",
           behandelaarGebruikersnaam: user,
         });
@@ -100,7 +100,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
     it("returns false when taakZoekObject.rechten.toekennen is false", () => {
       const taakZoekObject = fromPartial<TaakZoekObject>({
         id: "taak-no-assign",
-        rechten: { toekennen: false },
+        rechten: { canToekennen: false },
         groepNaam: "groupA",
         behandelaarGebruikersnaam: "user2",
       });
@@ -116,7 +116,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
         );
         const taakZoekObject = fromPartial<TaakZoekObject>({
           id: "taak-no-user",
-          rechten: { toekennen: true },
+          rechten: { canToekennen: true },
           groepNaam: "groupA",
           behandelaarGebruikersnaam: "user2",
         });
@@ -127,7 +127,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
     it("returns false when the user is not in the task's group", () => {
       const taakZoekObject = fromPartial<TaakZoekObject>({
         id: "taak-other-group",
-        rechten: { toekennen: true },
+        rechten: { canToekennen: true },
         groepNaam: "groupC",
         behandelaarGebruikersnaam: "user2",
       });
@@ -138,13 +138,13 @@ describe(TakenWerkvoorraadComponent.name, () => {
   describe("selection", () => {
     const mockTaak1 = fromPartial<TaakZoekObject>({
       id: "taak1",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepNaam: "groupA",
     });
 
     const mockTaak2 = fromPartial<TaakZoekObject>({
       id: "taak2",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepNaam: "groupA",
       behandelaarNaam: "Other User",
       behandelaarGebruikersnaam: "user2",

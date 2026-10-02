@@ -40,7 +40,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
             loggedInUser
         )
         assertPolicy(
-            zaakRechten.toekennen,
+            zaakRechten.canToekennen,
             LOG,
             "User '${loggedInUser.id}' is not authorised to assign zaak '${zaak.identificatie}'"
         )

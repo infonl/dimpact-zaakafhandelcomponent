@@ -199,7 +199,8 @@ export class HumanTaskDoComponent implements OnInit {
       medewerker: this.form.get("user")!.value!,
       fataledatum: this.form.get("taakFataledatum")?.value,
       taakStuurGegevens: {
-        sendMail: this.form.get("taakStuurGegevens.sendMail")?.value ?? false,
+        shouldSendMail:
+          this.form.get("taakStuurGegevens.sendMail")?.value ?? false,
         mail: this.form.get("taakStuurGegevens.mail")?.value,
       },
       taakdata: mapFormGroupToTaskData(formGroup, {

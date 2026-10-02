@@ -85,16 +85,16 @@ export class PersoonsgegevensComponent {
 
   protected allowedToChangeInitiatorBedrijf() {
     return Boolean(
-      this.zaak().rechten.toevoegenInitiatorBedrijf &&
-        this.koppelingen()?.kvkKoppelen,
+      this.zaak().rechten.canToevoegenInitiatorBedrijf &&
+        this.koppelingen()?.isKvkKoppelenEnabled,
     );
   }
 
   protected allowedToChangeAndSearchInitiatorPersoon() {
     return Boolean(
-      this.zaak().rechten.toevoegenInitiatorPersoon &&
-        this.koppelingen()?.brpKoppelen &&
-        this.brpRechtenQuery.data()?.zoeken,
+      this.zaak().rechten.canToevoegenInitiatorPersoon &&
+        this.koppelingen()?.isBrpKoppelenEnabled &&
+        this.brpRechtenQuery.data()?.canZoeken,
     );
   }
 

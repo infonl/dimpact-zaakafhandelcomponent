@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.util.AllOpen
@@ -24,7 +25,7 @@ data class RestZaaktype(
 
     var referentieproces: String? = null,
 
-    var servicenorm: Boolean? = null,
+    var hasServicenorm: Boolean? = null,
 
     var versiedatum: LocalDate? = null,
 
@@ -34,11 +35,17 @@ data class RestZaaktype(
 
     var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = null,
 
-    var nuGeldig: Boolean? = null,
+    @get:JsonbProperty("isNuGeldig")
+    @set:JsonbProperty("isNuGeldig")
+    var isNuGeldig: Boolean? = null,
 
-    var opschortingMogelijk: Boolean? = null,
+    @get:JsonbProperty("isOpschortingMogelijk")
+    @set:JsonbProperty("isOpschortingMogelijk")
+    var isOpschortingMogelijk: Boolean? = null,
 
-    var verlengingMogelijk: Boolean? = null,
+    @get:JsonbProperty("isVerlengingMogelijk")
+    @set:JsonbProperty("isVerlengingMogelijk")
+    var isVerlengingMogelijk: Boolean? = null,
 
     var verlengingstermijn: Int? = null,
 

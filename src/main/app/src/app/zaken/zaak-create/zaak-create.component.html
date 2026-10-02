@@ -11,11 +11,11 @@
       [initiator]="true"
       [allowBedrijf]="
         form.controls.zaaktype.value?.zaakafhandelparameters
-          ?.betrokkeneKoppelingen?.kvkKoppelen ?? false
+          ?.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false
       "
       [allowPersoon]="
         form.controls.zaaktype.value?.zaakafhandelparameters
-          ?.betrokkeneKoppelingen?.brpKoppelen ?? false
+          ?.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false
       "
       [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
       class="side-nav-container"

@@ -44,7 +44,7 @@ class ExtendZaakDelegate : AbstractDelegate() {
             loggedInUser
         )
         assertPolicy(
-            zaakRechten.verlengen,
+            zaakRechten.canVerlengen,
             LOG,
             "User ${loggedInUser.id} not allowed to extend zaak ${zaak.identificatie}"
         )

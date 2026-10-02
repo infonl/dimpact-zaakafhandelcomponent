@@ -16,6 +16,7 @@ import {
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { within } from "@testing-library/angular";
 import { randomUUID } from "crypto";
 import { of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -36,7 +37,10 @@ const testZaak = fromPartial<GeneratedType<"RestZaak">>({
   initiatorIdentificatie: {
     temporaryPersonId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
   },
-  rechten: { toevoegenInitiatorPersoon: false, verwijderenInitiator: false },
+  rechten: {
+    canToevoegenInitiatorPersoon: false,
+    canVerwijderenInitiator: false,
+  },
 });
 
 describe(PersoonsgegevensComponent.name, () => {
@@ -83,8 +87,8 @@ describe(PersoonsgegevensComponent.name, () => {
         zaaktype: { uuid: "test-zaaktype-uuid" },
         initiatorIdentificatie: { temporaryPersonId: "invalid-id" },
         rechten: {
-          toevoegenInitiatorPersoon: false,
-          verwijderenInitiator: false,
+          canToevoegenInitiatorPersoon: false,
+          canVerwijderenInitiator: false,
         },
       }),
     );
@@ -98,9 +102,14 @@ describe(PersoonsgegevensComponent.name, () => {
   });
 
   it("should show warning icon on error", async () => {
-    klantenServiceMock.readPersoon = jest
-      .fn()
-      .mockReturnValue(throwError(() => new Error("Person not found")));
+    klantenServiceMock.readPersoon = jest.fn().mockReturnValue(
+      queryOptions({
+        queryKey: ["fakeUnknownPersoon"],
+        queryFn: async () => {
+          throw new Error("Person not found");
+        },
+      }),
+    );
 
     const fixture = TestBed.createComponent(PersoonsgegevensComponent);
     fixture.componentRef.setInput(
@@ -109,14 +118,20 @@ describe(PersoonsgegevensComponent.name, () => {
         zaaktype: { uuid: "test-zaaktype-uuid" },
         initiatorIdentificatie: { temporaryPersonId: "invalid-id" },
         rechten: {
-          toevoegenInitiatorPersoon: false,
-          verwijderenInitiator: false,
+          canToevoegenInitiatorPersoon: false,
+          canVerwijderenInitiator: false,
         },
       }),
     );
+    notifyManager.setScheduler((fn) => fn());
     fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+    notifyManager.setScheduler(queueMicrotask);
 
-    expect(fixture.nativeElement.querySelector("mat-icon")).toBeTruthy();
+    expect(
+      within(fixture.nativeElement as HTMLElement).getByText("warning"),
+    ).toBeInTheDocument();
   });
 
   describe("zaakSpecificContactDetails prevails over persoon contact info", () => {
@@ -188,7 +203,11 @@ describe(PersoonsgegevensComponent.name, () => {
         emailAddress: null,
       });
 
-      expect(fixture.nativeElement.querySelector(".hint")).toBeTruthy();
+      expect(
+        within(fixture.nativeElement as HTMLElement).getByText(
+          "initiator.aanvraagspecifiek-telefoonnummer",
+        ),
+      ).toBeInTheDocument();
     });
 
     it("should show emailAddress from contact details instead of persoon emailadres", async () => {
@@ -208,7 +227,11 @@ describe(PersoonsgegevensComponent.name, () => {
         emailAddress: "contact@example.com",
       });
 
-      expect(fixture.nativeElement.querySelector(".hint")).toBeTruthy();
+      expect(
+        within(fixture.nativeElement as HTMLElement).getByText(
+          "initiator.aanvraagspecifiek-emailadres",
+        ),
+      ).toBeInTheDocument();
     });
   });
 
@@ -232,13 +255,16 @@ describe(PersoonsgegevensComponent.name, () => {
         >({
           betrokkeneKoppelingen: fromPartial<
             GeneratedType<"RestBetrokkeneKoppelingen">
-          >({ brpKoppelen: true, kvkKoppelen: false }),
+          >({ isBrpKoppelenEnabled: true, isKvkKoppelenEnabled: false }),
         }),
       },
       initiatorIdentificatie: {
         temporaryPersonId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
       },
-      rechten: { toevoegenInitiatorPersoon: true, verwijderenInitiator: false },
+      rechten: {
+        canToevoegenInitiatorPersoon: true,
+        canVerwijderenInitiator: false,
+      },
     });
 
     beforeEach(() => {
@@ -246,7 +272,7 @@ describe(PersoonsgegevensComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: true,
+          canZoeken: true,
         }),
       );
       fixture = TestBed.createComponent(PersoonsgegevensComponent);
@@ -264,14 +290,14 @@ describe(PersoonsgegevensComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: false,
+          canZoeken: false,
         }),
       );
       fixture.componentRef.setInput("zaak", {
         ...zaakWithWijzigenRechten,
         rechten: {
           ...zaakWithWijzigenRechten.rechten,
-          toevoegenInitiatorBedrijf: true,
+          canToevoegenInitiatorBedrijf: true,
         },
         zaaktype: {
           ...zaakWithWijzigenRechten.zaaktype,
@@ -280,7 +306,7 @@ describe(PersoonsgegevensComponent.name, () => {
           >({
             betrokkeneKoppelingen: fromPartial<
               GeneratedType<"RestBetrokkeneKoppelingen">
-            >({ brpKoppelen: false, kvkKoppelen: true }),
+            >({ isBrpKoppelenEnabled: false, isKvkKoppelenEnabled: true }),
           }),
         },
       });
@@ -296,7 +322,7 @@ describe(PersoonsgegevensComponent.name, () => {
         ...zaakWithWijzigenRechten,
         rechten: {
           ...zaakWithWijzigenRechten.rechten,
-          toevoegenInitiatorPersoon: false,
+          canToevoegenInitiatorPersoon: false,
         },
       });
       fixture.detectChanges();
@@ -310,7 +336,7 @@ describe(PersoonsgegevensComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: false,
+          canZoeken: false,
         }),
       );
       fixture.detectChanges();
@@ -326,26 +352,26 @@ describe(PersoonsgegevensComponent.name, () => {
     describe("wijzigen button", () => {
       it("should show the button when allowedToChangeAndSearchInitiatorPersoon returns true", () => {
         expect(
-          fixture.nativeElement.querySelector(
-            '[title="actie.initiator.wijzigen"]',
+          within(fixture.nativeElement as HTMLElement).getByTitle(
+            "actie.initiator.wijzigen",
           ),
-        ).toBeTruthy();
+        ).toBeInTheDocument();
       });
 
       it("should hide the button when both allowedToChangeInitiatorBedrijf and allowedToChangeAndSearchInitiatorPersoon return false", () => {
         testQueryClient.setQueryData(
           policyService.readBrpRechten().queryKey,
           fromPartial<GeneratedType<"RestBrpRechten">>({
-            zoeken: false,
+            canZoeken: false,
           }),
         );
         fixture.detectChanges();
 
         expect(
-          fixture.nativeElement.querySelector(
-            '[title="actie.initiator.wijzigen"]',
+          within(fixture.nativeElement as HTMLElement).queryByTitle(
+            "actie.initiator.wijzigen",
           ),
-        ).toBeNull();
+        ).not.toBeInTheDocument();
       });
     });
   });

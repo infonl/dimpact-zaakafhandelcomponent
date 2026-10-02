@@ -190,17 +190,17 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
                 val zaakResult = JSONObject(zaakResponse.bodyAsString)
                 zaakResult.getInt("totaal") shouldBe 1
                 zaakResult.getJSONArray("resultaten").getJSONObject(0)
-                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    .getJSONObject("rechten").getBoolean("canLezen") shouldBe true
 
                 val taakResult = JSONObject(taakResponse.bodyAsString)
                 taakResult.getInt("totaal") shouldBe 1
                 taakResult.getJSONArray("resultaten").getJSONObject(0)
-                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    .getJSONObject("rechten").getBoolean("canLezen") shouldBe true
 
                 val documentResult = JSONObject(documentResponse.bodyAsString)
                 documentResult.getInt("totaal") shouldBe 1
                 documentResult.getJSONArray("resultaten").getJSONObject(0)
-                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    .getJSONObject("rechten").getBoolean("canLezen") shouldBe true
             }
         }
     }
@@ -286,17 +286,17 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
                 val zaakResult = JSONObject(zaakResponse.bodyAsString)
                 zaakResult.getInt("totaal") shouldBe 1
                 zaakResult.getJSONArray("resultaten").getJSONObject(0)
-                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    .getJSONObject("rechten").getBoolean("canLezen") shouldBe true
 
                 val taakResult = JSONObject(taakResponse.bodyAsString)
                 taakResult.getInt("totaal") shouldBe 1
                 taakResult.getJSONArray("resultaten").getJSONObject(0)
-                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    .getJSONObject("rechten").getBoolean("canLezen") shouldBe true
 
                 val documentResult = JSONObject(documentResponse.bodyAsString)
                 documentResult.getInt("totaal") shouldBe 1
                 documentResult.getJSONArray("resultaten").getJSONObject(0)
-                    .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    .getJSONObject("rechten").getBoolean("canLezen") shouldBe true
             }
         }
     }
@@ -386,7 +386,7 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
                     val zaakResult = JSONObject(zaakResponse.bodyAsString)
                     zaakResult.getInt("totaal") shouldBe 1
                     zaakResult.getJSONArray("resultaten").getJSONObject(0).apply {
-                        getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                        getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                         getString("behandelaarGebruikersnaam") shouldBe
                             ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
                     }
@@ -394,12 +394,12 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
                     val taakResult = JSONObject(taakResponse.bodyAsString)
                     taakResult.getInt("totaal") shouldBe 1
                     taakResult.getJSONArray("resultaten").getJSONObject(0)
-                        .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                        .getJSONObject("rechten").getBoolean("canLezen") shouldBe true
 
                     val documentResult = JSONObject(documentResponse.bodyAsString)
                     documentResult.getInt("totaal") shouldBe 1
                     documentResult.getJSONArray("resultaten").getJSONObject(0)
-                        .getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                        .getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                 }
             }
 

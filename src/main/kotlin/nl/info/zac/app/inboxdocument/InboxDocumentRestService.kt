@@ -51,7 +51,7 @@ class InboxDocumentRestService @Inject constructor(
 
     @PUT
     fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters): RESTResultaat<RestInboxDocument> {
-        assertPolicy(policyService.readWerklijstRechten().inbox)
+        assertPolicy(policyService.readWerklijstRechten().canInbox)
         val listParameters = restListParameters.toInboxDocumentListParameters()
         val inboxDocuments = inboxDocumentService.list(listParameters)
         // the list of informatie object type UUIDs has the same length as the inbox documents, and can contain null\
@@ -67,7 +67,7 @@ class InboxDocumentRestService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteInboxDocument(@PathParam("id") id: Long): RestInboxDocumentDeleteResult {
-        assertPolicy(policyService.readWerklijstRechten().inbox)
+        assertPolicy(policyService.readWerklijstRechten().canInbox)
         val inboxDocument = inboxDocumentService.find(id) ?: run {
             LOG.warning { "Inbox document with id '$id' not found. It may already have been deleted." }
             return RestInboxDocumentDeleteResult(isInformatieobjectDeleted = true)

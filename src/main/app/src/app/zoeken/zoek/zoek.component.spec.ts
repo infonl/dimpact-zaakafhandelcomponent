@@ -260,7 +260,7 @@ describe(ZoekComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: true,
+          canZoeken: true,
         }),
       );
 
@@ -284,7 +284,7 @@ describe(ZoekComponent.name, () => {
         testQueryClient.setQueryData(
           policyService.readBrpRechten().queryKey,
           fromPartial<GeneratedType<"RestBrpRechten">>({
-            zoeken: false,
+            canZoeken: false,
           }),
         );
         fixture = TestBed.createComponent(ZoekComponent);

@@ -170,7 +170,7 @@ export class TakenWerkvoorraadComponent
   }
 
   protected showAssignToMe(taakZoekObject: TaakZoekObject) {
-    if (!taakZoekObject.rechten.toekennen) return false;
+    if (!taakZoekObject.rechten.canToekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
     if (loggedInUser.id === taakZoekObject.behandelaarGebruikersnaam)
@@ -262,7 +262,7 @@ export class TakenWerkvoorraadComponent
       [ZoekenColumn.TOELICHTING, ColumnPickerValue.HIDDEN],
       [ZoekenColumn.URL, ColumnPickerValue.STICKY],
     ]);
-    if (!this.werklijstRechten.zakenTakenVerdelen) {
+    if (!this.werklijstRechten.canZakenTakenVerdelen) {
       columns.delete(ZoekenColumn.SELECT);
     }
     return columns;

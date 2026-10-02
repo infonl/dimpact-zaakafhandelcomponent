@@ -53,10 +53,10 @@ fun createUserGroup(userGroupName: String) = SmartDocumentsResponseUserGroup(
             SmartDocumentsResponseTemplateGroup(
                 id = UUID.randomUUID().toString(),
                 name = "Dimpact",
-                allDescendants = true,
+                hasAllDescendants = true,
                 templates = emptyList(),
                 templateGroups = emptyList(),
-                accessible = true
+                isAccessible = true
             )
         ),
         headerGroups = emptyList()
@@ -68,13 +68,13 @@ fun createUserGroup(userGroupName: String) = SmartDocumentsResponseUserGroup(
             name = "zaakafhandelcomponent"
         )
     ),
-    accessible = true
+    isAccessible = true
 )
 
 fun createTemplate(templateName: String) = SmartDocumentsResponseTemplate(
     id = UUID.randomUUID().toString(),
     name = templateName,
-    favorite = false
+    isFavorite = false
 )
 
 fun createTemplates() = listOf(
@@ -86,10 +86,10 @@ fun createTemplateGroup(groupName: String, templatesList: List<SmartDocumentsRes
     SmartDocumentsResponseTemplateGroup(
         templateGroups = emptyList(),
         templates = templatesList,
-        accessible = true,
+        isAccessible = true,
         id = UUID.randomUUID().toString(),
         name = groupName,
-        allDescendants = true,
+        hasAllDescendants = true,
     )
 
 fun createTemplateGroups() = listOf(
@@ -117,15 +117,15 @@ fun createsmartDocumentsTemplatesResponse() = SmartDocumentsTemplatesResponse(
                     name = "Dimpact",
                     templateGroups = createTemplateGroups(),
                     templates = createTemplates(),
-                    accessible = true,
-                    allDescendants = true,
+                    isAccessible = true,
+                    hasAllDescendants = true,
                 )
             ),
-            accessible = true
+            isAccessible = true
         ),
         headersStructure = SmartDocumentsResponseHeadersStructure(
             headerGroups = emptyList(),
-            accessible = true
+            isAccessible = true
         )
     ),
     usersStructure = SmartDocumentsResponseUsersStructure(
@@ -134,7 +134,7 @@ fun createsmartDocumentsTemplatesResponse() = SmartDocumentsTemplatesResponse(
             headerGroups = emptyList()
         ),
         userGroups = listOf(createUserGroup("Atos"), createUserGroup("Dimpact")),
-        accessible = true
+        isAccessible = true
     )
 )
 

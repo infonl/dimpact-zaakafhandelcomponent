@@ -39,7 +39,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
     mail: "default@example.com",
     replyTo: "default-reply@example.com",
     suffix: "Default afdeling",
-    defaultMail: true,
+    isDefaultMail: true,
   });
 
   beforeEach(() => {
@@ -321,7 +321,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
       });
@@ -374,7 +374,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: { externAdvies: "eerder opgeslagen advies" },
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -387,7 +387,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -402,7 +402,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "AFGEROND" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(fields.find((f) => f.key === "externAdvies")?.readonly).toBe(

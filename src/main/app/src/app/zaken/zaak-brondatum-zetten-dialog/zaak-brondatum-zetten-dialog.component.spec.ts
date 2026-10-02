@@ -215,7 +215,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
         ...zaak,
         resultaat: fromPartial({
           resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-            datumKenmerkVerplicht: true,
+            isDatumKenmerkVerplicht: true,
             datumKenmerkOmschrijving: "fakeDatumKenmerkOmschrijving",
           }),
         }),

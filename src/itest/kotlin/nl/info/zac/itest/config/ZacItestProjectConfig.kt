@@ -134,8 +134,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private val itestHttpClient = ItestHttpClient()
         private val zacClient = ZacClient()
         private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
-        private val skipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
-        private val skipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
+        private val shouldSkipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
+        private val shouldSkipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
         private val specConcurrency = System.getProperty(SPEC_CONCURRENCY_SYSTEM_PROPERTY)?.toInt() ?: DEFAULT_SPEC_CONCURRENCY
 
         // All variables below have to be overridable in the docker-compose.yaml file
@@ -216,7 +216,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         logger.info {
             "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
         }
-        if (!skipDockerComposeStart) {
+        if (!shouldSkipDockerComposeStart) {
             dockerComposeContainer = createDockerComposeContainer()
             try {
                 dockerComposeContainer.start()
@@ -259,7 +259,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
         ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
         logger.info { "ZAC is healthy" }
-        if (!skipDockerComposeStart) {
+        if (!shouldSkipDockerComposeStart) {
             createTestSetupData()
             ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
         }
@@ -268,7 +268,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
         try {
-            if (skipDockerComposeStart) {
+            if (shouldSkipDockerComposeStart) {
                 logger.warn {
                     "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
                 }
@@ -276,7 +276,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             }
             val composeProjectName = findComposeProjectName()
             composeProjectName?.let { ItestTimingReport.collectContainerTimings(dockerClient, it) }
-            if (skipContainerCleanup) {
+            if (shouldSkipContainerCleanup) {
                 logger.warn {
                     "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
                 }

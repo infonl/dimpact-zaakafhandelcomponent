@@ -125,9 +125,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
-    zaakspecifiekAutoriseerbaar: boolean;
+    isZaakspecifiekAutoriseerbaar: boolean;
   } = {
-    zaakspecifiekAutoriseerbaar: false,
+    isZaakspecifiekAutoriseerbaar: false,
     zaaktypeUuid: "",
     zaaktypeOmschrijving: "",
     bpmnProcessDefinitionKey: "",
@@ -140,8 +140,8 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       omschrijving: "",
     },
     betrokkeneKoppelingen: {
-      brpKoppelen: false,
-      kvkKoppelen: false,
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
     },
     brpDoelbindingen: {
       zoekWaarde: "",
@@ -333,12 +333,12 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   private createBetrokkeneKoppelingenForm() {
     this.betrokkeneKoppelingen = this.formBuilder.group({
       kvkKoppelen: [
-        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen?.kvkKoppelen ??
-          false,
+        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen
+          ?.isKvkKoppelenEnabled ?? false,
       ],
       brpKoppelen: [
-        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen?.brpKoppelen ??
-          false,
+        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen
+          ?.isBrpKoppelenEnabled ?? false,
       ],
     });
 
@@ -488,10 +488,10 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     }
 
     this.bpmnZaakafhandelParameters.betrokkeneKoppelingen = {
-      kvkKoppelen: Boolean(
+      isKvkKoppelenEnabled: Boolean(
         this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
       ),
-      brpKoppelen: Boolean(
+      isBrpKoppelenEnabled: Boolean(
         this.betrokkeneKoppelingen.controls.brpKoppelen.value,
       ),
     };
@@ -535,10 +535,10 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         zaakbeeindigParameters:
           this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
         smartDocuments: {
-          enabledGlobally:
-            this.bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ??
+          isEnabledGlobally:
+            this.bpmnZaakafhandelParameters.smartDocuments?.isEnabledGlobally ??
             false,
-          enabledForZaaktype:
+          isEnabledForZaaktype:
             this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false,
         },
       })

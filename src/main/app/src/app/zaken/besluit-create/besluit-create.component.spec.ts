@@ -28,7 +28,7 @@ const fakeZaak = fromPartial<GeneratedType<"RestZaak">>({
 const fakeBesluittype = fromPartial<GeneratedType<"RestBesluitType">>({
   id: "besluittype-id-1",
   naam: "Besluittype 1",
-  publication: { enabled: false },
+  publication: { isEnabled: false },
 });
 
 const fakeBesluittypeWithPublication = fromPartial<
@@ -37,7 +37,7 @@ const fakeBesluittypeWithPublication = fromPartial<
   id: "besluittype-id-2",
   naam: "Besluittype 2",
   publication: {
-    enabled: true,
+    isEnabled: true,
     responseTermDays: 6,
     publicationTermDays: 1,
   },

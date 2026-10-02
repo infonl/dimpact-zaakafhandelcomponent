@@ -24,6 +24,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { within } from "@testing-library/angular";
 import { randomUUID } from "crypto";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -64,10 +65,10 @@ describe(TaakViewComponent.name, () => {
     creatiedatumTijd: new Date().toISOString(),
     formioFormulier: {},
     rechten: {
-      lezen: true,
-      toekennen: true,
-      wijzigen: true,
-      toevoegenDocument: true,
+      canLezen: true,
+      canToekennen: true,
+      canWijzigen: true,
+      canToevoegenDocument: true,
     },
     status: "TOEGEKEND",
     taakdata: {},
@@ -129,10 +130,11 @@ describe(TaakViewComponent.name, () => {
       ],
     }).compileComponents();
 
+    const actionsSidenav =
+      TestBed.createComponent(MatSidenav).componentInstance;
     fixture = TestBed.createComponent(TaakViewComponent);
     component = fixture.componentRef;
-    component.instance.actionsSidenav =
-      TestBed.createComponent(MatSidenav).componentInstance;
+    component.instance.actionsSidenav = actionsSidenav;
     mockActivatedRoute.data.next({ taak });
     fixture.detectChanges();
 
@@ -256,9 +258,9 @@ describe(TaakViewComponent.name, () => {
     test.each(smartDocumentVariants)(
       "smartDocuments = %o",
       async ({ enabledGlobally, enabledForZaaktype, expectButtons }) => {
-        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledGlobally =
+        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.isEnabledGlobally =
           enabledGlobally as boolean;
-        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledForZaaktype =
+        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.isEnabledForZaaktype =
           enabledForZaaktype as boolean;
 
         jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
@@ -377,29 +379,27 @@ describe(TaakViewComponent.name, () => {
       mockActivatedRoute.data.next({
         taak: {
           ...taak,
-          groep: { id: "fakeGroupId", naam: "fakeGroupNaam", active: false },
+          groep: { id: "fakeGroupId", naam: "fakeGroupNaam", isActive: false },
         },
       });
       fixture.detectChanges();
 
       expect(
-        (fixture.nativeElement as HTMLElement)
-          .querySelector("em")
-          ?.textContent?.trim(),
-      ).toBe("(inactief)");
+        within(fixture.nativeElement as HTMLElement).getByText("(inactief)"),
+      ).toBeInTheDocument();
     });
 
     it("should not show '(inactief)' label when groep is active", () => {
       mockActivatedRoute.data.next({
         taak: {
           ...taak,
-          groep: { id: "fakeGroupId", naam: "fakeGroupNaam", active: true },
+          groep: { id: "fakeGroupId", naam: "fakeGroupNaam", isActive: true },
         },
       });
       fixture.detectChanges();
 
       expect(
-        (fixture.nativeElement as HTMLElement).querySelector("em"),
+        within(fixture.nativeElement as HTMLElement).queryByText("(inactief)"),
       ).toBeNull();
     });
 
@@ -408,7 +408,7 @@ describe(TaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        (fixture.nativeElement as HTMLElement).querySelector("em"),
+        within(fixture.nativeElement as HTMLElement).queryByText("(inactief)"),
       ).toBeNull();
     });
   });

@@ -1,9 +1,9 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-tab-group mat-stretch-tabs="false">
-  <mat-tab *ngIf="brpRechtenQuery.data()?.zoeken">
+  <mat-tab *ngIf="brpRechtenQuery.data()?.canZoeken">
     <ng-template mat-tab-label>
       <mat-icon>emoji_people</mat-icon>
       {{ "actie.zoeken.persoon" | translate }}

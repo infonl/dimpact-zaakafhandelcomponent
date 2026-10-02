@@ -92,7 +92,7 @@
             class="col-12 col-lg-6"
             label="zaakspecifiek-autoriseerbaar"
             [value]="
-              (bpmnZaakafhandelParameters.zaakspecifiekAutoriseerbaar
+              (bpmnZaakafhandelParameters.isZaakspecifiekAutoriseerbaar
                 ? 'actie.ja'
                 : 'actie.nee'
               ) | translate
@@ -379,10 +379,11 @@
       <smart-documents-form
         [zaakTypeUuid]="bpmnZaakafhandelParameters.zaaktype.uuid"
         [enabledGlobally]="
-          bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ?? false
+          bpmnZaakafhandelParameters.smartDocuments?.isEnabledGlobally ?? false
         "
         [enabledForZaaktype]="
-          bpmnZaakafhandelParameters.smartDocuments?.enabledForZaaktype ?? false
+          bpmnZaakafhandelParameters.smartDocuments?.isEnabledForZaaktype ??
+          false
         "
         #smartDocumentsFormRef
       ></smart-documents-form>

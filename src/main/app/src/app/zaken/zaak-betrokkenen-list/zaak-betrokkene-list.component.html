@@ -112,7 +112,7 @@
           [betrokkene]="betrokkene"
           [zaaktypeUuid]="zaak().zaaktype.uuid"
         />
-        @if (zaak().rechten.verwijderenBetrokkene) {
+        @if (zaak().rechten.canVerwijderenBetrokkene) {
           <button
             mat-icon-button
             (click)="deleteBetrokkene(betrokkene)"

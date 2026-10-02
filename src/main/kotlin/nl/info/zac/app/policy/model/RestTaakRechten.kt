@@ -13,15 +13,15 @@ import nl.info.zac.util.NoArgConstructor
 // We should refactor this at some point.
 @NoArgConstructor
 data class RestTaakRechten(
-    val lezen: Boolean,
-    val wijzigen: Boolean,
-    val toekennen: Boolean,
-    val toevoegenDocument: Boolean
+    val canLezen: Boolean,
+    val canWijzigen: Boolean,
+    val canToekennen: Boolean,
+    val canToevoegenDocument: Boolean
 )
 
 fun TaakRechten.toRestTaakRechten() = RestTaakRechten(
-    lezen = this.lezen,
-    wijzigen = this.wijzigen,
-    toekennen = this.toekennen,
-    toevoegenDocument = this.toevoegenDocument
+    canLezen = this.canLezen,
+    canWijzigen = this.canWijzigen,
+    canToekennen = this.canToekennen,
+    canToevoegenDocument = this.canToevoegenDocument
 )

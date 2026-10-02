@@ -69,7 +69,7 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let zaak">
         <a
-          *ngIf="zaak.rechten.lezen"
+          *ngIf="zaak.rechten.canLezen"
           mat-icon-button
           [routerLink]="['/zaken', zaak.identificatie]"
           [id]="'zaakBekijken_' + zaak.uuid + '_button'"

@@ -14,7 +14,7 @@ class KvkSearchParameters {
     var huisnummer: String? = null
 
     @QueryParam("InclusiefInactieveRegistraties")
-    var inclusiefInactieveRegistraties: Boolean? = null
+    var isInclusiefInactieveRegistraties: Boolean? = null
 
     @QueryParam("kvkNummer")
     var kvkNummer: String? = null

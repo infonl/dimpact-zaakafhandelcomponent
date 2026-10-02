@@ -87,7 +87,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeHoofdzaakArchiveTest : BehaviorSpec
                     "zaakUuid":"$hoofdzaakUuid",
                     "planItemInstanceId":"$intakeId",
                     "actie":"$ACTIE_INTAKE_AFRONDEN",
-                    "zaakOntvankelijk":true
+                    "isZaakOntvankelijk":true
                 }
             """.trimIndent(),
             testUser = RECORDMANAGER_1
@@ -130,7 +130,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeHoofdzaakArchiveTest : BehaviorSpec
                     "zaakUuid":"$deelzaakUuid",
                     "planItemInstanceId":"$deelzaakIntakeId",
                     "actie":"$ACTIE_INTAKE_AFRONDEN",
-                    "zaakOntvankelijk":true
+                    "isZaakOntvankelijk":true
                 }
             """.trimIndent(),
             testUser = RECORDMANAGER_1

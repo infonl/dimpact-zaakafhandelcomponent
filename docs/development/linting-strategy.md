@@ -92,6 +92,7 @@ Coding conventions that a linter can check are enforced there rather than only d
 | Acronyms in Kotlin class names: `IOStream`, `XmlFormatter`    | detekt `ClassNaming` (`classPattern`)                            |
 | No `catch (exception: Exception)` in main code                | detekt `TooGenericExceptionCaught` (default)                     |
 | No `requireNotNull` or `runCatching`                          | detekt `ForbiddenMethodCall`                                     |
+| Boolean properties start with is/has/are/can/should           | detekt `BooleanPropertyNaming`                                   |
 | No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |
 | No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
 | Component inputs use `input()`, not the `@Input()` decorator  | ESLint `@angular-eslint/prefer-signals`                          |
@@ -134,6 +135,27 @@ such as a notification handler.
 Instead of `requireNotNull`, make the value non-nullable where it is declared, or handle the
 null case: `?: throw` a specific exception, or `checkNotNull` with a message when null can only
 mean a programming error.
+
+### Boolean property names
+
+detekt `BooleanPropertyNaming` checks the name of every Kotlin boolean property and local variable against
+`^(is|has|are|can|should)`. The rule's default pattern is `^(is|has|are)`; two prefixes are added because the
+code has two kinds of boolean that none of the default prefixes describes:
+
+- `can` for a permission: the `RestXxxRechten` models and the OPA policy outputs hold some forty permissions
+  each named after a Dutch verb, such as `canLezen` and `canToevoegenInitiatorPersoon`. `isLezen` or
+  `hasLezen` would say something else.
+- `should` for an instruction in a request, such as `shouldSendMail` on `RESTTaakStuurGegevens` and
+  `shouldTakenVerlengen` on `RestZaakVerlengGegevens`: the client asks ZAC to do something, it does not
+  describe a state.
+
+The JSON name of a boolean on ZAC's own REST API follows the Kotlin property name, so renaming such a
+property changes the API. JSON-B strips an `is` prefix, so an `is` property carries
+`@get:JsonbProperty`, and `@set:JsonbProperty` when it is also read from a request. Where the JSON name
+is a contract ZAC does not own, the annotation keeps the original name instead: the input of the OPA
+policies, saved searches (`RestZoekParameters` and `FilterParameters` are stored as JSON in
+`Zoekopdracht`) and external clients such as SmartDocuments. JPA entities keep their columns through
+`@Column`.
 
 ## Using Visual Studio Code
 

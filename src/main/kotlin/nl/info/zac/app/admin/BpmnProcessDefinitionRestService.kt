@@ -47,7 +47,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     fun listProcessDefinitions(
         @QueryParam("details") @DefaultValue("false") details: Boolean
     ): List<RestBpmnProcessDefinition> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         if (details) {
             return listProcessDefinitionsWithDetails()
         }
@@ -77,7 +77,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                     it.version,
                     it.key,
                     RestBpmnProcessDefinitionDetails(
-                        inUse = uniqueBpmnProcessDefinitionKeysFromProcessInstances.contains(it.key) ||
+                        isInUse = uniqueBpmnProcessDefinitionKeysFromProcessInstances.contains(it.key) ||
                             uniqueBpmnProcessDefinitionKeysFromConfigurations.contains(it.key),
                         documentation = metadata.documentation,
                         modificationDate = metadata.modificationDate,
@@ -129,13 +129,13 @@ class BpmnProcessDefinitionRestService @Inject constructor(
             RestBpmnProcessDefinitionForm(
                 it.name,
                 it.title,
-                uploaded = true
+                isUploaded = true
             )
         }
 
     @POST
     fun createProcessDefinition(processDefinitionContent: RestProcessDefinitionContent): Response {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         bpmnService.addProcessDefinition(processDefinitionContent.filename, processDefinitionContent.content)
         return Response.created(null).build()
     }
@@ -143,7 +143,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     @DELETE
     @Path("{key}")
     fun deleteProcessDefinition(@PathParam("key") key: String): Response {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         if (bpmnService.isProcessDefinitionInUse(key)) {
             return Response.status(Status.BAD_REQUEST)
                 .entity(mapOf("message" to "BPMN process definition '$key' cannot be deleted as it is in use"))
@@ -157,7 +157,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     @Path("{key}/download")
     @Produces(MediaTypes.MEDIA_TYPE_ZIP)
     fun downloadProcessDefinition(@PathParam("key") key: String): Response {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         val processDefinition = bpmnService.readProcessDefinitionByProcessDefinitionKey(key)
         return Response.ok(bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition))
             .header(
@@ -173,7 +173,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         @PathParam("key") key: String,
         bpmnProcessDefinitionTaskFormContent: BpmnProcessDefinitionTaskFormContent
     ): Response {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         bpmnProcessDefinitionTaskFormService.addForm(
             key,
             bpmnProcessDefinitionTaskFormContent.filename,
@@ -188,7 +188,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         @PathParam("key") key: String,
         @PathParam("name") name: String
     ): Response {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         if (bpmnService.isProcessDefinitionInUse(key) &&
             !isFormOrphaned(key, name)
         ) {

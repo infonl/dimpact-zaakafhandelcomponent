@@ -15,5 +15,5 @@ data class RestInformatieobjectZoekParameters(
     var informatieobjectUUIDs: List<UUID>? = null,
     var zaakUUID: UUID? = null,
     var besluittypeUUID: UUID? = null,
-    var gekoppeldeZaakDocumenten: Boolean = false
+    var shouldIncludeGekoppeldeZaakDocumenten: Boolean = false
 )
