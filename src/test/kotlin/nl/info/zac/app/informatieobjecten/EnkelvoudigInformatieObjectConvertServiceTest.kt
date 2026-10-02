@@ -29,10 +29,10 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
     val officeConverterClientService = mockk<OfficeConverterClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val service = EnkelvoudigInformatieObjectConvertService(
-        drcClientService,
-        officeConverterClientService,
-        enkelvoudigInformatieObjectUpdateService,
-        FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
+        drcClientService = drcClientService,
+        officeConverterClientService = officeConverterClientService,
+        enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
+        fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
     )
 
     afterEach {

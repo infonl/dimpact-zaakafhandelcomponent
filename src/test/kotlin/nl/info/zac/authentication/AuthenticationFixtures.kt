@@ -19,15 +19,15 @@ fun createLoggedInUser(
     brpGemeenten: Map<String, String> = emptyMap(),
     hasReadApplicationRole: Boolean = false
 ) = LoggedInUser(
-    id,
-    firstName,
-    lastName,
-    displayName,
-    email,
-    roles,
-    groups,
-    applicationRolesPerZaaktype,
-    overallRoles,
-    brpGemeenten,
-    hasReadApplicationRole
+    id = id,
+    firstName = firstName,
+    lastName = lastName,
+    displayName = displayName,
+    email = email,
+    roles = roles,
+    groupIds = groups,
+    applicationRolesPerZaaktype = applicationRolesPerZaaktype,
+    overallRoles = overallRoles,
+    brpGemeenten = brpGemeenten,
+    hasReadApplicationRole = hasReadApplicationRole
 )

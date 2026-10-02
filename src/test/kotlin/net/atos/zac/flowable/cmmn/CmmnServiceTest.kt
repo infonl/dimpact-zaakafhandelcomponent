@@ -73,7 +73,12 @@ class CmmnServiceTest : BehaviorSpec({
         every { caseInstanceBuilder.start() } returns caseInstance
 
         `when`("the zaak is started using the CMMN service") {
-            cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, zaakData)
+            cmmnService.startCase(
+                zaak = zaak,
+                zaaktype = zaakType,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                zaakData = zaakData
+            )
 
             then("it is successfully started") {
                 verify(exactly = 1) {

@@ -70,6 +70,7 @@ private data class TestCase(
     val isIndicatiePresentExpected: Boolean
 )
 
+@Suppress("LargeClass")
 class RestZaakConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -234,7 +235,14 @@ class RestZaakConverterTest : BehaviorSpec({
         every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
+            val restZaak = restZaakConverter.toRestZaak(
+                zaak = zaak,
+                zaakType = zaakType,
+                zaakRechten = zaakRechten,
+                loggedInUser = loggedInUser,
+                status = status,
+                statustype = statusType
+            )
 
             then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -300,7 +308,14 @@ class RestZaakConverterTest : BehaviorSpec({
         every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
+            val restZaak = restZaakConverter.toRestZaak(
+                zaak = zaak,
+                zaakType = zaakType,
+                zaakRechten = zaakRechten,
+                loggedInUser = loggedInUser,
+                status = status,
+                statustype = statusType
+            )
 
             then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -529,7 +544,14 @@ class RestZaakConverterTest : BehaviorSpec({
 
         `when`("converting a zaak with the 'Intake' status") {
             val statusType = createStatusType().apply { omschrijving = STATUSTYPE_OMSCHRIJVING_INTAKE }
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
+            val restZaak = restZaakConverter.toRestZaak(
+                zaak = zaak,
+                zaakType = zaakType,
+                zaakRechten = zaakRechten,
+                loggedInUser = loggedInUser,
+                status = status,
+                statustype = statusType
+            )
 
             then("isInIntakeFase should be true") {
                 restZaak.isInIntakeFase shouldBe true
@@ -540,7 +562,14 @@ class RestZaakConverterTest : BehaviorSpec({
             val statusType = createStatusType().apply {
                 omschrijving = STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
             }
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
+            val restZaak = restZaakConverter.toRestZaak(
+                zaak = zaak,
+                zaakType = zaakType,
+                zaakRechten = zaakRechten,
+                loggedInUser = loggedInUser,
+                status = status,
+                statustype = statusType
+            )
 
             then("isInIntakeFase should be true") {
                 restZaak.isInIntakeFase shouldBe true
@@ -579,7 +608,12 @@ class RestZaakConverterTest : BehaviorSpec({
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every {
-            restGerelateerdeZaakConverter.convert(zaak, zaakRechten, gerelateerdeZaakItem, loggedInUser)
+            restGerelateerdeZaakConverter.convert(
+                fromZaak = zaak,
+                fromZaakRechten = zaakRechten,
+                gerelateerdeZaak = gerelateerdeZaakItem,
+                loggedInUser = loggedInUser
+            )
         } returns restGerelateerdeZaak
         every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
