@@ -24,6 +24,7 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplate
@@ -398,7 +399,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { zaaktypeConfigurationService.readZaaktypeConfiguration(unknownUUID) } returns null
 
         `when`("store templates mapping is called") {
-            val exception = shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<ZaaktypeConfigurationNotFoundException> {
                 smartDocumentsTemplatesService.storeTemplatesMapping(emptySet(), unknownUUID)
             }
 

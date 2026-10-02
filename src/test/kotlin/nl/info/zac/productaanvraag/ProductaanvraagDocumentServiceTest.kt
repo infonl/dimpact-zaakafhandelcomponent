@@ -12,6 +12,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -82,7 +83,7 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
 
             every {
                 drcClientService.readEnkelvoudigInformatieobject(failingBijlageURI)
-            } throws RuntimeException("fakeException")
+            } throws DrcRuntimeException("fakeException")
             every {
                 drcClientService.readEnkelvoudigInformatieobject(successBijlageURI)
             } returns enkelvoudigInformatieobject

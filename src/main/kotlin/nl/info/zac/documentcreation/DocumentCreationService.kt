@@ -34,7 +34,6 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import java.util.logging.Level
 import java.util.logging.Logger
 
 @NoArgConstructor
@@ -96,25 +95,26 @@ class DocumentCreationService @Inject constructor(
     @Suppress("MaxLineLength")
     fun createDocumentAttended(
         documentCreationDataAttended: DocumentCreationDataAttended
-    ): DocumentCreationAttendedResponse =
-        documentCreationDataService.createData(
+    ): DocumentCreationAttendedResponse {
+        val data = documentCreationDataService.createData(
             loggedInUser = loggedInUserInstance.get(),
             zaak = documentCreationDataAttended.zaak,
             taskId = documentCreationDataAttended.taskId
-        ).runCatching {
-            createDocumentForAttendedFlow(documentCreationDataAttended).let {
-                smartDocumentsService.createDocumentAttended(
-                    data = this,
-                    smartDocument = it
-                )
+        )
+        var isCreated = false
+        try {
+            return smartDocumentsService.createDocumentAttended(
+                data = data,
+                smartDocument = createDocumentForAttendedFlow(documentCreationDataAttended)
+            ).also { isCreated = true }
+        } finally {
+            if (!isCreated) {
+                LOG.warning {
+                    "Failed to create SmartDocument for zaak with uuid: '${documentCreationDataAttended.zaak.uuid}' using attended flow"
+                }
             }
-        }.onFailure {
-            LOG.log(
-                Level.WARNING,
-                "Failed to create SmartDocument for zaak with uuid: '${documentCreationDataAttended.zaak.uuid}' using attended flow",
-                it
-            )
-        }.getOrThrow()
+        }
+    }
 
     fun getInformationObjecttypeUuid(zaak: Zaak, templateGroupId: String, templateId: String) =
         smartDocumentsTemplatesService.getInformationObjectTypeUUID(

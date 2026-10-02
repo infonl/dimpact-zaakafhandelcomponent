@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.history.converter
@@ -9,10 +9,11 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.zgw.shared.model.Bron
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.shared.model.Bron
 import nl.info.client.zgw.shared.model.audit.createZRCAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.zrc.model.generated.Wijzigingen
 import nl.info.zac.history.model.HistoryAction
 import java.math.BigDecimal
@@ -468,7 +469,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
     given("Audit trail has a partial_update where a gerelateerde zaak can no longer be resolved") {
         val gerelateerdeZaakUri = URI("https://example.com/zaken/${UUID.randomUUID()}")
-        every { zrcClientService.readZaak(gerelateerdeZaakUri) } throws RuntimeException("fakeException")
+        every { zrcClientService.readZaak(gerelateerdeZaakUri) } throws ZrcRuntimeException("fakeException")
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.ZAKEN_API,
             actie = "partial_update",

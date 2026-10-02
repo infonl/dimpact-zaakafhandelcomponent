@@ -8,6 +8,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
@@ -16,7 +18,13 @@ import net.atos.zac.util.JsonbUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.objects.model.generated.ModelObject
+import nl.info.client.or.shared.exception.ORErrorException
+import nl.info.client.or.shared.exception.ORRuntimeException
+import nl.info.client.or.shared.exception.ORValidationErrorException
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -96,23 +104,42 @@ class ProductaanvraagService @Inject constructor(
             return
         }
         runAsLoggedInUser(PRODUCTAANVRAAG_GEBRUIKER) {
-            productaanvraagObjectUUID
-                .runCatching(objectsClientService::readObject)
-                .onFailure { LOG.warning("Unable to read object with UUID: $productaanvraagObjectUUID") }
-                .onSuccess { modelObject ->
-                    modelObject
-                        .takeIf(::isProductaanvraagDimpact)
-                        ?.runCatching {
-                            LOG.info("Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
-                            handleProductaanvraagDimpact(this)
-                        }?.onFailure {
-                            LOG.log(
-                                Level.WARNING,
-                                "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
-                                it
-                            )
-                        }
-                }
+            readProductaanvraagObject(productaanvraagObjectUUID)
+                ?.takeIf(::isProductaanvraagDimpact)
+                ?.let { handleProductaanvraagDimpactWithoutFailing(productaanvraagObjectUUID, it) }
+        }
+    }
+
+    private fun readProductaanvraagObject(productaanvraagObjectUUID: UUID): ModelObject? =
+        try {
+            objectsClientService.readObject(productaanvraagObjectUUID)
+        } catch (orErrorException: ORErrorException) {
+            logUnreadableProductaanvraagObject(productaanvraagObjectUUID, orErrorException)
+        } catch (orValidationErrorException: ORValidationErrorException) {
+            logUnreadableProductaanvraagObject(productaanvraagObjectUUID, orValidationErrorException)
+        } catch (orRuntimeException: ORRuntimeException) {
+            logUnreadableProductaanvraagObject(productaanvraagObjectUUID, orRuntimeException)
+        } catch (webApplicationException: WebApplicationException) {
+            logUnreadableProductaanvraagObject(productaanvraagObjectUUID, webApplicationException)
+        } catch (processingException: ProcessingException) {
+            logUnreadableProductaanvraagObject(productaanvraagObjectUUID, processingException)
+        }
+
+    private fun logUnreadableProductaanvraagObject(productaanvraagObjectUUID: UUID, exception: RuntimeException): Nothing? {
+        LOG.log(Level.WARNING, "Unable to read object with UUID: $productaanvraagObjectUUID", exception)
+        return null
+    }
+
+    private fun handleProductaanvraagDimpactWithoutFailing(productaanvraagObjectUUID: UUID, productaanvraagObject: ModelObject) {
+        LOG.info("Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
+        try {
+            handleProductaanvraagDimpact(productaanvraagObject)
+        } catch (@Suppress("TooGenericExceptionCaught") runtimeException: RuntimeException) {
+            LOG.log(
+                Level.WARNING,
+                "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
+                runtimeException
+            )
         }
     }
 
@@ -275,19 +302,31 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
-        productaanvraagDimpact.runCatching {
-            productaanvraagDocumentService.pairAanvraagPDFWithZaak(this, zaak.url)
-        }.onFailure {
-            LOG.log(
-                Level.WARNING,
-                "Failed to pair aanvraag PDF `${productaanvraagDimpact.pdf}` with zaak '${zaak.identificatie}'",
-                it
-            )
+        try {
+            productaanvraagDocumentService.pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url)
+        } catch (zgwRuntimeException: ZgwRuntimeException) {
+            logAanvraagPdfPairingFailure(productaanvraagDimpact, zaak, zgwRuntimeException)
+        } catch (zgwErrorException: ZgwErrorException) {
+            logAanvraagPdfPairingFailure(productaanvraagDimpact, zaak, zgwErrorException)
+        } catch (zgwValidationErrorException: ZgwValidationErrorException) {
+            logAanvraagPdfPairingFailure(productaanvraagDimpact, zaak, zgwValidationErrorException)
+        } catch (processingException: ProcessingException) {
+            logAanvraagPdfPairingFailure(productaanvraagDimpact, zaak, processingException)
         }
         productaanvraagDimpact.bijlagen?.let {
             productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(bijlageURIs = it, zaakUrl = zaak.url)
         }
     }
+
+    private fun logAanvraagPdfPairingFailure(
+        productaanvraagDimpact: ProductaanvraagDimpact,
+        zaak: Zaak,
+        exception: RuntimeException
+    ) = LOG.log(
+        Level.WARNING,
+        "Failed to pair aanvraag PDF `${productaanvraagDimpact.pdf}` with zaak '${zaak.identificatie}'",
+        exception
+    )
 
     private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ModelObject) {
         val inboxProductaanvraag = InboxProductaanvraag().apply {

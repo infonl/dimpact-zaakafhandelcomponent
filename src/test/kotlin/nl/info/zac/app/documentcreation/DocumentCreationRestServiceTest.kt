@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpSession
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.smartdocuments.model.createFile
+import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
@@ -41,10 +42,10 @@ import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputForma
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
-import java.util.logging.Logger
-import java.util.logging.LogRecord
-import java.util.logging.Level
 import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
     val documentCreationService = mockk<DocumentCreationService>()
@@ -373,7 +374,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         } returns informatieobjecttypeUuid
         every {
             documentCreationService.storeDownloadedDocument(any(), any(), any(), any(), any(), any(), any(), any())
-        } throws IllegalStateException("fakeStoreFailure")
+        } throws DrcRuntimeException("fakeStoreFailure")
         every {
             documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), any())
         } returns URI("https://example.com/finish")
