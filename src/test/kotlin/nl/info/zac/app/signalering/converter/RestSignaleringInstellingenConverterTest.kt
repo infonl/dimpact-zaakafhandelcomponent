@@ -42,13 +42,13 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 val result = restSignaleringInstellingenConverter.convert(instellingen)
 
                 then("dashboard is populated because type supports dashboard and owner is USER") {
-                    result.dashboard shouldNotBe null
-                    result.dashboard shouldBe true
+                    result.isDashboardEnabled shouldNotBe null
+                    result.isDashboardEnabled shouldBe true
                 }
 
                 then("mail is populated because type supports mail") {
-                    result.mail shouldNotBe null
-                    result.mail shouldBe true
+                    result.isMailEnabled shouldNotBe null
+                    result.isMailEnabled shouldBe true
                 }
             }
         }
@@ -66,11 +66,11 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 val result = restSignaleringInstellingenConverter.convert(instellingen)
 
                 then("dashboard is null because owner is GROUP") {
-                    result.dashboard shouldBe null
+                    result.isDashboardEnabled shouldBe null
                 }
 
                 then("mail is still populated") {
-                    result.mail shouldBe true
+                    result.isMailEnabled shouldBe true
                 }
             }
         }
@@ -88,7 +88,7 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 val result = restSignaleringInstellingenConverter.convert(instellingen)
 
                 then("dashboard is null because type does not support dashboard") {
-                    result.dashboard shouldBe null
+                    result.isDashboardEnabled shouldBe null
                 }
             }
         }

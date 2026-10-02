@@ -22,20 +22,20 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             }
 
         `when`("no file content provided") {
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+            val isValid = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             then("it detects it as invalid") {
-                result shouldBe false
+                isValid shouldBe false
             }
         }
 
         `when`("file content is provided") {
             restEnkelvoudigInformatieobject.file = "fake content".byteInputStream()
 
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+            val isValid = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             then("it detects it as valid") {
-                result shouldBe true
+                isValid shouldBe true
             }
         }
     }
@@ -49,10 +49,10 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             }
 
         `when`("validated") {
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+            val isValid = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             then("it is rejected because the allowlist can only be applied with a bestandsnaam") {
-                result shouldBe false
+                isValid shouldBe false
             }
         }
     }
@@ -66,10 +66,10 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             }
 
         `when`("validated") {
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+            val isValid = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             then("it is rejected") {
-                result shouldBe false
+                isValid shouldBe false
             }
         }
     }
@@ -78,10 +78,10 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
 
         `when`("validated") {
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+            val isValid = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             then("it is accepted because no upload is happening") {
-                result shouldBe true
+                isValid shouldBe true
             }
         }
     }
@@ -95,10 +95,10 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             }
 
         `when`("validated") {
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+            val isValid = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             then("it is rejected") {
-                result shouldBe false
+                isValid shouldBe false
             }
         }
     }
@@ -112,10 +112,10 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             }
 
         `when`("validated") {
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+            val isValid = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             then("it is accepted because only the extension is validated; the media type is OS-dependent") {
-                result shouldBe true
+                isValid shouldBe true
             }
         }
     }
@@ -129,10 +129,10 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             }
 
         `when`("validated") {
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+            val isValid = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             then("it is accepted because the extension check is the security gate") {
-                result shouldBe true
+                isValid shouldBe true
             }
         }
     }

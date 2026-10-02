@@ -587,15 +587,15 @@ class ReindexSupportServiceTest : BehaviorSpec({
             val reindexSupportService = setupContext().reindexSupportService
 
             `when`("a conversion runs on the page conversion dispatcher") {
-                var wasSystemUserDuringConversion: Boolean? = null
+                var isSystemUserDuringConversion: Boolean? = null
                 runAsSystemUser {
                     reindexSupportService.runConcurrentPageConversions(listOf("fakeItem")) {
-                        wasSystemUserDuringConversion = LoggedInUserProvider.systemUser.get()
+                        isSystemUserDuringConversion = LoggedInUserProvider.systemUser.get()
                     }
                 }
 
                 then("the conversion runs as the system user too, not on an unattributed worker thread") {
-                    wasSystemUserDuringConversion shouldBe true
+                    isSystemUserDuringConversion shouldBe true
                 }
             }
         }

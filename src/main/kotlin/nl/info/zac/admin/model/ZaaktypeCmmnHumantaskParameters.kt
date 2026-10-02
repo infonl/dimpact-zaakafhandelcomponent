@@ -48,7 +48,7 @@ class ZaaktypeCmmnHumantaskParameters :
     var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null
 
     @Column(name = "actief")
-    var actief: Boolean = false
+    var isActief: Boolean = false
 
     @Column(name = "id_formulier_definition")
     private var formulierDefinitieID: String? = null
@@ -97,7 +97,7 @@ class ZaaktypeCmmnHumantaskParameters :
 
     override fun equals(other: Any?): Boolean {
         if (other !is ZaaktypeCmmnHumantaskParameters) return false
-        return actief == other.actief &&
+        return isActief == other.isActief &&
             Objects.equals(formulierDefinitieID, other.formulierDefinitieID) &&
             Objects.equals(planItemDefinitionID, other.planItemDefinitionID) &&
             Objects.equals(groepID, other.groepID) &&
@@ -106,12 +106,12 @@ class ZaaktypeCmmnHumantaskParameters :
     }
 
     override fun hashCode(): Int =
-        Objects.hash(actief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd, referentieTabellen)
+        Objects.hash(isActief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd, referentieTabellen)
 
     override fun isModifiedFrom(original: ZaaktypeCmmnHumantaskParameters): Boolean {
         return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
             (
-                actief != original.actief ||
+                isActief != original.isActief ||
                     !Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
                     !Objects.equals(original.groepID, groepID) ||
                     !Objects.equals(original.doorlooptijd, doorlooptijd) ||
@@ -120,7 +120,7 @@ class ZaaktypeCmmnHumantaskParameters :
     }
 
     override fun applyChanges(changes: ZaaktypeCmmnHumantaskParameters) {
-        actief = changes.actief
+        isActief = changes.isActief
         formulierDefinitieID = changes.formulierDefinitieID
         groepID = changes.groepID
         doorlooptijd = changes.doorlooptijd

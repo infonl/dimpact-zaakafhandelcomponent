@@ -16,11 +16,11 @@ class ReferenceTableValueTest : BehaviorSpec({
         val referenceTableValue2 = createReferenceTableValue()
 
         `when`("The values of the two objects are compared") {
-            val transitiveEqualityResult = referenceTableValue1 == referenceTableValue2 &&
+            val isTransitivelyEqual = referenceTableValue1 == referenceTableValue2 &&
                 referenceTableValue2 == referenceTableValue1
 
             then("The objects should be equal") {
-                transitiveEqualityResult shouldBe true
+                isTransitivelyEqual shouldBe true
             }
         }
     }
@@ -30,10 +30,10 @@ class ReferenceTableValueTest : BehaviorSpec({
         val referenceTableValue2 = createReferenceTableValue(sortOrder = 100)
 
         `when`("The values of the two objects are compared") {
-            val equalityResult = referenceTableValue1 == referenceTableValue2
+            val isEqual = referenceTableValue1 == referenceTableValue2
 
             then("The objects should not be equal") {
-                equalityResult shouldBe false
+                isEqual shouldBe false
             }
         }
     }

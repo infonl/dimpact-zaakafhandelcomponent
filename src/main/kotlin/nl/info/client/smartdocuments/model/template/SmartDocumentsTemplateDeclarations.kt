@@ -4,6 +4,7 @@
  */
 package nl.info.client.smartdocuments.model.template
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
@@ -21,23 +22,31 @@ data class SmartDocumentsResponseDocumentsStructure(
 @NoArgConstructor
 data class SmartDocumentsResponseTemplatesStructure(
     var templateGroups: List<SmartDocumentsResponseTemplateGroup>,
-    var accessible: Boolean
+    @get:JsonbProperty("accessible")
+    @set:JsonbProperty("accessible")
+    var isAccessible: Boolean
 )
 
 @NoArgConstructor
 data class SmartDocumentsResponseTemplateGroup(
     var id: String,
     var name: String,
-    var allDescendants: Boolean,
+    @get:JsonbProperty("allDescendants")
+    @set:JsonbProperty("allDescendants")
+    var hasAllDescendants: Boolean,
     var templateGroups: List<SmartDocumentsResponseTemplateGroup>?,
     var templates: List<SmartDocumentsResponseTemplate>?,
-    var accessible: Boolean?
+    @get:JsonbProperty("accessible")
+    @set:JsonbProperty("accessible")
+    var isAccessible: Boolean?
 )
 
 @NoArgConstructor
 data class SmartDocumentsResponseHeadersStructure(
     var headerGroups: List<HeaderGroup>,
-    var accessible: Boolean
+    @get:JsonbProperty("accessible")
+    @set:JsonbProperty("accessible")
+    var isAccessible: Boolean
 )
 
 class HeaderGroup
@@ -52,7 +61,9 @@ data class SmartDocumentsResponseGroupsAccess(
 data class SmartDocumentsResponseTemplate(
     var id: String,
     var name: String,
-    var favorite: Boolean
+    @get:JsonbProperty("favorite")
+    @set:JsonbProperty("favorite")
+    var isFavorite: Boolean
 )
 
 @NoArgConstructor
@@ -68,12 +79,16 @@ data class SmartDocumentsResponseUserGroup(
     var groupsAccess: SmartDocumentsResponseGroupsAccess,
     var userGroups: List<SmartDocumentsResponseUserGroup>,
     var users: List<User>,
-    var accessible: Boolean
+    @get:JsonbProperty("accessible")
+    @set:JsonbProperty("accessible")
+    var isAccessible: Boolean
 )
 
 @NoArgConstructor
 data class SmartDocumentsResponseUsersStructure(
     var groupsAccess: SmartDocumentsResponseGroupsAccess,
     var userGroups: List<SmartDocumentsResponseUserGroup>,
-    var accessible: Boolean
+    @get:JsonbProperty("accessible")
+    @set:JsonbProperty("accessible")
+    var isAccessible: Boolean
 )

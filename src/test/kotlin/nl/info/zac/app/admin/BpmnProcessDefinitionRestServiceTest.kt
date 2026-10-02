@@ -88,7 +88,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             version = processDefinition1.version,
             key = processDefinition1.key,
             details = RestBpmnProcessDefinitionDetails(
-                inUse = true,
+                isInUse = true,
                 documentation = processDefinition1Metadata.documentation,
                 modificationDate = processDefinition1Metadata.modificationDate,
                 uploadDate = processDefinition1Metadata.uploadDate,
@@ -96,9 +96,9 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     RestBpmnProcessDefinitionForm(
                         formKey = "form1",
                         title = "fakeTitle",
-                        uploaded = true
+                        isUploaded = true
                     ),
-                    RestBpmnProcessDefinitionForm(formKey = "form2", title = "fakeTitle", uploaded = true)
+                    RestBpmnProcessDefinitionForm(formKey = "form2", title = "fakeTitle", isUploaded = true)
                 ),
                 orphanedForms = emptyList()
             )
@@ -109,7 +109,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             version = processDefinition2.version,
             key = processDefinition2.key,
             details = RestBpmnProcessDefinitionDetails(
-                inUse = true,
+                isInUse = true,
                 documentation = processDefinition2Metadata.documentation,
                 modificationDate = processDefinition2Metadata.modificationDate,
                 uploadDate = processDefinition2Metadata.uploadDate,
@@ -117,14 +117,14 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     RestBpmnProcessDefinitionForm(
                         formKey = "form3",
                         title = "fakeTitle",
-                        uploaded = true
+                        isUploaded = true
                     )
                 ),
                 orphanedForms = listOf(
                     RestBpmnProcessDefinitionForm(
                         formKey = "form4",
                         title = "fakeTitle",
-                        uploaded = true
+                        isUploaded = true
                     )
                 )
             )
@@ -211,7 +211,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
 
             then("it should return the process definition with inUse as false") {
                 result.size shouldBe 1
-                result[0].details?.inUse shouldBe false
+                result[0].details?.isInUse shouldBe false
             }
         }
     }

@@ -201,8 +201,8 @@ fun createNotitieRechten(
     lezen: Boolean = true,
     wijzigen: Boolean = true
 ) = NotitieRechten(
-    lezen = lezen,
-    wijzigen = wijzigen
+    canLezen = lezen,
+    canWijzigen = wijzigen
 )
 
 fun createOverigeRechtenAllDeny(
@@ -216,5 +216,5 @@ fun createOverigeRechtenAllDeny(
 )
 
 fun createBrpRechten(zoeken: Boolean = true) = BrpRechten(
-    zoeken = zoeken
+    canZoeken = zoeken
 )

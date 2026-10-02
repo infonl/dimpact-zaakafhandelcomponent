@@ -22,10 +22,10 @@ class RestSignaleringInstellingenConverter @Inject constructor(
             subjecttype = instellingen.type.subjecttype
         ).apply {
             if (instellingen.type.type.isDashboard && instellingen.ownerType != SignaleringTarget.GROUP) {
-                dashboard = instellingen.isDashboard
+                isDashboardEnabled = instellingen.isDashboard
             }
             if (instellingen.type.type.isMail) {
-                mail = instellingen.isMail
+                isMailEnabled = instellingen.isMail
             }
             return this
         }
@@ -37,12 +37,12 @@ class RestSignaleringInstellingenConverter @Inject constructor(
     fun convert(restInstellingen: RestSignaleringInstellingen, group: Group): SignaleringInstellingen =
         signaleringService.readInstellingenGroup(restInstellingen.type, group.name).apply {
             isDashboard = false
-            isMail = this.type.type.isMail && restInstellingen.mail == true
+            isMail = this.type.type.isMail && restInstellingen.isMailEnabled == true
         }
 
     fun convert(restInstellingen: RestSignaleringInstellingen, user: User): SignaleringInstellingen =
         signaleringService.readInstellingenUser(restInstellingen.type, user.id).apply {
-            isDashboard = this.type.type.isDashboard && restInstellingen.dashboard == true
-            isMail = this.type.type.isMail && restInstellingen.mail == true
+            isDashboard = this.type.type.isDashboard && restInstellingen.isDashboardEnabled == true
+            isMail = this.type.type.isMail && restInstellingen.isMailEnabled == true
         }
 }

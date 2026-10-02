@@ -34,7 +34,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
         val loggedInUser = flowableHelper.loggedInUserInstance.get()
         assertPolicy(
-            flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).hervatten,
+            flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canHervatten,
             LOG,
             "User ${loggedInUser.id} not allowed to resume zaak ${zaak.identificatie}"
         )

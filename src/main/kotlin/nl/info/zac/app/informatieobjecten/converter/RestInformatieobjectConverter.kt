@@ -102,7 +102,7 @@ class RestInformatieobjectConverter @Inject constructor(
             rechten = rechten.toRestDocumentRechten(),
             isBesluitDocument = isBesluitDocument
         )
-        if (rechten.lezen) {
+        if (rechten.canLezen) {
             convertEnkelvoudigInformatieObject(
                 enkelvoudigInformatieObject = enkelvoudigInformatieObject,
                 lock = lock,
@@ -329,7 +329,7 @@ class RestInformatieobjectConverter @Inject constructor(
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.identificatie
         restEnkelvoudigInformatieobject.rechten = documentRechten.toRestDocumentRechten()
-        if (documentRechten.lezen) {
+        if (documentRechten.canLezen) {
             convertEnkelvoudigInformatieObject(
                 enkelvoudigInformatieObject = enkelvoudigInformatieObject,
                 lock = lock,

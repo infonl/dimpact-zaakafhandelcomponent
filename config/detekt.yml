@@ -15,6 +15,9 @@ comments:
     licenseTemplate: '/\*[ *\n]*SPDX-FileCopyrightText: [^\n]+\n[ *]*SPDX-License-Identifier: EUPL-1\.2\+[ *\n]*\*/'
     licenseTemplateIsRegex: true
 naming:
+  BooleanPropertyNaming:
+    active: true
+    allowedPattern: '^(is|has|are|can|should)'
   ClassNaming:
     # rejects all-caps acronyms of three or more letters (RESTZaak, ZAC); a regex cannot see where an acronym ends,
     # so a wrongly cased two-letter acronym (IoStream) or a lowercase word after an acronym (XMLformatter) still passes

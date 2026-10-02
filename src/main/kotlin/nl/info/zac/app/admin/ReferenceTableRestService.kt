@@ -53,14 +53,14 @@ class ReferenceTableRestService @Inject constructor(
 ) {
     @GET
     fun listReferenceTables(): List<RestReferenceTable> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         return referenceTableService.listReferenceTables()
             .map { it.toRestReferenceTable(false) }
     }
 
     @POST
     fun createReferenceTable(@Valid restReferenceTable: RestReferenceTable): RestReferenceTable {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         return referenceTableAdminService.createReferenceTable(
             restReferenceTable.toReferenceTable()
         ).toRestReferenceTable(
@@ -71,7 +71,7 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("{id}")
     fun readReferenceTableById(@PathParam("id") id: Long): RestReferenceTable {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         return referenceTableService.readReferenceTable(id).toRestReferenceTable(
             true
         )
@@ -92,7 +92,7 @@ class ReferenceTableRestService @Inject constructor(
         @PathParam("id") id: Long,
         @Valid restReferenceTableUpdate: RestReferenceTableUpdate
     ): RestReferenceTable {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         return referenceTableService.readReferenceTable(id).let { existingReferenceTable ->
             val systemValueNames = existingReferenceTable.values.filter { it.isSystemValue }.map { it.name }
             existingReferenceTable.updateExistingReferenceTable(
@@ -112,14 +112,14 @@ class ReferenceTableRestService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteReferenceTable(@PathParam("id") id: Long) {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         referenceTableAdminService.deleteReferenceTable(id)
     }
 
     @GET
     @Path("afzender")
     fun listEmailSenders(): List<String> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         return referenceTableService.readSystemReferenceTable(AFZENDER).values.let {
             getReferenceTableValueNames(it)
         }

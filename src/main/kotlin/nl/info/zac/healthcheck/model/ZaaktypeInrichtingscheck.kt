@@ -13,7 +13,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
  * Informatieobjecttype: e-mail
  * indien zaak besluit heeft, Besluittype
  *
- * [isValide] covers what a zaaktype needs to be usable at all; [heeftWaarschuwingen] covers configuration
+ * [isValide] covers what a zaaktype needs to be usable at all; [hasWaarschuwingen] covers configuration
  * mistakes that only disable an optional feature.
  */
 class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
@@ -50,7 +50,7 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
     /**
      * Configuration mistakes that do not stop the zaaktype from being used, unlike [isValide].
      */
-    val heeftWaarschuwingen: Boolean
+    val hasWaarschuwingen: Boolean
         get() = isZaakspecifiekeAutorisatieOnvolledig
 
     val isValide: Boolean

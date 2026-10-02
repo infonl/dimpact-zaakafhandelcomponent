@@ -7,19 +7,19 @@ package nl.info.zac.app.policy.model
 import nl.info.zac.policy.output.WerklijstRechten
 
 data class RestWerklijstRechten(
-    val inbox: Boolean,
-    val ontkoppeldeDocumentenVerwijderen: Boolean,
-    val inboxProductaanvragenVerwijderen: Boolean,
-    val zakenTaken: Boolean,
-    val zakenTakenVerdelen: Boolean,
-    val zakenTakenExporteren: Boolean
+    val canInbox: Boolean,
+    val canOntkoppeldeDocumentenVerwijderen: Boolean,
+    val canInboxProductaanvragenVerwijderen: Boolean,
+    val canZakenTaken: Boolean,
+    val canZakenTakenVerdelen: Boolean,
+    val canZakenTakenExporteren: Boolean
 )
 
 fun WerklijstRechten.toRestWerklijstRechten() = RestWerklijstRechten(
-    inbox = this.inbox,
-    ontkoppeldeDocumentenVerwijderen = this.ontkoppeldeDocumentenVerwijderen,
-    inboxProductaanvragenVerwijderen = this.inboxProductaanvragenVerwijderen,
-    zakenTaken = this.zakenTaken,
-    zakenTakenVerdelen = this.zakenTakenVerdelen,
-    zakenTakenExporteren = this.zakenTakenExporteren
+    canInbox = this.canInbox,
+    canOntkoppeldeDocumentenVerwijderen = this.canOntkoppeldeDocumentenVerwijderen,
+    canInboxProductaanvragenVerwijderen = this.canInboxProductaanvragenVerwijderen,
+    canZakenTaken = this.canZakenTaken,
+    canZakenTakenVerdelen = this.canZakenTakenVerdelen,
+    canZakenTakenExporteren = this.canZakenTakenExporteren
 )

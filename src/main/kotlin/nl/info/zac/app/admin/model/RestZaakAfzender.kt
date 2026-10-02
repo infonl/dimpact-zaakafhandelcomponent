@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.admin.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -17,33 +18,39 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 data class RestZaakAfzender(
     var id: Long? = null,
-    var defaultMail: Boolean = false,
+
+    @get:JsonbProperty("isDefaultMail")
+    @set:JsonbProperty("isDefaultMail")
+    var isDefaultMail: Boolean = false,
     // should be non-nullable but for now leave it nullable because making
     // any of these field non-nullable currently breaks the ZAC frontend code build ('Conversion of type' errors)
     var mail: String? = null,
     var suffix: String? = null,
     var replyTo: String? = null,
-    var speciaal: Boolean = false
+
+    @get:JsonbProperty("isSpeciaal")
+    @set:JsonbProperty("isSpeciaal")
+    var isSpeciaal: Boolean = false
 )
 
 fun RestZaakAfzender.toZaakAfzender() = ZaaktypeCmmnZaakafzenderParameters().apply {
     id = this@toZaakAfzender.id
-    defaultMail = this@toZaakAfzender.defaultMail
+    isDefaultMail = this@toZaakAfzender.isDefaultMail
     this@toZaakAfzender.mail?.let { mail = it }
     this@toZaakAfzender.replyTo?.let { replyTo = it }
 }
 
 fun ZaaktypeCmmnZaakafzenderParameters.toRestZaakAfzender() = RestZaakAfzender(
     id = this@toRestZaakAfzender.id,
-    defaultMail = this@toRestZaakAfzender.defaultMail,
+    isDefaultMail = this@toRestZaakAfzender.isDefaultMail,
     mail = this@toRestZaakAfzender.mail,
     replyTo = this@toRestZaakAfzender.replyTo,
-    speciaal = ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries.any { it.name(this@toRestZaakAfzender.mail) },
+    isSpeciaal = ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries.any { it.name(this@toRestZaakAfzender.mail) },
     suffix = null
 )
 
 fun List<RestZaakAfzender>.toZaakAfzenders(): List<ZaaktypeCmmnZaakafzenderParameters> =
-    this@toZaakAfzenders.filter { !it.speciaal || it.defaultMail || it.replyTo != null }
+    this@toZaakAfzenders.filter { !it.isSpeciaal || it.isDefaultMail || it.replyTo != null }
         .map { it.toZaakAfzender() }
 
 fun Set<ZaaktypeCmmnZaakafzenderParameters>.toRestZaakAfzenders(): List<RestZaakAfzender> {
@@ -54,7 +61,7 @@ fun Set<ZaaktypeCmmnZaakafzenderParameters>.toRestZaakAfzenders(): List<RestZaak
             restZaakAfzenders.add(
                 RestZaakAfzender(
                     mail = speciaal.name,
-                    speciaal = true,
+                    isSpeciaal = true,
                 )
             )
         }

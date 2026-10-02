@@ -147,7 +147,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         try {
             val task = flowableTaskService.findOpenTask(taskId)
                 ?: throw TaskNotFoundException("No open task found with task id: '$taskId'")
-            assertPolicy(skipPolicyCheck || policyService.readTaakRechten(task).toevoegenDocument)
+            assertPolicy(skipPolicyCheck || policyService.readTaakRechten(task).canToevoegenDocument)
 
             mutableListOf<UUID>().apply {
                 addAll(readTaskDocuments(task))

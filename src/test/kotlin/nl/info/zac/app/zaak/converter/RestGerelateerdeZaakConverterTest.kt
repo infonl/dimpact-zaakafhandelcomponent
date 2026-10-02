@@ -86,7 +86,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is true") {
-                    result.ontkoppelen shouldBe true
+                    result.canOntkoppelen shouldBe true
                 }
             }
         }
@@ -108,7 +108,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is false") {
-                    result.ontkoppelen shouldBe false
+                    result.canOntkoppelen shouldBe false
                 }
             }
         }
@@ -130,7 +130,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is false") {
-                    result.ontkoppelen shouldBe false
+                    result.canOntkoppelen shouldBe false
                 }
             }
         }
@@ -152,7 +152,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is true") {
-                    result.ontkoppelen shouldBe true
+                    result.canOntkoppelen shouldBe true
                 }
             }
         }
@@ -174,7 +174,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is false") {
-                    result.ontkoppelen shouldBe false
+                    result.canOntkoppelen shouldBe false
                 }
             }
         }
@@ -196,7 +196,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is false") {
-                    result.ontkoppelen shouldBe false
+                    result.canOntkoppelen shouldBe false
                 }
             }
         }
@@ -218,7 +218,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is false") {
-                    result.ontkoppelen shouldBe false
+                    result.canOntkoppelen shouldBe false
                 }
             }
         }
@@ -240,7 +240,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is true") {
-                    result.ontkoppelen shouldBe true
+                    result.canOntkoppelen shouldBe true
                 }
             }
         }
@@ -262,7 +262,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is true") {
-                    result.ontkoppelen shouldBe true
+                    result.canOntkoppelen shouldBe true
                 }
             }
         }
@@ -284,7 +284,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 )
 
                 then("ontkoppelen is false") {
-                    result.ontkoppelen shouldBe false
+                    result.canOntkoppelen shouldBe false
                 }
             }
         }

@@ -19,6 +19,6 @@ fun createZaakLinkData(
     isHoofdzaak = isHoofdzaak,
     isDeelzaak = isDeelzaak,
     zaaktypeUUID = zaaktypeUUID,
-    lezen = lezen,
-    koppelen = koppelen
+    canLezen = lezen,
+    canKoppelen = koppelen
 )

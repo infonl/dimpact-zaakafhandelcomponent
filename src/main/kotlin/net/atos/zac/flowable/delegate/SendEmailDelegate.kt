@@ -51,7 +51,7 @@ class SendEmailDelegate : AbstractDelegate() {
             flowableHelper.policyService.readZaakRechten(
                 zaak,
                 loggedInUser
-            ).versturenEmail,
+            ).canVersturenEmail,
             LOG,
             "User '${loggedInUser.id}' not authorised to send email for zaak '${zaak.identificatie}'"
         )

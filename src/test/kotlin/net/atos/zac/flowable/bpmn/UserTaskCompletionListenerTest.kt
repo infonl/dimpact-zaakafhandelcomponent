@@ -79,18 +79,18 @@ class UserTaskCompletionListenerTest : BehaviorSpec({
     context("Lifecycle method return values") {
         given("The UserTaskCompletionListener instance") {
             `when`("isFailOnException is called") {
-                val result = listener.isFailOnException()
+                val isFailOnException = listener.isFailOnException()
 
                 then("true is returned") {
-                    result shouldBe true
+                    isFailOnException shouldBe true
                 }
             }
 
             `when`("isFireOnTransactionLifecycleEvent is called") {
-                val result = listener.isFireOnTransactionLifecycleEvent()
+                val isFireOnTransactionLifecycleEvent = listener.isFireOnTransactionLifecycleEvent()
 
                 then("true is returned") {
-                    result shouldBe true
+                    isFireOnTransactionLifecycleEvent shouldBe true
                 }
             }
 

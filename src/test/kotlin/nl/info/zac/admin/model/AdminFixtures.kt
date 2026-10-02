@@ -18,8 +18,8 @@ fun createBetrokkeneKoppelingen(
 ) = ZaaktypeBetrokkeneParameters().apply {
     this.id = id
     this.zaaktypeConfiguration = zaaktypeConfiguration
-    this.brpKoppelen = brpKoppelen
-    this.kvkKoppelen = kvkKoppelen
+    this.isBrpKoppelenEnabled = brpKoppelen
+    this.isKvkKoppelenEnabled = kvkKoppelen
 }
 
 fun createZaaktypeBrpParameters(
@@ -41,7 +41,7 @@ fun createZaaktypeCmmnHumantaskParameters(
 ) = ZaaktypeCmmnHumantaskParameters().apply {
     this.planItemDefinitionID = planItemDefinitionId
     this.id = id
-    this.actief = actief
+    this.isActief = actief
     this.groepID = groepId
     this.doorlooptijd = doorlooptijd
     this.setReferentieTabellen(mutableListOf())
@@ -60,7 +60,7 @@ fun createHumanTaskParameters(
 ) = ZaaktypeCmmnHumantaskParameters().apply {
     this.id = id
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
-    this.actief = isActief
+    this.isActief = isActief
     this.setFormulierDefinitieID(formulierDefinitieID)
     this.planItemDefinitionID = planItemDefinitionID
     this.groepID = groupId
@@ -135,7 +135,7 @@ fun createZaaktypeCmmnConfiguration(
         this.groepID = groupId
         this.caseDefinitionID = caseDefinitionId
         this.defaultBehandelaarId = defaultBehandelaarId
-        this.smartDocumentsEnabled = smartDocumentsEnabled
+        this.isSmartDocumentsEnabled = smartDocumentsEnabled
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
@@ -183,7 +183,7 @@ fun createZaaktypeBpmnConfiguration(
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.groepID = groupId
         this.defaultBehandelaarId = defaultBehandelaarId
-        this.smartDocumentsEnabled = smartDocumentsEnabled
+        this.isSmartDocumentsEnabled = smartDocumentsEnabled
         setZaakbeeindigParameters(zaaktypeCompletionParameters)
         val parameters = this
         this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
@@ -228,7 +228,7 @@ fun createAutomaticEmailConfirmation(
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
 ) = ZaaktypeCmmnEmailParameters().apply {
     this.id = id
-    this.enabled = enabled
+    this.isEnabled = enabled
     this.templateName = templateName
     this.emailSender = emailSender
     this.emailReply = emailReply
@@ -254,7 +254,7 @@ fun createZaakAfzender(
 ) = ZaaktypeCmmnZaakafzenderParameters().apply {
     this.id = id
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
-    this.defaultMail = defaultMail
+    this.isDefaultMail = defaultMail
     this.mail = mail
     this.replyTo = replyTo
 }

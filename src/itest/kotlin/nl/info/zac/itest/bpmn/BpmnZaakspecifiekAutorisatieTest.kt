@@ -119,7 +119,7 @@ class BpmnZaakspecifiekAutorisatieTest : BehaviorSpec({
                 zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe listOf(BEHANDELAAR_1.username)
                 with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                     code shouldBe HTTP_OK
-                    JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                    JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                 }
             }
         }

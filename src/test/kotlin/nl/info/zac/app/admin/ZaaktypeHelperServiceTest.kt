@@ -360,7 +360,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                     groepID = "fakeGroupId"
                     defaultBehandelaarId = "fakeDefaultBehandelaarId"
                     productaanvraagtype = "fakeProductaanvraagtype"
-                    smartDocumentsEnabled = true
+                    isSmartDocumentsEnabled = true
                     zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false)
                     zaaktypeBrpParameters = createZaaktypeBrpParameters(raadpleegWaarde = "fakeRaadpleegWaarde")
                     setZaakbeeindigParameters(
@@ -393,13 +393,13 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                         newZaaktypeConfiguration.groepID shouldBe "fakeGroupId"
                         newZaaktypeConfiguration.defaultBehandelaarId shouldBe "fakeDefaultBehandelaarId"
                         newZaaktypeConfiguration.productaanvraagtype shouldBe "fakeProductaanvraagtype"
-                        newZaaktypeConfiguration.smartDocumentsEnabled shouldBe true
+                        newZaaktypeConfiguration.isSmartDocumentsEnabled shouldBe true
                     }
 
                     and("the betrokkene koppelingen and BRP doelbindingen are copied onto the new configuration") {
                         with(newZaaktypeConfiguration.getBetrokkeneParameters()) {
-                            brpKoppelen shouldBe false
-                            kvkKoppelen shouldBe true
+                            isBrpKoppelenEnabled shouldBe false
+                            isKvkKoppelenEnabled shouldBe true
                             zaaktypeConfiguration shouldBe newZaaktypeConfiguration
                         }
                         with(newZaaktypeConfiguration.getBrpParameters()) {

@@ -8,21 +8,59 @@ import jakarta.json.bind.annotation.JsonbProperty
 
 data class RestZaaktypeInrichtingscheck(
     var zaaktype: RestZaaktypeOverzicht,
-    var statustypeIntakeAanwezig: Boolean = false,
-    var statustypeInBehandelingAanwezig: Boolean = false,
-    var statustypeHeropendAanwezig: Boolean = false,
-    var statustypeAanvullendeInformatieVereist: Boolean = false,
-    var statustypeAfgerondAanwezig: Boolean = false,
-    var statustypeAfgerondLaatsteVolgnummer: Boolean = false,
-    var resultaattypeAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isStatustypeIntakeAanwezig")
+    @set:JsonbProperty("isStatustypeIntakeAanwezig")
+    var isStatustypeIntakeAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isStatustypeInBehandelingAanwezig")
+    @set:JsonbProperty("isStatustypeInBehandelingAanwezig")
+    var isStatustypeInBehandelingAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isStatustypeHeropendAanwezig")
+    @set:JsonbProperty("isStatustypeHeropendAanwezig")
+    var isStatustypeHeropendAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isStatustypeAanvullendeInformatieVereist")
+    @set:JsonbProperty("isStatustypeAanvullendeInformatieVereist")
+    var isStatustypeAanvullendeInformatieVereist: Boolean = false,
+
+    @get:JsonbProperty("isStatustypeAfgerondAanwezig")
+    @set:JsonbProperty("isStatustypeAfgerondAanwezig")
+    var isStatustypeAfgerondAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isStatustypeAfgerondLaatsteVolgnummer")
+    @set:JsonbProperty("isStatustypeAfgerondLaatsteVolgnummer")
+    var isStatustypeAfgerondLaatsteVolgnummer: Boolean = false,
+
+    @get:JsonbProperty("isResultaattypeAanwezig")
+    @set:JsonbProperty("isResultaattypeAanwezig")
+    var isResultaattypeAanwezig: Boolean = false,
+
     var aantalInitiatorroltypen: Int = 0,
     var aantalBehandelaarroltypen: Int = 0,
-    var rolOverigeAanwezig: Boolean = false,
-    var informatieobjecttypeEmailAanwezig: Boolean = false,
-    var besluittypeAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isRolOverigeAanwezig")
+    @set:JsonbProperty("isRolOverigeAanwezig")
+    var isRolOverigeAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isInformatieobjecttypeEmailAanwezig")
+    @set:JsonbProperty("isInformatieobjecttypeEmailAanwezig")
+    var isInformatieobjecttypeEmailAanwezig: Boolean = false,
+
+    @get:JsonbProperty("isBesluittypeAanwezig")
+    @set:JsonbProperty("isBesluittypeAanwezig")
+    var isBesluittypeAanwezig: Boolean = false,
+
     var resultaattypesMetVerplichtBesluit: MutableList<String?>? = null,
-    var zaakafhandelParametersValide: Boolean = false,
-    var brpInstellingenCorrect: Boolean = false,
+
+    @get:JsonbProperty("isZaakafhandelParametersValide")
+    @set:JsonbProperty("isZaakafhandelParametersValide")
+    var isZaakafhandelParametersValide: Boolean = false,
+
+    @get:JsonbProperty("isBrpInstellingenCorrect")
+    @set:JsonbProperty("isBrpInstellingenCorrect")
+    var isBrpInstellingenCorrect: Boolean = false,
 
     @get:JsonbProperty("isZaakspecifiekeAutorisatieEigenschapAanwezig")
     var isZaakspecifiekeAutorisatieEigenschapAanwezig: Boolean = false,
@@ -30,8 +68,9 @@ data class RestZaaktypeInrichtingscheck(
     @get:JsonbProperty("isZaakspecifiekeAutorisatieRoltypeAanwezig")
     var isZaakspecifiekeAutorisatieRoltypeAanwezig: Boolean = false,
 
-    @get:JsonbProperty("heeftWaarschuwingen")
-    var heeftWaarschuwingen: Boolean = false,
+    var hasWaarschuwingen: Boolean = false,
 
-    var valide: Boolean = false
+    @get:JsonbProperty("isValide")
+    @set:JsonbProperty("isValide")
+    var isValide: Boolean = false
 )

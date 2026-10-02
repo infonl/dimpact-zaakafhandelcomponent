@@ -5,6 +5,7 @@
 package nl.info.zac.app.admin.model
 
 import jakarta.annotation.Nullable
+import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.constraints.Size
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters
@@ -40,12 +41,17 @@ data class RestZaaktypeConfiguration(
     @field:Nullable
     @field:Size(min = 1)
     var productaanvraagtype: String? = null,
-    var valide: Boolean = false,
+
+    @get:JsonbProperty("isValide")
+    @set:JsonbProperty("isValide")
+    var isValide: Boolean = false,
     /**
      * Indicates that zaken of this zaaktype can be authorised on an individual basis,
      * which is the case when the zaaktype defines the [ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM] eigenschap.
      */
-    var zaakspecifiekAutoriseerbaar: Boolean = false,
+    @get:JsonbProperty("isZaakspecifiekAutoriseerbaar")
+    @set:JsonbProperty("isZaakspecifiekAutoriseerbaar")
+    var isZaakspecifiekAutoriseerbaar: Boolean = false,
     /**
      * The frontend currently requires this field to be non-null
      */

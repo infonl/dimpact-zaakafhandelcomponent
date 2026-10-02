@@ -1,9 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.planitems.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -23,7 +24,9 @@ data class RestPlanItem(
 
     var groepId: String? = null,
 
-    var actief: Boolean = false,
+    @get:JsonbProperty("isActief")
+    @set:JsonbProperty("isActief")
+    var isActief: Boolean = false,
 
     var formulierDefinitie: FormulierDefinitie? = null,
 

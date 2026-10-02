@@ -58,7 +58,7 @@ fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnCo
     defaultBehandelaarId = this@toZaaktypeBpmnConfiguration.defaultBehandelaarId
     groepID = this@toZaaktypeBpmnConfiguration.groepNaam
     creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
-    smartDocumentsEnabled = this@toZaaktypeBpmnConfiguration.smartDocuments?.enabledForZaaktype ?: false
+    isSmartDocumentsEnabled = this@toZaaktypeBpmnConfiguration.smartDocuments?.isEnabledForZaaktype ?: false
     zaaktypeBetrokkeneParameters =
         this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
     zaaktypeBrpParameters =

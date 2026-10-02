@@ -46,7 +46,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
     context("Read a reference table by a caller-supplied id or code") {
         given("No reference table exists for the given id") {
             val id = 1234L
-            every { policyService.readOverigeRechten().beheren } returns true
+            every { policyService.readOverigeRechten().canBeheren } returns true
             every { referenceTableService.readReferenceTable(id) } throws ReferenceTableNotFoundException(id)
 
             `when`("the reference table is requested by id") {
@@ -169,7 +169,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             val referenceTable = createReferenceTable()
             val updatedReferenceTable = createReferenceTable()
             val updatedReferenceTableSlot = slot<ReferenceTable>()
-            every { policyService.readOverigeRechten().beheren } returns true
+            every { policyService.readOverigeRechten().canBeheren } returns true
             every { referenceTableService.readReferenceTable(referenceTable.id!!) } returns referenceTable
             every {
                 referenceTableAdminService.updateReferenceTable(capture(updatedReferenceTableSlot))
@@ -232,7 +232,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     )
                 )
             )
-            every { policyService.readOverigeRechten().beheren } returns true
+            every { policyService.readOverigeRechten().canBeheren } returns true
             every { referenceTableService.readReferenceTable(referenceTable.id!!) } returns referenceTable
 
             `when`("the reference table is updated with two new values not including the existing system value") {

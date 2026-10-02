@@ -19,8 +19,8 @@ data class ZaakLinkData(
     val isHoofdzaak: Boolean,
     val isDeelzaak: Boolean,
     val zaaktypeUUID: UUID,
-    val lezen: Boolean,
-    val koppelen: Boolean
+    val canLezen: Boolean,
+    val canKoppelen: Boolean
 )
 
 fun Zaak.toZaakLinkData(rechten: ZaakRechten) = ZaakLinkData(
@@ -28,15 +28,15 @@ fun Zaak.toZaakLinkData(rechten: ZaakRechten) = ZaakLinkData(
     isHoofdzaak = this.isHoofdzaak(),
     isDeelzaak = this.isDeelzaak(),
     zaaktypeUUID = this.zaaktype.extractUuid(),
-    lezen = rechten.lezen,
-    koppelen = rechten.koppelen
+    canLezen = rechten.canLezen,
+    canKoppelen = rechten.canKoppelen
 )
 
 fun Zaak.alreadyGerelateerdReason(foundZaakUuid: UUID) =
     ZaakNotLinkableReason.ALREADY_GERELATEERD.takeIf { isLinkedTo(foundZaakUuid) }
 
 fun ZaakLinkData.canBeRelatedTo(to: ZaakLinkData): Boolean =
-    to.lezen && gerelateerdNotLinkableReason() == null
+    to.canLezen && gerelateerdNotLinkableReason() == null
 
 fun ZaakLinkData.canBeHoofdzaakFor(
     deelzaak: ZaakLinkData,
@@ -69,15 +69,15 @@ fun ZaakLinkData.hoofdzaakDeelzaakNotLinkableReason(
     deelzaak.isDeelzaak -> ZaakNotLinkableReason.ALREADY_DEELZAAK
     deelzaak.isHoofdzaak -> ZaakNotLinkableReason.HAS_DEELZAKEN
     !allowedDeelzaaktypes.contains(deelzaak.zaaktypeUUID) -> ZaakNotLinkableReason.ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK
-    !koppelen || !deelzaak.koppelen -> ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
+    !canKoppelen || !deelzaak.canKoppelen -> ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
     else -> null
 }
 
 fun ZaakLinkData.gerelateerdNotLinkableReason(): ZaakNotLinkableReason? =
-    ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN.takeIf { !koppelen }
+    ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN.takeIf { !canKoppelen }
 
 private fun allowGerelateerd(from: ZaakLinkData, to: ZaakLinkData) =
-    from.koppelen && to.lezen
+    from.canKoppelen && to.canLezen
 
 private fun allowHoofdAndDeelzaak(hoofdzaak: ZaakLinkData, deelzaak: ZaakLinkData) =
-    hoofdzaak.koppelen && deelzaak.koppelen && hoofdzaak.isOpen == deelzaak.isOpen
+    hoofdzaak.canKoppelen && deelzaak.canKoppelen && hoofdzaak.isOpen == deelzaak.isOpen

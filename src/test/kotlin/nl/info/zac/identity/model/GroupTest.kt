@@ -20,7 +20,7 @@ class GroupTest : BehaviorSpec({
                 val group = groupRepresentation.toGroup()
 
                 then("the group is active") {
-                    group.active shouldBe true
+                    group.isActive shouldBe true
                 }
             }
         }
@@ -34,7 +34,7 @@ class GroupTest : BehaviorSpec({
                 val group = groupRepresentation.toGroup()
 
                 then("the group is active") {
-                    group.active shouldBe true
+                    group.isActive shouldBe true
                 }
             }
         }
@@ -48,7 +48,7 @@ class GroupTest : BehaviorSpec({
                 val group = groupRepresentation.toGroup()
 
                 then("the group is inactive") {
-                    group.active shouldBe false
+                    group.isActive shouldBe false
                 }
             }
         }
@@ -62,7 +62,7 @@ class GroupTest : BehaviorSpec({
                 val group = groupRepresentation.toGroup()
 
                 then("the group is active and has no email") {
-                    group.active shouldBe true
+                    group.isActive shouldBe true
                     group.email shouldBe null
                 }
             }
@@ -80,7 +80,7 @@ class GroupTest : BehaviorSpec({
                 val group = groupRepresentation.toGroup()
 
                 then("the group is inactive and has the correct email") {
-                    group.active shouldBe false
+                    group.isActive shouldBe false
                     group.email shouldBe "group@example.com"
                 }
             }

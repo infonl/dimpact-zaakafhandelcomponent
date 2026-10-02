@@ -528,8 +528,8 @@ class ZaakService @Inject constructor(
         zaakUUIDs: List<UUID>
     ) =
         user?.let {
-            val inGroup = identityService.isUserInGroup(user.id, group.name)
-            if (!inGroup) {
+            val isInGroup = identityService.isUserInGroup(user.id, group.name)
+            if (!isInGroup) {
                 LOG.warning(
                     "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.description}'. " +
                         "Skipping all zaken."
@@ -538,7 +538,7 @@ class ZaakService @Inject constructor(
                     .map(zrcClientService::readZaak)
                     .forEach { zaak -> eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak)) }
             }
-            inGroup
+            isInGroup
         } ?: true
 
     private fun isZaakOpen(zaak: Zaak) =

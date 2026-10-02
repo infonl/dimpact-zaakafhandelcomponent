@@ -40,16 +40,16 @@ class RestZoekParametersConverter @Inject constructor(
                 zoekParameters.addDatum(key, DatumRange(value.van, value.tot))
             }
         }
-        if (restZoekParameters.alleenOpenstaandeZaken) {
+        if (restZoekParameters.isAlleenOpenstaandeZaken) {
             zoekParameters.addFilterQuery(ZaakZoekObject.AFGEHANDELD_FIELD, BooleanUtils.FALSE)
         }
-        if (restZoekParameters.alleenAfgeslotenZaken) {
+        if (restZoekParameters.isAlleenAfgeslotenZaken) {
             zoekParameters.addFilterQuery(ZaakZoekObject.EINDSTATUS_FIELD, BooleanUtils.TRUE)
         }
-        if (restZoekParameters.alleenMijnZaken) {
+        if (restZoekParameters.isAlleenMijnZaken) {
             zoekParameters.addFilterQuery(ZaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().id)
         }
-        if (restZoekParameters.alleenMijnTaken) {
+        if (restZoekParameters.isAlleenMijnTaken) {
             zoekParameters.addFilterQuery(TaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().id)
         }
         restZoekParameters.zoeken?.let {

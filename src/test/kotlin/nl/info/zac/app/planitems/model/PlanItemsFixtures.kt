@@ -35,7 +35,7 @@ fun createRestTaakStuurGegevens(
     sendMail: Boolean = false,
     mail: String? = null
 ) = RestTaakStuurGegevens(
-    sendMail = sendMail,
+    shouldSendMail = sendMail,
     mail = mail
 )
 

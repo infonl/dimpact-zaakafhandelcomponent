@@ -8,7 +8,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 data class RestTaakStuurGegevens(
-    var sendMail: Boolean = false,
+    var shouldSendMail: Boolean = false,
 
     var mail: String? = null
 )
