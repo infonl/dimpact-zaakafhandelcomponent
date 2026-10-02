@@ -8,9 +8,9 @@ import { MatSort } from "@angular/material/sort";
 import { of, Subject, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../../core/service/util.service";
-import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekParameters } from "../../../zoeken/model/zoek-parameters";
+import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../../zoeken/zoeken.service";
 import {
   SessionStorageUtil,
@@ -136,11 +136,13 @@ describe(ZoekenDataSource.name, () => {
       dataSource.load();
       jest.runAllTimers();
 
-      firstPageResponse.next({
-        totaal: 75,
-        resultaten: [firstPageZaak],
-        filters: {},
-      });
+      firstPageResponse.next(
+        fromPartial<ZoekResultaat<ZaakZoekObject>>({
+          totaal: 75,
+          resultaten: [firstPageZaak],
+          filters: {},
+        }),
+      );
       secondPageResponse.error(new Error("fakeError"));
 
       expect(dataSource.data).toEqual([firstPageZaak]);
