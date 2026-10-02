@@ -1882,7 +1882,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         inboxProductaanvraagService.create(any())
                         zgwApiService.createZaak(any())
                         zrcClientService.createZaakobject(any())
-                        cmmnService.startCase(any(), any(), any(), any())
+                        cmmnService.startCase(
+                            zaak = any(),
+                            zaaktype = any(),
+                            zaaktypeCmmnConfiguration = any(),
+                            zaakData = any()
+                        )
                         bpmnService.startProcess(any(), any(), any())
                     }
                 }
