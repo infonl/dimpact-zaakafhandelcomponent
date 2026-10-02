@@ -151,7 +151,7 @@ describe(ZaakTakenComponent.name, () => {
   }
 
   function toonAfgerondeTakenToggle() {
-    return screen.getByRole("switch", { name: "toonAfgerondeTaken" });
+    return screen.getByRole("switch", { name: "toon-afgeronde-taken" });
   }
 
   async function showAfgerondeTaken() {

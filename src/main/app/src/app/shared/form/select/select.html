@@ -7,13 +7,13 @@
 <mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
   <mat-label>
     <ng-content select="mat-label">
-      {{ label() ?? key() | translate | capitalizeFirstLetter }}
+      {{ labelKey() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <mat-select
     placeholder="{{
       '-kies.generiek-'
-        | translate: { label: (label() ?? key() | translate | lowercase) }
+        | translate: { label: (labelKey() | translate | lowercase) }
     }}"
     [compareWith]="compareWith"
     [formControlName]="key()"
@@ -24,14 +24,14 @@
     <mat-option *ngIf="isLoading()" disabled="true">
       {{
         "-laden.generiek-"
-          | translate: { label: (label() ?? key() | translate | lowercase) }
+          | translate: { label: (labelKey() | translate | lowercase) }
       }}
       <mat-spinner diameter="15" matPrefix></mat-spinner>
     </mat-option>
     <mat-option [value]="" *ngIf="!isRequired() && !isLoading()">
       {{
         "-geen.generiek-"
-          | translate: { label: (label() ?? key() | translate | lowercase) }
+          | translate: { label: (labelKey() | translate | lowercase) }
       }}
     </mat-option>
     <mat-option *ngFor="let option of availableOptions()" [value]="option">

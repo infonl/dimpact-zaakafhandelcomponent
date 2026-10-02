@@ -7,7 +7,7 @@
 <mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
   <mat-label>
     <ng-content select="mat-label">
-      {{ label() ?? key() | translate | capitalizeFirstLetter }}
+      {{ labelKey() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <input
@@ -38,7 +38,7 @@
     <mat-option *ngIf="isLoading()" disabled="true">
       {{
         "-laden.generiek-"
-          | translate: { label: (label() ?? key() | translate | lowercase) }
+          | translate: { label: (labelKey() | translate | lowercase) }
       }}
       <mat-spinner diameter="15" matPrefix></mat-spinner>
     </mat-option>

@@ -82,7 +82,7 @@
         <section class="row">
           <zac-static-text
             class="col-12 col-lg-6"
-            label="zaaktypeOmschrijving"
+            label="zaaktype-omschrijving"
             [value]="parameters.zaaktype.omschrijving"
           />
           <zac-static-text
@@ -106,7 +106,7 @@
         <section class="row">
           <zac-static-text
             class="col-12 col-lg-6"
-            label="zaakspecifiekAutoriseerbaar"
+            label="zaakspecifiek-autoriseerbaar"
             [value]="
               (parameters.zaakspecifiekAutoriseerbaar
                 ? 'actie.ja'
@@ -250,7 +250,7 @@
             </mat-expansion-panel-header>
             <div class="flex-row flex-wrap">
               <mat-form-field class="w33 w100-md" floatLabel="always">
-                <mat-label>{{ "formulierDefinitie" | translate }}</mat-label>
+                <mat-label>{{ "formulier-definitie" | translate }}</mat-label>
                 <mat-select
                   placeholder="{{ 'formulierDefinitie.-kies-' | translate }}"
                   (selectionChange)="
@@ -712,7 +712,7 @@
                   <td mat-cell *matCellDef="let parameter">
                     {{
                       parameter.zaakbeeindigReden?.naam ??
-                        "zaakIsNietOntvankelijk" | translate
+                        "zaak-is-niet-ontvankelijk" | translate
                     }}
                   </td>
                 </ng-container>
@@ -809,7 +809,9 @@
             >
               <form [formGroup]="brpProtocoleringFormGroup">
                 <p>
-                  {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+                  {{
+                    "title.admin.parameters.step.brp-doelbinding" | translate
+                  }}
                 </p>
                 <section class="flex-col">
                   <mat-form-field
@@ -817,7 +819,7 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.zoekWaarde" | translate
+                      "brpDoelbinding.zoek-waarde" | translate
                     }}</mat-label>
                     <mat-select
                       placeholder="{{ 'resultaat.-kies-' | translate }}"
@@ -837,7 +839,7 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.raadpleegWaarde" | translate
+                      "brpDoelbinding.raadpleeg-waarde" | translate
                     }}</mat-label>
                     <mat-select
                       placeholder="{{ 'resultaat.-kies-' | translate }}"
@@ -857,7 +859,7 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.verwerkingregisterWaarde" | translate
+                      "brpDoelbinding.verwerkingregister-waarde" | translate
                     }}</mat-label>
                     <mat-select
                       placeholder="{{ 'resultaat.-kies-' | translate }}"

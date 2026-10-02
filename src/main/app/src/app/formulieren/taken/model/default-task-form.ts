@@ -31,7 +31,7 @@ export class DefaultTaskForm extends AbstractTaskForm {
       {
         type: "plain-text",
         key: "redenStart",
-        label: "redenStart",
+        label: "reden-start",
       },
       {
         type: "textarea",

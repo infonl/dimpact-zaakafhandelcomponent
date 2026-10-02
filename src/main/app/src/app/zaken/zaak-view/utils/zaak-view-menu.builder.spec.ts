@@ -374,7 +374,7 @@ describe(buildZaakMenu.name, () => {
             false,
           ),
         ),
-      ).toContain("actie.zaak.brondatumZetten");
+      ).toContain("actie.zaak.brondatum-zetten");
       expect(
         titles(
           buildZaakMenu(
@@ -386,7 +386,7 @@ describe(buildZaakMenu.name, () => {
             false,
           ),
         ),
-      ).not.toContain("actie.zaak.brondatumZetten");
+      ).not.toContain("actie.zaak.brondatum-zetten");
     });
 
     it("does not offer opschorten when the zaak was already opgeschort before", () => {

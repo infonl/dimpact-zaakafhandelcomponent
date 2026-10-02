@@ -125,7 +125,7 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
   }
 
   function roltypeField() {
-    return screen.getByRole("combobox", { name: "BetrokkeneRoltype" });
+    return screen.getByRole("combobox", { name: "Betrokkene-roltype" });
   }
 
   async function chooseRoltype() {

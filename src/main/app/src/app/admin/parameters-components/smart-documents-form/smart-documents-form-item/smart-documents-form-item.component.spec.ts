@@ -54,7 +54,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
 
   function informatieobjecttypeSelect() {
     return screen.getByRole("combobox", {
-      name: /informatieobjectTypeOmschrijving/,
+      name: /informatieobject-type-omschrijving/,
     });
   }
 

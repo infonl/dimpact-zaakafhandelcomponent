@@ -51,6 +51,7 @@ import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/inf
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -94,6 +95,7 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
     BestandsomvangPipe,
     DatumPipe,
     EmptyPipe,
+    I18nKeyPipe,
     MimetypeToExtensionPipe,
     VertrouwelijkaanduidingToTranslationKeyPipe,
     ReadMoreComponent,

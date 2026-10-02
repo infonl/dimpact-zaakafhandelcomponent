@@ -122,13 +122,15 @@ describe(MailtemplateComponent.name, () => {
 
   async function editTemplateName(extra: string) {
     await user.type(
-      screen.getByRole("textbox", { name: "MailTemplateNaam" }),
+      screen.getByRole("textbox", { name: "Mail-template-naam" }),
       extra,
     );
   }
 
   async function fillInNewTemplate() {
-    await user.click(screen.getByRole("textbox", { name: "MailTemplateNaam" }));
+    await user.click(
+      screen.getByRole("textbox", { name: "Mail-template-naam" }),
+    );
     await user.paste("Nieuw template");
     await user.click(screen.getByRole("combobox"));
     await user.click(
@@ -167,7 +169,7 @@ describe(MailtemplateComponent.name, () => {
     await setup(bestaandTemplate);
 
     expect(
-      screen.getByRole("textbox", { name: "MailTemplateNaam" }),
+      screen.getByRole("textbox", { name: "Mail-template-naam" }),
     ).toHaveValue("Bestaand template");
     expect(htmlEditor("Onderwerp")).toHaveTextContent("Bestaand onderwerp");
     expect(htmlEditor("Body")).toHaveTextContent("Bestaand body");

@@ -100,7 +100,7 @@ describe(DefaultTaskForm.name, () => {
       it("should render redenStart as plain-text", () => {
         const field = fields.find((field) => field.key === "redenStart");
         expect(field?.type).toBe("plain-text");
-        expect(field?.label).toBe("redenStart");
+        expect(field?.label).toBe("reden-start");
       });
 
       it("should render afhandeling as a textarea", () => {

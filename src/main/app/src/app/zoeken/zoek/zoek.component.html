@@ -16,7 +16,7 @@
         "actie.zoeken.bedrijf" | translate
       }}</ng-container>
       <ng-container *ngIf="zoekType == ZoekType.BAG_OBJECTEN">{{
-        "actie.zoeken.bagObject" | translate
+        "actie.zoeken.bag-object" | translate
       }}</ng-container>
     </div>
     <button
@@ -58,7 +58,7 @@
       type="button"
       matSuffix
       id="bagObjecten-button"
-      title="{{ 'actie.zoeken.bagObject' | translate }}"
+      title="{{ 'actie.zoeken.bag-object' | translate }}"
       [color]="zoekType === ZoekType.BAG_OBJECTEN ? 'primary' : null"
       (click)="setZoektype(ZoekType.BAG_OBJECTEN)"
     >

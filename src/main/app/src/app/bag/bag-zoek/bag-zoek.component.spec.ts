@@ -72,7 +72,7 @@ describe(BagZoekComponent.name, () => {
   async function search(...resultaten: GeneratedType<"RESTBAGObject">[]) {
     mockSearchResults(...resultaten);
     await user.type(
-      screen.getByRole("textbox", { name: "bagObjecten" }),
+      screen.getByRole("textbox", { name: "bag-objecten" }),
       "fakeTrefwoord",
     );
     await user.click(screen.getByRole("button", { name: "actie.zoeken" }));

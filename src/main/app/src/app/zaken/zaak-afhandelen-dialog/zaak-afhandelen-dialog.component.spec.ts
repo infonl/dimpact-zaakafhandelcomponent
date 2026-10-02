@@ -186,7 +186,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   }
 
   function sendMailCheckbox() {
-    return screen.queryByRole("checkbox", { name: "sendMail" });
+    return screen.queryByRole("checkbox", { name: "send-mail" });
   }
 
   function verzenderSelect() {
@@ -207,7 +207,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   }
 
   async function toggleSendMail() {
-    await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+    await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
   }
 
   async function openVerzenderOptions() {

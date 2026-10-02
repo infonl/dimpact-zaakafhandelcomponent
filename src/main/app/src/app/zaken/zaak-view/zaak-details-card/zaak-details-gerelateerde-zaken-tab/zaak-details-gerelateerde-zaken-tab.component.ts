@@ -22,6 +22,7 @@ import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { DatumPipe } from "../../../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
@@ -47,6 +48,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
     MatRowDef,
     DatumPipe,
     EmptyPipe,
+    I18nKeyPipe,
     TranslatePipe,
   ],
 })

@@ -204,7 +204,7 @@ describe(BesluitViewComponent.name, () => {
 
     expect(listBesluitHistorie).toHaveBeenCalledTimes(2);
     expect(
-      screen.getByRole("row", { name: /fakeAttribuutLabel/ }),
+      screen.getByRole("row", { name: /fake-attribuut-label/ }),
     ).toBeVisible();
   });
 

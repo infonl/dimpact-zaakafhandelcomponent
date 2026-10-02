@@ -29,7 +29,7 @@ enum class ErrorCode(val value: String) {
     ),
     ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS("msg.error.reference.table.with.same.code.already.exists"),
     ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION(
-        "msg.error.reference.table.is.in.use.by.zaaktypeCmmnConfiguration"
+        "msg.error.reference.table.is.in.use.by.zaaktype-cmmn-configuration"
     ),
     ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED("msg.error.system.reference.table.cannot.be.deleted"),
     ERROR_CODE_SYSTEM_REFERENCE_TABLE_NOT_CONFIGURED("msg.error.system.reference.table.not.configured"),

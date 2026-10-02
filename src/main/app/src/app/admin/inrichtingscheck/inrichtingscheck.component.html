@@ -101,7 +101,7 @@
                     *matHeaderCellDef
                     mat-sort-header="zaaktypeOmschrijving"
                   >
-                    {{ "zaaktypeOmschrijving" | translate }}
+                    {{ "zaaktype-omschrijving" | translate }}
                   </th>
                   <td mat-cell *matCellDef="let row">
                     {{ row.zaaktype.omschrijving }}
@@ -271,37 +271,37 @@
                     >
                       <div *ngIf="!row.zaakafhandelParametersValide">
                         {{
-                          "healthCheck.zaaktype.zaakafhandelParametersOngeldig"
+                          "healthCheck.zaaktype.zaakafhandel-parameters-ongeldig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeIntakeAanwezig">
                         {{
-                          "healthCheck.zaaktype.geenStatustypeIntakeAanwezig"
+                          "healthCheck.zaaktype.geen-statustype-intake-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeInBehandelingAanwezig">
                         {{
-                          "healthCheck.zaaktype.geenStatustypeInBehandelingAanwezig"
+                          "healthCheck.zaaktype.geen-statustype-in-behandeling-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeHeropendAanwezig">
                         {{
-                          "healthCheck.zaaktype.geenStatustypeHeropendAanwezig"
+                          "healthCheck.zaaktype.geen-statustype-heropend-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeAanvullendeInformatieVereist">
                         {{
-                          "healthCheck.zaaktype.geenStatustypeAanvullendeInformatieVereist"
+                          "healthCheck.zaaktype.geen-statustype-aanvullende-informatie-vereist"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.statustypeAfgerondAanwezig">
                         {{
-                          "healthCheck.zaaktype.geenStatustypeAfgerondAanwezig"
+                          "healthCheck.zaaktype.geen-statustype-afgerond-aanwezig"
                             | translate
                         }}
                       </div>
@@ -312,49 +312,49 @@
                         "
                       >
                         {{
-                          "healthCheck.zaaktype.statustypeAfgerondLaatsteVolgnummer"
+                          "healthCheck.zaaktype.statustype-afgerond-laatste-volgnummer"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.resultaattypeAanwezig">
                         {{
-                          "healthCheck.zaaktype.geenResultaattypeAanwezig"
+                          "healthCheck.zaaktype.geen-resultaattype-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.aantalInitiatorroltypen">
                         {{
-                          "healthCheck.zaaktype.geenRolInitiatorAanwezig"
+                          "healthCheck.zaaktype.geen-rol-initiator-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.aantalBehandelaarroltypen">
                         {{
-                          "healthCheck.zaaktype.geenRolBehandelaarAanwezig"
+                          "healthCheck.zaaktype.geen-rol-behandelaar-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="(row.aantalInitiatorroltypen ?? 0) > 1">
                         {{
-                          "healthCheck.zaaktype.teVeelRolInitiatorAanwezig"
+                          "healthCheck.zaaktype.te-veel-rol-initiator-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="(row.aantalBehandelaarroltypen ?? 0) > 1">
                         {{
-                          "healthCheck.zaaktype.teVeelRolBehandelaarAanwezig"
+                          "healthCheck.zaaktype.te-veel-rol-behandelaar-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.rolOverigeAanwezig">
                         {{
-                          "healthCheck.zaaktype.geenRolOverigeAanwezig"
+                          "healthCheck.zaaktype.geen-rol-overige-aanwezig"
                             | translate
                         }}
                       </div>
                       <div *ngIf="!row.informatieobjecttypeEmailAanwezig">
                         {{
-                          "healthCheck.zaaktype.geenInformatieobjecttypeEmailAanwezig"
+                          "healthCheck.zaaktype.geen-informatieobjecttype-email-aanwezig"
                             | translate
                         }}
                       </div>
@@ -364,7 +364,7 @@
                           !row.besluittypeAanwezig
                         "
                         [innerHTML]="
-                          'healthCheck.zaaktype.geenBesluittypeAanwezig'
+                          'healthCheck.zaaktype.geen-besluittype-aanwezig'
                             | translate
                               : {
                                   resultaattypes:
@@ -376,7 +376,7 @@
                       ></div>
                       <div *ngIf="!row.brpInstellingenCorrect">
                         {{
-                          "healthCheck.zaaktype.onjuisteBrpHeaderwaarde"
+                          "healthCheck.zaaktype.onjuiste-brp-headerwaarde"
                             | translate
                         }}
                       </div>

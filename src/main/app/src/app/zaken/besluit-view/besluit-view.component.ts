@@ -31,6 +31,7 @@ import { BesluitIndicatiesComponent } from "../../shared/indicaties/besluit-indi
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -56,6 +57,7 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
     TranslateModule,
     DatumPipe,
     EmptyPipe,
+    I18nKeyPipe,
     MimetypeToExtensionPipe,
     StaticTextComponent,
     ReadMoreComponent,

@@ -170,7 +170,7 @@ export class InboxProductaanvragenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.productaanvragen.inboxProductaanvragen");
+    this.utilService.setTitle("title.productaanvragen.inbox-productaanvragen");
   }
 
   ngAfterViewInit() {

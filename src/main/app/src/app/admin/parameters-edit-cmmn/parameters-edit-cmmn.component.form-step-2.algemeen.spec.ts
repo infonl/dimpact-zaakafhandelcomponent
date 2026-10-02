@@ -208,7 +208,7 @@ describe("Algemeen form step", () => {
     const algemeen = await setup();
 
     expect(
-      within(algemeen).getByText("zaakspecifiekAutoriseerbaar"),
+      within(algemeen).getByText("zaakspecifiek-autoriseerbaar"),
     ).toBeVisible();
     expect(within(algemeen).getByText("actie.nee")).toBeVisible();
   });

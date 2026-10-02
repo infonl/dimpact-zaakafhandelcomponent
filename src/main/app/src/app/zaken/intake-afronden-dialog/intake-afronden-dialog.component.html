@@ -24,7 +24,7 @@
       class="readonly"
       [innerHTML]="data.planItem.toelichting"
     ></p>
-    <label>{{ "zaakOntvankelijk" | translate }}</label>
+    <label>{{ "zaak-ontvankelijk" | translate }}</label>
     <mat-radio-group id="ontvankelijk" formControlName="ontvankelijk">
       <mat-radio-button [value]="true">{{
         "actie.ja" | translate
@@ -49,7 +49,7 @@
           class="readonly"
         ></p>
         <mat-form-field appearance="fill" class="full-width">
-          <mat-label>{{ "redenNietOntvankelijk" | translate }}</mat-label>
+          <mat-label>{{ "reden-niet-ontvankelijk" | translate }}</mat-label>
           <textarea
             id="redenNietOntvankelijk"
             formControlName="reden"
@@ -60,7 +60,7 @@
             >{{ formGroup.get("reden")?.value.length }}/100</mat-hint
           >
           <mat-error>{{
-            getError(formGroup.get("reden"), "redenNietOntvankelijk")
+            getError(formGroup.get("reden"), "reden-niet-ontvankelijk")
           }}</mat-error>
         </mat-form-field>
       </ng-container>
@@ -75,7 +75,7 @@
         *ngIf="mailBeschikbaar"
         id="sendMail"
         formControlName="sendMail"
-        >{{ "sendMail" | translate }}</mat-checkbox
+        >{{ "send-mail" | translate }}</mat-checkbox
       >
       <mat-form-field
         *ngIf="formGroup.get('sendMail')?.value"
