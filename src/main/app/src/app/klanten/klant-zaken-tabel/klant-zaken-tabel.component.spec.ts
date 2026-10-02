@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { HttpErrorResponse, provideHttpClient } from "@angular/common/http";
 import { inputBinding } from "@angular/core";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -60,17 +60,19 @@ describe(KlantZakenTabelComponent.name, () => {
   async function setup({
     klant = persoon,
     zaken = [],
+    totaal = zaken.length,
     roltypen = ["Initiator", "Belanghebbende", "Medewerker"],
   }: {
     klant?: GeneratedType<"RestBedrijf" | "RestPersoon">;
     zaken?: ZaakZoekObject[];
+    totaal?: number;
     roltypen?: string[];
   } = {}) {
     list.mockReturnValue(
       createQueryOptions(
         fromPartial<ZoekResultaat<ZaakZoekObject>>({
           resultaten: zaken,
-          totaal: zaken.length,
+          totaal,
           filters: {},
         }),
       ),
@@ -126,6 +128,23 @@ describe(KlantZakenTabelComponent.name, () => {
     expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
     expect(screen.getByRole("row", { name: /ZAAK-002/ })).toBeVisible();
     expect(screen.getByRole("row", { name: /ZAAK-003/ })).toBeVisible();
+  });
+
+  it("stays on the page it is showing when the search for the next one fails", async () => {
+    await setup({ zaken: [zaak("ZAAK-001")], totaal: 25 });
+    list.mockReturnValue({
+      queryKey: ["failing-query"],
+      queryFn: jest
+        .fn()
+        .mockRejectedValue(new HttpErrorResponse({ status: 500 })),
+    });
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    detectChanges();
+
+    expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
+    expect(screen.getByText("1 – 10 of 25")).toBeVisible();
   });
 
   describe("the betrokkenheden of the klant in a zaak", () => {

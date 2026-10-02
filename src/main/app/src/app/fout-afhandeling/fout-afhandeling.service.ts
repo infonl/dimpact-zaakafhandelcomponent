@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -33,6 +33,11 @@ const ValidationErrorPattern = {
 };
 
 type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>;
+
+/** A `/rest/` request that fails with status 0 means the session has expired. */
+export function isLoggedOut(error: HttpErrorResponse) {
+  return error.status === 0 && !!error.url?.includes("/rest/");
+}
 
 @Injectable({
   providedIn: "root",
@@ -145,8 +150,7 @@ export class FoutAfhandelingService {
       return of();
     }
 
-    if (err.status === 0 && err.url?.includes("/rest/")) {
-      // status 0 means that the user is no longer logged in
+    if (isLoggedOut(err)) {
       if (!isDevMode()) {
         window.location.reload();
         return throwError(() => "User logged out");
