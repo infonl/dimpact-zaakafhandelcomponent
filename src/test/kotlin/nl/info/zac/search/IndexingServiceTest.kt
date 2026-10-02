@@ -17,13 +17,7 @@ import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.ProcessingException
-import java.io.IOException
-import java.net.URI
-import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.logging.Handler
-import java.util.logging.LogRecord
-import java.util.logging.Logger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -46,10 +40,10 @@ import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.task.model.TaakSortering
-import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
+import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
@@ -69,13 +63,20 @@ import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.flowable.task.api.Task
+import java.io.IOException
+import java.net.URI
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 private data class TestContext(
     val solrClient: Http2SolrClient,
     val zaakZoekObjectConverter: ZaakZoekObjectConverter,
     val taakZoekObjectConverter: TaakZoekObjectConverter,
-    val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
-    val converterInstancesIterator: MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>,
+    val converterInstances: Instance<ZoekObjectConverter<out ZoekObject>>,
+    val converterInstancesIterator: MutableIterator<ZoekObjectConverter<out ZoekObject>>,
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
     val zrcClientService: ZrcClientService,
@@ -121,8 +122,8 @@ private fun setupContext(): TestContext {
 
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
     val taakZoekObjectConverter = mockk<TaakZoekObjectConverter>()
-    val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject>>>()
-    val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>>()
+    val converterInstances = mockk<Instance<ZoekObjectConverter<out ZoekObject>>>()
+    val converterInstancesIterator = mockk<MutableIterator<ZoekObjectConverter<out ZoekObject>>>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -136,7 +137,8 @@ private fun setupContext(): TestContext {
         drcClientService,
         flowableTaskService,
         zaakspecifiekeAutorisatieService,
-        solrClientFactory
+        solrClientFactory,
+        Dispatchers.IO
     )
     val zaakGedrevenReindexService = ZaakGedrevenReindexService(
         reindexSupportService,
@@ -309,6 +311,8 @@ class IndexingServiceTest : BehaviorSpec({
                 val current = activeConversions.incrementAndGet()
                 maxObservedConcurrency.updateAndGet { previousMax -> maxOf(previousMax, current) }
                 try {
+                    // the converter is a blocking call made from a worker thread, so blocking that thread is the point
+                    @Suppress("SleepInsteadOfDelay")
                     Thread.sleep(50)
                 } finally {
                     activeConversions.decrementAndGet()

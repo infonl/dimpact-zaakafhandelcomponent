@@ -65,7 +65,7 @@ fun createHumanTaskParameters(
     this.planItemDefinitionID = planItemDefinitionID
     this.groepID = groupId
     this.doorlooptijd = leadTime
-    this.setReferentieTabellen((referenceTables ?: emptyList()).toMutableList())
+    this.setReferentieTabellen(referenceTables.orEmpty().toMutableList())
 }
 
 fun createHumanTaskReferentieTabel(

@@ -102,8 +102,8 @@ class BpmnService @Inject constructor(
                 paddedBottom - paddedTop + 1
             )
             return ByteArrayInputStream(
-                ByteArrayOutputStream().also {
-                    ImageIO.write(cropped, "png", it)
+                ByteArrayOutputStream().also { outputStream ->
+                    ImageIO.write(cropped, "png", outputStream)
                 }.toByteArray()
             )
         }

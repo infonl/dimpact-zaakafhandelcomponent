@@ -24,7 +24,7 @@ class SolrClientFactory @Inject constructor(
     @ConfigProperty(name = "SOLR_USERNAME") private val solrUsername: String,
     @ConfigProperty(name = "SOLR_PASSWORD") private val solrPassword: String
 ) {
-    fun createSolrClient(core: String) =
+    fun createSolrClient(core: String): Http2SolrClient =
         Http2SolrClient.Builder("$solrUrl/solr/$core")
             .withBasicAuthCredentials(solrUsername, solrPassword)
             .build()

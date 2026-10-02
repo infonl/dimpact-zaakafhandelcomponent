@@ -59,7 +59,9 @@ class ZrcClientService @Inject constructor(
         zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolCreate(rol) }
 
     fun deleteRol(rol: Rol<*>, auditExplanation: String?) {
-        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolDelete(rol.uuid!!) }
+        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
+            zrcClient.rolDelete(checkNotNull(rol.uuid) { "A rol without a UUID cannot be deleted" })
+        }
     }
 
     fun createZaakobject(zaakobject: ZaakobjectRequest): Zaakobject =

@@ -482,11 +482,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     }
 
     private fun readResourceFile(resourcePath: String): String =
-        Thread.currentThread().contextClassLoader.getResource(
-            resourcePath
-        )?.let {
-            File(it.path)
-        }!!.readText(Charsets.UTF_8)
+        checkNotNull(Thread.currentThread().contextClassLoader.getResource(resourcePath)) {
+            "Resource '$resourcePath' not found"
+        }.let { File(it.path) }.readText(Charsets.UTF_8)
             .replace("\\", "\\\\")
             .replace("\"", "\\\"")
             .replace("\n", "\\n")

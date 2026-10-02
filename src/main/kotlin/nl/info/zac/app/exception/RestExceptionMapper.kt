@@ -239,21 +239,21 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     private fun handleProcessingException(exception: Exception): Response =
         exception.stackTraceToString().let {
             when {
-                it.contains(BagClientService::class.simpleName!!) ->
+                it.contains(BagClientService::class.java.simpleName) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BAG_CLIENT)
-                it.contains(BrcClientService::class.simpleName!!) ->
+                it.contains(BrcClientService::class.java.simpleName) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRC_CLIENT)
-                it.contains(BrpClientService::class.simpleName!!) ->
+                it.contains(BrpClientService::class.java.simpleName) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRP_CLIENT)
-                it.contains(DrcClientService::class.simpleName!!) ->
+                it.contains(DrcClientService::class.java.simpleName) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_DRC_CLIENT)
-                it.contains(ObjectsClientService::class.simpleName!!) ->
+                it.contains(ObjectsClientService::class.java.simpleName) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTS_CLIENT)
-                it.contains(KlantClientService::class.simpleName!!) ->
+                it.contains(KlantClientService::class.java.simpleName) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTINTERACTIES_CLIENT)
-                it.contains(ZrcClientService::class.simpleName!!) ->
+                it.contains(ZrcClientService::class.java.simpleName) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
-                it.contains(ZtcClientService::class.simpleName!!) ->
+                it.contains(ZtcClientService::class.java.simpleName) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
                 else -> generateServerErrorResponse(exception)
             }
@@ -293,7 +293,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         .type(MediaType.APPLICATION_JSON)
         .entity(
             getJSONMessage(
-                errorMessage = errorCode?.value ?: "",
+                errorMessage = errorCode?.value.orEmpty(),
                 exceptionMessage = exceptionMessage
             )
         )

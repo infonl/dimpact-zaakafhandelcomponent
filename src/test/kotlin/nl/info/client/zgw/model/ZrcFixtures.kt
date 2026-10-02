@@ -358,6 +358,7 @@ fun createZaakInformatieobjectForCreatesAndUpdates(
     zaak = zaakUrl
 }
 
+@Suppress("LongParameterList")
 fun createZaakInformatieobjectForReads(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID(),

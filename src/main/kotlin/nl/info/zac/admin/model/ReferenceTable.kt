@@ -91,7 +91,7 @@ fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenc
         emptyList()
     }
     return RestReferenceTable(
-        this.id!!,
+        this.id,
         this.code,
         this.name,
         this.isSystemReferenceTable,

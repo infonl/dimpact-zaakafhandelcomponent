@@ -280,7 +280,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val zaakInformatieObjectenResponse = itestHttpClient.performZgwApiGetRequest(
                 url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
             )
-            var responseBody = zaakInformatieObjectenResponse.bodyAsString
+            val responseBody = zaakInformatieObjectenResponse.bodyAsString
             logger.info { "Response: $responseBody" }
             val now = ZonedDateTime.now(ZoneId.of("UTC"))
             zaakInformatieObjectenResponse.code shouldBe HTTP_OK

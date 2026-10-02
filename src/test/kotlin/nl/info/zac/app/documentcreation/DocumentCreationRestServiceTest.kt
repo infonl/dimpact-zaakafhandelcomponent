@@ -21,7 +21,6 @@ import nl.info.client.smartdocuments.model.createFile
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
@@ -33,7 +32,6 @@ import nl.info.zac.documentcreation.DocumentCreationUserStore
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
-import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -52,10 +50,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val documentCreationService = mockk<DocumentCreationService>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val bpmnService = mockk<BpmnService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val documentCreationUserStore = mockk<DocumentCreationUserStore>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
@@ -338,7 +334,6 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     given("a SmartDocuments callback for a wizard that was cancelled") {
         val zaak = createZaak()
         val documentCreationToken = UUID.randomUUID()
-        val httpSessionInstance = mockk<Instance<HttpSession>>()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { documentCreationUserStore.consumeUser(documentCreationToken, any()) } returns createLoggedInUser()

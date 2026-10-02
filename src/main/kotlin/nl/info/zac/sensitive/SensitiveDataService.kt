@@ -53,8 +53,8 @@ class SensitiveDataService {
      */
     fun put(data: String): UUID =
         dataToUuidStorage.get(data) {
-            UUID.randomUUID().also {
-                uuidToDataStorage.put(it, data)
+            UUID.randomUUID().also { uuid ->
+                uuidToDataStorage.put(uuid, data)
             }
         }
 
