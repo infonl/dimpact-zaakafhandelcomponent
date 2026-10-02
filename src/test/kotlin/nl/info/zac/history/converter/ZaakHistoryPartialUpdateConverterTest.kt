@@ -84,10 +84,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("history is requested") {
             val history = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.AANGEMAAKT,
-                emptyMap<String, String>(),
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.AANGEMAAKT,
+                oldValues = emptyMap<String, String>(),
+                newValues = newValues
             )
 
             then("it is converted correctly") {
@@ -169,10 +169,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return correct data") {
@@ -207,10 +207,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return correct data") {
@@ -245,10 +245,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should not throw an exception") {
@@ -274,10 +274,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should not throw an exception") {
@@ -303,10 +303,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should not contain lines") {
@@ -332,10 +332,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should contain a line") {
@@ -363,10 +363,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return null for oldValue and the zaak identificatie for newValue") {
@@ -410,10 +410,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return the zaak identificaties joined by a comma") {
@@ -451,10 +451,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return the zaak identificatie only once") {
@@ -486,10 +486,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should fall back to the zaak url") {
@@ -530,10 +530,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return null for newValue") {
@@ -567,10 +567,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return correct data") {

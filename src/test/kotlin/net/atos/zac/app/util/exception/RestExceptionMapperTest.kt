@@ -88,11 +88,16 @@ class RestExceptionMapperTest : BehaviorSpec({
                 val response = restExceptionMapper.toResponse(exception)
 
                 then("it should return a specific error code and the exception message") {
-                    checkResponse(response, "msg.error.invalid.argument", exceptionMessage, HttpStatus.SC_BAD_REQUEST)
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.invalid.argument",
+                        exceptionMessage = exceptionMessage,
+                        expectedStatus = HttpStatus.SC_BAD_REQUEST
+                    )
                 }
 
                 and("it should log the exception at the level FINE") {
-                    verify(exactly = 1) { log(any(), Level.FINE, exceptionMessage, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exceptionMessage, throwable = exception) }
                 }
             }
         }
@@ -109,7 +114,12 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 and("it should log a fallback message naming the response status, at the level FINE") {
                     verify(exactly = 1) {
-                        log(any(), Level.FINE, "Exception was thrown. Returning response with status: '404'.", exception)
+                        log(
+                            logger = any(),
+                            level = Level.FINE,
+                            message = "Exception was thrown. Returning response with status: '404'.",
+                            throwable = exception
+                        )
                     }
                 }
             }
@@ -124,7 +134,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the generic server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -138,7 +148,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BRC server error code and log the exception") {
                     checkResponse(response, "msg.error.brc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -152,7 +162,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the DRC server error code and log the exception") {
                     checkResponse(response, "msg.error.drc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -166,7 +176,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZRC server error code and log the exception") {
                     checkResponse(response, "msg.error.zrc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -185,7 +195,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.zaak.geometrie.not-supported",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) { log(any(), Level.WARNING, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.WARNING, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -199,7 +209,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the generic server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -213,7 +223,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZTC server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.ztc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -230,7 +240,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.brp.temporary.person.id.expired",
                         expectedStatus = HttpStatus.SC_GONE
                     )
-                    verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -354,7 +364,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BAG server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.bag.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -379,7 +389,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BRC server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.brc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -404,7 +414,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the Klanten server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.klanten.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -429,7 +439,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the Objecten server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.objects.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -451,7 +461,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZTC server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.ztc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -475,7 +485,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     "it should return the general server error error code with an exception message and log the exception"
                 ) {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -504,10 +514,10 @@ class RestExceptionMapperTest : BehaviorSpec({
                         exactly = 1
                     ) {
                         log(
-                            any(),
-                            Level.FINE,
-                            "fakeErrorMessage",
-                            exception
+                            logger = any(),
+                            level = Level.FINE,
+                            message = "fakeErrorMessage",
+                            throwable = exception
                         )
                     }
                 }
@@ -535,11 +545,11 @@ class RestExceptionMapperTest : BehaviorSpec({
                     )
                     verify(exactly = 1) {
                         log(
-                            any(),
-                            Level.FINE,
-                            "Exception was thrown. Returning response with error code: " +
+                            logger = any(),
+                            level = Level.FINE,
+                            message = "Exception was thrown. Returning response with error code: " +
                                 "'${ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value}'.",
-                            exception
+                            throwable = exception
                         )
                     }
                 }
@@ -558,7 +568,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.besluit.publication.disabled",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -579,10 +589,11 @@ class RestExceptionMapperTest : BehaviorSpec({
                         exactly = 1
                     ) {
                         log(
-                            any(),
-                            Level.FINE,
-                            "Exception was thrown. Returning response with error code: 'msg.error.besluit.publication.date.missing'.",
-                            exception
+                            logger = any(),
+                            level = Level.FINE,
+                            message = "Exception was thrown. Returning response with error code: " +
+                                "'msg.error.besluit.publication.date.missing'.",
+                            throwable = exception
                         )
                     }
                 }
@@ -601,7 +612,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.besluit.response.date.invalid",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -619,7 +630,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "fakeErrorCodeValue",
                         expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                     )
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -639,7 +650,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -659,7 +670,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -679,7 +690,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -699,7 +710,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -719,7 +730,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -739,7 +750,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -761,7 +772,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception") {
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -782,7 +793,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception") {
-                    verify(exactly = 1) { log(any(), Level.WARNING, exception.message, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.WARNING, message = exception.message, throwable = exception) }
                 }
             }
         }

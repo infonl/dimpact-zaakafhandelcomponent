@@ -130,7 +130,7 @@ class BpmnServiceTest : BehaviorSpec({
         every { processInstanceBuilder.start() } returns processInstance
 
         `when`("the zaak is started using a BPMN process definition") {
-            bpmnService.startProcess(zaak, zaakType, referentieProcesName, zaakData)
+            bpmnService.startProcess(zaak = zaak, zaaktype = zaakType, processDefinitionKey = referentieProcesName, zaakData = zaakData)
 
             then("a Flowable BPMN process instance should be started") {
                 verify(exactly = 1) {

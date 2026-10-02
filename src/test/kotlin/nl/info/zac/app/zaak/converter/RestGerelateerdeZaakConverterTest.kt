@@ -82,7 +82,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.GERELATEERD
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.GERELATEERD
                 )
 
                 then("ontkoppelen is true") {
@@ -104,7 +108,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.GERELATEERD
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.GERELATEERD
                 )
 
                 then("ontkoppelen is false") {
@@ -126,7 +134,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.GERELATEERD
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.GERELATEERD
                 )
 
                 then("ontkoppelen is false") {
@@ -148,7 +160,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.HOOFDZAAK
                 )
 
                 then("ontkoppelen is true") {
@@ -170,7 +186,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.HOOFDZAAK
                 )
 
                 then("ontkoppelen is false") {
@@ -192,7 +212,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.HOOFDZAAK
                 )
 
                 then("ontkoppelen is false") {
@@ -214,7 +238,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.HOOFDZAAK
                 )
 
                 then("ontkoppelen is false") {
@@ -236,7 +264,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.HOOFDZAAK
                 )
 
                 then("ontkoppelen is true") {
@@ -258,7 +290,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.DEELZAAK
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.DEELZAAK
                 )
 
                 then("ontkoppelen is true") {
@@ -280,7 +316,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
             `when`("convert is called with relatieType VERVOLG") {
                 val result = converter.convert(
-                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.VERVOLG
+                    fromZaak = fromZaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = gerelateerdeZaak,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.VERVOLG
                 )
 
                 then("ontkoppelen is false") {

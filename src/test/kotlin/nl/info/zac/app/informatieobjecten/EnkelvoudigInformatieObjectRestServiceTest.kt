@@ -167,10 +167,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val returnedRESTEnkelvoudigInformatieobject =
                 enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
-                    zaak.uuid,
-                    documentReferentieId,
-                    false,
-                    restEnkelvoudigInformatieobject
+                    zaakUuid = zaak.uuid,
+                    documentReferenceId = documentReferentieId,
+                    isTaakObject = false,
+                    restEnkelvoudigInformatieobject = restEnkelvoudigInformatieobject
                 )
 
             then("the enkelvoudig informatieobject is added to the zaak") {
@@ -206,10 +206,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             shouldThrow<RuntimeException> {
                 enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
-                    zaak.uuid,
-                    documentReferentieId,
-                    false,
-                    restEnkelvoudigInformatieobject
+                    zaakUuid = zaak.uuid,
+                    documentReferenceId = documentReferentieId,
+                    isTaakObject = false,
+                    restEnkelvoudigInformatieobject = restEnkelvoudigInformatieobject
                 )
             }
 
@@ -248,10 +248,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val returnedRESTEnkelvoudigInformatieobject =
                 enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
-                    zaak.uuid,
-                    documentReferentieId,
-                    false,
-                    restEnkelvoudigInformatieobject,
+                    zaakUuid = zaak.uuid,
+                    documentReferenceId = documentReferentieId,
+                    isTaakObject = false,
+                    restEnkelvoudigInformatieobject = restEnkelvoudigInformatieobject,
                 )
 
             then("the enkelvoudig informatieobject is added to the zaak") {
@@ -272,10 +272,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val exception = shouldThrow<PolicyException> {
                 enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
-                    zaak.uuid,
-                    documentReferentieId,
-                    false,
-                    restEnkelvoudigInformatieobject,
+                    zaakUuid = zaak.uuid,
+                    documentReferenceId = documentReferentieId,
+                    isTaakObject = false,
+                    restEnkelvoudigInformatieobject = restEnkelvoudigInformatieobject,
                 )
             }
 
@@ -301,10 +301,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("the document is added") {
             val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                 enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
-                    zaak.uuid,
-                    "fakeDocumentReferentieId",
-                    false,
-                    restEnkelvoudigInformatieobject
+                    zaakUuid = zaak.uuid,
+                    documentReferenceId = "fakeDocumentReferentieId",
+                    isTaakObject = false,
+                    restEnkelvoudigInformatieobject = restEnkelvoudigInformatieobject
                 )
             }
 
@@ -360,10 +360,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val returnedRESTEnkelvoudigInformatieobject =
                 enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
-                    closedZaak.uuid,
-                    documentReferentieId,
-                    false,
-                    restEnkelvoudigInformatieobject
+                    zaakUuid = closedZaak.uuid,
+                    documentReferenceId = documentReferentieId,
+                    isTaakObject = false,
+                    restEnkelvoudigInformatieobject = restEnkelvoudigInformatieobject
                 )
 
             then("the enkelvoudig informatieobject is added to the zaak") {
