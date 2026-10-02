@@ -29,7 +29,9 @@ import nl.info.client.kvk.model.createRandomVestigingsNumber
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.or.`object`.model.createObjectRecord
+import nl.info.client.or.shared.exception.ORErrorException
 import nl.info.client.or.shared.exception.ORRuntimeException
+import nl.info.client.or.shared.model.ORError
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
@@ -1698,6 +1700,45 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } throws ORRuntimeException("Failed")
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then(
+                    """
+                no exception is thrown, and no further actions are taken
+                """
+                ) {
+                    verify(exactly = 0) {
+                        inboxProductaanvraagService.create(any())
+                        zgwApiService.createZaak(any())
+                        zrcClientService.createZaakobject(any())
+                        cmmnService.startCase(any(), any(), any(), any())
+                        bpmnService.startProcess(any(), any(), any())
+                    }
+                }
+
+                then(
+                    """
+                the claim is not marked as done, so that the claim timeout reclaims it and the productaanvraag is retried
+                """
+                ) {
+                    verify(exactly = 0) {
+                        productaanvraagClaimRepository.markDone(any())
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            A productaanvraag-dimpact object that does not exist in the objects client service
+            """
+        ) {
+            clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } throws ORErrorException(ORError().apply { status = 404 })
 
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)

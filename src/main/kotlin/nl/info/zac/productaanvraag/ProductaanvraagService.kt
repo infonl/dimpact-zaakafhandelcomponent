@@ -18,7 +18,9 @@ import net.atos.zac.util.JsonbUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.objects.model.generated.ModelObject
+import nl.info.client.or.shared.exception.ORErrorException
 import nl.info.client.or.shared.exception.ORRuntimeException
+import nl.info.client.or.shared.exception.ORValidationErrorException
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
@@ -111,6 +113,10 @@ class ProductaanvraagService @Inject constructor(
     private fun readProductaanvraagObject(productaanvraagObjectUUID: UUID): ModelObject? =
         try {
             objectsClientService.readObject(productaanvraagObjectUUID)
+        } catch (orErrorException: ORErrorException) {
+            logUnreadableProductaanvraagObject(productaanvraagObjectUUID, orErrorException)
+        } catch (orValidationErrorException: ORValidationErrorException) {
+            logUnreadableProductaanvraagObject(productaanvraagObjectUUID, orValidationErrorException)
         } catch (orRuntimeException: ORRuntimeException) {
             logUnreadableProductaanvraagObject(productaanvraagObjectUUID, orRuntimeException)
         } catch (webApplicationException: WebApplicationException) {
