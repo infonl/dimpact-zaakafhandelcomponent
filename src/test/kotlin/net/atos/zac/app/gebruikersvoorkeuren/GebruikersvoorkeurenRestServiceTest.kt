@@ -23,7 +23,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
 
-class GebruikersvoorkeurenRESTServiceTest : BehaviorSpec({
+class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
     val gebruikersvoorkeurenService = mockk<GebruikersvoorkeurenService>()
 
     @Suppress("UNCHECKED_CAST")

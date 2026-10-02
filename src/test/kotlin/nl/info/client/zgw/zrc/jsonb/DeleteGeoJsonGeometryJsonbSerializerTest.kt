@@ -11,10 +11,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.json.bind.serializer.SerializationContext
 import jakarta.json.stream.JsonGenerator
-import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.DeleteGeoJsonGeometry
 
-class DeleteGeoJSONGeometryJsonbSerializerTest : BehaviorSpec({
-    val deleteGeoJSONGeometryJsonbSerializer = DeleteGeoJSONGeometryJsonbSerializer()
+class DeleteGeoJsonGeometryJsonbSerializerTest : BehaviorSpec({
+    val deleteGeoJsonGeometryJsonbSerializer = DeleteGeoJsonGeometryJsonbSerializer()
     val jsonGenerator = mockk<JsonGenerator>()
     val serializationContext = mockk<SerializationContext>()
 
@@ -23,12 +23,12 @@ class DeleteGeoJSONGeometryJsonbSerializerTest : BehaviorSpec({
     }
 
     given("A 'deleted Geo JSON geometry' object") {
-        val deleteGeoJSONGeometry = DeleteGeoJSONGeometry()
+        val deleteGeoJsonGeometry = DeleteGeoJsonGeometry()
         every { jsonGenerator.writeNull() } returns jsonGenerator
 
         `when`("the object is serialized using the 'geometry to be deleted' JSONB serializer") {
-            deleteGeoJSONGeometryJsonbSerializer.serialize(
-                deleteGeoJSONGeometry,
+            deleteGeoJsonGeometryJsonbSerializer.serialize(
+                deleteGeoJsonGeometry,
                 jsonGenerator,
                 serializationContext
             )

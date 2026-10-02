@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
@@ -52,7 +52,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val taskService = mockk<TaskService>()
     val zrcClientService = mockk<ZrcClientService>()

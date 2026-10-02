@@ -13,7 +13,7 @@ import org.flowable.common.engine.api.scope.ScopeTypes.CMMN
 import java.time.Month
 import java.util.Calendar
 
-class RESTSignaleringTaakConverterTest : BehaviorSpec({
+class RestSignaleringTaakConverterTest : BehaviorSpec({
     afterEach {
         checkUnnecessaryStub()
     }

@@ -15,7 +15,7 @@ import nl.info.zac.app.configuration.model.RestTaal
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-class RESTTaalReaderTest : DescribeSpec({
+class RestTaalReaderTest : DescribeSpec({
 
     val taalReader = RESTTaalReader()
     val taal = RestTaal(

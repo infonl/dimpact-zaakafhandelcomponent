@@ -6,7 +6,7 @@ package nl.info.zac.app.admin.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 
-data class RESTZaaktypeInrichtingscheck(
+data class RestZaaktypeInrichtingscheck(
     var zaaktype: RestZaaktypeOverzicht,
     var statustypeIntakeAanwezig: Boolean = false,
     var statustypeInBehandelingAanwezig: Boolean = false,

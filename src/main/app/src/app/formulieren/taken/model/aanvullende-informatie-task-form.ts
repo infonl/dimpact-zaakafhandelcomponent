@@ -31,7 +31,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
 
   async requestForm(
     zaak: GeneratedType<"RestZaak">,
-    planItem?: GeneratedType<"RESTPlanItem">,
+    planItem?: GeneratedType<"RestPlanItem">,
   ): Promise<FormField[]> {
     const replyToControl = this.formBuilder.control<string | null>(null);
     replyToControl.disable();
