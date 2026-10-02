@@ -13,9 +13,9 @@ import {
 
 export type ZacMeta = {
   /**
-   * `false` for a request that reports its own failure. Neither the blocking
-   * dialog nor the snackbar then appears, and the caller is on the hook for
-   * telling the user what went wrong. Defaults to reporting.
+   * `false` for a request that reports its own failure. The blocking dialog
+   * then does not appear, and the caller is on the hook for telling the user
+   * what went wrong. Defaults to reporting.
    */
   reportErrors?: boolean;
 };
@@ -54,7 +54,7 @@ export const QUERY_CLIENT = new InjectionToken<QueryClient>("QUERY_CLIENT", {
           if (!reportsErrors(query.meta)) return;
 
           if (query.state.data !== undefined && !isLoggedOut(error)) {
-            foutAfhandelingService.log("msg.error.verversen-mislukt")(error);
+            console.error(error);
             return;
           }
 

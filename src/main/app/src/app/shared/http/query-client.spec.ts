@@ -13,8 +13,6 @@ import { QUERY_CLIENT } from "./query-client";
 
 describe("QUERY_CLIENT", () => {
   const foutAfhandelen = jest.fn().mockReturnValue(of());
-  const logRefreshFailure = jest.fn();
-  const log = jest.fn().mockReturnValue(logRefreshFailure);
   const error = new HttpErrorResponse({ status: 500 });
 
   beforeEach(() => {
@@ -25,7 +23,6 @@ describe("QUERY_CLIENT", () => {
           provide: FoutAfhandelingService,
           useValue: fromPartial<FoutAfhandelingService>({
             foutAfhandelen,
-            log,
           }),
         },
       ],
@@ -100,7 +97,7 @@ describe("QUERY_CLIENT", () => {
     ).rejects.toBe(httpParamsError);
 
     expect(foutAfhandelen).not.toHaveBeenCalled();
-    expect(log).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it("reports nothing for a read that says it handles its own failure", async () => {
@@ -116,10 +113,10 @@ describe("QUERY_CLIENT", () => {
     ).rejects.toBe(error);
 
     expect(foutAfhandelen).not.toHaveBeenCalled();
-    expect(log).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
-  it("reports a failed refetch as a snackbar, so it cannot close a dialog the user is in", async () => {
+  it("only logs a failed refetch to the console, so a background poll neither closes a dialog the user is in nor interrupts them", async () => {
     const queryClient = TestBed.inject(QUERY_CLIENT);
     const queryKey = ["fakeEndpoint"];
 
@@ -137,8 +134,7 @@ describe("QUERY_CLIENT", () => {
     ).rejects.toBe(error);
 
     expect(foutAfhandelen).not.toHaveBeenCalled();
-    expect(log).toHaveBeenCalledWith("msg.error.verversen-mislukt");
-    expect(logRefreshFailure).toHaveBeenCalledWith(error);
+    expect(console.error).toHaveBeenCalledWith(error);
   });
 
   it("reports a refetch that fails because the session expired through the error handling, so the user is sent to log in", async () => {
@@ -163,6 +159,6 @@ describe("QUERY_CLIENT", () => {
     ).rejects.toBe(loggedOut);
 
     expect(foutAfhandelen).toHaveBeenCalledWith(loggedOut);
-    expect(log).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 });

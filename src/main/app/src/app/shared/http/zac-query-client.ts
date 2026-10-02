@@ -57,8 +57,9 @@ export class ZacQueryClient {
   private readonly utilService = inject(UtilService);
 
   /**
-   * The counterpart of what the query cache does for a read, so that a caller
-   * opts a write out of the shared reporting the same way it opts out a read.
+   * A mutation does not go through the query cache, so a failed write opens
+   * the error dialog here. A mutation with `meta: { reportErrors: false }`
+   * skips it, just as a query with that `meta` skips the cache's reporting.
    */
   private readonly reportError = (
     error: HttpErrorResponse,
