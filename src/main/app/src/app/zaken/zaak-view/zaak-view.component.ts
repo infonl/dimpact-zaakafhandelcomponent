@@ -55,6 +55,7 @@ import { detailExpand } from "../../shared/animations/animations";
 import { runMutation } from "../../shared/http/run-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { TakenService } from "../../taken/taken.service";
 import { BesluitCreateComponent } from "../besluit-create/besluit-create.component";
 import { BesluitEditComponent } from "../besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "../besluit-view/besluit-view.component";
@@ -125,6 +126,7 @@ export class ZaakViewComponent
 {
   private readonly queryClient = inject(QueryClient);
   private readonly betrokkenenService = inject(ZaakBetrokkenenService);
+  private readonly takenService = inject(TakenService);
 
   private readonly zaakUuid = signal<string | undefined>(undefined);
 
@@ -485,6 +487,10 @@ export class ZaakViewComponent
   protected taakGestart() {
     this.sideActions.reset();
     this.updateZaak();
+    this.queryClient.invalidateQueries({
+      queryKey: this.takenService.listTakenVoorZaakQuery(this.zaak.uuid)
+        .queryKey,
+    });
   }
 
   protected mailVerstuurd(mailVerstuurd: boolean) {

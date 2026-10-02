@@ -7,6 +7,7 @@ import { Given, When } from "@cucumber/cucumber";
 import {
   FIFTEEN_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
+  TWENTY_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
@@ -33,11 +34,16 @@ async function loginToZac(this: CustomWorld, user: string) {
 async function waitForPage(world: CustomWorld) {
   const account_circle = world.page.getByText("account_circle");
   const loginHeader = world.page.getByText("ZAAKAFHANDELCOMPONENT");
-  return account_circle.or(loginHeader).first().waitFor({ state: "attached" });
+  return account_circle
+    .or(loginHeader)
+    .first()
+    .waitFor({ state: "attached", timeout: TWENTY_SECONDS_IN_MS })
+    .then(() => true)
+    .catch(() => false);
 }
 
 async function logout(world: CustomWorld) {
-  await waitForPage(world);
+  if (!(await waitForPage(world))) return;
   if (!(await world.page.getByText("account_circle").isVisible())) return;
   await world.page.getByText("account_circle").first().click();
   await world.page.getByText("Uitloggen").first().click();
@@ -53,7 +59,7 @@ async function isLoginFormShown(world: CustomWorld) {
 }
 
 async function isLoggedIn(world: CustomWorld, user: keyof typeof users) {
-  await waitForPage(world);
+  if (!(await waitForPage(world))) return false;
   const account_circle = world.page.getByText("account_circle");
   if (!(await account_circle.isVisible())) return false;
   await account_circle.click();

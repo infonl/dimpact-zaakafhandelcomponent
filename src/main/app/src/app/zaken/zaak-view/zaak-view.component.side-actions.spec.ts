@@ -305,6 +305,16 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
+    it("refetches the taken of the zaak once a taak has been started, so the new taak shows without a websocket event", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      fixture.componentInstance["taakGestart"]();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+
     it("refetches the zaak once a taak has been started", () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
