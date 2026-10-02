@@ -196,7 +196,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                         "taakdata": {
                             "relevanteDocumenten": "$enkelvoudigInformatieObjectUUID",
                             "vraag": "fakeQuestion",
-                            "canOndertekenen": "$enkelvoudigInformatieObjectUUID",
+                            "ondertekenen": "$enkelvoudigInformatieObjectUUID",
                             "goedkeuren": "goedkeuren.AKKOORD"
                         },
                         "taakdocumenten": [],
