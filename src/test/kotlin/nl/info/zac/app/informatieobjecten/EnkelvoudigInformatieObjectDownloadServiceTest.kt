@@ -212,10 +212,13 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns failingStream
 
         `when`("getZipStreamOutput is called and the stream is written") {
-            then("an EnkelvoudigInformatieObjectDownloadException is thrown") {
-                shouldThrow<EnkelvoudigInformatieObjectDownloadException> {
-                    service.getZipStreamOutput(listOf(informatieobject)).write(ByteArrayOutputStream())
-                }
+            val enkelvoudigInformatieObjectDownloadException = shouldThrow<EnkelvoudigInformatieObjectDownloadException> {
+                service.getZipStreamOutput(listOf(informatieobject)).write(ByteArrayOutputStream())
+            }
+
+            then("an EnkelvoudigInformatieObjectDownloadException names the document that could not be added") {
+                enkelvoudigInformatieObjectDownloadException.message shouldBe
+                    "Failed to add enkelvoudiginformatieobject with identification 'DOC-FAIL' to zip outputStream"
             }
         }
     }

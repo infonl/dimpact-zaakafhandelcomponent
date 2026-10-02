@@ -19,6 +19,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_ENKELVOUDIGINFORMATIEOBJECT_CONVERSION_FAILED
 import nl.info.zac.util.toBase64String
 import java.io.ByteArrayInputStream
 import java.util.UUID
@@ -94,10 +95,14 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
         }
 
         `when`("convertEnkelvoudigInformatieObjectToPDF is called") {
-            then("an EnkelvoudigInformatieObjectConversionException is thrown") {
+            val enkelvoudigInformatieObjectConversionException =
                 shouldThrow<EnkelvoudigInformatieObjectConversionException> {
                     service.convertEnkelvoudigInformatieObjectToPDF(document, uuid)
                 }
+
+            then("an EnkelvoudigInformatieObjectConversionException with the conversion-failed error code is thrown") {
+                enkelvoudigInformatieObjectConversionException.errorCode shouldBe
+                    ERROR_CODE_ENKELVOUDIGINFORMATIEOBJECT_CONVERSION_FAILED
             }
         }
     }
