@@ -9,7 +9,6 @@ import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
