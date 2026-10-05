@@ -5,7 +5,10 @@
 
 import { expect } from "@playwright/test";
 import { ENV } from "bdd/types";
-import { describeTestOrigin } from "../../utils/test-origin";
+import {
+  describeCaseDescription,
+  describeTestOrigin,
+} from "../../utils/test-origin";
 import { Given, Then, When } from "./fixture";
 
 Given("the case type {string} exists", async ({ caseType }, type: string) => {
@@ -30,7 +33,7 @@ When(
 
     // A UTC timestamp with millisecond precision tells this case apart from every other one on a shared environment.
     const timestampUtc = new Date().toISOString();
-    caseDescription.value = timestampUtc;
+    caseDescription.value = describeCaseDescription(timestampUtc);
     await page
       .getByRole("textbox", { name: "Description" })
       .fill(caseDescription.value);

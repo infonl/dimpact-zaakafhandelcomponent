@@ -21,6 +21,7 @@ import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
 import {
+  describeCaseDescription,
   describeTestOrigin,
   describeTestOriginShort,
 } from "../utils/test-origin";
@@ -278,8 +279,9 @@ When(
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
     // A UTC timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
     const timestampUtc = new Date().toISOString();
-    await this.page.getByLabel("Omschrijving").fill(timestampUtc);
-    this.testStorage.set("caseDescription", timestampUtc);
+    const caseDescription = describeCaseDescription(timestampUtc);
+    await this.page.getByLabel("Omschrijving").fill(caseDescription);
+    this.testStorage.set("caseDescription", caseDescription);
     await this.page
       .getByLabel("Toelichting")
       .fill(describeTestOrigin(this.testName, this.browser, timestampUtc));

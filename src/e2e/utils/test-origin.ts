@@ -47,6 +47,10 @@ export function describeTestOrigin(
   ].join("\n");
 }
 
+export function describeCaseDescription(timestampUtc: string) {
+  return `Aangemaakt door 'e2e test - ${timestampUtc}'`;
+}
+
 /** Fits the 100-character limit of the reden fields. */
 export function describeTestOriginShort(browser: Browser | null) {
   const environment = process.env.CI
