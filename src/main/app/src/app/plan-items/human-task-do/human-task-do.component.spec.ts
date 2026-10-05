@@ -31,6 +31,7 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { TakenService } from "../../taken/taken.service";
 import { HumanTaskDoComponent } from "./human-task-do.component";
 
 describe("HumanTaskDoComponent", () => {
@@ -44,6 +45,7 @@ describe("HumanTaskDoComponent", () => {
   let httpTestingController: HttpTestingController;
 
   const zaak = fromPartial<GeneratedType<"RestZaak">>({
+    uuid: "fakeZaakUuid",
     zaaktype: {
       uuid: "fakeZaaktypeUuid",
       omschrijving: "fakeZaaktypeOmschrijving",
@@ -408,6 +410,24 @@ describe("HumanTaskDoComponent", () => {
       expect(doneSpy).toHaveBeenCalled();
     });
 
+    it("should refetch the taken of the zaak when saving succeeds, so the new taak shows without waiting for a websocket event", async () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      component["onFormSubmit"](component["form"]);
+      await sleep();
+
+      httpTestingController
+        .expectOne("/rest/planitems/doHumanTaskPlanItem")
+        .flush({});
+      await sleep();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey:
+          TestBed.inject(TakenService).listTakenVoorZaakQuery("fakeZaakUuid")
+            .queryKey,
+      });
+    });
+
     it("should show an error message and not emit done when saving fails", async () => {
       const doneSpy = jest.spyOn(component.done, "emit");
 
@@ -428,6 +448,14 @@ describe("HumanTaskDoComponent", () => {
   });
 
   describe("cancelling the form", () => {
+    it("should not refetch the taken of the zaak", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      component["onFormCancel"]();
+
+      expect(invalidateSpy).not.toHaveBeenCalled();
+    });
+
     it("should emit done", () => {
       const doneSpy = jest.spyOn(component.done, "emit");
 
