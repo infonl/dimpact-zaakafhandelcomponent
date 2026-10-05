@@ -7,7 +7,7 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 15 of 18 modules removed once step 8 merges; step 7 merged, step 8 ready for PR
+## Progress — all 18 modules removed once step 9 merges; step 8 merged, step 9 ready for PR
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
@@ -19,11 +19,10 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
   - [x] **5b** — 14 non-spec files + 2 pre-existing `MatButtonModule` gaps with their specs (PZ-12856, merged, #7233) — **+13.5 kB** transfer, −120 kB raw, re-measured on top of step 6
 - [x] **Step 6** — `MaterialFormBuilderModule` removed — **−9.8 kB** (PZ-12845, merged, #7227)
 - [x] **Step 7** — dissolve `SharedModule` — **−30.8 kB** (PZ-12864, merged, #7266)
-- [ ] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
-      `documenten`, `productaanvragen`) — implemented 2026-10-05, uncommitted; tsc 0, lint 0, prod build ok with one lazy `*.routes` chunk per area; ready for PR
-- [ ] **Step 9** — `app-routing.module.ts` -> `app.routes.ts`
-- [ ] **Step 10** — `bootstrapApplication` + delete `CoreModule`
-- [ ] **Step 11 (optional)** — lazy-load the search sidenav and `/gebruiker` — est. **≈ −94 kB** transfer; independent of steps 9–10, own PR
+- [x] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
+      `documenten`, `productaanvragen`) (merged, #7271)
+- [ ] **Step 9** — `app.routes.ts` + `bootstrapApplication`; delete `AppRoutingModule`, `AppModule` and `CoreModule` (old step 10 merged in on 2026-10-05) — implemented 2026-10-05, uncommitted; tsc 0, lint 0, prod build ok (433.88 -> 433.49 kB transfer on main 921612bd7), 3388 green, provider diff explained, manual smoke test ok; ready for PR (PZ-12875)
+- [ ] **Step 10 (optional)** — lazy-load the search sidenav and `/gebruiker` — est. **≈ −94 kB** transfer; independent of step 9, own PR
 
 Bundle so far: **672.06 -> 443.64 kB** initial transfer (**−34%**), the 77 kB of that in
 the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB). Step 5b gives back +13.5 kB on its own base (450.26 -> 463.74 kB, main `c2523a8ab`). Step 7 takes −30.8 kB on its own base (464.59 -> 433.79 kB, main `5ec92208c`), so 5b + 7 together net −17.3 kB.
@@ -245,7 +244,7 @@ Every file that imports a barrel has to be given its own imports before the file
 the work, not the deletion. Order is forced by the dependencies: smallest first, `SharedModule`
 last because it re-exports the other three. Step 5 measured +27 kB on its own and +13.5 kB on top of step 6; any Material win now needs step 7. Step 4 was cleanup, and mostly touched spec files, which ship to nobody.
 
-**A barrel's `providers` are app-wide only because `AppModule -> SharedModule` imports it.** Each dissolving step must move those providers somewhere explicit (`CoreModule` until step 10) in the same PR, or they silently vanish at runtime while specs still pass. Step 5 did this for `MAT_SNACK_BAR_DEFAULT_OPTIONS`; steps 6 and 7 carry more (see there).
+**A barrel's `providers` are app-wide only because `AppModule -> SharedModule` imports it.** Each dissolving step must move those providers somewhere explicit (`CoreModule` until step 9) in the same PR, or they silently vanish at runtime while specs still pass. Step 5 did this for `MAT_SNACK_BAR_DEFAULT_OPTIONS`; steps 6 and 7 carry more (see there).
 
 Shared cautions for all four: expect a tail of missing-import template errors, and expect specs to
 lose providers they were inheriting through a barrel — step 2 hit exactly that with
@@ -346,7 +345,7 @@ any more — what it exports is the modern `Zac*` form-field set. Carries the mo
 with `MAT_DATE_FORMATS` / `MAT_MOMENT_DATE_ADAPTER_OPTIONS`. Its `forRoot()` returns
 `providers: []` — a dead API, delete rather than port (its only caller is `shared.module.ts`). `withJsonpSupport()` in its `provideHttpClient(...)` is dead: no `.jsonp(` call exists in the app (verified 2026-09-29).
 
-**Providers must move in this step, not step 10.** `DateAdapter` (`MomentDateAdapter`), `MAT_MOMENT_DATE_ADAPTER_OPTIONS` and `MAT_DATE_FORMATS` reach the app only through the barrel: via `SharedModule` (imported by `AppModule` and `CoreModule`) and via the components that import `MaterialFormBuilderModule` directly. Extract them into one `provideZacDateAdapter()` and add it to `CoreModule.providers`; without it every `mat-datepicker` throws "No provider found for DateAdapter" at runtime. Specs get it from `setupJest.ts`, which uses `provideZacDateAdapter()` too. Drop the barrel's `provideHttpClient(...)` rather than moving it; `app` and `core` already provide one.
+**Providers must move in this step, not step 9.** `DateAdapter` (`MomentDateAdapter`), `MAT_MOMENT_DATE_ADAPTER_OPTIONS` and `MAT_DATE_FORMATS` reach the app only through the barrel: via `SharedModule` (imported by `AppModule` and `CoreModule`) and via the components that import `MaterialFormBuilderModule` directly. Extract them into one `provideZacDateAdapter()` and add it to `CoreModule.providers`; without it every `mat-datepicker` throws "No provider found for DateAdapter" at runtime. Specs get it from `setupJest.ts`, which uses `provideZacDateAdapter()` too. Drop the barrel's `provideHttpClient(...)` rather than moving it; `app` and `core` already provide one.
 
 Three components import both barrels (MFB + `SharedModule`): `klant-koppel-betrokkene`, `klant-koppel-initiator` and `parameters-edit-cmmn`. Step 6 removes only MFB from them; `SharedModule` stays until step 7.
 
@@ -359,9 +358,9 @@ Three components import both barrels (MFB + `SharedModule`): `klant-koppel-betro
 Last, because until the other three are gone it is still the thing re-exporting them. Its own
 exports are 21 standalone components, directives and pipes plus `CommonModule`, `FormsModule`, `TranslateModule` and `DragDropModule`, which consumers list directly instead.
 
-**Its providers move in this step** (to `CoreModule.providers`), because step 10 comes after it: the `MatPaginatorIntl` factory and the paginator-language `provideAppInitializer`. Watch the `MatPaginatorIntl` trap from step 2: specs inherit that provider transitively and lose their translated paginator accessible names when it moves; expect a few specs to need the factory provided locally. The other two need no app-wide home (verified 2026-10-01):
+**Its providers move in this step** (to `CoreModule.providers`), because step 9 comes after it: the `MatPaginatorIntl` factory and the paginator-language `provideAppInitializer`. Watch the `MatPaginatorIntl` trap from step 2: specs inherit that provider transitively and lose their translated paginator accessible names when it moves; expect a few specs to need the factory provided locally. The other two need no app-wide home (verified 2026-10-01):
 - `Title` is `providedIn: 'root'` in `@angular/platform-browser` (`app.component` and `util.service` inject it); drop the provider, do not move it.
-- `VertrouwelijkaanduidingToTranslationKeyPipe` is injected as a service only by `informatie-objecten/informatie-object-create-attended` (constructor parameter); give that component its own `providers: [VertrouwelijkaanduidingToTranslationKeyPipe]` instead of moving it to `CoreModule`. Its template users import the pipe directly and are unaffected. Why not root (decided 2026-10-05): before, the provider was root only because `SharedModule` sat in `AppModule`/`CoreModule`. Template use needs no provider (Angular instantiates pipes itself), and `.selectList` (`mail-create`, `formio-setup-service`) is static. A root provider would serve one consumer and need moving again in step 10. `@Injectable({ providedIn: "root" })` on the pipe class was the considered alternative; the local provider wins because it keeps the dependency visible on its only consumer, and that component's spec now checks it.
+- `VertrouwelijkaanduidingToTranslationKeyPipe` is injected as a service only by `informatie-objecten/informatie-object-create-attended` (constructor parameter); give that component its own `providers: [VertrouwelijkaanduidingToTranslationKeyPipe]` instead of moving it to `CoreModule`. Its template users import the pipe directly and are unaffected. Why not root (decided 2026-10-05): before, the provider was root only because `SharedModule` sat in `AppModule`/`CoreModule`. Template use needs no provider (Angular instantiates pipes itself), and `.selectList` (`mail-create`, `formio-setup-service`) is static. A root provider would serve one consumer and need moving again in step 9. `@Injectable({ providedIn: "root" })` on the pipe class was the considered alternative; the local provider wins because it keeps the dependency visible on its only consumer, and that component's spec now checks it.
 
 `core.module.ts` imports `SharedModule` too, not only `app.module.ts`; both lines go in this step. The two `admin/bpmn-process-definitions` specs carry a comment that the component "imports SharedModule, so it injects MatDialog from its own standalone injector", which is why they spy on `MatDialog.prototype.open`. Re-check that reasoning and the comment when the import goes; the spies themselves still work either way.
 
@@ -382,16 +381,22 @@ Only the *shape* of the import target changes: it resolves to an NgModule instea
   `component:` refs; leave them. Route-level `loadComponent` inside an already lazy chunk was
   measured and rejected on 2026-09-10 (splitting klanten's chunk cost 4.33 kB through fragmentation).
 
-## Step 9 — `app-routing.module.ts` -> `app.routes.ts`
+## Step 9 — `app.routes.ts` + `bootstrapApplication`, delete `AppModule` and `CoreModule`
 
-`RouterModule.forRoot(routes)` becomes `provideRouter(APP_ROUTES)`, staged into `AppModule`'s
-providers so this step stands alone. Last routing module gone. `forRoot` is called without a
+Old steps 9 and 10 in one PR (decided 2026-10-05). Routing part first:
+
+
+`RouterModule.forRoot(routes)` becomes `provideRouter(APP_ROUTES)`, now a bootstrap provider. Last routing module gone. `forRoot` is called without a
 config object (verified 2026-10-01), so no `withRouterConfig`/`withInMemoryScrolling`-style
 feature is needed to keep behaviour identical.
 
-## Step 10 — `bootstrapApplication` + delete `CoreModule`
+### Bootstrap part (was step 10)
 
-The one step with genuine behavioural risk. Own PR, own smoke test.
+The one part with genuine behavioural risk. Own smoke test.
+
+**Done as:** providers in new `app/app.config.ts` (`appConfig`); `AppModule`'s constructor side effects in a `provideEnvironmentInitializer` (same timing as a module constructor: injector creation); `provideHttpClient()` without `withInterceptorsFromDi`. Provider diff (old `importProvidersFrom(AppModule)` vs `appConfig.providers` + `AppComponent`'s imports): only duplicates (HttpClient was provided twice), the legacy-interceptor fn, `BrowserModule` internals that `bootstrapApplication` adds itself (`BROWSER_MODULE_PROVIDERS`), and the Protractor `Testability` providers (unused, e2e is Playwright) disappear.
+
+**Smoke test (8080, after `./gradlew war -x test -x npmRunLint`):** dates in nl-NL format (no NG0701), paginator labels in Dutch, dialog width 650px, snackbar at the top, reload keeps the TanStack cache (sessionStorage `zac:tanstack:query`), icons use Material Symbols, search sidenav opens, deep link reload on `/zaken/...` works, no NG05100 in the console.
 
 - `main.ts`: `platformBrowserDynamic().bootstrapModule(AppModule)` ->
   `bootstrapApplication(AppComponent, { providers: [...] })`. Keep `alterMoment()`.
@@ -427,12 +432,12 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 - `AppModule.injector` is assigned but **read nowhere**. Confirmed dead (re-verified
   2026-10-01); delete it rather than porting it.
 
-## Step 11 (optional) — More lazy loading: search sidenav + `/gebruiker`
+## Step 10 (optional) — More lazy loading: search sidenav + `/gebruiker`
 
 Not about NgModules; it can be its own PR at any time. Found 2026-10-05 by cutting nodes out of the import graph in the production build's `stats.json` (`ng build --configuration production --stats-json`, run outside the sandbox). Initial bundle then: 1.94 MB raw / 436 kB transfer. The figures are upper bounds; measure a real before/after build.
 
 - **Search sidenav** — wrap `<zac-zoeken>` in `app.component.html` in `@defer (on idle)`. The sidenav is closed by default, yet `ZoekComponent` pulls in datepicker (106 kB), tabs, cdk/table, checkbox, expansion, sort and the BAG/persoon/bedrijf search components: **−353 kB raw (≈ −80 kB transfer)**. Catch: `ZoekComponent.ngAfterViewInit` subscribes to `zoekenSideNav().openedStart`; if the user opens the sidenav before the deferred block has loaded, the first open does not search. Fix: in `ngAfterViewInit`, also search when `zoekenSideNav()?.opened` is already true, and cover that with a spec. `trefwoorden` is a signal (safe); a missed `reset$` before load is harmless.
-- **`/gebruiker`** — `IdentityComponent` is the last eager `component:` in `app-routing.module.ts`; switching to `loadComponent` drops all of `mat-list` from the initial bundle: **−61 kB raw (≈ −14 kB transfer)**. Trivial; can also ride along with step 9.
+- **`/gebruiker`** — `IdentityComponent` is the last eager `component:` in `app-routing.module.ts`; switching to `loadComponent` drops all of `mat-list` from the initial bundle: **−61 kB raw (≈ −14 kB transfer)**. Trivial; 
 - **Rejected:** toolbar (always visible, −58 kB raw) and `moment` (63 kB, reaches the app through the app-wide `DateAdapter`).
 
 ## Order summary
@@ -441,10 +446,10 @@ Step 3: done, −77 kB, merged (#7088).
 Step 4: done, −0.6 kB — no consumer needed touching; the work was migrating 3 touched specs to
 Testing Library.
 Steps 5–7: order forced by the barrels' own dependencies. 5a merged; step 6 merged (#7227), −9.8 kB; 5b merged (#7233), +13.5 kB; step 7 −30.8 kB, confirming the Material win sat behind `SharedModule`.
-Steps 8–9: low risk, sequential, no behaviour change, no win.
-Step 10: the gate — all of the risk, none of the payoff, so last.
+Step 8: low risk, no behaviour change, no win.
+Step 9: routing (low risk) + the bootstrap gate (all of the risk, none of the payoff), merged into one PR.
 
-Remaining after step 8 (code checked 2026-10-05): 3 — `app-routing.module.ts` (step 9), `app.module.ts` + `core/core.module.ts` (step 10). Before step 8: 7 `@NgModule` files on disk — `taken.module.ts` + `taken-routing.module.ts`, `documenten-routing.module.ts`, `productaanvragen-routing.module.ts` (step 8), `app-routing.module.ts` (step 9), `app.module.ts` + `core/core.module.ts` (step 10).
+Remaining after step 8 (code checked 2026-10-05): 3 — `app-routing.module.ts`, `app.module.ts` + `core/core.module.ts`, all in step 9. Before step 8: 7 `@NgModule` files on disk — `taken.module.ts` + `taken-routing.module.ts`, `documenten-routing.module.ts`, `productaanvragen-routing.module.ts` (step 8), `app-routing.module.ts`, `app.module.ts` + `core/core.module.ts` (step 9).
 
 ## Findings parked outside this plan
 
