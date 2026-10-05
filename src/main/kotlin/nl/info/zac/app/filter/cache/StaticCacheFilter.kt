@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.days
  * Path matching uses `requestURI.removePrefix(contextPath)` rather than `servletPath`, because
  * `servletPath` can be empty for the default servlet mapping (`/`).
  *
- * - Hashed JS/CSS bundles: `immutable` — content hash guarantees freshness
+ * - Hashed JS/CSS bundles and fonts: `immutable` — content hash guarantees freshness
  * - Versioned `/assets/` files with a valid `?v=` MD5 param: `immutable`
  * - `index.html`: `no-cache` — must revalidate so new chunk references are picked up after deploy
  */
@@ -36,8 +36,11 @@ class StaticCacheFilter : Filter {
         /** Max-age for immutable assets: 1 year in seconds, the conventional maximum for `Cache-Control: immutable`. */
         private val MAX_AGE_SECONDS = 365.days.inWholeSeconds
 
-        /** 8 is Angular's default hash length (hardcoded in `@angular/build`); filename example: main-A1B2C3D4.js */
-        private val HASHED_RESOURCE_REGEX = Regex("""-[A-Za-z0-9]{8}\.(js|css)(\.map)?$""")
+        /**
+         * 8 is Angular's default hash length (hardcoded in `@angular/build`); filename examples: main-A1B2C3D4.js,
+         * media/400-A1B2C3D4.woff2 (fonts referenced from the stylesheets)
+         */
+        private val HASHED_RESOURCE_REGEX = Regex("""-[A-Za-z0-9]{8}\.(js|css|woff2)(\.map)?$""")
 
         /** 8 must match `.substring(0, 8)` in `src/main/app/scripts/cache-busting.js`; `?v=` param example: 395afa0f */
         private val MD5_VERSION_REGEX = Regex("""^[0-9a-f]{8}$""")
