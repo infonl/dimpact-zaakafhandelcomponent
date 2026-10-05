@@ -16,10 +16,8 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
-import net.atos.zac.app.admin.converter.RESTReplyToConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
-import net.atos.zac.app.admin.model.RESTReplyTo
 import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RestZaakbeeindigReden
@@ -39,7 +37,9 @@ import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.admin.model.RESTReplyTo
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.toRestReplyTos
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuration.ConfigurationService
@@ -283,11 +283,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     @Path("replyTo")
     fun listReplyTos(): List<RESTReplyTo> =
         referenceTableService.readSystemReferenceTable(AFZENDER).let { referenceTable ->
-            referenceTableService.listReferenceTableValuesSorted(referenceTable).let {
-                RESTReplyToConverter.convertReplyTos(
-                    it
-                )
-            }
+            referenceTableService.listReferenceTableValuesSorted(referenceTable).toRestReplyTos()
         }
 
     @GET

@@ -7,8 +7,6 @@ package nl.info.zac.app.admin.converter
 import jakarta.inject.Inject
 import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
-import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter
-import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -137,9 +135,9 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
                 restZaaktypeConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList()
             )
             it.setMailtemplateKoppelingen(
-                convertRESTmailtemplateKoppelingen(
-                    restZaaktypeConfiguration.mailtemplateKoppelingen
-                )
+                restZaaktypeConfiguration.mailtemplateKoppelingen.map { koppeling ->
+                    koppeling.toZaaktypeCmmnMailtemplateParameters()
+                }
             )
             it.setZaakAfzenders(restZaaktypeConfiguration.zaakAfzenders.toZaakAfzenders())
             it.zaaktypeBetrokkeneParameters =
@@ -200,9 +198,9 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
                 zaaktypeCmmnConfiguration.getZaakbeeindigParameters()
             )
-        this.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
-            zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
-        )
+        this.mailtemplateKoppelingen = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen().map {
+            it.toRestMailtemplateKoppeling()
+        }
         this.zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().toRestZaakAfzenders()
     }
 }

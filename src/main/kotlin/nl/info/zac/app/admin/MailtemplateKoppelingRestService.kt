@@ -2,96 +2,70 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.admin
 
-package net.atos.zac.app.admin;
-
-
-import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
-
-import java.util.List;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-
-import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter;
-import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
-import nl.info.zac.admin.MailTemplateKoppelingenService;
-import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
-import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter;
-import nl.info.zac.policy.PolicyService;
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
+import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.PUT
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
+import nl.info.zac.admin.MailTemplateKoppelingenService
+import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.admin.converter.toRestMailtemplateKoppeling
+import nl.info.zac.app.admin.converter.toZaaktypeCmmnMailtemplateParameters
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
+import nl.info.zac.util.NoArgConstructor
 
 @Singleton
 @Path("beheer/mailtemplatekoppeling")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class MailtemplateKoppelingRestService {
-    private MailTemplateKoppelingenService mailTemplateKoppelingenService;
-    private RestZaaktypeConfigurationConverter restZaaktypeConfigurationConverter;
-    private PolicyService policyService;
-
-    /**
-     * No-arg constructor for CDI.
-     */
-    public MailtemplateKoppelingRestService() {
-    }
-
-    @Inject
-    public MailtemplateKoppelingRestService(
-            final MailTemplateKoppelingenService mailTemplateKoppelingenService,
-            final RestZaaktypeConfigurationConverter restZaaktypeConfigurationConverter,
-            final PolicyService policyService
-    ) {
-        this.mailTemplateKoppelingenService = mailTemplateKoppelingenService;
-        this.restZaaktypeConfigurationConverter = restZaaktypeConfigurationConverter;
-        this.policyService = policyService;
-    }
-
+@NoArgConstructor
+class MailtemplateKoppelingRestService @Inject constructor(
+    private val mailTemplateKoppelingenService: MailTemplateKoppelingenService,
+    private val restZaaktypeConfigurationConverter: RestZaaktypeConfigurationConverter,
+    private val policyService: PolicyService
+) {
     @GET
     @Path("{id}")
-    public RESTMailtemplateKoppeling readMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten(null).getCanBeheren());
-        return RESTMailtemplateKoppelingConverter.convert(mailTemplateKoppelingenService.readMailtemplateKoppeling(id));
+    fun readMailtemplateKoppeling(@PathParam("id") id: Long): RESTMailtemplateKoppeling {
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
+        return mailTemplateKoppelingenService.readMailtemplateKoppeling(id).toRestMailtemplateKoppeling()
     }
 
     @DELETE
     @Path("{id}")
-    public void deleteMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten(null).getCanBeheren());
-        mailTemplateKoppelingenService.delete(id);
+    fun deleteMailtemplateKoppeling(@PathParam("id") id: Long) {
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
+        mailTemplateKoppelingenService.delete(id)
     }
 
     @GET
-    public List<RESTMailtemplateKoppeling> listMailtemplateKoppelingen() {
-        assertPolicy(policyService.readOverigeRechten(null).getCanBeheren());
-        final List<ZaaktypeCmmnMailtemplateParameters> zaaktypeCmmnMailtemplateParametersList = mailTemplateKoppelingenService
-                .listMailtemplateKoppelingen();
-        return zaaktypeCmmnMailtemplateParametersList.stream().map(zaaktypeCmmnMailtemplateParameters -> {
-            final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(
-                    zaaktypeCmmnMailtemplateParameters);
-            restMailtemplateKoppeling.zaakafhandelParameters = restZaaktypeConfigurationConverter
-                    .toRestZaaktypeConfiguration(zaaktypeCmmnMailtemplateParameters.getZaaktypeCmmnConfiguration(), false);
-            return restMailtemplateKoppeling;
-        }).toList();
+    fun listMailtemplateKoppelingen(): List<RESTMailtemplateKoppeling> {
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
+        return mailTemplateKoppelingenService.listMailtemplateKoppelingen().map { zaaktypeCmmnMailtemplateParameters ->
+            zaaktypeCmmnMailtemplateParameters.toRestMailtemplateKoppeling().apply {
+                zaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
+                    checkNotNull(zaaktypeCmmnMailtemplateParameters.zaaktypeCmmnConfiguration),
+                    false
+                )
+            }
+        }
     }
 
     @PUT
     @Path("")
-    public RESTMailtemplateKoppeling storeMailtemplateKoppeling(
-            final RESTMailtemplateKoppeling mailtemplateKoppeling
-    ) {
-        assertPolicy(policyService.readOverigeRechten(null).getCanBeheren());
-        return RESTMailtemplateKoppelingConverter.convert(
-                mailTemplateKoppelingenService.storeMailtemplateKoppeling(
-                        RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling)
-                )
-        );
+    fun storeMailtemplateKoppeling(mailtemplateKoppeling: RESTMailtemplateKoppeling): RESTMailtemplateKoppeling {
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
+        return mailTemplateKoppelingenService.storeMailtemplateKoppeling(
+            mailtemplateKoppeling.toZaaktypeCmmnMailtemplateParameters()
+        ).toRestMailtemplateKoppeling()
     }
 }
