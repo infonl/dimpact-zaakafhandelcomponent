@@ -20,6 +20,10 @@ import {
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
+import {
+  describeTestOrigin,
+  describeTestOriginShort,
+} from "../utils/test-origin";
 
 const ZAAK_NUMBER_REGEX = /ZAAK-\d{4}-\d+/;
 const ZAAK_DETAIL_URL_REGEX = /\/zaken\/ZAAK-\d{4}-\d+/;
@@ -178,7 +182,9 @@ When(
     });
     await userOption.click();
 
-    await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
+    await this.page
+      .getByRole("textbox", { name: "Reden" })
+      .fill(describeTestOriginShort(this.browser));
 
     await this.page.getByRole("button", { name: "Opslaan" }).click();
 
@@ -275,7 +281,9 @@ When(
     this.testStorage.set("caseDescription", caseDescription);
     await this.page
       .getByLabel("Toelichting")
-      .fill(`This task is created by E2E test scenario: ${this.testName}`);
+      .fill(
+        `This task is created by ${describeTestOrigin(this.testName, this.browser)}`,
+      );
 
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 

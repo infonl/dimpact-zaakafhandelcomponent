@@ -8,6 +8,7 @@ import { CustomWorld } from "support/worlds/world";
 import { ONE_MINUTE_IN_MS, TEN_SECONDS_IN_MS } from "../support/time-constants";
 import { groups } from "../support/worlds/groups";
 import { users } from "../support/worlds/users";
+import { describeTestOriginShort } from "../utils/test-origin";
 
 const zaakCheckmarkTitle = "Selecteren";
 let _noOfZaken = 0;
@@ -48,7 +49,9 @@ When(
     await dialog.getByLabel(/medewerker/i).isEnabled();
     await dialog.getByLabel(/medewerker/i).click();
     await this.page.getByRole("option", { name: users.Bob.username }).click();
-    await dialog.getByLabel(/reden/i).fill("Fake reason");
+    await dialog
+      .getByLabel(/reden/i)
+      .fill(describeTestOriginShort(this.browser));
     await dialog.getByRole("button", { name: /verdelen/i }).click();
   },
 );
@@ -59,7 +62,9 @@ When(
   async function (this: CustomWorld, s: string) {
     await this.page.getByRole("button", { name: /vrijgeven/i }).click();
     const dialog = this.page.getByRole("dialog");
-    await dialog.getByLabel(/reden/i).fill("Fake reason");
+    await dialog
+      .getByLabel(/reden/i)
+      .fill(describeTestOriginShort(this.browser));
     await dialog.getByRole("button", { name: /vrijgeven/i }).click();
   },
 );

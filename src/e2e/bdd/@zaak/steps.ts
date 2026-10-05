@@ -5,6 +5,7 @@
 
 import { expect } from "@playwright/test";
 import { ENV } from "bdd/types";
+import { describeTestOrigin } from "../../utils/test-origin";
 import { Given, Then, When } from "./fixture";
 
 Given("the case type {string} exists", async ({ caseType }, type: string) => {
@@ -36,7 +37,9 @@ When(
 
     await page
       .getByRole("textbox", { name: "Explanation" })
-      .fill(`This case is created by E2E test scenario: ${$testInfo.title}`);
+      .fill(
+        `This case is created by ${describeTestOrigin($testInfo.title, page.context().browser())}`,
+      );
 
     const response = page.waitForResponse(/zaken\/zaak/);
     await page.getByRole("button", { name: "Create" }).click();
