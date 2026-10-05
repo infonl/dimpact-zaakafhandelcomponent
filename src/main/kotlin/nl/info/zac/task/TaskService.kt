@@ -9,18 +9,22 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.RestTaskAssignData
 import nl.info.zac.app.task.model.RestTaskDistributeData
 import nl.info.zac.app.task.model.RestTaskDistributeTask
 import nl.info.zac.app.task.model.RestTaskReleaseData
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
@@ -32,6 +36,9 @@ class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val indexingService: IndexingService,
     private val eventingService: EventingService,
+    private val zrcClientService: ZrcClientService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
+    private val taskHistoryService: TaskHistoryService
 ) {
     companion object {
         private val LOG = Logger.getLogger(TaskService::class.java.name)
@@ -96,21 +103,35 @@ class TaskService @Inject constructor(
 
     /**
      * Assigns a task to a user and sends the 'taak op naam' signalering event.
+     * When the task belongs to a zaakspecifiek geautoriseerde zaak, the user is granted access to that zaak
+     * before the assignment is written, so that they can open the task as soon as it is theirs.
+     *
+     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaak is zaakspecifiek
+     * geautoriseerd but its zaaktype does not define the roltype; the task is then left unchanged
      */
     fun assignTaskToUser(
         taskId: String,
         assignee: String,
         loggedInUser: LoggedInUser,
         explanation: String?
-    ): Task = flowableTaskService.assignTaskToUser(taskId, assignee, explanation).let { updatedTask ->
-        eventingService.send(
-            SignaleringEventUtil.event(
-                SignaleringType.Type.TAAK_OP_NAAM,
-                updatedTask,
-                loggedInUser
-            )
-        )
-        updatedTask
+    ): Task {
+        grantZaakspecifiekeAutorisatieToNewAssignee(flowableTaskService.readOpenTask(taskId), assignee)
+        return assignTaskToUserWithoutAuthorisation(taskId, assignee, loggedInUser, explanation)
+    }
+
+    /**
+     * Grants [assignee] access to the zaak of [task] when that zaak is zaakspecifiek geautoriseerd and the
+     * assignee is not already the taakbehandelaar. Call this before writing the assignment.
+     *
+     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaaktype does not define
+     * the roltype
+     */
+    fun grantZaakspecifiekeAutorisatieToNewAssignee(task: Task, assignee: String) {
+        if (task.assignee == assignee) return
+        val zaak = zrcClientService.readZaak(TaakVariabelenService.readZaakUUID(task))
+        if (zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, assignee)) {
+            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, assignee)
+        }
     }
 
     /**
@@ -175,6 +196,14 @@ class TaskService @Inject constructor(
                     "No open task with ID '${restTask.taakId}' found while assigning tasks. Skipping task.",
                     taskNotFoundException
                 )
+            } catch (
+                zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException: ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+            ) {
+                LOG.log(Level.WARNING, zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException) {
+                    "Task with ID '${restTask.taakId}' belongs to a zaakspecifiek geautoriseerde zaak whose zaaktype " +
+                        "cannot authorise its taakbehandelaar. Therefore it is skipped and not assigned."
+                }
+                eventingService.send(ScreenEventType.TAAK.skipped(restTask.taakId))
             }
         }
     }
@@ -184,13 +213,14 @@ class TaskService @Inject constructor(
         restTaskDistributeData: RestTaskDistributeData,
         loggedInUser: LoggedInUser
     ) {
+        restTaskDistributeData.behandelaarGebruikersnaam?.let { grantZaakspecifiekeAutorisatieToNewAssignee(task, it) }
         flowableTaskService.assignTaskToGroup(
             task,
             restTaskDistributeData.groepId,
             restTaskDistributeData.reden
         )
         restTaskDistributeData.behandelaarGebruikersnaam?.run {
-            assignTaskToUser(
+            assignTaskToUserWithoutAuthorisation(
                 taskId = task.id,
                 assignee = this,
                 loggedInUser = loggedInUser,
@@ -234,6 +264,21 @@ class TaskService @Inject constructor(
                 )
             }
         }
+    }
+
+    private fun assignTaskToUserWithoutAuthorisation(
+        taskId: String,
+        assignee: String,
+        loggedInUser: LoggedInUser,
+        explanation: String?
+    ): Task = flowableTaskService.assignTaskToUser(taskId, assignee, explanation).also {
+        eventingService.send(
+            SignaleringEventUtil.event(
+                SignaleringType.Type.TAAK_OP_NAAM,
+                it,
+                loggedInUser
+            )
+        )
     }
 
     private fun releaseTask(

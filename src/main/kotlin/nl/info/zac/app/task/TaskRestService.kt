@@ -240,6 +240,7 @@ class TaskRestService @Inject constructor(
         // Assigning bumps the task revision, so continue with the task as returned by the assignment.
         // Using the stale instance would fail with an optimistic locking exception further down.
         val task = if (restTask.behandelaar?.id != loggedInUserId) {
+            taskService.grantZaakspecifiekeAutorisatieToNewAssignee(openTask, loggedInUserId)
             flowableTaskService.assignTaskToUser(openTask.id, loggedInUserId, REDEN_TAAK_AFGESLOTEN)
         } else {
             openTask
