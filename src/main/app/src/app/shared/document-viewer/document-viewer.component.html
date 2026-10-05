@@ -4,14 +4,14 @@
   -->
 
 <div
-  *ngIf="showPreview"
+  *ngIf="previewSrc()"
   class="document-viewer-wrapper"
   [ngClass]="{ pdf: isPDF(), img: isImage() }"
 >
   <object
     *ngIf="isPDF()"
     type="application/pdf"
-    [data]="previewSrc"
+    [data]="previewSrc()"
     [title]="document().titel"
     height="600px"
     width="100%"
@@ -19,7 +19,7 @@
 
   <img
     *ngIf="isImage()"
-    [src]="previewSrc"
+    [src]="previewSrc()"
     [alt]="document().beschrijving"
     [title]="document().bestandsnaam"
   />

@@ -6,10 +6,11 @@
 import {
   AfterViewInit,
   Component,
+  effect,
   ElementRef,
   inject,
   input,
-  OnChanges,
+  untracked,
   ViewChild,
 } from "@angular/core";
 import * as style from "ol/style.js";
@@ -29,7 +30,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   standalone: true,
   imports: [StaticTextComponent],
 })
-export class LocatieTonenComponent implements AfterViewInit, OnChanges {
+export class LocatieTonenComponent implements AfterViewInit {
   readonly currentLocation = input.required<GeneratedType<"RestGeometry">>();
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
@@ -53,6 +54,17 @@ export class LocatieTonenComponent implements AfterViewInit, OnChanges {
 
   private viewInitialized = false;
 
+  constructor() {
+    effect(() => {
+      const currentLocation = this.currentLocation();
+      untracked(() => {
+        if (this.viewInitialized && currentLocation) {
+          this.setLocation(currentLocation);
+        }
+      });
+    });
+  }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.locationMap.setTarget(this.openLayersMapRef.nativeElement);
@@ -62,13 +74,6 @@ export class LocatieTonenComponent implements AfterViewInit, OnChanges {
         this.setLocation(currentLocation);
       }
     }, 0);
-  }
-
-  ngOnChanges(): void {
-    const currentLocation = this.currentLocation();
-    if (this.viewInitialized && currentLocation) {
-      this.setLocation(currentLocation);
-    }
   }
 
   private setLocation(geometry?: GeneratedType<"RestGeometry">) {

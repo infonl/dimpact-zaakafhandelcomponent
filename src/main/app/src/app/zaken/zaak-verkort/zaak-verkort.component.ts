@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnChanges, input } from "@angular/core";
+import { Component, computed, input } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
@@ -32,21 +32,20 @@ import { GeneratedType } from "../../shared/utils/generated-types";
     DatumPipe,
   ],
 })
-export class ZaakVerkortComponent implements OnChanges {
+export class ZaakVerkortComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
 
-  protected einddatumGeplandIcon: TextIcon | null = null;
-
-  ngOnChanges(): void {
-    this.einddatumGeplandIcon = new TextIcon(
-      DateConditionals.provideFormControlValue(
-        DateConditionals.isExceeded,
-        this.zaak().einddatum ?? "",
+  protected readonly einddatumGeplandIcon = computed(
+    () =>
+      new TextIcon(
+        DateConditionals.provideFormControlValue(
+          DateConditionals.isExceeded,
+          this.zaak().einddatum ?? "",
+        ),
+        "report_problem",
+        "warningZaakVerkortVerlopen_icon",
+        "msg.datum.overschreden",
+        "warning",
       ),
-      "report_problem",
-      "warningZaakVerkortVerlopen_icon",
-      "msg.datum.overschreden",
-      "warning",
-    );
-  }
+  );
 }

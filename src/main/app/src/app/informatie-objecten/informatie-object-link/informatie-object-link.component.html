@@ -13,7 +13,7 @@
 <mat-divider></mat-divider>
 
 <div class="form" *ngIf="infoObject()">
-  <p>{{ intro }}</p>
+  <p>{{ intro() }}</p>
   <form [formGroup]="form" (submit)="searchCases()" class="mt-2">
     <fieldset class="p-0">
       <zac-input [form]="form" key="caseSearch" label="zaak.identificatie" />
