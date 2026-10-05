@@ -102,6 +102,12 @@ describe(BagZakenTabelComponent.name, () => {
     expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
   });
 
+  it("searches once when it is first rendered", async () => {
+    await setup();
+
+    expect(list).toHaveBeenCalledTimes(1);
+  });
+
   it("searches for open zaken only until afgeronde zaken are shown as well", async () => {
     await setup();
 

@@ -172,6 +172,25 @@ describe(FacetFilterComponent.name, () => {
 
       expect(select()).toHaveTextContent("filter.-alle-");
     });
+
+    it("keeps the chosen optie when the parent binds different opties", async () => {
+      const { fixture } = await setup({
+        label: "status",
+        filter: makeFilterParameters(["open"]),
+        opties: makeOpties("open", "gesloten"),
+      });
+      await user.click(select());
+      await user.click(screen.getByRole("option", { name: "gesloten" }));
+
+      fixture.componentRef.setInput(
+        "opties",
+        makeOpties("open", "gesloten", "verlopen"),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(select()).toHaveTextContent("gesloten");
+    });
   });
 
   describe("choosing an optie", () => {
