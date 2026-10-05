@@ -77,7 +77,7 @@ Run `./gradlew spotlessApply detektApply` before committing backend changes.
 
 ### Backend
 - **Runtime**: WildFly (bootable JAR via Galleon provisioning) with Jakarta EE
-- **Language**: Kotlin (primary); any Java code encountered should be converted to Kotlin, not modified
+- **Language**: Kotlin (primary); any Java code encountered should be converted to Kotlin, not modified (see [Convert Java to Kotlin in a separate pull request](#convert-java-to-kotlin-in-a-separate-pull-request))
 - **DI**: Weld CDI with **constructor-based injection** (not field injection)
 - **Logging**: Use lambda syntax — `logger.debug { "Value: $value" }` — to avoid unnecessary string interpolation
 - **Database**: PostgreSQL with Flyway migrations (`src/main/resources/schemas/`)
@@ -87,7 +87,7 @@ Run `./gradlew spotlessApply detektApply` before committing backend changes.
 - **Cache**: Infinispan JCache
 
 Main source: `src/main/kotlin/nl/info/zac/` — organized by domain (zaak, task, search, policy, mail, etc.)
-Legacy Java: `src/main/java/` (convert to Kotlin when touching)
+Legacy Java: `src/main/java/` (convert to Kotlin in a separate pull request before changing it)
 Generated API clients: `src/generated/` (from OpenAPI specs — do not edit manually)
 
 ### Frontend
@@ -182,6 +182,14 @@ spec "given an item that is already linked to a case,
       when the code adds it to the inbox,
       then nothing is added, so that a linked item never appears in the inbox"
 ```
+
+### Convert Java to Kotlin in a separate pull request
+When a change needs to modify Java code, first convert that code to Kotlin in a pull request of its own, and
+make the functional change in a second pull request that builds on it. Use the `migrate-java-to-kotlin` skill for
+the conversion. Until the conversion pull request is merged, base the branch of the functional change on the
+conversion branch.
+The conversion pull request contains no functional changes and keeps the REST contract unchanged, so a
+reviewer can read it as a pure conversion.
 
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
