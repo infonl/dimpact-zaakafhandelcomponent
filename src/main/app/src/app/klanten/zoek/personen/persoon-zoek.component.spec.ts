@@ -23,8 +23,8 @@ import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of, Subject } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
-import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../../setupJest";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -98,7 +98,9 @@ describe(PersoonZoekComponent.name, () => {
     jest
       .spyOn(klantenService, "listPersonen")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({})),
+        createQueryOptions(
+          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({}),
+        ) as never,
       );
 
     const configuratieService = TestBed.inject(ConfiguratieService);
@@ -131,6 +133,7 @@ describe(PersoonZoekComponent.name, () => {
     await user.type(screen.getByRole("textbox", { name: "Bsn" }), bsn);
     fixture.detectChanges();
     await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
+    await sleep();
     fixture.detectChanges();
     fixture.detectChanges();
   }
@@ -284,11 +287,11 @@ describe(PersoonZoekComponent.name, () => {
 
     beforeEach(() => {
       jest.spyOn(klantenService, "listPersonen").mockReturnValue(
-        of(
+        createQueryOptions(
           fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
             resultaten: [fakePersoon],
           }),
-        ),
+        ) as never,
       );
     });
 
@@ -383,11 +386,11 @@ describe(PersoonZoekComponent.name, () => {
 
     beforeEach(() => {
       jest.spyOn(klantenService, "listPersonen").mockReturnValue(
-        of(
+        createQueryOptions(
           fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
             resultaten: [fakePersoon],
           }),
-        ),
+        ) as never,
       );
       navigate = jest
         .spyOn(TestBed.inject(Router), "navigate")
