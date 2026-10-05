@@ -139,6 +139,10 @@ jobs:
                         {
                           "type": "mrkdwn",
                           "text": "*Branch:*\n${{ github.ref_name }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Triggered by:*\n${{ github.event_name == 'schedule' && 'schedule' || github.triggering_actor }}"
                         }
                       ]
                     },
