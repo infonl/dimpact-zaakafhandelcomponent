@@ -90,6 +90,12 @@ class ProductaanvraagDocumentService @Inject constructor(
                 logBijlagePairingFailure(bijlageURI, zaakUrl, zgwValidationErrorException)
             } catch (processingException: ProcessingException) {
                 logBijlagePairingFailure(bijlageURI, zaakUrl, processingException)
+            } catch (illegalStateException: IllegalStateException) {
+                // a bijlage URL outside the configured ZGW API is refused before any request is sent
+                logBijlagePairingFailure(bijlageURI, zaakUrl, illegalStateException)
+            } catch (illegalArgumentException: IllegalArgumentException) {
+                // a bijlage URL that does not end in a UUID cannot identify a document
+                logBijlagePairingFailure(bijlageURI, zaakUrl, illegalArgumentException)
             }
         }
 

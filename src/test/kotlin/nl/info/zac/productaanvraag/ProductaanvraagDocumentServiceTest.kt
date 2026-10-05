@@ -103,5 +103,39 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                 }
             }
         }
+        given("bijlage URIs outside the ZGW API or without a UUID, followed by a valid bijlage URI") {
+            val foreignBijlageURI = URI("https://foreign.example.com/enkelvoudiginformatieobjecten/fakeUuid")
+            val bijlageURIWithoutUuid = URI("https://example.com/enkelvoudiginformatieobjecten/notAUuid")
+            val validBijlageURI = URI("https://example.com/enkelvoudiginformatieobjecten/fakeValidUuid")
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
+            val zaakUrl = URI("fakeZaakUrl")
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(foreignBijlageURI)
+            } throws IllegalStateException("fakeException")
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(bijlageURIWithoutUuid)
+            } throws IllegalArgumentException("fakeException")
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(validBijlageURI)
+            } returns enkelvoudigInformatieobject
+            every {
+                zrcClientService.createZaakInformatieobject(any(), any())
+            } returns createZaakInformatieobjectForReads()
+
+            `when`("the bijlagen are paired with the zaak") {
+                productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(
+                    listOf(foreignBijlageURI, bijlageURIWithoutUuid, validBijlageURI),
+                    zaakUrl
+                )
+
+                then("the invalid bijlagen are skipped and the valid bijlage is still linked") {
+                    val createdZaakInformatieobjectSlot = slot<ZaakInformatieObjectRequest>()
+                    verify(exactly = 1) {
+                        zrcClientService.createZaakInformatieobject(capture(createdZaakInformatieobjectSlot), any())
+                    }
+                    createdZaakInformatieobjectSlot.captured.informatieobject shouldBe enkelvoudigInformatieobject.url
+                }
+            }
+        }
     }
 })
