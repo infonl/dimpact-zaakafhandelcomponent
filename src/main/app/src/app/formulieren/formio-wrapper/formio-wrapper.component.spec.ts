@@ -372,6 +372,7 @@ describe(FormioWrapperComponent.name, () => {
       const formSubmit = jest.fn();
       const submissionDone = jest.fn();
       const submissionError = jest.fn();
+      const createDocument = jest.fn();
       const { fixture } = await render(FormioWrapperComponent, {
         inputs: {
           form,
@@ -381,7 +382,7 @@ describe(FormioWrapperComponent.name, () => {
           submitPending: false,
           ...inputs,
         },
-        on: { formSubmit, submissionDone, submissionError },
+        on: { formSubmit, submissionDone, submissionError, createDocument },
         providers: [
           {
             provide: FormioCustomFunctions,
@@ -406,6 +407,7 @@ describe(FormioWrapperComponent.name, () => {
         formSubmit,
         submissionDone,
         submissionError,
+        createDocument,
       };
     }
 
@@ -750,6 +752,52 @@ describe(FormioWrapperComponent.name, () => {
         fixture.detectChanges();
 
         expect(formio.getByRole("button", { name: "Opslaan" })).toBeDisabled();
+      });
+
+      describe("a button that the form disables itself", () => {
+        const formWithDisabledButton = {
+          ...form,
+          components: [
+            ...form.components,
+            {
+              type: "button",
+              key: "createDocument",
+              label: "Document maken",
+              action: "event",
+              event: "createDocument",
+              input: true,
+              disabled: true,
+            },
+          ],
+        };
+
+        it("should stay disabled after the submit settles", async () => {
+          const { fixture, formio } = await renderFormWithSubmitInFlight({
+            form: formWithDisabledButton,
+          });
+
+          fixture.componentRef.setInput("submitPending", false);
+          fixture.detectChanges();
+
+          expect(
+            formio.getByRole("button", { name: "Document maken" }),
+          ).toBeDisabled();
+        });
+
+        it("should not hand over a click after the submit settles", async () => {
+          const { fixture, formio, user, createDocument } =
+            await renderFormWithSubmitInFlight({
+              form: formWithDisabledButton,
+            });
+          fixture.componentRef.setInput("submitPending", false);
+          fixture.detectChanges();
+
+          await user.click(
+            formio.getByRole("button", { name: "Document maken" }),
+          );
+
+          expect(createDocument).not.toHaveBeenCalled();
+        });
       });
 
       it("should unlock the fields once the submit settles", async () => {

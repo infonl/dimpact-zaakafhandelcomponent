@@ -253,13 +253,15 @@ export class FormioWrapperComponent
         component.setDisabled(input, disabled),
       );
       // A button keeps its element apart. Form.io works its disabled state out again on every change, from
-      // `options.disabled` among others but not from a submit in flight, so the lock goes there too.
+      // `options.disabled` among others but not from a submit in flight, so the lock goes there too. Reading the
+      // state back keeps a button disabled that the form disables itself, once the submit settles.
       if (component.refs?.button) {
         component.options.disabled = {
           ...component.options.disabled,
           [component.key]: disabled,
         };
-        component.setDisabled(component.refs.button, disabled);
+        component.disabled = component.shouldDisabled;
+        component.setDisabled(component.refs.button, component.shouldDisabled);
       }
     });
   }
@@ -324,6 +326,7 @@ interface FormioLiveComponent {
   key: string;
   options: { readOnly?: boolean; disabled?: Record<string, boolean> };
   disabled: boolean;
+  readonly shouldDisabled: boolean;
   refs?: { input?: HTMLElement[]; button?: HTMLElement };
   setDisabled(element: HTMLElement, disabled: boolean): void;
 }
