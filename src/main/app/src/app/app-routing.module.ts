@@ -38,7 +38,7 @@ const routes: Routes = [
   {
     path: "taken",
     loadChildren: () =>
-      import("./taken/taken.module").then((module) => module.TakenModule),
+      import("./taken/taken.routes").then((module) => module.TAKEN_ROUTES),
   },
   {
     path: "admin",
@@ -60,8 +60,8 @@ const routes: Routes = [
   {
     path: "documenten",
     loadChildren: () =>
-      import("./documenten/documenten-routing.module").then(
-        (module) => module.DocumentenRoutingModule,
+      import("./documenten/documenten.routes").then(
+        (module) => module.DOCUMENTEN_ROUTES,
       ),
   },
   {
@@ -81,8 +81,8 @@ const routes: Routes = [
   {
     path: "productaanvragen",
     loadChildren: () =>
-      import("./productaanvragen/productaanvragen-routing.module").then(
-        (module) => module.ProductaanvragenRoutingModule,
+      import("./productaanvragen/productaanvragen.routes").then(
+        (module) => module.PRODUCTAANVRAGEN_ROUTES,
       ),
   },
 ];
