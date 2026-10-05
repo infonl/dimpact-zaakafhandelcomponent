@@ -47,8 +47,11 @@ export function describeTestOrigin(
   ].join("\n");
 }
 
-export function describeCaseDescription(timestampUtc: string) {
-  return `Aangemaakt door 'e2e test - ${timestampUtc}'`;
+export function describeCaseDescription(
+  testType: "e2e test" | "e2e BDD test",
+  timestampUtc: string,
+) {
+  return `Aangemaakt door '${testType} - ${timestampUtc}'`;
 }
 
 /** Fits the 100-character limit of the reden fields. */

@@ -33,7 +33,10 @@ When(
 
     // A UTC timestamp with millisecond precision tells this case apart from every other one on a shared environment.
     const timestampUtc = new Date().toISOString();
-    caseDescription.value = describeCaseDescription(timestampUtc);
+    caseDescription.value = describeCaseDescription(
+      "e2e BDD test",
+      timestampUtc,
+    );
     await page
       .getByRole("textbox", { name: "Description" })
       .fill(caseDescription.value);
