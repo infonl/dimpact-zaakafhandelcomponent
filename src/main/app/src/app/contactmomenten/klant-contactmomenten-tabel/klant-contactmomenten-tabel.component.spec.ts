@@ -24,9 +24,10 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   ) => void)[] = [];
   let detectChanges: () => void;
   let setLoading: jest.SpyInstance;
-  let rerender: (options: {
-    inputs: { bsn?: string; vestigingsnummer?: string };
-  }) => Promise<void>;
+  let changeInputs: (inputs: {
+    bsn?: string;
+    vestigingsnummer?: string;
+  }) => void;
 
   let searchCount = 0;
   const listContactmomenten = jest.fn(
@@ -65,7 +66,12 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     });
 
     detectChanges = rendered.detectChanges;
-    rerender = rendered.rerender;
+    changeInputs = (inputs) => {
+      Object.entries(inputs).forEach(([name, value]) =>
+        rendered.fixture.componentRef.setInput(name, value),
+      );
+      detectChanges();
+    };
     await sleep();
     detectChanges();
   }
@@ -104,6 +110,12 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(lastSearch()).toEqual(
       expect.objectContaining({ bsn: "999993896", page: 0 }),
     );
+  });
+
+  it("searches once when it is first rendered", async () => {
+    await setup({ bsn: "999993896", vestigingsnummer: "000099998888" });
+
+    expect(listContactmomenten).toHaveBeenCalledTimes(1);
   });
 
   it("searches the contactmomenten of a vestiging", async () => {
@@ -231,7 +243,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await user.click(await screen.findByRole("button", { name: "Next page" }));
     await sleep();
 
-    await rerender({ inputs: { bsn: "111111111" } });
+    changeInputs({ bsn: "111111111" });
     await sleep();
 
     expect(lastSearch().page).toBe(0);
@@ -241,11 +253,10 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await setup({ bsn: "999993896", vestigingsnummer: "000099998888" });
     await receive([]);
 
-    await rerender({
-      inputs: { bsn: "999990408", vestigingsnummer: "000099998888" },
-    });
+    changeInputs({ bsn: "999990408", vestigingsnummer: "000099998888" });
     await receive([]);
 
+    expect(listContactmomenten).toHaveBeenCalledTimes(2);
     expect(lastSearch()).toEqual(
       expect.objectContaining({
         bsn: "999993896",
@@ -258,11 +269,10 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await setup({ bsn: "999993896", vestigingsnummer: "000099998888" });
     await receive([]);
 
-    await rerender({
-      inputs: { bsn: "999993896", vestigingsnummer: "000011112222" },
-    });
+    changeInputs({ bsn: "999993896", vestigingsnummer: "000011112222" });
     await receive([]);
 
+    expect(listContactmomenten).toHaveBeenCalledTimes(2);
     expect(lastSearch()).toEqual(
       expect.objectContaining({
         bsn: "999993896",

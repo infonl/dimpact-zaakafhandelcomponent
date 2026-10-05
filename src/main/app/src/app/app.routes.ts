@@ -1,13 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { Routes } from "@angular/router";
 import { IdentityComponent } from "./identity/identity.component";
 
-const routes: Routes = [
+export const APP_ROUTES: Routes = [
   {
     path: "",
     loadComponent: () =>
@@ -86,9 +85,3 @@ const routes: Routes = [
       ),
   },
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}

@@ -63,7 +63,32 @@ module.exports = {
                 message:
                   "Import the real dependencies instead, so the compiler catches a missing declaration.",
               },
+              {
+                name: "@angular/core",
+                importNames: ["OnChanges", "SimpleChange", "SimpleChanges"],
+                message:
+                  "React to an input with computed() or effect() instead of ngOnChanges.",
+              },
             ],
+          },
+        ],
+        "no-restricted-properties": [
+          "error",
+          {
+            property: "ngOnChanges",
+            message:
+              "React to an input with computed() or effect() instead of ngOnChanges.",
+          },
+        ],
+        // Rejects a member named ngOnChanges, also in specs: the spec override replaces no-restricted-syntax with
+        // warnings, while no override touches this rule. Together with the OnChanges import ban above.
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            selector: "memberLike",
+            filter: { regex: "^ngOnChanges$", match: true },
+            format: null,
+            custom: { regex: "^ngOnChanges$", match: false },
           },
         ],
         // Jira ticket references belong in commit messages and pull request descriptions, not in code.

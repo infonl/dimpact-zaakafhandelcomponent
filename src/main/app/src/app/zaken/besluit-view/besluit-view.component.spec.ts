@@ -183,6 +183,12 @@ describe(BesluitViewComponent.name, () => {
     expect(listBesluitHistorie).not.toHaveBeenCalledWith("besluit-uuid-2");
   });
 
+  it("loads the history of the first besluit only once when it is first rendered", async () => {
+    const { listBesluitHistorie } = await setup();
+
+    expect(listBesluitHistorie).toHaveBeenCalledTimes(1);
+  });
+
   it("reloads the history of an opened besluit when the besluiten change", async () => {
     const { fixture, listBesluitHistorie } = await setup();
     listBesluitHistorie.mockReturnValue(

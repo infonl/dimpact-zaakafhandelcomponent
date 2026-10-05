@@ -7,10 +7,11 @@ import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  effect,
   inject,
   input,
-  OnChanges,
   OnInit,
+  untracked,
   ViewChild,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
@@ -43,7 +44,7 @@ import { ContactmomentenService } from "../contactmomenten.service";
   ],
 })
 export class KlantContactmomentenTabelComponent
-  implements OnInit, AfterViewInit, OnChanges
+  implements OnInit, AfterViewInit
 {
   readonly bsn = input<string>();
   readonly vestigingsnummer = input<string>();
@@ -69,7 +70,18 @@ export class KlantContactmomentenTabelComponent
   constructor(
     private readonly contactmomentenService: ContactmomentenService,
     private readonly utilService: UtilService,
-  ) {}
+  ) {
+    effect(() => {
+      this.bsn();
+      this.vestigingsnummer();
+      untracked(() => {
+        if (this.init) {
+          this.paginator.pageIndex = 0;
+          this.paginator.page.emit();
+        }
+      });
+    });
+  }
 
   ngOnInit(): void {
     this.listParameters.bsn = this.bsn();
@@ -96,13 +108,6 @@ export class KlantContactmomentenTabelComponent
         this.paginator.length = resultaat.totaal ?? 0;
         this.dataSource.data = resultaat.resultaten ?? [];
       });
-  }
-
-  ngOnChanges(): void {
-    if (this.init) {
-      this.paginator.pageIndex = 0;
-      this.paginator.page.emit();
-    }
   }
 
   private loadContactmomenten() {

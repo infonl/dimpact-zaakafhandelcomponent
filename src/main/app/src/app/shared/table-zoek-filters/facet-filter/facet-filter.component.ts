@@ -6,12 +6,11 @@
 import { NgFor } from "@angular/common";
 import {
   Component,
+  effect,
   EventEmitter,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
   input,
+  Output,
+  untracked,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -32,7 +31,7 @@ import { GeneratedType } from "../../utils/generated-types";
     TranslateModule,
   ],
 })
-export class FacetFilterComponent implements OnInit, OnChanges {
+export class FacetFilterComponent {
   protected selected = new FormControl<string | undefined>(undefined);
   readonly filter = input<GeneratedType<"FilterParameters">>();
   readonly opties = input<GeneratedType<"FilterResultaat">[] | undefined>([]);
@@ -46,22 +45,15 @@ export class FacetFilterComponent implements OnInit, OnChanges {
     archiefNominatie: "archiefNominatie.",
   };
 
+  constructor() {
+    effect(() => {
+      const firstValue = this.filter()?.values?.[0] ?? null;
+      untracked(() => this.selected.setValue(firstValue));
+    });
+  }
+
   protected getFilters() {
     return this.opties()?.sort((a, b) => a.naam.localeCompare(b.naam));
-  }
-
-  ngOnInit() {
-    this.setSelected();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes["filter"] && !changes["filter"].firstChange) {
-      this.setSelected();
-    }
-  }
-
-  private setSelected() {
-    this.selected.setValue(this.filter()?.values?.[0] ?? null);
   }
 
   protected isVertaalbaar(veld: string) {

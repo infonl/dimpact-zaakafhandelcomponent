@@ -10,8 +10,8 @@ jest.mock("ol/extent.js", () => ({
   getTopLeft: jest.fn(() => [0, 0]),
 }));
 jest.mock("ol/geom.js", () => ({
-  Point: jest.fn(),
-  Polygon: jest.fn(),
+  Point: jest.fn((coordinates: unknown) => ({ coordinates })),
+  Polygon: jest.fn((coordinates: unknown) => ({ coordinates })),
 }));
 jest.mock("ol/index.js", () => ({
   Map: jest.fn(() => {
@@ -23,7 +23,10 @@ jest.mock("ol/index.js", () => ({
     };
   }),
   View: jest.fn(),
-  Feature: jest.fn(() => ({ setStyle: jest.fn() })),
+  Feature: jest.fn((properties: { geometry: unknown }) => ({
+    setStyle: jest.fn(),
+    getGeometry: () => properties.geometry,
+  })),
 }));
 jest.mock("ol/interaction", () => ({
   defaults: jest.fn(() => []),
@@ -41,11 +44,15 @@ jest.mock("ol/proj.js", () => ({
 jest.mock("ol/proj/proj4.js", () => ({ register: jest.fn() }));
 jest.mock("ol/source.js", () => ({
   WMTS: jest.fn(),
-  Vector: jest.fn(() => ({
-    addFeature: jest.fn(),
-    clear: jest.fn(),
-    getExtent: jest.fn(() => [10, 20, 30, 40]),
-  })),
+  Vector: jest.fn(() => {
+    let features: unknown[] = [];
+    return {
+      addFeature: jest.fn((feature: unknown) => features.push(feature)),
+      clear: jest.fn(() => (features = [])),
+      getFeatures: jest.fn(() => features),
+      getExtent: jest.fn(() => [10, 20, 30, 40]),
+    };
+  }),
 }));
 jest.mock("ol/style.js", () => ({
   Style: jest.fn(),
@@ -59,7 +66,6 @@ jest.mock("proj4", () => ({
   defs: jest.fn(),
 }));
 
-import * as geom from "ol/geom.js";
 import * as ol from "ol/index.js";
 import * as source from "ol/source.js";
 import { fromPartial } from "src/test-helpers";
@@ -86,6 +92,13 @@ describe(BagLocatieComponent.name, () => {
   const map = () => jest.mocked(ol.Map).mock.results.at(-1)!.value;
   const geometrieSource = () =>
     jest.mocked(source.Vector).mock.results.at(-1)!.value;
+  const drawnCoordinates = () =>
+    geometrieSource()
+      .getFeatures()
+      .map(
+        (feature: { getGeometry: () => { coordinates: unknown } }) =>
+          feature.getGeometry().coordinates,
+      );
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -119,15 +132,14 @@ describe(BagLocatieComponent.name, () => {
   it("draws nothing and does not zoom without a geometry", () => {
     render();
 
-    expect(geometrieSource().addFeature).not.toHaveBeenCalled();
+    expect(drawnCoordinates()).toEqual([]);
     expect(map().getView().fit).not.toHaveBeenCalled();
   });
 
   it("draws a point geometry once and zooms the map to it", () => {
     render(point(5.1, 52.1));
 
-    expect(geom.Point).toHaveBeenCalledWith([5.1, 52.1]);
-    expect(geometrieSource().addFeature).toHaveBeenCalledTimes(1);
+    expect(drawnCoordinates()).toEqual([[5.1, 52.1]]);
     expect(map().getView().fit).toHaveBeenCalledWith(
       [10, 20, 30, 40],
       expect.objectContaining({ maxZoom: 14 }),
@@ -137,7 +149,7 @@ describe(BagLocatieComponent.name, () => {
   it("draws a polygon geometry", () => {
     render(polygon([4.9, 52.3], [4.91, 52.3], [4.9, 52.31]));
 
-    expect(geom.Polygon).toHaveBeenCalledWith(
+    expect(drawnCoordinates()).toEqual([
       expect.arrayContaining([
         [
           [4.9, 52.3],
@@ -145,8 +157,7 @@ describe(BagLocatieComponent.name, () => {
           [4.9, 52.31],
         ],
       ]),
-    );
-    expect(geometrieSource().addFeature).toHaveBeenCalledTimes(1);
+    ]);
   });
 
   it("draws every geometry of a geometry collection", () => {
@@ -160,9 +171,16 @@ describe(BagLocatieComponent.name, () => {
       }),
     );
 
-    expect(geom.Point).toHaveBeenCalledWith([5.1, 52.1]);
-    expect(geom.Polygon).toHaveBeenCalledTimes(1);
-    expect(geometrieSource().addFeature).toHaveBeenCalledTimes(2);
+    expect(drawnCoordinates()).toEqual([
+      [5.1, 52.1],
+      expect.arrayContaining([
+        [
+          [4.9, 52.3],
+          [4.91, 52.3],
+          [4.9, 52.31],
+        ],
+      ]),
+    ]);
     expect(map().getView().fit).toHaveBeenCalledTimes(1);
   });
 
@@ -171,9 +189,7 @@ describe(BagLocatieComponent.name, () => {
 
     changeGeometrie(point(4.9, 52.3));
 
-    expect(geometrieSource().clear).toHaveBeenCalledTimes(1);
-    expect(geom.Point).toHaveBeenLastCalledWith([4.9, 52.3]);
-    expect(geometrieSource().addFeature).toHaveBeenCalledTimes(2);
+    expect(drawnCoordinates()).toEqual([[4.9, 52.3]]);
     expect(map().getView().fit).toHaveBeenCalledTimes(2);
   });
 
@@ -182,8 +198,7 @@ describe(BagLocatieComponent.name, () => {
 
     changeGeometrie(undefined);
 
-    expect(geometrieSource().clear).not.toHaveBeenCalled();
-    expect(geometrieSource().addFeature).toHaveBeenCalledTimes(1);
+    expect(drawnCoordinates()).toEqual([[5.1, 52.1]]);
     expect(map().getView().fit).toHaveBeenCalledTimes(1);
   });
 });
