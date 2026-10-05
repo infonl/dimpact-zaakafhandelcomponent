@@ -15,11 +15,11 @@ functions; this project deliberately diverges from the general Kotlin style guid
 declare return types on public declarations.
 ```kotlin
 // Before
-fun convert(mailTemplate: MailTemplate): RestMailtemplate =
-    RestMailtemplate().apply { ... }
+fun convert(mailTemplate: MailTemplate): RESTMailtemplate =
+    RESTMailtemplate().apply { ... }
 // After
 fun convert(mailTemplate: MailTemplate) =
-    RestMailtemplate().apply { ... }
+    RESTMailtemplate().apply { ... }
 ```
 Keep the explicit return type when the body is a block (`{ ... return ... }`, where Kotlin requires it anyway)
 or when omitting it would genuinely obscure what the function returns.
@@ -107,11 +107,11 @@ with `this@functionName` so every unqualified assignment inside the `apply` bloc
 object:
 ```kotlin
 // Before (.also, only needed because of the two receivers)
-fun MailTemplate.toRestMailtemplate() = RestMailtemplate().also {
+fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().also {
     it.mailTemplateNaam = mailTemplateNaam
 }
 // After (.apply, receiver disambiguated explicitly)
-fun MailTemplate.toRestMailtemplate() = RestMailtemplate().apply {
+fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().apply {
     mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam
 }
 ```
