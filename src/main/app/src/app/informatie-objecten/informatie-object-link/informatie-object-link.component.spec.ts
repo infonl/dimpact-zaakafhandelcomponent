@@ -295,6 +295,17 @@ describe(InformatieObjectLinkComponent.name, () => {
     });
   });
 
+  it("keeps the search and its results when only the action changes", async () => {
+    await setup();
+    await showKoppelbareZaken();
+
+    fixture.componentRef.setInput("actionLabel", "actie.document.verplaatsen");
+    fixture.detectChanges();
+
+    expect(searchField()).toHaveValue("ZAAK");
+    expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
+  });
+
   it("keeps the search disabled until at least two characters are typed", async () => {
     await setup();
 

@@ -552,6 +552,91 @@ describe(FormioWrapperComponent.name, () => {
 
         expect(await formio.findByDisplayValue("fakeTekst")).not.toBe(textbox);
       });
+
+      it("should rebuild the form once when the form and the zaak change together", async () => {
+        const { fixture, formio } = await renderOpenForm();
+
+        fixture.componentRef.setInput("form", otherForm);
+        fixture.componentRef.setInput("zaak", otherZaak);
+        fixture.detectChanges();
+
+        expect(
+          await formio.findByRole("textbox", { name: "Adres" }),
+        ).toBeInTheDocument();
+        expect(prepareFormContext).toHaveBeenCalledTimes(2);
+        expect(prepareFormContext).toHaveBeenLastCalledWith(
+          otherForm,
+          { naam: "fakeNaam1" },
+          otherZaak,
+          taak,
+        );
+      });
+
+      it("should rebuild the form from the new taak when the zaak and the taak change together", async () => {
+        const { fixture, formio } = await renderOpenForm();
+
+        fixture.componentRef.setInput("zaak", otherZaak);
+        fixture.componentRef.setInput("taak", otherTaak);
+        fixture.detectChanges();
+
+        expect(
+          await formio.findByText(
+            "Zaak fakeZaakIdentificatie2, taak fakeTaakNaam2",
+          ),
+        ).toBeInTheDocument();
+        expect(
+          await formio.findByDisplayValue("fakeNaam2"),
+        ).toHaveAccessibleName("Naam");
+        expect(prepareFormContext).toHaveBeenCalledTimes(2);
+        expect(prepareFormContext).toHaveBeenLastCalledWith(
+          form,
+          { naam: "fakeNaam2" },
+          otherZaak,
+          otherTaak,
+        );
+        expect(asContextValue).not.toHaveBeenCalled();
+      });
+
+      it("should not rebuild the form when only the read-only state changes", async () => {
+        const { fixture } = await renderOpenForm();
+
+        fixture.componentRef.setInput("readOnly", true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(prepareFormContext).toHaveBeenCalledTimes(1);
+      });
+
+      it("should not rebuild the form for a submit", async () => {
+        const { fixture } = await renderFormWithSubmitInFlight();
+
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(prepareFormContext).toHaveBeenCalledTimes(1);
+      });
+
+      it("should build the form from a taak that changed before the form arrived", async () => {
+        const { fixture, formio } = await renderFormioWrapper({
+          form: undefined,
+        });
+        fixture.componentRef.setInput("taak", otherTaak);
+        fixture.detectChanges();
+
+        fixture.componentRef.setInput("form", form);
+        fixture.detectChanges();
+
+        expect(
+          await formio.findByDisplayValue("fakeNaam2"),
+        ).toHaveAccessibleName("Naam");
+        expect(prepareFormContext).toHaveBeenLastCalledWith(
+          form,
+          { naam: "fakeNaam2" },
+          zaak,
+          otherTaak,
+        );
+      });
     });
 
     describe("a new taak for a form that is open", () => {
@@ -613,6 +698,39 @@ describe(FormioWrapperComponent.name, () => {
         ).toBeInTheDocument();
         expect(await formio.findByText(submitDoneMessage)).toBeInTheDocument();
         expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should show the latest of several taken that arrive while a submit is in flight", async () => {
+        const { fixture, formio } = await renderFormWithSubmitInFlight();
+
+        fixture.componentRef.setInput("taak", otherTaak);
+        fixture.detectChanges();
+        fixture.componentRef.setInput(
+          "taak",
+          fromPartial<GeneratedType<"RestTask">>({
+            naam: "fakeTaakNaam3",
+            taakdata: { naam: "fakeNaam3" },
+          }),
+        );
+        fixture.detectChanges();
+
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(
+          formio.getByText("Zaak fakeZaakIdentificatie1, taak fakeTaakNaam3"),
+        ).toBeInTheDocument();
+      });
+
+      it("should report nothing for a new taak that arrives without a submit", async () => {
+        const { fixture, submissionDone, submissionError } =
+          await renderOpenForm();
+
+        fixture.componentRef.setInput("taak", otherTaak);
+        fixture.detectChanges();
+
+        expect(submissionDone).not.toHaveBeenCalled();
+        expect(submissionError).not.toHaveBeenCalled();
       });
     });
 
@@ -886,6 +1004,74 @@ describe(FormioWrapperComponent.name, () => {
 
         expect(() => fixture.detectChanges()).not.toThrow();
         expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should report every submit once when the form is submitted twice", async () => {
+        const { fixture, formio, user, submissionDone } =
+          await renderFormWithSubmitInFlight();
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(submissionDone).toHaveBeenCalledTimes(2);
+      });
+
+      it("should report a successful submit as done after a failed one", async () => {
+        const { fixture, formio, user, submissionDone, submissionError } =
+          await renderFormWithSubmitInFlight();
+        fixture.componentRef.setInput("submitFailed", true);
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        fixture.componentRef.setInput("submitFailed", false);
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(submissionError).toHaveBeenCalledTimes(1);
+        expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should report a submit that started before the form was rendered", async () => {
+        const { fixture, submissionDone } = await renderOpenForm({
+          submitPending: true,
+        });
+
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should keep the fields locked when the submit settles and the form becomes read-only at the same time", async () => {
+        const { fixture, formio, submissionDone } =
+          await renderFormWithSubmitInFlight();
+
+        fixture.componentRef.setInput("readOnly", true);
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(formio.getByRole("textbox", { name: "Naam" })).toBeDisabled();
+        expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should unlock the fields when the submit settles and the form stops being read-only at the same time", async () => {
+        const { fixture, formio } = await renderFormWithSubmitInFlight({
+          readOnly: true,
+        });
+
+        fixture.componentRef.setInput("readOnly", false);
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(formio.getByRole("textbox", { name: "Naam" })).toBeEnabled();
       });
     });
   });
