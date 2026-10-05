@@ -309,9 +309,6 @@ testing {
                 implementation(libs.testcontainers.testcontainers)
                 implementation(libs.testcontainers.mockserver)
                 implementation(libs.testcontainers.postgresql)
-                implementation(libs.postgresql.jdbc)
-                implementation(libs.flyway.core)
-                implementation(libs.flyway.postgresql)
                 implementation(libs.json)
                 implementation(libs.kotest.runner.junit5)
                 implementation(libs.kotest.assertions.json)
@@ -330,6 +327,8 @@ testing {
                         // mirror previous behavior
                         useJUnitPlatform()
                         systemProperty("zacDockerImage", zacDockerImage)
+                        // the migration tests run Flyway in a container with the Flyway version that ZAC uses
+                        systemProperty("flywayVersion", libs.versions.flyway.get())
                         // write the (very verbose) integration test log to a file instead of the console
                         // when the 'itestLogFile' Gradle property is set, as is done in CI
                         providers.gradleProperty("itestLogFile").orNull?.let { itestLogFile ->

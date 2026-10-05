@@ -337,7 +337,9 @@ a duplicate.
   - `NotificationZaaktypeCompletionParametersTest` then runs against a real version chain.
   - Add itests for the productaanvraagtype check across engines and for BPMN cleanup on zaak delete.
 - **Migration tests.** A test runs Flyway with `target` on an empty Testcontainers PostgreSQL up to the
-  version before the chunk. It inserts rows for each quarantine rule, plus valid rows, migrates to the
+  version before the chunk. Flyway runs as the `flyway/flyway` image of the Flyway version in
+  `libs.versions.toml`, and the test reads and writes data with `psql` in the database container, so the
+  itests need no JDBC driver or Flyway library. It inserts rows for each quarantine rule, plus valid rows, migrates to the
   latest version, and then asserts two things: valid rows are converted, and every invalid row is in the
   quarantine table with its full data.
 - **Contract check.** The spec is not committed; `./gradlew generateOpenApiSpec` writes it to

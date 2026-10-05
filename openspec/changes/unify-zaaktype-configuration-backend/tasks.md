@@ -25,7 +25,7 @@
 - [x] 1.2 Add an itest that reads the constraints from `information_schema` and asserts that the PK, FKs, NOT NULL,
       and UNIQUE constraints of V100 exist; verify with `./gradlew itest --tests "*SchemaTest*"`.
 - [x] 1.3 Add the migration test of design D10:
-      - Testcontainers PostgreSQL with Flyway `target` V99
+      - Testcontainers PostgreSQL, migrated to V99 by a `flyway/flyway` container of ZAC's Flyway version
       - seed one valid row and one row for each quarantine rule, then migrate to V100
 
       Assert that the valid rows are untouched, that every invalid row is in the quarantine table with its full

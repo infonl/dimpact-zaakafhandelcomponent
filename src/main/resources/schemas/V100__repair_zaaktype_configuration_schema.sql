@@ -51,10 +51,16 @@ DO $$
 DECLARE
     untyped_configuration TEXT := 'SELECT id FROM ${schema}.zaaktype_configuration WHERE configuration_type IS NULL';
 BEGIN
+    -- A template can belong to a template group of another configuration, and the group's foreign key cascades.
     PERFORM pg_temp.quarantine(
         'zaaktype_smartdocuments_document_template_parameters',
         'child of a zaaktype configuration without configuration type',
-        format('t.zaaktype_configuration_id IN (%s)', untyped_configuration)
+        format(
+            't.zaaktype_configuration_id IN (%1$s) OR t.sjabloon_groep_id IN ('
+            'SELECT id FROM ${schema}.zaaktype_smartdocuments_document_template_group_parameters '
+            'WHERE zaaktype_configuration_id IN (%1$s))',
+            untyped_configuration
+        )
     );
     PERFORM pg_temp.quarantine(
         'zaaktype_smartdocuments_document_template_group_parameters',
