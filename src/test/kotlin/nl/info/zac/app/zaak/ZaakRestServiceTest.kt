@@ -4,6 +4,10 @@
  */
 package nl.info.zac.app.zaak
 
+import nl.info.zac.admin.model.ZaaktypeDeadlineWarningWindows
+import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
+import nl.info.client.zgw.shared.model.Results
+import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
@@ -1088,6 +1092,54 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
+    context("Listing zaak warnings") {
+        createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
+            given(
+                """a $configurationType zaaktype configuration with a uiterlijke-einddatum-afdoening warning window of
+                    2 days, a zaak of that zaaktype 1 day from its uiterlijke einddatum afdoening, and a zaak of
+                    that zaaktype 5 days from it"""
+            ) {
+                val zaaktypeUuid = UUID.randomUUID()
+                val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    this.zaaktypeUuid = zaaktypeUuid
+                    uiterlijkeEinddatumAfdoeningWaarschuwing = 2
+                }
+                val zaakNearItsDeadline = createZaak(
+                    zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
+                    uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                )
+                val zaakFarFromItsDeadline = createZaak(
+                    zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
+                    uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(5)
+                )
+                val loggedInUser = createLoggedInUser()
+                val restZaakOverzicht = mockk<RestZaakOverzicht>()
+                every { loggedInUserInstance.get() } returns loggedInUser
+                every { zaaktypeConfigurationService.listDeadlineWarningWindows() } returns listOf(
+                    ZaaktypeDeadlineWarningWindows(
+                        zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid,
+                        einddatumGeplandWaarschuwing = zaaktypeConfiguration.einddatumGeplandWaarschuwing,
+                        uiterlijkeEinddatumAfdoeningWaarschuwing =
+                            zaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
+                    )
+                )
+                every { zrcClientService.listZaken(any()) } returns Results(
+                    countValue = 2,
+                    resultsValue = listOf(zaakNearItsDeadline, zaakFarFromItsDeadline)
+                )
+                every { restZaakOverzichtConverter.convert(zaakNearItsDeadline, loggedInUser) } returns restZaakOverzicht
+
+                `when`("the zaak warnings are listed") {
+                    val zaakWarnings = zaakRestService.listZaakWarnings()
+
+                    then("only the zaak within the warning window is listed") {
+                        zaakWarnings shouldBe listOf(restZaakOverzicht)
+                    }
+                }
+            }
+        }
+    }
+
     context("Listing afzenders for zaak and reading the default afzender for a zaak") {
         given("ZaaktypeCmmnConfiguration object with zaakafzenders, one of which uses 'special mails'") {
             val zaakUUID = UUID.randomUUID()
@@ -1102,7 +1154,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().plus(
                 createZaakAfzender(
                     id = 2L,
-                    zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                    zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                     defaultMail = true,
                     mail = "GEMEENTE",
                     replyTo = "MEDEWERKER"
@@ -1112,7 +1164,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1164,6 +1216,39 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
+        given("a BPMN zaaktype configuration with one zaakafzender") {
+            val zaakUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val zaak = createZaak(
+                uuid = zaakUUID,
+                zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+            )
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser(email = "fake-medewerker@example.com")
+            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(zaaktypeUUID = zaakTypeUUID).apply {
+                setZaakAfzenders(setOf(createZaakAfzender(zaaktypeConfiguration = this, mail = "fakeBpmn@example.com")))
+            }
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+            } returns zaaktypeBpmnConfiguration
+            every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the zaakafzenders are requested") {
+                val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)
+
+                then("the configured zaakafzender is listed after the two special mails") {
+                    returnedRestZaakAfzenders.map { it.mail } shouldBe listOf(
+                        "fake-gemeente@example.com",
+                        "fake-medewerker@example.com",
+                        "fakeBpmn@example.com"
+                    )
+                }
+            }
+        }
+
         given("ZaaktypeCmmnConfiguration without any zaakafzenders") {
             val zaakUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
@@ -1178,7 +1263,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns loggedInUser

@@ -10,7 +10,6 @@ import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.OneToMany
-import jakarta.persistence.OneToOne
 import jakarta.persistence.PrimaryKeyJoinColumn
 import jakarta.persistence.Table
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
@@ -29,12 +28,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
      */
     @Column(name = "id_case_definition")
     var caseDefinitionID: String? = null
-
-    @Column(name = "eindatum_gepland_waarschuwing")
-    var einddatumGeplandWaarschuwing: Int? = null
-
-    @Column(name = "uiterlijke_einddatum_afdoening_waarschuwing")
-    var uiterlijkeEinddatumAfdoeningWaarschuwing: Int? = null
 
     /**
      * This field has a sensible default value because it is non-nullable.
@@ -67,32 +60,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     private var zaaktypeCmmnUsereventlistenerParametersCollection:
         MutableSet<ZaaktypeCmmnUsereventlistenerParameters>? = null
 
-    // The set is necessary for Hibernate when you have more than one eager collection on an entity.
-    @OneToMany(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    private var zaaktypeCmmnMailtemplateKoppelingen: MutableSet<ZaaktypeCmmnMailtemplateParameters>? = null
-
-    @OneToOne(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    var zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters? = null
-
-    // The set is necessary for Hibernate when you have more than one eager collection on an entity.
-    @OneToMany(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    private var zaaktypeCmmnZaakafzenderParameters: MutableSet<ZaaktypeCmmnZaakafzenderParameters>? = null
-
     fun getHumanTaskParametersCollection(): Set<ZaaktypeCmmnHumantaskParameters> =
         zaaktypeCmmnHumantaskParametersCollection.orEmpty()
 
@@ -110,23 +77,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
         }
     }
 
-    fun getMailtemplateKoppelingen(): Set<ZaaktypeCmmnMailtemplateParameters> =
-        zaaktypeCmmnMailtemplateKoppelingen.orEmpty()
-
-    fun setMailtemplateKoppelingen(
-        desired: Collection<ZaaktypeCmmnMailtemplateParameters>
-    ) {
-        if (zaaktypeCmmnMailtemplateKoppelingen == null) {
-            zaaktypeCmmnMailtemplateKoppelingen = mutableSetOf()
-        }
-        desired.forEach { setMailtemplateKoppeling(it) }
-        zaaktypeCmmnMailtemplateKoppelingen?.let { mailtemplateParameters ->
-            mailtemplateParameters.removeIf { existing -> isElementNotInCollection(desired, existing) }
-        }
-    }
-
-    fun getAutomaticEmailConfirmation(): ZaaktypeCmmnEmailParameters? = zaaktypeCmmnEmailParameters
-
     fun getUserEventListenerParametersCollection(): Set<ZaaktypeCmmnUsereventlistenerParameters> =
         zaaktypeCmmnUsereventlistenerParametersCollection.orEmpty()
 
@@ -142,24 +92,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
         }
     }
 
-    fun getZaakAfzenders(): Set<ZaaktypeCmmnZaakafzenderParameters> =
-        zaaktypeCmmnZaakafzenderParameters.orEmpty()
-
-    fun setZaakAfzenders(desired: Collection<ZaaktypeCmmnZaakafzenderParameters>) {
-        if (zaaktypeCmmnZaakafzenderParameters == null) {
-            zaaktypeCmmnZaakafzenderParameters = mutableSetOf()
-        }
-        desired.forEach { setZaakAfzender(it) }
-        zaaktypeCmmnZaakafzenderParameters?.let { cmmnZaakafzenderParameters ->
-            cmmnZaakafzenderParameters.removeIf { existing -> isElementNotInCollection(desired, existing) }
-        }
-    }
-
-    private fun setMailtemplateKoppeling(param: ZaaktypeCmmnMailtemplateParameters) {
-        param.zaaktypeCmmnConfiguration = this
-        zaaktypeCmmnMailtemplateKoppelingen?.let { setComponent(it, param) }
-    }
-
     private fun setHumanTaskParameters(param: ZaaktypeCmmnHumantaskParameters) {
         param.zaaktypeCmmnConfiguration = this
         zaaktypeCmmnHumantaskParametersCollection?.let { setComponent(it, param) }
@@ -168,11 +100,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     private fun setUserEventListenerParameters(param: ZaaktypeCmmnUsereventlistenerParameters) {
         param.zaaktypeCmmnConfiguration = this
         zaaktypeCmmnUsereventlistenerParametersCollection?.let { setComponent(it, param) }
-    }
-
-    private fun setZaakAfzender(param: ZaaktypeCmmnZaakafzenderParameters) {
-        param.zaaktypeCmmnConfiguration = this
-        zaaktypeCmmnZaakafzenderParameters?.let { setComponent(it, param) }
     }
 
     /**

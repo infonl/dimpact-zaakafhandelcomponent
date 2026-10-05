@@ -58,7 +58,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
         given("Policy permits and koppeling exists") {
             val fakeKoppeling = createMailtemplateKoppelingen(
                 id = 42L,
-                zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+                zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
             )
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
@@ -94,7 +94,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             val fakeKoppeling = createMailtemplateKoppelingen(
                 id = 7L,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                 mailTemplate = createMailTemplate()
             )
             val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
@@ -118,7 +118,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
     context("storeMailtemplateKoppeling") {
         given("Policy permits and a REST koppeling is provided") {
             val fakeKoppeling = createMailtemplateKoppelingen(
-                zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+                zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
             )
             val restKoppeling = RESTMailtemplateKoppeling().apply {

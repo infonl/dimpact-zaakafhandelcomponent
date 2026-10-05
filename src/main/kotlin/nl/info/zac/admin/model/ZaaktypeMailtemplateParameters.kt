@@ -20,26 +20,26 @@ import nl.info.zac.util.AllOpen
 import java.util.Objects
 
 @Entity
-@Table(schema = SCHEMA, name = "zaaktype_cmmn_mailtemplate_parameters")
+@Table(schema = SCHEMA, name = "zaaktype_mailtemplate_parameters")
 @SequenceGenerator(
     schema = SCHEMA,
-    name = "sq_zaaktype_cmmn_mailtemplate_parameters",
-    sequenceName = "sq_zaaktype_cmmn_mailtemplate_parameters",
+    name = "sq_zaaktype_mailtemplate_parameters",
+    sequenceName = "sq_zaaktype_mailtemplate_parameters",
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCmmnMailtemplateParameters :
-    UserModifiable<ZaaktypeCmmnMailtemplateParameters> {
+class ZaaktypeMailtemplateParameters :
+    UserModifiable<ZaaktypeMailtemplateParameters> {
 
     @Id
-    @GeneratedValue(generator = "sq_zaaktype_cmmn_mailtemplate_parameters", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "sq_zaaktype_mailtemplate_parameters", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     var id: Long? = null
 
     @ManyToOne
     @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
     @field:NotNull
-    var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null
+    lateinit var zaaktypeConfiguration: ZaaktypeConfiguration
 
     @ManyToOne
     @JoinColumn(name = "id_mail_template", referencedColumnName = "id_mail_template")
@@ -48,7 +48,7 @@ class ZaaktypeCmmnMailtemplateParameters :
 
     @Suppress("ExceptionRaisedInUnexpectedLocation")
     override fun equals(other: Any?): Boolean {
-        if (other !is ZaaktypeCmmnMailtemplateParameters) {
+        if (other !is ZaaktypeMailtemplateParameters) {
             return false
         }
 
@@ -63,7 +63,7 @@ class ZaaktypeCmmnMailtemplateParameters :
     override fun hashCode(): Int = mailTemplate?.let { Objects.hash(it.id) } ?: 0
 
     @Suppress("UseCheckOrError")
-    override fun isModifiedFrom(original: ZaaktypeCmmnMailtemplateParameters): Boolean {
+    override fun isModifiedFrom(original: ZaaktypeMailtemplateParameters): Boolean {
         val isModified = mailTemplate?.let { mailTemplate ->
             original.mailTemplate?.let { otherMailTemplate ->
                 Objects.equals(mailTemplate.mail, otherMailTemplate.mail) &&
@@ -73,11 +73,11 @@ class ZaaktypeCmmnMailtemplateParameters :
         return isModified ?: throw IllegalStateException("mailTemplate is null")
     }
 
-    override fun applyChanges(changes: ZaaktypeCmmnMailtemplateParameters) {
+    override fun applyChanges(changes: ZaaktypeMailtemplateParameters) {
         mailTemplate = changes.mailTemplate
     }
 
-    override fun resetId(): ZaaktypeCmmnMailtemplateParameters {
+    override fun resetId(): ZaaktypeMailtemplateParameters {
         id = null
         return this
     }

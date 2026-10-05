@@ -130,9 +130,9 @@ The choice follows from how `FlywayIntegrator` runs:
   corrected afterwards, because it has already succeeded elsewhere and Flyway would report a checksum mismatch.
 - **Deleting is rejected.** It loses data without a trace on environments that nobody can inspect beforehand.
 
-V101 and V102 use the same table, with their own `migration` value, for any row that blocks one of their
-constraints. Today's schema shows no such case after V100, so for these two migrations the rule is a
-safeguard. The migration itests prove it either way.
+A later migration uses the same table, with its own `migration` value, for any row that blocks one of its
+constraints. V101 has no such row: it only re-points foreign keys from the CMMN table to the base table, and
+since V100 every CMMN id is a base id. Its migration test asserts that nothing is quarantined.
 
 ZAC never reads the quarantine table. A follow-up ticket covers checking it on every environment and
 dropping it by hand (Migration Plan). Every migration that writes to the table creates it first with
@@ -157,9 +157,14 @@ zaakafzender parameters, and mailtemplate parameters. The new names drop the `cm
 did. The zaakafzender foreign key keeps `ON DELETE RESTRICT`, as V46 set it. The entity fields move up to
 `ZaaktypeConfiguration`.
 
+The versioning copies these settings for both engines. The einddatum-gepland window keeps its servicenorm
+rule.
+
 In the same PR, the readers of these settings move from the CMMN read service to the generic one:
 
-- `ZaakRestService.listZaakWarnings` and `listAfzendersVoorZaak`
+- `ZaakRestService.listZaakWarnings` reads only the zaaktype UUID and the two windows of every configuration,
+  through a projection query, so it loads no configuration entities.
+- `ZaakRestService.listAfzendersVoorZaak`
 - `ZaakTaskDueDateEmailNotificationService`
 - `MailtemplateRESTService`
 - `BrpClientService`
@@ -169,6 +174,19 @@ BPMN.
 
 The BPMN REST path today assigns fields onto the found entity. It keeps that shape, so the moved fields
 survive a BPMN `POST`.
+
+A2 touches five Java classes, so it first converts them to Kotlin, in two commits that keep the Git history:
+
+- `MailtemplateKoppelingRestService`
+- `RESTMailtemplateKoppelingConverter`
+- `RESTReplyToConverter`
+- `RESTReplyTo`
+- `MailtemplateRESTService`
+
+`RESTReplyTo` keeps its Java-era name, because the name is the OpenAPI schema name that the frontend uses.
+Its fields stay non-null with defaults, so the generated schema does not change. Moving classes changes which
+use of a shared schema SmallRye writes inline and which as a `$ref`. The contract check therefore compares the
+two specs after it resolves every `$ref`.
 
 ### D4. A3: one entity, a process binding, and a CMMN extension
 

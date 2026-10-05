@@ -6,7 +6,7 @@ package nl.info.zac.app.admin.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.admin.model.ReferenceTableValue
-import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters.SpecialMail
+import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters.SpecialMail
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

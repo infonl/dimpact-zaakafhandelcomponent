@@ -7,7 +7,7 @@ package nl.info.zac.app.admin.model
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.admin.model.ReferenceTableValue
-import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 
 class RestReplyToTest : BehaviorSpec({
     context("toRestReplyTo") {
@@ -40,7 +40,7 @@ class RestReplyToTest : BehaviorSpec({
                 then("it includes SpecialMail entries sorted before regular entries") {
                     val specialEntries = result.filter { it.isSpeciaal }
                     val regularEntries = result.filter { !it.isSpeciaal }
-                    specialEntries.size shouldBe ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries.size
+                    specialEntries.size shouldBe ZaaktypeZaakafzenderParameters.SpecialMail.entries.size
                     regularEntries.size shouldBe 2
                 }
 
