@@ -7,16 +7,17 @@ import {
   AfterViewInit,
   booleanAttribute,
   Component,
+  computed,
   DestroyRef,
+  effect,
   ElementRef,
   EventEmitter,
   HostListener,
   inject,
   input,
-  OnChanges,
   OnInit,
   Output,
-  SimpleChanges,
+  untracked,
   ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
@@ -52,9 +53,7 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
     },
   ],
 })
-export class FormioWrapperComponent
-  implements OnInit, OnChanges, AfterViewInit
-{
+export class FormioWrapperComponent implements OnInit, AfterViewInit {
   readonly form = input<unknown>();
   readonly zaak = input<GeneratedType<"RestZaak">>();
   readonly taak = input<GeneratedType<"RestTask">>();
@@ -96,49 +95,45 @@ export class FormioWrapperComponent
   private readonly rebuild$ = new ReplaySubject<void>(1);
   protected evalContext: Record<string, unknown> = {};
   protected evalContextReady = false;
-  protected submission?: { data: Record<string, unknown> };
+  protected readonly submission = computed(() => ({
+    data: this.taak()?.taakdata ?? {},
+  }));
+  private evalContextSource?: {
+    form: unknown;
+    zaak?: GeneratedType<"RestZaak">;
+  };
   private redrawDeferred = false;
+  private wasSubmitPending = false;
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes["taak"]) {
-      this.submission = { data: this.taak()?.taakdata ?? {} };
-    }
-
-    // Not `taak`: a rebuild tears the open form down, losing what the user typed.
-    if (changes["form"] || changes["zaak"]) {
-      this.rebuild$.next();
-    } else if (changes["taak"] && !changes["taak"].firstChange) {
-      this.refreshTaakInContext();
-    }
-
-    if (changes["readOnly"] && !changes["readOnly"].firstChange) {
-      this.applyReadOnly();
-    }
-
-    const submitPendingChange = changes["submitPending"];
-    if (submitPendingChange && !submitPendingChange.firstChange) {
-      // Form.io keeps the submit button spinning until it hears the outcome, and paints it green on
-      // `submitDone` - so a failed submit has to be reported as an error instead.
-      if (
-        submitPendingChange.previousValue &&
-        !submitPendingChange.currentValue
-      ) {
-        if (this.submitFailed()) {
-          // Form.io renders its own translated `submitError` text, so this message is not displayed -
-          // it only has to be a non-empty error for Form.io to mark the button as failed.
-          this.submissionError.emit({ message: "submit failed" });
+  constructor() {
+    effect(() => {
+      const form = this.form();
+      const zaak = this.zaak();
+      this.taak();
+      untracked(() => {
+        // Not for `taak`: a rebuild tears the open form down, losing what the user typed.
+        if (
+          !this.evalContextSource ||
+          this.evalContextSource.form !== form ||
+          this.evalContextSource.zaak !== zaak
+        ) {
+          this.evalContextSource = { form, zaak };
+          this.rebuild$.next();
         } else {
-          this.submissionDone.emit({});
+          this.refreshTaakInContext();
         }
-      }
-      this.applySubmitPending();
-      if (!submitPendingChange.currentValue && this.redrawDeferred) {
-        this.redrawDeferred = false;
-        void (
-          this.formioComponent?.formio as FormioWebform | undefined
-        )?.redraw();
-      }
-    }
+      });
+    });
+
+    effect(() => {
+      this.readOnly();
+      untracked(() => this.applyReadOnly());
+    });
+
+    effect(() => {
+      const submitPending = this.submitPending();
+      untracked(() => this.followSubmit(submitPending));
+    });
   }
 
   async ngOnInit() {
@@ -234,6 +229,29 @@ export class FormioWrapperComponent
       component.disabled = this.readOnly();
     });
     void webform.redraw();
+  }
+
+  private followSubmit(submitPending: boolean) {
+    // Form.io keeps the submit button spinning until it hears the outcome, and paints it green on
+    // `submitDone` - so a failed submit has to be reported as an error instead.
+    if (this.wasSubmitPending && !submitPending) {
+      if (this.submitFailed()) {
+        // Form.io renders its own translated `submitError` text, so this message is not displayed -
+        // it only has to be a non-empty error for Form.io to mark the button as failed.
+        this.submissionError.emit({ message: "submit failed" });
+      } else {
+        this.submissionDone.emit({});
+      }
+    }
+    this.wasSubmitPending = submitPending;
+
+    this.applySubmitPending();
+    if (!submitPending && this.redrawDeferred) {
+      this.redrawDeferred = false;
+      void (
+        this.formioComponent?.formio as FormioWebform | undefined
+      )?.redraw();
+    }
   }
 
   /**
