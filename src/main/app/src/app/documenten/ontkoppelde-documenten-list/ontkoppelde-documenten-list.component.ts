@@ -8,6 +8,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -39,6 +40,7 @@ import {
 } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -54,6 +56,7 @@ import {
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -156,6 +159,8 @@ export class OntkoppeldeDocumentenListComponent
     },
   );
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
     private readonly infoService: InformatieObjectenService,
@@ -185,10 +190,13 @@ export class OntkoppeldeDocumentenListComponent
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
-          return this.ontkoppeldeDocumentenService.list({
-            ...this.listParameters,
-            ...this.listParametersSort,
-          });
+          return runQuery(
+            this.queryClient,
+            this.ontkoppeldeDocumentenService.list({
+              ...this.listParameters,
+              ...this.listParametersSort,
+            }),
+          );
         }),
         map((data) => {
           this.isLoadingResults = false;
