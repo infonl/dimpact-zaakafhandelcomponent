@@ -200,7 +200,13 @@
     <div class="mdl-layout mdl-layout--fixed-header">
       <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
-          <a href="/" class="home-button" title="Ga naar home" role="button">
+          <a
+            href="/"
+            class="home-button"
+            title="Ga naar home"
+            role="button"
+            hidden
+          >
             <div class="home-button-inner">
               <svg
                 class="home-icon"
@@ -224,5 +230,16 @@
         </div>
       </main>
     </div>
+    <script>
+      // A user without a read role gets this same page for "/", so only offer
+      // the home button when "/" is actually accessible.
+      fetch("/", { method: "HEAD", redirect: "manual", cache: "no-store" })
+        .then((response) => {
+          if (response.ok) {
+            document.querySelector(".home-button").hidden = false;
+          }
+        })
+        .catch(() => {});
+    </script>
   </body>
 </html>
