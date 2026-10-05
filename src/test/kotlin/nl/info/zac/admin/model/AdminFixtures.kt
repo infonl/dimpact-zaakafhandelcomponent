@@ -65,7 +65,7 @@ fun createHumanTaskParameters(
     this.planItemDefinitionID = planItemDefinitionID
     this.groepID = groupId
     this.doorlooptijd = leadTime
-    this.setReferentieTabellen((referenceTables ?: emptyList()).toMutableList())
+    this.setReferentieTabellen(referenceTables.orEmpty().toMutableList())
 }
 
 fun createHumanTaskReferentieTabel(
@@ -81,7 +81,7 @@ fun createHumanTaskReferentieTabel(
 }
 
 fun createReferenceTable(
-    id: Long = 1234L,
+    id: Long? = 1234L,
     code: String = "fakeCode",
     name: String = "fakeReferentieTabel",
     isSystemReferenceTable: Boolean = false,
@@ -95,7 +95,7 @@ fun createReferenceTable(
 }
 
 fun createReferenceTableValue(
-    id: Long = 1234L,
+    id: Long? = 1234L,
     name: String = "fakeReferentieTabelWaarde",
     sortOrder: Int = 1,
     isSystemValue: Boolean = false

@@ -27,7 +27,7 @@ import java.util.Collections
  * The WebdavServlet instantiates this class via reflection, passing the configured rootpath File as the constructor argument.
  */
 @Suppress("TooManyFunctions")
-class WebdavStore(@Suppress("UNUSED_PARAMETER") ignoredFake: File) : IWebdavStore {
+class WebdavStore(@Suppress("UNUSED_PARAMETER", "UnusedPrivateProperty") ignoredFake: File) : IWebdavStore {
     companion object {
         private const val UPDATE_INHOUD_TOELICHTING = "Document bewerkt"
         private val folderStoredObject = StoredObject().apply { isFolder = true }

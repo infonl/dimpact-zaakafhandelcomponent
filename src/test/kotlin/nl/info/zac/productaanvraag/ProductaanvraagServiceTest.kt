@@ -262,13 +262,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
             )
-            zaaktypeCmmnConfiguration.apply {
-                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
-                    zaaktypeConfiguration = zaaktypeCmmnConfiguration,
-                    brpKoppelen = true,
-                    kvkKoppelen = true
-                )
-            }
+            zaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration,
+                brpKoppelen = true,
+                kvkKoppelen = true
+            )
             val formulierBron = createBron()
             val coordinates = listOf(52.08968250760225, 5.114358701512936)
             val bsnNumber = "fakeBsnNumber"
@@ -423,13 +421,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaaktypeUUID = zaakTypeUUID,
                 defaultBehandelaarId = defaultBehandelaarId
             )
-            zaaktypeCmmnConfiguration.apply {
-                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
-                    zaaktypeConfiguration = zaaktypeCmmnConfiguration,
-                    brpKoppelen = true,
-                    kvkKoppelen = true
-                )
-            }
+            zaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration,
+                brpKoppelen = true,
+                kvkKoppelen = true
+            )
             val formulierBron = createBron()
             val bsnNumber = "fakeBsnNumber"
             val today = LocalDate.now()
@@ -559,13 +555,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaaktypeUUID = zaakTypeUUID,
                 defaultBehandelaarId = defaultBehandelaarId
             )
-            zaaktypeCmmnConfiguration.apply {
-                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
-                    zaaktypeConfiguration = zaaktypeCmmnConfiguration,
-                    brpKoppelen = false,
-                    kvkKoppelen = false
-                )
-            }
+            zaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration,
+                brpKoppelen = false,
+                kvkKoppelen = false
+            )
             val formulierBron = createBron()
             val bsnNumber = "fakeBsnNumber"
             val vestigingsNummer = createRandomVestigingsNumber()
@@ -2168,7 +2162,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     .findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraagType)
             } answers {
                 userWhileHandlingProductaanvraag = loggedInUserProvider.getLoggedInUser()
-                throw IllegalStateException("fakeProductaanvraagHandlingFailure")
+                error("fakeProductaanvraagHandlingFailure")
             }
 
             `when`("the productaanvraag is handled") {

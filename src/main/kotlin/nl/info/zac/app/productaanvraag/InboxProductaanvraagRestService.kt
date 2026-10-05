@@ -54,7 +54,7 @@ class InboxProductaanvraagRestService @Inject constructor(
         )
         val types = resultaat.typeFilter
         restResultaat.filterType = types.ifEmpty {
-            restListParameters.type?.let { listOf(it) } ?: emptyList()
+            restListParameters.type?.let { listOf(it) }.orEmpty()
         }
         return restResultaat
     }

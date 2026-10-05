@@ -123,7 +123,7 @@ abstract class ZaaktypeConfiguration {
         )
 
     fun getZaakbeeindigParameters(): Set<ZaaktypeCompletionParameters> =
-        zaaktypeCompletionParameters ?: emptySet()
+        zaaktypeCompletionParameters.orEmpty()
 
     fun setZaakbeeindigParameters(newZaaktypeCompletionParameters: Collection<ZaaktypeCompletionParameters>) {
         val completionParameters = zaaktypeCompletionParameters ?: mutableSetOf<ZaaktypeCompletionParameters>().also {

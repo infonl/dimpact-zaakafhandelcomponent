@@ -91,24 +91,24 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                     zaaktype.url.extractUuid()
                 ).let { parameters ->
-                    parameters.einddatumGeplandWaarschuwing?.let {
+                    parameters.einddatumGeplandWaarschuwing?.let { venster ->
                         signaleringVerzendInfo.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
                             zaaktype,
-                            it
+                            venster
                         )
                         zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.einddatumGeplandWaarschuwing!!
+                            venster
                         )
                     }
-                    parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let {
+                    parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { venster ->
                         signaleringVerzendInfo.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
                             zaaktype,
-                            it
+                            venster
                         )
                         zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing!!
+                            venster
                         )
                     }
                 }
@@ -127,7 +127,11 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM) }
-            .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.STREEFDATUM) }
+            .mapNotNull { zaakZoekObject ->
+                zaakZoekObject.behandelaarGebruikersnaam?.let {
+                    buildZaakSignalering(it, zaakZoekObject, SignaleringDetail.STREEFDATUM)
+                }
+            }
             .sumOf(::verzendZaakSignalering)
 
     /**
@@ -141,7 +145,11 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
-            .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.FATALE_DATUM) }
+            .mapNotNull { zaakZoekObject ->
+                zaakZoekObject.behandelaarGebruikersnaam?.let {
+                    buildZaakSignalering(it, zaakZoekObject, SignaleringDetail.FATALE_DATUM)
+                }
+            }
             .sumOf(::verzendZaakSignalering)
 
     private fun hasZaakSignaleringTarget(zaakZoekObject: ZaakZoekObject, detail: SignaleringDetail): Boolean =
@@ -199,12 +207,14 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ) = searchService.search(
         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
     ).items.map { it as ZaakZoekObject }
-        .map {
-            getZaakSignaleringVerzondenParameters(
-                it.behandelaarGebruikersnaam!!,
-                it.getObjectId(),
-                SignaleringDetail.STREEFDATUM
-            )
+        .mapNotNull { zaakZoekObject ->
+            zaakZoekObject.behandelaarGebruikersnaam?.let {
+                getZaakSignaleringVerzondenParameters(
+                    it,
+                    zaakZoekObject.getObjectId(),
+                    SignaleringDetail.STREEFDATUM
+                )
+            }
         }.forEach(signaleringService::deleteSignaleringVerzonden)
 
     /**
@@ -217,12 +227,14 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ) = searchService.search(
         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
     ).items.map { it as ZaakZoekObject }
-        .map {
-            getZaakSignaleringVerzondenParameters(
-                it.behandelaarGebruikersnaam!!,
-                it.getObjectId(),
-                SignaleringDetail.FATALE_DATUM
-            )
+        .mapNotNull { zaakZoekObject ->
+            zaakZoekObject.behandelaarGebruikersnaam?.let {
+                getZaakSignaleringVerzondenParameters(
+                    it,
+                    zaakZoekObject.getObjectId(),
+                    SignaleringDetail.FATALE_DATUM
+                )
+            }
         }
         .forEach(signaleringService::deleteSignaleringVerzonden)
 

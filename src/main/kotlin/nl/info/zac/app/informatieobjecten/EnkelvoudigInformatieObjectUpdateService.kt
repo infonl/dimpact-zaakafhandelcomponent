@@ -72,10 +72,8 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         beschrijving = enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
         omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN,
         content = content
-    ).also {
-        taskId?.let { taskId ->
-            addZaakInformatieobjectToTaak(taskId, it, skipPolicyCheck)
-        }
+    ).also { zaakInformatieobject ->
+        taskId?.let { addZaakInformatieobjectToTaak(it, zaakInformatieobject, skipPolicyCheck) }
     }
 
     fun verzendEnkelvoudigInformatieObject(uuid: UUID, verzenddatum: LocalDate?, toelichting: String?) {

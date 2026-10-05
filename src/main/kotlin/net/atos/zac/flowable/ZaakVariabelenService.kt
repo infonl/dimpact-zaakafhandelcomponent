@@ -133,10 +133,10 @@ open class ZaakVariabelenService @Inject constructor(
         setVariable(zaakUuid, VAR_ZAAK_COMMUNICATIEKANAAL, communicationChannel)
 
     fun readZaakdata(zaakUuid: UUID) =
-        findVariables(zaakUuid) ?: emptyMap()
+        findVariables(zaakUuid).orEmpty()
 
     fun readProcessZaakdata(zaakUuid: UUID) =
-        findProcessVariables(zaakUuid) ?: emptyMap()
+        findProcessVariables(zaakUuid).orEmpty()
 
     fun setZaakdata(zaakUuid: UUID, zaakdata: Map<String, Any>) =
         setVariables(zaakUuid, zaakdata)

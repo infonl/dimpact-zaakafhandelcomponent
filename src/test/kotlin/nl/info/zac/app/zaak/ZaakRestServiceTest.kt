@@ -118,7 +118,6 @@ import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.identification.IdentificationService
-import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.policy.PolicyService
@@ -150,7 +149,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
     val healthCheckService = mockk<HealthCheckService>()
-    val identityService = mockk<IdentityService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -181,7 +179,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         drcClientService = drcClientService,
         eventingService = eventingService,
         healthCheckService = healthCheckService,
-        identityService = identityService,
         inboxProductaanvraagService = inboxProductaanvraagService,
         indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
@@ -768,7 +765,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                     and("the groep membership is validated once, by the zaak service") {
                         verify(exactly = 1) { zaakService.readZaakAssignment(any(), any()) }
-                        verify(exactly = 0) { identityService.validateIfUserIsInGroup(any(), any()) }
                     }
                 }
             }
@@ -2512,7 +2508,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
                 and("the groep membership is validated once, by the zaak service") {
                     verify(exactly = 1) { zaakService.readZaakAssignment(any(), any()) }
-                    verify(exactly = 0) { identityService.validateIfUserIsInGroup(any(), any()) }
                 }
             }
         }

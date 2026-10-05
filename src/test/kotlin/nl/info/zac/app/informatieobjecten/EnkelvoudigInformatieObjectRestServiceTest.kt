@@ -1595,11 +1595,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             policyService.readZaakRechten(targetZaak, loggedInUser)
         } returns createZaakRechten(wijzigen = true)
-        every { ontkoppeldDoc.id } returns 42L
         every { detachedDocumentService.read(documentUUID) } returns ontkoppeldDoc
         val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
-        every { detachedDocumentService.deleteIfExists(42L) } just Runs
+        every { detachedDocumentService.deleteIfExists(documentUUID) } just Runs
 
         `when`("verplaatsEnkelvoudigInformatieobject is called with bron ontkoppelde-documenten") {
             enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
@@ -1614,7 +1613,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
-                verify(exactly = 1) { detachedDocumentService.deleteIfExists(42L) }
+                verify(exactly = 1) { detachedDocumentService.deleteIfExists(documentUUID) }
             }
         }
     }
@@ -1658,7 +1657,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             and("the document should not be moved") {
                 verify(exactly = 0) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
-                    detachedDocumentService.deleteIfExists(any<Long>())
+                    detachedDocumentService.deleteIfExists(any<UUID>())
                 }
             }
         }

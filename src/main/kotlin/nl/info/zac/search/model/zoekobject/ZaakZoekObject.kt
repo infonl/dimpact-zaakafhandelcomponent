@@ -183,8 +183,8 @@ data class ZaakZoekObject(
 
     fun addBetrokkene(rol: String, identificatie: String) {
         val key = "$ZAAK_BETROKKENE_PREFIX$rol"
-        betrokkenen = betrokkenen ?: mutableMapOf()
-        betrokkenen!!.getOrPut(key) { mutableListOf() }.add(identificatie)
+        val betrokkenenByRol = betrokkenen ?: mutableMapOf<String, MutableList<String>>().also { betrokkenen = it }
+        betrokkenenByRol.getOrPut(key) { mutableListOf() }.add(identificatie)
     }
 
     private fun updateIndicaties(indicatie: ZaakIndicatie, value: Boolean) {

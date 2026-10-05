@@ -13,17 +13,14 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.ProcessingException
-import java.util.UUID
-import java.util.logging.Handler
-import java.util.logging.LogRecord
-import java.util.logging.Logger
+import kotlinx.coroutines.Dispatchers
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
+import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
@@ -35,7 +32,7 @@ import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.runAsSystemUser
-import nl.info.zac.search.converter.AbstractZoekObjectConverter
+import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -49,11 +46,15 @@ import org.apache.solr.client.solrj.response.UpdateResponse
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.flowable.task.api.Task
+import java.util.UUID
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 private data class ReindexSupportServiceTestContext(
     val solrClient: Http2SolrClient,
-    val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
-    val converterInstancesIterator: MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>,
+    val converterInstances: Instance<ZoekObjectConverter<out ZoekObject>>,
+    val converterInstancesIterator: MutableIterator<ZoekObjectConverter<out ZoekObject>>,
     val zrcClientService: ZrcClientService,
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
@@ -86,8 +87,8 @@ private fun setupContext(): ReindexSupportServiceTestContext {
         every { createSolrClient(any()) } returns solrClient
     }
 
-    val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject>>>()
-    val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>>()
+    val converterInstances = mockk<Instance<ZoekObjectConverter<out ZoekObject>>>()
+    val converterInstancesIterator = mockk<MutableIterator<ZoekObjectConverter<out ZoekObject>>>()
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
@@ -99,7 +100,8 @@ private fun setupContext(): ReindexSupportServiceTestContext {
         drcClientService,
         flowableTaskService,
         zaakspecifiekeAutorisatieService,
-        solrClientFactory
+        solrClientFactory,
+        Dispatchers.IO
     )
 
     return ReindexSupportServiceTestContext(
@@ -119,7 +121,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
 
     given("getConverter for an object type a registered converter supports") {
         val ctx = setupContext()
-        val zaakZoekObjectConverter = mockk<AbstractZoekObjectConverter<out ZoekObject>>()
+        val zaakZoekObjectConverter = mockk<ZoekObjectConverter<out ZoekObject>>()
         every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
@@ -398,7 +400,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
         val ctx = setupContext()
         val zaak = createZaak()
         val zaakZoekObject = createZaakZoekObject()
-        val zaakZoekObjectConverter = mockk<AbstractZoekObjectConverter<out ZoekObject>>()
+        val zaakZoekObjectConverter = mockk<ZoekObjectConverter<out ZoekObject>>()
 
         val emptyDocumentList = SolrDocumentList()
         val queryResponse = mockk<QueryResponse>()
@@ -435,7 +437,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
         val zaakWithUnsupportedZaakgeometrie = createZaak()
         val zaakThatConvertsSuccessfully = createZaak()
         val zaakZoekObject = createZaakZoekObject()
-        val zaakZoekObjectConverter = mockk<AbstractZoekObjectConverter<out ZoekObject>>()
+        val zaakZoekObjectConverter = mockk<ZoekObjectConverter<out ZoekObject>>()
 
         val emptyDocumentList = SolrDocumentList()
         val queryResponse = mockk<QueryResponse>()
@@ -499,7 +501,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
         val informatieobjectUUID = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = informatieobjectUUID)
         val documentZoekObject = createZaakZoekObject()
-        val documentZoekObjectConverter = mockk<AbstractZoekObjectConverter<out ZoekObject>>()
+        val documentZoekObjectConverter = mockk<ZoekObjectConverter<out ZoekObject>>()
 
         val emptyDocumentList = SolrDocumentList()
         val queryResponse = mockk<QueryResponse>()
@@ -549,7 +551,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
         val ctx = setupContext()
         val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
         val taakZoekObject = createZaakZoekObject()
-        val taakZoekObjectConverter = mockk<AbstractZoekObjectConverter<out ZoekObject>>()
+        val taakZoekObjectConverter = mockk<ZoekObjectConverter<out ZoekObject>>()
 
         val emptyDocumentList = SolrDocumentList()
         val queryResponse = mockk<QueryResponse>()

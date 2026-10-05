@@ -913,7 +913,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 then("the search parameters should contain trimmed values and zaaktype filter") {
                     zoekParametersSlot.captured.getZoeken()[ZoekVeld.ZAAK_IDENTIFICATIE] shouldBe "fakeZaakIdentifier"
                     zoekParametersSlot.captured.getZoeken()[ZoekVeld.ZAAK_OMSCHRIJVING] shouldBe "fakeOmschrijving"
-                    zoekParametersSlot.captured.getFilters()[FilterVeld.ZAAK_ZAAKTYPE]!!
+                    zoekParametersSlot.captured.getFilters().getValue(FilterVeld.ZAAK_ZAAKTYPE)
                         .values.first() shouldBe "fakeZaakTypeOmschrijving"
                 }
             }

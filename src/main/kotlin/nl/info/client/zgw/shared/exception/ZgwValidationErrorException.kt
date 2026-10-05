@@ -6,6 +6,7 @@ package nl.info.client.zgw.shared.exception
 
 import nl.info.client.zgw.shared.model.ZgwValidationError
 import nl.info.zac.exception.InputValidationFailedException
+import java.util.Locale
 
 /**
  * Exception to indicate a validation error that occurred in when calling the ZGW API.
@@ -14,6 +15,7 @@ class ZgwValidationErrorException(val validatieFout: ZgwValidationError) : Input
 
     override val message: String
         get() = "%s [%d %s] %s: %s (%s %s)".format(
+            Locale.ROOT,
             validatieFout.title,
             validatieFout.status,
             validatieFout.code,

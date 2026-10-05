@@ -15,6 +15,7 @@ import io.mockk.mockkConstructor
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import kotlinx.coroutines.delay
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -98,7 +99,7 @@ class SolrDeployerServiceTest : BehaviorSpec({
             }
             startupThread.start()
             while (startupThread.state != Thread.State.TIMED_WAITING) {
-                Thread.sleep(10)
+                delay(10)
             }
             startupThread.interrupt()
             startupThread.join(5_000)

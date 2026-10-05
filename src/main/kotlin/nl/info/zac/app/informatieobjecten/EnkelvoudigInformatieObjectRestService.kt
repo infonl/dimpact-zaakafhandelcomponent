@@ -172,18 +172,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         } ?: run {
             checkNotNull(zaak) { "Zoekparameters hebben geen waarde" }
             assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).lezen)
-            var enkelvoudigInformatieobjectenVoorZaak = listEnkelvoudigInformatieobjectenVoorZaak(zaak)
-            if (zoekParameters.gekoppeldeZaakDocumenten) {
-                enkelvoudigInformatieobjectenVoorZaak.addAll(listGekoppeldeZaakInformatieObjectenVoorZaak(zaak))
-            }
+            val enkelvoudigInformatieobjectenVoorZaak = listEnkelvoudigInformatieobjectenVoorZaak(zaak) +
+                if (zoekParameters.gekoppeldeZaakDocumenten) listGekoppeldeZaakInformatieObjectenVoorZaak(zaak) else emptyList()
             zoekParameters.besluittypeUUID?.let { besluittypeUuid ->
                 val besluittype = ztcClientService.readBesluittype(besluittypeUuid)
                 val compareList = besluittype.informatieobjecttypen.map { it.extractUuid() }
-                enkelvoudigInformatieobjectenVoorZaak = enkelvoudigInformatieobjectenVoorZaak.filter {
-                    compareList.contains(it.informatieobjectTypeUUID)
-                }.toMutableList()
-            }
-            enkelvoudigInformatieobjectenVoorZaak
+                enkelvoudigInformatieobjectenVoorZaak.filter { compareList.contains(it.informatieobjectTypeUUID) }
+            } ?: enkelvoudigInformatieobjectenVoorZaak
         }
     }
 
@@ -256,9 +251,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val toelichting = "Verplaatst: ${documentVerplaatsGegevens.bron} -> ${targetZaak.identificatie}"
         when {
             documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
-                val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
+                detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                detachedDocumentService.deleteIfExists(detachedDocument.id!!)
+                detachedDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID)
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
                 val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)
@@ -576,10 +571,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 informatieobject.formaat == MediaTypes.Application.PDF.mediaType
         }
 
-    private fun listEnkelvoudigInformatieobjectenVoorZaak(zaak: Zaak): MutableList<RestEnkelvoudigInformatieobject> =
+    private fun listEnkelvoudigInformatieobjectenVoorZaak(zaak: Zaak): List<RestEnkelvoudigInformatieobject> =
         zaak.let(zrcClientService::listZaakinformatieobjecten)
             .map(restInformatieobjectConverter::convertToREST)
-            .toMutableList()
 
     private fun listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
         zaakURI: URI,
