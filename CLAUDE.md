@@ -188,8 +188,8 @@ When a change needs to modify Java code, first convert that code to Kotlin in a 
 make the functional change in a second pull request that builds on it. Use the `migrate-java-to-kotlin` skill for
 the conversion. Until the conversion pull request is merged, base the branch of the functional change on the
 conversion branch.
-The conversion pull request contains no functional changes and keeps the REST contract unchanged, so a
-reviewer can read it as a pure conversion.
+The conversion pull request contains no functional changes, so a reviewer can read it as a pure conversion.
+REST paths and JSON payloads stay the same.
 
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
