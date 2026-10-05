@@ -25,10 +25,23 @@ function currentBranchName() {
   }
 }
 
+/** Dutch time with the offset, so the hour that repeats when summer time ends stays unambiguous. */
+export function currentDutchTimestamp() {
+  const now = new Date();
+  const milliseconds = String(now.getMilliseconds()).padStart(3, "0");
+  // sv-SE formats as yyyy-mm-dd hh:mm:ss
+  return now
+    .toLocaleString("sv-SE", {
+      timeZone: "Europe/Amsterdam",
+      timeZoneName: "longOffset",
+    })
+    .replace(" GMT", `.${milliseconds}`);
+}
+
 export function describeTestOrigin(
   scenarioName: string,
   browser: Browser | null,
-  timestampUtc: string,
+  timestamp: string,
 ) {
   const run = process.env.CI
     ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
@@ -43,15 +56,15 @@ export function describeTestOrigin(
     `USER: ${user}`,
     `BRANCH: ${currentBranchName() ?? "unknown"}`,
     `BROWSER: ${describeBrowser(browser)}`,
-    `DATE TIME: ${timestampUtc}`,
+    `DATE TIME: ${timestamp}`,
   ].join("\n");
 }
 
 export function describeCaseDescription(
   testType: "E2E test" | "E2E BDD test",
-  timestampUtc: string,
+  timestamp: string,
 ) {
-  return `Aangemaakt door '${testType} - ${timestampUtc}'`;
+  return `Aangemaakt door '${testType} - ${timestamp}'`;
 }
 
 /** Fits the 100-character limit of the reden fields. */

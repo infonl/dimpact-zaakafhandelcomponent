@@ -22,6 +22,7 @@ import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
 import {
+  currentDutchTimestamp,
   describeCaseDescription,
   describeTestOrigin,
   describeTestOriginShort,
@@ -278,14 +279,14 @@ When(
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
-    // A UTC timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
-    const timestampUtc = new Date().toISOString();
-    const caseDescription = describeCaseDescription("E2E test", timestampUtc);
+    // A timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
+    const timestamp = currentDutchTimestamp();
+    const caseDescription = describeCaseDescription("E2E test", timestamp);
     await this.page.getByLabel("Omschrijving").fill(caseDescription);
     this.testStorage.set("caseDescription", caseDescription);
     await this.page
       .getByLabel("Toelichting")
-      .fill(describeTestOrigin(this.testName, this.browser, timestampUtc));
+      .fill(describeTestOrigin(this.testName, this.browser, timestamp));
 
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 

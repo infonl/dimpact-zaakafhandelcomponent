@@ -6,6 +6,7 @@
 import { expect } from "@playwright/test";
 import { ENV } from "bdd/types";
 import {
+  currentDutchTimestamp,
   describeCaseDescription,
   describeTestOrigin,
 } from "../../utils/test-origin";
@@ -31,11 +32,11 @@ When(
     await page.getByRole("combobox", { name: "Communication channel" }).click();
     await page.getByRole("option", { name: "E-mail" }).click();
 
-    // A UTC timestamp with millisecond precision tells this case apart from every other one on a shared environment.
-    const timestampUtc = new Date().toISOString();
+    // A timestamp with millisecond precision tells this case apart from every other one on a shared environment.
+    const timestamp = currentDutchTimestamp();
     caseDescription.value = describeCaseDescription(
       "E2E BDD test",
-      timestampUtc,
+      timestamp,
     );
     await page
       .getByRole("textbox", { name: "Description" })
@@ -47,7 +48,7 @@ When(
         describeTestOrigin(
           $testInfo.titlePath.slice(1).join(" - "),
           page.context().browser(),
-          timestampUtc,
+          timestamp,
         ),
       );
 
