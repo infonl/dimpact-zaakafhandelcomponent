@@ -214,7 +214,9 @@ When(
 
     await this.page.getByLabel("Zaak toevoegen").click();
     // The panel stays closed when it is clicked before the zaaktypes have loaded.
-    const zaaktypeField = this.page.getByLabel("Zaaktype");
+    const zaaktypeField = this.page.getByRole("combobox", {
+      name: "Zaaktype",
+    });
     const zaaktypeOption = this.page.getByRole("option", {
       name: zaakTypeName,
     });

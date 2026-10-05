@@ -68,7 +68,10 @@ async function isLoggedIn(world: CustomWorld, user: keyof typeof users) {
   const profileText = world.page.getByRole("menu").filter({
     hasText: username,
   });
-  const isVisible = await profileText.isVisible();
+  const isVisible = await profileText
+    .waitFor({ timeout: FIFTEEN_SECONDS_IN_MS })
+    .then(() => true)
+    .catch(() => false);
   await world.page.keyboard.press("Escape");
   return isVisible;
 }
