@@ -7,7 +7,7 @@ paths:
 # Kotlin test conventions
 
 ## Kotest (Backend Tests)
-Use BDD style with `context`/`given`/`` `when` ``/`then` blocks. Unit tests fail on unused MockK stubs: `ZacTestProjectConfig` runs `checkUnnecessaryStub()` after every test.
+Use BDD style with `context`/`given`/`` `when` ``/`then` blocks.
 ```kotlin
 class MyServiceTest : BehaviorSpec({
     context("A function in the service under test") {

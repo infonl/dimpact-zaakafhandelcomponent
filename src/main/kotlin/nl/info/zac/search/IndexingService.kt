@@ -51,7 +51,7 @@ class IndexingService @Inject constructor(
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
      * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
      */
-    private val dispatcher: CoroutineDispatcher
+    dispatcher: CoroutineDispatcher
 ) {
     companion object {
         const val SOLR_CORE = "zac"

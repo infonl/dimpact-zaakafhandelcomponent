@@ -21,7 +21,7 @@ class MailGegevens(
 ) {
     val subject: String = stripHtmlParagraphTags(subject)
 
-    val attachments: List<String> = attachments?.split(";") ?: emptyList()
+    val attachments: List<String> = attachments?.split(";").orEmpty()
 
     constructor(
         from: MailAdres,

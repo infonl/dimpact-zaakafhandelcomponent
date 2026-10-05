@@ -8,8 +8,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
@@ -93,8 +93,8 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 then("the response should contain the detached document with the correct fields") {
                     listResponse.code shouldBe HTTP_OK
                     responseJson.getInt("totaal") shouldBeGreaterThanOrEqual 1
-                    detachedDoc shouldNotBe null
-                    with(detachedDoc!!.toString()) {
+                    detachedDoc.shouldNotBeNull()
+                    with(detachedDoc.toString()) {
                         shouldContainJsonKeyValue("zaakID", zaakIdentificatie)
                         shouldContainJsonKeyValue("reden", detachReason)
                     }

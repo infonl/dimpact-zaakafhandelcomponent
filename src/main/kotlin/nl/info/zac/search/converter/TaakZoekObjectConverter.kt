@@ -33,7 +33,7 @@ class TaakZoekObjectConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
     private val reindexSupportService: ReindexSupportService
-) : AbstractZoekObjectConverter<TaakZoekObject>() {
+) : ZoekObjectConverter<TaakZoekObject> {
 
     override fun convert(id: String): TaakZoekObject =
         convert(id, reindexSupportService::zaakAutorisatieGegevens)

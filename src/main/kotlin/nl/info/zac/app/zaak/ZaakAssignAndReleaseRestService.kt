@@ -68,14 +68,8 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
-                group = restZakenVerdeelGegevens.groepId.let {
-                    identityService.readGroup(
-                        restZakenVerdeelGegevens.groepId
-                    )
-                },
-                user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let {
-                    identityService.readUser(it)
-                },
+                group = identityService.readGroup(restZakenVerdeelGegevens.groepId),
+                user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let(identityService::readUser),
                 screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
             )
         }

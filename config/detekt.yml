@@ -1,12 +1,31 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 
+complexity:
+  LongParameterList:
+    # constructor injection lists a bean's dependencies; the container calls it, not a developer
+    ignoreAnnotated: ['Inject']
+coroutines:
+  InjectDispatcher:
+    # the dispatcher is injected so that tests can choose one
+    excludes: ['**/test/**', '**/itest/**']
 comments:
   AbsentOrWrongFileLicense:
     active: true
     licenseTemplate: '/\*[ *\n]*SPDX-FileCopyrightText: [^\n]+\n[ *]*SPDX-License-Identifier: EUPL-1\.2\+[ *\n]*\*/'
     licenseTemplateIsRegex: true
+potential-bugs:
+  DoubleMutabilityForCollection:
+    # Hibernate replaces an entity's collections with its own persistent collections
+    ignoreAnnotated: ['Entity']
 style:
+  AbstractClassCanBeConcreteClass:
+    # an abstract base class without abstract members still must not be instantiated on its own
+    active: false
+  VarCouldBeVal:
+    # Hibernate and CDI assign these properties by reflection
+    ignoreAnnotated: ['Entity']
+    ignoreLateinitVar: true
   MaxLineLength:
     maxLineLength: 140
   ExpressionBodySyntax:

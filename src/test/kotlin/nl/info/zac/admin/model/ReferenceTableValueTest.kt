@@ -6,6 +6,7 @@
 package nl.info.zac.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 
 class ReferenceTableValueTest : BehaviorSpec({
@@ -33,6 +34,18 @@ class ReferenceTableValueTest : BehaviorSpec({
 
             then("The objects should not be equal") {
                 equalityResult shouldBe false
+            }
+        }
+    }
+
+    given("A reference table value that has not been persisted yet") {
+        val referenceTableValue = createReferenceTableValue(id = null)
+
+        `when`("the value is converted to a REST reference table value") {
+            val restReferenceTableValue = referenceTableValue.toRestReferenceTableValue()
+
+            then("the REST reference table value has no id") {
+                restReferenceTableValue.id.shouldBeNull()
             }
         }
     }

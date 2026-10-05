@@ -42,7 +42,7 @@ class RestSignaleringInstellingenConverter @Inject constructor(
 
     fun convert(restInstellingen: RestSignaleringInstellingen, user: User): SignaleringInstellingen =
         signaleringService.readInstellingenUser(restInstellingen.type, user.id).apply {
-            isDashboard = this.type.type.isDashboard && restInstellingen.dashboard!!
+            isDashboard = this.type.type.isDashboard && restInstellingen.dashboard == true
             isMail = this.type.type.isMail && restInstellingen.mail == true
         }
 }

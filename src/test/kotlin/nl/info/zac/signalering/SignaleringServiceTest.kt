@@ -27,6 +27,7 @@ import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import kotlinx.coroutines.Dispatchers
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.model.Signalering
@@ -91,7 +92,8 @@ class SignaleringServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         restInformatieobjectConverter = restInformatieobjectConverter,
-        loggedInUserInstance = loggedInUserInstance
+        loggedInUserInstance = loggedInUserInstance,
+        dispatcher = Dispatchers.IO
     )
 
     afterEach {

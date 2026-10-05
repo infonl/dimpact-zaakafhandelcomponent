@@ -24,7 +24,7 @@ data class RestInboxDocument(
 
 fun InboxDocument.toRestInboxDocument(informatieobjectTypeUUID: UUID) =
     RestInboxDocument(
-        id = this.id!!,
+        id = checkNotNull(this.id) { "Inbox document '$enkelvoudiginformatieobjectUUID' has not been persisted" },
         enkelvoudiginformatieobjectUUID = this.enkelvoudiginformatieobjectUUID,
         enkelvoudiginformatieobjectID = this.enkelvoudiginformatieobjectID,
         informatieobjectTypeUUID = informatieobjectTypeUUID,

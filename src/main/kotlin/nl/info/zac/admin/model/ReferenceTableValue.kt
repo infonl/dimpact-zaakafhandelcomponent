@@ -68,7 +68,7 @@ class ReferenceTableValue {
 
 fun ReferenceTableValue.toRestReferenceTableValue() =
     RestReferenceTableValue(
-        id = this.id!!,
+        id = this.id,
         name = this.name,
         isSystemValue = this.isSystemValue
     )

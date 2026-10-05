@@ -11,9 +11,9 @@ fun ResultaatItem.toAddressString(): String {
     return binnenlandsAdres.getStraatnaam() +
         " " +
         (binnenlandsAdres.getHuisnummer() ?: "") +
-        (binnenlandsAdres.getHuisletter()?.takeIf { it.isNotBlank() } ?: "") +
+        binnenlandsAdres.getHuisletter()?.takeIf { it.isNotBlank() }.orEmpty() +
         ", " +
-        (binnenlandsAdres.getPostcode()?.takeIf { it.isNotBlank() } ?: "") +
+        binnenlandsAdres.getPostcode()?.takeIf { it.isNotBlank() }.orEmpty() +
         " " +
         binnenlandsAdres.getPlaats()
 }

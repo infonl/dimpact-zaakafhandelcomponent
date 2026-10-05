@@ -34,7 +34,8 @@ data class Results<T>(
 
     fun count(): Int = countValue
 
-    fun results(): List<T> = resultsValue ?: emptyList()
+    @Suppress("MemberNameEqualsClassName")
+    fun results(): List<T> = resultsValue.orEmpty()
 
     fun next(): URI? = nextValue
 
@@ -46,7 +47,7 @@ data class Results<T>(
             return when {
                 results.isEmpty() -> null
                 results.size == 1 -> results.first()
-                else -> throw IllegalStateException("More than one result found (count: $countValue)")
+                else -> error("More than one result found (count: $countValue)")
             }
         }
 
@@ -54,6 +55,6 @@ data class Results<T>(
         get() = if (nextValue == null) {
             results()
         } else {
-            throw IllegalStateException("More than one page found (count: $countValue, results: ${results().size})")
+            error("More than one page found (count: $countValue, results: ${results().size})")
         }
 }

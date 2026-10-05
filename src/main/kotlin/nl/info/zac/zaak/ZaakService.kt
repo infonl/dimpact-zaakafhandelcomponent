@@ -536,7 +536,7 @@ class ZaakService @Inject constructor(
                 )
                 zaakUUIDs
                     .map(zrcClientService::readZaak)
-                    .forEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
+                    .forEach { zaak -> eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak)) }
             }
             inGroup
         } ?: true

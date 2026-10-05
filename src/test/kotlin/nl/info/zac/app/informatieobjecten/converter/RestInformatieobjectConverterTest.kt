@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.shared.model.ZgwError
@@ -276,6 +277,22 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     informatieobjecttype shouldBe informatieobjectType.url
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
+            }
+        }
+    }
+
+    given("A 'REST enkelvoudiginformatieobject versie gegevens' object without an informatieobjecttype UUID") {
+        val restEnkelvoudigInformatieobjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens(
+            informatieobjectTypeUUID = null
+        )
+
+        `when`("this object is converted") {
+            val enkelvoudigInformatieObjectWithLockRequest =
+                restInformatieobjectConverter.convert(restEnkelvoudigInformatieobjectVersieGegevens)
+
+            then("the informatieobjecttype is left unchanged, so it is not looked up in the catalogue") {
+                enkelvoudigInformatieObjectWithLockRequest.informatieobjecttype shouldBe null
+                verify(exactly = 0) { ztcClientService.readInformatieobjecttype(any<UUID>()) }
             }
         }
     }
