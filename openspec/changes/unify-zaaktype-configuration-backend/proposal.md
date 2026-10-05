@@ -2,7 +2,7 @@
 
 ZAC stores the configuration of a zaaktype (the "zaakafhandelparameters") in one inherited data model, but
 writes, reads, and validates it through two independently written stacks: one for CMMN and one for BPMN. The
-two stacks diverged without anyone noticing. PZ-12241 is the result: a new version of a BPMN zaaktype kept
+two stacks diverged. PZ-12241 is one result: a new version of a BPMN zaaktype kept
 resultaattype references that pointed at the previous version. The same split causes more defects today. A
 BPMN zaak is never cleaned up when it is deleted. A BPMN zaak ignores its BRP doelbindingen. A BPMN zaak never
 gets a deadline warning. A BPMN zaaktype cannot be re-versioned with its own productaanvraagtype.
