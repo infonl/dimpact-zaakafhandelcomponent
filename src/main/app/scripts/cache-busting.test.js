@@ -94,10 +94,6 @@ describe("Cache Busting Script", () => {
 
       // Create test font files
       fs.writeFileSync(
-        path.join(assetsDir, "MaterialSymbolsOutlined.woff2"),
-        "font-data-1",
-      );
-      fs.writeFileSync(
         path.join(assetsDir, "fonts", "Roboto", "300.woff2"),
         "font-data-2",
       );
@@ -127,10 +123,6 @@ describe("Cache Busting Script", () => {
 
       // Create test font files
       fs.writeFileSync(
-        path.join(assetsDir, "MaterialSymbolsOutlined.woff2"),
-        "font-data-1",
-      );
-      fs.writeFileSync(
         path.join(assetsDir, "fonts", "Roboto", "300.woff2"),
         "font-data-2",
       );
@@ -142,7 +134,7 @@ describe("Cache Busting Script", () => {
 
       // Change font file
       fs.writeFileSync(
-        path.join(assetsDir, "MaterialSymbolsOutlined.woff2"),
+        path.join(assetsDir, "fonts", "Roboto", "300.woff2"),
         "font-data-changed",
       );
 

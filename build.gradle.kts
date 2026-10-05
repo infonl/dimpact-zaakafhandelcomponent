@@ -914,6 +914,8 @@ tasks {
 
         inputs.files(fileTree("$appPath/node_modules"))
         inputs.files(fileTree("$appPath/src"))
+        inputs.files(fileTree("$appPath/fonts"))
+        inputs.files(fileTree("$appPath/scripts"))
         outputs.files(fileTree("$appPath/dist/zaakafhandelcomponent"))
         outputs.files(fileTree("$appPath/src/generated/types"))
         outputs.cacheIf { true }
