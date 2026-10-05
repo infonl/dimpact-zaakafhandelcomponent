@@ -170,5 +170,27 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 }
             }
         }
+        given("a RestSignaleringInstellingen without a dashboard value and a User") {
+            val type = SignaleringType.Type.ZAAK_OP_NAAM
+            val restInstellingen = createRestSignaleringInstellingen(
+                type = createSignaleringType(type = type, subjecttype = SignaleringSubject.ZAAK),
+                isDashboard = null
+            )
+            val user = createUser(id = "fakeUserId")
+            val domainInstellingen = createSignaleringInstellingen(
+                type = createSignaleringType(type = type, subjecttype = SignaleringSubject.ZAAK),
+                ownerType = SignaleringTarget.USER,
+                isDashboard = true
+            )
+            every { signaleringService.readInstellingenUser(type, user.id) } returns domainInstellingen
+
+            `when`("convert(RestSignaleringInstellingen, User) is called") {
+                val result = restSignaleringInstellingenConverter.convert(restInstellingen, user)
+
+                then("the missing dashboard value is treated as false") {
+                    result.isDashboard shouldBe false
+                }
+            }
+        }
     }
 })

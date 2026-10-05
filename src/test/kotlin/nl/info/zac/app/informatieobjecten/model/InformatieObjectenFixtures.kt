@@ -91,7 +91,7 @@ fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     bestandsnaam: String = "fakeFile.txt",
     file: InputStream? = "fakeFile".byteInputStream(),
     formaat: String = "fakeType",
-    informatieobjectTypeUUID: UUID = UUID.randomUUID(),
+    informatieobjectTypeUUID: UUID? = UUID.randomUUID(),
     vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding =
         RestVertrouwelijkheidaanduiding.OPENBAAR
 ) = RestEnkelvoudigInformatieObjectVersieGegevens(

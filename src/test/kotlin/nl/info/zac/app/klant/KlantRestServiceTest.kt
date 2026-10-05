@@ -37,11 +37,13 @@ import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
+import nl.info.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -1099,6 +1101,22 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 then("it should return an empty list") {
                     result shouldBe emptyList()
+                }
+            }
+        }
+    }
+    context("List contactmomenten") {
+        given("Parameters without a BSN and without a vestigingsnummer") {
+            val parameters = RestListContactmomentenParameters(page = 0)
+
+            `when`("listContactmomenten is called") {
+                val exception = shouldThrow<InputValidationFailedException> {
+                    klantRestService.listContactmomenten(parameters)
+                }
+
+                then("the request is rejected without calling the klanten client") {
+                    exception.message shouldBe "Either a BSN or a vestigingsnummer is required to list contactmomenten"
+                    verify(exactly = 0) { klantClientService.listExpandBetrokkenen(any(), any()) }
                 }
             }
         }
