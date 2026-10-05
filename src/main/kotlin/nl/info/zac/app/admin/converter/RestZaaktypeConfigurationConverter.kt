@@ -5,7 +5,7 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
+import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen
@@ -40,7 +40,7 @@ import java.time.ZonedDateTime
 @NoArgConstructor
 @Suppress("LongParameterList")
 class RestZaaktypeConfigurationConverter @Inject constructor(
-    val caseDefinitionConverter: RESTCaseDefinitionConverter,
+    val caseDefinitionConverter: RestCaseDefinitionConverter,
     val zaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
@@ -66,7 +66,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             creatiedatum = zaaktypeCmmnConfiguration.creatiedatum,
             valide = zaaktypeCmmnConfiguration.isValide(),
             caseDefinition = zaaktypeCmmnConfiguration.caseDefinitionID?.let {
-                caseDefinitionConverter.convertToRESTCaseDefinition(it, inclusiefRelaties)
+                caseDefinitionConverter.convertToRestCaseDefinition(it, inclusiefRelaties)
             },
             intakeMail = zaaktypeCmmnConfiguration.intakeMail?.let {
                 ZaakafhandelparametersStatusMailOption.valueOf(

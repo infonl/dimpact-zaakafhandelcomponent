@@ -15,7 +15,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
+import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTReplyToConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
@@ -74,7 +74,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     private val zaaktypeCmmnConfigurationConverter: RestZaaktypeConfigurationConverter,
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
-    private val caseDefinitionConverter: RESTCaseDefinitionConverter,
+    private val caseDefinitionConverter: RestCaseDefinitionConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService,
     private val identityService: IdentityService
@@ -89,7 +89,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     fun listCaseDefinitions(): List<RESTCaseDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return cmmnService.listCaseDefinitions()
-            .map { caseDefinitionConverter.convertToRESTCaseDefinition(it, true) }
+            .map { caseDefinitionConverter.convertToRestCaseDefinition(it, true) }
     }
 
     /**
@@ -102,7 +102,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     @Path("case-definitions/{key}")
     fun readCaseDefinition(@PathParam("key") caseDefinitionKey: String): RESTCaseDefinition {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return caseDefinitionConverter.convertToRESTCaseDefinition(caseDefinitionKey, true)
+        return caseDefinitionConverter.convertToRestCaseDefinition(caseDefinitionKey, true)
     }
 
     /**

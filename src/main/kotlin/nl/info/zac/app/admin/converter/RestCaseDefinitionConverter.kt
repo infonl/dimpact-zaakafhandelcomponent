@@ -2,60 +2,38 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.admin.converter
 
-package net.atos.zac.app.admin.converter;
+import jakarta.inject.Inject
+import net.atos.zac.app.admin.model.RESTCaseDefinition
+import net.atos.zac.app.admin.model.RESTPlanItemDefinition
+import net.atos.zac.flowable.cmmn.CmmnService
+import nl.info.zac.app.planitems.model.PlanItemType.HUMAN_TASK
+import nl.info.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import org.flowable.cmmn.api.repository.CaseDefinition
+import org.flowable.cmmn.model.HumanTask
+import org.flowable.cmmn.model.UserEventListener
 
-import static nl.info.zac.app.planitems.model.PlanItemType.HUMAN_TASK;
-import static nl.info.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER;
+@AllOpen
+@NoArgConstructor
+class RestCaseDefinitionConverter @Inject constructor(
+    private val cmmnService: CmmnService
+) {
+    fun convertToRestCaseDefinition(caseDefinitionKey: String, inclusiefRelaties: Boolean): RESTCaseDefinition =
+        convertToRestCaseDefinition(cmmnService.readCaseDefinition(caseDefinitionKey), inclusiefRelaties)
 
-import jakarta.inject.Inject;
-
-import org.flowable.cmmn.api.repository.CaseDefinition;
-import org.flowable.cmmn.model.HumanTask;
-import org.flowable.cmmn.model.UserEventListener;
-
-import net.atos.zac.app.admin.model.RESTCaseDefinition;
-import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
-import net.atos.zac.flowable.cmmn.CmmnService;
-
-public class RESTCaseDefinitionConverter {
-    private CmmnService cmmnService;
-
-    /**
-     * No-arg constructor for CDI.
-     */
-    public RESTCaseDefinitionConverter() {
-    }
-
-    @Inject
-    public RESTCaseDefinitionConverter(final CmmnService cmmnService) {
-        this.cmmnService = cmmnService;
-    }
-
-    public RESTCaseDefinition convertToRESTCaseDefinition(final String caseDefinitionKey, final boolean inclusiefRelaties) {
-        final CaseDefinition caseDefinition = cmmnService.readCaseDefinition(caseDefinitionKey);
-        return convertToRESTCaseDefinition(caseDefinition, inclusiefRelaties);
-    }
-
-    public RESTCaseDefinition convertToRESTCaseDefinition(final CaseDefinition caseDefinition, final boolean inclusiefRelaties) {
-        final RESTCaseDefinition restCaseDefinition = new RESTCaseDefinition(caseDefinition.getName(), caseDefinition.getKey());
-        if (inclusiefRelaties) {
-            restCaseDefinition.humanTaskDefinitions = cmmnService.listHumanTasks(caseDefinition.getId()).stream()
-                    .map(RESTCaseDefinitionConverter::convertHumanTaskDefinition)
-                    .toList();
-            restCaseDefinition.userEventListenerDefinitions = cmmnService.listUserEventListeners(caseDefinition.getId())
-                    .stream()
-                    .map(RESTCaseDefinitionConverter::convertUserEventListenerDefinition)
-                    .toList();
+    fun convertToRestCaseDefinition(caseDefinition: CaseDefinition, inclusiefRelaties: Boolean): RESTCaseDefinition =
+        RESTCaseDefinition(caseDefinition.name, caseDefinition.key).apply {
+            if (inclusiefRelaties) {
+                humanTaskDefinitions = cmmnService.listHumanTasks(caseDefinition.id).map { it.toRestPlanItemDefinition() }
+                userEventListenerDefinitions = cmmnService.listUserEventListeners(caseDefinition.id)
+                    .map { it.toRestPlanItemDefinition() }
+            }
         }
-        return restCaseDefinition;
-    }
 
-    private static RESTPlanItemDefinition convertHumanTaskDefinition(final HumanTask humanTaskDefinition) {
-        return new RESTPlanItemDefinition(humanTaskDefinition.getId(), humanTaskDefinition.getName(), HUMAN_TASK);
-    }
+    private fun HumanTask.toRestPlanItemDefinition() = RESTPlanItemDefinition(id, name, HUMAN_TASK)
 
-    private static RESTPlanItemDefinition convertUserEventListenerDefinition(final UserEventListener userEventListenerDefinition) {
-        return new RESTPlanItemDefinition(userEventListenerDefinition.getId(), userEventListenerDefinition.getName(), USER_EVENT_LISTENER);
-    }
+    private fun UserEventListener.toRestPlanItemDefinition() = RESTPlanItemDefinition(id, name, USER_EVENT_LISTENER)
 }

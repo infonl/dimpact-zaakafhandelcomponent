@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.admin.converter
+package nl.info.zac.app.admin.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -18,7 +18,7 @@ import org.flowable.cmmn.model.UserEventListener
 
 class RestCaseDefinitionConverterTest : BehaviorSpec({
     val cmmnService = mockk<CmmnService>()
-    val converter = RESTCaseDefinitionConverter(cmmnService)
+    val converter = RestCaseDefinitionConverter(cmmnService)
 
     afterEach { checkUnnecessaryStub() }
 
@@ -29,8 +29,8 @@ class RestCaseDefinitionConverterTest : BehaviorSpec({
                 every { key } returns "fakeCaseKey"
             }
 
-            `when`("convertToRESTCaseDefinition is called with inclusiefRelaties = false") {
-                val result = converter.convertToRESTCaseDefinition(caseDefinition, false)
+            `when`("convertToRestCaseDefinition is called with inclusiefRelaties = false") {
+                val result = converter.convertToRestCaseDefinition(caseDefinition, false)
 
                 then("RESTCaseDefinition has correct name and key") {
                     result.naam shouldBe "fakeCaseName"
@@ -64,8 +64,8 @@ class RestCaseDefinitionConverterTest : BehaviorSpec({
             every { cmmnService.listHumanTasks(fakeCaseDefinitionId) } returns listOf(humanTask)
             every { cmmnService.listUserEventListeners(fakeCaseDefinitionId) } returns listOf(userEventListener)
 
-            `when`("convertToRESTCaseDefinition is called with inclusiefRelaties = true") {
-                val result = converter.convertToRESTCaseDefinition(caseDefinition, true)
+            `when`("convertToRestCaseDefinition is called with inclusiefRelaties = true") {
+                val result = converter.convertToRestCaseDefinition(caseDefinition, true)
 
                 then("humanTaskDefinitions contains one entry with type HUMAN_TASK") {
                     result.humanTaskDefinitions!!.size shouldBe 1
@@ -92,8 +92,8 @@ class RestCaseDefinitionConverterTest : BehaviorSpec({
             }
             every { cmmnService.readCaseDefinition(fakeCaseDefinitionKey) } returns caseDefinition
 
-            `when`("convertToRESTCaseDefinition is called with a key string") {
-                val result = converter.convertToRESTCaseDefinition(fakeCaseDefinitionKey, false)
+            `when`("convertToRestCaseDefinition is called with a key string") {
+                val result = converter.convertToRestCaseDefinition(fakeCaseDefinitionKey, false)
 
                 then("CmmnService.readCaseDefinition is called and the result is converted") {
                     result.key shouldBe fakeCaseDefinitionKey

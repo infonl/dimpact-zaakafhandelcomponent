@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
+import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import nl.info.client.zgw.shared.ZgwApiService
@@ -39,7 +39,7 @@ import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import java.time.LocalDate
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
-    val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
+    val caseDefinitionConverter = mockk<RestCaseDefinitionConverter>()
     val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -63,6 +63,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
 
+    val restCaseDefinition = RESTCaseDefinition("fakeCaseName", "fakeCaseKey").apply {
+        humanTaskDefinitions = emptyList()
+        userEventListenerDefinitions = emptyList()
+    }
+
     afterEach {
         checkUnnecessaryStub()
     }
@@ -85,11 +90,14 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns listOf(restZaakbeeindigParameter)
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRESTCaseDefinition(
-                zaaktypeCmmnConfiguration.caseDefinitionID,
+            caseDefinitionConverter.convertToRestCaseDefinition(
+                checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID),
                 true
             )
-        } returns null
+        } returns restCaseDefinition
+        every {
+            restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
+        } returns emptyList()
         every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns null
 
         `when`("converted to REST representation") {
@@ -113,7 +121,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
                         nuGeldig shouldBe true
                     }
-                    caseDefinition shouldBe null
+                    caseDefinition shouldBe restCaseDefinition
                     defaultBehandelaarId shouldBe null
                     defaultGroepId shouldBe null
                     einddatumGeplandWaarschuwing shouldBe null
@@ -251,8 +259,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRESTCaseDefinition(zaaktypeCmmnConfiguration.caseDefinitionID, true)
-        } returns null
+            caseDefinitionConverter.convertToRestCaseDefinition(checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID), true)
+        } returns restCaseDefinition
+        every {
+            restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
+        } returns emptyList()
         every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns
             createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
         every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaakType.url) } returns createRolType(
@@ -287,8 +298,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRESTCaseDefinition(zaaktypeCmmnConfiguration.caseDefinitionID, true)
-        } returns null
+            caseDefinitionConverter.convertToRestCaseDefinition(checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID), true)
+        } returns restCaseDefinition
+        every {
+            restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
+        } returns emptyList()
         every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns
             createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
         every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaakType.url) } returns null
