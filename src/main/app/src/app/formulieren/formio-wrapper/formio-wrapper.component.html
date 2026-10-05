@@ -6,7 +6,7 @@
 @if (stylesLoaded && evalContextReady) {
   @if (form(); as form) {
     <formio
-      [submission]="submission"
+      [submission]="submission()"
       [submitDone]="submissionDone"
       [error]="submissionError"
       [form]="form"
