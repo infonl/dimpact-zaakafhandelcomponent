@@ -19,6 +19,8 @@ describe("403 error page", () => {
   function renderErrorPage() {
     const page = new DOMParser().parseFromString(errorPageHtml, "text/html");
     document.body.innerHTML = page.body.innerHTML;
+    // A script element has no role, so Testing Library cannot query it.
+    // eslint-disable-next-line no-restricted-syntax, testing-library/no-node-access
     for (const script of page.querySelectorAll("script")) {
       new Function(script.textContent ?? "")();
     }
