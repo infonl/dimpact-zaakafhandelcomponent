@@ -34,10 +34,7 @@ When(
 
     // A timestamp with millisecond precision tells this case apart from every other one on a shared environment.
     const timestamp = currentDutchTimestamp();
-    caseDescription.value = describeCaseDescription(
-      "E2E BDD test",
-      timestamp,
-    );
+    caseDescription.value = describeCaseDescription("E2E BDD test", timestamp);
     await page
       .getByRole("textbox", { name: "Description" })
       .fill(caseDescription.value);
