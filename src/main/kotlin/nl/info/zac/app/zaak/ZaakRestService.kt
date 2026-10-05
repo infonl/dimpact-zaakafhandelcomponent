@@ -102,7 +102,6 @@ import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.identification.IdentificationService
-import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.output.ZaakRechten
@@ -133,7 +132,6 @@ class ZaakRestService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val eventingService: EventingService,
     private val healthCheckService: HealthCheckService,
-    private val identityService: IdentityService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val indexingService: IndexingService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
@@ -263,7 +261,9 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakURI(betrokkene.zaak!!)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakURI(
+            checkNotNull(betrokkene.zaak) { "Betrokkene '$betrokkeneUUID' has no zaak" }
+        )
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         removeBetrokkene(zaakRechten, betrokkene, reden.reden)
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -967,7 +967,7 @@ class ZaakRestService @Inject constructor(
     ): List<RestZaakAfzender> =
         afzenders
             .sortedWith(
-                compareBy<RestZaakAfzender> { it.mail ?: "" }
+                compareBy<RestZaakAfzender> { it.mail.orEmpty() }
                     .thenByDescending { it.defaultMail }
             )
             .distinctBy { it.mail }

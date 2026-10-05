@@ -6,6 +6,7 @@
 package nl.info.zac.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 
 class ReferenceTableTest : BehaviorSpec({
@@ -55,6 +56,22 @@ class ReferenceTableTest : BehaviorSpec({
 
             then("The objects should have different hashcodes") {
                 hashcodeResult shouldBe false
+            }
+        }
+    }
+
+    given("A reference table and a value that have not been persisted yet") {
+        val referenceTable = createReferenceTable(
+            id = null,
+            values = mutableListOf(createReferenceTableValue(id = null))
+        )
+
+        `when`("the reference table is converted to a REST reference table including its values") {
+            val restReferenceTable = referenceTable.toRestReferenceTable(inclusiefWaarden = true)
+
+            then("the REST reference table and its value have no id") {
+                restReferenceTable.id.shouldBeNull()
+                restReferenceTable.values.single().id.shouldBeNull()
             }
         }
     }

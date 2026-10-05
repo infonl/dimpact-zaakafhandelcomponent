@@ -22,7 +22,6 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { EMPTY, lastValueFrom, switchMap } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
@@ -35,7 +34,6 @@ import {
 } from "../../shared/form/composed-form/form-field.types";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { PlanItemsService } from "../plan-items.service";
 
 @Component({
@@ -56,8 +54,6 @@ import { PlanItemsService } from "../plan-items.service";
 })
 export class HumanTaskDoComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly queryClient = inject(QueryClient);
-  private readonly takenService = inject(TakenService);
   private readonly planItemsService = inject(PlanItemsService);
   private readonly identityService = inject(IdentityService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
@@ -72,16 +68,8 @@ export class HumanTaskDoComponent implements OnInit {
   @Output() done = new EventEmitter<void>();
 
   protected readonly doHumanTaskPlanItemMutation = injectMutation(
-    () => this.planItemsService.doHumanTaskPlanItem(),
-    {
-      onSuccess: () => {
-        this.queryClient.invalidateQueries({
-          queryKey: this.takenService.listTakenVoorZaakQuery(this.zaak().uuid)
-            .queryKey,
-        });
-        this.done.emit();
-      },
-    },
+    () => this.planItemsService.doHumanTaskPlanItem(this.zaak().uuid),
+    { onSuccess: () => this.done.emit() },
   );
 
   protected form = this.formBuilder.group({});

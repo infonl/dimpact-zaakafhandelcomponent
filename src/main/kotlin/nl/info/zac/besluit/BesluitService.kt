@@ -5,7 +5,6 @@
 package nl.info.zac.besluit
 
 import jakarta.inject.Inject
-import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
@@ -19,9 +18,11 @@ import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
 import nl.info.zac.app.zaak.model.besluit.toBesluitPatch
+import nl.info.zac.util.time.PeriodUtil
 import org.apache.commons.collections4.CollectionUtils
 import java.time.LocalDate
 import java.time.Period
+import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -159,7 +160,7 @@ class BesluitService @Inject constructor(
     fun withdrawBesluit(besluit: Besluit, reden: String): Besluit =
         brcClientService.updateBesluit(
             besluit,
-            getBesluitWithdrawalExplanation(besluit.vervalreden)?.let { String.format(it, reden) }
+            getBesluitWithdrawalExplanation(besluit.vervalreden)?.let { String.format(Locale.ROOT, it, reden) }
         )
 
     private fun getBesluitWithdrawalExplanation(withdrawalReason: VervalredenEnum): String? {

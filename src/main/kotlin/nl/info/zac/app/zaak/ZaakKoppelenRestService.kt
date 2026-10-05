@@ -391,6 +391,6 @@ class ZaakKoppelenRestService @Inject constructor(
         andereZaakURI: URI
     ): List<GerelateerdeZaak> {
         gerelateerdeZaken?.removeIf { it.url == andereZaakURI }
-        return gerelateerdeZaken ?: emptyList()
+        return gerelateerdeZaken.orEmpty()
     }
 }

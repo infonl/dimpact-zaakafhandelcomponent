@@ -283,7 +283,7 @@ class TaskRestService @Inject constructor(
                 updateVerzenddatumEnkelvoudigInformatieObjecten(
                     documenten = it.toString(),
                     // implicitly assume that the verzenddatum key is present in taakdata
-                    verzenddatumString = taakdata[TAAK_DATA_VERZENDDATUM]!!.toString(),
+                    verzenddatumString = taakdata.getValue(TAAK_DATA_VERZENDDATUM).toString(),
                     toelichting = taakdata[TAAK_DATA_TOELICHTING]?.toString()
                 )
             }

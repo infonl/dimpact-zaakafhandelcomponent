@@ -151,10 +151,11 @@ class ZaaktypeConfigurationRestService @Inject constructor(
                     }
                 }
                 BPMN -> {
-                    zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakTypeUUID).let {
-                            zaaktypeBpmnConfiguration ->
-                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration!!)
-                    }
+                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(
+                        checkNotNull(zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakTypeUUID)) {
+                            "No BPMN configuration found for zaaktype '$zaakTypeUUID'"
+                        }
+                    )
                 }
             }
         }
@@ -345,6 +346,5 @@ class ZaaktypeConfigurationRestService @Inject constructor(
         zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
             ?.getZaakbeeindigParameters()
             ?.map { it.zaakbeeindigReden }
-            ?.let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
-            ?: emptyList()
+            ?.let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }.orEmpty()
 }

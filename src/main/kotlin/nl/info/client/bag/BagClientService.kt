@@ -84,6 +84,6 @@ class BagClientService @Inject constructor(
 
     fun listAdressen(parameters: BevraagAdressenParameters): List<AdresIOHal> {
         val embedded = adresApi.bevraagAdressen(parameters).getEmbedded()
-        return embedded?.adressen ?: emptyList()
+        return embedded?.adressen.orEmpty()
     }
 }

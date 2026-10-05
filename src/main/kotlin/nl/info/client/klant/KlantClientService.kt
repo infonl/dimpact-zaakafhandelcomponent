@@ -91,7 +91,7 @@ class KlantClientService @Inject constructor(
             }
             null
         }
-        return expandPartijWithCorrectKvkNumber?.getExpand()?.getDigitaleAdressen() ?: emptyList()
+        return expandPartijWithCorrectKvkNumber?.getExpand()?.getDigitaleAdressen().orEmpty()
     }
 
     fun findDigitalAddressesForNonNaturalPerson(kvkNummer: String): List<DigitaalAdres> =
@@ -102,7 +102,7 @@ class KlantClientService @Inject constructor(
             partijIdentificatorCodeObjecttype = NIET_NATUURLIJK_PERSOON.toString(),
             partijIdentificatorCodeSoortObjectId = KVK_NUMMER.toString(),
             partijIdentificatorObjectId = kvkNummer
-        ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
+        ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen().orEmpty()
 
     fun findDigitalAddressesForNaturalPerson(number: String): List<DigitaalAdres> =
         klantClient.partijenList(
@@ -112,7 +112,7 @@ class KlantClientService @Inject constructor(
             partijIdentificatorCodeObjecttype = NATUURLIJK_PERSOON.toString(),
             partijIdentificatorCodeSoortObjectId = BSN.toString(),
             partijIdentificatorObjectId = number
-        ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
+        ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen().orEmpty()
 
     fun listExpandBetrokkenen(number: String, page: Int): List<ExpandBetrokkene> =
         klantClient.partijenList(
@@ -120,7 +120,7 @@ class KlantClientService @Inject constructor(
             page = page,
             pageSize = DEFAULT_PAGE_SIZE,
             partijIdentificatorObjectId = number
-        ).getResults().firstOrNull()?.getExpand()?.betrokkenen ?: emptyList()
+        ).getResults().firstOrNull()?.getExpand()?.betrokkenen.orEmpty()
 
     fun findProductaanvraagSpecificContactDetails(formulierKenmerk: String): ProductaanvraagSpecificContactDetails? =
         findKlantcontactForOpenFormsProductaanvraag(formulierKenmerk)?.let { klantcontact ->

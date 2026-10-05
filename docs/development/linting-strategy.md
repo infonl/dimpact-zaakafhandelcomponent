@@ -50,6 +50,14 @@ is `display: none` — disable the rule on that line with a comment saying which
 
 Migrating the remaining specs so these rules can become errors everywhere is the next phase.
 
+## Kotlin
+
+`./gradlew detekt` runs `detektMain`, `detektTest` and `detektItest`. Each one analyses a source set
+with its compile classpath. Rules that need that type information, such as
+`UnsafeCallOnNullableType` and `InjectDispatcher`, report nothing without it. `./gradlew build`
+runs the same tasks, so CI checks the same rules. `detektApply` runs without type information and
+only applies the fixes that detekt can make by itself.
+
 ## Conventions enforced by linters
 
 Coding conventions that a linter can check are enforced there rather than only described in

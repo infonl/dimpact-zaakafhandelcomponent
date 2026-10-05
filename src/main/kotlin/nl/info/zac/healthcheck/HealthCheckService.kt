@@ -73,7 +73,7 @@ class HealthCheckService @Inject constructor(
         private const val DEV_BUILD_ID = "dev"
     }
 
-    private var buildInformation: BuildInformation = createBuildInformatie()
+    private val buildInformation: BuildInformation = createBuildInformatie()
 
     fun bestaatCommunicatiekanaalEformulier() =
         referenceTableService.readSystemReferenceTable(COMMUNICATIEKANAAL).values.any {

@@ -23,7 +23,7 @@ import java.time.ZonedDateTime
 fun createRestSignaleringInstellingen(
     id: Long = 1234L,
     type: SignaleringType = createSignaleringType(),
-    isDashboard: Boolean = true,
+    isDashboard: Boolean? = true,
     isMail: Boolean = true,
 ) = RestSignaleringInstellingen(
     id = id,

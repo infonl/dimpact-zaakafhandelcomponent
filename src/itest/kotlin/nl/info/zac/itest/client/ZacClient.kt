@@ -54,8 +54,6 @@ class ZacClient(
         vertrouwelijkheidaanduiding: String,
         testUser: TestUser
     ): ResponseContent {
-        val createEnkelvoudigInformatieobjectEndpointURI =
-            "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakUUID/$zaakUUID"
         val file = Thread.currentThread().contextClassLoader.getResource(fileName).let {
             File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
         }
@@ -404,7 +402,7 @@ class ZacClient(
                     "naam": "$naam"
                 },
             """
-        } ?: ""
+        }.orEmpty()
         return itestHttpClient.performJSONPostRequest(
             url = "${ZAC_API_URI}/zaken/zaak",
             requestBodyAsString = """
