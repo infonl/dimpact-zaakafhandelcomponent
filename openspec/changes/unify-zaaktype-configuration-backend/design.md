@@ -59,14 +59,17 @@ Each chunk is a branch based on the branch of the previous chunk:
 | # | Branch | Based on | Flyway |
 |---|---|---|---|
 | A1 | `feature/PZ-12669-unify-zaaktype-configuration-backend` | `main` | V100 |
-| A2 | `feature/PZ-12669-a2-zaak-settings-to-base` | A1 | V101 |
+| A2-java | `feature/PZ-12669-kotlin-migration-mailtemplate-koppeling` | A1 | — |
+| A2 | `feature/PZ-12669-a2-zaak-settings-to-base` | A2-java | V101 |
 | A3 | `feature/PZ-12669-a3-split-configuration` | A2 | V102 |
 | B1 | `feature/PZ-12669-b1-process-binding` | A3 | — |
 | B2 | `feature/PZ-12669-b2-resultaattype-omschrijving` | B1 | V103 |
 | B3 | `feature/PZ-12669-b3-configuration-versioning` | B2 | — |
 | B4 | `feature/PZ-12669-b4-confirmation-email-fallback` | B3 | — |
 
-A1 carries the openspec change directory. Every PR title follows Conventional Commits, for example
+A1 carries the openspec change directory. When a chunk has to change Java code, the conversion of that code to
+Kotlin is a PR of its own, stacked directly below the chunk (A2-java below A2). That PR changes no behaviour, so
+a reviewer can read it as a pure conversion. Every PR title follows Conventional Commits, for example
 `refactor(admin): ...`, and every PR body ends with `Solves PZ-12669`. When a lower PR merges, the next PR
 is rebased onto `main` and retargeted. The flyway versions are fixed per chunk, so a rebase never renumbers a
 migration. If another PR takes V100–V103 on `main` first, the stack renumbers its migrations once, from A1 up.
@@ -175,7 +178,8 @@ BPMN.
 The BPMN REST path today assigns fields onto the found entity. It keeps that shape, so the moved fields
 survive a BPMN `POST`.
 
-A2 touches five Java classes, so it first converts them to Kotlin, in two commits that keep the Git history:
+A2 touches five Java classes. The A2-java PR converts them to Kotlin first, in two commits that keep the Git
+history:
 
 - `MailtemplateKoppelingRestService`
 - `RESTMailtemplateKoppelingConverter`

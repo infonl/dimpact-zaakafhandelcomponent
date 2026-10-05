@@ -41,7 +41,15 @@
       startup log shows the migration and any quarantine warnings, and that the quarantine table holds only expected rows.
       Verify that the configuration screens of one CMMN and one BPMN zaaktype show unchanged values. Record the result in the PR before the next chunk merges.
 
-## 2. PR A2: zaak settings to the base (branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A1)
+## 2. PR A2-java and PR A2: zaak settings to the base
+
+- [x] 2.0 In PR A2-java (branch `feature/PZ-12669-kotlin-migration-mailtemplate-koppeling`, base A1), convert the Java
+      classes that A2 changes to Kotlin, without functional changes (design D3). Verify with
+      `./gradlew test`, the contract check, and the itests of the converted REST resources. Then open the PR
+      `refactor(app): convert the mailtemplate koppeling and reply-to Java classes to Kotlin`, with body footer
+      `Solves PZ-12669`.
+
+PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 
 - [x] 2.1 Write `V101__move_zaak_settings_to_zaaktype_configuration.sql` (design D3):
       - move both warning-window columns to the base
