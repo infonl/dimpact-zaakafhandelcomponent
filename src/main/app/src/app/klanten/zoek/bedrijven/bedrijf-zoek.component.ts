@@ -7,6 +7,7 @@ import { NgIf, TitleCasePipe } from "@angular/common";
 import {
   Component,
   EventEmitter,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -22,10 +23,12 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { ZacInput } from "../../../shared/form/input/input";
 import { ZacSelect } from "../../../shared/form/select/select";
+import { runQuery } from "../../../shared/http/run-query";
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import {
   BSN_LENGTH,
@@ -117,6 +120,8 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     type: this.formBuilder.control<GeneratedType<"BedrijfType"> | null>(null),
   });
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly klantenService: KlantenService,
     private readonly utilService: UtilService,
@@ -177,17 +182,18 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     this.utilService.setLoading(true);
     this.bedrijven.data = [];
     const data = this.formGroup.value;
-    this.klantenService
-      .listBedrijven({
+    runQuery(
+      this.queryClient,
+      this.klantenService.listBedrijven({
         ...data,
         kvkNummer: data.kvkNummer ? String(data.kvkNummer) : null,
-      })
-      .subscribe((bedrijven) => {
-        this.bedrijven.data = bedrijven.resultaten ?? [];
-        this.foutmelding = bedrijven.foutmelding ?? undefined;
-        this.loading = false;
-        this.utilService.setLoading(false);
-      });
+      }),
+    ).subscribe((bedrijven) => {
+      this.bedrijven.data = bedrijven.resultaten ?? [];
+      this.foutmelding = bedrijven.foutmelding ?? undefined;
+      this.loading = false;
+      this.utilService.setLoading(false);
+    });
   }
 
   openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">) {

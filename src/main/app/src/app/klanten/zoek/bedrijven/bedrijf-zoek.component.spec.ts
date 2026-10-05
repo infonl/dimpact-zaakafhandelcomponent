@@ -8,10 +8,12 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of, Subject } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { Subject } from "rxjs";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { KlantenService } from "../../klanten.service";
@@ -44,7 +46,7 @@ describe(BedrijfZoekComponent.name, () => {
     onBedrijf?: (bedrijf: GeneratedType<"RestBedrijf">) => void;
   } = {}) {
     listBedrijven = jest.fn().mockReturnValue(
-      of(
+      createQueryOptions(
         fromPartial<GeneratedType<"RESTResultaatRestBedrijf">>({
           resultaten: [fakeBedrijf],
         }),
@@ -61,6 +63,7 @@ describe(BedrijfZoekComponent.name, () => {
       on: { ...(onBedrijf && { bedrijf: onBedrijf }) },
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
+        provideQueryClient(testQueryClient),
         provideRouter([]),
         {
           provide: KlantenService,
@@ -98,6 +101,7 @@ describe(BedrijfZoekComponent.name, () => {
     await user.type(kvkNummerField(), kvkNummer);
     fixture.detectChanges();
     await user.click(searchButton());
+    await sleep();
     fixture.detectChanges();
     fixture.detectChanges();
   }
