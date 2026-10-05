@@ -7,9 +7,13 @@
 
 ## 1. PR A1: schema repair (branch `feature/PZ-12669-unify-zaaktype-configuration-backend`, base `main`)
 
-- [ ] 1.1 Write `V100__repair_zaaktype_configuration_schema.sql` (design D2):
-      - delete subclass rows without a base row
-      - delete duplicate one-to-one children, keeping the highest id
+- [ ] 1.1 Write `V100__repair_zaaktype_configuration_schema.sql` (design D2, D2a):
+      - create `zaaktype_configuration_migration_quarantine`
+      - set a null `configuration_type` from the subclass table that holds the id
+      - move these rows to quarantine (copy to JSONB, then delete), and report the count per rule with `RAISE WARNING`:
+        - subclass rows without a base row
+        - base rows that are in neither subclass table or in both, together with their child rows
+        - duplicate one-to-one children; the highest id stays
       - add the PK on `zaaktype_bpmn_configuration(id)`
       - add FKs from both subclass tables to `zaaktype_configuration(id)` with ON DELETE CASCADE
       - set `configuration_type` NOT NULL
@@ -18,12 +22,22 @@
       Verify that the itest stack starts and that Flyway reports V100 as applied.
 - [ ] 1.2 Add an itest that reads the constraints from `information_schema` and asserts that the PK, FKs, NOT NULL,
       and UNIQUE constraints of V100 exist; verify with `./gradlew itest --tests "*SchemaTest*"`.
-- [ ] 1.3 Add the shared engine fixture `listOf(CMMN, BPMN)` with configuration factories to `AdminFixtures.kt`.
+- [ ] 1.3 Add the migration test of design D10:
+      - Testcontainers PostgreSQL with Flyway `target` V99
+      - seed one valid row and one row for each quarantine rule, then migrate to V100
+
+      Assert that the valid rows are untouched, that every invalid row is in the quarantine table with its full
+      `row_data`, and that a quarantined row can be restored with `jsonb_populate_record`. Verify that the test passes.
+- [ ] 1.4 Verify that the `RAISE WARNING` counts of V100 appear in the ZAC startup log of the itest stack.
+- [ ] 1.5 Add the shared engine fixture `listOf(CMMN, BPMN)` with configuration factories to `AdminFixtures.kt`.
       Switch `ZaaktypeHelperServiceTest` to it and verify that the test still passes.
-- [ ] 1.4 Run `./gradlew spotlessApply detektApply detekt build` and the contract diff against the baseline;
+- [ ] 1.6 Run `./gradlew spotlessApply detektApply detekt build` and the contract diff against the baseline;
       verify that both are clean.
-- [ ] 1.5 Open the PR. Title: `fix(admin): repair the zaaktype configuration schema constraints`. Include the openspec change directory.
+- [ ] 1.7 Open the PR. Title: `fix(admin): repair the zaaktype configuration schema constraints`. Include the openspec change directory.
       The body ends with `Solves PZ-12669`.
+- [ ] 1.8 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
+      startup log shows the migration and any quarantine warnings, and that the quarantine table holds only expected rows.
+      Verify that the configuration screens of one CMMN and one BPMN zaaktype show unchanged values. Record the result in the PR before the next chunk merges.
 
 ## 2. PR A2: zaak settings to the base (branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A1)
 
@@ -33,7 +47,9 @@
         their FKs to `zaaktype_configuration(id)`
       - keep RESTRICT on the zaakafzender FK
 
-      Verify on the itest stack that the existing CMMN data is still read.
+      Any row that blocks a new constraint goes to quarantine with `migration = 'V101'` (design D2a). Verify on the
+      itest stack that the existing CMMN data is still read, and verify with a migration test from V100 (as in 1.3)
+      that the moved data is unchanged.
 - [ ] 2.2 Move the warning windows, the email parameters, the zaakafzenders, and the mailtemplate koppelingen from
       `ZaaktypeCmmnConfiguration` to `ZaaktypeConfiguration`. Rename the entities `ZaaktypeEmailParameters`,
       `ZaaktypeZaakafzenderParameters`, and `ZaaktypeMailtemplateParameters`. Verify with `./gradlew compileKotlin compileJava`.
@@ -50,6 +66,9 @@
 - [ ] 2.5 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and a lower file count.
       Then open the PR `refactor(admin): move zaak settings to the engine-agnostic zaaktype configuration`, with body
       footer `Solves PZ-12669`.
+- [ ] 2.6 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
+      startup log shows the migration and any quarantine warnings, and that the quarantine table holds only expected rows.
+      Verify that deadline warnings, afzenders, and mailtemplate koppelingen of a CMMN zaaktype are unchanged. Record the result in the PR before the next chunk merges.
 
 ## 3. PR A3: one configuration, a process binding, and a CMMN extension (branch `feature/PZ-12669-a3-split-configuration`, base A2)
 
@@ -59,7 +78,10 @@
       - add `zaaktype_configuration_id` to it
       - drop `zaaktype_bpmn_configuration`, the `configuration_type` column, and the ENUM type
 
-      Verify on the itest stack that every seed configuration has the expected engine and key.
+      Any row that blocks a new constraint goes to quarantine with `migration = 'V102'` (design D2a). Verify on the
+      itest stack that every seed configuration has the expected engine and key. Also verify with a migration test
+      from V101 (as in 1.3), seeded with a CMMN row without a case definition, CMMN rows with humantask and
+      usereventlistener children, and BPMN rows, that every row and child survives with the expected binding.
 - [ ] 3.2 Replace the entities:
       - make `ZaaktypeConfiguration` concrete
       - add `ZaaktypeProcessBinding` with a `ProcessEngine` enum, and `ZaaktypeCmmnExtension` with the intake/afronden
@@ -94,6 +116,9 @@
 - [ ] 3.9 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and a file count of zero.
       Then open the PR `refactor(admin): unify the CMMN and BPMN zaaktype configuration into one entity and one service layer`,
       with body footer `Solves PZ-12669`.
+- [ ] 3.10 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
+      startup log shows the migration and any quarantine warnings, and that the quarantine table holds only expected rows.
+      Verify that zaak creation works for one CMMN and one BPMN zaaktype, and that both configuration screens show unchanged values. Record the result in the PR before the next chunk merges.
 
 ## 4. PR B1: process binding interface (branch `feature/PZ-12669-b1-process-binding`, base A3)
 
@@ -128,6 +153,9 @@
       `NotificationZaaktypeCompletionParametersTest` to publish that version, then verify that it passes for both engines.
 - [ ] 5.6 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
       `feat(admin): reference resultaattypen by omschrijving in the zaaktype configuration`, with body footer `Solves PZ-12669`.
+- [ ] 5.7 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
+      startup log shows the migration and any quarantine warnings, and that the quarantine table holds only expected rows.
+      Verify that the backfill summary reports no unresolved rows, or list the ones it reports. Record the result in the PR before the next chunk merges.
 
 ## 6. PR B3: configuration versioning (branch `feature/PZ-12669-b3-configuration-versioning`, base B2)
 
@@ -156,3 +184,11 @@
 - [ ] 8.1 Run `openspec validate unify-zaaktype-configuration-backend --strict` and verify that it reports the change as valid.
 - [ ] 8.2 Create a follow-up Jira ticket for the contract step of B2: drop the resultaattype UUID columns and the
       fallback. Verify that the ticket links PZ-12637.
+- [ ] 8.3 Create a follow-up Jira ticket for the manual quarantine check (design Migration Plan, step 2). After the
+      release with A1–A3, it covers these steps on every environment, production included:
+      - inspect `zaaktype_configuration_migration_quarantine`
+      - restore the needed rows with `jsonb_populate_record`
+      - record the result per environment
+      - once all environments are checked, drop the table by hand with `DROP TABLE`
+
+      Verify that the ticket links PZ-12637 and lists the restore and drop SQL.

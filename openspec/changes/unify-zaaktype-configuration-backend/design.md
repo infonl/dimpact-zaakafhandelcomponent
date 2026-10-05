@@ -85,13 +85,53 @@ V100 does the following:
 - adds UNIQUE constraints on the foreign key column of the three one-to-one children: betrokkene, BRP, and
   CMMN email
 
-Before it adds a constraint, V100 deletes the rows that would violate it:
+Before it adds a constraint, V100 first sets a null `configuration_type` from the subclass table that holds
+the id. It then moves every row that would still violate a constraint into a quarantine table (D2a).
+Those rows are:
 
 - subclass rows without a base row
-- duplicate one-to-one children; it keeps the highest id
+- base rows whose id is in neither subclass table, or in both
+- duplicate one-to-one children; the row with the highest id stays
+- the child rows of every quarantined base row, because ON DELETE CASCADE would otherwise remove them
+  without a copy
 
-Hibernate cannot load such rows today, because an EAGER `@OneToOne` with two rows throws, so deleting them
-loses no reachable data.
+Hibernate cannot load any of these rows today. An EAGER `@OneToOne` with two rows throws, and a subclass
+row without a base row is never joined. Moving them out changes nothing that ZAC can do with the data.
+
+### D2a. Quarantine in place of failing or deleting
+
+The migrations never delete a row that blocks a new constraint, and they never fail on one. V100 creates:
+
+```sql
+CREATE TABLE ${schema}.zaaktype_configuration_migration_quarantine (
+    id             BIGSERIAL PRIMARY KEY,
+    migration      VARCHAR NOT NULL,      -- 'V100', ...
+    source_table   VARCHAR NOT NULL,
+    reason         VARCHAR NOT NULL,      -- 'orphaned subclass row', 'duplicate one-to-one child', ...
+    row_data       JSONB   NOT NULL,      -- to_jsonb(<source row>)
+    quarantined_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+For each rule, the migration runs `INSERT INTO ... SELECT to_jsonb(t) ...` and then `DELETE` in the same
+transaction. It reports the count per rule with `RAISE WARNING` inside a `DO` block, and Flyway writes that
+to the ZAC startup log. `row_data` holds the complete row, so ops can restore it with
+`jsonb_populate_record`.
+
+The choice follows from how `FlywayIntegrator` runs:
+
+- **Failing is rejected.** A failed migration aborts ZAC startup, and the new pod never becomes ready. The
+  upgrade on that environment then blocks until someone fixes the data by hand. The migration also cannot be
+  corrected afterwards, because it has already succeeded elsewhere and Flyway would report a checksum mismatch.
+- **Deleting is rejected.** It loses data without a trace on environments that nobody can inspect beforehand.
+
+V101 and V102 use the same table, with their own `migration` value, for any row that blocks one of their
+constraints. Today's schema shows no such case after V100, so for these two migrations the rule is a
+safeguard. The migration itests prove it either way.
+
+ZAC never reads the quarantine table. A follow-up ticket covers checking it on every environment and
+dropping it by hand (Migration Plan). No later migration may reference the table, so that a manual
+drop never breaks a migration.
 
 Deviations from RFC section 3.5:
 
@@ -290,6 +330,10 @@ a duplicate.
     `zaaktype-version-update-template.sql`.
   - `NotificationZaaktypeCompletionParametersTest` then runs against a real version chain.
   - Add itests for the productaanvraagtype check across engines and for BPMN cleanup on zaak delete.
+- **Migration tests.** A test runs Flyway with `target` on an empty Testcontainers PostgreSQL up to the
+  version before the chunk. It inserts rows for each quarantine rule, plus valid rows, migrates to the
+  latest version, and then asserts two things: valid rows are converted, and every invalid row is in the
+  quarantine table with its full data.
 - **Contract check.** The spec is not committed; `./gradlew generateOpenApiSpec` writes it to
   `build/generated/openapi/META-INF/openapi/openapi.json`. Before A1, generate it on `main` and save a copy
   as the baseline outside the repo. In every PR, regenerate it and `diff` it against that baseline. The diff
@@ -298,8 +342,14 @@ a duplicate.
 ## Risks / Trade-offs
 
 - [V102 rewrites the configuration tables of every municipality] → One transactional migration (Postgres DDL
-  is transactional). The itest stack runs it against seed data. Before release, it is dry-run against an
-  anonymised production dump. Rollback means restoring the pre-upgrade backup; V102 is not reversible.
+  is transactional). The itest stack and the migration tests run it against seed data. Before release, each
+  migration chunk is deployed to the team's TEST environment, which holds real data. The migrations are
+  forward-only and must be lossless on their own; no environment is expected to restore a database backup.
+  Every migration copies data into its new place before it drops a column or a table. The migration tests
+  assert that every value of every seeded row is still present after the migration, either in its new place
+  or in the quarantine table.
+- [Quarantined rows are forgotten, and the table stays forever] → Every quarantined row triggers a startup
+  `WARNING`, and a follow-up ticket assigns the manual check and the drop (Migration Plan).
 - [Unified "current" semantics change which row CMMN reads when versions collide] → The by-UUID lookup gains
   an ORDER BY creatiedatum. This only changes the result where two rows share a zaaktype UUID, which the
   UNIQUE(zaaktype_uuid) constraint forbids. Covered by a unit test.
@@ -319,8 +369,18 @@ a duplicate.
 ## Migration Plan
 
 1. Merge A1 to B4 in order. Each release that contains A1–A3 runs V100–V102 at startup through
-   `FlywayIntegrator`.
-2. After the release that contains B2, check the backfill summary log on every environment.
-3. In a later release, a follow-up change drops the UUID columns and the fallback (outside this change).
+   `FlywayIntegrator`. After each migration chunk (A1, A2, A3, B2) merges, deploy it to the TEST environment
+   with real data. Check the startup log, the quarantine table, and the configuration screens of a CMMN and a
+   BPMN zaaktype before the next chunk merges.
+2. After the release that contains A1–A3, check `zaaktype_configuration_migration_quarantine` on every
+   environment. This is a manual step, tracked in a follow-up ticket:
+   - restore the rows that turn out to be needed, with `jsonb_populate_record`
+   - record the result per environment
+   - when every environment is checked, drop the table by hand with `DROP TABLE`
+3. After the release that contains B2, check the backfill summary log on every environment.
+4. In a later release, a follow-up change drops the UUID columns and the fallback (outside this change).
 
-Rollback for every chunk is redeploying the previous image, after a database restore for A1–A3 and B2.
+Rollback is forward-only. A defect in a migration that has already run is fixed by a new forward migration
+in the next release, never by editing the applied migration or by restoring a backup. Rows that a migration
+moved out of the way are still in the quarantine table, so a forward fix can always reach them. Redeploying
+the previous image is not possible after A2 or A3 has run, because that image expects the old tables.
