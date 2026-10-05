@@ -9,6 +9,7 @@ import {
   computed,
   effect,
   EventEmitter,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -29,7 +30,7 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
@@ -37,6 +38,7 @@ import { UtilService } from "../../../core/service/util.service";
 import { ZacDate } from "../../../shared/form/date/date";
 import { ZacInput } from "../../../shared/form/input/input";
 import { ZacSelect } from "../../../shared/form/select/select";
+import { runQuery } from "../../../shared/http/run-query";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import {
@@ -130,6 +132,8 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   protected readonly brpGemeenten = computed(
     () => this.brpGemeentenQuery.data() || [],
   );
+
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly klantenService: KlantenService,
@@ -300,8 +304,9 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.utilService.setLoading(true);
     this.personen.data = [];
     const { value } = this.formGroup;
-    this.klantenService
-      .listPersonen(
+    runQuery(
+      this.queryClient,
+      this.klantenService.listPersonen(
         {
           ...value,
           geboortedatum: value.geboortedatum?.toISOString(),
@@ -311,19 +316,19 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
               : value.gemeenteVanInschrijving?.code,
         },
         this.zaaktypeUUID() ?? "",
-      )
-      .subscribe({
-        next: (personen) => {
-          this.personen.data = personen.resultaten ?? [];
-          this.foutmelding = personen.foutmelding;
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-        error: () => {
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-      });
+      ),
+    ).subscribe({
+      next: (personen) => {
+        this.personen.data = personen.resultaten ?? [];
+        this.foutmelding = personen.foutmelding;
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+      error: () => {
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+    });
   }
 
   protected selectPersoon(persoon: GeneratedType<"RestPersoon">) {
