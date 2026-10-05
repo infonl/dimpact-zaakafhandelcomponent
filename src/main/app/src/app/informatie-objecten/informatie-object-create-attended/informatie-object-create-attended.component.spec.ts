@@ -27,7 +27,6 @@ import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectCreateAttendedComponent } from "./informatie-object-create-attended.component";
 
@@ -120,7 +119,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
           provideMomentDateAdapter(),
           provideTanStackQuery(testQueryClient),
           provideQueryClient(testQueryClient),
-          VertrouwelijkaanduidingToTranslationKeyPipe,
         ],
       },
     );
@@ -195,7 +193,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
           provideMomentDateAdapter(),
           provideTanStackQuery(testQueryClient),
           provideQueryClient(testQueryClient),
-          VertrouwelijkaanduidingToTranslationKeyPipe,
         ],
       },
     );

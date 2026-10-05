@@ -7,25 +7,25 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 9 of 18 modules removed, 10 once 5b merges; 5a and 6 merged, 5b ready for PR
+## Progress — 11 of 18 modules removed once step 7 merges; steps 5 and 6 merged, step 7 ready for PR
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
 - [x] **Step 2** — `fout-afhandeling` + `informatie-objecten` routes; `InformatieObjectenModule` deleted
 - [x] **Step 3** — ngx-editor out of the eager graph (PZ-12707) — **−77 kB** (merged, #7088)
 - [x] **Step 4** — dissolve `PipesModule` — pure deletion, −0.6 kB
-- [ ] **Step 5** — dissolve `MaterialModule`, split in two PRs:
+- [x] **Step 5** — dissolve `MaterialModule`, split in two PRs:
   - [x] **5a** — all 20 specs that import one of our NgModules (PZ-12820, merged, #7205)
-  - [ ] **5b** — 14 non-spec files + 2 pre-existing `MatButtonModule` gaps with their specs (PZ-12856, branch `refactor/PZ-12856-angular-v20-migration-to-standalone----components-import-material-directly-instead-of-through-MaterialModule`, on main `c2523a8ab`) — **+13.5 kB** transfer, −120 kB raw, re-measured on top of step 6
+  - [x] **5b** — 14 non-spec files + 2 pre-existing `MatButtonModule` gaps with their specs (PZ-12856, merged, #7233) — **+13.5 kB** transfer, −120 kB raw, re-measured on top of step 6
 - [x] **Step 6** — `MaterialFormBuilderModule` removed — **−9.8 kB** (PZ-12845, merged, #7227)
-- [ ] **Step 7** — dissolve `SharedModule` (8 non-spec, 0 specs after 5a) — last, it re-exports the others
+- [ ] **Step 7** — dissolve `SharedModule` — **−30.8 kB** (implemented 2026-10-05 on main `5ec92208c`, uncommitted, ready for PR)
 - [ ] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
       `documenten`, `productaanvragen`)
 - [ ] **Step 9** — `app-routing.module.ts` -> `app.routes.ts`
 - [ ] **Step 10** — `bootstrapApplication` + delete `CoreModule`
 
 Bundle so far: **672.06 -> 443.64 kB** initial transfer (**−34%**), the 77 kB of that in
-the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB). Step 5b gives back +13.5 kB on its own base (450.26 -> 463.74 kB, main `c2523a8ab`).
+the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB). Step 5b gives back +13.5 kB on its own base (450.26 -> 463.74 kB, main `c2523a8ab`). Step 7 takes −30.8 kB on its own base (464.59 -> 433.79 kB, main `5ec92208c`), so 5b + 7 together net −17.3 kB.
 
 **These figures are only comparable within the step that measured them.** Main moves underneath
 the branch, so an absolute `Initial total` goes stale as soon as it is merged — the same branch
@@ -360,9 +360,13 @@ exports are 21 standalone components, directives and pipes plus `CommonModule`, 
 
 **Its providers move in this step** (to `CoreModule.providers`), because step 10 comes after it: the `MatPaginatorIntl` factory and the paginator-language `provideAppInitializer`. Watch the `MatPaginatorIntl` trap from step 2: specs inherit that provider transitively and lose their translated paginator accessible names when it moves; expect a few specs to need the factory provided locally. The other two need no app-wide home (verified 2026-10-01):
 - `Title` is `providedIn: 'root'` in `@angular/platform-browser` (`app.component` and `util.service` inject it); drop the provider, do not move it.
-- `VertrouwelijkaanduidingToTranslationKeyPipe` is injected as a service only by `informatie-objecten/informatie-object-create-attended` (constructor parameter); give that component its own `providers: [VertrouwelijkaanduidingToTranslationKeyPipe]` instead of moving it to `CoreModule`. Its template users import the pipe directly and are unaffected.
+- `VertrouwelijkaanduidingToTranslationKeyPipe` is injected as a service only by `informatie-objecten/informatie-object-create-attended` (constructor parameter); give that component its own `providers: [VertrouwelijkaanduidingToTranslationKeyPipe]` instead of moving it to `CoreModule`. Its template users import the pipe directly and are unaffected. Why not root (decided 2026-10-05): before, the provider was root only because `SharedModule` sat in `AppModule`/`CoreModule`. Template use needs no provider (Angular instantiates pipes itself), and `.selectList` (`mail-create`, `formio-setup-service`) is static. A root provider would serve one consumer and need moving again in step 10. `@Injectable({ providedIn: "root" })` on the pipe class was the considered alternative; the local provider wins because it keeps the dependency visible on its only consumer, and that component's spec now checks it.
 
 `core.module.ts` imports `SharedModule` too, not only `app.module.ts`; both lines go in this step. The two `admin/bpmn-process-definitions` specs carry a comment that the component "imports SharedModule, so it injects MatDialog from its own standalone injector", which is why they spy on `MatDialog.prototype.open`. Re-check that reasoning and the comment when the import goes; the spies themselves still work either way.
+
+**Done (2026-10-05, measured on main `5ec92208c`, both builds `--configuration production`, base exported with `git archive`): 2.04 MB / 464.59 kB -> 1.93 MB / 433.79 kB (−30.8 kB transfer, −110 kB raw), initial JS chunks 82 -> 68.** 6 components list what their templates use (`NgIf`/`NgFor`/`NgClass`/`DatePipe`, `StaticTextComponent`, `SideNavComponent`, `EmptyPipe`, `TranslateModule`; `klant-koppel-initiator` needed nothing). Paginator providers moved to `CoreModule.providers`; `Title` dropped; pipe provided locally in `informatie-object-create-attended`. The two bpmn spec comments were deleted: nothing the components import provides `MatDialog` any more, and the prototype spy works either way. No spec needed the paginator factory locally. 3369/3370 green (the 1 = `mail-create` 30s timeout under load, 14/14 in isolation), `tsc --project .` 0, `ng lint` 0 errors.
+
+Falsified per import (remove it, run its specs): 9 of 13 caught by specs, `NgClass`/`SideNavComponent` by AOT (NG8002/NG8001). Two gaps closed in specs: `klant-koppel-betrokkene` used `overrideComponent({ set })` (now `remove`/`add` of the two zoek stubs — a missing `NgIf` is only an AOT warning, so nothing else catches it), and `informatie-object-create-attended` provided the pipe in TestBed, masking the component's own `providers` (removed). Both now go red when the import is removed.
 
 ## Step 8 — `loadChildren` targets: NgModule -> `Routes` (`taken`, `documenten`, `productaanvragen`)
 
@@ -404,8 +408,7 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
   - Everything in `CoreModule.providers` and `AppModule.providers` -> bootstrap providers. By then
     that is: `LOCALE_ID`, `MAT_DATE_LOCALE`, `MAT_DIALOG_DEFAULT_OPTIONS`, `UtilService`,
     `MAT_SNACK_BAR_DEFAULT_OPTIONS` (step 5), `provideZacDateAdapter()` (step 6),
-    `MatPaginatorIntl` and the paginator initializer (step 7; `Title` and
-    `VertrouwelijkaanduidingToTranslationKeyPipe` no longer app-wide, see step 7), `provideRouter(APP_ROUTES)` (step 9), `APP_BASE_HREF`, `LocationStrategy`,
+    `MatPaginatorIntl` and the paginator initializer (step 7), `provideRouter(APP_ROUTES)` (step 9), `APP_BASE_HREF`, `LocationStrategy`,
     `RouteReuseStrategy`, `provideTanStackQuery(...)` with devtools and `provideStartupPrefetch()`.
   - `AppComponent`'s own `imports`: `ToolbarComponent`, `ZoekComponent`, `MatSidenavModule` (step 5)
     and whatever else its template uses that `AppModule` supplies today.
@@ -428,11 +431,11 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 Step 3: done, −77 kB, merged (#7088).
 Step 4: done, −0.6 kB — no consumer needed touching; the work was migrating 3 touched specs to
 Testing Library.
-Steps 5–7: order forced by the barrels' own dependencies. 5a merged; step 6 merged (#7227), −9.8 kB. 5b re-measured on top of step 6: still +13.5 kB transfer (−120 kB raw); goes in anyway as the prerequisite for step 7, which is where the Material win has to come from.
+Steps 5–7: order forced by the barrels' own dependencies. 5a merged; step 6 merged (#7227), −9.8 kB; 5b merged (#7233), +13.5 kB; step 7 −30.8 kB, confirming the Material win sat behind `SharedModule`.
 Steps 8–9: low risk, sequential, no behaviour change, no win.
 Step 10: the gate — all of the risk, none of the payoff, so last.
 
-Remaining after 5b (code checked 2026-10-01): 8 `@NgModule` files on disk, 7 once 5b merges — `shared.module.ts` (step 7), `taken.module.ts` + `taken-routing.module.ts`, `documenten-routing.module.ts`, `productaanvragen-routing.module.ts` (step 8), `app-routing.module.ts` (step 9), `app.module.ts` + `core/core.module.ts` (step 10).
+Remaining after step 7 (code checked 2026-10-05): 7 `@NgModule` files on disk — `taken.module.ts` + `taken-routing.module.ts`, `documenten-routing.module.ts`, `productaanvragen-routing.module.ts` (step 8), `app-routing.module.ts` (step 9), `app.module.ts` + `core/core.module.ts` (step 10).
 
 ## Findings parked outside this plan
 
