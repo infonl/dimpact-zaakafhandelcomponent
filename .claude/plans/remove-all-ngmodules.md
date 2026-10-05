@@ -7,7 +7,7 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — 11 of 18 modules removed once step 7 merges; steps 5 and 6 merged, step 7 ready for PR
+## Progress — 15 of 18 modules removed once step 8 merges; step 7 merged, step 8 ready for PR
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
@@ -18,11 +18,12 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
   - [x] **5a** — all 20 specs that import one of our NgModules (PZ-12820, merged, #7205)
   - [x] **5b** — 14 non-spec files + 2 pre-existing `MatButtonModule` gaps with their specs (PZ-12856, merged, #7233) — **+13.5 kB** transfer, −120 kB raw, re-measured on top of step 6
 - [x] **Step 6** — `MaterialFormBuilderModule` removed — **−9.8 kB** (PZ-12845, merged, #7227)
-- [ ] **Step 7** — dissolve `SharedModule` — **−30.8 kB** (implemented 2026-10-05 on main `5ec92208c`, uncommitted, ready for PR)
+- [x] **Step 7** — dissolve `SharedModule` — **−30.8 kB** (PZ-12864, merged, #7266)
 - [ ] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
-      `documenten`, `productaanvragen`)
+      `documenten`, `productaanvragen`) — implemented 2026-10-05, uncommitted; tsc 0, lint 0, prod build ok with one lazy `*.routes` chunk per area; ready for PR
 - [ ] **Step 9** — `app-routing.module.ts` -> `app.routes.ts`
 - [ ] **Step 10** — `bootstrapApplication` + delete `CoreModule`
+- [ ] **Step 11 (optional)** — lazy-load the search sidenav and `/gebruiker` — est. **≈ −94 kB** transfer; independent of steps 9–10, own PR
 
 Bundle so far: **672.06 -> 443.64 kB** initial transfer (**−34%**), the 77 kB of that in
 the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB). Step 5b gives back +13.5 kB on its own base (450.26 -> 463.74 kB, main `c2523a8ab`). Step 7 takes −30.8 kB on its own base (464.59 -> 433.79 kB, main `5ec92208c`), so 5b + 7 together net −17.3 kB.
@@ -426,6 +427,14 @@ The one step with genuine behavioural risk. Own PR, own smoke test.
 - `AppModule.injector` is assigned but **read nowhere**. Confirmed dead (re-verified
   2026-10-01); delete it rather than porting it.
 
+## Step 11 (optional) — More lazy loading: search sidenav + `/gebruiker`
+
+Not about NgModules; it can be its own PR at any time. Found 2026-10-05 by cutting nodes out of the import graph in the production build's `stats.json` (`ng build --configuration production --stats-json`, run outside the sandbox). Initial bundle then: 1.94 MB raw / 436 kB transfer. The figures are upper bounds; measure a real before/after build.
+
+- **Search sidenav** — wrap `<zac-zoeken>` in `app.component.html` in `@defer (on idle)`. The sidenav is closed by default, yet `ZoekComponent` pulls in datepicker (106 kB), tabs, cdk/table, checkbox, expansion, sort and the BAG/persoon/bedrijf search components: **−353 kB raw (≈ −80 kB transfer)**. Catch: `ZoekComponent.ngAfterViewInit` subscribes to `zoekenSideNav().openedStart`; if the user opens the sidenav before the deferred block has loaded, the first open does not search. Fix: in `ngAfterViewInit`, also search when `zoekenSideNav()?.opened` is already true, and cover that with a spec. `trefwoorden` is a signal (safe); a missed `reset$` before load is harmless.
+- **`/gebruiker`** — `IdentityComponent` is the last eager `component:` in `app-routing.module.ts`; switching to `loadComponent` drops all of `mat-list` from the initial bundle: **−61 kB raw (≈ −14 kB transfer)**. Trivial; can also ride along with step 9.
+- **Rejected:** toolbar (always visible, −58 kB raw) and `moment` (63 kB, reaches the app through the app-wide `DateAdapter`).
+
 ## Order summary
 
 Step 3: done, −77 kB, merged (#7088).
@@ -435,7 +444,7 @@ Steps 5–7: order forced by the barrels' own dependencies. 5a merged; step 6 me
 Steps 8–9: low risk, sequential, no behaviour change, no win.
 Step 10: the gate — all of the risk, none of the payoff, so last.
 
-Remaining after step 7 (code checked 2026-10-05): 7 `@NgModule` files on disk — `taken.module.ts` + `taken-routing.module.ts`, `documenten-routing.module.ts`, `productaanvragen-routing.module.ts` (step 8), `app-routing.module.ts` (step 9), `app.module.ts` + `core/core.module.ts` (step 10).
+Remaining after step 8 (code checked 2026-10-05): 3 — `app-routing.module.ts` (step 9), `app.module.ts` + `core/core.module.ts` (step 10). Before step 8: 7 `@NgModule` files on disk — `taken.module.ts` + `taken-routing.module.ts`, `documenten-routing.module.ts`, `productaanvragen-routing.module.ts` (step 8), `app-routing.module.ts` (step 9), `app.module.ts` + `core/core.module.ts` (step 10).
 
 ## Findings parked outside this plan
 
