@@ -10,16 +10,30 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import localeNl from "@angular/common/locales/nl";
-import { LOCALE_ID, NgModule, Optional, SkipSelf } from "@angular/core";
+import {
+  inject,
+  Injector,
+  LOCALE_ID,
+  NgModule,
+  Optional,
+  provideAppInitializer,
+  SkipSelf,
+} from "@angular/core";
 import { MAT_DATE_LOCALE } from "@angular/material/core";
 import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogConfig,
 } from "@angular/material/dialog";
+import { MatPaginatorIntl } from "@angular/material/paginator";
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from "@angular/material/snack-bar";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import {
+  TranslateLoader,
+  TranslateModule,
+  TranslateService,
+} from "@ngx-translate/core";
 import { provideZacDateAdapter } from "../shared/form/date/provide-zac-date-adapter";
-import { SharedModule } from "../shared/shared.module";
+import { paginatorLanguageInitializerFactory } from "../shared/paginator/paginator-language-initializer";
+import { PaginatorTranslator } from "../shared/paginator/paginator-translator";
 import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
 import { LoadingComponent } from "./loading/loading.component";
 import { UtilService } from "./service/util.service";
@@ -38,7 +52,6 @@ registerLocaleData(localeNl, "nl-NL");
         deps: [HttpClient],
       },
     }),
-    SharedModule,
   ],
   exports: [LoadingComponent],
   providers: [
@@ -59,6 +72,19 @@ registerLocaleData(localeNl, "nl-NL");
       useValue: { verticalPosition: "top" },
     },
     provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: MatPaginatorIntl,
+      deps: [TranslateService],
+      useFactory: (translateService: TranslateService) =>
+        new PaginatorTranslator(translateService).getTranslatedPaginator(),
+    },
+    provideAppInitializer(() => {
+      const initializerFn = paginatorLanguageInitializerFactory(
+        inject(TranslateService),
+        inject(Injector),
+      );
+      return initializerFn();
+    }),
   ],
 })
 export class CoreModule extends EnsureModuleLoadedOnceGuard {

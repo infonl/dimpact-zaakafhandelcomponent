@@ -138,8 +138,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     Element.prototype.scrollIntoView = jest.fn();
     notifyManager.setScheduler((fn) => fn());
 
-    // the component imports SharedModule, so it injects MatDialog from its own
-    // standalone injector rather than the one the TestBed hands out
     dialogOpen = jest
       .spyOn(MatDialog.prototype, "open")
       .mockReturnValue(

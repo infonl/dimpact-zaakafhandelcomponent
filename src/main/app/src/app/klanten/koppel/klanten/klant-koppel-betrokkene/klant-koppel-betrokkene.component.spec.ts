@@ -3,21 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { KlantenService } from "src/app/klanten/klanten.service";
-import { ZacInput } from "src/app/shared/form/input/input";
-import { ZacSelect } from "src/app/shared/form/select/select";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
+import { BedrijfZoekComponent } from "../../../zoek/bedrijven/bedrijf-zoek.component";
+import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.component";
 import { KlantKoppelBetrokkeneComponent } from "./klant-koppel-betrokkene.component";
 
 const fakePersoon = fromPartial<GeneratedType<"RestPersoon">>({
@@ -95,17 +93,8 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
       ],
     })
       .overrideComponent(KlantKoppelBetrokkeneComponent, {
-        set: {
-          imports: [
-            NgIf,
-            ReactiveFormsModule,
-            TranslateModule,
-            ZacSelect,
-            ZacInput,
-            PersoonZoekStubComponent,
-            BedrijfZoekStubComponent,
-          ],
-        },
+        remove: { imports: [PersoonZoekComponent, BedrijfZoekComponent] },
+        add: { imports: [PersoonZoekStubComponent, BedrijfZoekStubComponent] },
       })
       .compileComponents();
 

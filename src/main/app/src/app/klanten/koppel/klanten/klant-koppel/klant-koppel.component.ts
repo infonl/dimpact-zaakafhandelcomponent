@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, EventEmitter, input, Output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
@@ -12,7 +13,6 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { SharedModule } from "src/app/shared/shared.module";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { KlantKoppelBetrokkeneComponent } from "../klant-koppel-betrokkene/klant-koppel-betrokkene.component";
 import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-initiator.component";
@@ -29,7 +29,7 @@ import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-ini
     MatToolbarModule,
     KlantKoppelBetrokkeneComponent,
     KlantKoppelInitiator,
-    SharedModule,
+    NgIf,
     TranslateModule,
   ],
   template: `

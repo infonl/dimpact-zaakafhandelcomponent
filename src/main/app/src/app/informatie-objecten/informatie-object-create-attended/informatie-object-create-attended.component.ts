@@ -71,6 +71,7 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
     ZacInput,
     ZacFormActions,
   ],
+  providers: [VertrouwelijkaanduidingToTranslationKeyPipe],
 })
 export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy

@@ -26,6 +26,7 @@ import {
 } from "@angular/material/sidenav";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTreeModule } from "@angular/material/tree";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -36,7 +37,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../shared/directives/file-drag-and-drop.directive";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { SharedModule } from "../../shared/shared.module";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
@@ -65,7 +66,8 @@ type Node =
     MatSidenavModule,
     MatTooltipModule,
     MatTreeModule,
-    SharedModule,
+    SideNavComponent,
+    TranslateModule,
     BpmnNodeRowDirective,
     BpmnProcessDefinitionItemComponent,
     FileDragAndDropDirective,

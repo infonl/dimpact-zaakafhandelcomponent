@@ -4,6 +4,7 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
+import { NgClass, NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -57,7 +58,7 @@ import { ZacInput } from "../../shared/form/input/input";
 import { ZacRadio } from "../../shared/form/radio/radio";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacToggle } from "../../shared/form/toggle/toggle";
-import { SharedModule } from "../../shared/shared.module";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
@@ -112,7 +113,10 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     ZacToggle,
     ZacRadio,
     ZacInput,
-    SharedModule,
+    NgClass,
+    NgFor,
+    NgIf,
+    StaticTextComponent,
     SmartDocumentsFormComponent,
   ],
 })
