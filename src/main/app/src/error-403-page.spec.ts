@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { screen, waitFor } from "@testing-library/angular";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { screen, waitFor } from "@testing-library/angular";
 
 // Lives outside src/static, because every file in that folder is shipped as-is.
 const errorPageHtml = readFileSync(
