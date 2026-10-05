@@ -123,7 +123,7 @@ async function extractMetrics() {
         metrics.failedScenarios.push({
           feature: feature.name,
           scenario: scenario.name,
-          step: failedStep?.name || 'Unknown',
+          step: failedStep?.hidden ? `${failedStep.keyword} hook` : failedStep?.name || 'Unknown',
           error: failedStep?.result.error_message?.split('\n')[0] || 'No error message',
           duration: formatDuration(duration),
         });
