@@ -34,7 +34,7 @@ When(
     // A UTC timestamp with millisecond precision tells this case apart from every other one on a shared environment.
     const timestampUtc = new Date().toISOString();
     caseDescription.value = describeCaseDescription(
-      "e2e BDD test",
+      "E2E BDD test",
       timestampUtc,
     );
     await page

@@ -279,7 +279,7 @@ When(
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
     // A UTC timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
     const timestampUtc = new Date().toISOString();
-    const caseDescription = describeCaseDescription("e2e test", timestampUtc);
+    const caseDescription = describeCaseDescription("E2E test", timestampUtc);
     await this.page.getByLabel("Omschrijving").fill(caseDescription);
     this.testStorage.set("caseDescription", caseDescription);
     await this.page

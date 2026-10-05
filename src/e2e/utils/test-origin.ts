@@ -48,7 +48,7 @@ export function describeTestOrigin(
 }
 
 export function describeCaseDescription(
-  testType: "e2e test" | "e2e BDD test",
+  testType: "E2E test" | "E2E BDD test",
   timestampUtc: string,
 ) {
   return `Aangemaakt door '${testType} - ${timestampUtc}'`;
