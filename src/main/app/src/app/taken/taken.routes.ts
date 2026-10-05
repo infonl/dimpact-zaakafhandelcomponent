@@ -1,15 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { Routes } from "@angular/router";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { TaakResolver } from "./taak.resolver";
 
-const routes: Routes = [
+export const TAKEN_ROUTES: Routes = [
   {
     path: "",
     redirectTo: "werkvoorraad",
@@ -44,9 +43,3 @@ const routes: Routes = [
     resolve: { taak: TaakResolver },
   },
 ];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class TakenRoutingModule {}
