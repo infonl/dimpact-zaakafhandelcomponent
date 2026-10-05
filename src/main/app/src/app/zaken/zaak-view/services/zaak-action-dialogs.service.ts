@@ -6,7 +6,6 @@
 import { ComponentType } from "@angular/cdk/portal";
 import { inject, Injectable, signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
@@ -35,7 +34,6 @@ type PlanItem = GeneratedType<"RESTPlanItem">;
 @Injectable()
 export class ZaakActionDialogsService {
   private readonly dialog = inject(MatDialog);
-  private readonly queryClient = inject(QueryClient);
   private readonly takenService = inject(TakenService);
   private readonly utilService = inject(UtilService);
   private readonly zaakDialogService = inject(ZaakDialogService);
@@ -62,12 +60,6 @@ export class ZaakActionDialogsService {
     this.zakenService
       .readOpschortingZaak(zaak.uuid)
       .subscribe((opschorting) => this.opschorting.set(opschorting));
-  }
-
-  private refreshTaken(zaak: Zaak) {
-    this.queryClient.invalidateQueries({
-      queryKey: this.takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
-    });
   }
 
   /**
@@ -163,7 +155,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.cacheOrRefetch(zaak, result);
-        this.refreshTaken(zaak);
+        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.afgebroken");
       },
     );
@@ -179,7 +171,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.cacheOrRefetch(zaak, result);
-        this.refreshTaken(zaak);
+        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.heropend");
       },
     );
@@ -195,7 +187,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.zakenService.invalidateZaak(zaak.uuid);
-        this.refreshTaken(zaak);
+        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.afgesloten");
       },
     );
@@ -211,7 +203,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.zakenService.invalidateZaak(zaak.uuid);
-        this.refreshTaken(zaak);
+        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.brondatum.gezet");
       },
     );

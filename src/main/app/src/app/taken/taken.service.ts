@@ -4,6 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -16,6 +17,7 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 export class TakenService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
 
   readTaak(taskId: string) {
@@ -33,6 +35,12 @@ export class TakenService {
   listTakenVoorZaakQuery(zaakUUID: string) {
     return this.zacQueryClient.GET("/rest/taken/zaak/{zaakUUID}", {
       path: { zaakUUID },
+    });
+  }
+
+  invalidateTakenVoorZaak(zaakUUID: string) {
+    return this.queryClient.invalidateQueries({
+      queryKey: this.listTakenVoorZaakQuery(zaakUUID).queryKey,
     });
   }
 

@@ -1,12 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { inject, Injectable } from "@angular/core";
 import { PostBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { TakenService } from "../taken/taken.service";
 
 @Injectable({
   providedIn: "root",
@@ -14,6 +16,7 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 export class PlanItemsService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly takenService = inject(TakenService);
 
   readHumanTaskPlanItem(planItemId: string) {
     return this.zacHttpClient.GET("/rest/planitems/humanTaskPlanItem/{id}", {
@@ -39,8 +42,14 @@ export class PlanItemsService {
     );
   }
 
-  doHumanTaskPlanItem() {
-    return this.zacQueryClient.POST("/rest/planitems/doHumanTaskPlanItem");
+  doHumanTaskPlanItem(zaakUUID: string) {
+    return mergeMutationOptions(
+      this.zacQueryClient.POST("/rest/planitems/doHumanTaskPlanItem"),
+      {
+        onSuccess: () =>
+          void this.takenService.invalidateTakenVoorZaak(zaakUUID),
+      },
+    );
   }
 
   doUserEventListenerPlanItem(

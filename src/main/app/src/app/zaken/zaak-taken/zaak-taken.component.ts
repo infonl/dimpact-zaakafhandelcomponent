@@ -29,7 +29,7 @@ import { MatSort, MatSortHeader, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { lastValueFrom } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -84,7 +84,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly websocketService = inject(WebsocketService);
   private readonly utilService = inject(UtilService);
   private readonly identityService = inject(IdentityService);
-  private readonly queryClient = inject(QueryClient);
 
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -147,7 +146,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
       Opcode.UPDATED,
       ObjectType.ZAAK_TAKEN,
       zaak.uuid,
-      () => this.invalidate(),
+      () => void this.takenService.invalidateTakenVoorZaak(zaak.uuid),
     );
 
     this.takenQuery.refetch();
@@ -176,13 +175,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.websocketService.removeListener(this.zaakTakenListener);
-  }
-
-  private invalidate() {
-    this.queryClient.invalidateQueries({
-      queryKey: this.takenService.listTakenVoorZaakQuery(this.zaak().uuid)
-        .queryKey,
-    });
   }
 
   protected expandTaken(expand: boolean) {

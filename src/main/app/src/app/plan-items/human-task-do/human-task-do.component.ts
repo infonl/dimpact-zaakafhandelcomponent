@@ -68,12 +68,8 @@ export class HumanTaskDoComponent implements OnInit {
   @Output() done = new EventEmitter<void>();
 
   protected readonly doHumanTaskPlanItemMutation = injectMutation(
-    () => this.planItemsService.doHumanTaskPlanItem(),
-    {
-      onSuccess: () => {
-        this.done.emit();
-      },
-    },
+    () => this.planItemsService.doHumanTaskPlanItem(this.zaak().uuid),
+    { onSuccess: () => this.done.emit() },
   );
 
   protected form = this.formBuilder.group({});
