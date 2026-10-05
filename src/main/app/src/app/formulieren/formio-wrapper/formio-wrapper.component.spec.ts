@@ -8,10 +8,12 @@ import {
   configure,
   render,
   RenderComponentOptions,
+  waitFor,
   within,
 } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
@@ -142,10 +144,10 @@ describe(FormioWrapperComponent.name, () => {
             contains: (className: string) => className === "choices",
           },
         };
-        const event = {
+        const event = fromPartial<MouseEvent>({
           composedPath: () => [mockChoicesElement],
           stopPropagation: jest.fn(),
-        } as unknown as MouseEvent;
+        });
 
         component.onClickInside(event);
 
@@ -158,10 +160,10 @@ describe(FormioWrapperComponent.name, () => {
             contains: () => false,
           },
         };
-        const event = {
+        const event = fromPartial<MouseEvent>({
           composedPath: () => [mockOtherElement],
           stopPropagation: jest.fn(),
-        } as unknown as MouseEvent;
+        });
 
         component.onClickInside(event);
 
@@ -170,10 +172,10 @@ describe(FormioWrapperComponent.name, () => {
 
       it("should handle elements without classList gracefully", () => {
         const mockElementNoClassList = {};
-        const event = {
+        const event = fromPartial<MouseEvent>({
           composedPath: () => [mockElementNoClassList],
           stopPropagation: jest.fn(),
-        } as unknown as MouseEvent;
+        });
 
         component.onClickInside(event);
 
@@ -674,6 +676,80 @@ describe(FormioWrapperComponent.name, () => {
 
         expect(formio.getByRole("textbox", { name: "Naam" })).toBe(textbox);
         expect(textbox).toBeDisabled();
+      });
+
+      it("should disable the submit button without redrawing it, which would discard its spinner", async () => {
+        const { fixture, formio, user } = await renderOpenForm();
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        const submittingButton = formio.getByRole("button", {
+          name: "Opslaan",
+        });
+
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+
+        expect(formio.getByRole("button", { name: "Opslaan" })).toBe(
+          submittingButton,
+        );
+        expect(submittingButton).toBeDisabled();
+      });
+
+      it("should keep the submit button disabled while the submit is in flight, also after Form.io reports a change", async () => {
+        const { fixture, formio, user, formSubmit, textbox } =
+          await renderOpenForm();
+        await user.type(textbox, "fakeTekst");
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        await waitFor(() => expect(formSubmit).toHaveBeenCalledTimes(1));
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+
+        // Form.io reports a change shortly after a submit, debounced
+        await sleep(300);
+
+        expect(formio.getByRole("button", { name: "Opslaan" })).toBeDisabled();
+      });
+
+      it("should not hand over a second click on the submit button while the submit is in flight", async () => {
+        const { fixture, formio, user, formSubmit, textbox } =
+          await renderOpenForm();
+        await user.type(textbox, "fakeTekst");
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        await waitFor(() => expect(formSubmit).toHaveBeenCalledTimes(1));
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+        await sleep(300);
+
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        await sleep(300);
+
+        expect(formSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      it("should hand over a click on the submit button again once the submit settles", async () => {
+        const { fixture, formio, user, formSubmit, textbox } =
+          await renderOpenForm();
+        await user.type(textbox, "fakeTekst");
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        await waitFor(() => expect(formSubmit).toHaveBeenCalledTimes(1));
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+
+        await waitFor(() => expect(formSubmit).toHaveBeenCalledTimes(2));
+      });
+
+      it("should keep the submit button of a read-only form disabled after the submit settles", async () => {
+        const { fixture, formio } = await renderFormWithSubmitInFlight({
+          readOnly: true,
+        });
+
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(formio.getByRole("button", { name: "Opslaan" })).toBeDisabled();
       });
 
       it("should unlock the fields once the submit settles", async () => {

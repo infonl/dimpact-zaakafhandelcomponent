@@ -237,8 +237,8 @@ export class FormioWrapperComponent
   }
 
   /**
-   * Locks the fields while a submit is in flight. Deliberately does not redraw: a redraw rebuilds the
-   * submit button and throws away the spinner Form.io is showing for this very submit.
+   * Locks the fields and the buttons while a submit is in flight. Deliberately does not redraw: a redraw rebuilds
+   * the submit button and throws away the spinner Form.io is showing for this very submit.
    */
   private applySubmitPending() {
     const webform = this.formioComponent?.formio as FormioWebform | undefined;
@@ -252,6 +252,15 @@ export class FormioWrapperComponent
       component.refs?.input?.forEach((input) =>
         component.setDisabled(input, disabled),
       );
+      // A button keeps its element apart. Form.io works its disabled state out again on every change, from
+      // `options.disabled` among others but not from a submit in flight, so the lock goes there too.
+      if (component.refs?.button) {
+        component.options.disabled = {
+          ...component.options.disabled,
+          [component.key]: disabled,
+        };
+        component.setDisabled(component.refs.button, disabled);
+      }
     });
   }
 
@@ -312,9 +321,10 @@ interface FormioWebform {
 }
 
 interface FormioLiveComponent {
-  options: { readOnly?: boolean };
+  key: string;
+  options: { readOnly?: boolean; disabled?: Record<string, boolean> };
   disabled: boolean;
-  refs?: { input?: HTMLElement[] };
+  refs?: { input?: HTMLElement[]; button?: HTMLElement };
   setDisabled(element: HTMLElement, disabled: boolean): void;
 }
 
