@@ -52,7 +52,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
 
   async function setup(
     werklijstRechten: GeneratedType<"RestWerklijstRechten"> = fromPartial({
-      ontkoppeldeDocumentenVerwijderen: true,
+      canOntkoppeldeDocumentenVerwijderen: true,
     }),
   ) {
     const { fixture: renderedFixture } = await render(
@@ -292,7 +292,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
   });
 
   it("offers no delete without the right to remove ontkoppelde documenten", async () => {
-    await setup(fromPartial({ ontkoppeldeDocumentenVerwijderen: false }));
+    await setup(fromPartial({ canOntkoppeldeDocumentenVerwijderen: false }));
     await showDocuments([detachedDocument]);
 
     expect(
