@@ -5,7 +5,7 @@
 <mat-accordion>
   <mat-expansion-panel
     (afterExpand)="loadBesluitData(besluit.uuid)"
-    *ngFor="let besluit of besluiten; first as isFirst"
+    *ngFor="let besluit of besluiten(); first as isFirst"
     [expanded]="isFirst"
   >
     <mat-expansion-panel-header>
@@ -201,7 +201,7 @@
               "
             ></tr>
           </table>
-          <p *ngIf="histories[besluit.uuid]?.data?.length == 0">
+          <p *ngIf="histories[besluit.uuid]?.data?.length === 0">
             {{ "msg.geen.gegevens.gevonden" | translate }}
           </p>
         </div>

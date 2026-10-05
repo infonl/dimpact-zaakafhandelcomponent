@@ -100,7 +100,7 @@ export class ZakenCardComponent
   sortOrder = signal<GeneratedType<"SorteerRichting">>(DEFAULT_SORT_ORDER);
 
   parameters = computed(() => ({
-    signaleringType: this.data.signaleringType,
+    signaleringType: this.data().signaleringType,
     page: this.pageNumber(),
     pageSize: this.pageSize,
     sortField: this.sortField(),

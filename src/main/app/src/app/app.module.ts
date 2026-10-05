@@ -15,6 +15,7 @@ import {
   PathLocationStrategy,
 } from "@angular/common";
 import { MatIconRegistry } from "@angular/material/icon";
+import { MatSidenavModule } from "@angular/material/sidenav";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouteReuseStrategy } from "@angular/router";
 import {
@@ -41,6 +42,7 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
   imports: [
     ToolbarComponent,
     BrowserAnimationsModule,
+    MatSidenavModule,
     CoreModule,
     SharedModule,
     ZoekComponent,

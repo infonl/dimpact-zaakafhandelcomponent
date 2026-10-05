@@ -8,10 +8,10 @@ import {
   Component,
   DestroyRef,
   EventEmitter,
-  Input,
   OnInit,
   Output,
   inject,
+  input,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -58,9 +58,17 @@ export class HumanTaskDoComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly queryClient = inject(QueryClient);
   private readonly takenService = inject(TakenService);
-  @Input() planItem?: GeneratedType<"RESTPlanItem"> | null = null;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
+  private readonly planItemsService = inject(PlanItemsService);
+  private readonly identityService = inject(IdentityService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly taakFormulierenService = inject(TaakFormulierenService);
+  private readonly formBuilder = inject(FormBuilder);
+
+  readonly planItem = input<GeneratedType<"RESTPlanItem"> | null | undefined>(
+    null,
+  );
+  readonly sideNav = input.required<MatDrawer>();
+  readonly zaak = input.required<GeneratedType<"RestZaak">>();
   @Output() done = new EventEmitter<void>();
 
   protected readonly doHumanTaskPlanItemMutation = injectMutation(
@@ -68,7 +76,7 @@ export class HumanTaskDoComponent implements OnInit {
     {
       onSuccess: () => {
         this.queryClient.invalidateQueries({
-          queryKey: this.takenService.listTakenVoorZaakQuery(this.zaak.uuid)
+          queryKey: this.takenService.listTakenVoorZaakQuery(this.zaak().uuid)
             .queryKey,
         });
         this.done.emit();
@@ -83,24 +91,17 @@ export class HumanTaskDoComponent implements OnInit {
     submitLabel: "actie.starten",
   };
 
-  constructor(
-    private readonly planItemsService: PlanItemsService,
-    private readonly identityService: IdentityService,
-    private readonly foutAfhandelingService: FoutAfhandelingService,
-    private readonly taakFormulierenService: TaakFormulierenService,
-    private readonly formBuilder: FormBuilder,
-  ) {}
-
   async ngOnInit() {
-    if (this.planItem?.type !== "HUMAN_TASK") {
+    const planItem = this.planItem();
+    if (planItem?.type !== "HUMAN_TASK") {
       return;
     }
 
     try {
       const formFields =
         await this.taakFormulierenService.getAngularRequestFormBuilder(
-          this.zaak,
-          this.planItem,
+          this.zaak(),
+          planItem,
         );
 
       formFields.forEach((formField) => {
@@ -126,13 +127,13 @@ export class HumanTaskDoComponent implements OnInit {
 
       const groups = await lastValueFrom(
         this.identityService.listBehandelaarGroupsForZaaktype(
-          this.zaak.zaaktype.omschrijving!,
+          this.zaak().zaaktype.omschrijving!,
         ),
       );
 
-      if (this.planItem.groepId) {
+      if (planItem.groepId) {
         const defaultGroup = groups.find(
-          (group) => group.id === this.planItem!.groepId,
+          (group) => group.id === planItem.groepId,
         );
         if (defaultGroup) {
           groupControl.setValue(defaultGroup);
@@ -201,7 +202,7 @@ export class HumanTaskDoComponent implements OnInit {
 
   protected onFormSubmit(formGroup: FormGroup) {
     this.doHumanTaskPlanItemMutation.mutate({
-      planItemInstanceId: this.planItem!.id!,
+      planItemInstanceId: this.planItem()!.id!,
       groep: this.form.get("group")!.value!,
       medewerker: this.form.get("user")!.value!,
       fataledatum: this.form.get("taakFataledatum")?.value,

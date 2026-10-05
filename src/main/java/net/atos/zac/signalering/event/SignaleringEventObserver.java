@@ -6,6 +6,7 @@ package net.atos.zac.signalering.event;
 
 import static nl.info.client.zgw.shared.ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import static nl.info.zac.authentication.LoggedInUserProviderKt.runAsSystemUser;
 
 import java.net.URI;
 import java.util.Optional;
@@ -78,29 +79,37 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     @Override
     public void onFire(final @ObservesAsync SignaleringEvent<?> event) {
         try {
-            LOG.fine(() -> String.format("Signalering event ontvangen: %s", event));
-            event.delay();
-
-            final Signalering signalering = buildSignalering(event);
-            if (signalering == null) {
-                LOG.fine(() -> String.format("No signal generated for received event: %s", event));
-                return;
-            }
-            if (!signaleringService.isNecessary(signalering, event.getActor())) {
-                LOG.fine(() -> String.format("Unnecessary signalering: %s for actor %s", signalering, event.getActor()));
-                return;
-            }
-
-            final SignaleringInstellingen subscriptions = signaleringService.readInstellingen(signalering);
-            LOG.fine(() -> String.format("Subscription settings: %s for signalering: %s", subscriptions, signalering));
-            if (subscriptions.isDashboard()) {
-                signaleringService.storeSignalering(signalering);
-            }
-            if (subscriptions.isMail()) {
-                signaleringService.sendSignalering(signalering);
-            }
+            // signaleringen are sent on behalf of ZAC, and this async thread has no user session
+            runAsSystemUser(() -> {
+                handle(event);
+                return null;
+            });
         } catch (final Throwable ex) {
             LOG.log(Level.SEVERE, "asynchronous guard", ex);
+        }
+    }
+
+    private void handle(final SignaleringEvent<?> event) {
+        LOG.fine(() -> String.format("Signalering event received: %s", event));
+        event.delay();
+
+        final Signalering signalering = buildSignalering(event);
+        if (signalering == null) {
+            LOG.fine(() -> String.format("No signal generated for received event: %s", event));
+            return;
+        }
+        if (!signaleringService.isNecessary(signalering, event.getActor())) {
+            LOG.fine(() -> String.format("Unnecessary signalering: %s for actor %s", signalering, event.getActor()));
+            return;
+        }
+
+        final SignaleringInstellingen subscriptions = signaleringService.readInstellingen(signalering);
+        LOG.fine(() -> String.format("Subscription settings: %s for signalering: %s", subscriptions, signalering));
+        if (subscriptions.isDashboard()) {
+            signaleringService.storeSignalering(signalering);
+        }
+        if (subscriptions.isMail()) {
+            signaleringService.sendSignalering(signalering);
         }
     }
 

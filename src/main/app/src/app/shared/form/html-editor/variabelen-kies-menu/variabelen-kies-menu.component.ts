@@ -4,7 +4,7 @@
  */
 
 import { NgFor } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
@@ -25,10 +25,12 @@ import { Editor } from "ngx-editor";
   ],
 })
 export class VariabelenKiesMenuComponent {
-  @Input({ required: true }) editor!: Editor;
-  @Input({ required: true }) variabelen!: string[];
+  readonly editor = input.required<Editor>();
+  readonly variabelen = input.required<string[]>();
 
   plakExpressie(variabele: string) {
-    this.editor.commands.insertText("{" + variabele + "}").exec();
+    this.editor()
+      .commands.insertText("{" + variabele + "}")
+      .exec();
   }
 }

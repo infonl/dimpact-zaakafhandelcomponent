@@ -4,9 +4,11 @@
  */
 
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { MaterialModule } from "../../material/material.module";
 import { BesluitIndicatie } from "../../model/indicatie";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
@@ -17,39 +19,35 @@ import { IndicatiesComponent } from "../indicaties.component";
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
   standalone: true,
-  imports: [CommonModule, MaterialModule, TranslateModule],
+  imports: [
+    CommonModule,
+    MatChipsModule,
+    MatIconModule,
+    MatTooltipModule,
+    TranslateModule,
+  ],
 })
-export class BesluitIndicatiesComponent
-  extends IndicatiesComponent
-  implements OnChanges
-{
-  @Input({ required: true }) besluit!: GeneratedType<"RestBesluit">;
+export class BesluitIndicatiesComponent extends IndicatiesComponent {
+  private readonly translate = inject(TranslateService);
 
-  constructor(private readonly translate: TranslateService) {
-    super();
-  }
+  readonly besluit = input.required<GeneratedType<"RestBesluit">>();
 
-  ngOnChanges(changes: SimpleChanges) {
-    this.besluit = changes.besluit?.currentValue;
-    this.loadIndicaties();
-  }
-
-  private loadIndicaties() {
-    this.indicaties = [];
-    if (this.besluit.isIngetrokken) {
-      this.indicaties.push(
-        new IndicatieItem(
-          BesluitIndicatie.INGETROKKEN,
-          "stop",
-          this.getIntrekToelichting(),
-        ),
-      );
+  protected readonly indicaties = computed(() => {
+    const besluit = this.besluit();
+    if (!besluit.isIngetrokken) {
+      return [];
     }
-  }
 
-  private getIntrekToelichting() {
-    return this.translate.instant(
-      "besluit.vervalreden." + this.besluit.vervalreden,
-    );
+    return [
+      new IndicatieItem(
+        BesluitIndicatie.INGETROKKEN,
+        "stop",
+        this.getIntrekToelichting(besluit),
+      ),
+    ];
+  });
+
+  private getIntrekToelichting(besluit: GeneratedType<"RestBesluit">) {
+    return this.translate.instant("besluit.vervalreden." + besluit.vervalreden);
   }
 }

@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, inject, input, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";
@@ -35,11 +35,11 @@ export enum VersionLayout {
   ],
 })
 export class VersionComponent implements OnInit {
-  protected readonly versionLayout = VersionLayout;
-  @Input() protected layout?: VersionLayout;
-  protected buildInformatie?: GeneratedType<"RESTBuildInformation">;
+  private readonly healthCheckService = inject(HealthCheckService);
 
-  constructor(private readonly healthCheckService: HealthCheckService) {}
+  protected readonly versionLayout = VersionLayout;
+  protected readonly layout = input<VersionLayout>();
+  protected buildInformatie?: GeneratedType<"RESTBuildInformation">;
 
   ngOnInit() {
     this.healthCheckService

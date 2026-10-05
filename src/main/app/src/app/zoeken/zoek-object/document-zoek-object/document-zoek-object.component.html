@@ -1,43 +1,46 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <div class="flex-row flex-wrap zoek-object-wrapper">
   <div class="flex-1 w33">
     <zac-zoek-object-link
-      [zoekObject]="document"
-      [sideNav]="sideNav"
+      [zoekObject]="document()"
+      [sideNav]="sideNav()"
     ></zac-zoek-object-link>
-    <zac-static-text label="zaaktype" [value]="document.zaaktypeOmschrijving" />
+    <zac-static-text
+      label="zaaktype"
+      [value]="document().zaaktypeOmschrijving"
+    />
     <zac-static-text
       label="status"
-      [value]="'informatieobject.status.' + document.status | translate"
+      [value]="'informatieobject.status.' + document().status | translate"
     />
   </div>
   <div class="flex-1 w33">
     <zac-static-text
       label="zaakIdentificatie"
-      [value]="document.zaakIdentificatie"
+      [value]="document().zaakIdentificatie"
     />
-    <zac-static-text label="documentType" [value]="document.documentType" />
-    <zac-static-text label="auteur" [value]="document.auteur" />
+    <zac-static-text label="documentType" [value]="document().documentType" />
+    <zac-static-text label="auteur" [value]="document().auteur" />
   </div>
   <div class="flex-1 w33">
     <zac-static-text
       label="creatiedatum"
-      [value]="document.creatiedatum | datum"
+      [value]="document().creatiedatum | datum"
     />
     <zac-static-text
       label="verzenddatum"
-      [value]="document.verzenddatum | datum"
+      [value]="document().verzenddatum | datum"
     />
     <zac-static-text
       label="ontvangstdatum"
-      [value]="document.ontvangstdatum | datum"
+      [value]="document().ontvangstdatum | datum"
     />
   </div>
 </div>
 <div class="beschrijving">
-  <zac-static-text label="beschrijving" [value]="document.beschrijving" />
+  <zac-static-text label="beschrijving" [value]="document().beschrijving" />
 </div>

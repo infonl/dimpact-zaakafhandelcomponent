@@ -6,6 +6,7 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -78,6 +79,17 @@ describe(ZakenVrijgevenDialogComponent.name, () => {
     expect(await (await toolbar.host()).text()).toContain(
       "title.zaken.vrijgeven",
     );
+  });
+
+  it("renders the close button as a Material icon button", async () => {
+    const { fixture } = setup([makeZaakZoekObject()]);
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const closeButton = await loader.getHarness(
+      MatButtonHarness.with({ text: "close" }),
+    );
+    expect(
+      await (await closeButton.host()).hasClass("mat-mdc-icon-button"),
+    ).toBe(true);
   });
 
   it("closes dialog with false when close is called", () => {

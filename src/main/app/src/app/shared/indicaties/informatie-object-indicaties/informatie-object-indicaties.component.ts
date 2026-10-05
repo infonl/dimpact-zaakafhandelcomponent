@@ -4,10 +4,12 @@
  */
 
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
-import { MaterialModule } from "../../material/material.module";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { DatumPipe } from "../../pipes/datum.pipe";
 import { GeneratedType } from "../../utils/generated-types";
@@ -15,39 +17,37 @@ import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
   selector: "zac-informatie-object-indicaties",
-  imports: [MaterialModule, TranslateModule, CommonModule],
+  imports: [
+    MatChipsModule,
+    MatIconModule,
+    MatTooltipModule,
+    TranslateModule,
+    CommonModule,
+  ],
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
 })
-export class InformatieObjectIndicatiesComponent
-  extends IndicatiesComponent
-  implements OnChanges
-{
+export class InformatieObjectIndicatiesComponent extends IndicatiesComponent {
+  private readonly translateService = inject(TranslateService);
+
   datumPipe = new DatumPipe("nl");
 
-  @Input() document?: GeneratedType<"RestEnkelvoudigInformatieobject">;
-  @Input() documentZoekObject?: DocumentZoekObject;
+  readonly document = input<GeneratedType<"RestEnkelvoudigInformatieobject">>();
+  readonly documentZoekObject = input<DocumentZoekObject>();
 
-  constructor(private translateService: TranslateService) {
-    super();
-  }
+  protected readonly indicaties = computed(() => this.createIndicaties());
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.document = changes.document?.currentValue;
-    this.documentZoekObject = changes.documentZoekObject?.currentValue;
-    this.loadIndicaties();
-  }
-
-  private loadIndicaties(): void {
-    this.indicaties = [];
-    const indicaties = this.documentZoekObject
-      ? this.documentZoekObject.indicaties
-      : this.document?.indicaties;
+  private createIndicaties(): IndicatieItem[] {
+    const indicatieItems: IndicatieItem[] = [];
+    const documentZoekObject = this.documentZoekObject();
+    const indicaties = documentZoekObject
+      ? documentZoekObject.indicaties
+      : this.document()?.indicaties;
 
     indicaties?.forEach((indicatie) => {
       switch (indicatie) {
         case "VERGRENDELD":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "lock",
@@ -56,7 +56,7 @@ export class InformatieObjectIndicatiesComponent
           );
           break;
         case "ONDERTEKEND":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "fact_check",
@@ -65,7 +65,7 @@ export class InformatieObjectIndicatiesComponent
           );
           break;
         case "BESLUIT":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "gavel",
@@ -74,12 +74,12 @@ export class InformatieObjectIndicatiesComponent
           );
           break;
         case "GEBRUIKSRECHT":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(indicatie, "privacy_tip", "").temporary(),
           );
           break;
         case "VERZONDEN":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "local_post_office",
@@ -91,40 +91,46 @@ export class InformatieObjectIndicatiesComponent
           console.warn("Indicatie " + indicatie + " is niet gedefinieerd.");
       }
     });
+
+    return indicatieItems;
   }
 
   private getOndertekeningToelichting(): string {
-    if (this.documentZoekObject) {
+    const documentZoekObject = this.documentZoekObject();
+    if (documentZoekObject) {
       return (
-        this.documentZoekObject.ondertekeningSoort +
+        documentZoekObject.ondertekeningSoort +
         "-" +
-        this.datumPipe.transform(this.documentZoekObject.ondertekeningDatum)
+        this.datumPipe.transform(documentZoekObject.ondertekeningDatum)
       );
     } else {
+      const document = this.document();
       return (
-        this.document?.ondertekening?.soort +
+        document?.ondertekening?.soort +
         "-" +
-        this.datumPipe.transform(this.document?.ondertekening?.datum)
+        this.datumPipe.transform(document?.ondertekening?.datum)
       );
     }
   }
 
   private getVerzondenToelichting() {
-    if (this.documentZoekObject) {
-      return this.datumPipe.transform(this.documentZoekObject.verzenddatum);
+    const documentZoekObject = this.documentZoekObject();
+    if (documentZoekObject) {
+      return this.datumPipe.transform(documentZoekObject.verzenddatum);
     } else {
-      return this.datumPipe.transform(this.document?.verzenddatum);
+      return this.datumPipe.transform(this.document()?.verzenddatum);
     }
   }
 
   private getVergrendeldToelichting(): string {
-    if (this.documentZoekObject) {
+    const documentZoekObject = this.documentZoekObject();
+    if (documentZoekObject) {
       return this.translateService.instant("msg.document.vergrendeld", {
-        gebruiker: this.documentZoekObject.vergrendeldDoor,
+        gebruiker: documentZoekObject.vergrendeldDoor,
       });
     } else {
       return this.translateService.instant("msg.document.vergrendeld", {
-        gebruiker: this.document?.gelockedDoor?.naam,
+        gebruiker: this.document()?.gelockedDoor?.naam,
       });
     }
   }

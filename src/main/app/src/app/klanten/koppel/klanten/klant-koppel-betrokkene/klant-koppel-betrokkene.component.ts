@@ -6,12 +6,12 @@
 import {
   Component,
   EventEmitter,
-  Input,
+  input,
   OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
@@ -27,6 +27,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   imports: [
     SharedModule,
     TranslateModule,
+    ReactiveFormsModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,
     ZacSelect,
@@ -49,15 +50,15 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
         </fieldset>
       </form>
       <zac-persoon-zoek
-        *ngIf="type === 'persoon'"
+        *ngIf="type() === 'persoon'"
         #zoek
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
         (persoon)="klantGeselecteerd($event)"
-        [zaaktypeUUID]="zaaktypeUUID"
+        [zaaktypeUUID]="zaaktypeUUID()"
       ></zac-persoon-zoek>
       <zac-bedrijf-zoek
-        *ngIf="type === 'bedrijf'"
+        *ngIf="type() === 'bedrijf'"
         #zoek
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
@@ -67,8 +68,8 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   `,
 })
 export class KlantKoppelBetrokkeneComponent implements OnInit {
-  @Input({ required: true }) type!: "persoon" | "bedrijf";
-  @Input() zaaktypeUUID?: string | null = null;
+  readonly type = input.required<"persoon" | "bedrijf">();
+  readonly zaaktypeUUID = input<string | null | undefined>(null);
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
   @ViewChild("zoek") zoek!: PersoonZoekComponent | BedrijfZoekComponent;
 
@@ -90,10 +91,11 @@ export class KlantKoppelBetrokkeneComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (!this.zaaktypeUUID) return;
+    const zaaktypeUUID = this.zaaktypeUUID();
+    if (!zaaktypeUUID) return;
 
     this.klantenService
-      .listBetrokkeneRoltypen(this.zaaktypeUUID)
+      .listBetrokkeneRoltypen(zaaktypeUUID)
       .subscribe((betrokkeneRoltypen) => {
         this.betrokkeneRoltypen = betrokkeneRoltypen;
       });

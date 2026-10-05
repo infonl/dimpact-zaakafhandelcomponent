@@ -4,6 +4,7 @@
  */
 
 import {
+  HttpErrorResponse,
   HttpEventType,
   provideHttpClient,
   withInterceptorsFromDi,
@@ -19,6 +20,7 @@ import { EMPTY, of } from "rxjs";
 import { fromPartial } from "../../../test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { mergeMutationOptions } from "./merge-mutation-options";
 import { ZacQueryClient } from "./zac-query-client";
 
 describe(ZacQueryClient.name, () => {
@@ -135,6 +137,25 @@ describe(ZacQueryClient.name, () => {
       );
       expect(foutAfhandelenSpy).toHaveBeenCalled();
     });
+
+    it("leaves the error dialog closed for a mutation that reports its own failure", () => {
+      const foutAfhandelenSpy = jest
+        .spyOn(foutAfhandelingService, "foutAfhandelen")
+        .mockReturnValue(EMPTY);
+      const options = mergeMutationOptions(
+        zacQueryClient.POST_WITH_PROGRESS(path, parameters),
+        { meta: { reportErrors: false } },
+      );
+
+      options.onError!(
+        new HttpErrorResponse({ status: 500 }),
+        new FormData() as never,
+        undefined,
+        fromPartial<MutationFunctionContext>({ meta: options.meta }),
+      );
+
+      expect(foutAfhandelenSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("PUT_WITH_PROGRESS", () => {
@@ -165,6 +186,28 @@ describe(ZacQueryClient.name, () => {
       request.flush({ uuid: "document-1", versie: 2 });
 
       expect(await response).toEqual({ uuid: "document-1", versie: 2 });
+    });
+
+    it("leaves the error dialog closed for a mutation that reports its own failure", () => {
+      const foutAfhandelenSpy = jest
+        .spyOn(foutAfhandelingService, "foutAfhandelen")
+        .mockReturnValue(EMPTY);
+      const options = mergeMutationOptions(
+        zacQueryClient.PUT_WITH_PROGRESS(
+          "/rest/informatieobjecten/informatieobject/{uuid}",
+          { path: { uuid: "document-1" }, query: { zaak: "zaak-1" } },
+        ),
+        { meta: { reportErrors: false } },
+      );
+
+      options.onError!(
+        new HttpErrorResponse({ status: 500 }),
+        new FormData() as never,
+        undefined,
+        fromPartial<MutationFunctionContext>({ meta: options.meta }),
+      );
+
+      expect(foutAfhandelenSpy).not.toHaveBeenCalled();
     });
   });
 
