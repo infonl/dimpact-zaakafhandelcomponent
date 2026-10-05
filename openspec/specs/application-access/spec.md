@@ -13,7 +13,9 @@ ZAC SHALL serve a request on an authenticated, non-admin path only when the logg
 role (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager` or `beheerder`), for at least one zaaktype or as
 an overall role. ZAC SHALL answer every request on an authenticated path, admin paths included, from a user without
 a read role with HTTP 403 and the error page "U heeft minstens één basisrol nodig om deze applicatie te kunnen
-gebruiken.", which has a log-out button and no home button. Holding only other application roles, such as `brp_zoeken`, `zaakspecifiek_geautoriseerd` or
+gebruiken.", which has a log-out button and no home button. The one exception is reading the server error texts
+(`GET /rest/referentietabellen/server-error-text`), which every logged-in user may do, so that this page can show
+them. Holding only other application roles, such as `brp_zoeken`, `zaakspecifiek_geautoriseerd` or
 `systeemrol_behandelaar_alle_zaaktypen`, SHALL NOT give access.
 
 #### Scenario: A user with only brp_zoeken gets the no-permission page
@@ -48,6 +50,26 @@ gebruiken.", which has a log-out button and no home button. Holding only other a
 #### Scenario: The systeemrol for all zaaktypen does not give access
 - **WHEN** a user holds only `systeemrol_behandelaar_alle_zaaktypen` for a zaaktype, because PABC is misconfigured to
   hand it out, and opens ZAC
+- **THEN** ZAC answers with HTTP 403
+
+### Requirement: The 403 error pages show the configured server error texts
+
+Both 403 error pages SHALL show the texts of the `SERVER_ERROR_ERROR_PAGINA_TEKST` reference table below their own
+message, as plain text, the same way the ZAC app does for a server error. When the texts cannot be read, the page
+SHALL show only its own message.
+
+#### Scenario: A user without a read role sees the configured server error texts
+- **WHEN** a functional administrator has configured server error texts, and a user who holds only `brp_zoeken`
+  opens ZAC
+- **THEN** the base role page shows these texts below its own message
+
+#### Scenario: A user without a read role can read the server error texts
+- **WHEN** a user who holds only `brp_zoeken` sends `GET /rest/referentietabellen/server-error-text`
+- **THEN** ZAC serves the request
+
+#### Scenario: A user without a read role cannot change the server error texts
+- **WHEN** a user who holds only `brp_zoeken` sends any other request than `GET` to
+  `/rest/referentietabellen/server-error-text`
 - **THEN** ZAC answers with HTTP 403
 
 ### Requirement: Admin and public paths keep their existing access rules

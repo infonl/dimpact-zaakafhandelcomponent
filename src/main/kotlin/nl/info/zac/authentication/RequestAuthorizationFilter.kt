@@ -26,7 +26,8 @@ import nl.info.zac.util.NoArgConstructor
  * For authenticated endpoints, it expects that the user has already logged in and performs basic authorization.
  *
  * General access: user must have at least one read ('lezen') application role on at least one zaaktype,
- * or as an overall role. A user without one gets a dedicated error page, on every authenticated path.
+ * or as an overall role. A user without one gets a dedicated error page, on every authenticated path except
+ * the server error texts that the error pages show.
  * For admin URIs (/admin/, /rest/admin/): User must have the 'beheerder' role for at least one zaaktype
  *
  * This filter must run after [UserPrincipalFilter], so [UserPrincipalFilter] can
@@ -43,6 +44,7 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
             "/admin",
         )
         private const val NO_READ_APPLICATION_ROLE_ERROR_PAGE = "/static/error-403-no-read-role.html"
+        private const val SERVER_ERROR_TEXTS_PATH = "/rest/referentietabellen/server-error-text"
         private val PUBLIC_STATIC_PATHS = setOf(
             "/sign-out",
             "/favicon.ico",
@@ -90,6 +92,7 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
     private fun authorizeUser(request: HttpServletRequest, requestPath: String): Authorization {
         val user = request.getSession(false)?.let(::getLoggedInUser) ?: return Authorization.FORBIDDEN
         return when {
+            requestPath == SERVER_ERROR_TEXTS_PATH && request.method == GET -> Authorization.ALLOWED
             !user.hasReadApplicationRole -> Authorization.NO_READ_APPLICATION_ROLE
             ADMIN_URI_PREFIXES.any(requestPath::startsWith) && !hasBeheerderApplicationRole(user) ->
                 Authorization.FORBIDDEN

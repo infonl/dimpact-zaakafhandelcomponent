@@ -189,8 +189,25 @@
       <main class="mdl-layout__content">
         <div class="page-wrapper">
           <p>U heeft geen toestemming om deze pagina te bekijken.</p>
+          <div id="server-error-texts"></div>
         </div>
       </main>
     </div>
+    <script>
+      fetch("/rest/referentietabellen/server-error-text", {
+        redirect: "manual",
+        cache: "no-store",
+      })
+        .then((response) => (response.ok ? response.json() : []))
+        .then((serverErrorTexts) => {
+          const container = document.getElementById("server-error-texts");
+          for (const serverErrorText of serverErrorTexts) {
+            const paragraph = document.createElement("p");
+            paragraph.textContent = serverErrorText;
+            container.appendChild(paragraph);
+          }
+        })
+        .catch(() => {});
+    </script>
   </body>
 </html>

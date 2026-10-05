@@ -272,6 +272,16 @@ class AppContainerTest : BehaviorSpec({
             }
         }
 
+        `when`("The server error texts that the error pages show are requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/referentietabellen/server-error-text",
+                testUser = USER_WITHOUT_READ_ROLE
+            )
+            then("the response is ok, so the no-read-role page can show them") {
+                response.code shouldBe HTTP_OK
+            }
+        }
+
         `when`("The ZAC logout URI is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/sign-out",

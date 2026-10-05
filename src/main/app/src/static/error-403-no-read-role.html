@@ -176,9 +176,26 @@
             U heeft minstens één basisrol nodig om deze applicatie te kunnen
             gebruiken.
           </p>
+          <div id="server-error-texts"></div>
           <a href="/sign-out" class="primary-button" role="button">Uitloggen</a>
         </div>
       </main>
     </div>
+    <script>
+      fetch("/rest/referentietabellen/server-error-text", {
+        redirect: "manual",
+        cache: "no-store",
+      })
+        .then((response) => (response.ok ? response.json() : []))
+        .then((serverErrorTexts) => {
+          const container = document.getElementById("server-error-texts");
+          for (const serverErrorText of serverErrorTexts) {
+            const paragraph = document.createElement("p");
+            paragraph.textContent = serverErrorText;
+            container.appendChild(paragraph);
+          }
+        })
+        .catch(() => {});
+    </script>
   </body>
 </html>

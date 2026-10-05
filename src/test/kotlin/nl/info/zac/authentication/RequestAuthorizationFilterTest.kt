@@ -425,6 +425,47 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
+        given("An authenticated user without a read application role requests the server error texts") {
+            val filter = RequestAuthorizationFilter()
+            val user = createLoggedInUser(
+                applicationRolesPerZaaktype = mapOf("fakeZaaktype1" to setOf("brp_zoeken")),
+                hasReadApplicationRole = false
+            )
+            setSessionUser(user)
+            every { httpServletRequest.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.requestURI } returns "/rest/referentietabellen/server-error-text"
+            every { httpServletRequest.method } returns "GET"
+            every { filterChain.doFilter(any(), any()) } just runs
+
+            `when`("the filter processes the request") {
+                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                then("the request is allowed, so the no-read-role error page can show these texts") {
+                    verify(exactly = 1) {
+                        filterChain.doFilter(httpServletRequest, httpServletResponse)
+                    }
+                }
+            }
+        }
+
+        given("An authenticated user without a read application role changes the server error texts") {
+            val filter = RequestAuthorizationFilter()
+            val user = createLoggedInUser(hasReadApplicationRole = false)
+            setSessionUser(user)
+            every { httpServletRequest.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.requestURI } returns "/rest/referentietabellen/server-error-text"
+            every { httpServletRequest.method } returns "PUT"
+            mockNoReadApplicationRoleErrorPage()
+
+            `when`("the filter processes the request") {
+                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                then("a 403 with the no-read-role error page is returned, because only reading them is allowed") {
+                    verifyNoReadApplicationRoleErrorPageIsShown()
+                }
+            }
+        }
+
         given("An authenticated beheerder accesses '/rest/admin/*'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
@@ -525,6 +566,28 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
     }
 
     context("Unauthenticated requests to protected endpoints") {
+        given("An unauthenticated GET request on the server error texts") {
+            val filter = RequestAuthorizationFilter()
+            setSessionUser(null)
+            every { httpServletRequest.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.requestURI } returns "/rest/referentietabellen/server-error-text"
+            every { httpServletRequest.method } returns "GET"
+            every { httpServletResponse.sendError(any()) } just runs
+
+            `when`("the filter processes the request") {
+                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                then("a 403 is returned") {
+                    verify(exactly = 1) {
+                        httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
+                    }
+                    verify(exactly = 0) {
+                        filterChain.doFilter(any(), any())
+                    }
+                }
+            }
+        }
+
 
         given("An unauthenticated GET request on '/app/home'") {
             val filter = RequestAuthorizationFilter()
