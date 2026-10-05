@@ -43,7 +43,7 @@ Kotlin property name. On a `var`, also add `@set:JsonbProperty("isXxx")`: withou
 the name without the `is` prefix and silently drops the value it receives:
 ```kotlin
 // Before
-var isInformatieobjectDeleted: Boolean = true
+var informatieobjectDeleted: Boolean = true
 // After
 @get:JsonbProperty("isInformatieobjectDeleted")
 @set:JsonbProperty("isInformatieobjectDeleted")
