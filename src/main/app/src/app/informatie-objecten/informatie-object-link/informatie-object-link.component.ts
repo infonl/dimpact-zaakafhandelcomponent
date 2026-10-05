@@ -7,12 +7,12 @@ import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
   computed,
+  effect,
   EventEmitter,
   inject,
   input,
-  OnChanges,
   Output,
-  SimpleChanges,
+  untracked,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -60,7 +60,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
     EmptyPipe,
   ],
 })
-export class InformatieObjectLinkComponent implements OnChanges {
+export class InformatieObjectLinkComponent {
   readonly infoObject = input<GeneratedType<
     | "RestDetachedDocument"
     | "RestInboxDocument"
@@ -71,8 +71,24 @@ export class InformatieObjectLinkComponent implements OnChanges {
   readonly actionLabel = input.required<DocumentAction>();
   @Output() informationObjectLinked = new EventEmitter<void>();
 
-  protected intro = "";
   protected loading = false;
+
+  protected readonly intro = computed(() => {
+    const infoObject: Partial<
+      Record<
+        "identificatie" | "documentID" | "enkelvoudiginformatieobjectID",
+        string | null
+      >
+    > | null = this.infoObject();
+    if (!infoObject) return "";
+
+    return this.translate.instant("informatieobject.koppelen.uitleg", {
+      documentID:
+        infoObject.identificatie ||
+        infoObject.documentID ||
+        infoObject.enkelvoudiginformatieobjectID,
+    });
+  });
 
   protected readonly actionIcon = computed(() =>
     this.actionLabel() === "actie.document.koppelen" ? "link" : "move_item",
@@ -109,18 +125,12 @@ export class InformatieObjectLinkComponent implements OnChanges {
     private readonly utilService: UtilService,
     private readonly translate: TranslateService,
     private readonly formBuilder: FormBuilder,
-  ) {}
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.infoObject && changes.infoObject.currentValue) {
-      this.reset();
-      this.intro = this.translate.instant("informatieobject.koppelen.uitleg", {
-        documentID:
-          changes.infoObject.currentValue?.identificatie ||
-          changes.infoObject.currentValue?.documentID ||
-          changes.infoObject.currentValue?.enkelvoudiginformatieobjectID,
-      });
-    }
+  ) {
+    effect(() => {
+      if (this.infoObject()) {
+        untracked(() => this.reset());
+      }
+    });
   }
 
   protected searchCases() {

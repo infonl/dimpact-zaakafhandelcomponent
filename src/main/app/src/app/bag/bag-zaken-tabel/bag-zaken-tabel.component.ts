@@ -8,11 +8,12 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  OnChanges,
   OnInit,
   ViewChild,
+  effect,
   inject,
   input,
+  untracked,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -64,9 +65,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
     EmptyPipe,
   ],
 })
-export class BagZakenTabelComponent
-  implements OnInit, AfterViewInit, OnChanges
-{
+export class BagZakenTabelComponent implements OnInit, AfterViewInit {
   readonly BagObjectIdentificatie = input.required<string>();
   @ViewChild(MatPaginator) private paginator!: MatPaginator;
   @ViewChild(MatSort) private sort!: MatSort;
@@ -94,7 +93,16 @@ export class BagZakenTabelComponent
   constructor(
     private readonly utilService: UtilService,
     private readonly zoekenService: ZoekenService,
-  ) {}
+  ) {
+    effect(() => {
+      this.BagObjectIdentificatie();
+      untracked(() => {
+        if (this.init) {
+          this.filtersChanged();
+        }
+      });
+    });
+  }
 
   ngOnInit() {
     this.zoekParameters.type = "ZAAK";
@@ -152,11 +160,5 @@ export class BagZakenTabelComponent
   protected filtersChanged() {
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
-  }
-
-  ngOnChanges() {
-    if (this.init) {
-      this.filtersChanged();
-    }
   }
 }

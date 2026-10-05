@@ -6,11 +6,11 @@
 import {
   AfterViewInit,
   Component,
+  effect,
   ElementRef,
   input,
-  OnChanges,
   OnInit,
-  SimpleChanges,
+  untracked,
   ViewChild,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
@@ -40,7 +40,7 @@ type Geometry = GeneratedType<"RestGeometry">;
   standalone: true,
   imports: [MatCardModule, TranslateModule],
 })
-export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
+export class BagLocatieComponent implements OnInit, AfterViewInit {
   readonly bagGeometrie = input<Geometry>();
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
 
@@ -79,6 +79,17 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
     proj
       ?.get(this.RDNEW)
       ?.setExtent([-285401.92, 22598.08, 595401.92, 903401.92]);
+
+    effect(() => {
+      const bagGeometrie = this.bagGeometrie();
+      if (!bagGeometrie) return;
+
+      untracked(() => {
+        this.geometrieSource.clear();
+        this.draw(bagGeometrie);
+        this.zoom();
+      });
+    });
   }
 
   ngOnInit(): void {
@@ -149,11 +160,6 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
     setTimeout(() => {
       this.map?.setTarget(this.openLayersMapRef.nativeElement);
     }, 0);
-    const bagGeometrie = this.bagGeometrie();
-    if (bagGeometrie) {
-      this.draw(bagGeometrie);
-      this.zoom();
-    }
   }
 
   private draw(geometry: Geometry): void {
@@ -199,15 +205,6 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
         size: this.map.getSize(),
         maxZoom: this.DEFAULT_ZOOM,
       });
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    const bagGeometrie = this.bagGeometrie();
-    if (bagGeometrie && !changes.bagGeometrie.isFirstChange()) {
-      this.geometrieSource.clear();
-      this.draw(bagGeometrie);
-      this.zoom();
     }
   }
 }

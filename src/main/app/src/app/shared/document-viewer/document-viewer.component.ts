@@ -4,15 +4,8 @@
  */
 
 import { NgClass, NgIf } from "@angular/common";
-import {
-  Component,
-  inject,
-  input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from "@angular/core";
-import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
+import { Component, computed, inject, input } from "@angular/core";
+import { DomSanitizer } from "@angular/platform-browser";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   FileFormat,
@@ -27,7 +20,7 @@ import { GeneratedType } from "../utils/generated-types";
   standalone: true,
   imports: [NgClass, NgIf],
 })
-export class DocumentViewerComponent implements OnInit, OnChanges {
+export class DocumentViewerComponent {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
@@ -36,35 +29,18 @@ export class DocumentViewerComponent implements OnInit, OnChanges {
   readonly document =
     input.required<GeneratedType<"RestEnkelvoudigInformatieobject">>();
 
-  previewSrc: SafeUrl | null = null;
-  showPreview = false;
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (!this.document()) return;
-    if (changes.document.isFirstChange()) return;
-
-    this.loadDocument();
-  }
-
-  ngOnInit() {
-    this.loadDocument();
-  }
-
-  private loadDocument() {
+  protected readonly previewSrc = computed(() => {
     const document = this.document();
     if (!FileFormatUtil.isPreviewAvailable(document.formaat as FileFormat)) {
-      this.showPreview = false;
-      this.previewSrc = null;
-      return;
+      return null;
     }
 
-    this.showPreview = true;
     const url = this.informatieObjectenService.getPreviewUrl(
       document.uuid!,
       document.versie,
     );
-    this.previewSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  }
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  });
 
   isImage() {
     return FileFormatUtil.isImage(this.document().formaat as FileFormat);

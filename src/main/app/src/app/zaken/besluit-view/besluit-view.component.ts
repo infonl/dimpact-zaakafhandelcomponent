@@ -9,10 +9,10 @@ import {
   EventEmitter,
   inject,
   input,
-  OnChanges,
   OnInit,
   Output,
 } from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -24,6 +24,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { skip } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ZacDocuments } from "../../shared/form/documents/documents";
@@ -63,7 +64,7 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
     ZacDocuments,
   ],
 })
-export class BesluitViewComponent implements OnInit, OnChanges {
+export class BesluitViewComponent implements OnInit {
   readonly besluiten = input.required<GeneratedType<"RestBesluit">[]>();
   readonly readonly = input.required<boolean>();
   @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
@@ -96,15 +97,19 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     true,
   );
 
+  constructor() {
+    toObservable(this.besluiten)
+      .pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => {
+        for (const historieKey in this.histories) {
+          this.loadHistorie(historieKey);
+        }
+      });
+  }
+
   ngOnInit(): void {
     if (this.besluiten().length > 0) {
       this.loadBesluitData(this.besluiten()[0].uuid);
-    }
-  }
-
-  ngOnChanges() {
-    for (const historieKey in this.histories) {
-      this.loadHistorie(historieKey);
     }
   }
 
