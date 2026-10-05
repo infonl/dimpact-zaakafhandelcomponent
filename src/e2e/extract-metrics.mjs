@@ -190,26 +190,36 @@ async function extractMetrics() {
 
 // Slack refuses a section whose text is longer than this.
 const SUMMARY_TEXT_LIMIT = 3000;
+const SLACK_SCENARIO_NAME_LIMIT = 100;
 
 const githubMarkup = {
   bullet: '-',
+  scenarioNameLimit: Infinity,
   bold: (text) => `**${text}**`,
   escape: (text) => String(text).replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
 };
 
 const slackMarkup = {
   bullet: '•',
+  scenarioNameLimit: SLACK_SCENARIO_NAME_LIMIT,
   bold: (text) => `*${text}*`,
   escape: (text) =>
     String(text).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
 };
 
-function formatSummary(metrics, { bullet, bold, escape }) {
+function truncate(text, limit) {
+  const characters = Array.from(text);
+  return characters.length > limit ? `${characters.slice(0, limit - 1).join('')}…` : text;
+}
+
+function formatSummary(metrics, { bullet, scenarioNameLimit, bold, escape }) {
   const { summary } = metrics;
-  const statusIcon = summary.failedScenarios > 0 ? '❌' : '✅';
+  const statusIcon = summary.totalScenarios > 0 && summary.passedScenarios === summary.totalScenarios
+    ? '✅'
+    : '❌';
   const commit = (process.env.GITHUB_SHA ?? '').slice(0, 7);
   const branch = process.env.GITHUB_REF_NAME ?? '';
-  const scenarioName = ({ feature, scenario }) => `${escape(feature)} → ${escape(scenario)}`;
+  const scenarioName = ({ feature, scenario }) => escape(truncate(`${feature} → ${scenario}`, scenarioNameLimit));
 
   const header = `${statusIcon} ${bold(`${summary.passedScenarios}/${summary.totalScenarios} passed`)} (${summary.passRate}) · total ${bold(summary.totalDurationFormatted)} · avg ${summary.averageScenarioDuration} · \`${escape(branch)}\` @ \`${commit}\``;
 
@@ -248,7 +258,8 @@ async function writeSummaries(metrics) {
     await appendFile(GITHUB_STEP_SUMMARY, `## E2E metrics\n\n${formatSummary(metrics, githubMarkup)}\n`);
   }
   if (GITHUB_OUTPUT) {
-    await appendFile(GITHUB_OUTPUT, `slack_summary=${JSON.stringify(formatSummary(metrics, slackMarkup))}\n`);
+    const slackSummary = truncate(formatSummary(metrics, slackMarkup), SUMMARY_TEXT_LIMIT);
+    await appendFile(GITHUB_OUTPUT, `slack_summary=${JSON.stringify(slackSummary)}\n`);
   }
 }
 

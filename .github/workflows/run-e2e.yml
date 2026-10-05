@@ -29,7 +29,7 @@ jobs:
           if [ "$GITHUB_REF" = "refs/heads/main" ]; then
             echo "report_path=$date" >> $GITHUB_OUTPUT
           else
-            echo "report_path=branches/$date" >> $GITHUB_OUTPUT
+            echo "report_path=branches/$date-run-id-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> $GITHUB_OUTPUT
           fi
       - name: login to azure and allow pssessions
         uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
