@@ -189,7 +189,7 @@ export class InboxProductaanvragenListComponent
           this.updateListParameters();
           return runQuery(
             this.queryClient,
-            this.inboxProductaanvragenService.list(this.listParameters),
+            this.inboxProductaanvragenService.list({ ...this.listParameters }),
           );
         }),
         map((data) => {
