@@ -28,6 +28,7 @@ function currentBranchName() {
 export function describeTestOrigin(
   scenarioName: string,
   browser: Browser | null,
+  timestampUtc: string,
 ) {
   const run = process.env.CI
     ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
@@ -42,6 +43,7 @@ export function describeTestOrigin(
     `USER: ${user}`,
     `BRANCH: ${currentBranchName() ?? "unknown"}`,
     `BROWSER: ${describeBrowser(browser)}`,
+    `DATE TIME: ${timestampUtc}`,
   ].join("\n");
 }
 

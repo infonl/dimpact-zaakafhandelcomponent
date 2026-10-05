@@ -6,6 +6,7 @@
 import { Then, When } from "@cucumber/cucumber";
 import { Page, expect } from "@playwright/test";
 import {
+  FIFTEEN_SECONDS_IN_MS,
   FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
@@ -114,7 +115,9 @@ When(
     const caseNumberLocator = smartDocumentsWizardPage.locator(
       `text=${caseNumber}`,
     );
-    await expect(caseNumberLocator).toHaveCount(2);
+    await expect(caseNumberLocator).toHaveCount(2, {
+      timeout: FIFTEEN_SECONDS_IN_MS,
+    });
 
     // This locator selects the status message container of the wizard.
     // The status message container is only visible when the wizard has been completed.

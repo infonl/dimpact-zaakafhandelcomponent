@@ -277,13 +277,12 @@ When(
     // Openbaar should be automatically selected on openbaar
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
     // A UTC timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
-    const timestampUtc = new Date().toISOString().replace(/[-:.]/g, "");
-    const caseDescription = `E2E-test-${timestampUtc}`;
-    await this.page.getByLabel("Omschrijving").fill(caseDescription);
-    this.testStorage.set("caseDescription", caseDescription);
+    const timestampUtc = new Date().toISOString();
+    await this.page.getByLabel("Omschrijving").fill(timestampUtc);
+    this.testStorage.set("caseDescription", timestampUtc);
     await this.page
       .getByLabel("Toelichting")
-      .fill(describeTestOrigin(this.testName, this.browser));
+      .fill(describeTestOrigin(this.testName, this.browser, timestampUtc));
 
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 

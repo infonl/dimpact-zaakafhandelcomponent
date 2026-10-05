@@ -29,15 +29,21 @@ When(
     await page.getByRole("option", { name: "E-mail" }).click();
 
     // A UTC timestamp with millisecond precision tells this case apart from every other one on a shared environment.
-    const timestampUtc = new Date().toISOString().replace(/[-:.]/g, "");
-    caseDescription.value = `E2E-BDD-test-${timestampUtc}`;
+    const timestampUtc = new Date().toISOString();
+    caseDescription.value = timestampUtc;
     await page
       .getByRole("textbox", { name: "Description" })
       .fill(caseDescription.value);
 
     await page
       .getByRole("textbox", { name: "Explanation" })
-      .fill(describeTestOrigin($testInfo.title, page.context().browser()));
+      .fill(
+        describeTestOrigin(
+          $testInfo.title,
+          page.context().browser(),
+          timestampUtc,
+        ),
+      );
 
     const response = page.waitForResponse(/zaken\/zaak/);
     await page.getByRole("button", { name: "Create" }).click();
