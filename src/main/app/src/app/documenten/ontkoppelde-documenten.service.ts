@@ -4,10 +4,10 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -15,12 +15,12 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class OntkoppeldeDocumentenService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
 
   list(body: PutBody<"/rest/ontkoppeldedocumenten">) {
-    return this.zacHttpClient.PUT("/rest/ontkoppeldedocumenten", body);
+    return this.zacQueryClient.PUT_QUERY("/rest/ontkoppeldedocumenten", body);
   }
 
   delete() {
@@ -32,10 +32,14 @@ export class OntkoppeldeDocumentenService {
         }),
       ),
       {
-        onSuccess: (_data, detachedDocument) =>
+        onSuccess: (_data, detachedDocument) => {
+          void this.queryClient.invalidateQueries({
+            queryKey: ["/rest/ontkoppeldedocumenten"],
+          });
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
             document: detachedDocument.titel,
-          }),
+          });
+        },
       },
     );
   }

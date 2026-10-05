@@ -33,7 +33,6 @@ import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { RouteReuseStrategyService } from "./informatie-objecten/route-reuse-strategy.service";
 import { QUERY_CLIENT } from "./shared/http/query-client";
 import { shouldDehydrateQuery } from "./shared/http/should-dehydrate-query";
-import { SharedModule } from "./shared/shared.module";
 import { ZoekComponent } from "./zoeken/zoek/zoek.component";
 
 @NgModule({
@@ -44,7 +43,6 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
     BrowserAnimationsModule,
     MatSidenavModule,
     CoreModule,
-    SharedModule,
     ZoekComponent,
     AppRoutingModule,
   ],

@@ -4,6 +4,7 @@
  */
 
 import { animate, style, transition, trigger } from "@angular/animations";
+import { DatePipe } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -22,6 +23,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { TranslateModule } from "@ngx-translate/core";
 import { forkJoin, lastValueFrom } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
@@ -31,7 +33,8 @@ import {
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../../shared/directives/file-drag-and-drop.directive";
 import { injectMutation } from "../../../shared/http/inject-mutation";
-import { SharedModule } from "../../../shared/shared.module";
+import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
+import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import {
   promptForSaveLocation,
@@ -52,7 +55,10 @@ import { extractAttachmentFilename, readFileContent } from "../file.helper";
     MatProgressSpinnerModule,
     MatTableModule,
     MatTooltipModule,
-    SharedModule,
+    DatePipe,
+    EmptyPipe,
+    StaticTextComponent,
+    TranslateModule,
     FileDragAndDropDirective,
     MatExpansionModule,
   ],

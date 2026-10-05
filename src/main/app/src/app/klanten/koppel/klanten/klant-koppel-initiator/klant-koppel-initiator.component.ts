@@ -7,7 +7,6 @@ import { Component, EventEmitter, input, Output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { TranslateModule } from "@ngx-translate/core";
-import { SharedModule } from "src/app/shared/shared.module";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { BedrijfZoekComponent } from "../../../zoek/bedrijven/bedrijf-zoek.component";
@@ -18,7 +17,6 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   imports: [
     MatIconModule,
     MatTabsModule,
-    SharedModule,
     TranslateModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,

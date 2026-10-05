@@ -17,6 +17,7 @@ import {
 import { testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
+import { PutBody } from "../shared/http/http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { InboxDocumentenService } from "./inbox-documenten.service";
 
@@ -93,6 +94,22 @@ describe(InboxDocumentenService.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.document.verwijderen.inbox.niet-verwijderd",
         { document: "fakeDocumentTitel" },
+      );
+    });
+
+    it("marks every cached read of the inbox documents stale, so that the werklijst re-reads instead of showing the deleted row", async () => {
+      const listQueryKey = service.list(
+        fromPartial<PutBody<"/rest/inboxdocumenten">>({ page: 0 }),
+      ).queryKey;
+      testQueryClient.setQueryData(listQueryKey, {});
+
+      await runMutationOnSuccess(
+        service.delete(),
+        fromPartial<GeneratedType<"RestInboxDocument">>({ id: 42 }),
+      );
+
+      expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
+        true,
       );
     });
   });
