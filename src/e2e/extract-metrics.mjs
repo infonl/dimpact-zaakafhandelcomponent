@@ -8,6 +8,7 @@ import { existsSync } from 'fs';
 
 const REPORT_PATH = 'reports/e2e-report.json';
 const METRICS_OUTPUT = 'reports/e2e-metrics.json';
+const NUMBER_OF_SLOWEST_SCENARIOS = 15;
 
 /**
  * Extracts metrics from the Cucumber JSON report (reports/e2e-report.json) generated during e2e test runs.
@@ -135,7 +136,7 @@ async function extractMetrics() {
 
   // Sort slowest scenarios
   metrics.slowestScenarios.sort((a, b) => b.duration - a.duration);
-  metrics.slowestScenarios = metrics.slowestScenarios.slice(0, 10);
+  metrics.slowestScenarios = metrics.slowestScenarios.slice(0, NUMBER_OF_SLOWEST_SCENARIOS);
 
   // Calculate summary statistics
   metrics.summary.totalDurationFormatted = formatDuration(metrics.summary.totalDuration);
@@ -178,9 +179,9 @@ async function extractMetrics() {
     });
   }
 
-  console.log('\n🐌 Top 5 Slowest Scenarios:');
+  console.log(`\n🐌 Top ${NUMBER_OF_SLOWEST_SCENARIOS} Slowest Scenarios:`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  metrics.slowestScenarios.slice(0, 5).forEach((scenario, idx) => {
+  metrics.slowestScenarios.forEach((scenario, idx) => {
     console.log(`${idx + 1}. ${scenario.durationFormatted.padEnd(10)} - ${scenario.feature} → ${scenario.scenario}`);
   });
 
@@ -189,7 +190,6 @@ async function extractMetrics() {
 
 // Slack refuses a section whose text is longer than this.
 const SUMMARY_TEXT_LIMIT = 3000;
-const SUMMARY_SLOWEST_SCENARIOS = 5;
 
 const githubMarkup = {
   bullet: '-',
@@ -213,7 +213,7 @@ function formatSummary(metrics, { bullet, bold, escape }) {
 
   const header = `${statusIcon} ${bold(`${summary.passedScenarios}/${summary.totalScenarios} passed`)} (${summary.passRate}) · total ${bold(summary.totalDurationFormatted)} · avg ${summary.averageScenarioDuration} · \`${escape(branch)}\` @ \`${commit}\``;
 
-  const slowest = metrics.slowestScenarios.slice(0, SUMMARY_SLOWEST_SCENARIOS);
+  const slowest = metrics.slowestScenarios;
   const slowestSection = [
     '',
     bold(`🐌 Slowest ${slowest.length}`),

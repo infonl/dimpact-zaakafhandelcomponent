@@ -37,9 +37,7 @@ When(
 
     await page
       .getByRole("textbox", { name: "Explanation" })
-      .fill(
-        `This case is created by ${describeTestOrigin($testInfo.title, page.context().browser())}`,
-      );
+      .fill(describeTestOrigin($testInfo.title, page.context().browser()));
 
     const response = page.waitForResponse(/zaken\/zaak/);
     await page.getByRole("button", { name: "Create" }).click();

@@ -283,9 +283,7 @@ When(
     this.testStorage.set("caseDescription", caseDescription);
     await this.page
       .getByLabel("Toelichting")
-      .fill(
-        `This task is created by ${describeTestOrigin(this.testName, this.browser)}`,
-      );
+      .fill(describeTestOrigin(this.testName, this.browser));
 
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 

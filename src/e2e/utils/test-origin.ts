@@ -29,12 +29,20 @@ export function describeTestOrigin(
   scenarioName: string,
   browser: Browser | null,
 ) {
-  const environment = process.env.CI
-    ? `GitHub Actions run ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-    : `local machine of ${os.userInfo().username}`;
-  const branchName = currentBranchName();
-  const branch = branchName ? ` on branch ${branchName}` : "";
-  return `E2E test scenario: ${scenarioName}, running on ${environment}${branch} in ${describeBrowser(browser)}`;
+  const run = process.env.CI
+    ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+    : "local machine";
+  const user = process.env.CI
+    ? process.env.GITHUB_ACTOR
+    : os.userInfo().username;
+  return [
+    "CREATED BY: E2E test",
+    `SCENARIO: ${scenarioName}`,
+    `RUN: ${run}`,
+    `USER: ${user}`,
+    `BRANCH: ${currentBranchName() ?? "unknown"}`,
+    `BROWSER: ${describeBrowser(browser)}`,
+  ].join("\n");
 }
 
 /** Fits the 100-character limit of the reden fields. */
