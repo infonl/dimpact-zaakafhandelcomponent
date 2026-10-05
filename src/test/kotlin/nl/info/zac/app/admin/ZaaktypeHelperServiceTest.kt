@@ -32,6 +32,7 @@ import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import java.net.URI
 import java.util.UUID
 
@@ -60,22 +61,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
         this.resultaattype = resultaattype
     }
 
-    data class ZaaktypeConfigurationUnderTest(
-        val configurationType: String,
-        val create: (UUID) -> ZaaktypeConfiguration
-    )
-
-    listOf(
-        ZaaktypeConfigurationUnderTest("CMMN") {
-            createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattype = it)
-        },
-        ZaaktypeConfigurationUnderTest("BPMN") {
-            createZaaktypeBpmnConfiguration(
-                nietOntvankelijkResultaattype = it,
-                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
-            )
-        }
-    ).forEach { (configurationType, createZaaktypeConfiguration) ->
+    createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         context("mapZaakbeeindigGegevens of a $configurationType zaaktype configuration") {
             given("a previous configuration whose resultaattypen are not the first ones of the new zaaktype") {
                 val previousAfgebrokenUuid = UUID.randomUUID()

@@ -89,14 +89,19 @@ Before it adds a constraint, V100 first sets a null `configuration_type` from th
 the id. It then moves every row that would still violate a constraint into a quarantine table (D2a).
 Those rows are:
 
-- subclass rows without a base row
-- base rows whose id is in neither subclass table, or in both
+- subclass rows without a base row, with their CMMN child rows
+- base rows without a `configuration_type` whose id is in neither subclass table, or in both, with their child
+  rows. The child rows go first, because ON DELETE CASCADE would otherwise remove them without a copy.
+- duplicate ids in `zaaktype_bpmn_configuration`; the physically last row stays
 - duplicate one-to-one children; the row with the highest id stays
-- the child rows of every quarantined base row, because ON DELETE CASCADE would otherwise remove them
-  without a copy
 
-Hibernate cannot load any of these rows today. An EAGER `@OneToOne` with two rows throws, and a subclass
-row without a base row is never joined. Moving them out changes nothing that ZAC can do with the data.
+Hibernate cannot load any of these rows today:
+- An EAGER `@OneToOne` with two rows throws.
+- A subclass row without a base row is never joined.
+- A base row without a discriminator matches no subclass.
+
+Moving them out changes nothing that ZAC can do with the data. A base row whose subclass row is missing does
+not block any new constraint, so it stays.
 
 ### D2a. Quarantine in place of failing or deleting
 
@@ -130,8 +135,9 @@ constraints. Today's schema shows no such case after V100, so for these two migr
 safeguard. The migration itests prove it either way.
 
 ZAC never reads the quarantine table. A follow-up ticket covers checking it on every environment and
-dropping it by hand (Migration Plan). No later migration may reference the table, so that a manual
-drop never breaks a migration.
+dropping it by hand (Migration Plan). Every migration that writes to the table creates it first with
+`CREATE TABLE IF NOT EXISTS`, so a manual drop between releases never breaks a later migration. Each
+migration defines its quarantine helper as a `pg_temp` function, so the helper never outlives the migration.
 
 Deviations from RFC section 3.5:
 

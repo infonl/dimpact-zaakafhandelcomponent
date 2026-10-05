@@ -4,6 +4,7 @@
  */
 package nl.info.zac.admin.model
 
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -196,6 +197,26 @@ fun createZaaktypeBpmnConfiguration(
             this.bpmnProcessDefinitionKey = it
         }
     }
+
+data class ZaaktypeConfigurationUnderTest(
+    val configurationType: ZaaktypeConfigurationType,
+    val create: (nietOntvankelijkResultaattype: UUID) -> ZaaktypeConfiguration
+)
+
+/**
+ * One factory per configuration type, so that a test of behaviour that both engines share runs for each of them.
+ */
+fun createZaaktypeConfigurationsUnderTest() = listOf(
+    ZaaktypeConfigurationUnderTest(ZaaktypeConfigurationType.CMMN) {
+        createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattype = it)
+    },
+    ZaaktypeConfigurationUnderTest(ZaaktypeConfigurationType.BPMN) {
+        createZaaktypeBpmnConfiguration(
+            nietOntvankelijkResultaattype = it,
+            bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+        )
+    }
+)
 
 fun createZaaktypeCompletionParameters(
     id: Long? = 1234L,

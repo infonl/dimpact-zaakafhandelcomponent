@@ -1,18 +1,20 @@
 ## 0. Baseline
 
-- [ ] 0.1 On `main`, run `./gradlew generateOpenApiSpec` and copy `build/generated/openapi/META-INF/openapi/openapi.json`
+- [x] 0.1 On `main`, run `./gradlew generateOpenApiSpec` and copy `build/generated/openapi/META-INF/openapi/openapi.json`
       to the scratchpad as the contract baseline; verify the file exists.
-- [ ] 0.2 Count the files in `src/main` that name `ZaaktypeCmmnConfiguration` or `ZaaktypeBpmnConfiguration`
-      (`grep -rlwE 'ZaaktypeCmmnConfiguration|ZaaktypeBpmnConfiguration' src/main | wc -l`) and record the number in the A1 PR body.
+- [x] 0.2 Count the files in `src/main/kotlin` and `src/main/java` that name `ZaaktypeCmmnConfiguration` or `ZaaktypeBpmnConfiguration`
+      (`grep -rlwE 'ZaaktypeCmmnConfiguration|ZaaktypeBpmnConfiguration' src/main/kotlin src/main/java | wc -l`) and record the number in the A1 PR body.
+      Baseline: 25 files.
 
 ## 1. PR A1: schema repair (branch `feature/PZ-12669-unify-zaaktype-configuration-backend`, base `main`)
 
-- [ ] 1.1 Write `V100__repair_zaaktype_configuration_schema.sql` (design D2, D2a):
+- [x] 1.1 Write `V100__repair_zaaktype_configuration_schema.sql` (design D2, D2a):
       - create `zaaktype_configuration_migration_quarantine`
       - set a null `configuration_type` from the subclass table that holds the id
       - move these rows to quarantine (copy to JSONB, then delete), and report the count per rule with `RAISE WARNING`:
         - subclass rows without a base row
-        - base rows that are in neither subclass table or in both, together with their child rows
+        - untyped base rows that are in neither subclass table or in both, together with their child rows
+        - duplicate BPMN configuration ids
         - duplicate one-to-one children; the highest id stays
       - add the PK on `zaaktype_bpmn_configuration(id)`
       - add FKs from both subclass tables to `zaaktype_configuration(id)` with ON DELETE CASCADE
@@ -20,18 +22,18 @@
       - add UNIQUE on the FK column of betrokkene, BRP, and CMMN email parameters
 
       Verify that the itest stack starts and that Flyway reports V100 as applied.
-- [ ] 1.2 Add an itest that reads the constraints from `information_schema` and asserts that the PK, FKs, NOT NULL,
+- [x] 1.2 Add an itest that reads the constraints from `information_schema` and asserts that the PK, FKs, NOT NULL,
       and UNIQUE constraints of V100 exist; verify with `./gradlew itest --tests "*SchemaTest*"`.
-- [ ] 1.3 Add the migration test of design D10:
+- [x] 1.3 Add the migration test of design D10:
       - Testcontainers PostgreSQL with Flyway `target` V99
       - seed one valid row and one row for each quarantine rule, then migrate to V100
 
       Assert that the valid rows are untouched, that every invalid row is in the quarantine table with its full
       `row_data`, and that a quarantined row can be restored with `jsonb_populate_record`. Verify that the test passes.
-- [ ] 1.4 Verify that the `RAISE WARNING` counts of V100 appear in the ZAC startup log of the itest stack.
-- [ ] 1.5 Add the shared engine fixture `listOf(CMMN, BPMN)` with configuration factories to `AdminFixtures.kt`.
+- [x] 1.4 Verify that the `RAISE WARNING` counts of V100 appear in the ZAC startup log of the itest stack.
+- [x] 1.5 Add the shared engine fixture `listOf(CMMN, BPMN)` with configuration factories to `AdminFixtures.kt`.
       Switch `ZaaktypeHelperServiceTest` to it and verify that the test still passes.
-- [ ] 1.6 Run `./gradlew spotlessApply detektApply detekt build` and the contract diff against the baseline;
+- [x] 1.6 Run `./gradlew spotlessApply detektApply detekt build` and the contract diff against the baseline;
       verify that both are clean.
 - [ ] 1.7 Open the PR. Title: `fix(admin): repair the zaaktype configuration schema constraints`. Include the openspec change directory.
       The body ends with `Solves PZ-12669`.
