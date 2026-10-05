@@ -39,7 +39,7 @@ When(
       .getByRole("textbox", { name: "Explanation" })
       .fill(
         describeTestOrigin(
-          $testInfo.title,
+          $testInfo.titlePath.slice(1).join(" - "),
           page.context().browser(),
           timestampUtc,
         ),

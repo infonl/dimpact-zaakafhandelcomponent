@@ -580,7 +580,9 @@ Then(
 );
 
 function processDefinitionGroupRow(page: Page, name: string) {
-  return page.locator("mat-nested-tree-node.group").filter({ hasText: name });
+  return page
+    .locator("mat-nested-tree-node.group")
+    .filter({ has: page.getByText(name, { exact: true }) });
 }
 
 When(
@@ -623,9 +625,9 @@ Then(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(
-      this.page.getByText(
-        `Procesdefinitie '${E2E_PROCESS_DEFINITION_BPMN_FILE}' is geüpload`,
-      ),
+      processDefinitionGroupRow(this.page, E2E_PROCESS_DEFINITION_NAME)
+        .locator(".tree-group-row mat-icon")
+        .filter({ hasText: "check_circle" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );

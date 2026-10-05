@@ -22,7 +22,15 @@ jobs:
     steps:
       - name: Get current date
         id: date
-        run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
+        run: |
+          date=$(date +'%Y-%m-%d-%H-%M')
+          echo "date=$date" >> $GITHUB_OUTPUT
+          # Branch reports go to a separate folder, so the main reports stay together.
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            echo "report_path=$date" >> $GITHUB_OUTPUT
+          else
+            echo "report_path=branches/$date" >> $GITHUB_OUTPUT
+          fi
       - name: login to azure and allow pssessions
         uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
         with:
@@ -58,7 +66,7 @@ jobs:
         run: "cd src/e2e && npm run e2e:extract:metrics"
       - name: copy report to separate folder
         if: ${{ !cancelled() }}
-        run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
+        run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir -p reports/$(dirname ${{ steps.date.outputs.report_path }}) && mv ${{ steps.date.outputs.date }} reports/${{ steps.date.outputs.report_path }}"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ !cancelled() }}
         with:
@@ -81,7 +89,7 @@ jobs:
             src/e2e/playwright-report
           retention-days: 7
       - name: Deploy to GitHub Pages
-        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        if: ${{ !cancelled() && (github.ref == 'refs/heads/main' || contains(github.ref_name, 'e2e')) }}
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -127,6 +135,10 @@ jobs:
                         {
                           "type": "mrkdwn",
                           "text": "*Status:*\n${{ job.status }} ${{ job.status == 'success' && ':white_check_mark:' || ':x:' }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Branch:*\n${{ github.ref_name }}"
                         }
                       ]
                     },
@@ -134,7 +146,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/index.html"
+                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/index.html"
                       }
                     },
                     {
@@ -153,7 +165,7 @@ jobs:
                             "type": "plain_text",
                             "text": "View Report"
                           },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/index.html"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/index.html"
                         },
                         {
                           "type": "button",
@@ -169,7 +181,7 @@ jobs:
                             "type": "plain_text",
                             "text": "View Videos"
                           },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/videos.html"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/videos.html"
                         }
                       ]
                     }
