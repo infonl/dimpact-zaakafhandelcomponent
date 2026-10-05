@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <!doctype html>
@@ -15,7 +15,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Zaakafhandelcomponent - Geen toestemming</title>
+    <title>Zaakafhandelcomponent - Geen toegang</title>
     <style>
       :root {
         --background-color: #fff;
@@ -96,40 +96,6 @@
         padding: 0 32px;
       }
 
-      .home-button {
-        position: absolute;
-        left: 32px;
-        text-decoration: none;
-      }
-
-      .home-button-inner {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-        box-shadow:
-          0px 3px 5px -1px rgba(0, 0, 0, 0.2),
-          0px 6px 10px 0px rgba(0, 0, 0, 0.14),
-          0px 1px 18px 0px rgba(0, 0, 0, 0.12);
-      }
-
-      .home-button:hover .home-button-inner {
-        background-color: rgba(255, 255, 255, 0.05);
-      }
-
-      .home-icon {
-        display: block;
-        width: 24px;
-        height: 24px;
-        fill: white;
-      }
-
       .mdl-layout__content {
         display: flex;
         justify-content: center;
@@ -163,32 +129,54 @@
       .page-wrapper p:last-child {
         margin-bottom: 0;
       }
+
+      .primary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 16px;
+        margin-top: 16px;
+        border-radius: 4px;
+        background-color: rgb(63, 81, 181);
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+          0px 1.5px 2.5px -0.5px rgba(0, 0, 0, 0.2),
+          0px 3px 5px 0px rgba(0, 0, 0, 0.14),
+          0px 0.5px 9px 0px rgba(0, 0, 0, 0.12);
+      }
+
+      .primary-button:hover {
+        background: linear-gradient(
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.05)
+          ),
+          rgb(63, 81, 181);
+        box-shadow:
+          0px 2.5px 2.5px -1.5px rgba(0, 0, 0, 0.2),
+          0px 4px 5px 0.5px rgba(0, 0, 0, 0.14),
+          0px 1.5px 7px 1px rgba(0, 0, 0, 0.12);
+      }
     </style>
   </head>
   <body>
     <div class="mdl-layout mdl-layout--fixed-header">
       <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
-          <a href="/" class="home-button" title="Ga naar home" role="button">
-            <div class="home-button-inner">
-              <svg
-                class="home-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 -960 960 960"
-              >
-                <path
-                  d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"
-                />
-              </svg>
-            </div>
-          </a>
-          <span class="mdl-layout-title">Geen toestemming</span>
+          <span class="mdl-layout-title">Geen toegang</span>
         </div>
       </header>
 
       <main class="mdl-layout__content">
         <div class="page-wrapper">
-          <p>U heeft geen toestemming om deze pagina te bekijken.</p>
+          <p>
+            U heeft minstens één basisrol nodig om deze applicatie te kunnen
+            gebruiken.
+          </p>
+          <a href="/sign-out" class="primary-button" role="button">Uitloggen</a>
         </div>
       </main>
     </div>
