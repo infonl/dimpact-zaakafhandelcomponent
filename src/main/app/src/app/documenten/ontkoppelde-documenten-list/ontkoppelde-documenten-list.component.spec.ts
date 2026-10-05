@@ -315,7 +315,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     expect(
       within(row).queryByRole("button", { name: "actie.verwijderen" }),
     ).toBeNull();
-    expect(within(row).getByTitle("indicatie.VERGRENDELD")).toBeVisible();
+    expect(within(row).getByTitle("indicatie.vergrendeld")).toBeVisible();
   });
 
   it("asks for confirmation before deleting the document of the row", async () => {
