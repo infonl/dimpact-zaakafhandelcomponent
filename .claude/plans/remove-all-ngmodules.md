@@ -22,7 +22,7 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [x] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
       `documenten`, `productaanvragen`) (merged, #7271)
 - [ ] **Step 9** — `app.routes.ts` + `bootstrapApplication`; delete `AppRoutingModule`, `AppModule` and `CoreModule` (old step 10 merged in on 2026-10-05) — implemented 2026-10-05, uncommitted; tsc 0, lint 0, prod build ok (433.88 -> 433.49 kB transfer on main 921612bd7), 3388 green, provider diff explained, manual smoke test ok; ready for PR (PZ-12875)
-- [ ] **Step 10 (optional)** — lazy-load the search sidenav and `/gebruiker` — est. **≈ −94 kB** transfer; independent of step 9, own PR
+- [ ] **Step 10 (optional)** — lazy-load the search sidenav, `/gebruiker` and Form.io in taak-view — est. **≈ −94 kB** initial transfer, plus **≈ −300 kB or more** per CMMN taak opened; independent of step 9, own PR
 
 Bundle so far: **672.06 -> 443.64 kB** initial transfer (**−34%**), the 77 kB of that in
 the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB). Step 5b gives back +13.5 kB on its own base (450.26 -> 463.74 kB, main `c2523a8ab`). Step 7 takes −30.8 kB on its own base (464.59 -> 433.79 kB, main `5ec92208c`), so 5b + 7 together net −17.3 kB.
@@ -432,12 +432,16 @@ The one part with genuine behavioural risk. Own smoke test.
 - `AppModule.injector` is assigned but **read nowhere**. Confirmed dead (re-verified
   2026-10-01); delete it rather than porting it.
 
-## Step 10 (optional) — More lazy loading: search sidenav + `/gebruiker`
+## Step 10 (optional) — More lazy loading: search sidenav, `/gebruiker`, Form.io in taak-view
 
 Not about NgModules; it can be its own PR at any time. Found 2026-10-05 by cutting nodes out of the import graph in the production build's `stats.json` (`ng build --configuration production --stats-json`, run outside the sandbox). Initial bundle then: 1.94 MB raw / 436 kB transfer. The figures are upper bounds; measure a real before/after build.
 
 - **Search sidenav** — wrap `<zac-zoeken>` in `app.component.html` in `@defer (on idle)`. The sidenav is closed by default, yet `ZoekComponent` pulls in datepicker (106 kB), tabs, cdk/table, checkbox, expansion, sort and the BAG/persoon/bedrijf search components: **−353 kB raw (≈ −80 kB transfer)**. Catch: `ZoekComponent.ngAfterViewInit` subscribes to `zoekenSideNav().openedStart`; if the user opens the sidenav before the deferred block has loaded, the first open does not search. Fix: in `ngAfterViewInit`, also search when `zoekenSideNav()?.opened` is already true, and cover that with a spec. `trefwoorden` is a signal (safe); a missed `reset$` before load is harmless.
-- **`/gebruiker`** — `IdentityComponent` is the last eager `component:` in `app-routing.module.ts`; switching to `loadComponent` drops all of `mat-list` from the initial bundle: **−61 kB raw (≈ −14 kB transfer)**. Trivial; 
+- **`/gebruiker`** — `IdentityComponent` is the last eager `component:` in `app.routes.ts`; switching to `loadComponent` drops all of `mat-list` from the initial bundle: **−61 kB raw (≈ −14 kB transfer)**. Trivial.
+- **Form.io in taak-view** — not in the initial bundle, but the taak page's own lazy chunk (`taak-view-component`) is **1.76 MB raw / 394 kB transfer** (measured 2026-10-05, prod build on `921612bd7` + step 9), almost the size of the whole initial bundle. It loads on every taak, including CMMN taken, which never use Form.io (Form.io is only for BPMN taak forms). Cause: `TaakViewComponent` imports `FormioWrapperComponent` statically, and that is the only runtime importer of `@formio/angular` (`formio-setup-service.ts` imports only types, which are erased). Fix: wrap `<zac-formio-wrapper>` in `taak-view.component.html` in `@defer (when formioFormulier)`, which replaces its `*ngIf`. Expected: most of the 394 kB moves to a separate chunk that only BPMN taken load; measure a real before/after build. Watch-outs:
+  - A BPMN taak now loads Form.io a moment later: give the block an `@placeholder` (or reuse the loading bar) so the form area does not jump or look empty.
+  - Specs that render the Form.io form need `DeferBlockBehavior.Manual` + `deferBlock.render()` (or `Playthrough`), otherwise the form never appears in the spec.
+  - `FormioCustomEvent` and `FormioChangeEvent` come from `formio-wrapper.component.ts`; `taak-view.component.ts` and `formio-setup-service.ts` must use them as types only (`import type`), otherwise the wrapper file, and with it Form.io, is pulled back into the taak chunk. `FormioWrapperComponent` may not be referenced anywhere in `taak-view.component.ts` except its `imports` array, or Angular cannot defer it.
 - **Rejected:** toolbar (always visible, −58 kB raw) and `moment` (63 kB, reaches the app through the app-wide `DateAdapter`).
 
 ## Order summary
