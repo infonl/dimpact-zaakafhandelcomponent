@@ -34,7 +34,6 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import java.util.logging.Logger
 
 @NoArgConstructor
 @ApplicationScoped
@@ -54,8 +53,6 @@ class DocumentCreationService @Inject constructor(
         private const val SMART_DOCUMENTS_WIZARD_FINISH_PAGE = "static/smart-documents-result.html"
         private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
             "rest/document-creation/smartdocuments/callback/zaak/{zaakUuid}"
-
-        private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
     }
 
     /**
@@ -92,29 +89,17 @@ class DocumentCreationService @Inject constructor(
             )
         }
 
-    @Suppress("MaxLineLength")
     fun createDocumentAttended(
         documentCreationDataAttended: DocumentCreationDataAttended
-    ): DocumentCreationAttendedResponse {
-        val data = documentCreationDataService.createData(
-            loggedInUser = loggedInUserInstance.get(),
-            zaak = documentCreationDataAttended.zaak,
-            taskId = documentCreationDataAttended.taskId
+    ): DocumentCreationAttendedResponse =
+        smartDocumentsService.createDocumentAttended(
+            data = documentCreationDataService.createData(
+                loggedInUser = loggedInUserInstance.get(),
+                zaak = documentCreationDataAttended.zaak,
+                taskId = documentCreationDataAttended.taskId
+            ),
+            smartDocument = createDocumentForAttendedFlow(documentCreationDataAttended)
         )
-        var isCreated = false
-        try {
-            return smartDocumentsService.createDocumentAttended(
-                data = data,
-                smartDocument = createDocumentForAttendedFlow(documentCreationDataAttended)
-            ).also { isCreated = true }
-        } finally {
-            if (!isCreated) {
-                LOG.warning {
-                    "Failed to create SmartDocument for zaak with uuid: '${documentCreationDataAttended.zaak.uuid}' using attended flow"
-                }
-            }
-        }
-    }
 
     fun getInformationObjecttypeUuid(zaak: Zaak, templateGroupId: String, templateId: String) =
         smartDocumentsTemplatesService.getInformationObjectTypeUUID(

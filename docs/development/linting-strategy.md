@@ -76,8 +76,10 @@ Coding conventions that a linter can check are enforced there rather than only d
 
 ### Fixing exception findings
 
-`TooGenericExceptionCaught` and `ForbiddenMethodCall` report a catch that is broader than the
-code in the `try` block needs. A generic catch swallows bugs: a `NullPointerException` from a
+`TooGenericExceptionCaught` reports a `catch` clause that is broader than the code in the `try`
+block needs. `ForbiddenMethodCall` reports `runCatching`, which catches every exception, and
+`requireNotNull`. Replacing `runCatching` with `catch (exception: Exception)` only swaps one finding
+for the other. A generic catch swallows bugs: a `NullPointerException` from a
 mistake in the `try` block gets handled like an expected failure. Catch the specific exception
 types that the block can throw, and let everything else propagate:
 
