@@ -12,6 +12,7 @@ import {
   FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
+  SLOW_TEST_ENVIRONMENT_SEARCH_INDEX_TIMEOUT_IN_MS,
   SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS,
   SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS,
   TWO_MINUTES_IN_MS,
@@ -402,12 +403,16 @@ Then(
 
 Then(
   "Employee {string} opens the zaak that was created from the open-forms submission",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const openFormsReference = this.testStorage.get("open-forms-reference");
-    const zaakLink = this.page
-      .locator("mat-sidenav")
-      .getByRole("link", { name: ZAAK_NUMBER_REGEX });
+    const zaakResults = this.page.locator("mat-sidenav zac-zaak-zoek-object");
+    const zaakResultWithReference = zaakResults.filter({
+      has: this.page.locator(".toelichting", { hasText: openFormsReference }),
+    });
+    const zaakLink = zaakResultWithReference.getByRole("link", {
+      name: ZAAK_NUMBER_REGEX,
+    });
 
     // ZAC stores the reference of the open-forms submission in the toelichting of the zaak, which is
     // searchable, so the zaak can be looked up instead of guessing which zaak it is. The zaak is
@@ -421,12 +426,15 @@ Then(
       await searchField.fill(openFormsReference);
       await searchField.press("Enter");
 
-      await this.expect(zaakLink).toHaveCount(1, {
+      await this.expect(zaakResults).toHaveCount(1, {
+        timeout: TWO_SECONDS_IN_MS,
+      });
+      await this.expect(zaakResultWithReference).toHaveCount(1, {
         timeout: TWO_SECONDS_IN_MS,
       });
     }).toPass({
       intervals: [FIVE_SECONDS_IN_MS],
-      timeout: FORTY_SECONDS_IN_MS,
+      timeout: SLOW_TEST_ENVIRONMENT_SEARCH_INDEX_TIMEOUT_IN_MS,
     });
 
     await zaakLink.click();
