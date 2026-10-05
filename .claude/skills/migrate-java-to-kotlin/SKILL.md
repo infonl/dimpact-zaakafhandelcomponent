@@ -16,6 +16,17 @@ Given the source package `$ARGUMENTS`:
 - **Target directory**: replace `src/main/java/net/atos/` with `src/main/kotlin/nl/info/`.
   Example: `src/main/java/net/atos/client/bag/` → `src/main/kotlin/nl/info/client/bag/`
 
+## Step 0 — Use a separate branch and pull request
+
+The conversion is a pull request of its own and contains no functional changes, so a reviewer can read it as a
+pure conversion (see "Convert Java to Kotlin in a separate pull request" in `CLAUDE.md`).
+
+- Create a new branch for the conversion, following the branch conventions in `CLAUDE.md`. Base it on `main`, or on
+  the branch below it when it is part of a stack of pull requests.
+- If the conversion is needed for a functional change, do the conversion first, and base the branch of the
+  functional change on the conversion branch until the conversion pull request is merged.
+- If uncommitted functional changes exist when this skill starts, keep them out of the conversion branch.
+
 ## Step 1 — Explore the source package
 
 Read every `.java` file in the source directory (including sub-directories). Note:
@@ -264,6 +275,13 @@ and converts Java syntax to idiomatic Kotlin.
 git log --oneline --follow -- src/main/kotlin/nl/info/<path>/<MainClass>.kt
 ```
 The log should show: the conversion commit + the rename commit + the full original Java history.
+
+## Step 13 — Open the conversion pull request
+
+Push the conversion branch and open its pull request, with the branch below it as base. Use a Conventional Commits
+title such as `refactor(<scope>): convert <classes> to Kotlin` and end the description with the `Solves PZ-XXX`
+footer. Describe in the description how the change was verified, including any OpenAPI schema name that changed
+and the frontend files updated for it (Step 7).
 
 ## Key references
 
