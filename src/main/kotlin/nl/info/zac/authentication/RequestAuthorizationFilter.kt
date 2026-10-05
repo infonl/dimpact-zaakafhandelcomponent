@@ -26,7 +26,8 @@ import nl.info.zac.util.NoArgConstructor
  * For authenticated endpoints, it expects that the user has already logged in and performs basic authorization.
  *
  * General access: user must have at least one read ('lezen') application role on at least one zaaktype,
- * or as an overall role.
+ * or as an overall role. A user without one gets a dedicated error page, on every authenticated path except
+ * the server error texts that the error pages show.
  * For admin URIs (/admin/, /rest/admin/): User must have the 'beheerder' role for at least one zaaktype
  *
  * This filter must run after [UserPrincipalFilter], so [UserPrincipalFilter] can
@@ -42,6 +43,8 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
             "/rest/admin/",
             "/admin",
         )
+        private const val NO_READ_APPLICATION_ROLE_ERROR_PAGE = "/static/error-403-no-read-role.html"
+        private const val SERVER_ERROR_TEXTS_PATH = "/rest/referentietabellen/server-error-text"
         private val PUBLIC_STATIC_PATHS = setOf(
             "/sign-out",
             "/favicon.ico",
@@ -58,19 +61,19 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
     ) {
         val request = servletRequest as HttpServletRequest
         val response = servletResponse as HttpServletResponse
-        if (!requestIsAllowed(request)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return
+        when (authorize(request)) {
+            Authorization.ALLOWED -> filterChain.doFilter(request, response)
+            Authorization.NO_READ_APPLICATION_ROLE -> showNoReadApplicationRoleErrorPage(request, response)
+            Authorization.FORBIDDEN -> response.sendError(HttpServletResponse.SC_FORBIDDEN)
         }
-        filterChain.doFilter(request, response)
     }
 
-    private fun requestIsAllowed(
-        request: HttpServletRequest
-    ): Boolean {
+    private enum class Authorization { ALLOWED, NO_READ_APPLICATION_ROLE, FORBIDDEN }
+
+    private fun authorize(request: HttpServletRequest): Authorization {
         val requestPath = request.requestURI.removePrefix(request.contextPath)
         val httpRequestMethod = request.method
-        return when {
+        val isAllowed = when {
             // allow unauthenticated access on the following paths
             requestPath.startsWith("/webdav/") -> true
             // allow unauthenticated access, but only for specific HTTP methods on the following paths
@@ -81,21 +84,30 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
             requestPath == "/static/smart-documents-result.html" -> httpRequestMethod == GET
             requestPath.startsWith("/assets/") || requestPath in PUBLIC_STATIC_PATHS -> httpRequestMethod == GET
             // for all other paths, authorization is required
-            else -> isAuthorizationAllowed(request)
+            else -> return authorizeUser(request, requestPath)
+        }
+        return if (isAllowed) Authorization.ALLOWED else Authorization.FORBIDDEN
+    }
+
+    private fun authorizeUser(request: HttpServletRequest, requestPath: String): Authorization {
+        val user = request.getSession(false)?.let(::getLoggedInUser) ?: return Authorization.FORBIDDEN
+        return when {
+            requestPath == SERVER_ERROR_TEXTS_PATH && request.method == GET -> Authorization.ALLOWED
+            !user.hasReadApplicationRole -> Authorization.NO_READ_APPLICATION_ROLE
+            ADMIN_URI_PREFIXES.any(requestPath::startsWith) && !hasBeheerderApplicationRole(user) ->
+                Authorization.FORBIDDEN
+            else -> Authorization.ALLOWED
         }
     }
 
-    @Suppress("ReturnCount")
-    private fun isAuthorizationAllowed(request: HttpServletRequest): Boolean {
-        val session = request.getSession(false) ?: return false
-        val user = getLoggedInUser(session) ?: return false
-        val path = request.requestURI.removePrefix(request.contextPath)
-        val isAdmin = ADMIN_URI_PREFIXES.any(path::startsWith)
-        return if (isAdmin) {
-            hasBeheerderApplicationRole(user)
-        } else {
-            user.hasReadApplicationRole
-        }
+    /**
+     * The web.xml 403 error page is shared by every 403, so this one is forwarded to here.
+     * `no-store` keeps the browser from revalidating the forwarded static page into a 304.
+     */
+    private fun showNoReadApplicationRoleErrorPage(request: HttpServletRequest, response: HttpServletResponse) {
+        response.status = HttpServletResponse.SC_FORBIDDEN
+        response.setHeader("Cache-Control", "no-store")
+        request.getRequestDispatcher(NO_READ_APPLICATION_ROLE_ERROR_PAGE).forward(request, response)
     }
 
     /**

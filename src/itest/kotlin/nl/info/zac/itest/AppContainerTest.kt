@@ -10,6 +10,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
@@ -201,8 +202,16 @@ class AppContainerTest : BehaviorSpec({
                 url = "$ZAC_BASE_URI/admin",
                 testUser = BEHANDELAAR_1
             )
-            then("the response should be forbidden") {
+            then(
+                "the response is forbidden and shows the generic no-permission page, with a home button " +
+                    "and without a log-out button"
+            ) {
                 response.code shouldBe HTTP_FORBIDDEN
+                with(response.bodyAsString) {
+                    shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
+                    shouldContain("class=\"home-button\"")
+                    shouldNotContain("/sign-out")
+                }
             }
         }
     }
@@ -213,8 +222,9 @@ class AppContainerTest : BehaviorSpec({
                 url = ZAC_BASE_URI,
                 testUser = USER_WITHOUT_ANY_ROLE
             )
-            then("the response should be forbidden") {
+            then("the response is forbidden and shows the no-read-role page") {
                 response.code shouldBe HTTP_FORBIDDEN
+                response.bodyAsString shouldContain "basisrol nodig om deze applicatie te kunnen"
             }
         }
 
@@ -239,9 +249,16 @@ class AppContainerTest : BehaviorSpec({
                 url = ZAC_BASE_URI,
                 testUser = USER_WITHOUT_READ_ROLE
             )
-            then("the response is forbidden and shows the no-permission page instead of the ZAC app") {
+            then(
+                "the response is forbidden and shows the no-read-role page instead of the ZAC app, with a log-out " +
+                    "button and without a home button"
+            ) {
                 response.code shouldBe HTTP_FORBIDDEN
-                response.bodyAsString shouldContain "U heeft geen toestemming om deze pagina te bekijken."
+                with(response.bodyAsString) {
+                    shouldContain("basisrol nodig om deze applicatie te kunnen")
+                    shouldContain("href=\"/sign-out\"")
+                    shouldNotContain("home-button")
+                }
             }
         }
 
@@ -252,6 +269,16 @@ class AppContainerTest : BehaviorSpec({
             )
             then("the response is forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
+            }
+        }
+
+        `when`("The server error texts that the error pages show are requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/referentietabellen/server-error-text",
+                testUser = USER_WITHOUT_READ_ROLE
+            )
+            then("the response is ok, so the no-read-role page can show them") {
+                response.code shouldBe HTTP_OK
             }
         }
 
