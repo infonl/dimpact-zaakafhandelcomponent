@@ -127,13 +127,16 @@ class ZaaktypeHelperService @Inject constructor(
         previousZaaktypeConfiguration: ZaaktypeConfiguration,
         newZaaktypeConfiguration: ZaaktypeConfiguration
     ) {
-        newZaaktypeConfiguration.zaaktypeEmailParameters = ZaaktypeEmailParameters().apply {
-            zaaktypeConfiguration = newZaaktypeConfiguration
-            isEnabled = previousZaaktypeConfiguration.zaaktypeEmailParameters?.isEnabled ?: false
-            templateName = previousZaaktypeConfiguration.zaaktypeEmailParameters?.templateName
-            emailSender = previousZaaktypeConfiguration.zaaktypeEmailParameters?.emailSender
-            emailReply = previousZaaktypeConfiguration.zaaktypeEmailParameters?.emailReply
-        }
+        newZaaktypeConfiguration.zaaktypeEmailParameters =
+            previousZaaktypeConfiguration.zaaktypeEmailParameters?.let { previousZaaktypeEmailParameters ->
+                ZaaktypeEmailParameters().apply {
+                    zaaktypeConfiguration = newZaaktypeConfiguration
+                    isEnabled = previousZaaktypeEmailParameters.isEnabled
+                    templateName = previousZaaktypeEmailParameters.templateName
+                    emailSender = previousZaaktypeEmailParameters.emailSender
+                    emailReply = previousZaaktypeEmailParameters.emailReply
+                }
+            }
     }
 
     private fun copySharedConfigurationData(
