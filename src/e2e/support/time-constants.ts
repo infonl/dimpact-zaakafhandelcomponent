@@ -11,5 +11,11 @@ export const FIFTEEN_SECONDS_IN_MS = ONE_SECOND_IN_MS * 15;
 export const TWENTY_SECONDS_IN_MS = ONE_SECOND_IN_MS * 20;
 export const FORTY_SECONDS_IN_MS = ONE_SECOND_IN_MS * 40;
 export const ONE_MINUTE_IN_MS = ONE_SECOND_IN_MS * 60;
+export const NINETY_SECONDS_IN_MS = ONE_SECOND_IN_MS * 90;
 export const TWO_MINUTES_IN_MS = ONE_MINUTE_IN_MS * 2;
 export const FIVE_MINUTES_IN_MS = ONE_MINUTE_IN_MS * 5;
+
+// Deliberately higher than needed, to tolerate slow environments; search for these to find steps worth tightening.
+export const INFLATED_TIMEOUT_IN_MS = FIFTEEN_SECONDS_IN_MS;
+export const INFLATED_STEP_TIMEOUT_IN_MS = TWO_MINUTES_IN_MS;
+export const INFLATED_SEARCH_INDEX_TIMEOUT_IN_MS = NINETY_SECONDS_IN_MS;

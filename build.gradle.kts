@@ -327,6 +327,8 @@ testing {
                         // mirror previous behavior
                         useJUnitPlatform()
                         systemProperty("zacDockerImage", zacDockerImage)
+                        // the migration tests run Flyway in a container with the Flyway version that ZAC uses
+                        systemProperty("flywayVersion", libs.versions.flyway.get())
                         // write the (very verbose) integration test log to a file instead of the console
                         // when the 'itestLogFile' Gradle property is set, as is done in CI
                         providers.gradleProperty("itestLogFile").orNull?.let { itestLogFile ->

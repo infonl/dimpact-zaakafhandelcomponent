@@ -51,6 +51,7 @@ import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werkli
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
@@ -125,6 +126,9 @@ export class ZakenWerkvoorraadComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   protected readonly indicatiesLayout = IndicatiesLayout;
+  private readonly assignToMeMutation = injectMutation(() =>
+    this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+  );
   protected selection = new SelectionModel<ZaakZoekObject>(true, []);
   protected dataSource: ZakenWerkvoorraadDatasource;
   @ViewChild(MatPaginator) private paginator!: MatPaginator;
@@ -280,22 +284,18 @@ export class ZakenWerkvoorraadComponent
 
   protected assignToMe(zaakZoekObject: ZaakZoekObject, $event: Event) {
     $event.stopPropagation();
-
-    this.zakenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst(
-        zaakZoekObject.id,
-        zaakZoekObject.groepId,
-      )
-      .subscribe((zaak) => {
-        if (!zaak.behandelaar) {
-          return;
-        }
-        zaakZoekObject.behandelaarNaam = zaak.behandelaar?.naam;
-        zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
-        this.utilService.openSnackbar("msg.zaak.toegekend", {
-          behandelaar: zaak.behandelaar.naam,
-        });
-      });
+    this.assignToMeMutation.mutate(
+      { zaakUUID: zaakZoekObject.id, groepId: zaakZoekObject.groepId },
+      {
+        onSuccess: (zaak) => {
+          // the row's columns are not nullable, so there is nothing to show
+          // until the response names the behandelaar it assigned
+          if (!zaak.behandelaar) return;
+          zaakZoekObject.behandelaarNaam = zaak.behandelaar.naam;
+          zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
+        },
+      },
+    );
   }
 
   protected showAssignToMe(zaakZoekObject: ZaakZoekObject) {

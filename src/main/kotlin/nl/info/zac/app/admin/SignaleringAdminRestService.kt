@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
-import nl.info.zac.app.admin.model.RESTDeletedSignaleringenResponse
+import nl.info.zac.app.admin.model.RestDeletedSignaleringenResponse
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.InternalEndpoint
 import nl.info.zac.authentication.setFunctioneelGebruiker
@@ -54,10 +54,10 @@ class SignaleringAdminRestService @Inject constructor(
 
     @DELETE
     @Path("delete-old")
-    fun deleteOldSignaleringen(): RESTDeletedSignaleringenResponse {
+    fun deleteOldSignaleringen(): RestDeletedSignaleringenResponse {
         setFunctioneelGebruiker(httpSession.get())
         signaleringService.deleteOldSignaleringen(deleteOlderThanDays).let {
-            return RESTDeletedSignaleringenResponse(it)
+            return RestDeletedSignaleringenResponse(it)
         }
     }
 }

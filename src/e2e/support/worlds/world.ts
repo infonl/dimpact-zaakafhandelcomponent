@@ -41,6 +41,7 @@ export class CustomWorld extends World {
       fs.writeFileSync(authFile, "{}");
     }
     this.browser = await playwright.chromium.launch({
+      channel: process.env.CI ? "msedge" : undefined,
       headless: this.worldParameters.headless,
       args: ["--lang=nl-NL"],
     });

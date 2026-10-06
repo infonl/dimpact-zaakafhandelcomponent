@@ -445,6 +445,32 @@ describe(ZaakDocumentenComponent.name, () => {
     await settle();
   });
 
+  it("reloads the documents of the zaak with and without related documents, but not those of another zaak", async () => {
+    await setup();
+    const withRelatedDocumentsKey = [
+      LIST_URL,
+      { zaakUUID: fakeZaak.uuid, gekoppeldeZaakDocumenten: true },
+    ];
+    const otherZaakKey = [
+      LIST_URL,
+      { zaakUUID: "zaak-uuid-2", gekoppeldeZaakDocumenten: false },
+    ];
+    testQueryClient.setQueryData(withRelatedDocumentsKey, [fakeDocument]);
+    testQueryClient.setQueryData(otherZaakKey, [fakeDocument]);
+
+    fixture.componentInstance.updateDocumentList();
+    await settle();
+    httpTestingController.expectOne(LIST_URL).flush([fakeDocument]);
+    await settle();
+
+    expect(
+      testQueryClient.getQueryState(withRelatedDocumentsKey)?.isInvalidated,
+    ).toBe(true);
+    expect(testQueryClient.getQueryState(otherZaakKey)?.isInvalidated).toBe(
+      false,
+    );
+  });
+
   describe("selecting documents for a zip download", () => {
     const zipButton = () =>
       screen.getByRole("button", { name: "actie.downloaden.zip" });

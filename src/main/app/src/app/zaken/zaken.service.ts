@@ -12,7 +12,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { UtilService } from "../core/service/util.service";
-import { PatchBody, PutBody } from "../shared/http/http-client";
+import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -171,8 +171,8 @@ export class ZakenService {
     return this.zacQueryClient.PUT("/rest/zaken/lijst/vrijgeven");
   }
 
-  toekennenAanIngelogdeMedewerker(body: PutBody<"/rest/zaken/toekennen/mij">) {
-    return this.zacHttpClient.PUT("/rest/zaken/toekennen/mij", body);
+  toekennenAanIngelogdeMedewerker() {
+    return this.zacQueryClient.PUT("/rest/zaken/toekennen/mij");
   }
 
   updateInitiator() {
@@ -220,24 +220,29 @@ export class ZakenService {
   }
 
   ontkoppelInformatieObject(
-    body: PutBody<"/rest/zaken/zaakinformatieobjecten/ontkoppel">,
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
-    return this.zacHttpClient.PUT(
-      "/rest/zaken/zaakinformatieobjecten/ontkoppel",
-      body,
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/zaken/zaakinformatieobjecten/ontkoppel"),
+      {
+        onSuccess: () =>
+          this.utilService.openSnackbar("msg.document.ontkoppelen.uitgevoerd", {
+            document: informatieobject.titel,
+          }),
+      },
     );
   }
 
-  toekennenAanIngelogdeMedewerkerVanuitLijst(
-    zaakUUID: string,
-    groepId: string,
-    reden?: string,
-  ) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/toekennen/mij", {
-      zaakUUID,
-      groepId,
-      reden,
-    });
+  toekennenAanIngelogdeMedewerkerVanuitLijst() {
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/zaken/lijst/toekennen/mij"),
+      {
+        onSuccess: (zaak) =>
+          this.utilService.openSnackbar("msg.zaak.toegekend", {
+            behandelaar: zaak.behandelaar?.naam,
+          }),
+      },
+    );
   }
 
   listHistorieVoorZaakQuery(uuid: string) {

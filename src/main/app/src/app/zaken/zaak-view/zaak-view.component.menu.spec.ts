@@ -29,7 +29,7 @@ import { notifyManager } from "@tanstack/query-core";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
@@ -37,6 +37,7 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
@@ -59,7 +60,7 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
-const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+const planItemsQuery = (planItems: GeneratedType<"RestPlanItem">[]) =>
   queryOptions({
     queryKey: ["fakePlanItems", planItems],
     queryFn: () => planItems,
@@ -215,7 +216,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -226,7 +227,7 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
         planItemsQuery([
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
@@ -759,7 +760,7 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
         .mockReturnValue(
           planItemsQuery([
-            fromPartial<GeneratedType<"RESTPlanItem">>({
+            fromPartial<GeneratedType<"RestPlanItem">>({
               userEventListenerActie: "INTAKE_AFRONDEN",
             }),
           ]),
@@ -892,7 +893,7 @@ describe(ZaakViewComponent.name, () => {
               "Document verzenden",
               "Advies intern",
             ].map((naam) =>
-              fromPartial<GeneratedType<"RESTPlanItem">>({ naam }),
+              fromPartial<GeneratedType<"RestPlanItem">>({ naam }),
             ),
           ),
         );
@@ -935,7 +936,7 @@ describe(ZaakViewComponent.name, () => {
 
     let httpTestingController: HttpTestingController;
 
-    const flushPlanItems = (humanTasks: GeneratedType<"RESTPlanItem">[]) => {
+    const flushPlanItems = (humanTasks: GeneratedType<"RestPlanItem">[]) => {
       httpTestingController
         .match((request) => request.url === humanTaskPlanItemsUrl)
         .forEach((request) => request.flush(humanTasks));
@@ -952,7 +953,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         planItemsService.listHumanTaskPlanItemsQuery(zaak.uuid).queryKey,
         [
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             id: "fakeStalePlanItemId",
             naam: "verouderdeTaakNaam",
           }),
@@ -971,7 +972,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       flushPlanItems([
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           id: "fakeFreshPlanItemId",
           naam: "verseTaakNaam",
         }),
@@ -1051,6 +1052,12 @@ describe(ZaakViewComponent.name, () => {
         configuratieService.readAllowedFileTypesQuery().queryKey,
         [],
       );
+      jest
+        .spyOn(
+          TestBed.inject(InformatieObjectenService),
+          "listEnkelvoudigInformatieobjecten",
+        )
+        .mockReturnValue(createQueryOptions([]) as never);
 
       mockActivatedRoute.data.next({ zaak: zaakWithEveryPanel });
       fixture.detectChanges();

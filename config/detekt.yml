@@ -14,6 +14,11 @@ comments:
     active: true
     licenseTemplate: '/\*[ *\n]*SPDX-FileCopyrightText: [^\n]+\n[ *]*SPDX-License-Identifier: EUPL-1\.2\+[ *\n]*\*/'
     licenseTemplateIsRegex: true
+naming:
+  ClassNaming:
+    # rejects all-caps acronyms of three or more letters (RESTZaak, ZAC); a regex cannot see where an acronym ends,
+    # so a wrongly cased two-letter acronym (IoStream) or a lowercase word after an acronym (XMLformatter) still passes
+    classPattern: '(?!.*[A-Z]{4})(?!.*[A-Z]{3}(?![a-z]))[A-Z][a-zA-Z0-9]*'
 potential-bugs:
   DoubleMutabilityForCollection:
     # Hibernate replaces an entity's collections with its own persistent collections
@@ -30,6 +35,13 @@ style:
     maxLineLength: 140
   ExpressionBodySyntax:
     active: true
+  ForbiddenMethodCall:
+    active: true
+    methods:
+      - reason: 'Make the value non-nullable, or handle the null case explicitly.'
+        value: 'kotlin.requireNotNull'
+      - reason: 'runCatching catches every Throwable. Catch the specific exceptions that the code can throw.'
+        value: 'kotlin.runCatching'
   ForbiddenComment:
     comments:
       - reason: 'Forbidden FIXME todo marker in comment, please fix the problem.'

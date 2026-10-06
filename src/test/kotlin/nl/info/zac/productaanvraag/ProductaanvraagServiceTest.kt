@@ -18,14 +18,10 @@ import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
-import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.authentication.LoggedInUserProvider
-import nl.info.client.zgw.zrc.model.Rol
-import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.kvk.model.createRandomKvkNumber
@@ -33,6 +29,9 @@ import nl.info.client.kvk.model.createRandomVestigingsNumber
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.or.`object`.model.createObjectRecord
+import nl.info.client.or.shared.exception.ORErrorException
+import nl.info.client.or.shared.exception.ORRuntimeException
+import nl.info.client.or.shared.model.ORError
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
@@ -40,6 +39,8 @@ import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -54,6 +55,8 @@ import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
@@ -84,7 +87,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val inboxDocumentService = mockk<InboxDocumentService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
     val productaanvraagEmailService = mockk<ProductaanvraagEmailService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val bpmnService = mockk<BpmnService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val configurationService = mockk<ConfigurationService>()
@@ -1696,7 +1699,46 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             clearAllMocks()
             every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
-            every { objectsClientService.readObject(productAanvraagObjectUUID) } throws RuntimeException("Failed")
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } throws ORRuntimeException("Failed")
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then(
+                    """
+                no exception is thrown, and no further actions are taken
+                """
+                ) {
+                    verify(exactly = 0) {
+                        inboxProductaanvraagService.create(any())
+                        zgwApiService.createZaak(any())
+                        zrcClientService.createZaakobject(any())
+                        cmmnService.startCase(any(), any(), any(), any())
+                        bpmnService.startProcess(any(), any(), any())
+                    }
+                }
+
+                then(
+                    """
+                the claim is not marked as done, so that the claim timeout reclaims it and the productaanvraag is retried
+                """
+                ) {
+                    verify(exactly = 0) {
+                        productaanvraagClaimRepository.markDone(any())
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            A productaanvraag-dimpact object that does not exist in the objects client service
+            """
+        ) {
+            clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } throws ORErrorException(ORError().apply { status = 404 })
 
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)

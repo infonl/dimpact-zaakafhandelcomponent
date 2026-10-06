@@ -425,7 +425,7 @@ describe(buildZaakMenu.name, () => {
 
   describe("the plan item sections", () => {
     const humanTask = (naam: string, id: string) =>
-      fromPartial<GeneratedType<"RESTPlanItem">>({ naam, id });
+      fromPartial<GeneratedType<"RestPlanItem">>({ naam, id });
 
     it("sorts the human tasks by name", () => {
       const menu = buildZaakMenu(
@@ -460,7 +460,7 @@ describe(buildZaakMenu.name, () => {
         createZaak({}, { behandelen: false }),
         {
           userEventListener: [
-            fromPartial<GeneratedType<"RESTPlanItem">>({
+            fromPartial<GeneratedType<"RestPlanItem">>({
               userEventListenerActie: "INTAKE_AFRONDEN",
             }),
           ],
@@ -493,7 +493,7 @@ describe(buildZaakMenu.name, () => {
     });
 
     it("wires a user event listener to startUserEventListener", () => {
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         userEventListenerActie: "ZAAK_AFHANDELEN",
       });
       const zaak = createZaak({}, { behandelen: true });

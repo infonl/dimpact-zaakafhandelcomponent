@@ -104,7 +104,7 @@ describe(ZaakSideActionService.name, () => {
     it("closes the sidenav and forgets both the panel and the plan item", () => {
       service.open("Advies");
       service.actiefPlanItem.set(
-        fromPartial<GeneratedType<"RESTPlanItem">>({ id: "fakePlanItemId" }),
+        fromPartial<GeneratedType<"RestPlanItem">>({ id: "fakePlanItemId" }),
       );
 
       service.reset();

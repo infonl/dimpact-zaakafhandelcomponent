@@ -34,7 +34,7 @@ class JsonbConfigurationTest : BehaviorSpec({
             val jsonb = jsonbConfiguration.getContext(SampleUriPayload::class.java)
             val samplePayload = jsonb.fromJson("""{"url":"https://example.com/zaken/1"}""", SampleUriPayload::class.java)
 
-            then("the URIJsonbDeserializer is used to parse it") {
+            then("the UriJsonbDeserializer is used to parse it") {
                 samplePayload.url shouldBe URI("https://example.com/zaken/1")
             }
         }

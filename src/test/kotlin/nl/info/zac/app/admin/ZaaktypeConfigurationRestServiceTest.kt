@@ -14,8 +14,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
-import net.atos.zac.flowable.cmmn.CMMNService
+import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
+import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
@@ -45,7 +45,7 @@ import java.util.UUID
 class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val configurationService = mockk<ConfigurationService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val referenceTableService = mockk<ReferenceTableService>()
@@ -53,7 +53,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
-    val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
+    val caseDefinitionConverter = mockk<RestCaseDefinitionConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
     val identityService = mockk<IdentityService>()

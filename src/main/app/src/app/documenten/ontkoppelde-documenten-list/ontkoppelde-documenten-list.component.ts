@@ -8,7 +8,6 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -40,7 +39,6 @@ import {
 } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -158,8 +156,6 @@ export class OntkoppeldeDocumentenListComponent
       onSuccess: () => this.filterChange.emit(),
     },
   );
-
-  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,

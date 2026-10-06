@@ -29,63 +29,12 @@ When you see a variable declaration where the variable name is different from it
 This includes exceptions.
 For example `catch (e: IOException)` should be `catch (ioException: IOException)`.
 
-## Catch narrow exceptions, not generic ones
-In production code, never write `catch (exception: Exception)`, `catch (throwable: Throwable)` or `runCatching { }`.
-Catch the specific exception types the code in the `try` block can actually throw, and let everything else propagate.
-A generic catch swallows bugs — a `NullPointerException` or an `IllegalStateException` from a mistake in the `try` block gets treated
-as an expected failure and is silently handled.
-
-```kotlin
-// Before
-try {
-    drcClient.enkelvoudigInformatieobjectDelete(uuid)
-} catch (exception: Exception) {
-    LOG.warning { "Failed to delete document: ${exception.message}" }
-}
-// After
-try {
-    drcClient.enkelvoudigInformatieobjectDelete(uuid)
-} catch (drcRuntimeException: DrcRuntimeException) {
-    LOG.warning { "Failed to delete document: ${drcRuntimeException.message}" }
-} catch (processingException: ProcessingException) {
-    LOG.warning { "Failed to delete document: ${processingException.message}" }
-}
-```
-
-When the goal is cleanup on any failure rather than handling a failure, use `finally` — it needs no catch at all:
-
-```kotlin
-// Before
-try {
-    return writeTo(path)
-} catch (exception: Exception) {
-    Files.deleteIfExists(path)
-    throw exception
-}
-// After
-var isWritten = false
-try {
-    return writeTo(path).also { isWritten = true }
-} finally {
-    if (!isWritten) Files.deleteIfExists(path)
-}
-```
-
-The same goes for `@Suppress("TooGenericExceptionCaught")`: it is a signal that the catch is too broad, not a way to
-silence Detekt.
-
-## Avoid the use of `requireNotNull`
-When you encounter a nullable variable that is being forcefully unwrapped using `requireNotNull`, consider refactoring the code to handle the null case more gracefully, for example by making the variable non-nullable.
-This can improve the robustness of the code and prevent potential crashes.
-
 ## Follow the Kotlin Coding Conventions
 Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
 Place `companion object` at the **top** of a class body, before any functions or properties.
-This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
-Rename existing classes to comply with the following Kotlin code convention:
-When using an acronym as part of a declaration name, follow these rules:
-— For two-letter acronyms, use uppercase for both letters. For example, IOStream.
-— For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
+Write a two-letter acronym in capitals (`IOStream`) and capitalize only the first letter of a longer one (`XmlFormatter`,
+`toRestZaak`). detekt rejects all-caps acronyms of three or more letters in class names only; it does not see a wrongly
+cased two-letter acronym, nor names of nested classes, functions and properties.
 
 ## Name boolean properties with an `is`/`has` prefix
 Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
