@@ -16,6 +16,8 @@ const appDirectory = path.resolve(
 );
 const scannedExtensions = new Set([".ts", ".html", ".less", ".css", ".json"]);
 const ligatureCharacters = "abcdefghijklmnopqrstuvwxyz0123456789_";
+// MatStepper renders these from node_modules, which the source scan does not see.
+const libraryIconNames = ["create", "done", "warning"];
 
 // FILL stays variable: styles.less switches between filled and outlined icons with it.
 const pinnedAxes = ["wght", "GRAD", "opsz"];
@@ -144,6 +146,9 @@ export async function generateIconFont({
   if (usedIcons.size === 0) {
     throw new Error("No icon names found in the source");
   }
+  for (const [name, glyphId] of findIconGlyphs(fullFont, libraryIconNames)) {
+    usedIcons.set(name, glyphId);
+  }
 
   const generatedFont = await subsetFont(
     fullFont,
@@ -164,7 +169,10 @@ export async function generateIconFont({
   return { iconNames: [...usedIcons.keys()], byteLength: woff2.length };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   const keepAllIcons = process.argv.includes("--all-icons");
   const outputFont = path.join(
     appDirectory,

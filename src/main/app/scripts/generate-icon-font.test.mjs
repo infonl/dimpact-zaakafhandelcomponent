@@ -4,6 +4,7 @@
  */
 import * as harfbuzz from "harfbuzzjs";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import {
   mkdirSync,
   mkdtempSync,
@@ -88,6 +89,33 @@ describe("generateIconFont", () => {
 
     const { font } = await loadGeneratedFont();
     assert.equal(shape(font, "pets").length, "pets".length);
+  });
+
+  it("keeps the icons MatStepper renders from node_modules, so that the stepper icons render although the source never names them", async () => {
+    writeSourceFile("app/a.component.html", "<mat-icon>edit</mat-icon>");
+
+    await generate();
+
+    const { font } = await loadGeneratedFont();
+    for (const name of ["create", "done", "warning"]) {
+      assert.ok(rendersAsIcon(font, name), `${name} is missing`);
+    }
+  });
+
+  it("can be imported from a script without a file path, so that importing it does not run the generator", () => {
+    const moduleUrl = new URL("./generate-icon-font.mjs", import.meta.url).href;
+
+    assert.doesNotThrow(() =>
+      execFileSync(
+        process.execPath,
+        [
+          "--input-type=module",
+          "--eval",
+          `await import(${JSON.stringify(moduleUrl)});`,
+        ],
+        { stdio: "pipe" },
+      ),
+    );
   });
 
   it("finds icon names in .ts, .html, .less, .css and .json files", async () => {
