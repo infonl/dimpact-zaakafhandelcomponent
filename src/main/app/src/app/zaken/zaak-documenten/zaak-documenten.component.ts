@@ -147,7 +147,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   );
 
   private readonly documentenQuery = injectQuery(() =>
-    this.informatieObjectenService.listEnkelvoudigInformatieobjectenQuery({
+    this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaakUuid(),
       gekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
     }),
@@ -249,7 +249,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   private reloadDocumenten() {
     return this.queryClient.invalidateQueries({
-      queryKey: [LIST_QUERY_KEY, this.zaakUuid()],
+      queryKey: [LIST_QUERY_KEY, { zaakUUID: this.zaakUuid() }],
     });
   }
 

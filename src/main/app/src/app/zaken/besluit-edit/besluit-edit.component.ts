@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 import {
   Component,
   OnInit,
@@ -28,7 +27,6 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { firstValueFrom } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
@@ -81,14 +79,10 @@ export class BesluitEditComponent implements OnInit {
   protected readonly documentenQuery = injectQuery(() => {
     const besluittypeId = this.besluit().besluittype?.id;
     return {
-      queryKey: ["besluit-documenten", this.zaak().uuid, besluittypeId],
-      queryFn: () =>
-        firstValueFrom(
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-            zaakUUID: this.zaak().uuid,
-            besluittypeUUID: besluittypeId!,
-          }),
-        ),
+      ...this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak().uuid,
+        besluittypeUUID: besluittypeId!,
+      }),
       enabled: Boolean(besluittypeId),
     };
   });
