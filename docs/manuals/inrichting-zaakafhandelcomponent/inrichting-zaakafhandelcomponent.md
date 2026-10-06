@@ -683,7 +683,7 @@ Synchroniseer de zaaktypecatalogus na de wijziging. Zie sectie [Zaaktypecatalogu
 In de zaakafhandelparameters van het zaaktype toont het veld 'Zaakspecifiek autoriseerbaar' of het zaaktype zaakspecifiek autoriseerbaar is ('Ja' of 'Nee').
 De beheerder kan dit veld niet wijzigen. ZAC bepaalt de waarde uit de zaaktypecatalogus.
 
-<!-- TODO PZ-11995: screenshot van het veld 'Zaakspecifiek autoriseerbaar' in de zaakafhandelparameters, bijvoorbeeld images/zaps_zaakspecifiek_autoriseerbaar.png -->
+![Zaakafhandelparameters zaakspecifiek autoriseerbaar](images/zaps_zaakspecifiek_autoriseerbaar.png)
 
 ##### Waarschuwing in de inrichtingscheck
 
@@ -695,7 +695,7 @@ Het zaaktype blijft bruikbaar, maar de zaakspecifieke autorisatie werkt niet vol
 | Roltype 'Zaakspecifiek geautoriseerde medewerker'  | Een medewerker kan een zaakspecifiek geautoriseerde zaak niet aan een andere behandelaar overdragen.     |
 | Eigenschap `ZAAK_GEAUTORISEERD`                    | Een medewerker kan zaken van dit zaaktype niet zaakspecifiek autoriseren.                                |
 
-<!-- TODO PZ-11995: screenshot van de waarschuwing in de inrichtingscheck, bijvoorbeeld images/inrichtingscheck_zaakspecifieke_autorisatie.png -->
+![Inrichtingscheck waarschuwing zaakspecifieke autorisatie](images/inrichtingscheck_zaakspecifieke_autorisatie.png)
 
 #### Keycloak en PABC inrichten
 

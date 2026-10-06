@@ -537,7 +537,7 @@ Die rol bepaalt wat de medewerker met de zaak mag doen.
 
 5 Klik op Opslaan
 
-<!-- TODO PZ-11995: screenshot van het vinkje 'Zaak zaakspecifiek autoriseren' in het scherm Zaakgegevens bewerken, bijvoorbeeld images/zaak-zaakspecifiek-autoriseren.png -->
+![Zaak zaakspecifiek autoriseren](./images/zaak-zaakspecifiek-autoriseren.png)
 
 > Let op! <br>Je kunt de zaakspecifieke autorisatie niet meer ongedaan maken.
 
@@ -546,7 +546,7 @@ Je kunt in dezelfde stap ook een andere behandelaar kiezen. Dan geldt de nieuwe 
 
 Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. Ga met de muis over het icoon voor de tekst ‘Zaak is zaakspecifiek geautoriseerd’.
 
-<!-- TODO PZ-11995: screenshot van het slot-icoon bij het zaaknummer, bijvoorbeeld images/zaak-zaakspecifiek-geautoriseerd-icoon.png -->
+![Zaakspecifiek geautoriseerde zaak](./images/zaak-zaakspecifiek-geautoriseerd-icoon.png)
 
 ### Werken met een zaakspecifiek geautoriseerde zaak
 
