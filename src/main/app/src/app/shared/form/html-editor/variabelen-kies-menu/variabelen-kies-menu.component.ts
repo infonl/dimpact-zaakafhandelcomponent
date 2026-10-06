@@ -10,6 +10,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Editor } from "ngx-editor";
+import { I18nKeyPipe } from "../../../pipes/i18n-key.pipe";
 
 @Component({
   selector: "variabelen-kies-menu",
@@ -17,6 +18,7 @@ import { Editor } from "ngx-editor";
   styleUrls: ["./variabelen-kies-menu.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,

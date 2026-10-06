@@ -73,7 +73,7 @@ describe(BagZoekComponent.name, () => {
 
   async function search(trefwoorden: string) {
     if (trefwoorden) {
-      await user.type(screen.getByLabelText("bagObjecten"), trefwoorden);
+      await user.type(screen.getByLabelText("bag-objecten"), trefwoorden);
     }
     await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
     await sleep();
@@ -110,7 +110,7 @@ describe(BagZoekComponent.name, () => {
     await user.click(screen.getByRole("button", { name: "actie.wissen" }));
     detectChanges();
 
-    expect(screen.getByLabelText("bagObjecten")).toHaveValue("");
+    expect(screen.getByLabelText("bag-objecten")).toHaveValue("");
     expect(screen.queryByRole("row", { name: /0363010000012345/ })).toBeNull();
     expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });
@@ -238,7 +238,7 @@ describe(BagZoekComponent.name, () => {
 
     await user.click(
       within(await rowOf("0363010000012345")).getByRole("button", {
-        name: "actie.bagObject.bekijken",
+        name: "actie.bag-object.bekijken",
       }),
     );
 
@@ -254,7 +254,7 @@ describe(BagZoekComponent.name, () => {
     await setup({ onBagObject: jest.fn() });
 
     const [header] = screen.getAllByRole("heading", {
-      name: "actie.bagObject.koppelen",
+      name: "actie.bag-object.koppelen",
     });
     await user.click(within(header).getByRole("button"));
 

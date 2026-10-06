@@ -171,7 +171,7 @@ export class InboxProductaanvragenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.productaanvragen.inboxProductaanvragen");
+    this.utilService.setTitle("title.productaanvragen.inbox-productaanvragen");
   }
 
   ngAfterViewInit() {
@@ -311,7 +311,7 @@ export class InboxProductaanvragenListComponent
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
-          "msg.inboxProductaanvraag.verwijderen.bevestigen",
+          "msg.inbox-productaanvraag.verwijderen.bevestigen",
         ),
       })
       .afterClosed()

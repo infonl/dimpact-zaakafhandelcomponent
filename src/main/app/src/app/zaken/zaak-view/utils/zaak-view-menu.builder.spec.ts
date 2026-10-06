@@ -374,7 +374,7 @@ describe(buildZaakMenu.name, () => {
             false,
           ),
         ),
-      ).toContain("actie.zaak.brondatumZetten");
+      ).toContain("actie.zaak.brondatum-zetten");
       expect(
         titles(
           buildZaakMenu(
@@ -386,7 +386,7 @@ describe(buildZaakMenu.name, () => {
             false,
           ),
         ),
-      ).not.toContain("actie.zaak.brondatumZetten");
+      ).not.toContain("actie.zaak.brondatum-zetten");
     });
 
     it("does not offer opschorten when the zaak was already opgeschort before", () => {
@@ -473,7 +473,7 @@ describe(buildZaakMenu.name, () => {
       );
 
       expect(titles(menu)).not.toContain("actie.taak.starten");
-      expect(titles(menu)).not.toContain("planitem.INTAKE_AFRONDEN");
+      expect(titles(menu)).not.toContain("planitem.intake-afronden");
     });
 
     it("wires a human task to startHumanTask with the plan item it belongs to", () => {
@@ -506,7 +506,7 @@ describe(buildZaakMenu.name, () => {
         false,
       );
 
-      buttonNamed(menu, "planitem.ZAAK_AFHANDELEN")?.fn();
+      buttonNamed(menu, "planitem.zaak-afhandelen")?.fn();
 
       expect(dialogs.openPlanItemStarten).toHaveBeenCalledWith(zaak, planItem);
     });
@@ -524,7 +524,7 @@ describe(buildZaakMenu.name, () => {
       );
 
       expect(titles(menu)).not.toContain("koppelingen");
-      expect(titles(menu)).not.toContain("actie.bagObject.koppelen");
+      expect(titles(menu)).not.toContain("actie.bag-object.koppelen");
     });
 
     it("offers locatie koppelen only while the zaak has no geometrie yet", () => {

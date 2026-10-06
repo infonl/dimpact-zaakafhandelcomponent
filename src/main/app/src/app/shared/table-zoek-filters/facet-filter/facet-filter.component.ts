@@ -16,6 +16,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import { TranslateModule } from "@ngx-translate/core";
+import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 
 @Component({
@@ -24,6 +25,7 @@ import { GeneratedType } from "../../utils/generated-types";
   styleUrls: ["./facet-filter.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgFor,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -42,7 +44,7 @@ export class FacetFilterComponent {
   protected VERTAALBARE_FACETTEN: Record<string, string> = {
     indicaties: "indicatie.",
     vertrouwelijkheidaanduiding: "vertrouwelijkheidaanduiding.",
-    archiefNominatie: "archiefNominatie.",
+    archiefNominatie: "archief-nominatie.",
   };
 
   constructor() {

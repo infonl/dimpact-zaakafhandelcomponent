@@ -38,7 +38,7 @@
         <mat-icon>{{
           card.signaleringType != null ? "notifications" : ""
         }}</mat-icon>
-        <span>{{ "dashboard.card." + card.id | translate }}</span>
+        <span>{{ "dashboard.card." + card.id | i18nKey | translate }}</span>
       </button>
     </ng-container>
   </mat-menu>
@@ -64,7 +64,7 @@
         appearance="raised"
         class="dashboard-card"
         role="region"
-        [attr.aria-label]="'dashboard.card.' + card?.id | translate"
+        [attr.aria-label]="'dashboard.card.' + card?.id | i18nKey | translate"
         *ngFor="let card of column"
         cdkDrag
       >
@@ -73,12 +73,14 @@
           <mat-card-header>
             <mat-card-title-group>
               <mat-card-title>
-                {{ "dashboard.card." + card.id | translate }}
+                {{ "dashboard.card." + card.id | i18nKey | translate }}
                 <mat-icon
                   *ngIf="card.signaleringType != null"
                   class="cardtype"
                   title="{{
-                    'signalering.type.' + card.signaleringType | translate
+                    'signalering.type.' + card.signaleringType
+                      | i18nKey
+                      | translate
                   }}"
                 >
                   notifications_active

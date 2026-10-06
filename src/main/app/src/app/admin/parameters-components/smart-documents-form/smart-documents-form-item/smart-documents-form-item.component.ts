@@ -12,7 +12,9 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../../shared/utils/i18n-key";
 
 @Component({
   selector: "smart-documents-form-item",
@@ -20,6 +22,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styleUrls: ["./smart-documents-form-item.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgFor,
     ReactiveFormsModule,
     MatCheckboxModule,
@@ -71,7 +74,7 @@ export class SmartDocumentsFormItemComponent implements OnInit {
     this.confidentiality.setValue(
       confidentiality
         ? this.translateService.instant(
-            `vertrouwelijkheidaanduiding.${confidentiality}`,
+            toI18nKey(`vertrouwelijkheidaanduiding.${confidentiality}`),
           )
         : null,
     );

@@ -322,7 +322,7 @@ export class ZaakCreateComponent {
     if (value.length <= 100) return value;
 
     return this.translateService.instant(
-      "msg.aantal.bagObjecten.geselecteerd",
+      "msg.aantal.bag-objecten.geselecteerd",
       {
         aantal: bagObjects.length,
       },

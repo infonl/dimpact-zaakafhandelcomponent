@@ -305,7 +305,7 @@ describe(TaakEditComponent.name, () => {
       );
       expect(behandelaarSelect()).not.toHaveAttribute("aria-disabled", "true");
       expect(await openOptionsOf(behandelaarSelect())).toEqual([
-        "-geen.generiek-",
+        "geen.generiek",
         "fakeUserNaam",
         "fakeUserNaam99",
       ]);

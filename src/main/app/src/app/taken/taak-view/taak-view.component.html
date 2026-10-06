@@ -117,7 +117,9 @@
                   />
                   <zac-static-text
                     label="taak.status"
-                    [value]="'taak.status.' + taak?.status | translate"
+                    [value]="
+                      'taak.status.' + taak?.status | i18nKey | translate
+                    "
                     class="flex-item"
                   />
                 </div>
@@ -206,7 +208,7 @@
                       </th>
                       <td mat-cell *matCellDef="let regel">
                         <read-more
-                          [text]="regel.attribuutLabel | translate"
+                          [text]="regel.attribuutLabel | i18nLabel"
                           [maxLength]="20"
                         ></read-more>
                       </td>
@@ -282,7 +284,7 @@
     <mat-card *ngIf="!initialized">
       <mat-card-header>
         <mat-card-title>{{
-          "enkelvoudigInformatieObjecten" | translate
+          "enkelvoudig-informatie-objecten" | translate
         }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>

@@ -8,16 +8,16 @@
     panelClass="facet-filter-options"
     id="{{ label() + '_filter' }}"
     (selectionChange)="change()"
-    placeholder="{{ 'filter.-alle-' | translate }}"
+    placeholder="{{ 'filter.alle' | translate }}"
     [formControl]="selected"
   >
-    <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
+    <mat-option>{{ "filter.alle" | translate }}</mat-option>
     <mat-option *ngFor="let value of getFilters()" [value]="value.naam">
       {{
         value.naam === "-NULL-"
-          ? (label() + ".-geen-" | translate)
+          ? (label() + ".geen" | i18nKey | translate)
           : isVertaalbaar(label())
-            ? (VERTAALBARE_FACETTEN[label()] + value.naam | translate)
+            ? (VERTAALBARE_FACETTEN[label()] + value.naam | i18nKey | translate)
             : value.naam
       }}
     </mat-option>

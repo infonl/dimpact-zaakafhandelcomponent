@@ -14,6 +14,7 @@ import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { map, shareReplay } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { OrderUtil } from "../../shared/order/order-util";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 
 /**
  * `description` is a translation key naming the action, so that the progress indicator has an
@@ -105,7 +106,9 @@ export class UtilService {
     const list: { label: string; value: string }[] = [];
     Object.keys(enumValue).forEach((value) => {
       this.translate
-        .get(`${prefix}.${enumValue[value as keyof typeof enumValue]}`)
+        .get(
+          toI18nKey(`${prefix}.${enumValue[value as keyof typeof enumValue]}`),
+        )
         .subscribe((result) => {
           list.push({ label: result, value: value });
         });
@@ -129,7 +132,7 @@ export class UtilService {
       )
       .forEach((key) => {
         this.translate
-          .get(`${prefix}.${enum_[key as keyof typeof enum_]}`)
+          .get(toI18nKey(`${prefix}.${enum_[key as keyof typeof enum_]}`))
           .subscribe((result) => {
             list.push({ label: result, value: key });
           });

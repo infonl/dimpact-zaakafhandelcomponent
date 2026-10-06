@@ -309,7 +309,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg",
+          "msg.taak.aanvullende-informatie.fatale-datum-zaak.leeg",
         );
       });
 
@@ -324,7 +324,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig.opgeschort",
+          "msg.taak.aanvullende-informatie.fatale-datum-taak.overig.opgeschort",
         );
       });
 
@@ -340,7 +340,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig",
+          "msg.taak.aanvullende-informatie.fatale-datum-taak.overig",
         );
       });
 
@@ -361,7 +361,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         taakFataledatumField?.control?.setValue(moment("2026-12-31"));
 
         expect(messageField?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden.opgeschort",
+          "msg.taak.aanvullende-informatie.fatale-datum-taak.overschreden.opgeschort",
         );
       });
 
@@ -382,7 +382,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         taakFataledatumField?.control?.setValue(moment("2026-06-01"));
 
         expect(messageField?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig.opgeschort",
+          "msg.taak.aanvullende-informatie.fatale-datum-taak.overig.opgeschort",
         );
       });
     });

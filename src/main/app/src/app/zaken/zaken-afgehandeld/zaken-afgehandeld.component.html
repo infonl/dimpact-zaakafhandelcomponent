@@ -360,7 +360,7 @@
         *matHeaderCellDef
         mat-sort-header="ZAAK_STREEFDATUM"
       >
-        {{ "einddatumGepland" | translate }}
+        {{ "einddatum-gepland" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         <div class="flex-row items-center gap-10">
@@ -380,7 +380,7 @@
     </ng-container>
     <ng-container matColumnDef="dagenTotStreefdatum">
       <th mat-header-cell cdkDrag *matHeaderCellDef>
-        {{ "dagenTotStreefdatum" | translate }}
+        {{ "dagen-tot-streefdatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.einddatumGepland | dagen | empty }}
@@ -407,7 +407,7 @@
         *matHeaderCellDef
         mat-sort-header="ZAAK_FATALE_DATUM"
       >
-        {{ "uiterlijkeEinddatumAfdoening" | translate }}
+        {{ "uiterlijke-einddatum-afdoening" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         <div class="flex-row items-center gap-10">
@@ -429,7 +429,7 @@
     </ng-container>
     <ng-container matColumnDef="dagenTotFataledatum">
       <th mat-header-cell cdkDrag *matHeaderCellDef>
-        {{ "dagenTotFataledatum" | translate }}
+        {{ "dagen-tot-fataledatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.uiterlijkeEinddatumAfdoening | dagen | empty }}
@@ -439,7 +439,7 @@
     <ng-container matColumnDef="archiefActiedatum_filter">
       <th mat-header-cell *matHeaderCellDef>
         <zac-date-range-filter
-          label="archiefActiedatum"
+          label="archief-actiedatum"
           [range]="dataSource.zoekParameters.datums.ZAAK_ARCHIEF_ACTIEDATUM"
           (changed)="
             dataSource.zoekParameters.datums.ZAAK_ARCHIEF_ACTIEDATUM = $event;
@@ -456,7 +456,7 @@
         *matHeaderCellDef
         mat-sort-header="ZAAK_ARCHIEF_ACTIEDATUM"
       >
-        {{ "archiefActiedatum" | translate }}
+        {{ "archief-actiedatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.archiefActiedatum | datum | empty }}
@@ -470,12 +470,14 @@
         *matHeaderCellDef
         mat-sort-header="ZAAK_ARCHIEF_NOMINATIE"
       >
-        {{ "archiefNominatie" | translate }}
+        {{ "archief-nominatie" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{
           row.archiefNominatie
-            ? ("archiefNominatie." + row.archiefNominatie | translate)
+            ? ("archief-nominatie." + row.archiefNominatie
+              | i18nKey
+              | translate)
             : "-"
         }}
       </td>
@@ -602,63 +604,63 @@
                 [value]="row.einddatumGepland | datum"
                 [icon]="einddatumGeplandIcon"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.DAGEN_TOT_STREEFDATUM"
                 [value]="row.einddatumGepland | dagen"
                 [icon]="einddatumGeplandIcon"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.UITERLIJKE_EINDDATUM_AFDOENING"
                 [value]="row.uiterlijkeEinddatumAfdoening | datum"
                 [icon]="uiterlijkeEinddatumAfdoeningIcon"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.DAGEN_TOT_FATALEDATUM"
                 [value]="row.uiterlijkeEinddatumAfdoening | dagen"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STARTDATUM"
                 [value]="row.startdatum | datum"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.EINDDATUM"
                 [value]="row.einddatum | datum"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ZAAK_DOT_IDENTIFICATIE"
                 [value]="row.identificatie"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.GROEP"
                 [value]="row.groepNaam"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.REGISTRATIEDATUM"
                 [value]="row.registratiedatum | datum"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.COMMUNICATIEKANAAL"
                 [value]="row.communicatiekanaal"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.VERTROUWELIJKHEIDAANDUIDING"
@@ -670,52 +672,53 @@
                     : '-'
                 "
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ZAAKTYPE"
                 [value]="row.zaaktypeOmschrijving"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.STATUS"
                 [value]="row.statustypeOmschrijving"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.BEHANDELAAR"
                 [value]="row.behandelaarNaam"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.RESULTAAT"
                 [value]="row.resultaattypeOmschrijving"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ARCHIEF_NOMINATIE"
                 [value]="
                   row.archiefNominatie
-                    ? ('archiefNominatie.datum.' + row.archiefNominatie
+                    ? ('archief-nominatie.datum.' + row.archiefNominatie
+                      | i18nKey
                       | translate)
                     : '-'
                 "
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.ARCHIEF_ACTIEDATUM"
                 [value]="row.archiefActiedatum | datum"
                 class="flex-1 w33"
-                [label]="column"
+                [label]="column | i18nKey"
               />
               <zac-static-text
                 *ngSwitchDefault
-                [label]="column"
+                [label]="column | i18nKey"
                 [value]="row[column] | translate"
                 class="flex-1 w33"
               />

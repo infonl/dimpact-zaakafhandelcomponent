@@ -42,10 +42,10 @@
                 filtersChanged({ event: $event, filter: 'type' })
               "
               id="type_filter"
-              placeholder="{{ 'filter.-alle-' | translate }}"
+              placeholder="{{ 'filter.alle' | translate }}"
               [value]="listParameters.type"
             >
-              <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
+              <mat-option>{{ "filter.alle" | translate }}</mat-option>
               <mat-option *ngFor="let value of filterType" [value]="value">{{
                 value
               }}</mat-option>
@@ -108,7 +108,7 @@
 
       <ng-container matColumnDef="aantal_bijlagen">
         <th mat-header-cell *matHeaderCellDef>
-          {{ "aantalBijlagen" | translate }}
+          {{ "aantal-bijlagen" | translate }}
         </th>
         <td mat-cell *matCellDef="let row">{{ row.aantalBijlagen }}</td>
       </ng-container>

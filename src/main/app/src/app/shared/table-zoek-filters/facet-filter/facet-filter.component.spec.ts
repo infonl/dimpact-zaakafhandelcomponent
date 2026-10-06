@@ -71,7 +71,7 @@ describe(FacetFilterComponent.name, () => {
     it("shows the 'alle' placeholder when no filter is bound", async () => {
       await setup({ label: "status", opties: makeOpties("open") });
 
-      expect(select()).toHaveTextContent("filter.-alle-");
+      expect(select()).toHaveTextContent("filter.alle");
     });
   });
 
@@ -83,7 +83,7 @@ describe(FacetFilterComponent.name, () => {
       });
 
       expect(await optionNames()).toEqual([
-        "filter.-alle-",
+        "filter.alle",
         "appel",
         "midden",
         "zebra",
@@ -93,31 +93,31 @@ describe(FacetFilterComponent.name, () => {
     it("lists only 'alle' when no opties are bound", async () => {
       await setup({ label: "status" });
 
-      expect(await optionNames()).toEqual(["filter.-alle-"]);
+      expect(await optionNames()).toEqual(["filter.alle"]);
     });
 
     it("lists only 'alle' when the parent binds undefined opties", async () => {
       await setup({ label: "status", opties: undefined });
 
-      expect(await optionNames()).toEqual(["filter.-alle-"]);
+      expect(await optionNames()).toEqual(["filter.alle"]);
     });
 
-    it("shows the '-geen-' translation of the label for the -NULL- optie", async () => {
+    it("shows the 'geen' translation of the label for the -NULL- optie", async () => {
       await setup({ label: "status", opties: makeOpties("-NULL-") });
 
-      expect(await optionNames()).toEqual(["filter.-alle-", "status.-geen-"]);
+      expect(await optionNames()).toEqual(["filter.alle", "status.geen"]);
     });
 
     it.each([
-      ["indicaties", "indicatie.VERLENGD"],
-      ["vertrouwelijkheidaanduiding", "vertrouwelijkheidaanduiding.VERLENGD"],
-      ["archiefNominatie", "archiefNominatie.VERLENGD"],
+      ["indicaties", "indicatie.verlengd"],
+      ["vertrouwelijkheidaanduiding", "vertrouwelijkheidaanduiding.verlengd"],
+      ["archiefNominatie", "archief-nominatie.verlengd"],
     ])(
       "translates the optie naam with the facet prefix for label %s",
       async (label, translationKey) => {
         await setup({ label, opties: makeOpties("VERLENGD") });
 
-        expect(await optionNames()).toEqual(["filter.-alle-", translationKey]);
+        expect(await optionNames()).toEqual(["filter.alle", translationKey]);
       },
     );
 
@@ -130,7 +130,7 @@ describe(FacetFilterComponent.name, () => {
       fixture.componentRef.setInput("opties", makeOpties("nieuw", "anders"));
       fixture.detectChanges();
 
-      expect(await optionNames()).toEqual(["filter.-alle-", "anders", "nieuw"]);
+      expect(await optionNames()).toEqual(["filter.alle", "anders", "nieuw"]);
     });
   });
 
@@ -170,7 +170,7 @@ describe(FacetFilterComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(select()).toHaveTextContent("filter.-alle-");
+      expect(select()).toHaveTextContent("filter.alle");
     });
 
     it("keeps the chosen optie when the parent binds different opties", async () => {
@@ -218,7 +218,7 @@ describe(FacetFilterComponent.name, () => {
       });
 
       await user.click(select());
-      await user.click(screen.getByRole("option", { name: "filter.-alle-" }));
+      await user.click(screen.getByRole("option", { name: "filter.alle" }));
 
       expect(changed).toHaveBeenCalledTimes(1);
       expect(changed).toHaveBeenCalledWith({ values: [], inverse: false });

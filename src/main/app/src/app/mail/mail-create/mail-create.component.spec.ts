@@ -167,7 +167,7 @@ describe(MailCreateComponent.name, () => {
   }
 
   async function selectVertrouwelijkheidaanduiding(
-    optionText = "vertrouwelijkheidaanduiding.OPENBAAR",
+    optionText = "vertrouwelijkheidaanduiding.openbaar",
   ) {
     await user.click(vertrouwelijkheidaanduidingField());
     await user.click(screen.getByRole("option", { name: optionText }));

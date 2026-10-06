@@ -12,6 +12,7 @@ import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../shared/utils/i18n-key";
 import { TakenService } from "../../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../../intake-afronden-dialog/intake-afronden-dialog.component";
 import { isRestZaak } from "../../is-rest-zaak";
@@ -99,7 +100,9 @@ export class ZaakActionDialogsService {
         }
 
         this.utilService.openSnackbar(
-          `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
+          toI18nKey(
+            `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
+          ),
         );
         this.zakenService.invalidateZaak(zaak.uuid);
       },

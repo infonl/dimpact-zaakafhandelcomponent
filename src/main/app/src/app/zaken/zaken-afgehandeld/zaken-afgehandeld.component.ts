@@ -45,6 +45,7 @@ import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
@@ -61,6 +62,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CdkDrag,
     CdkDropList,
     NgFor,

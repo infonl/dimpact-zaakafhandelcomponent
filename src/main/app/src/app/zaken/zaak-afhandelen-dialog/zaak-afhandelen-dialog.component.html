@@ -6,7 +6,9 @@
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>thumb_up_alt</mat-icon>
   <span class="flex-grow-1" *ngIf="data.planItem">
-    {{ "planitem." + data.planItem.userEventListenerActie | translate }}
+    {{
+      "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
+    }}
   </span>
   <span class="flex-grow-1" *ngIf="!data.planItem">
     {{ "actie.zaak.afsluiten" | translate }}
@@ -67,7 +69,7 @@
       "
     >
       <mat-checkbox id="sendMail" formControlName="sendMail">
-        {{ "sendMail" | translate }}
+        {{ "send-mail" | translate }}
       </mat-checkbox>
     </div>
     <zac-select

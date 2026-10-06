@@ -48,9 +48,9 @@
                       applyFilter({ event: $event, filter: 'zaaktype' })
                     "
                     id="zaaktype_filter"
-                    placeholder="{{ 'filter.-alle-' | translate }}"
+                    placeholder="{{ 'filter.alle' | translate }}"
                   >
-                    <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
+                    <mat-option>{{ "filter.alle" | translate }}</mat-option>
                     <mat-option
                       *ngFor="let value of zaaktypes"
                       [value]="value"
@@ -73,9 +73,9 @@
                       applyFilter({ event: $event, filter: 'caseDefinition' })
                     "
                     id="caseDefinition_filter"
-                    placeholder="{{ 'filter.-alle-' | translate }}"
+                    placeholder="{{ 'filter.alle' | translate }}"
                   >
-                    <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
+                    <mat-option>{{ "filter.alle" | translate }}</mat-option>
                     <mat-option
                       *ngFor="let value of caseDefinitions"
                       [value]="value"
@@ -135,7 +135,7 @@
             </ng-container>
             <ng-container matColumnDef="omschrijving">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                {{ "zaaktypeOmschrijving" | translate }}
+                {{ "zaaktype-omschrijving" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">
                 <read-more

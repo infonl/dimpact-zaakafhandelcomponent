@@ -136,7 +136,7 @@ describe("Proces-definitie step", () => {
     return {
       fixture,
       procesModel: screen.getByRole("tabpanel", {
-        name: /gegevens.proces-model-methode.CMMN/,
+        name: /gegevens.proces-model-methode.cmmn/,
       }),
     };
   }
@@ -174,9 +174,9 @@ describe("Proces-definitie step", () => {
 
     expect(
       within(mail).getByRole("combobox", { name: "statusmail.type.intake" }),
-    ).toHaveTextContent("statusmail.optie.BESCHIKBAAR_UIT");
+    ).toHaveTextContent("statusmail.optie.beschikbaar-uit");
     expect(
       within(mail).getByRole("combobox", { name: "statusmail.type.afronden" }),
-    ).toHaveTextContent("statusmail.optie.BESCHIKBAAR_UIT");
+    ).toHaveTextContent("statusmail.optie.beschikbaar-uit");
   });
 });

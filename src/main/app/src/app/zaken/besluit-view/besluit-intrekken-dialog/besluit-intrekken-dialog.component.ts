@@ -61,11 +61,11 @@ export class BesluitIntrekkenDialogComponent {
 
   protected readonly vervalRedenen: VervalRedenOption[] = [
     {
-      label: "besluit.vervalreden.ingetrokken_overheid",
+      label: "besluit.vervalreden.ingetrokken-overheid",
       value: "INGETROKKEN_OVERHEID",
     },
     {
-      label: "besluit.vervalreden.ingetrokken_belanghebbende",
+      label: "besluit.vervalreden.ingetrokken-belanghebbende",
       value: "INGETROKKEN_BELANGHEBBENDE",
     },
   ];

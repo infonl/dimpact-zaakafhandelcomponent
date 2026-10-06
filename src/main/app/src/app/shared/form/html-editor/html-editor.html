@@ -7,7 +7,7 @@
 <div [formGroup]="form()" class="full-width">
   <mat-label>
     <ng-content select="mat-label">
-      {{ label() ?? key() | translate | capitalizeFirstLetter }}
+      {{ labelKey() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <section class="editor" *ngIf="editor()">
@@ -27,7 +27,7 @@
       [editor]="editor()"
       [formControlName]="key()"
       outputFormat="html"
-      [placeholder]="'mailTemplatePlaceholder' | translate"
+      [placeholder]="'mail-template-placeholder' | translate"
       [maxlength]="maxlength()"
     >
     </ngx-editor>

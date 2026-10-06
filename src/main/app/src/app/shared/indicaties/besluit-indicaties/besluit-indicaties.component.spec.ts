@@ -12,8 +12,8 @@ import { IndicatiesLayout } from "../indicaties.component";
 import { BesluitIndicatiesComponent } from "./besluit-indicaties.component";
 
 const translations = {
-  "besluit.vervalreden.INGETROKKEN_OVERHEID": "Ingetrokken door de overheid",
-  "besluit.vervalreden.INGETROKKEN_BELANGHEBBENDE":
+  "besluit.vervalreden.ingetrokken-overheid": "Ingetrokken door de overheid",
+  "besluit.vervalreden.ingetrokken-belanghebbende":
     "Ingetrokken door de belanghebbende",
 };
 
@@ -59,7 +59,7 @@ describe(BesluitIndicatiesComponent.name, () => {
 
     const chip = chipWithTooltip("Ingetrokken door de overheid");
     const option = within(chip).getByRole("option", {
-      name: "indicatie.INGETROKKEN",
+      name: "indicatie.ingetrokken",
     });
     expect(within(option).getByText("stop")).toBeInTheDocument();
     expect(chip).not.toHaveClass("mat-mdc-chip-highlighted");
@@ -81,7 +81,7 @@ describe(BesluitIndicatiesComponent.name, () => {
     expect(
       within(chipWithTooltip("Ingetrokken door de belanghebbende")).getByRole(
         "option",
-        { name: "indicatie.INGETROKKEN" },
+        { name: "indicatie.ingetrokken" },
       ),
     ).toBeInTheDocument();
   });
