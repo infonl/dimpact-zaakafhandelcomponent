@@ -22,9 +22,9 @@ Feature: BPMN
   Scenario: Bob changes the assigned user and group
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    Then "Bob" sees group "test-group-a" and user "e2etestuser1" in the zaak data
+    Then "Bob" sees group "Test groep A" and user "e2etestuser1" in the zaak data
     Given Employee "Bob" assigns the zaak to group "Test groep B" and user "E2etest User2"
-    Then "Bob" sees group "test-group-b" and user "e2etestuser2" in the zaak data
+    Then "Bob" sees group "Test groep B" and user "e2etestuser2" in the zaak data
 
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
