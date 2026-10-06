@@ -66,10 +66,10 @@ class SignaleringEventObserverTest : BehaviorSpec({
 
     context("Receiving a zaak op naam event for a newly created rol") {
         val zaak = createZaak()
-        val rolURI = URI("https://example.com/rol/fakeRolUuid")
+        val rolUri = URI("https://example.com/rol/fakeRolUuid")
         val signaleringEvent = SignaleringEvent(
             SignaleringType.Type.ZAAK_OP_NAAM,
-            SignaleringEventId(rolURI, null),
+            SignaleringEventId(rolUri, null),
             null
         )
 
@@ -81,7 +81,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.id)
             )
             val storedSignalering = slot<Signalering>()
-            every { zrcClientService.readRol(rolURI) } returns rolMedewerker
+            every { zrcClientService.readRol(rolUri) } returns rolMedewerker
             every { zrcClientService.readZaak(zaak.url) } returns zaak
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
@@ -118,7 +118,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 )
             )
             val storedSignalering = slot<Signalering>()
-            every { zrcClientService.readRol(rolURI) } returns rolOrganisatorischeEenheid
+            every { zrcClientService.readRol(rolUri) } returns rolOrganisatorischeEenheid
             every { zrcClientService.readZaak(zaak.url) } returns zaak
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(emptyList<Rol<*>>(), 0)
@@ -153,7 +153,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 rolType = behandelaarRolType
             )
             val rolMedewerker = createRolMedewerker(zaakURI = zaak.url, rolType = behandelaarRolType)
-            every { zrcClientService.readRol(rolURI) } returns rolOrganisatorischeEenheid
+            every { zrcClientService.readRol(rolUri) } returns rolOrganisatorischeEenheid
             every { zrcClientService.readZaak(zaak.url) } returns zaak
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every {
@@ -178,7 +178,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 zaakURI = zaak.url,
                 rolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
             )
-            every { zrcClientService.readRol(rolURI) } returns rolMedewerker
+            every { zrcClientService.readRol(rolUri) } returns rolMedewerker
 
             `when`("the event is handled") {
                 signaleringEventObserver.onFire(signaleringEvent)
@@ -199,7 +199,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 zaakURI = zaak.url,
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
             )
-            every { zrcClientService.readRol(rolURI) } returns rolMedewerker
+            every { zrcClientService.readRol(rolUri) } returns rolMedewerker
 
             `when`("the event is handled") {
                 signaleringEventObserver.onFire(signaleringEvent)
@@ -224,10 +224,10 @@ class SignaleringEventObserverTest : BehaviorSpec({
             )
             val signaleringEventByBehandelaar = SignaleringEvent(
                 SignaleringType.Type.ZAAK_OP_NAAM,
-                SignaleringEventId(rolURI, null),
+                SignaleringEventId(rolUri, null),
                 user
             )
-            every { zrcClientService.readRol(rolURI) } returns rolMedewerker
+            every { zrcClientService.readRol(rolUri) } returns rolMedewerker
             every { zrcClientService.readZaak(zaak.url) } returns zaak
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
@@ -253,7 +253,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 zaakURI = zaak.url,
                 rolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
             )
-            every { zrcClientService.readRol(rolURI) } returns rolNatuurlijkPersoon
+            every { zrcClientService.readRol(rolUri) } returns rolNatuurlijkPersoon
             every { zrcClientService.readZaak(zaak.url) } returns zaak
 
             `when`("the event is handled") {
@@ -270,7 +270,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
         }
 
         given("reading the rol fails with an error") {
-            every { zrcClientService.readRol(rolURI) } throws NotImplementedError("fakeError")
+            every { zrcClientService.readRol(rolUri) } throws NotImplementedError("fakeError")
 
             `when`("the event is handled") {
                 val notImplementedError = shouldThrow<NotImplementedError> {
@@ -308,9 +308,9 @@ class SignaleringEventObserverTest : BehaviorSpec({
 
     context("Receiving a zaak document toegevoegd event") {
         val zaak = createZaak()
-        val informatieobjectUUID = UUID.randomUUID()
+        val informatieobjectUuid = UUID.randomUUID()
         val zaakInformatieobject = createZaakInformatieobjectForReads(
-            informatieobject = URI("https://example.com/enkelvoudiginformatieobjecten/$informatieobjectUUID")
+            informatieobject = URI("https://example.com/enkelvoudiginformatieobjecten/$informatieobjectUuid")
         )
         val zaakInformatieobjectUUID = UUID.randomUUID()
         val signaleringEvent = SignaleringEvent(
@@ -359,7 +359,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                         targettype shouldBe SignaleringTarget.USER
                         target shouldBe user.id
                         subject shouldBe zaak.uuid.toString()
-                        detail shouldBe informatieobjectUUID.toString()
+                        detail shouldBe informatieobjectUuid.toString()
                     }
                 }
             }

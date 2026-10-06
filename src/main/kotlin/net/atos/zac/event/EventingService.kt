@@ -54,7 +54,7 @@ class EventingService @Inject constructor(
      */
     fun send(event: SignaleringEvent<*>) {
         signaleringEvent.fireAsync(event).exceptionally { throwable ->
-            LOG.log(Level.SEVERE, "Failed to handle signalering event: $event", throwable)
+            LOG.log(Level.SEVERE, "Failed to handle signalering event: ${event.opcode} ${event.objectType} ${event.objectId}", throwable)
             null
         }
     }

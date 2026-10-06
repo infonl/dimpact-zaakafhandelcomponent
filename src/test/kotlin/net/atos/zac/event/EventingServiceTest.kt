@@ -7,6 +7,7 @@ package net.atos.zac.event
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -22,6 +23,7 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.identity.model.createUser
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -81,10 +83,11 @@ class EventingServiceTest : BehaviorSpec({
 
     context("Sending a signalering event") {
         given("an observer that fails with an error") {
+            val actor = createUser(id = "fakeActorId")
             val zaakOpNaamSignaleringEvent = SignaleringEvent(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 SignaleringEventId(URI("https://example.com/rol/fakeRolUuid"), null),
-                null
+                actor
             )
             val notImplementedError = NotImplementedError("fakeError")
             every {
@@ -100,6 +103,10 @@ class EventingServiceTest : BehaviorSpec({
                         level shouldBe Level.SEVERE
                         thrown shouldBe notImplementedError
                     }
+                }
+
+                then("the actor is not logged, because a user ID is personal data") {
+                    logRecords.single().message shouldNotContain actor.id
                 }
             }
         }
