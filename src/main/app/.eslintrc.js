@@ -44,6 +44,7 @@ module.exports = {
             preferReadonlySignalProperties: false,
           },
         ],
+        "@angular-eslint/prefer-output-emitter-ref": "error",
         "@typescript-eslint/no-unused-vars": [
           "error",
           {
