@@ -198,7 +198,7 @@ describe("Koppelingen form step", () => {
 
       expect(
         within(koppelingen).queryByRole("combobox", {
-          name: "brpDoelbinding.zoekWaarde",
+          name: "brp-doelbinding.zoek-waarde",
         }),
       ).not.toBeInTheDocument();
 
@@ -210,17 +210,17 @@ describe("Koppelingen form step", () => {
 
       expect(
         within(koppelingen).getByRole("combobox", {
-          name: "brpDoelbinding.zoekWaarde",
+          name: "brp-doelbinding.zoek-waarde",
         }),
       ).toBeVisible();
       expect(
         within(koppelingen).getByRole("combobox", {
-          name: "brpDoelbinding.raadpleegWaarde",
+          name: "brp-doelbinding.raadpleeg-waarde",
         }),
       ).toBeVisible();
       expect(
         within(koppelingen).getByRole("combobox", {
-          name: "brpDoelbinding.verwerkingregisterWaarde",
+          name: "brp-doelbinding.verwerkingregister-waarde",
         }),
       ).toBeVisible();
     });
@@ -241,9 +241,9 @@ describe("Koppelingen form step", () => {
       expect(opslaan).toBeDisabled();
 
       await chooseBrpDoelbinding(koppelingen, {
-        "brpDoelbinding.zoekWaarde": brpSearchValues[0],
-        "brpDoelbinding.raadpleegWaarde": brpViewValues[0],
-        "brpDoelbinding.verwerkingregisterWaarde": brpProcessingValues[0],
+        "brp-doelbinding.zoek-waarde": brpSearchValues[0],
+        "brp-doelbinding.raadpleeg-waarde": brpViewValues[0],
+        "brp-doelbinding.verwerkingregister-waarde": brpProcessingValues[0],
       });
 
       expect(opslaan).toBeEnabled();
@@ -266,7 +266,7 @@ describe("Koppelingen form step", () => {
 
       expect(
         within(koppelingen).queryByRole("combobox", {
-          name: "brpDoelbinding.zoekWaarde",
+          name: "brp-doelbinding.zoek-waarde",
         }),
       ).not.toBeInTheDocument();
       expect(opslaan).toBeEnabled();
@@ -281,14 +281,14 @@ describe("Koppelingen form step", () => {
 
       await user.click(brpKoppelen);
       await chooseBrpDoelbinding(koppelingen, {
-        "brpDoelbinding.zoekWaarde": brpSearchValues[0],
+        "brp-doelbinding.zoek-waarde": brpSearchValues[0],
       });
       await user.click(brpKoppelen);
       await user.click(brpKoppelen);
 
       expect(
         within(koppelingen).getByRole("combobox", {
-          name: "brpDoelbinding.zoekWaarde",
+          name: "brp-doelbinding.zoek-waarde",
         }),
       ).not.toHaveTextContent(brpSearchValues[0]);
     });
