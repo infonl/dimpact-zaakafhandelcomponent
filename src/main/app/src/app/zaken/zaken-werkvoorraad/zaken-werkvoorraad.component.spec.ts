@@ -3,21 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Data, provideRouter } from "@angular/router";
+import { ActivatedRoute, Data } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
@@ -61,15 +53,11 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       {
         imports: [NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
-          provideRouter([]),
           {
             provide: ActivatedRoute,
             useValue: mockActivatedRoute,
           },
-          provideHttpClient(withInterceptorsFromDi()),
-          provideHttpClientTesting(),
           provideNativeDateAdapter(),
-          provideQueryClient(testQueryClient),
         ],
       },
     );

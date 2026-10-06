@@ -3,17 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  type MutationFunctionContext,
-  provideQueryClient,
-} from "@tanstack/angular-query-experimental";
+import { type MutationFunctionContext } from "@tanstack/angular-query-experimental";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial } from "../../test-helpers";
 import { runMutation } from "../shared/http/run-mutation";
@@ -27,11 +20,7 @@ describe(GebruikersvoorkeurenService.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [],
     });
 
     service = TestBed.inject(GebruikersvoorkeurenService);

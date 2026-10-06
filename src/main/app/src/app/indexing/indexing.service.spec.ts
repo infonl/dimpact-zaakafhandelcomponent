@@ -3,14 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { runMutation } from "../shared/http/run-mutation";
 import { IndexingService } from "./indexing.service";
@@ -22,11 +17,7 @@ describe(IndexingService.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [],
     });
 
     service = TestBed.inject(IndexingService);
