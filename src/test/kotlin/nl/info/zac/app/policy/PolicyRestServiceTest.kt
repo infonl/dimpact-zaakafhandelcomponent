@@ -31,12 +31,12 @@ class PolicyRestServiceTest : BehaviorSpec({
 
             then("it should return the converted RestWerklijstRechten") {
                 with(restWerklijstRechten) {
-                    inbox shouldBe werklijstRechten.inbox
-                    ontkoppeldeDocumentenVerwijderen shouldBe werklijstRechten.ontkoppeldeDocumentenVerwijderen
-                    inboxProductaanvragenVerwijderen shouldBe werklijstRechten.inboxProductaanvragenVerwijderen
-                    zakenTaken shouldBe werklijstRechten.zakenTaken
-                    zakenTakenVerdelen shouldBe werklijstRechten.zakenTakenVerdelen
-                    zakenTakenExporteren shouldBe werklijstRechten.zakenTakenExporteren
+                    canInbox shouldBe werklijstRechten.canInbox
+                    canOntkoppeldeDocumentenVerwijderen shouldBe werklijstRechten.canOntkoppeldeDocumentenVerwijderen
+                    canInboxProductaanvragenVerwijderen shouldBe werklijstRechten.canInboxProductaanvragenVerwijderen
+                    canZakenTaken shouldBe werklijstRechten.canZakenTaken
+                    canZakenTakenVerdelen shouldBe werklijstRechten.canZakenTakenVerdelen
+                    canZakenTakenExporteren shouldBe werklijstRechten.canZakenTakenExporteren
                 }
             }
         }
@@ -51,9 +51,9 @@ class PolicyRestServiceTest : BehaviorSpec({
 
             then("it should return the converted RestOverigeRechten") {
                 with(restOverigeRechten) {
-                    startenZaak shouldBe overigeRechten.startenZaak
-                    beheren shouldBe overigeRechten.beheren
-                    zoeken shouldBe overigeRechten.zoeken
+                    canStartenZaak shouldBe overigeRechten.canStartenZaak
+                    canBeheren shouldBe overigeRechten.canBeheren
+                    canZoeken shouldBe overigeRechten.canZoeken
                 }
             }
         }
@@ -68,8 +68,8 @@ class PolicyRestServiceTest : BehaviorSpec({
 
             then("it should return the converted RestOverigeRechten") {
                 with(restNotitieRechten) {
-                    lezen shouldBe notitieRechten.lezen
-                    wijzigen shouldBe notitieRechten.wijzigen
+                    canLezen shouldBe notitieRechten.canLezen
+                    canWijzigen shouldBe notitieRechten.canWijzigen
                 }
             }
         }
@@ -85,7 +85,7 @@ class PolicyRestServiceTest : BehaviorSpec({
             val restBrpRechten = policyRestService.readBrpRechten()
 
             then("it should return RestBrpRechten with zoeken set to true") {
-                restBrpRechten.zoeken shouldBe true
+                restBrpRechten.canZoeken shouldBe true
             }
         }
     }
@@ -101,7 +101,7 @@ class PolicyRestServiceTest : BehaviorSpec({
             val restBrpRechten = policyRestService.readBrpRechten()
 
             then("it should return RestBrpRechten with zoeken set to true because gemeenten are present") {
-                restBrpRechten.zoeken shouldBe true
+                restBrpRechten.canZoeken shouldBe true
             }
         }
     }
@@ -117,7 +117,7 @@ class PolicyRestServiceTest : BehaviorSpec({
             val restBrpRechten = policyRestService.readBrpRechten()
 
             then("it should return RestBrpRechten with zoeken set to false") {
-                restBrpRechten.zoeken shouldBe false
+                restBrpRechten.canZoeken shouldBe false
             }
         }
     }

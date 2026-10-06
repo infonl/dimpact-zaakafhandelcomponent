@@ -32,7 +32,7 @@ const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
 });
 
 const afzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
-  defaultMail: true,
+  isDefaultMail: true,
   mail: "fakeAfzender@example.com",
   replyTo: "fakeReplyTo@example.com",
 });
@@ -325,14 +325,14 @@ describe(IntakeAfrondenDialogComponent.name, () => {
           actie: "INTAKE_AFRONDEN",
           planItemInstanceId: "fakePlanItemId",
           zaakUuid: "fakeZaakUuid",
-          zaakOntvankelijk: true,
+          isZaakOntvankelijk: true,
           restMailGegevens: expect.objectContaining({
             verzender: afzender.mail,
             replyTo: afzender.replyTo,
             ontvanger: "fakeOntvanger@example.com",
             onderwerp: mailtemplateOntvankelijk.onderwerp,
             body: mailtemplateOntvankelijk.body,
-            createDocumentFromMail: true,
+            shouldCreateDocumentFromMail: true,
           }),
         }),
       );
@@ -373,7 +373,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
       expect(request.request.body).toEqual(
         expect.objectContaining({
-          zaakOntvankelijk: false,
+          isZaakOntvankelijk: false,
           resultaatToelichting: "fakeReden",
           restMailGegevens: expect.objectContaining({
             onderwerp: mailtemplateNietOntvankelijk.onderwerp,

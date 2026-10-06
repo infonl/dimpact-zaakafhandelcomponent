@@ -37,16 +37,16 @@ class RestGerelateerdeZaakConverter @Inject constructor(
             identificatie = gerelateerdeZaak.identificatie,
             relatieType = relatieType,
             rechten = zaakrechten.toRestZaakRechten(),
-            zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
-            startdatum = takeIf { zaakrechten.lezen }?.let { gerelateerdeZaak.startdatum },
-            statustypeOmschrijving = takeIf { zaakrechten.lezen }?.let {
+            zaaktypeOmschrijving = takeIf { zaakrechten.canLezen }?.let { zaaktype.omschrijving },
+            startdatum = takeIf { zaakrechten.canLezen }?.let { gerelateerdeZaak.startdatum },
+            statustypeOmschrijving = takeIf { zaakrechten.canLezen }?.let {
                 gerelateerdeZaak.status?.let { statusURI ->
                     zrcClientService.readStatus(statusURI).let { zaakstatus ->
                         ztcClientService.readStatustype(zaakstatus.statustype).omschrijving
                     }
                 }
             },
-            ontkoppelen = when (relatieType) {
+            canOntkoppelen = when (relatieType) {
                 RelatieType.GERELATEERD -> fromZaak
                     .toZaakLinkData(fromZaakRechten)
                     .canBeUnlinkedFromRelatedZaak(

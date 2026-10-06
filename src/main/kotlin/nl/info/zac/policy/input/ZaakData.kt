@@ -7,33 +7,33 @@ package nl.info.zac.policy.input
 import jakarta.json.bind.annotation.JsonbProperty
 
 data class ZaakData(
-    @field:JsonbProperty("open")
-    val open: Boolean,
+    @get:JsonbProperty("open")
+    val isOpen: Boolean,
 
     @field:JsonbProperty("zaaktype")
     val zaaktype: String,
 
-    @field:JsonbProperty("opgeschort")
-    val opgeschort: Boolean,
+    @get:JsonbProperty("opgeschort")
+    val isOpgeschort: Boolean,
 
-    @field:JsonbProperty("verlengd")
-    val verlengd: Boolean,
+    @get:JsonbProperty("verlengd")
+    val isVerlengd: Boolean,
 
-    @field:JsonbProperty("intake")
-    val intake: Boolean?,
+    @get:JsonbProperty("intake")
+    val isIntake: Boolean?,
 
-    @field:JsonbProperty("besloten")
-    val besloten: Boolean?,
+    @get:JsonbProperty("besloten")
+    val isBesloten: Boolean?,
 
-    @field:JsonbProperty("heropend")
-    val heropend: Boolean?,
+    @get:JsonbProperty("heropend")
+    val isHeropend: Boolean?,
 
-    @field:JsonbProperty("brondatumBepaald")
-    val brondatumBepaald: Boolean?,
+    @get:JsonbProperty("brondatumBepaald")
+    val isBrondatumBepaald: Boolean?,
 
-    @field:JsonbProperty("zaakspecifiekGeautoriseerd")
-    val zaakspecifiekGeautoriseerd: Boolean,
+    @get:JsonbProperty("zaakspecifiekGeautoriseerd")
+    val isZaakspecifiekGeautoriseerd: Boolean,
 
-    @field:JsonbProperty("loggedInUserIsGeautoriseerdeMedewerker")
-    val loggedInUserIsGeautoriseerdeMedewerker: Boolean = false,
+    @get:JsonbProperty("loggedInUserIsGeautoriseerdeMedewerker")
+    val isLoggedInUserGeautoriseerdeMedewerker: Boolean = false,
 )

@@ -125,7 +125,7 @@
         <td mat-cell *matCellDef="let row">
           <div class="flex-row">
             <button
-              *ngIf="werklijstRechten.inboxProductaanvragenVerwijderen"
+              *ngIf="werklijstRechten.canInboxProductaanvragenVerwijderen"
               mat-icon-button
               (click)="inboxProductaanvragenVerwijderen(row)"
               title="{{ 'actie.verwijderen' | translate }}"

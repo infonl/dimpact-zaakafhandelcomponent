@@ -50,10 +50,10 @@ const makeTask = (fields: Partial<GeneratedType<"RestTask">> = {}) =>
     groep: makeGroup(),
     behandelaar: undefined,
     rechten: {
-      lezen: true,
-      toekennen: true,
-      wijzigen: true,
-      toevoegenDocument: true,
+      canLezen: true,
+      canToekennen: true,
+      canWijzigen: true,
+      canToevoegenDocument: true,
     },
     zaaktypeOmschrijving: "fakeZaaktypeOmschrijving",
     zaakIdentificatie: "fakeZaakIdentificatie",
@@ -202,9 +202,9 @@ describe(TaakEditComponent.name, () => {
       .fn()
       .mockReturnValue(
         of([
-          makeGroup({ id: "a", naam: "fakeActiveGroup", active: true }),
-          makeGroup({ id: "b", naam: "fakeInactiveGroup", active: false }),
-          makeGroup({ id: "c", naam: "fakeUnknownGroup", active: undefined }),
+          makeGroup({ id: "a", naam: "fakeActiveGroup", isActive: true }),
+          makeGroup({ id: "b", naam: "fakeInactiveGroup", isActive: false }),
+          makeGroup({ id: "c", naam: "fakeUnknownGroup", isActive: undefined }),
         ]),
       );
 
@@ -235,10 +235,10 @@ describe(TaakEditComponent.name, () => {
     await setup(
       makeTask({
         rechten: {
-          lezen: true,
-          toekennen: false,
-          wijzigen: true,
-          toevoegenDocument: true,
+          canLezen: true,
+          canToekennen: false,
+          canWijzigen: true,
+          canToevoegenDocument: true,
         },
       }),
     );

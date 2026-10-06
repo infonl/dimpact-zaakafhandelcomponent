@@ -178,7 +178,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
         actie: "INTAKE_AFRONDEN",
         planItemInstanceId: this.data.planItem.id,
         zaakUuid: this.data.zaak.uuid,
-        zaakOntvankelijk: values.ontvankelijk,
+        isZaakOntvankelijk: values.ontvankelijk,
         resultaatToelichting: values.reden,
         restMailGegevens:
           values.sendMail && mailtemplate
@@ -188,7 +188,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
                 ontvanger: values.ontvanger,
                 onderwerp: mailtemplate.onderwerp,
                 body: mailtemplate.body,
-                createDocumentFromMail: true,
+                shouldCreateDocumentFromMail: true,
                 vertrouwelijkheidaanduiding: "OPENBAAR",
               }
             : null,

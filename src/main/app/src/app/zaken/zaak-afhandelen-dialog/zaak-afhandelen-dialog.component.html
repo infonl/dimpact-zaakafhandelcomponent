@@ -28,7 +28,7 @@
     ></p>
     <p
       *ngIf="
-        form.controls.resultaattype.value?.besluitVerplicht &&
+        form.controls.resultaattype.value?.isBesluitVerplicht &&
         !data.zaak.besluiten?.length
       "
       class="readonly error"
@@ -56,7 +56,7 @@
     <zac-date
       [form]="form"
       key="brondatum"
-      *ngIf="form.controls.resultaattype.value?.datumKenmerkVerplicht"
+      *ngIf="form.controls.resultaattype.value?.isDatumKenmerkVerplicht"
     >
       <mat-label>{{
         brondatumLabel || ("zaak.brondatum" | translate)
@@ -110,7 +110,7 @@
     <button
       *ngIf="
         !(
-          form.controls.resultaattype.value?.besluitVerplicht &&
+          form.controls.resultaattype.value?.isBesluitVerplicht &&
           !data.zaak.besluiten?.length
         )
       "
@@ -137,7 +137,7 @@
     </button>
     <button
       *ngIf="
-        form.controls.resultaattype.value?.besluitVerplicht &&
+        form.controls.resultaattype.value?.isBesluitVerplicht &&
         !data.zaak.besluiten?.length
       "
       mat-raised-button

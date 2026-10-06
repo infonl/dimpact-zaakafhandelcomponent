@@ -64,7 +64,7 @@ class SignDocumentDelegate : AbstractDelegate() {
         documentsToSign.forEach { uuid ->
             val enkelvoudigInformatieobject = flowableHelper.drcClientService.readEnkelvoudigInformatieobject(uuid)
             assertPolicy(
-                flowableHelper.policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen,
+                flowableHelper.policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).canOndertekenen,
                 LOG,
                 "Not authorised to sign document '${enkelvoudigInformatieobject.identificatie}' for zaak '${zaak.identificatie}'"
             )

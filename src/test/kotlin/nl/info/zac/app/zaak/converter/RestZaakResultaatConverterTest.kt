@@ -62,8 +62,8 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
                         toelichting shouldBe resultaattype.toelichting
                         archiefNominatie shouldBe resultaattype.archiefnominatie.name
                         archiefTermijn shouldBe resultaattype.archiefactietermijn
-                        besluitVerplicht shouldBe true
-                        vervaldatumBesluitVerplicht shouldBe true
+                        isBesluitVerplicht shouldBe true
+                        isVervaldatumBesluitVerplicht shouldBe true
                         datumKenmerkOmschrijving shouldBe null
                     }
                 }
@@ -94,8 +94,8 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
 
             then("it should return a RestZaakResultaat with 'besluitVerplicht' set to false") {
                 with(restZaakResultaat.resultaattype!!) {
-                    besluitVerplicht shouldBe false
-                    vervaldatumBesluitVerplicht shouldBe false
+                    isBesluitVerplicht shouldBe false
+                    isVervaldatumBesluitVerplicht shouldBe false
                 }
             }
         }
@@ -124,8 +124,8 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
 
             then("it should return a RestZaakResultaat with 'besluitVerplicht' set to false") {
                 with(restZaakResultaat.resultaattype!!) {
-                    besluitVerplicht shouldBe false
-                    vervaldatumBesluitVerplicht shouldBe false
+                    isBesluitVerplicht shouldBe false
+                    isVervaldatumBesluitVerplicht shouldBe false
                 }
             }
         }

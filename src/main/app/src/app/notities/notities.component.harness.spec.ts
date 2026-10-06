@@ -85,7 +85,10 @@ describe("NotitiesComponent harness", () => {
     "should $str show textarea when wijzigen is $wijzigen",
     async ({ wijzigen, expected }) => {
       const user = userEvent.setup();
-      fixture.componentInstance.notitieRechten = { lezen: false, wijzigen };
+      fixture.componentInstance.notitieRechten = {
+        canLezen: false,
+        canWijzigen: wijzigen,
+      };
       fixture.detectChanges();
       await fixture.whenStable();
 

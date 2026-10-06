@@ -78,14 +78,14 @@ class BpmnTaskFormRuntimeService @Inject constructor(
             }
             submittedTask = flowableTaskService.updateTask(submittedTask)
         }
-        if (bpmnTaskFormData.zaakOpschorten && !zaak.isOpgeschort()) {
+        if (bpmnTaskFormData.shouldZaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
                 ChronoUnit.DAYS.between(LocalDate.now(), convertToLocalDate(submittedTask.dueDate!!)),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }
-        if (bpmnTaskFormData.zaakHervatten && zaak.isOpgeschort()) {
+        if (bpmnTaskFormData.shouldZaakHervatten && zaak.isOpgeschort()) {
             suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         markDocumentAsSent(bpmnTaskFormData)

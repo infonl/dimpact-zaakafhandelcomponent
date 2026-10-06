@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.planitems.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import net.atos.zac.app.mail.model.RestMailGegevens
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -16,7 +17,9 @@ data class RestUserEventListenerData(
 
     var actie: UserEventListenerActie,
 
-    var zaakOntvankelijk: Boolean = false,
+    @get:JsonbProperty("isZaakOntvankelijk")
+    @set:JsonbProperty("isZaakOntvankelijk")
+    var isZaakOntvankelijk: Boolean = false,
 
     var resultaatToelichting: String? = null,
 

@@ -9,10 +9,10 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.opa.model.OpaRuleResult
 
 data class WerklijstRechten @JsonbCreator constructor(
-    @param:JsonbProperty("inbox") val inbox: Boolean,
-    @param:JsonbProperty("ontkoppelde_documenten_verwijderen") val ontkoppeldeDocumentenVerwijderen: Boolean,
-    @param:JsonbProperty("inbox_productaanvragen_verwijderen") val inboxProductaanvragenVerwijderen: Boolean,
-    @param:JsonbProperty("zaken_taken") val zakenTaken: Boolean,
-    @param:JsonbProperty("zaken_taken_verdelen") val zakenTakenVerdelen: Boolean,
-    @param:JsonbProperty("zaken_taken_exporteren") val zakenTakenExporteren: Boolean
+    @param:JsonbProperty("inbox") val canInbox: Boolean,
+    @param:JsonbProperty("ontkoppelde_documenten_verwijderen") val canOntkoppeldeDocumentenVerwijderen: Boolean,
+    @param:JsonbProperty("inbox_productaanvragen_verwijderen") val canInboxProductaanvragenVerwijderen: Boolean,
+    @param:JsonbProperty("zaken_taken") val canZakenTaken: Boolean,
+    @param:JsonbProperty("zaken_taken_verdelen") val canZakenTakenVerdelen: Boolean,
+    @param:JsonbProperty("zaken_taken_exporteren") val canZakenTakenExporteren: Boolean
 ) : OpaRuleResult

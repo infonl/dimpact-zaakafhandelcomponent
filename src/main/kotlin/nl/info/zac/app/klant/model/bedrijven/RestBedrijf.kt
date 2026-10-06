@@ -55,7 +55,7 @@ fun ResultaatItem.toRestBedrijf(): RestBedrijf {
         adres = volledigAdres?.let {
             RestBedrijfAdres(
                 type = adresType.toString(),
-                afgeschermd = false,
+                isAfgeschermd = false,
                 volledigAdres = it,
                 postcode = this.adres?.binnenlandsAdres?.postcode
             )

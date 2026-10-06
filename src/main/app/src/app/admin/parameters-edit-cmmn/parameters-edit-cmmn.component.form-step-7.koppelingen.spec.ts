@@ -55,8 +55,8 @@ describe("Koppelingen form step", () => {
       },
       zaakAfzenders: [
         {
-          speciaal: false,
-          defaultMail: true,
+          isSpeciaal: false,
+          isDefaultMail: true,
           mail: "test@example.com",
           replyTo: undefined,
         },
@@ -64,9 +64,12 @@ describe("Koppelingen form step", () => {
       humanTaskParameters: [],
       mailtemplateKoppelingen: [],
       zaakbeeindigParameters: [],
-      smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+      smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
       userEventListenerParameters: [],
-      betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+      betrokkeneKoppelingen: {
+        isBrpKoppelenEnabled: false,
+        isKvkKoppelenEnabled: false,
+      },
       brpDoelbindingen: {
         zoekWaarde: "",
         raadpleegWaarde: "",
@@ -74,7 +77,7 @@ describe("Koppelingen form step", () => {
       },
       productaanvraagtype: null,
       automaticEmailConfirmation: {
-        enabled: false,
+        isEnabled: false,
         templateName: null,
         emailSender: null,
         emailReply: null,
@@ -307,7 +310,10 @@ describe("Koppelingen form step", () => {
     it("shows the SmartDocuments form as disabled for a zaaktype that has it switched off", async () => {
       await setup(
         createParameters({
-          smartDocuments: { enabledGlobally: true, enabledForZaaktype: false },
+          smartDocuments: {
+            isEnabledGlobally: true,
+            isEnabledForZaaktype: false,
+          },
         }),
       );
       const koppelingen = await goToStep("gegevens.koppelingen");

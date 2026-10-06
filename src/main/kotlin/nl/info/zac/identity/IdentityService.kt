@@ -49,7 +49,7 @@ class IdentityService @Inject constructor(
         .map { it.toGroup() }
         .sortedBy { it.description }
 
-    fun listActiveGroups(): List<Group> = listGroups().filter { it.active }
+    fun listActiveGroups(): List<Group> = listGroups().filter { it.isActive }
 
     /**
      * Returns the list of active groups that are authorised for the application role 'behandelaar' and
@@ -59,7 +59,7 @@ class IdentityService @Inject constructor(
         pabcClientService.getGroupsByApplicationRoleAndZaaktype(
             applicationRole = ZacApplicationRole.BEHANDELAAR.value,
             zaaktypeDescription = zaaktypeDescription
-        ).map { it.toGroup() }.filter { it.active }
+        ).map { it.toGroup() }.filter { it.isActive }
 
     /**
      * Returns the intersection of active groups that are authorised for the application role 'behandelaar'

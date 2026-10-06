@@ -939,7 +939,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID) } returns enkelvoudiginformatieobject
-            every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak).ontkoppelen } returns true
+            every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak).canOntkoppelen } returns true
             every {
                 zrcClientService.listZaakinformatieobjecten(any<ZaakInformatieobjectListParameters>())
             } returns listOf(zaakinformatiebject)
@@ -992,7 +992,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID) } returns enkelvoudiginformatieobject
-            every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak).ontkoppelen } returns true
+            every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak).canOntkoppelen } returns true
             every {
                 zrcClientService.listZaakinformatieobjecten(any<ZaakInformatieobjectListParameters>())
             } returns listOf(zaakinformatiebject)
@@ -1093,24 +1093,24 @@ class ZaakRestServiceTest : BehaviorSpec({
                         size shouldBe 3
                         first().apply {
                             id shouldBe null
-                            defaultMail shouldBe true
+                            isDefaultMail shouldBe true
                             mail shouldBe "fake-gemeente@example.com"
                             replyTo shouldBe "fake-medewerker@example.com"
-                            speciaal shouldBe true
+                            isSpeciaal shouldBe true
                         }
                         this[1].apply {
                             id shouldBe null
-                            defaultMail shouldBe false
+                            isDefaultMail shouldBe false
                             mail shouldBe "fake-medewerker@example.com"
                             replyTo shouldBe null
-                            speciaal shouldBe true
+                            isSpeciaal shouldBe true
                         }
                         last().apply {
                             id shouldBe null
-                            defaultMail shouldBe false
+                            isDefaultMail shouldBe false
                             mail shouldBe "mail@example.com"
                             replyTo shouldBe "replyTo@example.com"
-                            speciaal shouldBe false
+                            isSpeciaal shouldBe false
                         }
                     }
                 }
@@ -1123,10 +1123,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                     returnedDefaultRestZaakAfzender shouldNotBe null
                     with(returnedDefaultRestZaakAfzender!!) {
                         id shouldBe null
-                        defaultMail shouldBe true
+                        isDefaultMail shouldBe true
                         mail shouldBe "fake-gemeente@example.com"
                         replyTo shouldBe "fake-medewerker@example.com"
-                        speciaal shouldBe true
+                        isSpeciaal shouldBe true
                     }
                 }
             }
@@ -1160,17 +1160,17 @@ class ZaakRestServiceTest : BehaviorSpec({
                         size shouldBe 2
                         first().apply {
                             id shouldBe null
-                            defaultMail shouldBe false
+                            isDefaultMail shouldBe false
                             mail shouldBe "fake-gemeente@example.com"
                             replyTo shouldBe null
-                            speciaal shouldBe true
+                            isSpeciaal shouldBe true
                         }
                         last().apply {
                             id shouldBe null
-                            defaultMail shouldBe false
+                            isDefaultMail shouldBe false
                             mail shouldBe "fake-medewerker@example.com"
                             replyTo shouldBe null
-                            speciaal shouldBe true
+                            isSpeciaal shouldBe true
                         }
                     }
                 }

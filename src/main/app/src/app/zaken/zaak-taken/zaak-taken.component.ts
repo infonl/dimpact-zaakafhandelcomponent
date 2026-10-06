@@ -237,7 +237,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
     if (taak.status === "AFGEROND") return false;
-    if (!taak.rechten.toekennen) return false;
+    if (!taak.rechten.canToekennen) return false;
     if (!taak.groep?.id) return false;
     const loggedInUser = this.loggedInUser.data();
     if (!loggedInUser) return false;

@@ -216,7 +216,7 @@
         <zac-besluit-view
           *ngIf="zaak.besluiten?.length"
           [besluiten]="zaak.besluiten ?? []"
-          [readonly]="!zaak.isOpen || !zaak.rechten.behandelen"
+          [readonly]="!zaak.isOpen || !zaak.rechten.canBehandelen"
           (besluitWijzigen)="besluitWijzigen($event)"
         ></zac-besluit-view>
 
@@ -233,7 +233,7 @@
 </mat-drawer-container>
 
 <zac-notities
-  *ngIf="notitieRechten?.lezen || notitieRechten?.wijzigen"
+  *ngIf="notitieRechten?.canLezen || notitieRechten?.canWijzigen"
   [zaakUuid]="zaak.uuid"
   [notitieRechten]="notitieRechten"
 ></zac-notities>

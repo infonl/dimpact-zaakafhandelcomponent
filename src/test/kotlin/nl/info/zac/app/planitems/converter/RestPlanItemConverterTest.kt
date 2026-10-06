@@ -127,7 +127,7 @@ class RestPlanItemConverterTest : BehaviorSpec({
 
                 then("it maps human task fields") {
                     restPlanItem.type shouldBe PlanItemType.HUMAN_TASK
-                    restPlanItem.actief shouldBe true
+                    restPlanItem.isActief shouldBe true
                     restPlanItem.formulierDefinitie shouldBe FormulierDefinitie.AANVULLENDE_INFORMATIE
                     restPlanItem.groepId shouldBe "fakeGroupId"
                     restPlanItem.fataleDatum.shouldBeNull()

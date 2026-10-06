@@ -16,9 +16,9 @@ class HumanTaskReferentieTabelTest : BehaviorSpec({
         val humanTaskReferentieTabel2 = createHumanTaskReferentieTabel()
 
         `when`("The values of the two objects are compared") {
-            val equalityResult = humanTaskReferentieTabel1 == humanTaskReferentieTabel2
+            val isEqual = humanTaskReferentieTabel1 == humanTaskReferentieTabel2
             then("The objects should be considered equal") {
-                equalityResult shouldBe true
+                isEqual shouldBe true
             }
         }
     }

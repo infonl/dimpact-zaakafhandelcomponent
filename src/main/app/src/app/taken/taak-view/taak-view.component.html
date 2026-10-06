@@ -149,7 +149,7 @@
                     [value]="taak?.groep?.naam"
                     class="flex-item"
                   >
-                    @if (taak?.groep?.active === false) {
+                    @if (taak?.groep?.isActive === false) {
                       <em position="content-after" class="inactive-label"
                         >({{ "inactief" | translate | lowercase }})</em
                       >
@@ -165,7 +165,7 @@
                     taak &&
                     taak.zaaktypeUUID &&
                     taak.status !== "AFGEROND" &&
-                    taak.rechten.toekennen
+                    taak.rechten.canToekennen
                   ) {
                     <button
                       mat-icon-button

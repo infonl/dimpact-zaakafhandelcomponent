@@ -152,7 +152,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   private readonly documentenQuery = injectQuery(() =>
     this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaakUuid(),
-      gekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
+      shouldIncludeGekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
     }),
   );
 
@@ -401,7 +401,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
     return (
-      Boolean(enkelvoudigInformatieobject.rechten?.wijzigen) &&
+      Boolean(enkelvoudigInformatieobject.rechten?.canWijzigen) &&
       FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat) // The backend converter supports other formats (such as .txt), but only allow office formats in the UI
     );
   }

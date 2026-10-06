@@ -60,7 +60,7 @@ describe(ParametersEditBpmnComponent.name, () => {
       name: "BPMN Process Definition - 2",
       version: 1,
       details: {
-        inUse: true,
+        isInUse: true,
       },
     },
     {
@@ -69,7 +69,7 @@ describe(ParametersEditBpmnComponent.name, () => {
       name: "BPMN Process Definition - 2",
       version: 1,
       details: {
-        inUse: true,
+        isInUse: true,
       },
     },
   ];
@@ -214,7 +214,7 @@ describe(ParametersEditBpmnComponent.name, () => {
     });
 
     it("should show 'ja' for a zaaktype with the eigenschap", () => {
-      component["bpmnZaakafhandelParameters"].zaakspecifiekAutoriseerbaar =
+      component["bpmnZaakafhandelParameters"].isZaakspecifiekAutoriseerbaar =
         true;
       fixture.detectChanges();
 

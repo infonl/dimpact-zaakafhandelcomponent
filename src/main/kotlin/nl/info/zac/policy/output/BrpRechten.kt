@@ -9,5 +9,5 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.opa.model.OpaRuleResult
 
 data class BrpRechten @JsonbCreator constructor(
-    @param:JsonbProperty("zoeken") val zoeken: Boolean,
+    @param:JsonbProperty("zoeken") val canZoeken: Boolean,
 ) : OpaRuleResult

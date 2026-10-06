@@ -34,7 +34,7 @@ data class Group(
      * A group is considered inactive only when the attribute is explicitly set to "false".
      * If the attribute is absent or has any other value, the group is considered active.
      */
-    val active: Boolean = true,
+    val isActive: Boolean = true,
 
     /**
      * The email address associated with the group, if any.
@@ -64,7 +64,7 @@ fun GroupRepresentation.toGroup(): Group =
     Group(
         name = name,
         description = description?.takeIf { it.isNotBlank() } ?: name,
-        active = attributes?.get(GROUP_ATTRIBUTE_ACTIVE)?.singleOrNull() != "false",
+        isActive = attributes?.get(GROUP_ATTRIBUTE_ACTIVE)?.singleOrNull() != "false",
         email = attributes?.get(GROUP_ATTRIBUTE_EMAIL)?.singleOrNull()
     )
 
@@ -72,6 +72,6 @@ fun nl.info.client.pabc.model.generated.GroupRepresentation.toGroup(): Group =
     Group(
         name = name,
         description = description?.takeIf(String::isNotBlank) ?: name,
-        active = attributes?.get(GROUP_ATTRIBUTE_ACTIVE)?.singleOrNull() != "false",
+        isActive = attributes?.get(GROUP_ATTRIBUTE_ACTIVE)?.singleOrNull() != "false",
         email = attributes?.get(GROUP_ATTRIBUTE_EMAIL)?.singleOrNull()
     )

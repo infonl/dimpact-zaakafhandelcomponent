@@ -114,12 +114,12 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         identificatie shouldBe zaakType.identificatie
                         doel shouldBe zaakType.doel
                         omschrijving shouldBe zaakType.omschrijving
-                        servicenorm shouldBe false
+                        hasServicenorm shouldBe false
                         versiedatum shouldBe zaakType.versiedatum
                         beginGeldigheid shouldBe zaakType.beginGeldigheid
                         eindeGeldigheid shouldBe zaakType.eindeGeldigheid
                         vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
-                        nuGeldig shouldBe true
+                        isNuGeldig shouldBe true
                     }
                     caseDefinition shouldBe restCaseDefinition
                     defaultBehandelaarId shouldBe null
@@ -133,20 +133,20 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     // default value should be set
                     afrondenMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT
                     productaanvraagtype shouldBe null
-                    valide shouldBe false
-                    zaakspecifiekAutoriseerbaar shouldBe false
+                    isValide shouldBe false
+                    isZaakspecifiekAutoriseerbaar shouldBe false
                     humanTaskParameters shouldBe emptyList()
                     userEventListenerParameters shouldBe emptyList()
                     mailtemplateKoppelingen shouldHaveSize 1
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
                     zaakAfzenders shouldBe listOf(
                         RestZaakAfzender(id = null, mail = "mail@example.com", replyTo = "replyTo@example.com"),
-                        RestZaakAfzender(mail = "GEMEENTE", speciaal = true),
-                        RestZaakAfzender(mail = "MEDEWERKER", speciaal = true)
+                        RestZaakAfzender(mail = "GEMEENTE", isSpeciaal = true),
+                        RestZaakAfzender(mail = "MEDEWERKER", isSpeciaal = true)
                     )
                     smartDocuments shouldBe RestSmartDocuments(
-                        enabledGlobally = true,
-                        enabledForZaaktype = false
+                        isEnabledGlobally = true,
+                        isEnabledForZaaktype = false
                     )
                 }
             }
@@ -185,7 +185,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     intakeMail shouldBe null
                     afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
-                    smartDocumentsEnabled shouldBe false
+                    isSmartDocumentsEnabled shouldBe false
                 }
             }
         }
@@ -223,22 +223,22 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         identificatie shouldBe zaakType.identificatie
                         doel shouldBe zaakType.doel
                         omschrijving shouldBe zaakType.omschrijving
-                        servicenorm shouldBe false
+                        hasServicenorm shouldBe false
                         versiedatum shouldBe zaakType.versiedatum
                         beginGeldigheid shouldBe zaakType.beginGeldigheid
                         eindeGeldigheid shouldBe zaakType.eindeGeldigheid
                         vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
-                        nuGeldig shouldBe true
+                        isNuGeldig shouldBe true
                     }
                     defaultGroepId shouldBe null
                     creatiedatum shouldNotBe null
                     zaakNietOntvankelijkResultaattype shouldBe restResultType
                     productaanvraagtype shouldBe null
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
-                    zaakspecifiekAutoriseerbaar shouldBe false
+                    isZaakspecifiekAutoriseerbaar shouldBe false
                     smartDocuments shouldBe RestSmartDocuments(
-                        enabledGlobally = true,
-                        enabledForZaaktype = false
+                        isEnabledGlobally = true,
+                        isEnabledForZaaktype = false
                     )
                 }
             }
@@ -279,7 +279,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             )
 
             then("the zaaktype configuration is marked as 'zaakspecifiek autoriseerbaar'") {
-                restZaakafhandelParameters.zaakspecifiekAutoriseerbaar shouldBe true
+                restZaakafhandelParameters.isZaakspecifiekAutoriseerbaar shouldBe true
             }
         }
     }
@@ -314,7 +314,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             )
 
             then("the zaaktype configuration is not marked as 'zaakspecifiek autoriseerbaar'") {
-                restZaakafhandelParameters.zaakspecifiekAutoriseerbaar shouldBe false
+                restZaakafhandelParameters.isZaakspecifiekAutoriseerbaar shouldBe false
             }
         }
     }

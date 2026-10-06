@@ -92,7 +92,7 @@ class ZaaktypeHelperService @Inject constructor(
     ) = previousZaaktypeCmmnConfiguration.getHumanTaskParametersCollection().map {
         ZaaktypeCmmnHumantaskParameters().apply {
             doorlooptijd = it.doorlooptijd
-            actief = it.actief
+            isActief = it.isActief
             setFormulierDefinitieID(it.getFormulierDefinitieID())
             planItemDefinitionID = it.planItemDefinitionID
             groepID = it.groepID
@@ -125,7 +125,7 @@ class ZaaktypeHelperService @Inject constructor(
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) = previousZaaktypeCmmnConfiguration.getZaakAfzenders().map {
         ZaaktypeCmmnZaakafzenderParameters().apply {
-            defaultMail = it.defaultMail
+            isDefaultMail = it.isDefaultMail
             mail = it.mail
             replyTo = it.replyTo
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
@@ -138,7 +138,7 @@ class ZaaktypeHelperService @Inject constructor(
     ) {
         newZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters = ZaaktypeCmmnEmailParameters().apply {
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-            enabled = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.enabled ?: false
+            isEnabled = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.isEnabled ?: false
             templateName = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
             emailSender = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
             emailReply = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
@@ -154,7 +154,7 @@ class ZaaktypeHelperService @Inject constructor(
             groepID = previousZaaktypeConfiguration.groepID
             defaultBehandelaarId = previousZaaktypeConfiguration.defaultBehandelaarId
             productaanvraagtype = previousZaaktypeConfiguration.productaanvraagtype
-            smartDocumentsEnabled = previousZaaktypeConfiguration.smartDocumentsEnabled
+            isSmartDocumentsEnabled = previousZaaktypeConfiguration.isSmartDocumentsEnabled
             creatiedatum = ZonedDateTime.now()
         }
         copyBetrokkeneKoppelingen(previousZaaktypeConfiguration, newZaaktypeConfiguration)
@@ -168,8 +168,8 @@ class ZaaktypeHelperService @Inject constructor(
     ) {
         newZaaktypeConfiguration.zaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
             zaaktypeConfiguration = newZaaktypeConfiguration
-            brpKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
-            kvkKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
+            isBrpKoppelenEnabled = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.isBrpKoppelenEnabled
+            isKvkKoppelenEnabled = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.isKvkKoppelenEnabled
         }
     }
 

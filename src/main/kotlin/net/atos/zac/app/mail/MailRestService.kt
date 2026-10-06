@@ -52,7 +52,7 @@ class MailRestService @Inject constructor(
     ) {
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUuid)
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).versturenEmail)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).canVersturenEmail)
         mailService.sendMail(
             restMailGegevens.toMailGegevens(configurationService.readGemeenteNaam()),
             zaak.getBronnenFromZaak()
@@ -67,10 +67,10 @@ class MailRestService @Inject constructor(
     ) {
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUuid)
-        val ontvangstbevestigingVerstuurd = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) == true
+        val isOntvangstbevestigingVerstuurd = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) == true
         assertPolicy(
-            !ontvangstbevestigingVerstuurd &&
-                policyService.readZaakRechten(zaak, loggedInUser).versturenOntvangstbevestiging
+            !isOntvangstbevestigingVerstuurd &&
+                policyService.readZaakRechten(zaak, loggedInUser).canVersturenOntvangstbevestiging
         )
         mailService.sendMail(
             restMailGegevens.toMailGegevens(configurationService.readGemeenteNaam()),

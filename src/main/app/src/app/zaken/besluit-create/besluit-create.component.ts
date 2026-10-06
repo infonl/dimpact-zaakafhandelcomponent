@@ -147,9 +147,9 @@ export class BesluitCreateComponent implements OnInit {
         });
 
         this.form.controls.publicationEnabled.setValue(
-          value.publication.enabled ?? null,
+          value.publication.isEnabled ?? null,
         );
-        if (!value.publication.enabled) return;
+        if (!value.publication.isEnabled) return;
         this.setUiterlijkereactiedatum(
           moment(),
           value.publication.responseTermDays,

@@ -9,6 +9,6 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.opa.model.OpaRuleResult
 
 data class NotitieRechten @JsonbCreator constructor(
-    @param:JsonbProperty("lezen") val lezen: Boolean,
-    @param:JsonbProperty("wijzigen") val wijzigen: Boolean
+    @param:JsonbProperty("lezen") val canLezen: Boolean,
+    @param:JsonbProperty("wijzigen") val canWijzigen: Boolean
 ) : OpaRuleResult

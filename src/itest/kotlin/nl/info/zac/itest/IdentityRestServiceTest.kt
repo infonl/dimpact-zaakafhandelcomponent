@@ -54,62 +54,62 @@ val TEST_GROUPS_ACTIVE =
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
                     "naam": "${GROUP_RAADPLEGERS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_2.name}",
                     "naam": "${GROUP_RAADPLEGERS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
                     "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BEHANDELAARS_TEST_2.name}",
                     "naam": "${GROUP_BEHANDELAARS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_COORDINATORS_TEST_1.name}",
                     "naam": "${GROUP_COORDINATORS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_COORDINATORS_TEST_2.name}",
                     "naam": "${GROUP_COORDINATORS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
                     "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_RECORDMANAGERS_TEST_2.name}",
                     "naam": "${GROUP_RECORDMANAGERS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
                     "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
                     "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
                     "naam": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BRP_ZOEKERS_TEST_2.name}",
                     "naam": "${GROUP_BRP_ZOEKERS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 }
             ]
         """
@@ -164,15 +164,15 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
                                     "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
-                                    "active": true
+                                    "isActive": true
                                 },
                                 {
-                                    "active": true,
+                                    "isActive": true,
                                     "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
                                     "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
                                 },
                                 {
-                                    "active": true,
+                                    "isActive": true,
                                     "id": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
                                     "naam": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.description}"
                                 }

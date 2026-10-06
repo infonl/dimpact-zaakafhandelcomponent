@@ -24,10 +24,10 @@ class ZgwErrorExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val returnValue = zgwErrorExceptionMapper.handles(statusCode, headers)
+            val isHandled = zgwErrorExceptionMapper.handles(statusCode, headers)
 
             then("The status code should not be mapped") {
-                returnValue shouldBe false
+                isHandled shouldBe false
             }
         }
     }
@@ -36,10 +36,10 @@ class ZgwErrorExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val returnValue = zgwErrorExceptionMapper.handles(statusCode, headers)
+            val isHandled = zgwErrorExceptionMapper.handles(statusCode, headers)
 
             then("The status code should be mapped") {
-                returnValue shouldBe true
+                isHandled shouldBe true
             }
         }
     }
@@ -48,10 +48,10 @@ class ZgwErrorExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val returnValue = zgwErrorExceptionMapper.handles(statusCode, headers)
+            val isHandled = zgwErrorExceptionMapper.handles(statusCode, headers)
 
             then("The status code should not be mapped") {
-                returnValue shouldBe false
+                isHandled shouldBe false
             }
         }
     }
@@ -60,10 +60,10 @@ class ZgwErrorExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val returnValue = zgwErrorExceptionMapper.handles(statusCode, headers)
+            val isHandled = zgwErrorExceptionMapper.handles(statusCode, headers)
 
             then("The status code should not be mapped") {
-                returnValue shouldBe false
+                isHandled shouldBe false
             }
         }
     }

@@ -263,8 +263,10 @@ export class ZaakCreateComponent {
     );
 
     if (
-      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
-      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.brpKoppelen
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.isKvkKoppelenEnabled &&
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.isBrpKoppelenEnabled
     ) {
       this.form.controls.initiatorIdentificatie.setValue(null);
     }
@@ -338,9 +340,10 @@ export class ZaakCreateComponent {
         ?.betrokkeneKoppelingen;
     if (!betrokkeneKoppelingen) return false;
 
-    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
+    const { isBrpKoppelenEnabled, isKvkKoppelenEnabled } =
+      betrokkeneKoppelingen;
 
-    return Boolean(brpKoppelen || kvkKoppelen);
+    return Boolean(isBrpKoppelenEnabled || isKvkKoppelenEnabled);
   }
 
   hasInitiator(): boolean {

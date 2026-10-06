@@ -193,7 +193,7 @@ describe(GoedkeurenTaskForm.name, () => {
       zaakUuid: "zaak-uuid",
       zaakIdentificatie: "ZAAK-2026-001",
       status: "TOEGEKEND",
-      rechten: { wijzigen: true },
+      rechten: { canWijzigen: true },
       taakdata: {},
     });
 
@@ -482,7 +482,7 @@ describe(GoedkeurenTaskForm.name, () => {
         );
         const readonlyTaak = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
-          rechten: { wijzigen: false },
+          rechten: { canWijzigen: false },
           taakdata: { ondertekenen: "doc-uuid-1" },
         });
 

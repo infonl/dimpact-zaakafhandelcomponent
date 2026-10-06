@@ -130,7 +130,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val signaleringInstellingen = listOf(createSignaleringInstellingen())
         val restSignaleringInstellingen = listOf(createRestSignaleringInstellingen())
 
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { identityService.readGroup(groupId) } returns group
         every { signaleringService.listInstellingenInclusiefMogelijke(any()) } returns signaleringInstellingen
         every { restSignaleringInstellingenConverter.convert(signaleringInstellingen) } returns restSignaleringInstellingen
@@ -150,7 +150,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val signaleringInstellingen = createSignaleringInstellingen()
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
 
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { identityService.readGroup(groupId) } returns group
         every {
             restSignaleringInstellingenConverter.convert(restSignaleringInstellingen, group)
@@ -169,7 +169,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
     given("A non-existing group") {
         val groupId = "invalid-group-id"
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { identityService.readGroup(groupId) } throws IllegalArgumentException("Group not found")
 
         `when`("listGroupSignaleringInstellingen is called") {
@@ -196,7 +196,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
     given("The user does not have the required 'beheren' permissions") {
         val groupId = "fakeGroupId"
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
-        every { policyService.readOverigeRechten().beheren } returns false
+        every { policyService.readOverigeRechten().canBeheren } returns false
 
         `when`("listGroupSignaleringInstellingen is called") {
             val exception = shouldThrow<PolicyException> {

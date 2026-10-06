@@ -15,6 +15,11 @@ import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenSettingsService } from "../signaleringen-settings.service";
 
+const SETTING_PER_COLUMN = {
+  dashboard: "isDashboardEnabled",
+  mail: "isMailEnabled",
+} as const;
+
 @Component({
   templateUrl: "./signaleringen-settings.component.html",
   styleUrls: ["./signaleringen-settings.component.less"],
@@ -38,6 +43,7 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
     "dashboard",
     "mail",
   ] as const;
+  protected readonly settingPerColumn = SETTING_PER_COLUMN;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestSignaleringInstellingen">
   >();
@@ -64,14 +70,11 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
 
   protected changed(
     row: GeneratedType<"RestSignaleringInstellingen">,
-    column: keyof Pick<
-      GeneratedType<"RestSignaleringInstellingen">,
-      "dashboard" | "mail"
-    >,
+    column: keyof typeof SETTING_PER_COLUMN,
     checked: boolean,
   ) {
     this.utilService.setLoading(true);
-    row[column] = checked;
+    row[this.settingPerColumn[column]] = checked;
     this.putMutation.mutate(row);
   }
 }

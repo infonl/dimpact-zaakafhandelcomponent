@@ -53,7 +53,7 @@ class ProductaanvraagEmailService @Inject constructor(
             "Attempting to send automatic confirmation of receipt email for zaak with identification '${zaak.identificatie}' " +
                 "and zaaktype '${zaak.zaaktype}'."
         }
-        zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
+        zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.isEnabled }?.let { zaaktypeCmmnEmailParameters ->
             productaanvraagSpecificEmailAddress?.let { to ->
                 sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
             } ?: betrokkene?.let {

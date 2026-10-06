@@ -36,8 +36,8 @@ class ZaaktypeBetrokkeneParameters {
     var zaaktypeConfiguration: ZaaktypeConfiguration? = null
 
     @Column(name = "brpKoppelen")
-    var brpKoppelen: Boolean? = false
+    var isBrpKoppelenEnabled: Boolean? = false
 
     @Column(name = "kvkKoppelen")
-    var kvkKoppelen: Boolean? = false
+    var isKvkKoppelenEnabled: Boolean? = false
 }

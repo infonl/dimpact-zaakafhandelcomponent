@@ -37,7 +37,7 @@ class ZaaktypeCmmnEmailParameters {
     var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null
 
     @Column(name = "enabled")
-    var enabled: Boolean = false
+    var isEnabled: Boolean = false
 
     @Column(name = "template_name")
     var templateName: String? = null

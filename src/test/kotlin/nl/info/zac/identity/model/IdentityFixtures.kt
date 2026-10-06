@@ -14,7 +14,7 @@ fun createGroup(
     name = id,
     description = name,
     email = email,
-    active = active
+    isActive = active
 )
 
 fun createUser(

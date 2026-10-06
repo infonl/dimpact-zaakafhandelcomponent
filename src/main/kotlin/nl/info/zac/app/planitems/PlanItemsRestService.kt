@@ -95,7 +95,7 @@ class PlanItemsRestService @Inject constructor(
     fun listHumanTaskPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RestPlanItem> =
         cmmnService.listHumanTaskPlanItems(zaakUUID).let { humanTaskPlanItems ->
             zrcClientService.readZaak(zaakUUID).let { zaak ->
-                planItemConverter.convertPlanItems(humanTaskPlanItems, zaak).filter { it.actief }
+                planItemConverter.convertPlanItems(humanTaskPlanItems, zaak).filter { it.isActief }
             }
         }
 
@@ -133,7 +133,7 @@ class PlanItemsRestService @Inject constructor(
         val zaakUUID = zaakVariabelenService.readZaakUUID(planItem)
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).startenTaak)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canStartenTaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
@@ -148,9 +148,9 @@ class PlanItemsRestService @Inject constructor(
             }
         }
 
-        val sendMail = TaakVariabelenService.isSendDataSendMail(taakdata) || humanTaskData.taakStuurGegevens?.sendMail ?: false
+        val shouldSendMail = TaakVariabelenService.isSendDataSendMail(taakdata) || humanTaskData.taakStuurGegevens?.shouldSendMail ?: false
         val sendDataMail = TaakVariabelenService.readSendDataMail(taakdata).getOrNull() ?: humanTaskData.taakStuurGegevens?.mail
-        if (sendMail && sendDataMail != null) {
+        if (shouldSendMail && sendDataMail != null) {
             val mail = Mail.valueOf(sendDataMail)
 
             val mailTemplate = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
@@ -201,11 +201,11 @@ class PlanItemsRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak, loggedInUserInstance.get())
         when (userEventListenerData.actie) {
-            UserEventListenerActie.BRONDATUM_ZETTEN -> assertPolicy(zaakRechten.brondatumZetten)
-            else -> assertPolicy(zaakRechten.startenTaak)
+            UserEventListenerActie.BRONDATUM_ZETTEN -> assertPolicy(zaakRechten.canBrondatumZetten)
+            else -> assertPolicy(zaakRechten.canStartenTaak)
         }
         userEventListenerData.restMailGegevens?.run {
-            assertPolicy(zaakRechten.versturenEmail)
+            assertPolicy(zaakRechten.canVersturenEmail)
         }
 
         when (userEventListenerData.actie) {
@@ -231,10 +231,10 @@ class PlanItemsRestService @Inject constructor(
     ) {
         userEventListenerData.planItemInstanceId?.let {
             val planItemInstance = cmmnService.readOpenPlanItem(it)
-            zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk)
+            zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.isZaakOntvankelijk)
         }
 
-        if (userEventListenerData.zaakOntvankelijk) return
+        if (userEventListenerData.isZaakOntvankelijk) return
 
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()

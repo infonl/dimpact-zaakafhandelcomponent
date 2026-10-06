@@ -49,13 +49,13 @@ class BrpConfigurationValueImpl(
 @NoArgConstructor
 class BrpConfiguration @Inject constructor(
     @ConfigProperty(name = "BRP_PROTOCOLLERING_ENABLED", defaultValue = "false")
-    private val protocolleringEnabled: Boolean,
+    private val isProtocolleringEnabled: Boolean,
 
     @ConfigProperty(name = ENV_VAR_BRP_ORIGIN_OIN)
     private val originOIN: Optional<String>,
 
     @ConfigProperty(name = "BRP_DOELBINDING_PER_ZAAKTYPE", defaultValue = "false")
-    private val doelbindingPerZaaktypeEnabled: Boolean,
+    private val isDoelbindingPerZaaktypeEnabled: Boolean,
 
     @ConfigProperty(name = ENV_VAR_BRP_ORIGIN_OIN_HEADER)
     private val headerNameOriginOin: Optional<String>,
@@ -76,7 +76,7 @@ class BrpConfiguration @Inject constructor(
     private val verwerkingregister: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE, defaultValue = "false")
-    private val verwerkingRegisterExtendedWithZaaktype: Boolean,
+    private val isVerwerkingRegisterExtendedWithZaaktype: Boolean,
 
     @ConfigProperty(name = ENV_VAR_BRP_GEBRUIKER_HEADER)
     private val headerNameGebruiker: Optional<String>,
@@ -240,16 +240,16 @@ class BrpConfiguration @Inject constructor(
         )
 
     override fun toString() = """
-        |- BRP_PROTOCOLLERING_ENABLED: '$protocolleringEnabled'
+        |- BRP_PROTOCOLLERING_ENABLED: '$isProtocolleringEnabled'
         |- $ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}'
-        |- BRP_DOELBINDING_PER_ZAAKTYPE: '$doelbindingPerZaaktypeEnabled'
+        |- BRP_DOELBINDING_PER_ZAAKTYPE: '$isDoelbindingPerZaaktypeEnabled'
         |- $ENV_VAR_BRP_ORIGIN_OIN_HEADER: '${headerNameOriginOin.getOrNull()}'
         |- $ENV_VAR_BRP_DOELBINDING_HEADER: '${headerNameDoelbinding.getOrNull()}'
         |- $ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${doelbindingZoekMetDefault.getOrNull()}'
         |- $ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${doelbindingRaadpleegMetDefault.getOrNull()}'
         |- $ENV_VAR_BRP_VERWERKING_HEADER: '${headerNameVerwerking.getOrNull()}'
         |- $ENV_VAR_BRP_VERWERKINGSREGISTER: '${verwerkingregister.getOrNull()}'
-        |- $ENV_VAR_BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE: '$verwerkingRegisterExtendedWithZaaktype'
+        |- $ENV_VAR_BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE: '$isVerwerkingRegisterExtendedWithZaaktype'
         |- $ENV_VAR_BRP_GEBRUIKER_HEADER: '${headerNameGebruiker.getOrNull()}'
         |- $ENV_VAR_BRP_TOEPASSING_HEADER: '${headerNameToepassing.getOrNull()}'
         |- $ENV_VAR_BRP_TOEPASSING: '${toepassingValue.getOrNull()}'
@@ -258,12 +258,12 @@ class BrpConfiguration @Inject constructor(
         |- $ENV_VAR_BRP_API_KEY: [REDACTED]
     """.trimMargin()
 
-    override fun isBrpProtocolleringEnabled(): Boolean = protocolleringEnabled
+    override fun isBrpProtocolleringEnabled(): Boolean = isProtocolleringEnabled
 
     override fun isDoelbindingPerZaaktypeEnabled(): Boolean =
-        doelbindingPerZaaktypeEnabled && headerNameDoelbinding.isPresentNotBlank()
+        isDoelbindingPerZaaktypeEnabled && headerNameDoelbinding.isPresentNotBlank()
 
-    override fun isVerwerkingRegisterExtendedWithZaaktype(): Boolean = verwerkingRegisterExtendedWithZaaktype
+    override fun isVerwerkingRegisterExtendedWithZaaktype(): Boolean = isVerwerkingRegisterExtendedWithZaaktype
 
     override fun getHeaderUser(): String? = headerNameGebruiker.getOrNull()
 

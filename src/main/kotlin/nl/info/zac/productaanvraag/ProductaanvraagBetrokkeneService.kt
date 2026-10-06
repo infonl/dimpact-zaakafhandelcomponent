@@ -72,12 +72,12 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
     ): Betrokkene? {
         var initiatorBetrokkene: Betrokkene? = null
         productaanvraag.betrokkenen?.filter { it.canBeProcessed(zaak, brpEnabled, kvkEnabled) }?.forEach {
-            val betrokkeneAddedAsInitiator = if (it.roltypeOmschrijving == null) {
+            val isBetrokkeneAddedAsInitiator = if (it.roltypeOmschrijving == null) {
                 addBetrokkenenWithGenericRole(it, initiatorBetrokkene != null, zaak)
             } else {
                 addBetrokkenenWithRole(it, initiatorBetrokkene != null, zaak)
             }
-            if (initiatorBetrokkene == null && betrokkeneAddedAsInitiator) {
+            if (initiatorBetrokkene == null && isBetrokkeneAddedAsInitiator) {
                 initiatorBetrokkene = it
             }
         }
@@ -89,9 +89,9 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
         brpEnabled: Boolean,
         kvkEnabled: Boolean
     ): Boolean {
-        val genericRole = this.roltypeOmschrijving == null
+        val isGenericRole = this.roltypeOmschrijving == null
         val rolTypeDescription = this.roltypeOmschrijving ?: this.rolOmschrijvingGeneriek.toString()
-        val prefix = if (genericRole) "generic " else ""
+        val prefix = if (isGenericRole) "generic " else ""
 
         return this.performAction(
             onNatuurlijkPersoonIdentity = {

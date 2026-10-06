@@ -88,8 +88,8 @@ data class RestEnkelvoudigInformatieobject(
     @field:FormParam("ondertekening")
     var ondertekening: RestOndertekening? = null,
 
-    @field:FormParam("indicatieGebruiksrecht")
-    var indicatieGebruiksrecht: Boolean = false,
+    @field:FormParam("hasGebruiksrecht")
+    var hasGebruiksrecht: Boolean = false,
 
     @field:FormParam("gelockedDoor")
     var gelockedDoor: RestUser? = null,
@@ -109,7 +109,7 @@ data class RestEnkelvoudigInformatieobject(
         if (ondertekening != null) {
             indicaties.add(DocumentIndicatie.ONDERTEKEND)
         }
-        if (indicatieGebruiksrecht) {
+        if (hasGebruiksrecht) {
             indicaties.add(DocumentIndicatie.GEBRUIKSRECHT)
         }
         if (isBesluitDocument) {

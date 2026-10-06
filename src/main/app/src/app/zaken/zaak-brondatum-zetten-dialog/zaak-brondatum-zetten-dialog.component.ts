@@ -103,7 +103,7 @@ export class ZaakBrondatumZettenDialogComponent {
   );
 
   constructor() {
-    if (this.data.zaak.resultaat?.resultaattype?.datumKenmerkVerplicht) {
+    if (this.data.zaak.resultaat?.resultaattype?.isDatumKenmerkVerplicht) {
       this.brondatumLabel =
         this.data.zaak.resultaat?.resultaattype.datumKenmerkOmschrijving;
     }

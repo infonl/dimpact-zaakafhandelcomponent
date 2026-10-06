@@ -32,7 +32,7 @@ class ZacCmmnAdminUtilRestServiceTest : BehaviorSpec({
     }
 
     given("A user with 'beheren' permissions") {
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(any()).count() } returns 123L
 
         `when`("countMissingVariables is called") {

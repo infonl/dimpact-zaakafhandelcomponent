@@ -24,5 +24,5 @@ fun createRestNote(
     dateTimeLastModified = dateTimeLastModified,
     employeeUsername = employeeUsername,
     employeeFullname = employeeFullname,
-    updatingAllowed = updatingAllowed
+    isBewerkenToegestaan = updatingAllowed
 )

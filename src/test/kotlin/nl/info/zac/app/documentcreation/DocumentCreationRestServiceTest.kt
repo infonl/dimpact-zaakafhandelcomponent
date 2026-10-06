@@ -95,7 +95,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creerenDocument } returns true
+            every { policyService.readTaakRechten(task).canCreerenDocument } returns true
             every { zaaktypeConfigurationService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
             every {
                 documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
@@ -122,7 +122,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creerenDocument } returns false
+            every { policyService.readTaakRechten(task).canCreerenDocument } returns false
 
             val exception = shouldThrow<PolicyException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
@@ -165,7 +165,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creerenDocument } returns true
+            every { policyService.readTaakRechten(task).canCreerenDocument } returns true
             every { zaaktypeConfigurationService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
 
             val exception = shouldThrow<SmartDocumentsDisabledException> {

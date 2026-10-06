@@ -87,7 +87,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                     "zaakUuid":"$zaakUUID",
                     "planItemInstanceId":"$intakeId",
                     "actie":"$ACTIE_INTAKE_AFRONDEN",
-                    "zaakOntvankelijk":true
+                    "isZaakOntvankelijk":true
                 }
             """.trimIndent(),
             testUser = BEHANDELAAR_1
@@ -191,7 +191,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                         "groep": { "id": "${GROUP_BEHANDELAARS_TEST_1.name}", "naam": "${GROUP_BEHANDELAARS_TEST_1.description}" },
                         "id": "$goedkeurenTaskId",
                         "naam": "Goedkeuren",
-                        "rechten":{ "lezen": true, "toekennen": true, "toevoegenDocument": true, "wijzigen": true },
+                        "rechten":{ "canLezen": true, "canToekennen": true, "canToevoegenDocument": true, "canWijzigen": true },
                         "status": "NIET_TOEGEKEND",
                         "taakdata": {
                             "relevanteDocumenten": "$enkelvoudigInformatieObjectUUID",

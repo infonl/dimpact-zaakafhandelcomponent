@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.identity.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.constraints.Size
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie.IDENTIFICATIE_MAX_LENGTH
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie.NAAM_MAX_LENGTH
@@ -30,11 +31,13 @@ data class RestGroup(
     @field:Size(max = NAAM_MAX_LENGTH)
     var naam: String,
 
-    var active: Boolean = true
+    @get:JsonbProperty("isActive")
+    @set:JsonbProperty("isActive")
+    var isActive: Boolean = true
 )
 
 fun Group.toRestGroup(): RestGroup =
-    RestGroup(id = this.name, naam = this.description, active = this.active)
+    RestGroup(id = this.name, naam = this.description, isActive = this.isActive)
 
 fun List<Group>.toRestGroups(): List<RestGroup> =
     this.map { it.toRestGroup() }

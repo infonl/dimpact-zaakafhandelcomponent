@@ -55,7 +55,7 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
                     {
                         "redenVerlenging": "$reason",
                         "duurDagen": $daysExtended,
-                        "takenVerlengen": false
+                        "shouldTakenVerlengen": false
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1

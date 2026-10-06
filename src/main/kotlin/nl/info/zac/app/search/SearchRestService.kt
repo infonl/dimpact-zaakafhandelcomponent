@@ -56,8 +56,8 @@ class SearchRestService @Inject constructor(
     ): RestZoekResultaat<out AbstractRestZoekObject> {
         when (restZoekParameters.type) {
             ZoekObjectType.ZAAK, ZoekObjectType.TAAK ->
-                assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-            else -> assertPolicy(policyService.readOverigeRechten().zoeken)
+                assertPolicy(policyService.readWerklijstRechten().canZakenTaken)
+            else -> assertPolicy(policyService.readOverigeRechten().canZoeken)
         }
         val zoekParameters = restZoekZaakParametersConverter.convert(restZoekParameters)
         val zoekResultaat = searchService.search(zoekParameters)
@@ -67,7 +67,7 @@ class SearchRestService @Inject constructor(
     @PUT
     @Path("zaken")
     fun listZakenForInformationObjectType(@Valid restZoekKoppelenParameters: RestZoekKoppelenParameters) =
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken).run {
+        assertPolicy(policyService.readWerklijstRechten().canZakenTaken).run {
             searchService.search(restZoekKoppelenParameters.toZoekParameters()).let {
                 restZoekResultaatConverter.convert(it, buildDocumentsLinkableList(it, restZoekKoppelenParameters))
             }
