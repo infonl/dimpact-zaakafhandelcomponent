@@ -531,18 +531,23 @@ describe(ZaakDocumentenComponent.name, () => {
 
     it("downloads the selected documents as a zip and clears the selection", async () => {
       const { utilService } = await setup();
-      const getZIPDownload = jest
-        .spyOn(InformatieObjectenService.prototype, "getZIPDownload")
-        .mockReturnValue(of({}) as never);
+      const zip = new Blob(["zip"], { type: "application/zip" });
 
       await user.click(
         within(documentRow("Test document")).getByRole("checkbox"),
       );
       await user.click(zipButton());
+      await sleep();
 
-      expect(getZIPDownload).toHaveBeenCalledWith(["doc-uuid-1"]);
+      const request = httpTestingController.expectOne(
+        "/rest/informatieobjecten/download/zip",
+      );
+      expect(request.request.body).toEqual(["doc-uuid-1"]);
+      request.flush(zip);
+      await sleep();
+
       expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
-        {},
+        zip,
         "ZAAK-2024-001",
       );
       expect(zipButton()).toBeDisabled();
