@@ -921,6 +921,7 @@
   "msg.gewijzigd.objecttype.enkelvoudig-informatieobject": "Dit document",
   "msg.gewijzigd.objecttype.taak": "Deze taak",
   "msg.gewijzigd.objecttype.zaak": "Deze zaak",
+  "msg.gewijzigd.objecttype.zaak-besluiten": "Besluiten van deze zaak",
   "msg.gewijzigd.objecttype.zaak-informatieobjecten": "Documenten van deze zaak",
   "msg.gewijzigd.objecttype.zaak-rollen": "Toekenningen van deze zaak",
   "msg.gewijzigd.objecttype.zaak-taken": "Taken van deze zaak",

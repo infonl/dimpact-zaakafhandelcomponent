@@ -921,6 +921,7 @@
   "msg.gewijzigd.objecttype.enkelvoudig-informatieobject": "This document",
   "msg.gewijzigd.objecttype.taak": "This task",
   "msg.gewijzigd.objecttype.zaak": "This case",
+  "msg.gewijzigd.objecttype.zaak-besluiten": "Decisions of this case",
   "msg.gewijzigd.objecttype.zaak-informatieobjecten": "Documents of this case",
   "msg.gewijzigd.objecttype.zaak-rollen": "Assignments of this case",
   "msg.gewijzigd.objecttype.zaak-taken": "Tasks of this case",
