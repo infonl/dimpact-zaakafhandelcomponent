@@ -66,7 +66,10 @@ describe("Koppelingen form step", () => {
       zaakbeeindigParameters: [],
       smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
       userEventListenerParameters: [],
-      betrokkeneKoppelingen: { isBrpKoppelenEnabled: false, isKvkKoppelenEnabled: false },
+      betrokkeneKoppelingen: {
+        isBrpKoppelenEnabled: false,
+        isKvkKoppelenEnabled: false,
+      },
       brpDoelbindingen: {
         zoekWaarde: "",
         raadpleegWaarde: "",
@@ -307,7 +310,10 @@ describe("Koppelingen form step", () => {
     it("shows the SmartDocuments form as disabled for a zaaktype that has it switched off", async () => {
       await setup(
         createParameters({
-          smartDocuments: { isEnabledGlobally: true, isEnabledForZaaktype: false },
+          smartDocuments: {
+            isEnabledGlobally: true,
+            isEnabledForZaaktype: false,
+          },
         }),
       );
       const koppelingen = await goToStep("gegevens.koppelingen");

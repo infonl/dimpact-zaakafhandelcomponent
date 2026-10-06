@@ -129,7 +129,10 @@ describe(GroepSignaleringenComponent.name, () => {
     expect(utilServiceMock.setLoading).toHaveBeenCalledWith(true);
     expect(signaleringenServiceMock.put).toHaveBeenCalledWith("fakeGroupId");
     expect(putMutation.mutationFn).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "ZAAK_OP_NAAM", isDashboardEnabled: true }),
+      expect.objectContaining({
+        type: "ZAAK_OP_NAAM",
+        isDashboardEnabled: true,
+      }),
       expect.anything(),
     );
   });
