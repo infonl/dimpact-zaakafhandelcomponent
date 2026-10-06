@@ -1788,8 +1788,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                     verify(exactly = 0) {
                         zgwApiService.createZaak(any())
-                        cmmnService.startCase(zaak = any(), zaaktype = any(), caseDefinitionKey = any(), zaakData = any())
-                        bpmnService.startProcess(zaak = any(), zaaktype = any(), processDefinitionKey = any(), zaakData = any())
+                        processBindings.start(
+                            zaaktypeConfiguration = any(),
+                            zaak = any(),
+                            zaaktype = any(),
+                            processStartData = any()
+                        )
                     }
                 }
             }
@@ -1834,11 +1838,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zrcClientService.createZaakobject(any()) } returns createZaakobjectProductaanvraag()
             every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createZaakInformatieobjectForReads()
             every {
-                cmmnService.startCase(
+                processBindings.start(
+                    zaaktypeConfiguration = cmmnConfiguration,
                     zaak = createdZaak,
                     zaaktype = zaakType,
-                    caseDefinitionKey = "fakeCaseDefinitionId",
-                    zaakData = any()
+                    processStartData = any()
                 )
             } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
@@ -1853,15 +1857,20 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
                 then("the CMMN case of the most recently created configuration is started") {
                     verify(exactly = 1) {
-                        cmmnService.startCase(
+                        processBindings.start(
+                            zaaktypeConfiguration = cmmnConfiguration,
                             zaak = createdZaak,
                             zaaktype = zaakType,
-                            caseDefinitionKey = "fakeCaseDefinitionId",
-                            zaakData = any()
+                            processStartData = any()
                         )
                     }
                     verify(exactly = 0) {
-                        bpmnService.startProcess(zaak = any(), zaaktype = any(), processDefinitionKey = any(), zaakData = any())
+                        processBindings.start(
+                            zaaktypeConfiguration = bpmnConfiguration,
+                            zaak = any(),
+                            zaaktype = any(),
+                            processStartData = any()
+                        )
                     }
                 }
             }
