@@ -39,6 +39,12 @@ describe(NotitiesComponent.name, () => {
   let deleteNotitieMutation: ReturnType<
     typeof createMutationOptions<undefined, number>
   >;
+  let createNotitieMutation: ReturnType<
+    typeof createMutationOptions<
+      GeneratedType<"RestNote">,
+      GeneratedType<"RestNote">
+    >
+  >;
   let notitiesChangedCallback: () => void;
 
   const editableNotitie = fromPartial<GeneratedType<"RestNote">>({
@@ -88,6 +94,17 @@ describe(NotitiesComponent.name, () => {
     jest
       .spyOn(notitieService, "updateNotitie")
       .mockImplementation((notitie) => of(notitie));
+    createNotitieMutation = createMutationOptions<
+      GeneratedType<"RestNote">,
+      GeneratedType<"RestNote">
+    >(fromPartial<GeneratedType<"RestNote">>({}));
+    createNotitieMutation.mutationFn.mockImplementation(async (notitie) => ({
+      ...notitie,
+      id: 2,
+    }));
+    jest
+      .spyOn(notitieService, "createNotitie")
+      .mockReturnValue(createNotitieMutation as never);
     deleteNotitieMutation = createMutationOptions<undefined, number>(undefined);
     jest
       .spyOn(notitieService, "deleteNotitie")
@@ -165,11 +182,6 @@ describe(NotitiesComponent.name, () => {
       beforeEach(() => {
         scrollIntoView = Element.prototype.scrollIntoView;
         Element.prototype.scrollIntoView = jest.fn();
-        jest
-          .spyOn(notitieService, "createNotitie")
-          .mockImplementation((notitie) =>
-            of(fromPartial<GeneratedType<"RestNote">>({ ...notitie, id: 2 })),
-          );
       });
 
       afterEach(() => {
@@ -187,13 +199,17 @@ describe(NotitiesComponent.name, () => {
         );
         fixture.detectChanges();
         await user.click(screen.getByRole("button", { name: "actie.opslaan" }));
+        await sleep();
         fixture.detectChanges();
 
-        expect(notitieService.createNotitie).toHaveBeenCalledWith({
-          zaakUUID: "fakeZaakUuid",
-          tekst: "fakeNieuweTekst",
-          gebruikersnaamMedewerker: "currentUser",
-        });
+        expect(createNotitieMutation.mutationFn).toHaveBeenCalledWith(
+          {
+            zaakUUID: "fakeZaakUuid",
+            tekst: "fakeNieuweTekst",
+            gebruikersnaamMedewerker: "currentUser",
+          },
+          expect.anything(),
+        );
         expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
       });
     });

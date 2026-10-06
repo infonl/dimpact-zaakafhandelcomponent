@@ -531,14 +531,13 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
-    it("reloads the BAG-objecten after coupling an adres", () => {
+    it("reloads the BAG-objecten after coupling an adres", async () => {
       const bagObject = fromPartial<GeneratedType<"RestBagObject">>({
         omschrijving: "fakeBagObjectOmschrijving",
       });
-      const create = jest
-        .spyOn(bagService, "create")
-        .mockReturnValue(of(undefined) as never);
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      httpTestingController.match(() => true);
       // the view already listed them while initialising, so ignore that call
       const list = jest
         .spyOn(bagService, "list")
@@ -546,8 +545,15 @@ describe(ZaakViewComponent.name, () => {
         .mockReturnValue(of([]));
 
       fixture.componentInstance["adresGeselecteerd"](bagObject);
+      await new Promise(requestAnimationFrame);
+      const request = httpTestingController.expectOne((httpRequest) =>
+        httpRequest.url.endsWith("/rest/bag"),
+      );
+      request.flush(null);
+      await new Promise(requestAnimationFrame);
 
-      expect(create).toHaveBeenCalledWith({
+      expect(request.request.method).toBe("POST");
+      expect(request.request.body).toEqual({
         zaakUuid: zaak.uuid,
         zaakobject: bagObject,
       });

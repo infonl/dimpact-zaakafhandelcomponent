@@ -52,6 +52,7 @@ import { HumanTaskDoComponent } from "../../plan-items/human-task-do/human-task-
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { runMutation } from "../../shared/http/run-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -216,6 +217,17 @@ export class ZaakViewComponent
 
   protected readonly betrokkenenQuery = injectQuery(() =>
     this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak.uuid),
+  );
+
+  private readonly createBagObjectMutation = injectMutation(
+    () => this.bagService.create(),
+    {
+      onSuccess: () => {
+        this.utilService.openSnackbar("msg.bag-object.gekoppeld");
+        this.invalidateZaakHistorie();
+        this.loadBagObjecten();
+      },
+    },
   );
 
   constructor(
@@ -476,13 +488,10 @@ export class ZaakViewComponent
   }
 
   protected adresGeselecteerd(bagObject: GeneratedType<"RestBagObject">) {
-    this.bagService
-      .create({ zaakUuid: this.zaak.uuid, zaakobject: bagObject })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.bag-object.gekoppeld");
-        this.invalidateZaakHistorie();
-        this.loadBagObjecten();
-      });
+    this.createBagObjectMutation.mutate({
+      zaakUuid: this.zaak.uuid,
+      zaakobject: bagObject,
+    });
   }
 
   protected taakGestart() {

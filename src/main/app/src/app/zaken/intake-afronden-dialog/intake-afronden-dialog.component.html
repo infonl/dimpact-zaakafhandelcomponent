@@ -162,15 +162,19 @@
     mat-raised-button
     color="primary"
     id="intakeAfronden_button"
-    [disabled]="loading || formGroup.invalid"
+    [disabled]="afrondenMutation.isPending() || formGroup.invalid"
     (click)="afronden()"
   >
-    <mat-icon *ngIf="loading">
+    <mat-icon *ngIf="afrondenMutation.isPending()">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
     {{ "planitem.intake-afronden" | translate }}
   </button>
-  <button mat-raised-button [disabled]="loading" (click)="close()">
+  <button
+    mat-raised-button
+    [disabled]="afrondenMutation.isPending()"
+    (click)="close()"
+  >
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>

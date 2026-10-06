@@ -99,7 +99,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       );
     }
 
-    await render(IntakeAfrondenDialogComponent, {
+    const rendered = await render(IntakeAfrondenDialogComponent, {
       imports: [TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         provideHttpClient(),
@@ -132,6 +132,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     });
 
     httpTestingController = TestBed.inject(HttpTestingController);
+    return rendered;
   }
 
   function afrondenButton() {
@@ -393,6 +394,20 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       expect(request.request.body).toEqual(
         expect.objectContaining({ restMailGegevens: null }),
       );
+      request.flush(null);
+    });
+
+    it("disables afronden and annuleren while the intake is being afgerond", async () => {
+      const { fixture } = await setup(createZaak("BESCHIKBAAR_UIT"));
+      await answerOntvankelijk("actie.ja");
+
+      const request = await afronden();
+      fixture.detectChanges();
+
+      expect(afrondenButton()).toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: "actie.annuleren" }),
+      ).toBeDisabled();
       request.flush(null);
     });
 
