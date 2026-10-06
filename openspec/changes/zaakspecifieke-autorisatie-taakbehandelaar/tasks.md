@@ -13,10 +13,8 @@
 - [x] 2.1 Add `TaskService.grantZaakspecifiekeAutorisatieToNewAssignee(task, assignee)`. When the assignee changes,
       it grants (1.2) and writes the history entry (4.1). Every assignment path calls it before writing to Flowable.
       In bulk verdelen it is called before the groep changes, so a refusal leaves the taak unchanged.
-- [x] 2.2 In `TaskRestService.completeTask`, call `TaskService.grantZaakspecifiekeAutorisatieToNewAssignee` before the
-      implicit assignment. It is not routed through `TaskService.assignTaskToUser`, because that sends an
-      asynchronous "taak op naam" signalering that would read the taak after it has already been completed.
-      Keep the revision handling described in the existing comment.
+- [x] 2.2 `TaskRestService.completeTask` does not grant. The completer already has access, because completing
+      requires the `wijzigen` right on the taak.
 - [x] 2.3 In `PlanItemsRestService.doHumanTaskplanItem`, grant (1.2) to the selected medewerker before the
       opschorting, the mail and the creation of the taak, so that a missing roltype stops the request before
       anything happens.
@@ -63,7 +61,7 @@
       - a zaak that is not marked writes nothing;
       - bulk verdelen with one skipped taak;
       - release writes nothing.
-- [ ] 5.3 `TaskRestServiceTest`: complete on an unassigned taak grants. `PlanItemsRestServiceTest`: the start is
+- [ ] 5.3 `TaskRestServiceTest`: complete adds no rol and is not refused on a missing roltype. `PlanItemsRestServiceTest`: the start is
       refused on a zaaktype without the roltype.
 - [ ] 5.4 `PlanItemsRestServiceTest`: starting a taak with a medewerker grants; without a medewerker writes nothing.
       `CMMNServiceTest`: `readOpenTaskForPlanItem` finds the taak, or throws `TaskNotFoundException`.

@@ -11,7 +11,7 @@ reached by three groups:
 A **taakbehandelaar** belongs to none of these. So an employee who gets a taak of such a zaak cannot open
 that taak or its zaak, and cannot find either of them in a werkvoorraad or in zoekresultaten.
 
-[PZ-12035](https://dimpact.atlassian.net/browse/PZ-12035) closes that gap. Whoever is, or has been,
+[PZ-12506](https://dimpact.atlassian.net/browse/PZ-12506) closes that gap. Whoever is, or has been,
 taakbehandelaar of a taak of a zaakspecifiek geautoriseerde zaak gets access to that zaak and keeps it.
 
 ## What Changes
@@ -23,8 +23,9 @@ taakbehandelaar of a taak of a zaakspecifiek geautoriseerde zaak gets access to 
 - **Every way a medewerker assigns a taak is covered**, for CMMN human tasks and BPMN user tasks alike:
   - starting a human task plan item with a medewerker;
   - toekennen and toekennen aan mij, from the taakdetailpagina and from the takenwerkvoorraad;
-  - verdelen from the takenwerkvoorraad;
-  - the implicit assignment to the logged-in user when an unassigned taak is completed.
+  - verdelen from the takenwerkvoorraad.
+
+  Completing a taak adds no rol, because whoever may complete it already has access.
 - **Reassigning, releasing or completing removes nothing.** The previous taakbehandelaar already has the rol
   and keeps it. ZAC never removes a *Zaakspecifiek geautoriseerde medewerker* rol because of a taak.
 - **No duplicate rollen.** A medewerker who already holds the rol does not get a second one. This applies
@@ -69,7 +70,7 @@ None. The rol already feeds the OPA policies (`zaakspecifieke-autorisatie-toegan
 - **Backend**:
   - `ZaakspecifiekeAutorisatieService`, whose existing `grantZaakspecifiekeAutorisatie`, roltype check and
     reindexing are reused.
-  - `TaskService` and `TaskRestService`: toekennen, verdelen, and the implicit assignment in complete.
+  - `TaskService` and `TaskRestService`: toekennen and verdelen.
   - `PlanItemsRestService` and `CMMNService`: the fail-closed check before starting a taak, and the grant to
     the selected medewerker after it is started.
   - `RestTaskHistoryConverter`, plus a new Flowable history entry.

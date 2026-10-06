@@ -9,8 +9,11 @@ to CMMN human tasks and BPMN user tasks alike. It SHALL hold for every way a med
 - `PATCH /rest/taken/toekennen`;
 - `PATCH /rest/taken/toekennen/mij`;
 - `PATCH /rest/taken/lijst/toekennen/mij`;
-- `PUT /rest/taken/lijst/verdelen`;
-- the implicit assignment to the logged-in user in `PATCH /rest/taken/complete`.
+- `PUT /rest/taken/lijst/verdelen`.
+
+The implicit assignment to the logged-in user in `PATCH /rest/taken/complete` SHALL NOT add a rol. Completing
+requires the `wijzigen` right on the taak, and on a zaakspecifiek geautoriseerde zaak that right already
+requires access to the zaak. The completer therefore already has access, and keeps it.
 
 For an assignment through a REST endpoint, the rol SHALL exist before the request returns. The rol SHALL be
 identical to the one a previous zaakbehandelaar receives on handover: same roltype, same `roltoelichting`. The
@@ -26,6 +29,12 @@ medewerker's.
 - **WHEN** an employee starts a human task plan item on that zaak with a groep and A selected
 - **THEN** the zaak has a *Zaakspecifiek geautoriseerde medewerker* rol for A
 - **AND** A can read and treat the zaak, the new taak and the documenten of the zaak
+
+#### Scenario: Completing a taak that is assigned to someone else adds no rol
+- **GIVEN** a taak of a zaakspecifiek geautoriseerde zaak
+- **WHEN** a medewerker who already has access to the zaak completes it while it is not assigned to them
+- **THEN** no *Zaakspecifiek geautoriseerde medewerker* rol is added for that medewerker
+- **AND** the taak is completed, also when the zaaktype lacks the roltype
 
 #### Scenario: Reassigning a taak
 - **GIVEN** a taak of a zaakspecifiek geautoriseerde zaak with taakbehandelaar A

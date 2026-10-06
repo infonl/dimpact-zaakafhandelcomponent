@@ -28,7 +28,7 @@ These are all the ways a taak gets a medewerker today:
 | Start a human task plan item with a medewerker | `PlanItemsRestService.doHumanTaskplanItem` → `ZacCreateHumanTaskInterceptor` | Kotlin |
 | `PATCH taken/toekennen`, `PUT taken/lijst/verdelen` | `TaskService.assignTasks` → `assignTaskToUser` | Kotlin |
 | `PATCH taken/toekennen/mij`, `PATCH taken/lijst/toekennen/mij` | `TaskRestService.assignLoggedInUserToTask` → `TaskService.assignTaskToUser` | Kotlin |
-| `PATCH taken/complete` on an unassigned taak | `TaskRestService.completeTask` → `FlowableTaskService.assignTaskToUser` directly | Kotlin caller |
+| `PATCH taken/complete` on a taak not assigned to the completer | `TaskRestService.completeTask` → `FlowableTaskService.assignTaskToUser` directly. No grant is needed, see Decisions | Kotlin caller |
 
 Other facts:
 - **The taakhistorie comes from Flowable.** `RestTaskHistoryConverter` converts `HistoricTaskLogEntry`s. A
@@ -99,9 +99,10 @@ In `TaskService.assignTaskToUser`, when the assignee changes on a taak of a mark
 1. grant, which also checks the roltype;
 2. assign in Flowable.
 
-`TaskRestService.completeTask` calls `TaskService.grantZaakspecifiekeAutorisatieToNewAssignee` before its
-implicit assignment. It does not go through `assignTaskToUser`, because that sends an asynchronous "taak op
-naam" signalering that would read a taak that has already been completed. In bulk verdelen, the grant
+`TaskRestService.completeTask` does not grant. *Decided by the developer, 2026-10-06.* Completing requires
+the `wijzigen` right on the taak, which on a marked zaak already requires access: the flag, the
+zaakbehandelaar rol, or a ZGM rol. So the completer already has access, and keeps it. It also means a
+missing roltype never blocks a completion. In bulk verdelen, the grant
 happens before the groep changes, so a refusal leaves the taak unchanged. The skipped screen event uses the
 existing `ScreenEventType.skipped(String)` with the taak id, so no Java file changes. `PlanItemsRestService` asserts the roltype before starting the plan item.
 
