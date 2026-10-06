@@ -7,7 +7,7 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
-## Progress — all 18 modules removed; step 9 merged (#7277)
+## Progress — all 18 modules removed once step 9 merges; step 8 merged, step 9 ready for PR
 
 - [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
 - [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
@@ -21,9 +21,8 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 - [x] **Step 7** — dissolve `SharedModule` — **−30.8 kB** (PZ-12864, merged, #7266)
 - [x] **Step 8** — `loadChildren` targets: NgModule -> `Routes` (`taken` incl. `TakenModule`,
       `documenten`, `productaanvragen`) (merged, #7271)
-- [x] **Step 9** — `app.routes.ts` + `bootstrapApplication`; delete `AppRoutingModule`, `AppModule` and `CoreModule` (old step 10 merged in on 2026-10-05) — 433.88 -> 433.49 kB transfer (PZ-12875, merged, #7277)
+- [ ] **Step 9** — `app.routes.ts` + `bootstrapApplication`; delete `AppRoutingModule`, `AppModule` and `CoreModule` (old step 10 merged in on 2026-10-05) — implemented 2026-10-05, uncommitted; tsc 0, lint 0, prod build ok (433.88 -> 433.49 kB transfer on main 921612bd7), 3388 green, provider diff explained, manual smoke test ok; ready for PR (PZ-12875)
 - [ ] **Step 10 (optional)** — lazy-load the search sidenav, `/gebruiker` and Form.io in taak-view — est. **≈ −94 kB** initial transfer, plus **≈ −300 kB or more** per CMMN taak opened; independent of step 9, own PR
-- [ ] **Step 11 (optional)** — follow-ups from the #7277 review: `app.config.ts` in line with what Angular prescribes, plus stale docs; no behaviour change, own PR
 
 Bundle so far: **672.06 -> 443.64 kB** initial transfer (**−34%**), the 77 kB of that in
 the PZ-12707 PR (step 3) and the last 0.6 kB in step 4. Step 6 adds −9.8 kB on its own base (459.67 -> 449.84 kB). Step 5b gives back +13.5 kB on its own base (450.26 -> 463.74 kB, main `c2523a8ab`). Step 7 takes −30.8 kB on its own base (464.59 -> 433.79 kB, main `5ec92208c`), so 5b + 7 together net −17.3 kB.
@@ -386,6 +385,7 @@ Only the *shape* of the import target changes: it resolves to an NgModule instea
 
 Old steps 9 and 10 in one PR (decided 2026-10-05). Routing part first:
 
+
 `RouterModule.forRoot(routes)` becomes `provideRouter(APP_ROUTES)`, now a bootstrap provider. Last routing module gone. `forRoot` is called without a
 config object (verified 2026-10-01), so no `withRouterConfig`/`withInMemoryScrolling`-style
 feature is needed to keep behaviour identical.
@@ -444,19 +444,6 @@ Not about NgModules; it can be its own PR at any time. Found 2026-10-05 by cutti
   - `FormioCustomEvent` and `FormioChangeEvent` come from `formio-wrapper.component.ts`; `taak-view.component.ts` and `formio-setup-service.ts` must use them as types only (`import type`), otherwise the wrapper file, and with it Form.io, is pulled back into the taak chunk. `FormioWrapperComponent` may not be referenced anywhere in `taak-view.component.ts` except its `imports` array, or Angular cannot defer it.
 - **Rejected:** toolbar (always visible, −58 kB raw) and `moment` (63 kB, reaches the app through the app-wide `DateAdapter`).
 
-## Step 11 (optional) — Follow-ups from the #7277 review
-
-Found 2026-10-05 while reviewing #7277 against `@angular/*` 20.3.33 in `node_modules`. #7277 itself changed no behaviour (tsc 0, lint 0, prod build 433.49 kB, router/initializer order/interceptors verified equal). None of these block anything; one small PR.
-
-- **Add `provideZoneChangeDetection()` to `appConfig`, without options.** Identical behaviour to today (`bootstrapApplication` already defaults to zone.js), but it makes zone.js explicit, as the v20 CLI template does. Angular 21 is expected to default to zoneless when it is missing; being explicit now keeps that upgrade a no-op. Do **not** add `eventCoalescing: true` here — that changes change-detection timing and needs its own PR.
-- **`provideBrowserGlobalErrorListeners()`** (new in v20, also in the CLI template) sends `window` errors and unhandled rejections to `ErrorHandler`. Behaviour change (more console errors), so its own decision, not this PR.
-- **Drop three redundant providers from `app.config.ts`:** `UtilService` (already `providedIn: "root"`), `{ provide: LocationStrategy, useClass: PathLocationStrategy }` (already the default: `LocationStrategy` is `providedIn: 'root'` with `useFactory: () => inject(PathLocationStrategy)`), and `{ provide: APP_BASE_HREF, useValue: "/" }` (same as `<base href="/">` in `index.html`). Keep the `RouteReuseStrategy` provider: that one is a real override.
-- **`MatPaginatorIntl`: `deps` + `useFactory(translateService)` -> `useFactory: () => new PaginatorTranslator(inject(TranslateService)).getTranslatedPaginator()`**, matching the `inject()` style used elsewhere.
-- **`app.component.spec.ts` renders deep now.** `AppComponent` is standalone, so the spec renders the real `ToolbarComponent` and `ZoekComponent` (passes, 252 ms, no console errors). Only if it gets slow or flaky: stub them via `TestBed.overrideComponent(AppComponent, { set: { imports: [...] } })`.
-- **Stale docs:** `.claude/commands/migrate-angular-bundle-size.md` still describes `platformBrowserDynamic().bootstrapModule(AppModule)` and `AppModule.imports` as work to do; update or delete it.
-- **Keep `@angular/platform-browser-dynamic` in `package.json`.** No app code imports it any more, but `jest-preset-angular` (`setup-env/zone`) requires it.
-- **`provideAnimations()` is deprecated since 20.2** (as was `BrowserAnimationsModule`; replacement `animate.enter`/`animate.leave`, removal planned for v23). Still needed: 10 components use `@angular/animations`. Not for this step; see `provideAnimationsAsync()` under the parked findings.
-
 ## Order summary
 
 Step 3: done, −77 kB, merged (#7088).
@@ -464,8 +451,7 @@ Step 4: done, −0.6 kB — no consumer needed touching; the work was migrating 
 Testing Library.
 Steps 5–7: order forced by the barrels' own dependencies. 5a merged; step 6 merged (#7227), −9.8 kB; 5b merged (#7233), +13.5 kB; step 7 −30.8 kB, confirming the Material win sat behind `SharedModule`.
 Step 8: low risk, no behaviour change, no win.
-Step 9: routing (low risk) + the bootstrap gate (all of the risk, none of the payoff), merged into one PR (#7277).
-Steps 10–11: optional, independent, own PRs.
+Step 9: routing (low risk) + the bootstrap gate (all of the risk, none of the payoff), merged into one PR.
 
 Remaining after step 8 (code checked 2026-10-05): 3 — `app-routing.module.ts`, `app.module.ts` + `core/core.module.ts`, all in step 9. Before step 8: 7 `@NgModule` files on disk — `taken.module.ts` + `taken-routing.module.ts`, `documenten-routing.module.ts`, `productaanvragen-routing.module.ts` (step 8), `app-routing.module.ts`, `app.module.ts` + `core/core.module.ts` (step 9).
 
