@@ -7,13 +7,12 @@ import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { fireEvent, render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { from, of, throwError } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../../setupJest";
+import { sleep } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -123,7 +122,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       on: { bpmnFormListChanged },
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideQueryClient(testQueryClient),
         { provide: BpmnService, useValue: bpmnService },
         { provide: UtilService, useValue: utilService },
         { provide: FoutAfhandelingService, useValue: foutAfhandelingService },

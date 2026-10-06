@@ -3,17 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../setupJest";
@@ -50,20 +42,11 @@ describe(SmartDocumentsService.name, () => {
           useValue: mockFoutAfhandelingService,
         },
         { provide: TranslateService, useValue: mockTranslateService },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
       ],
     });
 
     smartDocumentsService = TestBed.inject(SmartDocumentsService);
     httpTestingController = TestBed.inject(HttpTestingController);
-  });
-
-  afterEach(() => {
-    httpTestingController.verify();
-    testQueryClient.clear();
-    jest.clearAllMocks();
   });
 
   it(SmartDocumentsService.prototype.addParentIdsToTemplates.name, () => {
