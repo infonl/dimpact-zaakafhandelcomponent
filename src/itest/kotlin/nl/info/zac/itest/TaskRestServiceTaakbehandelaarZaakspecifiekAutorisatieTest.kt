@@ -17,6 +17,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
+import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
@@ -268,6 +269,74 @@ class TaskRestServiceTaakbehandelaarZaakspecifiekAutorisatieTest : BehaviorSpec(
                     url = "$ZAC_API_URI/taken/$taskId",
                     testUser = BEHANDELAAR_1_EN_BRP_ZOEKER_2
                 ).code shouldBe HTTP_OK
+            }
+        }
+    }
+
+    given(
+        """
+        Three CMMN zaken with a taak assigned to their groep only, of which only the third zaak is
+        zaakspecifiek geautoriseerd
+        """
+    ) {
+        val zakenWithTask = (1..3).map {
+            val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                group = GROUP_BEHANDELAARS_TEST_1,
+                testUser = BEHANDELAAR_1,
+                behandelaarId = BEHANDELAAR_1.username,
+                behandelaarName = BEHANDELAAR_1.displayName
+            )
+            val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
+                zaakUuid = zaakUuid,
+                zaakIdentificatie = zaakIdentificatie,
+                fatalDate = LocalDate.now().plusWeeks(1),
+                group = GROUP_BEHANDELAARS_TEST_1,
+                testUser = BEHANDELAAR_1
+            )
+            zaakUuid to taskId
+        }
+        val (zaakspecifiekGeautoriseerdeZaakUuid, _) = zakenWithTask[2]
+        markZaakspecifiekGeautoriseerd(zaakspecifiekGeautoriseerdeZaakUuid)
+        val takenJson = zakenWithTask.joinToString(",") { (zaakUuid, taskId) ->
+            "{ \"taakId\": \"$taskId\", \"zaakUuid\": \"$zaakUuid\" }"
+        }
+
+        `when`("all three taken are distributed to one behandelaar from the takenwerkvoorraad") {
+            itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/taken/lijst/verdelen",
+                requestBodyAsString = """
+                    {
+                        "taken": [ $takenJson ],
+                        "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                        "behandelaarGebruikersnaam": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
+                        "reden": "fakeReason"
+                    }
+                """.trimIndent(),
+                testUser = COORDINATOR_1
+            ).code shouldBe HTTP_NO_CONTENT
+
+            then("all three taken are assigned to that behandelaar") {
+                eventually(30.seconds) {
+                    zakenWithTask.forEach { (_, taskId) ->
+                        itestHttpClient.performGetRequest(
+                            url = "$ZAC_API_URI/taken/$taskId",
+                            testUser = BEHANDELAAR_1
+                        ).let {
+                            it.code shouldBe HTTP_OK
+                            JSONObject(it.bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                                BEHANDELAAR_1_EN_BRP_ZOEKER_2.username
+                        }
+                    }
+                }
+            }
+
+            and("only on the zaakspecifiek geautoriseerde zaak the behandelaar becomes a geautoriseerde medewerker") {
+                zaakspecifiekGeautoriseerdeMedewerkerIds(zaakspecifiekGeautoriseerdeZaakUuid) shouldBe
+                    listOf(BEHANDELAAR_1_EN_BRP_ZOEKER_2.username)
+                zakenWithTask.take(2).forEach { (zaakUuid, _) ->
+                    zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe emptyList()
+                }
             }
         }
     }

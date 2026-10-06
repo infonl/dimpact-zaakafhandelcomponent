@@ -116,21 +116,14 @@ class TaskService @Inject constructor(
         explanation: String?
     ): Task {
         grantZaakspecifiekeAutorisatieToNewAssignee(flowableTaskService.readOpenTask(taskId), assignee)
-        return assignTaskToUserWithoutAuthorisation(taskId, assignee, loggedInUser, explanation)
-    }
-
-    /**
-     * Grants [assignee] access to the zaak of [task] when that zaak is zaakspecifiek geautoriseerd and the
-     * assignee is not already the taakbehandelaar. Call this before writing the assignment.
-     *
-     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaaktype does not define
-     * the roltype
-     */
-    fun grantZaakspecifiekeAutorisatieToNewAssignee(task: Task, assignee: String) {
-        if (task.assignee == assignee) return
-        val zaak = zrcClientService.readZaak(TaakVariabelenService.readZaakUUID(task))
-        if (zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, assignee)) {
-            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, assignee)
+        return flowableTaskService.assignTaskToUser(taskId, assignee, explanation).also {
+            eventingService.send(
+                SignaleringEventUtil.event(
+                    SignaleringType.Type.TAAK_OP_NAAM,
+                    it,
+                    loggedInUser
+                )
+            )
         }
     }
 
@@ -213,30 +206,26 @@ class TaskService @Inject constructor(
         restTaskDistributeData: RestTaskDistributeData,
         loggedInUser: LoggedInUser
     ) {
-        restTaskDistributeData.behandelaarGebruikersnaam?.let { grantZaakspecifiekeAutorisatieToNewAssignee(task, it) }
+        restTaskDistributeData.behandelaarGebruikersnaam?.let {
+            assignTaskToUser(
+                taskId = task.id,
+                assignee = it,
+                loggedInUser = loggedInUser,
+                explanation = restTaskDistributeData.reden
+            )
+        } ?: task.assignee?.let {
+            // if no assignee was specified _and_ the task currently has an assignee, only then release it
+            releaseTask(
+                task = task,
+                loggedInUser = loggedInUser,
+                reden = restTaskDistributeData.reden
+            )
+        }
         flowableTaskService.assignTaskToGroup(
             task,
             restTaskDistributeData.groepId,
             restTaskDistributeData.reden
         )
-        restTaskDistributeData.behandelaarGebruikersnaam?.run {
-            assignTaskToUserWithoutAuthorisation(
-                taskId = task.id,
-                assignee = this,
-                loggedInUser = loggedInUser,
-                explanation = restTaskDistributeData.reden
-            )
-        } ?: run {
-            // if no assignee was specified _and_ the task currently has an assignee,
-            // only then release it
-            task.assignee?.run {
-                releaseTask(
-                    task = task,
-                    loggedInUser = loggedInUser,
-                    reden = restTaskDistributeData.reden
-                )
-            }
-        }
     }
 
     private fun releaseTasks(
@@ -266,19 +255,12 @@ class TaskService @Inject constructor(
         }
     }
 
-    private fun assignTaskToUserWithoutAuthorisation(
-        taskId: String,
-        assignee: String,
-        loggedInUser: LoggedInUser,
-        explanation: String?
-    ): Task = flowableTaskService.assignTaskToUser(taskId, assignee, explanation).also {
-        eventingService.send(
-            SignaleringEventUtil.event(
-                SignaleringType.Type.TAAK_OP_NAAM,
-                it,
-                loggedInUser
-            )
-        )
+    private fun grantZaakspecifiekeAutorisatieToNewAssignee(task: Task, assignee: String) {
+        if (task.assignee == assignee) return
+        val zaak = zrcClientService.readZaak(TaakVariabelenService.readZaakUUID(task))
+        if (zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, assignee)) {
+            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, assignee)
+        }
     }
 
     private fun releaseTask(

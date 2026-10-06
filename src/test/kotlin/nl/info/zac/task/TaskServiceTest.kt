@@ -743,15 +743,27 @@ class TaskServiceTest : BehaviorSpec({
         given("a task whose zaak gives the new assignee no rol") {
             val zaak = createZaak()
             val task = createTestTask(id = "fakeTaskId", caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid))
+            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { flowableTaskService.readOpenTask("fakeTaskId") } returns task
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
             } returns false
+            every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
+            every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
 
-            `when`("access is granted to the new assignee") {
-                taskService.grantZaakspecifiekeAutorisatieToNewAssignee(task, "fakeNewAssignee")
+            `when`("the task is assigned to the new assignee") {
+                taskService.assignTaskToUser(
+                    taskId = "fakeTaskId",
+                    assignee = "fakeNewAssignee",
+                    loggedInUser = loggedInUser,
+                    explanation = "fakeReason"
+                )
 
-                then("nothing is recorded in the history of the task") {
+                then("the task is assigned, but nothing is recorded in its history") {
+                    verify(exactly = 1) {
+                        flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason")
+                    }
                     verify(exactly = 0) {
                         taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any(), any())
                     }
@@ -761,9 +773,18 @@ class TaskServiceTest : BehaviorSpec({
 
         given("a task that is already assigned to the medewerker") {
             val task = createTestTask(id = "fakeTaskId", assignee = "fakeAssignee")
+            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { flowableTaskService.readOpenTask("fakeTaskId") } returns task
+            every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeAssignee", "fakeReason") } returns task
+            every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
 
-            `when`("access is granted to that same medewerker") {
-                taskService.grantZaakspecifiekeAutorisatieToNewAssignee(task, "fakeAssignee")
+            `when`("the task is assigned to that same medewerker again") {
+                taskService.assignTaskToUser(
+                    taskId = "fakeTaskId",
+                    assignee = "fakeAssignee",
+                    loggedInUser = loggedInUser,
+                    explanation = "fakeReason"
+                )
 
                 then("the zaak is not read and no access is granted") {
                     verify(exactly = 0) {

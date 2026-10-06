@@ -10,9 +10,11 @@
 
 ## 2. REST assignment paths
 
-- [x] 2.1 Add `TaskService.grantZaakspecifiekeAutorisatieToNewAssignee(task, assignee)`. When the assignee changes,
-      it grants (1.2) and writes the history entry (4.1). Every assignment path calls it before writing to Flowable.
-      In bulk verdelen it is called before the groep changes, so a refusal leaves the taak unchanged.
+- [x] 2.1 `TaskService.assignTaskToUser` first grants the zaakspecifieke autorisatie (1.2) to a new assignee. It
+      writes the history entry (4.1) when a rol was added, and only then assigns in Flowable. Verdelen and toekennen
+      (`assignTaskAndOptionallyReleaseFromAssignee`) set or release the behandelaar before changing the groep, the
+      same order the zaak assignment uses (`ZaakService.changeBehandelaar` before `assignGroup`). So a refusal leaves both the groep and
+      the behandelaar unchanged.
 - [x] 2.2 `TaskRestService.completeTask` does not grant. The completer already has access, because completing
       requires the `wijzigen` right on the taak.
 - [x] 2.3 In `PlanItemsRestService.doHumanTaskplanItem`, grant (1.2) to the selected medewerker before the
@@ -91,6 +93,9 @@
       - `PlanItemsRestServiceTest` (starting is refused);
       - `ZaakRestServiceTest` and `ZaakServiceTest` (zaak handover and verdelen);
       - `RestExceptionMapperTest` (HTTP 400 with the error code).
+- [x] 5.11 Integration test: distribute the taken of three zaken from the takenwerkvoorraad (`PUT taken/lijst/verdelen`, as
+      COORDINATOR_1) to one behandelaar. Only the third zaak is marked. Check that all three taken are assigned, and that
+      only the marked zaak gets a *Zaakspecifiek geautoriseerde medewerker* rol for that behandelaar.
 
 ## 6. Wrap-up
 

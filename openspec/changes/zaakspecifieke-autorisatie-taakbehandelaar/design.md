@@ -102,8 +102,9 @@ In `TaskService.assignTaskToUser`, when the assignee changes on a taak of a mark
 `TaskRestService.completeTask` does not grant. *Decided by the developer, 2026-10-06.* Completing requires
 the `wijzigen` right on the taak, which on a marked zaak already requires access: the flag, the
 zaakbehandelaar rol, or a ZGM rol. So the completer already has access, and keeps it. It also means a
-missing roltype never blocks a completion. In bulk verdelen, the grant
-happens before the groep changes, so a refusal leaves the taak unchanged. The skipped screen event uses the
+missing roltype never blocks a completion. In verdelen and toekennen,
+the behandelaar, including the grant, is assigned before the groep changes. That is the order the zaak
+assignment uses, so a refusal leaves the taak unchanged. The skipped screen event uses the
 existing `ScreenEventType.skipped(String)` with the taak id, so no Java file changes. `PlanItemsRestService` asserts the roltype before starting the plan item.
 
 *Why grant first:* Open Zaak and Flowable share no transaction.
