@@ -49,27 +49,27 @@
 
 ## 5. Tests (separate phase: start only after the developer's explicit OK)
 
-- [ ] 5.1 `ZaakspecifiekeAutorisatieServiceTest`: unit tests for 1.2, covering:
+- [x] 5.1 `ZaakspecifiekeAutorisatieServiceTest`: unit tests for 1.2, covering:
       - the zaak is not marked;
       - the medewerker is the zaakbehandelaar;
       - the medewerker already holds the rol;
       - a rol is added, including the reindex;
       - the roltype is missing.
-- [ ] 5.2 `TaskServiceTest`:
+- [x] 5.2 `TaskServiceTest`:
       - the grant happens before the Flowable assignment;
       - an unchanged assignee writes nothing;
       - a zaak that is not marked writes nothing;
       - bulk verdelen with one skipped taak;
       - release writes nothing.
-- [ ] 5.3 `TaskRestServiceTest`: complete adds no rol and is not refused on a missing roltype. `PlanItemsRestServiceTest`: the start is
+- [x] 5.3 `TaskRestServiceTest`: complete adds no rol and is not refused on a missing roltype. `PlanItemsRestServiceTest`: the start is
       refused on a zaaktype without the roltype.
-- [ ] 5.4 `PlanItemsRestServiceTest`: starting a taak with a medewerker grants; without a medewerker writes nothing.
+- [x] 5.4 `PlanItemsRestServiceTest`: starting a taak with a medewerker grants; without a medewerker writes nothing.
       `CMMNServiceTest`: `readOpenTaskForPlanItem` finds the taak, or throws `TaskNotFoundException`.
-- [ ] 5.5 `ZaakspecifiekeAutorisatieServiceTest` for 3.2:
+- [x] 5.5 `ZaakspecifiekeAutorisatieServiceTest` for 3.2:
       - marking grants the rol to the assignees of the open taken;
       - it skips the zaakbehandelaar and existing holders;
       - groep-only taken add nothing.
-- [ ] 5.6 `RestTaskHistoryConverterTest`: renders the new history entry.
+- [x] 5.6 `RestTaskHistoryConverterTest`: renders the new history entry.
 - [ ] 5.7 Integration test on a marked zaak with BEHANDELAAR_1 and BEHANDELAAR_2, neither of whom holds the
       flag. The steps are:
       1. Start a taak with BEHANDELAAR_1. Check that the rol exists, that BEHANDELAAR_1 can read and edit the

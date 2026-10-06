@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.mail.model.createRestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -38,6 +39,8 @@ import nl.info.zac.app.planitems.model.createRestHumanTaskData
 import nl.info.zac.app.planitems.model.createRestTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRestUserEventListenerData
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
@@ -54,6 +57,9 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.test.org.flowable.task.api.createTestTask
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
@@ -75,6 +81,8 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
+    val taskHistoryService = mockk<TaskHistoryService>()
 
     val planItemsRESTService = PlanItemsRestService(
         zaakVariabelenService,
@@ -89,7 +97,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         mailTemplateService,
         policyService,
         suspensionZaakHelper,
-        loggedInUserInstance
+        loggedInUserInstance,
+        zaakspecifiekeAutorisatieService,
+        taskHistoryService
     )
 
     val planItemInstanceId = "fakePlanItemInstanceId"
@@ -170,6 +180,96 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 }
 
                 then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+
+        given("REST human task data with a selected medewerker who gets a zaakspecifiek geautoriseerde medewerker rol") {
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                medewerker = createRestUser(id = "fakeTaakbehandelaarId"),
+                taakdata = mapOf("fakeKey" to "fakeValue")
+            )
+            val zaak = createZaak(
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+            )
+            val loggedInUser = createLoggedInUser()
+            val task = createTestTask(id = "fakeTaskId", assignee = "fakeTaakbehandelaarId")
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every {
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeTaakbehandelaarId")
+            } returns true
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    planItemInstanceId,
+                    restHumanTaskData.groep.id,
+                    "fakeTaakbehandelaarId",
+                    any(),
+                    any(),
+                    any(),
+                    zaak.uuid
+                )
+            } just runs
+            every { cmmnService.readOpenTaskForPlanItem(planItemInstanceId) } returns task
+            every {
+                taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, "fakeTaakbehandelaarId")
+            } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
+
+            `when`("the human task plan item is started") {
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                then("the medewerker is granted access before the taak is created, and the grant is recorded on the new taak") {
+                    verifyOrder {
+                        zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                            zaak,
+                            "fakeTaakbehandelaarId"
+                        )
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(
+                            task,
+                            zaak,
+                            "fakeTaakbehandelaarId"
+                        )
+                    }
+                }
+            }
+        }
+
+        given("REST human task data with a selected medewerker on a zaak whose zaaktype lacks the zaakspecifiek geautoriseerde medewerker roltype") {
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                medewerker = createRestUser(id = "fakeTaakbehandelaarId")
+            )
+            val zaak = createZaak()
+            val loggedInUser = createLoggedInUser()
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every {
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeTaakbehandelaarId")
+            } throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException("fakeMessage")
+
+            `when`("the human task plan item is started") {
+                shouldThrow<ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException> {
+                    planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+                }
+
+                then("no taak is created and the zaak is neither suspended nor mailed about") {
+                    verify(exactly = 0) {
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        suspensionZaakHelper.suspendZaak(any(), any(), any())
+                        mailService.sendMail(any(), any())
+                    }
+                }
             }
         }
 

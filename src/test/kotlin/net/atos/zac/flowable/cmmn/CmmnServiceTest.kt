@@ -4,6 +4,7 @@
  */
 package net.atos.zac.flowable.cmmn
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -14,13 +15,16 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.authentication.LoggedInUser
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
+import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.cmmn.api.runtime.CaseInstance
 import org.flowable.cmmn.api.runtime.CaseInstanceBuilder
 import java.net.URI
@@ -30,11 +34,13 @@ class CmmnServiceTest : BehaviorSpec({
     val cmmnRuntimeService = mockk<CmmnRuntimeService>()
     val cmmnRepositoryService = mockk<CmmnRepositoryService>()
     val cmmnHistoryService = mockk<CmmnHistoryService>()
+    val cmmnTaskService = mockk<CmmnTaskService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val cmmnService = CmmnService(
         cmmnRuntimeService,
         cmmnHistoryService,
         cmmnRepositoryService,
+        cmmnTaskService,
         loggedInUserInstance
     )
 
@@ -163,6 +169,36 @@ class CmmnServiceTest : BehaviorSpec({
 
             then("the zaak is not reported as case driven") {
                 isZaakCaseDriven shouldBe false
+            }
+        }
+    }
+    given("a plan item instance for which a human task was started") {
+        val task = createTestTask(id = "fakeTaskId")
+        every {
+            cmmnTaskService.createTaskQuery().planItemInstanceId("fakePlanItemInstanceId").singleResult()
+        } returns task
+
+        `when`("the open task of that plan item instance is read") {
+            val openTask = cmmnService.readOpenTaskForPlanItem("fakePlanItemInstanceId")
+
+            then("the task created for the plan item instance is returned") {
+                openTask shouldBe task
+            }
+        }
+    }
+    given("a plan item instance without an open task") {
+        every {
+            cmmnTaskService.createTaskQuery().planItemInstanceId("fakePlanItemInstanceId").singleResult()
+        } returns null
+
+        `when`("the open task of that plan item instance is read") {
+            val taskNotFoundException = shouldThrow<TaskNotFoundException> {
+                cmmnService.readOpenTaskForPlanItem("fakePlanItemInstanceId")
+            }
+
+            then("the caller is told which plan item instance has no open task") {
+                taskNotFoundException.message shouldBe
+                    "No open task found for plan item instance id 'fakePlanItemInstanceId'"
             }
         }
     }
