@@ -12,6 +12,7 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { I18nLabelPipe } from "../../shared/pipes/i18n-label.pipe";
 import { LocationPipe } from "../../shared/pipes/location.pipe";
 import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -31,6 +32,7 @@ import { ZakenService } from "../zaken.service";
     DatumPipe,
     EmptyPipe,
     I18nKeyPipe,
+    I18nLabelPipe,
     LocationPipe,
     MimetypeToExtensionPipe,
     ReadMoreComponent,

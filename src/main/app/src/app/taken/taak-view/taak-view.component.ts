@@ -68,6 +68,7 @@ import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { I18nLabelPipe } from "../../shared/pipes/i18n-label.pipe";
 import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
@@ -103,6 +104,7 @@ import { FormioSetupService } from "./formio/formio-setup-service";
     DatumPipe,
     EmptyPipe,
     I18nKeyPipe,
+    I18nLabelPipe,
     MimetypeToExtensionPipe,
     FormioWrapperComponent,
     InformatieObjectAddComponent,
