@@ -322,7 +322,9 @@ class BrpClientService @Inject constructor(
         resolveFunction: (ZaaktypeCmmnConfiguration) -> String?,
         buildFunction: (String?, ZaaktypeCmmnConfiguration) -> String?
     ): String? =
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(this).let { zaaktypeCmmnConfiguration ->
+        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(this)
+            .takeIf { it.id != null }
+            ?.let { zaaktypeCmmnConfiguration ->
             resolveFunction(zaaktypeCmmnConfiguration)?.let { resolvedValue ->
                 if (StandardCharsets.US_ASCII.newEncoder().canEncode(resolvedValue)) {
                     resolvedValue.trim().takeIf { it.isNotBlank() }
