@@ -41,6 +41,7 @@ import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.Task
 import java.util.UUID
 
+@Suppress("LargeClass")
 class TaskServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val indexingService = mockk<IndexingService>()

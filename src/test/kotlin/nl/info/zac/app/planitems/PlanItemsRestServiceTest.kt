@@ -207,13 +207,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every {
                 cmmnService.startHumanTaskPlanItem(
-                    planItemInstanceId,
-                    restHumanTaskData.groep.id,
-                    "fakeTaakbehandelaarId",
-                    any(),
-                    any(),
-                    any(),
-                    zaak.uuid
+                    planItemInstanceId = planItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = "fakeTaakbehandelaarId",
+                    dueDate = any(),
+                    description = any(),
+                    taakdata = any(),
+                    zaakUUID = zaak.uuid
                 )
             } just runs
             every { cmmnService.readOpenTaskForPlanItem(planItemInstanceId) } returns task
@@ -231,7 +231,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                             zaak,
                             "fakeTaakbehandelaarId"
                         )
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(
                             task,
                             zaak,
@@ -242,7 +250,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("REST human task data with a selected medewerker on a zaak whose zaaktype lacks the zaakspecifiek geautoriseerde medewerker roltype") {
+        given(
+            """
+            REST human task data with a selected medewerker on a zaak whose zaaktype lacks the zaakspecifiek
+            geautoriseerde medewerker roltype
+            """
+        ) {
             val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 medewerker = createRestUser(id = "fakeTaakbehandelaarId")
@@ -265,7 +278,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("no taak is created and the zaak is neither suspended nor mailed about") {
                     verify(exactly = 0) {
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         suspensionZaakHelper.suspendZaak(any(), any(), any())
                         mailService.sendMail(any(), any())
                     }

@@ -515,6 +515,7 @@ class ZacClient(
     /**
      * Starts the "Aanvullende Informatie" human task plan item (i.e. task) for the given zaak.
      */
+    @Suppress("LongParameterList")
     fun startAanvullendeInformatieTaskForZaak(
         zaakUUID: UUID,
         fatalDate: LocalDate,
