@@ -5,7 +5,10 @@
 package nl.info.zac.history.converter
 
 import jakarta.inject.Inject
-import nl.info.zac.util.time.format
+import jakarta.ws.rs.ProcessingException
+import nl.info.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
@@ -15,8 +18,11 @@ import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.util.asMapWithKeyOfString
 import nl.info.zac.util.diff
 import nl.info.zac.util.getTypedValue
+import nl.info.zac.util.time.format
 import java.net.URI
 import java.time.ZonedDateTime
+import java.util.logging.Level
+import java.util.logging.Logger
 
 private const val RESOURCE_GERELATEERDE_ZAKEN = "gerelateerdeZaken"
 private const val RESOURCE_COMMUNICATION_CHANNEL = "communicatiekanaal"
@@ -31,6 +37,10 @@ private const val RESOURCE_ZAAKGEOMETRIE = "zaakgeometrie"
 class ZaakHistoryPartialUpdateConverter @Inject constructor(
     private val zrcClientService: ZrcClientService
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(ZaakHistoryPartialUpdateConverter::class.java.name)
+    }
+
     fun convertPartialUpdate(
         auditTrailLine: ZRCAuditTrailRegel,
         historyAction: HistoryAction?,
@@ -69,11 +79,9 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
             RESOURCE_GERELATEERDE_ZAKEN if item is List<*> -> item.asSequence()
                 .filterIsInstance<Map<*, *>>()
                 .mapNotNull { it["url"] as? String }
-                .mapNotNull { runCatching { URI.create(it) }.getOrNull() }
+                .mapNotNull(::toUriOrNull)
                 .distinct()
-                .map { uri ->
-                    runCatching { zrcClientService.readZaak(uri).identificatie }.getOrNull() ?: uri.toString()
-                }
+                .map { uri -> readZaakIdentificatieOrNull(uri) ?: uri.toString() }
                 .toList()
                 .takeIf { it.isNotEmpty() }
                 ?.joinToString(", ")
@@ -90,6 +98,38 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
             RESOURCE_EXTENSION -> null
             else -> item.toString()
         }
+
+    private fun toUriOrNull(uri: String): URI? =
+        try {
+            URI.create(uri)
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            LOG.log(Level.FINE, "Ignoring invalid gerelateerde zaak URL '$uri'", illegalArgumentException)
+            null
+        }
+
+    private fun readZaakIdentificatieOrNull(zaakUri: URI): String? =
+        try {
+            zrcClientService.readZaak(zaakUri).identificatie
+        } catch (zgwRuntimeException: ZgwRuntimeException) {
+            logUnreadableZaak(zaakUri, zgwRuntimeException)
+        } catch (zgwErrorException: ZgwErrorException) {
+            logUnreadableZaak(zaakUri, zgwErrorException)
+        } catch (zgwValidationErrorException: ZgwValidationErrorException) {
+            logUnreadableZaak(zaakUri, zgwValidationErrorException)
+        } catch (processingException: ProcessingException) {
+            logUnreadableZaak(zaakUri, processingException)
+        } catch (illegalStateException: IllegalStateException) {
+            // a stored URL outside the configured ZGW API is refused before any request is sent
+            logUnreadableZaak(zaakUri, illegalStateException)
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            // a stored URL that does not end in a UUID cannot identify a zaak
+            logUnreadableZaak(zaakUri, illegalArgumentException)
+        }
+
+    private fun logUnreadableZaak(zaakUri: URI, exception: RuntimeException): String? {
+        LOG.log(Level.FINE, "Cannot read gerelateerde zaak '$zaakUri'; showing its URL instead", exception)
+        return null
+    }
 }
 
 fun GeoJSONGeometry.toHistoryLineString() = when {

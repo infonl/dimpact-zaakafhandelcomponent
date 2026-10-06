@@ -13,6 +13,7 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.Optional
 import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
 
@@ -99,6 +100,8 @@ class BrpConfiguration @Inject constructor(
     private val apiKey: Optional<String>,
 ) : BrpConfigurationProvider {
     companion object {
+        private val LOG = Logger.getLogger(BrpConfiguration::class.java.name)
+
         const val ENV_VAR_BRP_ORIGIN_OIN = "BRP_ORIGIN_OIN"
         const val ENV_VAR_BRP_ORIGIN_OIN_HEADER = "BRP_ORIGIN_OIN_HEADER"
         const val ENV_VAR_BRP_DOELBINDING_HEADER = "BRP_DOELBINDING_HEADER"
@@ -158,9 +161,13 @@ class BrpConfiguration @Inject constructor(
         }
     }
 
-    override fun getLogLevel(): Level = runCatching {
-        logLevel.getOrElse { "OFF" }.let(Level::parse)
-    }.getOrElse { Level.OFF }
+    override fun getLogLevel(): Level =
+        try {
+            logLevel.getOrElse { "OFF" }.let(Level::parse)
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            LOG.log(Level.FINE, "Invalid BRP log level '${logLevel.orElse(null)}'; BRP logging is switched off", illegalArgumentException)
+            Level.OFF
+        }
 
     override fun getOriginOIN() =
         BrpConfigurationValueImpl(

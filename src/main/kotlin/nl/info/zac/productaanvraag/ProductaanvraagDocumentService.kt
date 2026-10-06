@@ -6,11 +6,15 @@ package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraagRequest
+import jakarta.ws.rs.ProcessingException
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraagRequest
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -68,7 +72,7 @@ class ProductaanvraagDocumentService @Inject constructor(
 
     fun pairBijlagenWithZaakIgnoringExceptions(bijlageURIs: List<URI>, zaakUrl: URI) =
         bijlageURIs.forEach { bijlageURI ->
-            runCatching {
+            try {
                 val bijlage = drcClientService.readEnkelvoudigInformatieobject(bijlageURI)
                 ZaakInformatieObjectRequest().apply {
                     informatieobject = bijlage.url
@@ -78,8 +82,21 @@ class ProductaanvraagDocumentService @Inject constructor(
                 }.run {
                     zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
                 }
-            }.onFailure {
-                LOG.log(Level.WARNING, "Failed to pair bijlage '$bijlageURI' with zaak url '$zaakUrl'", it)
+            } catch (zgwRuntimeException: ZgwRuntimeException) {
+                logBijlagePairingFailure(bijlageURI, zaakUrl, zgwRuntimeException)
+            } catch (zgwErrorException: ZgwErrorException) {
+                logBijlagePairingFailure(bijlageURI, zaakUrl, zgwErrorException)
+            } catch (zgwValidationErrorException: ZgwValidationErrorException) {
+                logBijlagePairingFailure(bijlageURI, zaakUrl, zgwValidationErrorException)
+            } catch (processingException: ProcessingException) {
+                logBijlagePairingFailure(bijlageURI, zaakUrl, processingException)
+            } catch (illegalStateException: IllegalStateException) {
+                logBijlagePairingFailure(bijlageURI, zaakUrl, illegalStateException)
+            } catch (illegalArgumentException: IllegalArgumentException) {
+                logBijlagePairingFailure(bijlageURI, zaakUrl, illegalArgumentException)
             }
         }
+
+    private fun logBijlagePairingFailure(bijlageURI: URI, zaakUrl: URI, exception: RuntimeException) =
+        LOG.log(Level.WARNING, "Failed to pair bijlage '$bijlageURI' with zaak url '$zaakUrl'", exception)
 }

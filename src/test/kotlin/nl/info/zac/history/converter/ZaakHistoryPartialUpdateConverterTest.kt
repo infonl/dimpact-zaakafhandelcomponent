@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.history.converter
@@ -9,10 +9,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.zgw.shared.model.Bron
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.model.Bron
 import nl.info.client.zgw.shared.model.audit.createZRCAuditTrailRegel
+import nl.info.client.zgw.shared.model.createValidationZgwError
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.zrc.model.generated.Wijzigingen
 import nl.info.zac.history.model.HistoryAction
 import java.math.BigDecimal
@@ -468,7 +471,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
     given("Audit trail has a partial_update where a gerelateerde zaak can no longer be resolved") {
         val gerelateerdeZaakUri = URI("https://example.com/zaken/${UUID.randomUUID()}")
-        every { zrcClientService.readZaak(gerelateerdeZaakUri) } throws RuntimeException("fakeException")
+        every { zrcClientService.readZaak(gerelateerdeZaakUri) } throws ZrcRuntimeException("fakeException")
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.ZAKEN_API,
             actie = "partial_update",
@@ -496,6 +499,55 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 with(historyLines.first()) {
                     attributeLabel shouldBe "gerelateerdeZaken"
                     newValue shouldBe gerelateerdeZaakUri.toString()
+                }
+            }
+        }
+    }
+
+    given(
+        """
+           Audit trail has a partial_update where gerelateerdeZaken contains a url outside the ZGW API,
+           a url without a UUID and a url that the ZGW API rejects as invalid
+        """.trimIndent()
+    ) {
+        val foreignZaakUri = URI("https://foreign.example.com/zaken/${UUID.randomUUID()}")
+        val zaakUriWithoutUuid = URI("https://example.com/zaken/notAUuid")
+        val rejectedZaakUri = URI("https://example.com/zaken/${UUID.randomUUID()}")
+        every { zrcClientService.readZaak(foreignZaakUri) } throws IllegalStateException("fakeException")
+        every { zrcClientService.readZaak(zaakUriWithoutUuid) } throws IllegalArgumentException("fakeException")
+        every {
+            zrcClientService.readZaak(rejectedZaakUri)
+        } throws ZgwValidationErrorException(createValidationZgwError())
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 200,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "",
+            wijzigingen = Wijzigingen()
+        )
+        val oldValues = mapOf("gerelateerdeZaken" to emptyList<Any>())
+        val newValues = mapOf(
+            "gerelateerdeZaken" to listOf(foreignZaakUri, zaakUriWithoutUuid, rejectedZaakUri)
+                .map { mapOf("url" to it.toString()) }
+        )
+
+        `when`("converted to REST historie regel") {
+            val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
+            )
+
+            then("it should fall back to the zaak urls") {
+                historyLines.size shouldBe 1
+                with(historyLines.first()) {
+                    attributeLabel shouldBe "gerelateerdeZaken"
+                    newValue shouldBe "$foreignZaakUri, $zaakUriWithoutUuid, $rejectedZaakUri"
                 }
             }
         }
