@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :17-09-2026 <br>
-> Versie :   1.9.2 <br>
-> Verandering : ZAC v5.6 Handleiding <br>
+> Datum :06-10-2026 <br>
+> Versie :   1.10 <br>
+> Verandering : Zaakspecifieke autorisatie <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -42,6 +42,7 @@ Versiegeschiedenis:
 | 1.9   | ZAC v5.6 Handleiding, toevoeging voor brondatum zetten                                                                                     |
 | 1.9.1 | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
 | 1.9.2 | ZAC v5.6 Handleiding, toevoeging 'Ken aan mij toe' in zaken- en taken-werkvoorraad                                                      |
+| 1.10  | Toevoeging zaakspecifieke autorisatie                                                                                                      |
 
 <div style="page-break-after: always"></div>
 
@@ -76,6 +77,8 @@ Versiegeschiedenis:
 - [Zaak behandelen](#zaak-behandelen)
   - [Overzicht](#overzicht)
   - [Zaakgegevens bewerken](#zaakgegevens-bewerken)
+  - [Zaak zaakspecifiek autoriseren](#zaak-zaakspecifiek-autoriseren)
+    - [Werken met een zaakspecifiek geautoriseerde zaak](#werken-met-een-zaakspecifiek-geautoriseerde-zaak)
   - [Locatie koppelen](#locatie-koppelen)
   - [Locatie wijzigen](#locatie-wijzigen)
   - [Locatie ontkoppelen](#locatie-ontkoppelen)
@@ -183,6 +186,12 @@ De beschikbaarheid van functionaliteit voor een gebruiker in het ZAC is verbonde
 * Recordmanager: mag zaken en taken raadplegen, wijzigen en toekennen, en een zaak heropenen. Daarnaast mag de recordmanager documenten raadplegen, wijzigen, verwijderen, (ont)vergrendelen, van een nieuwe versie voorzien, verplaatsen, ontkoppelen en converteren (ook als de zaak beëindigd of het document definitief is).
 
 * Beheerder: heeft toegang tot de beheerschermen van ZAC om instellingen aan te maken en te wijzigen, en heeft daarnaast ook alle rechten van de hierboven genoemde rollen. Deze beheerfunctionaliteit wordt beschreven in het document: "Inrichting Zaakafhandelcomponent". 
+
+Daarnaast zijn er twee aanvullende rollen. Deze rollen geven geen toegang tot ZAC zonder één van de vijf rollen hierboven.
+
+* BRP zoeken: heeft rechten om personen te zoeken in de Basisregistratie Personen (BRP).
+
+* Zaakspecifiek geautoriseerd: geeft zelf geen rechten. Met deze rol gelden de rechten van jouw andere rol ook voor zaakspecifiek geautoriseerde zaken van een zaaktype. Zie [Zaak zaakspecifiek autoriseren](#zaak-zaakspecifiek-autoriseren).
 
 <div style="page-break-after: always"></div>
 
@@ -335,6 +344,8 @@ Als de Zaken-werkvoorraad of Taken-werkvoorraad geopend is dan kan de verdeelfun
 6 Klik op ‘Verdelen’ om de actie uit te voeren
 > Let op! <br>Als eenmaal 'Verdelen' is gestart, is dit niet meer te onderbreken.
 
+> Een zaakspecifiek geautoriseerde zaak moet altijd een behandelaar hebben. Als je alleen een groep kiest, dan verdeelt ZAC deze zaak niet. Een melding toont hoeveel zaken ZAC niet verdeelde.
+
 ## Werk vrijgeven
 
 Met de 'Vrijgeven' knop kan een item van de behandelaar afgehaald worden. Deze functie, die bijvoorbeeld handig is als iemand uit dienst of op vakantie gaat, werkt op een soortgelijke manier als de Verdeel functie en kan ook alleen door de Coördinator gedaan worden.  
@@ -349,6 +360,8 @@ Met de 'Vrijgeven' knop kan een item van de behandelaar afgehaald worden. Deze f
 
 4 Klik op ‘Vrijgeven’ om de actie uit te voeren
 > Let op! <br>Als eenmaal 'Vrijgeven' is gestart, is dit niet meer te onderbreken.
+
+> Een zaakspecifiek geautoriseerde zaak moet altijd een behandelaar hebben. ZAC geeft deze zaak niet vrij. Een melding toont hoeveel zaken ZAC niet vrijgaf.
 
 <div style="page-break-after: always"></div>
 
@@ -491,6 +504,78 @@ De datums, de groep, de behandelaar, het communicatiekanaal, de vertwouwelijkhei
 2 Het veld is nu geactiveerd. Pas de waarde aan die je wilt aanpassen in en geef de verplichte reden voor de aanpassing(en) op.
 
 3 Klik op Opslaan om de wijziging op te slaan. As je wilt annuleren dan klik je op het kruis icoon of Annuleren, dan blijft de huidige waarde staan.
+
+## Zaak zaakspecifiek autoriseren
+
+Een zaak kan gevoelige informatie bevatten, bijvoorbeeld een zaak over een collega.
+Autoriseer zo'n zaak zaakspecifiek. Dan heeft alleen een beperkte groep medewerkers toegang tot de zaak.
+Andere medewerkers zien de zaak, de taken en de documenten van de zaak nergens in ZAC. Ook niet in de werklijsten en de zoekresultaten.
+
+Deze medewerkers hebben toegang tot een zaakspecifiek geautoriseerde zaak:
+
+- de behandelaar van de zaak
+- de vorige behandelaars van de zaak, vanaf het moment van de zaakspecifieke autorisatie
+- medewerkers met de rol Zaakspecifiek geautoriseerd voor het zaaktype. De beheerder richt deze rol in.
+
+<!-- TODO PZ-12035: voeg de huidige en vorige taakbehandelaars van de zaak toe aan deze lijst. -->
+<!-- TODO PZ-12023: voeg de medewerkers toe die een medewerker handmatig aan de zaak toevoegt. Verwijs naar de sectie 'Medewerker toevoegen'. -->
+
+Ook deze medewerkers hebben altijd een andere rol voor het zaaktype nodig, bijvoorbeeld Raadpleger of Behandelaar.
+Die rol bepaalt wat de medewerker met de zaak mag doen.
+
+> De optie is alleen beschikbaar als de beheerder het zaaktype heeft ingericht voor zaakspecifieke autorisatie.
+
+**Stappen**
+
+1 Ken de zaak toe aan een behandelaar, als de zaak nog geen behandelaar heeft
+
+2 In een zaak in het tabblad ‘Gegevens’ klik je op het potlood
+
+3 Zet het vinkje bij ‘Zaak zaakspecifiek autoriseren’ aan
+
+4 Geef de verplichte reden voor de aanpassing op
+
+5 Klik op Opslaan
+
+<!-- TODO PZ-11995: screenshot van het vinkje 'Zaak zaakspecifiek autoriseren' in het scherm Zaakgegevens bewerken, bijvoorbeeld images/zaak-zaakspecifiek-autoriseren.png -->
+
+> Let op! <br>Je kunt de zaakspecifieke autorisatie niet meer ongedaan maken.
+
+Alleen de behandelaar van de zaak en medewerkers met de rol Zaakspecifiek geautoriseerd kunnen een zaak zaakspecifiek autoriseren.
+Je kunt in dezelfde stap ook een andere behandelaar kiezen. Dan geldt de nieuwe behandelaar als behandelaar.
+
+Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. Ga met de muis over het icoon voor de tekst ‘Zaak is zaakspecifiek geautoriseerd’.
+
+<!-- TODO PZ-11995: screenshot van het slot-icoon bij het zaaknummer, bijvoorbeeld images/zaak-zaakspecifiek-geautoriseerd-icoon.png -->
+
+### Werken met een zaakspecifiek geautoriseerde zaak
+
+- Een zaakspecifiek geautoriseerde zaak heeft altijd een behandelaar. Je kunt de zaak niet vrijgeven.
+- Je kunt de zaak aan een andere behandelaar toekennen. De vorige behandelaar houdt dan toegang tot de zaak. ZAC registreert de vorige behandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak.
+- Zaakspecifiek geautoriseerde medewerkers staan niet in het tabblad ‘Betrokkenen’ van de zaak.
+
+<!-- TODO PZ-12035: beschrijf de toegang van taakbehandelaars.
+- Als je een taak start en een medewerker als taakbehandelaar kiest, dan krijgt deze medewerker toegang tot de zaak.
+- Als je een taak aan een andere medewerker toekent, dan krijgt de nieuwe taakbehandelaar toegang. De vorige taakbehandelaar houdt toegang.
+- Een taakbehandelaar houdt toegang als de taak is vrijgegeven of afgerond.
+- De taakhistorie toont dat de nieuwe taakbehandelaar is toegevoegd, en dat de rol van de vorige taakbehandelaar is gewijzigd naar Zaakspecifiek geautoriseerde medewerker.
+- Als een zaak met een taakbehandelaar zaakspecifiek geautoriseerd wordt, dan krijgt de taakbehandelaar de rol Zaakspecifiek geautoriseerde medewerker.
+Screenshot: images/taak-toekennen-zaakspecifiek-geautoriseerd.png -->
+
+<!-- TODO PZ-12023: voeg de sectie 'Medewerkers' toe.
+### Medewerkers
+Het tabblad ‘Medewerkers’ toont welke medewerkers specifiek toegang hebben tot de zaak, met het betrokkene type van elke medewerker. Het tabblad toont de huidige en vorige zaak- en taakbehandelaars, en de handmatig toegevoegde medewerkers. Het tabblad toont geen medewerkers die toegang hebben via de rol Zaakspecifiek geautoriseerd.
+Screenshot: images/zaak-tabblad-medewerkers.png
+
+### Medewerker toevoegen
+De optie ‘Medewerker toevoegen’ is alleen beschikbaar bij een zaakspecifiek geautoriseerde zaak.
+Stappen:
+1 Kies in het actiemenu ‘Medewerker toevoegen’
+2 Kies een groep. De lijst toont alleen groepen met de rol Behandelaar voor het zaaktype.
+3 Kies een medewerker uit de groep. Medewerkers die al toegang hebben, kun je niet kiezen.
+4 Klik op ‘Toevoegen’
+De zaakhistorie toont dat de medewerker is toegevoegd als Zaakspecifiek geautoriseerde medewerker. Een toegevoegde medewerker kan ook zelf medewerkers toevoegen.
+Screenshot: images/medewerker-toevoegen.png -->
 
 ## Locatie koppelen
 
@@ -1540,6 +1625,8 @@ Daarnaast bevat de pagina een overzicht van alle zaken waar het BAG-object aan t
 
 **Document** een informatieobject dat in een Documentregistratiecomponent is opgeslagen en bedoeld is om de behandeling van een zaak uit te voeren
 
+**Zaakspecifiek geautoriseerde zaak** een zaak waartoe alleen een beperkte groep medewerkers toegang heeft. Zie [Zaak zaakspecifiek autoriseren](#zaak-zaakspecifiek-autoriseren).
+
 **Zaakafhandel-parameters** beheeronderdeel in de ZAC, afgekort als ‘zaps’, waarin per zaaktype aspecten van de zaakbehandeling ingesteld kunnen worden.
 
 ## Indicaties
@@ -1553,6 +1640,7 @@ De volgende indicaties worden gebruikt in de ZAC
 | Is hoofdzaak   | Zaak     | Boomdiagram gevuld       |
 | Is deelzaak    | Zaak     | Boomdiagram open         |
 | Is verlengd    | Zaak     | Klok met pijl voorwaarts |
+| Is zaakspecifiek geautoriseerd | Zaak | Slot |
 | Is vergrendeld | Document | Slot                     |
 | Is ondertekend | Document | Document met vink        |
 | Heeft besluit  | Document | Hamer                    |

@@ -121,6 +121,9 @@ Notes:
   include a role that grants `lezen`** (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager` or
   `beheerder`). This also applies to the list of zaken offered when relating a zaak. Holding only `brp_zoeken`
   or `zaakspecifiek_geautoriseerd` for a zaaktype does not make its zaken appear there.
+- **Only a medewerker who holds at least one role that grants `lezen`** (`raadpleger`, `behandelaar`,
+  `coordinator`, `recordmanager` or `beheerder`) for some zaaktype, or as an overall role, can log in to ZAC.
+  A medewerker who holds only `brp_zoeken` and/or `zaakspecifiek_geautoriseerd` gets no access.
 - The `zaakspecifiek_geautoriseerd` application role is not listed as a separate column in the table above
   because it does not grant any permission on its own. It is a flag: when a medewerker holds
   `zaakspecifiek_geautoriseerd` for a zaaktype *in addition to* one of the normal application roles above
@@ -151,6 +154,8 @@ Notes:
   `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration, exactly like any other
   application role. Granting them that mapping is therefore a deployment prerequisite: without it, they cannot
   access any zaakspecifiek geautoriseerde zaak.
+- **Verdelen a zaakspecifiek geautoriseerde zaak to a group only is skipped** in the zaken-werkvoorraad, just like
+  vrijgeven, because the zaak must keep a behandelaar. The werkvoorraad shows how many zaken it skipped.
 - The `systeemrol_behandelaar_alle_zaaktypen` column only covers *Zaak rechten*: it is not referenced by the
   Taak, Document, Werklijst, Notitie, Overige or BRP policies, so this role grants no rights there. Within
   *Zaak rechten* it grants no `heropenen`, `bekijkenZaakdata` or `zetten_brondatum` rights either - those
