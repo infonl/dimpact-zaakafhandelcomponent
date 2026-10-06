@@ -205,9 +205,14 @@ V102 replaces the inheritance:
   `zaaktype_bpmn_configuration.bpmn_process_definition_key`.
 - `zaaktype_cmmn_configuration` is renamed to `zaaktype_cmmn_extension`. It keeps `intake_mail` and
   `afronden_mail`, and its humantask and usereventlistener children. Those are CMMN plan item settings with no
-  BPMN meaning. It drops `id_case_definition`. Its id becomes a foreign key column `zaaktype_configuration_id`,
-  so the children keep their foreign key values.
+  BPMN meaning. It drops `id_case_definition` and gets a UNIQUE foreign key column `zaaktype_configuration_id`.
+  Migrated extensions keep the id of their configuration, so the foreign keys of the children keep their values.
+  The children rename their foreign key column to `zaaktype_cmmn_extension_id`, because it points at the
+  extension.
 - `zaaktype_bpmn_configuration` is dropped.
+- Before it splits the tables, V102 moves the subclass rows of the other engine to the quarantine table (D2a).
+  These are a BPMN row of a CMMN configuration, and a CMMN row of a BPMN configuration with its plan item rows.
+  Hibernate never loaded them, because the discriminator decides the subclass.
 
 `VARCHAR` with a CHECK constraint replaces the ENUM, because JPA maps the engine as `EnumType.STRING`, and
 because a PG ENUM needs a type cast that the project configures nowhere.
@@ -221,7 +226,8 @@ The entity model:
 The table is `zaaktype_process_binding` and not `process_binding`, because every configuration table has the
 `zaaktype_` prefix.
 
-The engine of a configuration is `processBinding?.engine`. Rows that the REST API stores always have a
+The engine enum is `ProcessEngine`. It clashes by name with Flowable's `ProcessEngine` only in `BpmnService`,
+which imports the constant it needs. The engine of a configuration is `processBinding?.processEngine`. Rows that the REST API stores always have a
 definition key. A legacy CMMN row without a case definition gets no binding. It is not valid for zaak creation
 (spec), and the REST resources treat it as CMMN, as `GET /zaakafhandelparameters/{uuid}` does today when the
 row is missing.
@@ -234,26 +240,31 @@ two coupled nullable columns.
 ### D5. A3: one read service, one beheer service
 
 `ZaaktypeConfigurationService` (read) and `ZaaktypeConfigurationBeheerService` (write) become concrete classes.
-They replace the CMMN, BPMN, and generic services and the interface.
+They replace the CMMN, BPMN, and generic services and the interface. Following the project rule for JPA code, a
+`ZaaktypeConfigurationRepository` holds the queries and the persist/merge. The zaaktype notification moves to
+the beheer service, which removes the circular dependency between the old CMMN read and beheer services.
 
 | Function | Contract |
 |---|---|
 | `findConfiguration(zaaktypeUuid): ZaaktypeConfiguration?` | null when absent; cached |
 | `readConfiguration(zaaktypeUuid): ZaaktypeConfiguration` | throws `ZaaktypeConfigurationNotFoundException` |
 | `findCurrentConfiguration(zaaktypeOmschrijving): ZaaktypeConfiguration?` | newest by creatiedatum |
-| `listCurrentConfigurations(): List<ZaaktypeConfiguration>` | newest per omschrijving; cached |
-| `findCurrentConfigurationsByProductaanvraagtype(type): List<ZaaktypeConfiguration>` | newest per omschrijving, sorted by creatiedatum desc |
-| `listConfigurationsBoundTo(engine): List<ZaaktypeConfiguration>` | for the BPMN list endpoint and the definition key queries |
-| `storeConfiguration(configuration): ZaaktypeConfiguration` | bean validation of root and children; upsert by zaaktypeUuid; evicts caches |
-| `checkProductaanvraagtypeIsNotInUse(type, zaaktypeOmschrijving)` | one rule for both engines; excludes by omschrijving |
-| `upsertConfiguration(zaaktype)` | the zaaktype notification path (B3) |
+| `listCurrentConfigurationsByProductaanvraagtype(type): List<ZaaktypeConfiguration>` | newest per omschrijving, sorted by creatiedatum desc |
+| `listConfigurationsBoundTo(engine): List<ZaaktypeConfiguration>` | for the BPMN list endpoint |
+| `listDefinitionKeysBoundTo(engine): List<String>` | distinct definition keys, for the BPMN process definition admin |
+| `listDeadlineWarningWindows()` | projection of three columns; cached |
+| beheer `fetchConfiguration(zaaktypeUuid)` / `findStoredConfiguration(zaaktypeUuid)` | uncached reads for the REST write paths |
+| beheer `storeConfiguration(configuration): ZaaktypeConfiguration` | bean validation of root and children; upsert by zaaktypeUuid; evicts caches |
+| beheer `checkProductaanvraagtypeIsNotInUse(type, zaaktypeOmschrijving)` | one rule for both engines; excludes by omschrijving |
+| beheer `updateZaaktypeConfiguration(zaaktypeUri)` / `upsertConfiguration(zaaktype)` | the zaaktype notification path (B3) |
 
 These rules follow the project convention: `find` returns null and `read` throws. Every "current" query uses
 the same correlated max-creatiedatum subquery, and every by-UUID query orders by creatiedatum. The
 `REQUIRES_NEW` on the BPMN lookup goes away. It existed for a call from inside a Flowable transaction, and the
 read service now reads through its cache.
 
-The cache keeps the name `Caching.ZAC_ZAAKTYPECMMNCONFIGURATION`. Cache names appear in the cache statistics
+The cache keeps the names `Caching.ZAC_ZAAKTYPECMMNCONFIGURATION_MANAGED` (by UUID, also for an absent
+configuration) and `Caching.ZAC_ZAAKTYPECMMNCONFIGURATION` (the deadline warning windows). Cache names appear in the cache statistics
 endpoints of `UtilRestService`, and those are part of the REST contract.
 
 The REST resources map their payloads onto this one entity:
@@ -263,7 +274,11 @@ The REST resources map their payloads onto this one entity:
 
 The precedence contradiction disappears: `RestZaaktypeConverter`, `HealthCheckService`, and
 `ZaakRestService.isValidForZaakCreation` all call `findConfiguration`. Validity is a function on the entity
-(spec: "One answer for the configuration of a zaaktype").
+(spec: "One answer for the configuration of a zaaktype"). For CMMN, `ZaakRestService` still adds the slow
+zaaktype check against Open Zaak after the configuration check, as before.
+
+Callers that read the CMMN plan item settings (plan items, task forms) take `configuration?.cmmnExtension` and
+treat a missing configuration as before, when the CMMN read service returned an empty configuration.
 
 ### D6. B1: the process binding interface
 

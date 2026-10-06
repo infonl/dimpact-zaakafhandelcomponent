@@ -88,7 +88,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         LOG.info("Sending zaak due date email notifications...")
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .forEach { zaaktype ->
-                zaaktypeConfigurationService.readZaaktypeConfiguration(
+                zaaktypeConfigurationService.findConfiguration(
                     zaaktype.url.extractUuid()
                 )?.let { parameters ->
                     parameters.einddatumGeplandWaarschuwing?.let { venster ->

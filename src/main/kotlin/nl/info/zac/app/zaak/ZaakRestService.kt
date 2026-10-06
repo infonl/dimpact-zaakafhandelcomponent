@@ -48,16 +48,13 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService.Companion.INADMISSIBLE_TERMINATION_REASON
+import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
+import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_REASON
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
+import nl.info.zac.admin.model.ProcessEngine.BPMN
+import nl.info.zac.admin.model.ProcessEngine.CMMN
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -149,7 +146,6 @@ class ZaakRestService @Inject constructor(
     private val zaakService: ZaakService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
@@ -348,7 +344,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canLezen)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaak.zaaktype.extractUuid())
+                zaaktypeConfigurationService.findConfiguration(zaak.zaaktype.extractUuid())
                     ?.getZaakAfzenders()
                     .orEmpty()
                     .toRestZaakAfzenders()
@@ -538,12 +534,12 @@ class ZaakRestService @Inject constructor(
                 "The zaak with UUID '${zaak.uuid}' cannot be terminated because a besluit has already been added to it."
             )
         }
-        zaaktypeConfigurationService.readZaaktypeConfiguration(
+        zaaktypeConfigurationService.findConfiguration(
             zaakType.url.extractUuid()
         )?.let {
             // Abort the case in OpenZaak
             if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
-                // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
+                // Use the hardcoded "niet ontvankelijk" reden that we don't manage via the zaaktype configuration
                 it.nietOntvankelijkResultaattype?.let { resultaattype ->
                     terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
                 }
@@ -557,9 +553,10 @@ class ZaakRestService @Inject constructor(
                 }
             }
             // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
-            when (it.getConfigurationType()) {
-                CMMN -> cmmnService.terminateCase(zaakUUID)
-                BPMN -> bpmnService.terminateCase(zaakUUID)
+            if (it.getProcessEngine() == BPMN) {
+                bpmnService.terminateCase(zaakUUID)
+            } else {
+                cmmnService.terminateCase(zaakUUID)
             }
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
@@ -766,7 +763,7 @@ class ZaakRestService @Inject constructor(
 
     @Suppress("ThrowsCount")
     private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
-        val betrokkeneParameters = zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)?.getBetrokkeneParameters()
+        val betrokkeneParameters = zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)?.getBetrokkeneParameters()
             ?: throw ZaaktypeConfigurationNotFoundException("Zaaktype configuration not found for zaaktype UUID $zaakTypeUUID")
 
         restZaak.initiatorIdentificatie?.let { initiator ->
@@ -885,20 +882,18 @@ class ZaakRestService @Inject constructor(
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
 
     private fun ZaakType.isConfiguredBPMNZaaktype() =
-        zaaktypeConfigurationService.readZaaktypeConfiguration(this.url.extractUuid())?.getConfigurationType() == BPMN
+        zaaktypeConfigurationService.findConfiguration(this.url.extractUuid())?.getProcessEngine() == BPMN
 
     /**
-     * BPMN zaaktypes have no zaaktype check yet, so any zaaktype with a BPMN configuration qualifies.
-     * For CMMN, the full zaaktype check calls Open Zaak several times and always fails when the ZAC
-     * configuration is not valid. So we check the ZAC configuration first and skip the slow check when it fails.
+     * BPMN zaaktypes have no zaaktype check yet. For CMMN, the full zaaktype check calls Open Zaak several times and
+     * always fails when the ZAC configuration is not valid. So we check the ZAC configuration first and skip the slow
+     * check when it fails.
      */
     private fun ZaakType.isValidForZaakCreation() =
-        when (val zaaktypeConfiguration = zaaktypeConfigurationService.readZaaktypeConfiguration(url.extractUuid())) {
-            is ZaaktypeBpmnConfiguration -> true
-            is ZaaktypeCmmnConfiguration ->
-                zaaktypeConfiguration.isValide() && healthCheckService.controleerZaaktype(url).isValide
-            else -> false
-        }
+        zaaktypeConfigurationService.findConfiguration(url.extractUuid())?.let {
+            it.isValidForZaakCreation() &&
+                (it.getProcessEngine() != CMMN || healthCheckService.controleerZaaktype(url).isValide)
+        } ?: false
 
     private fun isWarning(
         today: LocalDate,
@@ -1015,16 +1010,16 @@ class ZaakRestService @Inject constructor(
         zaakType: ZaakType,
         restZaak: RestZaakCreateData
     ) {
-        val zaaktypeConfiguration = zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
-            ?: throw ZaaktypeConfigurationNotFoundException("Zaaktype configuration not found for zaaktype UUID $zaaktypeUUID")
+        val processBinding = zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)?.processBinding
+            ?: throw ZaaktypeConfigurationNotFoundException(
+                "No zaaktype configuration with a process binding found for zaaktype UUID $zaaktypeUUID"
+            )
 
-        when (zaaktypeConfiguration.getConfigurationType()) {
+        when (processBinding.processEngine) {
             BPMN -> bpmnService.startProcess(
                 zaak = zaak,
                 zaaktype = zaakType,
-                processDefinitionKey = bpmnService.findProcessDefinitionForZaaktype(
-                    zaaktypeUUID
-                ).bpmnProcessDefinitionKey,
+                processDefinitionKey = processBinding.definitionKey,
                 zaakData = buildMap {
                     restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.id) }
                     restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.id) }
@@ -1035,9 +1030,7 @@ class ZaakRestService @Inject constructor(
             CMMN -> cmmnService.startCase(
                 zaak = zaak,
                 zaaktype = zaakType,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
-                    zaakType.url.extractUuid()
-                )
+                caseDefinitionKey = processBinding.definitionKey
             )
         }
     }

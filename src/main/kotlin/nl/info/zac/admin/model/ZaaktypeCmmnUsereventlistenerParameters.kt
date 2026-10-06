@@ -38,9 +38,9 @@ class ZaaktypeCmmnUsereventlistenerParameters : UserModifiable<ZaaktypeCmmnUsere
     var planItemDefinitionID: String? = null
 
     @ManyToOne
-    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    @JoinColumn(name = "zaaktype_cmmn_extension_id", referencedColumnName = "id")
     @NotNull
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    lateinit var zaaktypeCmmnExtension: ZaaktypeCmmnExtension
 
     @Column(name = "toelichting")
     var toelichting: String? = null

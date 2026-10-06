@@ -25,9 +25,9 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.FormulierDefinitie
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnExtension
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.RestHumanTaskData
@@ -74,7 +74,7 @@ class PlanItemsRestService @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val cmmnService: CmmnService,
     private val zrcClientService: ZrcClientService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val planItemConverter: RestPlanItemConverter,
     private val zgwApiService: ZgwApiService,
     private val indexingService: IndexingService,
@@ -118,9 +118,11 @@ class PlanItemsRestService @Inject constructor(
         cmmnService.readOpenPlanItem(planItemId).let { planItemInstance ->
             zaakVariabelenService.readZaakUUID(planItemInstance).let { zaakUUID ->
                 zaakVariabelenService.readZaaktypeUUID(planItemInstance).let { zaaktypeUUID ->
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).let { zaps ->
-                        planItemConverter.convertPlanItem(planItemInstance, zaakUUID, zaps)
-                    }
+                    planItemConverter.convertPlanItem(
+                        planItemInstance,
+                        zaakUUID,
+                        zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)?.cmmnExtension
+                    )
                 }
             }
         }
@@ -134,11 +136,14 @@ class PlanItemsRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canStartenTaak)
-        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
-            zaak.zaaktype.extractUuid()
-        )
+        val zaaktypeConfiguration = zaaktypeConfigurationService.findConfiguration(zaak.zaaktype.extractUuid())
 
-        val fatalDate = calculateFatalDate(humanTaskData, zaaktypeCmmnConfiguration, planItem, zaak)?.also {
+        val fatalDate = calculateFatalDate(
+            humanTaskData = humanTaskData,
+            zaaktypeCmmnExtension = zaaktypeConfiguration?.cmmnExtension,
+            planItem = planItem,
+            zaak = zaak
+        )?.also {
             if (TaakVariabelenService.isZaakOpschorten(taakdata)) {
                 val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), it)
                 suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING)
@@ -153,7 +158,7 @@ class PlanItemsRestService @Inject constructor(
         if (shouldSendMail && sendDataMail != null) {
             val mail = Mail.valueOf(sendDataMail)
 
-            val mailTemplate = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
+            val mailTemplate = zaaktypeConfiguration?.getMailtemplateKoppelingen().orEmpty()
                 .map { it.mailTemplate }
                 .firstOrNull { it?.mail == mail }
                 ?: mailTemplateService.readDefaultMailTemplate(mail)
@@ -236,10 +241,9 @@ class PlanItemsRestService @Inject constructor(
 
         if (userEventListenerData.isZaakOntvankelijk) return
 
-        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+        zaaktypeConfigurationService.findConfiguration(
             zaak.zaaktype.extractUuid()
-        )
-        zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
+        )?.nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
             zgwApiService.closeZaak(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattypeUUID,
@@ -275,11 +279,11 @@ class PlanItemsRestService @Inject constructor(
 
     private fun calculateFatalDate(
         humanTaskData: RestHumanTaskData,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        zaaktypeCmmnExtension: ZaaktypeCmmnExtension?,
         planItem: PlanItemInstance,
         zaak: Zaak
     ): LocalDate? {
-        val humanTaskParameters = zaaktypeCmmnConfiguration.findHumanTaskParameter(planItem.planItemDefinitionId)
+        val humanTaskParameters = zaaktypeCmmnExtension?.findHumanTaskParameter(planItem.planItemDefinitionId)
         val zaakFatalDate = zaak.uiterlijkeEinddatumAfdoening
 
         humanTaskData.fataledatum?.let {

@@ -25,8 +25,9 @@ import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
+import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestSmartDocuments
@@ -43,7 +44,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
+    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val zgwApiService = mockk<ZgwApiService>()
     val zaakspecifiekeAutorisatieService = ZaakspecifiekeAutorisatieService(
@@ -58,7 +59,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         zaakbeeindigParameterConverter = zaakbeeindigParameterConverter,
         humanTaskParametersConverter = restHumanTaskParametersConverter,
         ztcClientService = ztcClientService,
-        zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
         smartDocumentsService = smartDocumentsService,
         zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
@@ -91,7 +92,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every { smartDocumentsService.isEnabled() } returns true
         every {
             caseDefinitionConverter.convertToRestCaseDefinition(
-                checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID),
+                "fakeCaseDefinitionId",
                 true
             )
         } returns restCaseDefinition
@@ -156,17 +157,17 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     given("RestZaakafhandelParameters CMMN with minimal content") {
         val restResultType = createResultaatType().toRestResultaatType()
         val restZaakafhandelParameters = createRestZaaktypeConfiguration().apply {
-            caseDefinition = RESTCaseDefinition()
+            caseDefinition = RESTCaseDefinition().apply { key = "fakeCaseDefinitionKey" }
             zaakNietOntvankelijkResultaattype = restResultType
         }
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         every {
-            zaaktypeCmmnConfigurationService.fetchZaaktypeCmmnConfiguration(restZaakafhandelParameters.zaaktype.uuid)
+            zaaktypeConfigurationBeheerService.fetchConfiguration(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaaktypeCmmnConfiguration
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 
         `when`("converted to DB model representation") {
-            val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeCmmnConfiguration(
+            val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
                 restZaakafhandelParameters
             )
 
@@ -175,15 +176,16 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     id shouldBe restZaakafhandelParameters.id
                     zaaktypeUuid shouldBe restZaakafhandelParameters.zaaktype.uuid
                     zaaktypeOmschrijving shouldBe "fakeOmschrijving"
-                    caseDefinitionID shouldBe null
+                    processBinding?.processEngine shouldBe ProcessEngine.CMMN
+                    processBinding?.definitionKey shouldBe "fakeCaseDefinitionKey"
                     groepID shouldBe "fakeGroupId"
                     defaultBehandelaarId shouldBe null
                     einddatumGeplandWaarschuwing shouldBe null
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe null
                     nietOntvankelijkResultaattype shouldBe restResultType.id
                     creatiedatum shouldNotBe null
-                    intakeMail shouldBe null
-                    afrondenMail shouldBe null
+                    cmmnExtension?.intakeMail shouldBe null
+                    cmmnExtension?.afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
                     isSmartDocumentsEnabled shouldBe false
                 }
@@ -212,7 +214,8 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
-                zaaktypeBpmnConfiguration
+                zaaktypeBpmnConfiguration,
+                true
             )
 
             then("the created object is correct") {
@@ -259,7 +262,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRestCaseDefinition(checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID), true)
+            caseDefinitionConverter.convertToRestCaseDefinition("fakeCaseDefinitionId", true)
         } returns restCaseDefinition
         every {
             restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
@@ -298,7 +301,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRestCaseDefinition(checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID), true)
+            caseDefinitionConverter.convertToRestCaseDefinition("fakeCaseDefinitionId", true)
         } returns restCaseDefinition
         every {
             restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())

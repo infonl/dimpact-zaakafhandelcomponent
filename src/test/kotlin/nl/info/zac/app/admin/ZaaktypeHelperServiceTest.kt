@@ -23,6 +23,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeHelperService
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
+import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
@@ -527,10 +528,10 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 caseDefinitionId = "fakeCaseDefinitionId"
             ).apply {
                 nietOntvankelijkResultaattype = null
-                setHumanTaskParametersCollection(
+                getOrCreateCmmnExtension().setHumanTaskParametersCollection(
                     setOf(
                         createHumanTaskParameters(
-                            zaaktypeCmmnConfiguration = this,
+                            zaaktypeCmmnExtension = getOrCreateCmmnExtension(),
                             formulierDefinitieID = "ADVIES",
                             planItemDefinitionID = "ADVIES",
                             referenceTables = listOf(
@@ -544,7 +545,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 )
             }
             val previousHumanTaskParameters =
-                previousZaaktypeConfiguration.getHumanTaskParametersCollection().single()
+                checkNotNull(previousZaaktypeConfiguration.cmmnExtension).getHumanTaskParametersCollection().single()
             val previousReferentieTabel = previousHumanTaskParameters.getReferentieTabellen().single()
             val newZaaktypeConfiguration = createZaaktypeCmmnConfiguration()
 
@@ -556,7 +557,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 )
 
                 then("the new configuration is coupled to the same reference table") {
-                    with(newZaaktypeConfiguration.getHumanTaskParametersCollection().single()) {
+                    with(checkNotNull(newZaaktypeConfiguration.cmmnExtension).getHumanTaskParametersCollection().single()) {
                         planItemDefinitionID shouldBe "ADVIES"
                         with(getReferentieTabellen().single()) {
                             veld shouldBe "ADVIES"
@@ -572,7 +573,8 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 }
 
                 and("the coupling of the new configuration is a new, unsaved record of its own human task") {
-                    val newHumanTaskParameters = newZaaktypeConfiguration.getHumanTaskParametersCollection().single()
+                    val newHumanTaskParameters =
+                        checkNotNull(newZaaktypeConfiguration.cmmnExtension).getHumanTaskParametersCollection().single()
                     with(newHumanTaskParameters.getReferentieTabellen().single()) {
                         this shouldNotBeSameInstanceAs previousReferentieTabel
                         id.shouldBeNull()
@@ -583,47 +585,34 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
         }
     }
 
-    context("copyConfigurationData of a BPMN zaaktype configuration") {
-        given("a previous configuration with a BPMN process definition key") {
-            val newZaaktype = createZaakType(resultTypes = emptyList())
-            val previousZaaktypeConfiguration = createZaaktypeBpmnConfiguration(
-                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
-            ).apply { nietOntvankelijkResultaattype = null }
-            val newZaaktypeConfiguration = createZaaktypeBpmnConfiguration()
-
-            `when`("the configuration data is copied onto the configuration of the new zaaktype version") {
-                zaaktypeHelperService.copyConfigurationData(
-                    previousZaaktypeConfiguration,
-                    newZaaktypeConfiguration,
-                    newZaaktype
-                )
-
-                then("the BPMN process definition key is carried over") {
-                    newZaaktypeConfiguration.bpmnProcessDefinitionKey shouldBe "fakeBpmnProcessDefinitionKey"
+    context("copyConfigurationData of the process binding") {
+        createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
+            given("a previous configuration bound to $configurationType and a new configuration without a binding") {
+                val newZaaktype = createZaakType(resultTypes = emptyList())
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    nietOntvankelijkResultaattype = null
+                    bindTo(configurationType, "fakePreviousDefinitionKey")
                 }
-            }
-        }
-    }
+                val newZaaktypeConfiguration = ZaaktypeConfiguration()
 
-    context("copyConfigurationData onto a configuration of a different type") {
-        given("a CMMN previous configuration and a BPMN new configuration") {
-            val newZaaktype = createZaakType(resultTypes = emptyList())
-            val previousZaaktypeConfiguration =
-                createZaaktypeCmmnConfiguration().apply { nietOntvankelijkResultaattype = null }
-            val newZaaktypeConfiguration = createZaaktypeBpmnConfiguration()
-
-            `when`("the configuration data is copied") {
-                val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                `when`("the configuration data is copied onto the configuration of the new zaaktype version") {
                     zaaktypeHelperService.copyConfigurationData(
                         previousZaaktypeConfiguration,
                         newZaaktypeConfiguration,
                         newZaaktype
                     )
-                }
 
-                then("the copy is refused") {
-                    illegalArgumentException.message shouldBe
-                        "Cannot copy a CMMN zaaktype configuration onto a BPMN zaaktype configuration"
+                    then("the new configuration is bound to the same engine and definition") {
+                        with(checkNotNull(newZaaktypeConfiguration.processBinding)) {
+                            processEngine shouldBe configurationType
+                            definitionKey shouldBe "fakePreviousDefinitionKey"
+                            zaaktypeConfiguration shouldBeSameInstanceAs newZaaktypeConfiguration
+                        }
+                    }
+
+                    and("only a CMMN configuration gets a CMMN extension") {
+                        (newZaaktypeConfiguration.cmmnExtension != null) shouldBe (configurationType == ProcessEngine.CMMN)
+                    }
                 }
             }
         }

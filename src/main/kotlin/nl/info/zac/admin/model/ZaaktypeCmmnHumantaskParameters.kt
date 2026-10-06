@@ -43,9 +43,9 @@ class ZaaktypeCmmnHumantaskParameters :
     var id: Long? = null
 
     @ManyToOne
-    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    @JoinColumn(name = "zaaktype_cmmn_extension_id", referencedColumnName = "id")
     @NotNull
-    var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null
+    lateinit var zaaktypeCmmnExtension: ZaaktypeCmmnExtension
 
     @Column(name = "actief")
     var isActief: Boolean = false

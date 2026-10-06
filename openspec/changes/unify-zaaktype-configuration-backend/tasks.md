@@ -82,7 +82,7 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 
 ## 3. PR A3: one configuration, a process binding, and a CMMN extension (branch `feature/PZ-12669-a3-split-configuration`, base A2)
 
-- [ ] 3.1 Write `V102__split_zaaktype_configuration.sql` (design D4):
+- [x] 3.1 Write `V102__split_zaaktype_configuration.sql` (design D4):
       - create `zaaktype_process_binding` and fill it from both subclass tables
       - rename `zaaktype_cmmn_configuration` to `zaaktype_cmmn_extension` and drop `id_case_definition`
       - add `zaaktype_configuration_id` to it
@@ -92,38 +92,39 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
       itest stack that every seed configuration has the expected engine and key. Also verify with a migration test
       from V101 (as in 1.3), seeded with a CMMN row without a case definition, CMMN rows with humantask and
       usereventlistener children, and BPMN rows, that every row and child survives with the expected binding.
-- [ ] 3.2 Replace the entities:
+- [x] 3.2 Replace the entities:
       - make `ZaaktypeConfiguration` concrete
       - add `ZaaktypeProcessBinding` with a `ProcessEngine` enum, and `ZaaktypeCmmnExtension` with the intake/afronden
         mail options and the humantask and usereventlistener children
       - delete `ZaaktypeCmmnConfiguration` and `ZaaktypeBpmnConfiguration`, and add the validity function to the entity
 
       Verify with entity unit tests for validity per engine.
-- [ ] 3.3 Implement `ZaaktypeConfigurationService` (read, cached under the existing cache name) and
+- [x] 3.3 Implement `ZaaktypeConfigurationService` (read, cached under the existing cache name) and
       `ZaaktypeConfigurationBeheerService` (store with bean validation, upsert by zaaktypeUuid, current-version
       queries, one productaanvraagtype check) with the contracts of design D5. Verify with unit tests,
       parameterised by engine, for every function.
-- [ ] 3.4 Delete `ZaaktypeCmmnConfigurationService`, `ZaaktypeCmmnConfigurationBeheerService`,
+- [x] 3.4 Delete `ZaaktypeCmmnConfigurationService`, `ZaaktypeCmmnConfigurationBeheerService`,
       `ZaaktypeBpmnConfigurationService`, and `ZaaktypeBpmnConfigurationBeheerService`, together with their tests.
       Move the callers listed in proposal Impact to the new services. Verify with
       `./gradlew compileKotlin compileJava test`.
-- [ ] 3.5 Make both REST resources and `RestZaaktypeConfigurationConverter` map their payloads onto the single
+- [x] 3.5 Make both REST resources and `RestZaaktypeConfigurationConverter` map their payloads onto the single
       entity and the binding:
       - `GET /zaakafhandelparameters/{uuid}` picks the shape from the binding engine, and uses CMMN when there is no binding
       - the BPMN list endpoint uses `listConfigurationsBoundTo(BPMN)`
 
       Verify with the existing REST unit tests and itests, unchanged.
-- [ ] 3.6 Make `RestZaaktypeConverter`, `HealthCheckService`, and `ZaakRestService.isValidForZaakCreation` use
+- [x] 3.6 Make `RestZaaktypeConverter`, `HealthCheckService`, and `ZaakRestService.isValidForZaakCreation` use
       `findConfiguration` and the entity validity. Verify with a unit test for "configuration without binding is not
       offered and not valid".
-- [ ] 3.7 Make `ProductaanvraagService` select from `findCurrentConfigurationsByProductaanvraagtype`: newest wins,
+- [x] 3.7 Make `ProductaanvraagService` select from `findCurrentConfigurationsByProductaanvraagtype`: newest wins,
       with a warning for more than one match. Verify with unit tests per engine and with the existing productaanvraag itests.
-- [ ] 3.8 Add itests for the productaanvraagtype check:
+- [x] 3.8 Add itests for the productaanvraagtype check:
       - a CMMN zaaktype blocks a BPMN zaaktype with another omschrijving
-      - a new BPMN version keeps its own productaanvraagtype
+      - storing a BPMN configuration again with its own productaanvraagtype is accepted
 
-      Verify that both pass.
-- [ ] 3.9 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and a file count of zero.
+      A new version of a BPMN zaaktype keeping its productaanvraagtype needs a second zaaktype version in the Open
+      Zaak seed data, so task 5.5 covers it. Verify that both pass.
+- [x] 3.9 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and a file count of zero.
       Then open the PR `refactor(admin): unify the CMMN and BPMN zaaktype configuration into one entity and one service layer`,
       with body footer `Solves PZ-12669`.
 - [ ] 3.10 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
@@ -160,7 +161,9 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
       summary of filled and unresolved rows. Verify with unit tests for success, a ZTC failure, and a second run.
 - [ ] 5.5 Add a second version of one CMMN and one BPMN zaaktype to the Open Zaak seed data
       (`scripts/docker-compose/imports/openzaak-database/database/`). Rework
-      `NotificationZaaktypeCompletionParametersTest` to publish that version, then verify that it passes for both engines.
+      `NotificationZaaktypeCompletionParametersTest` to publish that version, then verify that it passes for both engines Add an itest
+      that stores the configuration of the second BPMN version with the productaanvraagtype of the first, and verify
+      that it is accepted.
 - [ ] 5.6 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
       `feat(admin): reference resultaattypen by omschrijving in the zaaktype configuration`, with body footer `Solves PZ-12669`.
 - [ ] 5.7 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the

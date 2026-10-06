@@ -209,7 +209,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { templateGroupPath.get<String>("smartDocumentsId") } returns stringPath
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
         } returns zaaktypeConfiguration
         every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
@@ -274,7 +274,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { templateGroupPath.get<String>("smartDocumentsId") } returns stringPath
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
         } returns zaaktypeConfiguration
         every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
@@ -328,7 +328,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
         } returns zaaktypeConfiguration
         every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
@@ -375,11 +375,11 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(previousZaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(previousZaaktypeUuid)
         } returns previousZaaktypeConfiguration
         every { previousZaaktypeConfiguration.id } returns 1L
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(newZaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(newZaaktypeUuid)
         } returns newZaaktypeConfiguration
         every { newZaaktypeConfiguration.id } returns 2L
 
@@ -396,7 +396,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
     given("No zaaktype configuration exists for the given UUID") {
         val unknownUUID = UUID.randomUUID()
 
-        every { zaaktypeConfigurationService.readZaaktypeConfiguration(unknownUUID) } returns null
+        every { zaaktypeConfigurationService.findConfiguration(unknownUUID) } returns null
 
         `when`("store templates mapping is called") {
             val exception = shouldThrow<ZaaktypeConfigurationNotFoundException> {
@@ -412,7 +412,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
     given("SmartDocuments is enabled but no zaaktype configuration exists") {
         val zaaktypeUUID = UUID.randomUUID()
         every { smartDocumentsService.isEnabled() } returns true
-        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID) } returns null
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUUID) } returns null
 
         `when`("templates mapping is requested") {
             val mappings = smartDocumentsTemplatesService.getTemplatesMapping(zaaktypeUUID)

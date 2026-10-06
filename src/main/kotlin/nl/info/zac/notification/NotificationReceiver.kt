@@ -28,7 +28,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
-import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
@@ -61,7 +61,7 @@ class NotificationReceiver @Inject constructor(
     private val indexingService: IndexingService,
     private val inboxDocumentService: InboxDocumentService,
     private val detachedDocumentService: DetachedDocumentService,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
+    private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
     private val cmmnService: CmmnService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val signaleringService: SignaleringService,
@@ -373,7 +373,7 @@ class NotificationReceiver @Inject constructor(
         if (notification.resource != Resource.ZAAKTYPE) return
         try {
             if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
-                zaaktypeConfigurationService.updateZaaktypeConfiguration(notification.resourceUrl)
+                zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(notification.resourceUrl)
             }
         } catch (exception: RuntimeException) {
             warning("zaaktype", notification, exception)

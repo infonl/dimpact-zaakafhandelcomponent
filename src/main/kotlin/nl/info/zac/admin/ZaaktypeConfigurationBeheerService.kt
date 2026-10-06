@@ -1,19 +1,146 @@
 /*
- * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.admin
 
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType.REQUIRED
+import jakarta.transaction.Transactional.TxType.SUPPORTS
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.validateObject
+import java.net.URI
+import java.util.UUID
+import java.util.logging.Logger
 
 /**
- * Implemented by the zaaktype configuration flavours so that callers can configure a newly published
- * zaaktype without knowing which flavour backs it.
+ * Stores zaaktype configurations, whatever process engine they are bound to.
  */
-interface ZaaktypeConfigurationBeheerService {
+@ApplicationScoped
+@Transactional(SUPPORTS)
+@NoArgConstructor
+@AllOpen
+class ZaaktypeConfigurationBeheerService @Inject constructor(
+    private val zaaktypeConfigurationRepository: ZaaktypeConfigurationRepository,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
+    private val ztcClientService: ZtcClientService,
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
+    private val zaaktypeHelperService: ZaaktypeHelperService
+) {
+    companion object {
+        private val LOG = Logger.getLogger(ZaaktypeConfigurationBeheerService::class.java.name)
+    }
+
     /**
-     * Creates the configuration for the given newly published [zaaktype], carrying over the data of the
-     * previous version of that zaaktype, or updates it when a configuration already exists.
+     * Returns the stored configuration of the zaaktype version, read from the database and not from a cache, or a
+     * new configuration for that zaaktype version when none is stored yet.
      */
-    fun upsertConfiguration(zaaktype: ZaakType)
+    fun fetchConfiguration(zaaktypeUuid: UUID): ZaaktypeConfiguration {
+        ztcClientService.resetCacheTimeToNow()
+        return zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)
+            ?: ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
+    }
+
+    /**
+     * Returns the stored configuration of the zaaktype version, read from the database and not from a cache.
+     */
+    fun findStoredConfiguration(zaaktypeUuid: UUID): ZaaktypeConfiguration? =
+        zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)
+
+    /**
+     * Stores the configuration. When the zaaktype version already has a configuration, that configuration is
+     * updated, whatever id the given configuration carries.
+     */
+    @Transactional(REQUIRED)
+    fun storeConfiguration(zaaktypeConfiguration: ZaaktypeConfiguration): ZaaktypeConfiguration {
+        validate(zaaktypeConfiguration)
+        zaaktypeConfiguration.id = zaaktypeConfigurationRepository.findByZaaktypeUuid(
+            zaaktypeConfiguration.zaaktypeUuid
+        )?.id
+        return zaaktypeConfigurationRepository.store(zaaktypeConfiguration).also {
+            zaaktypeConfigurationService.evict(it.zaaktypeUuid)
+        }
+    }
+
+    /**
+     * Rejects a productaanvraagtype that the current configuration of a zaaktype with another omschrijving uses,
+     * whatever process engine either configuration is bound to.
+     */
+    fun checkProductaanvraagtypeIsNotInUse(productaanvraagtype: String, zaaktypeOmschrijving: String) {
+        zaaktypeConfigurationService.listCurrentConfigurationsByProductaanvraagtype(productaanvraagtype)
+            .firstOrNull { it.zaaktypeOmschrijving != zaaktypeOmschrijving }
+            ?.let {
+                LOG.info {
+                    "Productaanvraagtype '$productaanvraagtype' is already in use by zaaktype " +
+                        "'${it.zaaktypeOmschrijving}' with UUID '${it.zaaktypeUuid}'"
+                }
+                throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+            }
+    }
+
+    /**
+     * Handles a notification that a zaaktype version was created or updated.
+     */
+    @Transactional(REQUIRED)
+    fun updateZaaktypeConfiguration(zaaktypeUri: URI) {
+        ztcClientService.clearZaaktypeCache()
+        ztcClientService.clearRoltypeCache()
+        ztcClientService.clearResultaattypeCache()
+        ztcClientService.clearStatustypeCache()
+        ztcClientService.clearEigenschapCache()
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
+        if (zaaktype.concept) {
+            LOG.info { "Zaaktype '${zaaktype.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }
+            return
+        }
+        upsertConfiguration(zaaktype)
+    }
+
+    @Transactional(REQUIRED)
+    fun upsertConfiguration(zaaktype: ZaakType) {
+        val zaaktypeUuid = zaaktype.url.extractUuid()
+        zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)?.let { existingConfiguration ->
+            LOG.info { "Zaaktype configuration for zaaktype with UUID $zaaktypeUuid already exists. Updating it" }
+            existingConfiguration.apply {
+                zaaktypeOmschrijving = zaaktype.omschrijving
+                einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing.takeIf { zaaktype.isServicenormAvailable() }
+            }
+            zaaktypeHelperService.updateZaakbeeindigGegevens(existingConfiguration, zaaktype)
+            storeConfiguration(existingConfiguration)
+            return
+        }
+        val previousConfiguration = zaaktypeConfigurationRepository.findCurrentByZaaktypeOmschrijving(
+            zaaktype.omschrijving
+        ) ?: run {
+            LOG.info { "Zaaktype '${zaaktype.omschrijving}' with UUID $zaaktypeUuid has no known configuration. Ignoring" }
+            return
+        }
+        ZaaktypeConfiguration().apply {
+            this.zaaktypeUuid = zaaktypeUuid
+            zaaktypeOmschrijving = zaaktype.omschrijving
+            zaaktypeHelperService.copyConfigurationData(previousConfiguration, this, zaaktype)
+        }.let(::storeConfiguration)
+        smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(previousConfiguration.zaaktypeUuid, zaaktypeUuid)
+    }
+
+    private fun validate(zaaktypeConfiguration: ZaaktypeConfiguration) {
+        validateObject(zaaktypeConfiguration)
+        zaaktypeConfiguration.apply {
+            processBinding?.let { validateObject(it) }
+            getMailtemplateKoppelingen().forEach { validateObject(it) }
+            cmmnExtension?.getHumanTaskParametersCollection()?.forEach { validateObject(it) }
+            cmmnExtension?.getUserEventListenerParametersCollection()?.forEach { validateObject(it) }
+        }
+    }
 }
