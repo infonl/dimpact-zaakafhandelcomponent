@@ -58,10 +58,10 @@ fun <T> isElementNotInCollection(targetCollection: Collection<T>, candidate: T):
  * as a new element when the collection holds no such element and no equal one.
  */
 fun <T : UserModifiableZaaktypeConfigurationData<T>> setComponent(targetCollection: MutableCollection<T>, candidate: T) {
-    targetCollection.firstOrNull { it.isModifiedFrom(candidate) }?.applyChanges(candidate)
-        ?: run {
-            if (isElementNotInCollection(targetCollection, candidate)) {
-                targetCollection.add(candidate.resetId())
-            }
-        }
+    val modifiedElement = targetCollection.firstOrNull { it.isModifiedFrom(candidate) }
+    if (modifiedElement != null) {
+        modifiedElement.applyChanges(candidate)
+    } else if (isElementNotInCollection(targetCollection, candidate)) {
+        targetCollection.add(candidate.resetId())
+    }
 }

@@ -199,26 +199,33 @@ class ProductaanvraagService @Inject constructor(
 
     /**
      * Handles a productaanvraag-Dimpact [ModelObject]
-     * - If the current configuration of a zaaktype has the productaanvraagtype, a zaak of that zaaktype is created,
-     *   and a case or process is started for it in the engine that the configuration is bound to.
-     * - If more than one current configuration has the productaanvraagtype, the most recently created one is used
+     * - If the current configuration of a zaaktype has the productaanvraagtype and is bound to a process engine,
+     *   a zaak of that zaaktype is created, and a case or process is started for it in that engine.
+     * - If more than one bound configuration has the productaanvraagtype, the most recently created one is used
      *   and a warning is logged.
-     * - If no configuration has the productaanvraagtype, it creates an 'inbox productaanvraag'.
+     * - If no bound configuration has the productaanvraagtype, it creates an 'inbox productaanvraag'.
      */
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        val zaaktypeConfigurations =
-            zaaktypeConfigurationService.listCurrentConfigurationsByProductaanvraagtype(productaanvraag.type)
-        if (zaaktypeConfigurations.size > 1) {
+        val (boundConfigurations, unboundConfigurations) = zaaktypeConfigurationService
+            .listCurrentConfigurationsByProductaanvraagtype(productaanvraag.type)
+            .partition { it.processBinding != null }
+        unboundConfigurations.forEach {
+            LOG.warning(
+                "Zaaktype configuration with zaaktype UUID '${it.zaaktypeUuid}' has productaanvraag type " +
+                    "'${productaanvraag.type}' but is not bound to a process engine, so it is ignored."
+            )
+        }
+        if (boundConfigurations.size > 1) {
             LOG.warning(
                 "Multiple zaaktype configurations found for productaanvraag type '${productaanvraag.type}'. " +
                     "Using the most recently created one with zaaktype UUID: " +
-                    "'${zaaktypeConfigurations.first().zaaktypeUuid}' and zaaktype omschrijving: " +
-                    "'${zaaktypeConfigurations.first().zaaktypeOmschrijving}'."
+                    "'${boundConfigurations.first().zaaktypeUuid}' and zaaktype omschrijving: " +
+                    "'${boundConfigurations.first().zaaktypeOmschrijving}'."
             )
         }
-        val zaaktypeConfiguration = zaaktypeConfigurations.firstOrNull()
+        val zaaktypeConfiguration = boundConfigurations.firstOrNull()
         when {
             zaaktypeConfiguration == null -> {
                 LOG.info(

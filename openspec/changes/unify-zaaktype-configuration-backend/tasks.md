@@ -161,7 +161,7 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
       summary of filled and unresolved rows. Verify with unit tests for success, a ZTC failure, and a second run.
 - [ ] 5.5 Add a second version of one CMMN and one BPMN zaaktype to the Open Zaak seed data
       (`scripts/docker-compose/imports/openzaak-database/database/`). Rework
-      `NotificationZaaktypeCompletionParametersTest` to publish that version, then verify that it passes for both engines Add an itest
+      `NotificationZaaktypeCompletionParametersTest` to publish that version, then verify that it passes for both engines. Add an itest
       that stores the configuration of the second BPMN version with the productaanvraagtype of the first, and verify
       that it is accepted.
 - [ ] 5.6 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR

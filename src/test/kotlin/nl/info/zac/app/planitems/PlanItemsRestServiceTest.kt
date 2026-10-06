@@ -28,6 +28,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
@@ -821,7 +822,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every {
-                zaaktypeConfigurationService.findConfiguration(zaak.zaaktype.extractUuid())
+                zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns intakeAfrondenZaaktypeCmmnConfiguration
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every {
@@ -904,7 +905,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every {
-                zaaktypeConfigurationService.findConfiguration(zaak.zaaktype.extractUuid())
+                zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns geenResultaattypeZaaktypeCmmnConfiguration
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
@@ -918,6 +919,41 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("closeZaak should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.closeZaak(any(), any(), any())
+                    }
+                }
+            }
+        }
+
+        given("Zaak that is not ontvankelijk and whose zaaktype has no configuration") {
+            val zaak = createZaak(resultaat = null)
+            val restUserEventListenerData = createRestUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.INTAKE_AFRONDEN,
+                restMailGegevens = null
+            ).apply {
+                this.isZaakOntvankelijk = false
+                this.planItemInstanceId = planItemInstanceId
+            }
+            val loggedInUser = createLoggedInUser()
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every {
+                zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
+            } throws ZaaktypeConfigurationNotFoundException("fakeMessage")
+            every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk") {
+                shouldThrow<ZaaktypeConfigurationNotFoundException> {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                }
+
+                then("the zaak is not closed and the user event listener is not started, so the failure is visible") {
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any())
+                        cmmnService.startUserEventListenerPlanItem(any())
                     }
                 }
             }

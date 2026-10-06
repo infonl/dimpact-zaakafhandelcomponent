@@ -69,6 +69,7 @@ import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -1681,6 +1682,128 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         type shouldBe productAanvraagType
                         initiatorID shouldBe null
                         aantalBijlagen shouldBe 0
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            a productaanvraag-dimpact object whose productaanvraagtype is only configured on a zaaktype configuration
+            that is not bound to a process engine
+            """
+        ) {
+            clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val unboundConfiguration = createZaaktypeCmmnConfiguration().apply { processBinding = null }
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to createBron(),
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
+                    ),
+                    registrationAt = LocalDate.of(2021, 1, 1)
+                ),
+                uuid = productAanvraagObjectUUID
+            )
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every {
+                zaaktypeConfigurationService.listCurrentConfigurationsByProductaanvraagtype(productAanvraagType)
+            } returns listOf(unboundConfiguration)
+            every { inboxProductaanvraagService.create(any()) } just runs
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then(
+                    """
+                    an inbox productaanvraag is created and the productaanvraag is marked as done,
+                    so that a configuration that cannot start a zaak does not lose the productaanvraag
+                    """
+                ) {
+                    verify(exactly = 1) {
+                        inboxProductaanvraagService.create(any())
+                        productaanvraagClaimRepository.markDone(productAanvraagObjectUUID)
+                    }
+                    verify(exactly = 0) {
+                        zgwApiService.createZaak(any())
+                        cmmnService.startCase(zaak = any(), zaaktype = any(), caseDefinitionKey = any(), zaakData = any())
+                        bpmnService.startProcess(zaak = any(), zaaktype = any(), processDefinitionKey = any(), zaakData = any())
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            a productaanvraag-dimpact object whose productaanvraagtype is configured on a CMMN-bound zaaktype
+            configuration and on a less recently created BPMN-bound zaaktype configuration
+            """
+        ) {
+            clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val zaakType = createZaakType()
+            val createdZaak = createZaak()
+            val cmmnConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeUUID = zaakTypeUUID,
+                creationDate = ZonedDateTime.now()
+            )
+            val bpmnConfiguration = createZaaktypeBpmnConfiguration(creationDate = ZonedDateTime.now().minusDays(1))
+            val formulierBron = createBron()
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to formulierBron,
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
+                        "pdf" to zaakType.informatieobjecttypen[0]
+                    )
+                )
+            )
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
+            every {
+                zaaktypeConfigurationService.listCurrentConfigurationsByProductaanvraagtype(productAanvraagType)
+            } returns listOf(cmmnConfiguration, bpmnConfiguration)
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { zgwApiService.createZaak(any()) } returns createdZaak
+            every { zrcClientService.createZaakobject(any()) } returns createZaakobjectProductaanvraag()
+            every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createZaakInformatieobjectForReads()
+            every {
+                cmmnService.startCase(
+                    zaak = createdZaak,
+                    zaaktype = zaakType,
+                    caseDefinitionKey = "fakeCaseDefinitionId",
+                    zaakData = any()
+                )
+            } just Runs
+            every { configurationService.readBronOrganisatie() } returns "123443210"
+            every {
+                productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                    zaak = any(), betrokkene = any(), productaanvraagSpecificEmailAddress = any(), zaaktypeConfiguration = any()
+                )
+            } just runs
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then("the CMMN case of the most recently created configuration is started") {
+                    verify(exactly = 1) {
+                        cmmnService.startCase(
+                            zaak = createdZaak,
+                            zaaktype = zaakType,
+                            caseDefinitionKey = "fakeCaseDefinitionId",
+                            zaakData = any()
+                        )
+                    }
+                    verify(exactly = 0) {
+                        bpmnService.startProcess(zaak = any(), zaaktype = any(), processDefinitionKey = any(), zaakData = any())
                     }
                 }
             }

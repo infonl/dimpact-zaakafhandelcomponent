@@ -50,7 +50,7 @@ class ZaaktypeConfigurationSplitMigrationTest : BehaviorSpec({
                 (1, (SELECT MIN(id_referentie_tabel) FROM referentie_tabel), 1, 'fakeVeld'),
                 (2, (SELECT MIN(id_referentie_tabel) FROM referentie_tabel), 2, 'fakeStrayVeld');
             INSERT INTO zaaktype_cmmn_usereventlistener_parameters (id, id_planitem_definition, zaaktype_configuration_id)
-            VALUES (1, 'fakeUserEventListener', 1);
+            VALUES (1, 'fakeUserEventListener', 1), (2, 'fakeStrayUserEventListener', 4);
             """.trimIndent()
         )
         val expectedQuarantine = listOf(
@@ -63,6 +63,11 @@ class ZaaktypeConfigurationSplitMigrationTest : BehaviorSpec({
                 "zaaktype_cmmn_humantask_parameters",
                 CHILD_OF_CMMN_ROW_OF_BPMN_CONFIGURATION,
                 rowAsJson("zaaktype_cmmn_humantask_parameters", "id = 2")
+            ),
+            listOf(
+                "zaaktype_cmmn_usereventlistener_parameters",
+                CHILD_OF_CMMN_ROW_OF_BPMN_CONFIGURATION,
+                rowAsJson("zaaktype_cmmn_usereventlistener_parameters", "id = 2")
             ),
             listOf(
                 "zaaktype_cmmn_configuration",

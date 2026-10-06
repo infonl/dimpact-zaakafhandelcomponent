@@ -18,6 +18,7 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -149,9 +150,19 @@ class ZaaktypeConfiguration {
     fun getProcessEngine(): ProcessEngine? = processBinding?.processEngine
 
     /**
-     * Binds this configuration to the given engine and definition, replacing any previous binding.
+     * Binds this configuration to the given engine and definition, replacing the definition of a previous binding.
+     * A configuration never changes engine, and a BPMN-bound configuration has no CMMN extension.
      */
     fun bindTo(processEngine: ProcessEngine, definitionKey: String) {
+        getProcessEngine()?.takeIf { it != processEngine }?.let {
+            throw InputValidationFailedException(
+                message = "Zaaktype configuration for zaaktype '$zaaktypeUuid' is bound to $it and cannot be " +
+                    "bound to $processEngine"
+            )
+        }
+        if (processEngine == ProcessEngine.BPMN) {
+            cmmnExtension = null
+        }
         val binding = processBinding ?: ZaaktypeProcessBinding().also { processBinding = it }
         binding.zaaktypeConfiguration = this
         binding.processEngine = processEngine

@@ -20,14 +20,18 @@ import nl.info.zac.util.validateObject
 @AllOpen
 @NoArgConstructor
 class MailTemplateKoppelingenService @Inject constructor(
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
 ) {
     fun find(id: Long): ZaaktypeMailtemplateParameters? =
         entityManager.find(ZaaktypeMailtemplateParameters::class.java, id)
 
     @Transactional(REQUIRED)
     fun delete(id: Long) {
-        find(id)?.let { entityManager.remove(it) }
+        find(id)?.let {
+            entityManager.remove(it)
+            zaaktypeConfigurationService.evict(it.zaaktypeConfiguration.zaaktypeUuid)
+        }
     }
 
     @Transactional(REQUIRED)
@@ -41,6 +45,8 @@ class MailTemplateKoppelingenService @Inject constructor(
         } else {
             entityManager.persist(zaaktypeCmmnMailtemplateParameters)
             zaaktypeCmmnMailtemplateParameters
+        }.also {
+            zaaktypeConfigurationService.evict(it.zaaktypeConfiguration.zaaktypeUuid)
         }
     }
 

@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import nl.info.zac.exception.InputValidationFailedException
 import java.util.UUID
 
 class ZaaktypeConfigurationTest : BehaviorSpec({
@@ -106,7 +107,7 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
     context("bindTo and engine properties") {
         given("a fresh configuration") {
-            val config = ZaaktypeConfiguration()
+            val config = ZaaktypeConfiguration().apply { zaaktypeUuid = UUID.randomUUID() }
 
             `when`("binding to CMMN") {
                 config.bindTo(ProcessEngine.CMMN, "fakeCaseDefinition")
@@ -119,12 +120,44 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
                 }
             }
 
+            `when`("rebinding to another case definition") {
+                config.bindTo(ProcessEngine.CMMN, "otherFakeCaseDefinition")
+
+                then("the definition key is replaced and the CMMN extension is kept") {
+                    config.getProcessEngine() shouldBe ProcessEngine.CMMN
+                    config.processBinding?.definitionKey shouldBe "otherFakeCaseDefinition"
+                    config.cmmnExtension.shouldNotBeNull()
+                }
+            }
+
             `when`("rebinding to BPMN") {
+                val exception = shouldThrow<InputValidationFailedException> {
+                    config.bindTo(ProcessEngine.BPMN, "fakeBpmnProcess")
+                }
+
+                then("it is rejected, because a configuration never changes engine, and the CMMN binding is kept") {
+                    exception.message shouldBe "Zaaktype configuration for zaaktype '${config.zaaktypeUuid}' is " +
+                        "bound to CMMN and cannot be bound to BPMN"
+                    config.getProcessEngine() shouldBe ProcessEngine.CMMN
+                    config.processBinding?.definitionKey shouldBe "otherFakeCaseDefinition"
+                    config.cmmnExtension.shouldNotBeNull()
+                }
+            }
+        }
+
+        given("an unbound configuration with a CMMN extension") {
+            val config = ZaaktypeConfiguration().apply {
+                zaaktypeUuid = UUID.randomUUID()
+                getOrCreateCmmnExtension()
+            }
+
+            `when`("binding to BPMN") {
                 config.bindTo(ProcessEngine.BPMN, "fakeBpmnProcess")
 
-                then("process engine updates to BPMN") {
+                then("the configuration is bound to BPMN and the CMMN extension is removed") {
                     config.getProcessEngine() shouldBe ProcessEngine.BPMN
                     config.processBinding?.definitionKey shouldBe "fakeBpmnProcess"
+                    config.cmmnExtension.shouldBeNull()
                 }
             }
         }
