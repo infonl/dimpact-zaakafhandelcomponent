@@ -43,7 +43,8 @@ class ZaaktypeConfigurationSchemaRepairMigrationTest : BehaviorSpec({
                 (2, 'a0000000-0000-0000-0000-000000000002', 'fakeGroup', 'fakeBpmn', NOW(), 'BPMN'),
                 (3, 'a0000000-0000-0000-0000-000000000003', 'fakeGroup', 'fakeUntypedWithoutSubclass', NOW(), NULL),
                 (4, 'a0000000-0000-0000-0000-000000000004', 'fakeGroup', 'fakeUntypedCmmn', NOW(), NULL),
-                (5, 'a0000000-0000-0000-0000-000000000005', 'fakeGroup', 'fakeUntypedInBothSubclasses', NOW(), NULL);
+                (5, 'a0000000-0000-0000-0000-000000000005', 'fakeGroup', 'fakeUntypedInBothSubclasses', NOW(), NULL),
+                (6, 'a0000000-0000-0000-0000-000000000006', 'fakeGroup', 'fakeUntypedBpmn', NOW(), NULL);
             INSERT INTO zaaktype_cmmn_configuration (id, id_case_definition, intake_mail, afronden_mail)
             VALUES
                 (1, 'fakeCaseDefinition', 'BESCHIKBAAR_UIT', 'BESCHIKBAAR_UIT'),
@@ -55,9 +56,10 @@ class ZaaktypeConfigurationSchemaRepairMigrationTest : BehaviorSpec({
                 (2, 'fakeProcessDefinitionKey'),
                 (2, 'fakeDuplicateProcessDefinitionKey'),
                 (5, 'fakeAmbiguousProcessDefinitionKey'),
+                (6, 'fakeProcessDefinitionKey6'),
                 (60, 'fakeOrphanedProcessDefinitionKey');
             INSERT INTO zaaktype_betrokkene_parameters (id, zaaktype_configuration_id, brpkoppelen)
-            VALUES (1, 1, FALSE), (2, 1, TRUE);
+            VALUES (1, 1, FALSE), (2, 1, TRUE), (3, 3, TRUE);
             INSERT INTO zaaktype_brp_parameters (id, zaaktype_configuration_id, zoekwaarde)
             VALUES (1, 1, 'fakeOldZoekwaarde'), (2, 1, 'fakeNewZoekwaarde'), (3, 3, 'fakeUntypedZoekwaarde');
             INSERT INTO zaaktype_completion_parameters
@@ -70,6 +72,12 @@ class ZaaktypeConfigurationSchemaRepairMigrationTest : BehaviorSpec({
             VALUES (1, 1, 'fakePlanItem'), (2, 50, 'fakeOrphanedPlanItem'), (3, 5, 'fakeAmbiguousPlanItem');
             INSERT INTO humantask_referentie_tabel
             VALUES (1, (SELECT MIN(id_referentie_tabel) FROM referentie_tabel), 2, 'fakeVeld');
+            INSERT INTO zaaktype_cmmn_usereventlistener_parameters (id, zaaktype_configuration_id, id_planitem_definition)
+            VALUES (1, 1, 'fakePlanItem'), (2, 50, 'fakeOrphanedPlanItem');
+            INSERT INTO zaaktype_cmmn_mailtemplate_parameters (id, zaaktype_configuration_id, id_mail_template)
+            VALUES
+                (1, 1, (SELECT MIN(id_mail_template) FROM mail_template)),
+                (2, 50, (SELECT MIN(id_mail_template) FROM mail_template));
             INSERT INTO zaaktype_cmmn_zaakafzender_parameters (id, zaaktype_configuration_id, mail)
             VALUES (1, 50, 'orphaned@example.com');
             INSERT INTO zaaktype_smartdocuments_document_template_group_parameters
@@ -99,6 +107,11 @@ class ZaaktypeConfigurationSchemaRepairMigrationTest : BehaviorSpec({
                 UNTYPED_CONFIGURATION_CHILD,
                 rowAsJson("zaaktype_completion_parameters", "id = 2")
             ),
+            listOf(
+                "zaaktype_betrokkene_parameters",
+                UNTYPED_CONFIGURATION_CHILD,
+                rowAsJson("zaaktype_betrokkene_parameters", "id = 3")
+            ),
             listOf("zaaktype_brp_parameters", UNTYPED_CONFIGURATION_CHILD, rowAsJson("zaaktype_brp_parameters", "id = 3")),
             listOf("zaaktype_configuration", UNTYPED_CONFIGURATION, rowAsJson("zaaktype_configuration", "id = 3")),
             listOf("zaaktype_configuration", UNTYPED_CONFIGURATION, rowAsJson("zaaktype_configuration", "id = 5")),
@@ -116,6 +129,16 @@ class ZaaktypeConfigurationSchemaRepairMigrationTest : BehaviorSpec({
                 "zaaktype_cmmn_humantask_parameters",
                 ORPHANED_CMMN_CONFIGURATION_CHILD,
                 rowAsJson("zaaktype_cmmn_humantask_parameters", "id = 3")
+            ),
+            listOf(
+                "zaaktype_cmmn_usereventlistener_parameters",
+                ORPHANED_CMMN_CONFIGURATION_CHILD,
+                rowAsJson("zaaktype_cmmn_usereventlistener_parameters", "id = 2")
+            ),
+            listOf(
+                "zaaktype_cmmn_mailtemplate_parameters",
+                ORPHANED_CMMN_CONFIGURATION_CHILD,
+                rowAsJson("zaaktype_cmmn_mailtemplate_parameters", "id = 2")
             ),
             listOf(
                 "zaaktype_cmmn_zaakafzender_parameters",
@@ -171,16 +194,25 @@ class ZaaktypeConfigurationSchemaRepairMigrationTest : BehaviorSpec({
             then("the valid configurations and their child rows are unchanged") {
                 migrationTestDatabase.query(
                     "SELECT id, configuration_type FROM zaaktype_configuration ORDER BY id"
-                ) shouldBe listOf(listOf("1", "CMMN"), listOf("2", "BPMN"), listOf("4", "CMMN"))
+                ) shouldBe listOf(listOf("1", "CMMN"), listOf("2", "BPMN"), listOf("4", "CMMN"), listOf("6", "BPMN"))
                 migrationTestDatabase.query(
                     "SELECT id, id_case_definition FROM zaaktype_cmmn_configuration ORDER BY id"
                 ) shouldBe listOf(listOf("1", "fakeCaseDefinition"), listOf("4", "fakeCaseDefinition4"))
+                migrationTestDatabase.query(
+                    "SELECT id, bpmn_process_definition_key FROM zaaktype_bpmn_configuration WHERE id = 6"
+                ) shouldBe listOf(listOf("6", "fakeProcessDefinitionKey6"))
                 migrationTestDatabase.query(
                     "SELECT id, zaaktype_configuration_id FROM zaaktype_completion_parameters"
                 ) shouldBe listOf(listOf("1", "1"))
                 migrationTestDatabase.query(
                     "SELECT id, id_planitem_definition FROM zaaktype_cmmn_humantask_parameters"
                 ) shouldBe listOf(listOf("1", "fakePlanItem"))
+                migrationTestDatabase.query(
+                    "SELECT id, id_planitem_definition FROM zaaktype_cmmn_usereventlistener_parameters"
+                ) shouldBe listOf(listOf("1", "fakePlanItem"))
+                migrationTestDatabase.query(
+                    "SELECT id, zaaktype_configuration_id FROM zaaktype_cmmn_mailtemplate_parameters"
+                ) shouldBe listOf(listOf("1", "1"))
                 migrationTestDatabase.query(
                     "SELECT id, smartdocuments_id FROM zaaktype_smartdocuments_document_template_parameters"
                 ) shouldBe listOf(listOf("2", "fakeValidTemplate"))
@@ -197,7 +229,7 @@ class ZaaktypeConfigurationSchemaRepairMigrationTest : BehaviorSpec({
                     "SELECT id, template_name FROM zaaktype_cmmn_email_parameters"
                 ) shouldBe listOf(listOf("2", "fakeNewTemplate"))
                 migrationTestDatabase.query(
-                    "SELECT id, bpmn_process_definition_key FROM zaaktype_bpmn_configuration"
+                    "SELECT id, bpmn_process_definition_key FROM zaaktype_bpmn_configuration WHERE id = 2"
                 ) shouldBe listOf(listOf("2", "fakeDuplicateProcessDefinitionKey"))
             }
 
