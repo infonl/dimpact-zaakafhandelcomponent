@@ -15,8 +15,8 @@ import nl.info.zac.util.NoArgConstructor
 data class RestReplyTo(
     var mail: String = "",
 
-    @get:JsonbProperty("speciaal")
-    @set:JsonbProperty("speciaal")
+    @get:JsonbProperty("isSpeciaal")
+    @set:JsonbProperty("isSpeciaal")
     var isSpeciaal: Boolean = false
 )
 
