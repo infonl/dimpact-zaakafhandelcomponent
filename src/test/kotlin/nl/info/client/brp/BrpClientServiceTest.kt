@@ -19,6 +19,7 @@ import nl.info.client.brp.util.BrpProtocolleringContext
 import nl.info.client.brp.util.createBrpConfiguration
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.ZaaktypeBrpParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import java.util.Optional
 import java.util.UUID
@@ -79,6 +80,34 @@ class BrpClientServiceTest : BehaviorSpec({
                 personResponse shouldBe person
                 localContext.headers["x-doelbinding"] shouldBe retrievePersoonPurpose
                 localContext.headers["x-verwerking"] shouldBe "$processingValue@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}"
+            }
+        }
+    }
+
+    given("A person for a given BSN and a zaaktype without a CMMN configuration") {
+        val bsn = "123456789"
+        val person = createPersoon(bsn = bsn)
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+        } returns ZaaktypeCmmnConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
+
+        `when`("find person is called with the BSN of the person") {
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
+
+            then("it should return the person and use the default doelbinding and verwerking") {
+                personResponse shouldBe person
+                localContext.headers["x-doelbinding"] shouldBe doelbindingRaadpleegMetDefault
+                localContext.headers["x-verwerking"] shouldBe verwerkingregisterDefault
             }
         }
     }
