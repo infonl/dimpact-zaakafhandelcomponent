@@ -7,8 +7,8 @@ import { Given, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 import {
   FIFTEEN_SECONDS_IN_MS,
-  ONE_MINUTE_IN_MS,
   INFLATED_STEP_TIMEOUT_IN_MS,
+  ONE_MINUTE_IN_MS,
   TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
