@@ -9,7 +9,7 @@ import path from "path";
 import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
-  SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS,
+  INFLATED_STEP_TIMEOUT_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
@@ -97,7 +97,6 @@ async function selectFirstOption(form: Locator, label: string) {
     .click();
 }
 
-const e2eTestGroupAName = "Test groep A";
 const testUser1Id = "e2etestuser1";
 const testUser1Name = "E2etest User1";
 
@@ -239,7 +238,7 @@ Then(
     await waitForFormioReady(this.page);
     const form = formioForm(this.page);
     await expect(form.getByLabel("Group").nth(0)).toContainText(
-      e2eTestGroupAName,
+      groups.TestGroupA.name,
       {
         timeout: FORTY_SECONDS_IN_MS,
       },
@@ -257,7 +256,7 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
-    await form.getByLabel("Group").nth(0).selectOption(e2eTestGroupAName);
+    await form.getByLabel("Group").nth(0).selectOption(groups.TestGroupA.name);
     // User options populate from the Group selection via a backend call;
     // wait for it to return before assuming the specific option exists.
     const userSelect = form.getByLabel("User");
@@ -472,7 +471,7 @@ Then(
 
 Then(
   "{string} sees the select documents to sign form",
-  { timeout: SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioContent(
       this.page,

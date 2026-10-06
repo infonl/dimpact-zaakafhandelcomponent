@@ -8,7 +8,7 @@ import { expect } from "@playwright/test";
 import {
   FIFTEEN_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
-  SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS,
+  INFLATED_STEP_TIMEOUT_IN_MS,
   TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
@@ -102,7 +102,7 @@ When(
 
 Given(
   "{string} is logged in to zac",
-  { timeout: SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user: keyof typeof users) {
     const expectedUrl = this.worldParameters.urls["zac"];
     await this.openUrl(expectedUrl);

@@ -12,12 +12,13 @@ import {
   FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
-  SLOW_TEST_ENVIRONMENT_SEARCH_INDEX_TIMEOUT_IN_MS,
-  SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS,
-  SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS,
+  INFLATED_SEARCH_INDEX_TIMEOUT_IN_MS,
+  INFLATED_STEP_TIMEOUT_IN_MS,
+  INFLATED_TIMEOUT_IN_MS,
   TWO_MINUTES_IN_MS,
   TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
+import { groups } from "../support/worlds/groups";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
@@ -44,7 +45,7 @@ async function checkZaakAssignment(
     this.page
       .getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)
       .first(),
-  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page
@@ -52,19 +53,19 @@ async function checkZaakAssignment(
         name: "Aanvullende informatie",
       })
       .first(),
-  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: "Toegekend" }),
-  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.group }),
-  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.username }),
-  ).toBeVisible({ timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS });
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 }
 
 async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
@@ -204,7 +205,7 @@ When(
 
 When(
   "{string} wants to create a new {string} zaak",
-  { timeout: SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -260,9 +261,9 @@ When(
     const group = this.page.getByRole("combobox", {
       name: "Zaak toekennen aan groep",
     });
-    await group.fill("Test groep A");
+    await group.fill(groups.TestGroupA.name);
     await this.page
-      .getByRole("option", { name: "Test groep A", exact: true })
+      .getByRole("option", { name: groups.TestGroupA.name, exact: true })
       .click();
 
     if (bpmnZaakType) {
@@ -404,7 +405,7 @@ Then(
 
 Then(
   "Employee {string} opens the zaak that was created from the open-forms submission",
-  { timeout: SLOW_TEST_ENVIRONMENT_STEP_TIMEOUT_IN_MS },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const openFormsReference = this.testStorage.get("open-forms-reference");
     const zaakResults = this.page.locator("mat-sidenav zac-zaak-zoek-object");
@@ -435,12 +436,12 @@ Then(
       });
     }).toPass({
       intervals: [FIVE_SECONDS_IN_MS],
-      timeout: SLOW_TEST_ENVIRONMENT_SEARCH_INDEX_TIMEOUT_IN_MS,
+      timeout: INFLATED_SEARCH_INDEX_TIMEOUT_IN_MS,
     });
 
     await zaakLink.click();
     await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX, {
-      timeout: SLOW_TEST_ENVIRONMENT_TIMEOUT_IN_MS,
+      timeout: INFLATED_TIMEOUT_IN_MS,
     });
   },
 );
