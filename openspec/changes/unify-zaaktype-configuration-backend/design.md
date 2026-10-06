@@ -187,10 +187,11 @@ history:
 - `RESTReplyTo`
 - `MailtemplateRESTService`
 
-`RESTReplyTo` keeps its Java-era name, because the name is the OpenAPI schema name that the frontend uses.
-Its fields stay non-null with defaults, so the generated schema does not change. Moving classes changes which
-use of a shared schema SmallRye writes inline and which as a `$ref`. The contract check therefore compares the
-two specs after it resolves every `$ref`.
+`RESTReplyTo` becomes `RestReplyTo`, because detekt rejects all-caps acronyms in Kotlin class names. That renames
+its OpenAPI schema, and the frontend follows the new name. Its boolean becomes `isSpeciaal`, also as JSON name, as in
+`RestZaakAfzender`, and its fields stay non-null with defaults.
+Moving classes changes which use of a shared schema SmallRye writes inline and which as a `$ref`. The contract
+check therefore compares the two specs after it resolves every `$ref`.
 
 ### D4. A3: one entity, a process binding, and a CMMN extension
 
