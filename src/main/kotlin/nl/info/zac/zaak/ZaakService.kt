@@ -14,7 +14,7 @@ import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
@@ -77,7 +77,7 @@ class ZaakService @Inject constructor(
     private val bpmnService: BpmnService,
     private val pabcClientService: PabcClientService,
     private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
-    private val cmmnService: CMMNService
+    private val cmmnService: CmmnService
 ) {
     companion object {
         private val zaakAssignmentLocks = Array(64) { ReentrantLock() }

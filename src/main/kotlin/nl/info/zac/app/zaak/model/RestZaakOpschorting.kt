@@ -10,7 +10,7 @@ import java.time.ZonedDateTime
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakOpschorting(
+data class RestZaakOpschorting(
     var vanafDatumTijd: ZonedDateTime? = null,
 
     var duurDagen: Int = 0

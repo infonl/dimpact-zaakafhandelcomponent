@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.admin.model.ZaakbeeindigReden
 
-class RESTZaakbeeindigRedenConverterTest : BehaviorSpec({
+class RestZaakbeeindigRedenConverterTest : BehaviorSpec({
     context("convertZaakbeeindigReden") {
         given("a ZaakbeeindigReden with id and naam") {
             val zaakbeeindigReden = ZaakbeeindigReden().apply {

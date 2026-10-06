@@ -39,7 +39,7 @@ export class VersionComponent implements OnInit {
 
   protected readonly versionLayout = VersionLayout;
   protected readonly layout = input<VersionLayout>();
-  protected buildInformatie?: GeneratedType<"RESTBuildInformation">;
+  protected buildInformatie?: GeneratedType<"RestBuildInformation">;
 
   ngOnInit() {
     this.healthCheckService

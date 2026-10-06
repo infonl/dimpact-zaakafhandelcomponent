@@ -14,7 +14,7 @@ import {
 } from "./zaak-view.predicates";
 
 type Zaak = GeneratedType<"RestZaak">;
-type PlanItem = GeneratedType<"RESTPlanItem">;
+type PlanItem = GeneratedType<"RestPlanItem">;
 
 export interface ZaakMenuPlanItems {
   userEventListener: PlanItem[];

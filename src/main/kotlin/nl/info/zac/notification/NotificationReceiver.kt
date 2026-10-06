@@ -18,7 +18,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
@@ -62,7 +62,7 @@ class NotificationReceiver @Inject constructor(
     private val inboxDocumentService: InboxDocumentService,
     private val detachedDocumentService: DetachedDocumentService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
-    private val cmmnService: CMMNService,
+    private val cmmnService: CmmnService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val signaleringService: SignaleringService,
     private val taskService: TaskService,

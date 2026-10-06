@@ -44,7 +44,7 @@ const zaak = fromPartial<GeneratedType<"RestZaak">>({
   besluiten: [],
 });
 
-const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
   id: "fakePlanItemId",
   userEventListenerActie: "ZAAK_AFHANDELEN",
   toelichting: "fakePlanItemToelichting",
@@ -113,7 +113,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     planItemToHandle = planItem,
   }: {
     zaakToHandle?: GeneratedType<"RestZaak">;
-    planItemToHandle?: GeneratedType<"RESTPlanItem"> | null;
+    planItemToHandle?: GeneratedType<"RestPlanItem"> | null;
   } = {}) {
     dialogRef = fromPartial<MatDialogRef<ZaakAfhandelenDialogComponent>>({
       close: jest.fn(),

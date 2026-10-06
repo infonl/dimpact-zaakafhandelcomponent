@@ -11,7 +11,7 @@ import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardId
 import net.atos.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
 import net.atos.zac.signalering.model.SignaleringType
 
-class RESTDashboardCardInstellingConverterTest : BehaviorSpec({
+class RestDashboardCardInstellingConverterTest : BehaviorSpec({
     context("convert(DashboardCardInstelling)") {
         given("a DashboardCardInstelling domain model") {
             val card = createDashboardCardInstelling(

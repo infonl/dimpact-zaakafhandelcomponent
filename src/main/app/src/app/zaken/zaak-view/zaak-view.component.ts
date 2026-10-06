@@ -351,7 +351,7 @@ export class ZaakViewComponent
     startHumanTask: (planItem) => this.startHumanTaskPlanItem(planItem),
   };
 
-  private startHumanTaskPlanItem(planItem: GeneratedType<"RESTPlanItem">) {
+  private startHumanTaskPlanItem(planItem: GeneratedType<"RestPlanItem">) {
     const actiefPlanItem = this.sideActions.actiefPlanItem();
     if (!actiefPlanItem || actiefPlanItem.id !== planItem.id) {
       this.sideActions.clear();

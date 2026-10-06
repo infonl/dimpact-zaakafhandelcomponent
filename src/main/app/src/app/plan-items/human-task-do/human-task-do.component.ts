@@ -60,7 +60,7 @@ export class HumanTaskDoComponent implements OnInit {
   private readonly taakFormulierenService = inject(TaakFormulierenService);
   private readonly formBuilder = inject(FormBuilder);
 
-  readonly planItem = input<GeneratedType<"RESTPlanItem"> | null | undefined>(
+  readonly planItem = input<GeneratedType<"RestPlanItem"> | null | undefined>(
     null,
   );
   readonly sideNav = input.required<MatDrawer>();

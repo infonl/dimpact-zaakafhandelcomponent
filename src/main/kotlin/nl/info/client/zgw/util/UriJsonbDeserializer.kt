@@ -12,7 +12,7 @@ import java.lang.reflect.Type
 import java.net.URI
 import java.net.URISyntaxException
 
-class URIJsonbDeserializer : JsonbDeserializer<URI> {
+class UriJsonbDeserializer : JsonbDeserializer<URI> {
     @Suppress("SwallowedException", "TooGenericExceptionThrown")
     override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): URI? =
         try {

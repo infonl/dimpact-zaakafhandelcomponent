@@ -6,7 +6,7 @@ package nl.info.zac.app.admin.model
 
 import java.time.ZonedDateTime
 
-data class RESTBuildInformation(
+data class RestBuildInformation(
     val commit: String?,
     val buildId: String?,
     val buildDatumTijd: ZonedDateTime?,

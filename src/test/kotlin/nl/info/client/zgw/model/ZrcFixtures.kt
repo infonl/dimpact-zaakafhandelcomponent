@@ -4,7 +4,7 @@
  */
 package nl.info.client.zgw.model
 
-import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.DeleteGeoJsonGeometry
 import nl.info.client.zgw.zrc.model.RolMedewerker
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
@@ -118,7 +118,7 @@ fun createOrganisatorischeEenheid(
 fun createGeoJSONGeometryWithDeletionSupport(
     longitude: BigDecimal = BigDecimal("4.56"),
     latitude: BigDecimal = BigDecimal("1.23")
-) = DeleteGeoJSONGeometry().apply {
+) = DeleteGeoJsonGeometry().apply {
     this.type = GeometryTypeEnum.POINT
     this.coordinates = listOf(
         longitude,

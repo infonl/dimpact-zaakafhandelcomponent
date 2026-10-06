@@ -156,7 +156,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       fixture.componentRef.setInput("zaak", zaak);
       fixture.componentRef.setInput(
         "zaakOpschorting",
-        fromPartial<GeneratedType<"RESTZaakOpschorting">>({ duurDagen }),
+        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen }),
       );
       fixture.detectChanges();
     };

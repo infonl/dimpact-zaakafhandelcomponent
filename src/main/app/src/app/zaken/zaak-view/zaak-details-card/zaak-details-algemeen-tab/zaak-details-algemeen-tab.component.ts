@@ -46,7 +46,7 @@ type ZaakDetailField = {
 })
 export class ZaakDetailsAlgemeenTabComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
-  readonly zaakOpschorting = input<GeneratedType<"RESTZaakOpschorting">>();
+  readonly zaakOpschorting = input<GeneratedType<"RestZaakOpschorting">>();
 
   readonly editCaseDetails = output<void>();
 

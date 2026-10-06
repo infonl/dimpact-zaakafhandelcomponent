@@ -20,7 +20,7 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.shared.model.audit.ZrcAuditTrailRegel
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.validateZgwApiUri
@@ -225,7 +225,7 @@ class ZrcClientService @Inject constructor(
         createZaakInformatieobject(nieuweZaakInformatieObjectRequest, description)
     }
 
-    fun listAuditTrail(zaakUUID: UUID): List<ZRCAuditTrailRegel> =
+    fun listAuditTrail(zaakUUID: UUID): List<ZrcAuditTrailRegel> =
         zrcClient.listAuditTrail(zaakUUID)
 
     fun closeCase(zaakUUID: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten =
