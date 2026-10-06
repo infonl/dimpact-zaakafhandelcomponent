@@ -70,22 +70,27 @@
       - it skips the zaakbehandelaar and existing holders;
       - groep-only taken add nothing.
 - [x] 5.6 `RestTaskHistoryConverterTest`: renders the new history entry.
-- [ ] 5.7 Integration test on a marked zaak with BEHANDELAAR_1 and BEHANDELAAR_2, neither of whom holds the
-      flag. The steps are:
-      1. Start a taak with BEHANDELAAR_1. Check that the rol exists, that BEHANDELAAR_1 can read and edit the
-         zaak, and that BEHANDELAAR_1 finds it in the zoekresultaten.
-      2. Reassign the taak to BEHANDELAAR_2. Check that both users hold the rol, and that the taakhistorie
-         shows the line.
-      3. Release the taak, then complete a taak. Check that both users still hold the rol.
-      4. Reassign the taak back to BEHANDELAAR_1. Check that there is still exactly one rol per user.
-      5. Check that neither user appears in the betrokkenen tab.
-- [ ] 5.8 Integration test: reassign a BPMN user task of a marked zaak through `taken/toekennen` and check that the
-      new assignee gets the rol.
-- [ ] 5.9 Integration test: mark a zaak that has an open taak assigned to BEHANDELAAR_1. Check that
+- [x] 5.7 Integration test (`TaskRestServiceTaakbehandelaarZaakspecifiekAutorisatieTest`) on a marked zaak. It uses
+      BEHANDELAAR_1_EN_BRP_ZOEKER_2 and BEHANDELAAR_LONG_NAME_TEST, neither of whom holds the flag. BEHANDELAAR_2 has
+      no rights on this zaaktype. The steps are:
+      1. Start a taak with the first user. Check that the rol exists, that the user can read the zaak and the taak
+         and finds the zaak, and that the zaakbehandelaar gets no rol.
+      2. Check that the taakhistorie shows the line and that the betrokkenen do not list the user.
+      3. Reassign the taak to the second user, release it, and assign it back. Check that there is exactly one rol
+         per user and that the released user can still read the zaak.
+
+      Completing is not tested here: it writes nothing, see the decision in design.md.
+- [x] 5.8 *Dropped by the developer.* No separate BPMN integration test. Reassigning a BPMN user task goes through
+      the same `TaskService` code as a CMMN taak, and 5.7 covers that.
+- [x] 5.9 Integration test: mark a zaak that has an open taak assigned to BEHANDELAAR_1. Check that
       BEHANDELAAR_1 gets the rol and can still open the taak.
-- [ ] 5.10 Integration test on a marked zaak whose zaaktype lacks the roltype:
-      - assigning a single taak is refused with the error code;
-      - a bulk verdelen skips that taak and assigns the rest.
+- [x] 5.10 *Dropped by the developer.* No integration test for a zaaktype without the roltype. The itest data has no
+      such zaaktype, and the zaak handover (PZ-10202) has no such itest either. Each link is covered by unit tests:
+      - `ZaakspecifiekeAutorisatieServiceTest` (the exception);
+      - `TaskServiceTest` (bulk skip);
+      - `PlanItemsRestServiceTest` (starting is refused);
+      - `ZaakRestServiceTest` and `ZaakServiceTest` (zaak handover and verdelen);
+      - `RestExceptionMapperTest` (HTTP 400 with the error code).
 
 ## 6. Wrap-up
 
