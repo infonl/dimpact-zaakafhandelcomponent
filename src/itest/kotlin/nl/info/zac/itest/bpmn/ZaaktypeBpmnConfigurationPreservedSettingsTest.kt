@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_UUID
 import nl.info.zac.itest.util.queryZacDatabase
 import java.net.HttpURLConnection.HTTP_OK
 
-private const val WARNING_WINDOW_COLUMN = "eindatum_gepland_waarschuwing"
+private const val WARNING_WINDOW_COLUMN = "einddatum_gepland_waarschuwing"
 
 class ZaaktypeBpmnConfigurationPreservedSettingsTest : BehaviorSpec({
     val zacClient = ZacClient(ItestHttpClient())

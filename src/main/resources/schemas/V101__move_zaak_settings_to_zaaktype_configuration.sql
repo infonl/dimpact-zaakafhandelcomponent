@@ -9,11 +9,11 @@
 -- re-pointed foreign keys.
 
 ALTER TABLE ${schema}.zaaktype_configuration
-    ADD COLUMN eindatum_gepland_waarschuwing INTEGER,
+    ADD COLUMN einddatum_gepland_waarschuwing INTEGER,
     ADD COLUMN uiterlijke_einddatum_afdoening_waarschuwing INTEGER;
 
 UPDATE ${schema}.zaaktype_configuration base
-    SET eindatum_gepland_waarschuwing = cmmn.eindatum_gepland_waarschuwing,
+    SET einddatum_gepland_waarschuwing = cmmn.eindatum_gepland_waarschuwing,
         uiterlijke_einddatum_afdoening_waarschuwing = cmmn.uiterlijke_einddatum_afdoening_waarschuwing
     FROM ${schema}.zaaktype_cmmn_configuration cmmn
     WHERE cmmn.id = base.id;

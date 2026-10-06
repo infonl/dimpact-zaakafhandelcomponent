@@ -81,7 +81,7 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "niet_ontvankelijk_resultaattype_uuid")
     var nietOntvankelijkResultaattype: UUID? = null
 
-    @Column(name = "eindatum_gepland_waarschuwing")
+    @Column(name = "einddatum_gepland_waarschuwing")
     var einddatumGeplandWaarschuwing: Int? = null
 
     @Column(name = "uiterlijke_einddatum_afdoening_waarschuwing")

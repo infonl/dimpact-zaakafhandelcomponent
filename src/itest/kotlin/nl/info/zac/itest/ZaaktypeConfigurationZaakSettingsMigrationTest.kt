@@ -54,7 +54,7 @@ class ZaaktypeConfigurationZaakSettingsMigrationTest : BehaviorSpec({
             then("the deadline warning windows are on the zaaktype configuration") {
                 migrationTestDatabase.query(
                     """
-                    SELECT id, eindatum_gepland_waarschuwing, uiterlijke_einddatum_afdoening_waarschuwing
+                    SELECT id, einddatum_gepland_waarschuwing, uiterlijke_einddatum_afdoening_waarschuwing
                     FROM zaaktype_configuration ORDER BY id
                     """.trimIndent()
                 ) shouldBe listOf(listOf("1", "3", "2"), listOf("2", null, null))

@@ -155,7 +155,8 @@ Deviations from RFC section 3.5:
 ### D3. A2: move the zaak settings to the base
 
 V101 moves `eindatum_gepland_waarschuwing` and `uiterlijke_einddatum_afdoening_waarschuwing` to
-`zaaktype_configuration`. It renames and re-points three child tables to the base: email parameters,
+`zaaktype_configuration`. The first column gets the name `einddatum_gepland_waarschuwing` there, without the
+typo of the CMMN column. It renames and re-points three child tables to the base: email parameters,
 zaakafzender parameters, and mailtemplate parameters. The new names drop the `cmmn_` infix, as V86 and V89
 did. The zaakafzender foreign key keeps `ON DELETE RESTRICT`, as V46 set it. The entity fields move up to
 `ZaaktypeConfiguration`.
