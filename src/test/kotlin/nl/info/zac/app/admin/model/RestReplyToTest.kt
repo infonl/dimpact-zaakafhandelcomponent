@@ -6,6 +6,7 @@ package nl.info.zac.app.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import jakarta.json.bind.JsonbBuilder
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 
@@ -52,6 +53,46 @@ class RestReplyToTest : BehaviorSpec({
                     val regularEntries = result.filter { !it.isSpeciaal }
                     regularEntries[0].mail shouldBe "fakeMail1@example.com"
                     regularEntries[1].mail shouldBe "fakeMail2@example.com"
+                }
+            }
+        }
+    }
+
+    context("JSON-B serialization") {
+        val jsonb = JsonbBuilder.create()
+
+        given("a special reply-to") {
+            val restReplyTo = RestReplyTo(mail = "GEMEENTE", isSpeciaal = true)
+
+            `when`("it is serialized") {
+                val json = jsonb.toJson(restReplyTo)
+
+                then("the JSON field of the boolean is isSpeciaal") {
+                    json shouldBe """{"isSpeciaal":true,"mail":"GEMEENTE"}"""
+                }
+            }
+        }
+
+        given("the JSON of a reply-to that is not special") {
+            val json = """{"isSpeciaal":false,"mail":"fakeMail@example.com"}"""
+
+            `when`("it is deserialized") {
+                val restReplyTo = jsonb.fromJson(json, RestReplyTo::class.java)
+
+                then("the boolean is read from the isSpeciaal field") {
+                    restReplyTo shouldBe RestReplyTo(mail = "fakeMail@example.com", isSpeciaal = false)
+                }
+            }
+        }
+
+        given("the JSON of a special reply-to") {
+            val json = """{"isSpeciaal":true,"mail":"MEDEWERKER"}"""
+
+            `when`("it is deserialized") {
+                val restReplyTo = jsonb.fromJson(json, RestReplyTo::class.java)
+
+                then("the boolean is read from the isSpeciaal field") {
+                    restReplyTo.isSpeciaal shouldBe true
                 }
             }
         }
