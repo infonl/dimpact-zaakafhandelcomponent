@@ -35,7 +35,6 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRestHumanTaskData
-import nl.info.zac.app.planitems.model.createRestTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRestUserEventListenerData
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.authentication.LoggedInUser
@@ -424,90 +423,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     "emailadres" to "example@example.com",
                     "body" to "body"
                 ),
-                taakStuurGegevens = null,
-                fataledatum = null
-            )
-            val taskDataSlot = slot<Map<String, String>>()
-            val mailGegevensSlot = slot<MailGegevens>()
-            val zaak = createZaak(
-                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
-            )
-            val loggedInUser = createLoggedInUser()
-            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
-            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
-            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
-            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-            every { mailTemplateService.readDefaultMailTemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
-            every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
-            every { mailService.getGemeenteMailAdres() } returns createMailAdres()
-            every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
-            every {
-                cmmnService.startHumanTaskPlanItem(
-                    planItemInstanceId = planItemInstanceId,
-                    groupId = restHumanTaskData.groep.id,
-                    assignee = null,
-                    dueDate = any(),
-                    description = restHumanTaskData.toelichting,
-                    taakdata = capture(taskDataSlot),
-                    zaakUUID = zaak.uuid
-                )
-            } just runs
-            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
-            every { loggedInUserInstance.get() } returns loggedInUser
-
-            `when`("A human task plan item is started from user that has access") {
-                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-
-                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
-
-                then("A CMMN human task plan item is started and the zaak is re-indexed") {
-                    verify(exactly = 1) {
-                        cmmnService.startHumanTaskPlanItem(
-                            planItemInstanceId = any(),
-                            groupId = any(),
-                            assignee = any(),
-                            dueDate = any(),
-                            description = any(),
-                            taakdata = any(),
-                            zaakUUID = any()
-                        )
-                        indexingService.addOrUpdateZaakOrThrow(any(), any())
-                    }
-                }
-
-                and("the task data is set correctly") {
-                    taskDataSlot.captured shouldBe restHumanTaskData.taakdata
-                }
-
-                and("email was sent for the task") {
-                    verify(exactly = 1) {
-                        mailService.sendMail(any(), any())
-                    }
-                    mailGegevensSlot.captured.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
-                }
-            }
-
-            `when`("the enkelvoudig informatieobject is updated by a user that has no access") {
-                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
-                val exception = shouldThrow<PolicyException> {
-                    planItemsRESTService.doHumanTaskplanItem(
-                        restHumanTaskData
-                    )
-                }
-                then("it throws exception with no message") { exception.message shouldBe null }
-            }
-        }
-
-        given("Send mail information in TaakStuurGegevens object") {
-            val restHumanTaskData = createRestHumanTaskData(
-                planItemInstanceId = planItemInstanceId,
-                taakdata = mapOf(
-                    "emailadres" to "example@example.com",
-                    "body" to "body"
-                ),
-                taakStuurGegevens = createRestTaakStuurGegevens(true, "TAAK_AANVULLENDE_INFORMATIE"),
                 fataledatum = null
             )
             val taskDataSlot = slot<Map<String, String>>()
