@@ -1,11 +1,13 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <mat-sidenav-container class="main-container" autosize>
   <mat-sidenav #zoekenSideNav position="end" mode="over">
-    <zac-zoeken [zoekenSideNav]="zoekenSideNav"></zac-zoeken>
+    @defer (on idle) {
+      <zac-zoeken [zoekenSideNav]="zoekenSideNav"></zac-zoeken>
+    }
   </mat-sidenav>
   <mat-sidenav-content>
     <zac-toolbar [zoekenSideNav]="zoekenSideNav"></zac-toolbar>

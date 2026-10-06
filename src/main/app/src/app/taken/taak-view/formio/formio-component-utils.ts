@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ExtendedComponentSchema } from "@formio/angular";
+import type { ExtendedComponentSchema } from "@formio/angular";
 import { escapeHtml } from "../../../shared/utils/escape-html";
 
 export function renderFieldError(
