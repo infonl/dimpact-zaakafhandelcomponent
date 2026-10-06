@@ -73,7 +73,7 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
       Verify with unit tests, parameterised by engine, for warnings, due-date signalering, afzenders, and BRP doelbinding.
 - [x] 2.4 Make the BPMN `POST` path preserve the moved settings. Verify with a unit test that a BPMN update keeps a
       stored warning window, and with an itest round trip.
-- [ ] 2.5 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and a lower file count.
+- [x] 2.5 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and a lower file count.
       Then open the PR `refactor(admin): move zaak settings to the engine-agnostic zaaktype configuration`, with body
       footer `Solves PZ-12669`.
 - [ ] 2.6 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
