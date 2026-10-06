@@ -4,14 +4,7 @@
  */
 
 import { NgFor } from "@angular/common";
-import {
-  Component,
-  effect,
-  EventEmitter,
-  input,
-  Output,
-  untracked,
-} from "@angular/core";
+import { Component, effect, input, output, untracked } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
@@ -38,7 +31,7 @@ export class FacetFilterComponent {
   readonly filter = input<GeneratedType<"FilterParameters">>();
   readonly opties = input<GeneratedType<"FilterResultaat">[] | undefined>([]);
   readonly label = input.required<string>();
-  @Output() changed = new EventEmitter<GeneratedType<"FilterParameters">>();
+  readonly changed = output<GeneratedType<"FilterParameters">>();
 
   /* veld: prefix */
   protected VERTAALBARE_FACETTEN: Record<string, string> = {

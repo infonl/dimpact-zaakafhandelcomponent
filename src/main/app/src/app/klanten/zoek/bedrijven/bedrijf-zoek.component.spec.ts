@@ -59,6 +59,7 @@ describe(BedrijfZoekComponent.name, () => {
       inputs: {
         ...(syncEnabled !== undefined && { syncEnabled }),
         ...(sideNav && { sideNav }),
+        isSelectable: !!onBedrijf,
       },
       on: { ...(onBedrijf && { bedrijf: onBedrijf }) },
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
@@ -138,7 +139,7 @@ describe(BedrijfZoekComponent.name, () => {
     });
   });
 
-  describe("when a parent listens to the selected bedrijf", () => {
+  describe("when the bedrijf can be selected", () => {
     const onBedrijf = jest.fn();
 
     it("emits the bedrijf and clears the results when the user selects a bedrijf", async () => {
@@ -235,7 +236,7 @@ describe(BedrijfZoekComponent.name, () => {
     });
   });
 
-  describe("when no parent listens to the selected bedrijf", () => {
+  describe("when the bedrijf cannot be selected", () => {
     it("offers to view the bedrijf instead of selecting it", async () => {
       await setup();
       await searchByKvkNummer();

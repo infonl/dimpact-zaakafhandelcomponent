@@ -5,13 +5,13 @@
 
 import { NgIf, TitleCasePipe } from "@angular/common";
 import {
+  booleanAttribute,
   Component,
-  EventEmitter,
   inject,
   input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -64,7 +64,8 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   ],
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
-  @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
+  readonly bedrijf = output<GeneratedType<"RestBedrijf">>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly sideNav = input<MatSidenav>();
   readonly syncEnabled = input(false);
 

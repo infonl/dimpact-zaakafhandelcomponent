@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-toolbar role="heading" class="gap-16" *ngIf="bagObject.observed">
+<mat-toolbar role="heading" class="gap-16" *ngIf="isSelectable()">
   <mat-icon>add_home_work</mat-icon>
   <h3 class="flex-grow-1">{{ "actie.bag-object.koppelen" | translate }}</h3>
   <button mat-icon-button (click)="sideNav().close()">
@@ -125,7 +125,7 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
         <button
-          *ngIf="bagObject.observed"
+          *ngIf="isSelectable()"
           mat-icon-button
           color="primary"
           [disabled]="reedsGekoppeld(row)"
@@ -135,7 +135,7 @@
           <mat-icon>add_home_work</mat-icon>
         </button>
         <button
-          *ngIf="!bagObject.observed"
+          *ngIf="!isSelectable()"
           mat-icon-button
           (click)="openBagTonenPagina(row)"
           [id]="'bagObjectBekijken_' + row.identificatie + '_button'"
