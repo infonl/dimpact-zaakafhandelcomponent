@@ -38,6 +38,30 @@ describe(GebruikersvoorkeurenService.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
   });
 
+  describe("createOrUpdateZoekOpdrachten", () => {
+    it("posts the zoekopdracht to save", async () => {
+      const zoekopdracht = fromPartial<GeneratedType<"RESTZoekopdracht">>({
+        naam: "mijn zoekopdracht",
+        json: "{}",
+        lijstID: "WERKVOORRAAD_ZAKEN",
+      });
+
+      runMutation(
+        testQueryClient,
+        service.createOrUpdateZoekOpdrachten(),
+        zoekopdracht,
+      ).subscribe();
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/zoekopdracht",
+      );
+      expect(request.request.method).toBe("POST");
+      expect(request.request.body).toEqual(zoekopdracht);
+      request.flush(zoekopdracht);
+    });
+  });
+
   describe("setZoekopdrachtActief", () => {
     it("puts the zoekopdracht that became active", async () => {
       const zoekopdracht = fromPartial<GeneratedType<"RESTZoekopdracht">>({
