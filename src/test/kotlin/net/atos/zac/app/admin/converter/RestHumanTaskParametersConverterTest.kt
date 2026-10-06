@@ -94,7 +94,7 @@ class RestHumanTaskParametersConverterTest : BehaviorSpec({
                 then("the result contains one ZaaktypeCmmnHumantaskParameters with all fields mapped") {
                     result.size shouldBe 1
                     result[0].id shouldBe 10L
-                    result[0].actief shouldBe true
+                    result[0].isActief shouldBe true
                     result[0].planItemDefinitionID shouldBe "AANVULLENDE_INFORMATIE"
                     result[0].groepID shouldBe "fakeGroepId"
                     result[0].doorlooptijd shouldBe 3

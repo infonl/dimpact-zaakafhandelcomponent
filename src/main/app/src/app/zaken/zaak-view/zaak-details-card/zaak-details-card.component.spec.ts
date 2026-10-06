@@ -35,7 +35,7 @@ describe(ZaakDetailsCardComponent.name, () => {
       omschrijving: "fakeZaaktypeOmschrijving",
     }),
     indicaties: [],
-    rechten: { behandelen: true },
+    rechten: { canBehandelen: true },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
     gerelateerdeZaken: [],
@@ -182,13 +182,13 @@ describe(ZaakDetailsCardComponent.name, () => {
           gerelateerdeZaken: [
             fromPartial<GeneratedType<"RestGerelateerdeZaak">>({
               identificatie: "ZAAK-2026-0002",
-              rechten: { lezen: true },
+              rechten: { canLezen: true },
             }),
           ],
         },
       });
 
-      expect(await tabLabels()).toContain("gerelateerdeZaken");
+      expect(await tabLabels()).toContain("gerelateerde-zaken");
     });
 
     it("adds the betrokkenen tab when betrokkene koppelingen are configured", async () => {
@@ -210,7 +210,7 @@ describe(ZaakDetailsCardComponent.name, () => {
         ],
       });
 
-      expect(await tabLabels()).toContain("bagObjecten");
+      expect(await tabLabels()).toContain("bag-objecten");
     });
   });
   describe("locatie tab", () => {
@@ -220,7 +220,7 @@ describe(ZaakDetailsCardComponent.name, () => {
         type: "POINT",
         point: { latitude: 52.1, longitude: 5.2 },
       }),
-      rechten: { ...zaak.rechten, wijzigenLocatie },
+      rechten: { ...zaak.rechten, canWijzigenLocatie: wijzigenLocatie },
     });
 
     it("shows the coordinates of the zaakgeometrie", async () => {
@@ -271,7 +271,7 @@ describe(ZaakDetailsCardComponent.name, () => {
 
       expect(
         screen().queryAllByText((content) =>
-          content.trim().endsWith("duurDagenOpschorting"),
+          content.trim().endsWith("duur-dagen-opschorting"),
         ).length,
       ).toBeGreaterThan(0);
     });
@@ -279,7 +279,7 @@ describe(ZaakDetailsCardComponent.name, () => {
     it("re-emits editCaseDetails from the algemeen tab", async () => {
       const editCaseDetails = jest.fn();
       renderCard({
-        zaak: { ...zaak, rechten: { ...zaak.rechten, wijzigen: true } },
+        zaak: { ...zaak, rechten: { ...zaak.rechten, canWijzigen: true } },
       });
       fixture.componentInstance.editCaseDetails.subscribe(editCaseDetails);
 
@@ -294,11 +294,11 @@ describe(ZaakDetailsCardComponent.name, () => {
         GeneratedType<"RestGerelateerdeZaak">
       >({
         identificatie: "ZAAK-2026-0002",
-        rechten: { lezen: true },
-        ontkoppelen: true,
+        rechten: { canLezen: true },
+        canOntkoppelen: true,
       });
       renderCard({ zaak: { ...zaak, gerelateerdeZaken: [gerelateerdeZaak] } });
-      await openTab(/gerelateerdeZaken/);
+      await openTab(/gerelateerde-zaken/);
       fixture.componentInstance.zaakOntkoppelen.subscribe(zaakOntkoppelen);
 
       screen().getByRole("button", { name: "actie.zaak.ontkoppelen" }).click();
@@ -318,13 +318,13 @@ describe(ZaakDetailsCardComponent.name, () => {
         }),
       });
       renderCard({ bagObjecten: [gekoppeldBagObject] });
-      await openTab(/bagObjecten/);
+      await openTab(/bag-objecten/);
       fixture.componentInstance.bagObjectVerwijderen.subscribe(
         bagObjectVerwijderen,
       );
 
       screen()
-        .getByRole("button", { name: "actie.bagObject.ontkoppelen" })
+        .getByRole("button", { name: "actie.bag-object.ontkoppelen" })
         .click();
 
       expect(bagObjectVerwijderen).toHaveBeenCalledWith(gekoppeldBagObject);
@@ -332,7 +332,7 @@ describe(ZaakDetailsCardComponent.name, () => {
 
     it("offers no bag object ontkoppelen button when the user may not behandelen", async () => {
       renderCard({
-        zaak: { ...zaak, rechten: { ...zaak.rechten, behandelen: false } },
+        zaak: { ...zaak, rechten: { ...zaak.rechten, canBehandelen: false } },
         bagObjecten: [
           fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
             bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
@@ -343,10 +343,12 @@ describe(ZaakDetailsCardComponent.name, () => {
           }),
         ],
       });
-      await openTab(/bagObjecten/);
+      await openTab(/bag-objecten/);
 
       expect(
-        screen().queryByRole("button", { name: "actie.bagObject.ontkoppelen" }),
+        screen().queryByRole("button", {
+          name: "actie.bag-object.ontkoppelen",
+        }),
       ).toBeNull();
     });
   });

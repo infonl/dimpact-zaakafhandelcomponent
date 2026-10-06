@@ -40,6 +40,7 @@ import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
@@ -50,6 +51,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-afhandelen-dialog.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     NgFor,
     ReactiveFormsModule,
@@ -153,7 +155,7 @@ export class ZaakAfhandelenDialogComponent {
     effect(() => {
       const afzenders = this.afzendersQuery.data();
       this.form.controls.verzender.setValue(
-        afzenders?.find((afzender) => afzender.defaultMail) ?? null,
+        afzenders?.find((afzender) => afzender.isDefaultMail) ?? null,
       );
     });
 
@@ -194,7 +196,7 @@ export class ZaakAfhandelenDialogComponent {
     this.form.controls.resultaattype.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (value?.besluitVerplicht && !this.data.zaak.besluiten?.length) {
+        if (value?.isBesluitVerplicht && !this.data.zaak.besluiten?.length) {
           this.form.controls.toelichting.disable();
           this.form.controls.sendMail.disable();
           this.form.controls.verzender.disable();
@@ -206,7 +208,7 @@ export class ZaakAfhandelenDialogComponent {
           this.form.controls.ontvanger.enable();
         }
 
-        if (value?.datumKenmerkVerplicht) {
+        if (value?.isDatumKenmerkVerplicht) {
           this.brondatumLabel = value?.datumKenmerkOmschrijving;
         }
         this.form.controls.brondatum.updateValueAndValidity();
@@ -265,7 +267,7 @@ export class ZaakAfhandelenDialogComponent {
             ontvanger: value.ontvanger!,
             onderwerp: mailtemplate.onderwerp,
             body: mailtemplate.body,
-            createDocumentFromMail: true,
+            shouldCreateDocumentFromMail: true,
             vertrouwelijkheidaanduiding: "OPENBAAR",
           } satisfies GeneratedType<"RestMailGegevens">)
         : undefined;

@@ -75,7 +75,9 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 reden = "fakeReason"
             )
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
-            every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
+            every {
+                zaakService.assignZaken(zaakUUIDs = any(), group = any(), user = any(), explanation = any(), screenEventResourceId = any())
+            } just runs
             every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { identityService.readGroup(group.name) } returns group
             every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
@@ -88,11 +90,11 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 then("the zaken are assigned to the group and user") {
                     verify(exactly = 1) {
                         zaakService.assignZaken(
-                            zaakUUIDs,
-                            group,
-                            user,
-                            restZakenVerdeelGegevens.reden,
-                            restZakenVerdeelGegevens.screenEventResourceId
+                            zaakUUIDs = zaakUUIDs,
+                            group = group,
+                            user = user,
+                            explanation = restZakenVerdeelGegevens.reden,
+                            screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
                         )
                     }
                 }
@@ -111,13 +113,15 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID) } returns Pair(zaak, zaakType)
             every {
                 zaakService.assignZaak(
-                    zaak,
-                    restZaakAssignmentData.groupId,
-                    restZaakAssignmentData.assigneeUserName,
-                    restZaakAssignmentData.reason
+                    zaak = zaak,
+                    groupId = restZaakAssignmentData.groupId,
+                    userName = restZaakAssignmentData.assigneeUserName,
+                    reason = restZaakAssignmentData.reason
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+            every {
+                restZaakConverter.toRestZaak(zaak = zaak, zaakType = zaakType, zaakRechten = any(), loggedInUser = loggedInUser)
+            } returns restZaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("toekennen policy is assigned to the user") {
@@ -158,13 +162,15 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             } returns Pair(zaak, zaakType)
             every {
                 zaakService.assignZaak(
-                    zaak,
-                    restZaakAssignmentToLoggedInUserData.groupId,
-                    loggedInUserId,
-                    restZaakAssignmentToLoggedInUserData.reason
+                    zaak = zaak,
+                    groupId = restZaakAssignmentToLoggedInUserData.groupId,
+                    userName = loggedInUserId,
+                    reason = restZaakAssignmentToLoggedInUserData.reason
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+            every {
+                restZaakConverter.toRestZaak(zaak = zaak, zaakType = zaakType, zaakRechten = any(), loggedInUser = loggedInUser)
+            } returns restZaak
 
             `when`("toekennen policy is assigned to the logged-in user") {
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -207,13 +213,15 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             } returns Pair(zaak, zaakType)
             every {
                 zaakService.assignZaak(
-                    zaak,
-                    restZaakAssignmentToLoggedInUserData.groupId,
-                    loggedInUserId,
-                    restZaakAssignmentToLoggedInUserData.reason
+                    zaak = zaak,
+                    groupId = restZaakAssignmentToLoggedInUserData.groupId,
+                    userName = loggedInUserId,
+                    reason = restZaakAssignmentToLoggedInUserData.reason
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+            every {
+                restZaakConverter.toRestZaak(zaak = zaak, zaakType = zaakType, zaakRechten = any(), loggedInUser = loggedInUser)
+            } returns restZaak
 
             `when`("toekennen policy is assigned to the logged-in user") {
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -307,7 +315,9 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             every { identityService.readGroup(group.name) } returns group
             every { identityService.readUser(user.id) } returns user
-            every { zaakService.assignZaken(any(), any(), any(), any(), any()) } answers {
+            every {
+                zaakService.assignZaken(zaakUUIDs = any(), group = any(), user = any(), explanation = any(), screenEventResourceId = any())
+            } answers {
                 userResolvedWhileAssigning = loggedInUserProvider.getLoggedInUser()
             }
 

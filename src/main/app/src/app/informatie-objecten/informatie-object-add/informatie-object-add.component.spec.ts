@@ -97,7 +97,7 @@ describe(InformatieObjectAddComponent.name, () => {
     ontvangstdatum: null,
     verzenddatum: moment("2025-09-24T11:59:23.333Z"),
     vertrouwelijkheidaanduiding: {
-      label: "vertrouwelijkheidaanduiding.INTERN",
+      label: "vertrouwelijkheidaanduiding.intern",
       value: "INTERN",
     },
     taal: mockTalen[0],
@@ -395,7 +395,7 @@ describe(InformatieObjectAddComponent.name, () => {
         taal: mockTalen[0],
         informatieobjectType: mockInformatieObjectTypes[0],
         vertrouwelijkheidaanduiding: {
-          label: "vertrouwelijkheidaanduiding.INTERN",
+          label: "vertrouwelijkheidaanduiding.intern",
           value: "INTERN",
         },
         auteur: "Test Author",

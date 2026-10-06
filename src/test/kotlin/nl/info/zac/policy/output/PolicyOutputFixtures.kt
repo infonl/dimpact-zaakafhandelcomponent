@@ -19,8 +19,17 @@ fun createDocumentRechten(
     downloaden: Boolean = true,
     converteren: Boolean = true,
 ) = DocumentRechten(
-    lezen, wijzigen, verwijderen, vergrendelen, ontgrendelen, ondertekenen,
-    toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden, converteren
+    canLezen = lezen,
+    canWijzigen = wijzigen,
+    canVerwijderen = verwijderen,
+    canVergrendelen = vergrendelen,
+    canOntgrendelen = ontgrendelen,
+    canOndertekenen = ondertekenen,
+    canToevoegenNieuweVersie = toevoegenNieuweVersie,
+    canVerplaatsen = verplaatsen,
+    canOntkoppelen = ontkoppelen,
+    canDownloaden = downloaden,
+    canConverteren = converteren
 )
 
 @Suppress("LongParameterList")
@@ -47,7 +56,13 @@ fun createTaakRechten(
     toekennen: Boolean = true,
     creerenDocument: Boolean = true,
     toevoegenDocument: Boolean = true
-) = TaakRechten(lezen, wijzigen, toekennen, creerenDocument, toevoegenDocument)
+) = TaakRechten(
+    canLezen = lezen,
+    canWijzigen = wijzigen,
+    canToekennen = toekennen,
+    canCreerenDocument = creerenDocument,
+    canToevoegenDocument = toevoegenDocument
+)
 
 fun createTaakRechtenAllDeny(
     lezen: Boolean = false,
@@ -88,11 +103,34 @@ fun createZaakRechten(
     wijzigenLocatie: Boolean = true,
     brondatumZetten: Boolean = true
 ) = ZaakRechten(
-    lezen, wijzigen, toekennen, behandelen, afbreken, heropenen, bekijkenZaakdata, wijzigenDoorlooptijd,
-    verlengen, opschorten, hervatten, creerenDocument, toevoegenDocument, koppelen, versturenEmail,
-    versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf, verwijderenInitiator,
-    toevoegenBetrokkenePersoon, toevoegenBetrokkeneBedrijf, verwijderenBetrokkene, toevoegenBagObject, startenTaak,
-    vastleggenBesluit, verlengenDoorlooptijd, wijzigenLocatie, brondatumZetten
+    canLezen = lezen,
+    canWijzigen = wijzigen,
+    canToekennen = toekennen,
+    canBehandelen = behandelen,
+    canAfbreken = afbreken,
+    canHeropenen = heropenen,
+    canBekijkenZaakdata = bekijkenZaakdata,
+    canWijzigenDoorlooptijd = wijzigenDoorlooptijd,
+    canVerlengen = verlengen,
+    canOpschorten = opschorten,
+    canHervatten = hervatten,
+    canCreerenDocument = creerenDocument,
+    canToevoegenDocument = toevoegenDocument,
+    canKoppelen = koppelen,
+    canVersturenEmail = versturenEmail,
+    canVersturenOntvangstbevestiging = versturenOntvangstbevestiging,
+    canToevoegenInitiatorPersoon = toevoegenInitiatorPersoon,
+    canToevoegenInitiatorBedrijf = toevoegenInitiatorBedrijf,
+    canVerwijderenInitiator = verwijderenInitiator,
+    canToevoegenBetrokkenePersoon = toevoegenBetrokkenePersoon,
+    canToevoegenBetrokkeneBedrijf = toevoegenBetrokkeneBedrijf,
+    canVerwijderenBetrokkene = verwijderenBetrokkene,
+    canToevoegenBagObject = toevoegenBagObject,
+    canStartenTaak = startenTaak,
+    canVastleggenBesluit = vastleggenBesluit,
+    canVerlengenDoorlooptijd = verlengenDoorlooptijd,
+    canWijzigenLocatie = wijzigenLocatie,
+    canBrondatumZetten = brondatumZetten
 )
 
 @Suppress("LongParameterList")
@@ -165,12 +203,12 @@ fun createWerklijstRechten(
     zakenTakenVerdelen: Boolean = true,
     zakenTakenExporteren: Boolean = true
 ) = WerklijstRechten(
-    inbox,
-    ontkoppeldeDocumentenVerwijderen,
-    inboxProductaanvragenVerwijderen,
-    zakenTaken,
-    zakenTakenVerdelen,
-    zakenTakenExporteren
+    canInbox = inbox,
+    canOntkoppeldeDocumentenVerwijderen = ontkoppeldeDocumentenVerwijderen,
+    canInboxProductaanvragenVerwijderen = inboxProductaanvragenVerwijderen,
+    canZakenTaken = zakenTaken,
+    canZakenTakenVerdelen = zakenTakenVerdelen,
+    canZakenTakenExporteren = zakenTakenExporteren
 )
 
 fun createWerklijstRechtenAllDeny(
@@ -201,8 +239,8 @@ fun createNotitieRechten(
     lezen: Boolean = true,
     wijzigen: Boolean = true
 ) = NotitieRechten(
-    lezen = lezen,
-    wijzigen = wijzigen
+    canLezen = lezen,
+    canWijzigen = wijzigen
 )
 
 fun createOverigeRechtenAllDeny(
@@ -216,5 +254,5 @@ fun createOverigeRechtenAllDeny(
 )
 
 fun createBrpRechten(zoeken: Boolean = true) = BrpRechten(
-    zoeken = zoeken
+    canZoeken = zoeken
 )

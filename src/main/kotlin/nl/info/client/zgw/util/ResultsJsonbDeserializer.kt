@@ -28,10 +28,10 @@ class ResultsJsonbDeserializer : JsonbDeserializer<Results<*>> {
             jsonObject.getJsonArray("results")?.map { JSONB.fromJson<Any>(it.toString(), itemType) }
         }
         return Results(
-            jsonObject.getInt("count"),
-            results,
-            jsonObject.uriOrNull("next"),
-            jsonObject.uriOrNull("previous")
+            countValue = jsonObject.getInt("count"),
+            resultsValue = results,
+            nextValue = jsonObject.uriOrNull("next"),
+            previousValue = jsonObject.uriOrNull("previous")
         )
     }
 

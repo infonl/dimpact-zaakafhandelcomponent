@@ -148,11 +148,11 @@ class WebdavStoreTest : BehaviorSpec({
             } returns updatedDocument
 
             val result = webdavStore.setResourceContent(
-                noTransaction,
-                "/webdav/folder/$token.docx",
-                contentStream,
-                null,
-                null
+                transaction = noTransaction,
+                resourceUri = "/webdav/folder/$token.docx",
+                content = contentStream,
+                contentType = null,
+                characterEncoding = null
             )
 
             then("it updates the document in DRC and returns the updated file size") {
@@ -205,11 +205,11 @@ class WebdavStoreTest : BehaviorSpec({
 
         `when`("setResourceContent is called") {
             val result = webdavStore.setResourceContent(
-                noTransaction,
-                "",
-                ByteArrayInputStream(byteArrayOf(1, 2, 3)),
-                null,
-                null
+                transaction = noTransaction,
+                resourceUri = "",
+                content = ByteArrayInputStream(byteArrayOf(1, 2, 3)),
+                contentType = null,
+                characterEncoding = null
             )
 
             then("it returns 0") {

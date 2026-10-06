@@ -122,12 +122,12 @@ class RestZaakConverter @Inject constructor(
             // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
             // so we use [Period.parse] to convert the duration string to a [Period] object
             duurVerlenging = if (zaak.isVerlengd()) PeriodUtil.format(Period.parse(zaak.verlenging.duur)) else null,
-            eerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
+            hasEerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
             einddatum = zaak.einddatum,
             einddatumGepland = zaak.einddatumGepland,
             gerelateerdeZaken = toRestGerelateerdeZaken(zaakRechten, zaak, loggedInUser),
             groep = groep,
-            heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
+            isOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
             identificatie = zaak.identificatie,
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
                 if (zaak.isHoofdzaak()) add(HOOFDZAAK)
@@ -196,11 +196,24 @@ class RestZaakConverter @Inject constructor(
         zaak.deelzaken
             ?.map(zrcClientService::readZaak)
             ?.map {
-                restGerelateerdeZaakConverter.convert(zaak, fromZaakRechten, it, loggedInUser, RelatieType.DEELZAAK)
+                restGerelateerdeZaakConverter.convert(
+                    fromZaak = zaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = it,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.DEELZAAK
+                )
             }
             ?.forEach(gerelateerdeZaken::add)
         zaak.gerelateerdeZaken
-            ?.map { restGerelateerdeZaakConverter.convert(zaak, fromZaakRechten, it, loggedInUser) }
+            ?.map {
+                restGerelateerdeZaakConverter.convert(
+                    fromZaak = zaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = it,
+                    loggedInUser = loggedInUser
+                )
+            }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }

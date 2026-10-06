@@ -132,13 +132,13 @@ private fun setupContext(): TestContext {
     val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
 
     val reindexSupportService = ReindexSupportService(
-        converterInstances,
-        zrcClientService,
-        drcClientService,
-        flowableTaskService,
-        zaakspecifiekeAutorisatieService,
-        solrClientFactory,
-        Dispatchers.IO
+        converterInstances = converterInstances,
+        zrcClientService = zrcClientService,
+        drcClientService = drcClientService,
+        flowableTaskService = flowableTaskService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
+        solrClientFactory = solrClientFactory,
+        dispatcher = Dispatchers.IO
     )
     val zaakGedrevenReindexService = ZaakGedrevenReindexService(
         reindexSupportService,
@@ -150,14 +150,14 @@ private fun setupContext(): TestContext {
         taakZoekObjectConverter
     )
     val indexingService = IndexingService(
-        reindexSupportService,
-        zaakGedrevenReindexService,
-        zrcClientService,
-        flowableTaskService,
-        documentZoekObjectConverter,
-        zaakZoekObjectConverter,
-        taakZoekObjectConverter,
-        testDispatcher
+        reindexSupportService = reindexSupportService,
+        zaakGedrevenReindexService = zaakGedrevenReindexService,
+        zrcClientService = zrcClientService,
+        flowableTaskService = flowableTaskService,
+        documentZoekObjectConverter = documentZoekObjectConverter,
+        zaakZoekObjectConverter = zaakZoekObjectConverter,
+        taakZoekObjectConverter = taakZoekObjectConverter,
+        dispatcher = testDispatcher
     )
 
     return TestContext(
@@ -521,10 +521,10 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
 
         `when`("addOrUpdateZaak is called") {
-            val zaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+            val isZaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
 
             then("it reports that the zaak itself was indexed successfully") {
-                zaakIndexed shouldBe true
+                isZaakIndexed shouldBe true
             }
 
             then("the zaak and only its open taken are reindexed, without listing its completed taken") {
@@ -1339,13 +1339,13 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.flowableTaskService.countOpenTasks() } returns 0
 
         `when`("reindexAsync is called") {
-            val started = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+            val isStarted = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
 
             then(
                 """reindexing is reported as started, but does not run until the coroutine dispatcher
                    is advanced"""
             ) {
-                started shouldBe true
+                isStarted shouldBe true
                 verify(exactly = 0) {
                     ctx.flowableTaskService.countOpenTasks()
                 }
@@ -1371,10 +1371,10 @@ class IndexingServiceTest : BehaviorSpec({
         ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
 
         `when`("reindexAsync is called again before the first launch has run") {
-            val startedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+            val isStartedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
 
             then("the second call is rejected instead of running a duplicate reindex") {
-                startedAgain shouldBe false
+                isStartedAgain shouldBe false
 
                 // let the still-pending launch from the first call run, so it releases its viewfinder
                 // entry and does not leak into any other test relying on the
@@ -1399,8 +1399,8 @@ class IndexingServiceTest : BehaviorSpec({
                     it.message == "Unexpected failure while reindexing" && it.thrown?.message == "fakeUnexpectedFailure"
                 } shouldBe true
 
-                val startedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
-                startedAgain shouldBe true
+                val isStartedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+                isStartedAgain shouldBe true
                 ctx.testDispatcher.scheduler.advanceUntilIdle()
             }
         }
@@ -1440,9 +1440,9 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(listOf(taakZoekObject)) } returns UpdateResponse()
 
         `when`("addOrUpdateZaak is called") {
-            var zaakIndexed = true
+            var isZaakIndexed = true
             val logRecords = captureLogRecords {
-                zaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+                isZaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
             }
 
             then("the zaak's open taak is still indexed despite the zaak's own Solr indexing failing") {
@@ -1458,7 +1458,7 @@ class IndexingServiceTest : BehaviorSpec({
             }
 
             then("the return value reports that indexing the zaak itself failed") {
-                zaakIndexed shouldBe false
+                isZaakIndexed shouldBe false
             }
         }
     }

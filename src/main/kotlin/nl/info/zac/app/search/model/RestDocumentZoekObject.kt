@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.app.policy.model.RestDocumentRechten
 import nl.info.zac.app.policy.model.toRestDocumentRechten
@@ -40,13 +41,19 @@ data class RestDocumentZoekObject(
     val bestandsomvang: Long = 0,
     val documentType: String? = null,
     val ondertekeningSoort: String? = null,
-    val indicatieOndertekend: Boolean = false,
+
+    @get:JsonbProperty("isOndertekend")
+    val isOndertekend: Boolean = false,
+
     val inhoudUrl: String? = null,
-    val indicatieVergrendeld: Boolean = false,
+
+    @get:JsonbProperty("isVergrendeld")
+    val isVergrendeld: Boolean = false,
+
     val vergrendeldDoor: String? = null,
     val indicaties: EnumSet<DocumentIndicatie>? = null,
     val rechten: RestDocumentRechten? = null,
-    val indicatieGebruiksrecht: Boolean = false
+    val hasGebruiksrecht: Boolean = false
 ) : AbstractRestZoekObject(id, type, identificatie)
 
 fun DocumentZoekObject.toRestDocumentZoekObject(documentRechten: DocumentRechten) = RestDocumentZoekObject(
@@ -74,9 +81,9 @@ fun DocumentZoekObject.toRestDocumentZoekObject(documentRechten: DocumentRechten
     bestandsomvang = this@toRestDocumentZoekObject.bestandsomvang,
     documentType = this@toRestDocumentZoekObject.documentType,
     ondertekeningSoort = this@toRestDocumentZoekObject.ondertekeningSoort,
-    indicatieOndertekend = this@toRestDocumentZoekObject.isIndicatie(DocumentIndicatie.ONDERTEKEND),
+    isOndertekend = this@toRestDocumentZoekObject.isIndicatie(DocumentIndicatie.ONDERTEKEND),
     inhoudUrl = this@toRestDocumentZoekObject.inhoudUrl,
-    indicatieVergrendeld = this@toRestDocumentZoekObject.isIndicatie(DocumentIndicatie.VERGRENDELD),
+    isVergrendeld = this@toRestDocumentZoekObject.isIndicatie(DocumentIndicatie.VERGRENDELD),
     vergrendeldDoor = this@toRestDocumentZoekObject.vergrendeldDoorNaam,
     indicaties = this@toRestDocumentZoekObject.getDocumentIndicaties()
         .filter { it != DocumentIndicatie.GEBRUIKSRECHT }

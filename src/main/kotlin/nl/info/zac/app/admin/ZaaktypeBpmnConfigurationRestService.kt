@@ -57,7 +57,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
-        assertPolicy(policyService.readOverigeRechten().startenZaak || policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canStartenZaak || policyService.readOverigeRechten().canBeheren)
         return zaaktypeBpmnConfigurationBeheerService.listConfigurations().map {
             it.toRestZaaktypeBpmnConfiguration()
         }
@@ -68,7 +68,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     fun getZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String
     ): RestZaaktypeBpmnConfiguration {
-        assertPolicy(policyService.readOverigeRechten().startenZaak || policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canStartenZaak || policyService.readOverigeRechten().canBeheren)
         val processDefinitions = zaaktypeBpmnConfigurationBeheerService
             .listConfigurations()
             .filter { it.bpmnProcessDefinitionKey == processDefinitionKey }
@@ -95,7 +95,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     fun createOrUpdateZaaktypeBpmnConfiguration(
         @Valid restZaaktypeBpmnConfiguration: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         checkNotNull(restZaaktypeBpmnConfiguration.groepNaam) { "groepNaam must not be null" }
         restZaaktypeBpmnConfiguration.productaanvraagtype?.let {
             checkIfProductaanvraagtypeIsNotAlreadyInUse(
@@ -115,7 +115,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
             zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
             nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
-            smartDocumentsEnabled = restZaaktypeBpmnConfiguration.smartDocuments?.enabledForZaaktype ?: false
+            isSmartDocumentsEnabled = restZaaktypeBpmnConfiguration.smartDocuments?.isEnabledForZaaktype ?: false
             setZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList())
         } ?: restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
         return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(

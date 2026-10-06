@@ -22,6 +22,7 @@ import {
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { ReadMoreComponent } from "../../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
@@ -32,6 +33,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styles: [":host { display: block; }"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     RouterLink,
     MatIcon,
     MatIconAnchor,

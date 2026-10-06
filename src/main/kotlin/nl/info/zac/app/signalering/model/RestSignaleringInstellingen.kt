@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.signalering.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
@@ -18,7 +19,11 @@ data class RestSignaleringInstellingen(
 
     var subjecttype: SignaleringSubject? = null,
 
-    var dashboard: Boolean? = null,
+    @get:JsonbProperty("isDashboardEnabled")
+    @set:JsonbProperty("isDashboardEnabled")
+    var isDashboardEnabled: Boolean? = null,
 
-    var mail: Boolean? = null,
+    @get:JsonbProperty("isMailEnabled")
+    @set:JsonbProperty("isMailEnabled")
+    var isMailEnabled: Boolean? = null,
 )

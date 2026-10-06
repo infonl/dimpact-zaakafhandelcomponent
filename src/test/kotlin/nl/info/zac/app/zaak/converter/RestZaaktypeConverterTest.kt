@@ -54,14 +54,14 @@ class RestZaaktypeConverterTest : BehaviorSpec({
                     doel shouldBe "fakeDoel"
                     omschrijving shouldBe "fakeZaakTypeOmschrijving"
                     referentieproces shouldBe null
-                    servicenorm shouldBe false
+                    hasServicenorm shouldBe false
                     versiedatum!! shouldHaveSameDayAs now
                     beginGeldigheid!! shouldHaveSameDayAs now
                     eindeGeldigheid shouldBe null
                     vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
-                    nuGeldig shouldBe true
-                    opschortingMogelijk shouldBe null
-                    verlengingMogelijk shouldBe null
+                    isNuGeldig shouldBe true
+                    isOpschortingMogelijk shouldBe null
+                    isVerlengingMogelijk shouldBe null
                     verlengingstermijn shouldBe null
                     zaaktypeRelaties shouldBe emptyList()
                     informatieobjecttypes shouldBe zaaktype.informatieobjecttypen.map { it.extractUuid() }
@@ -93,14 +93,14 @@ class RestZaaktypeConverterTest : BehaviorSpec({
                     doel shouldBe "fakeDoel"
                     omschrijving shouldBe "fakeZaakTypeOmschrijving"
                     referentieproces shouldBe null
-                    servicenorm shouldBe false
+                    hasServicenorm shouldBe false
                     versiedatum!! shouldHaveSameDayAs now
                     beginGeldigheid!! shouldHaveSameDayAs now
                     eindeGeldigheid shouldBe null
                     vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
-                    nuGeldig shouldBe true
-                    opschortingMogelijk shouldBe null
-                    verlengingMogelijk shouldBe null
+                    isNuGeldig shouldBe true
+                    isOpschortingMogelijk shouldBe null
+                    isVerlengingMogelijk shouldBe null
                     verlengingstermijn shouldBe null
                     zaaktypeRelaties shouldBe emptyList()
                     informatieobjecttypes shouldBe zaaktype.informatieobjecttypen.map { it.extractUuid() }

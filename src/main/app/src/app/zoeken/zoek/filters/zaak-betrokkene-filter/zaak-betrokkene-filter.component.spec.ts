@@ -89,14 +89,14 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
           .getAllByRole("option")
           .map((option) => option.textContent?.trim()),
       ).toEqual([
-        "betrokkeneRoltype.-alle-",
-        "betrokkeneRoltype.INITIATOR",
-        "betrokkeneRoltype.MEDE_INITIATOR",
-        "betrokkeneRoltype.BELANGHEBBENDE",
-        "betrokkeneRoltype.BESLISSER",
-        "betrokkeneRoltype.ADVISEUR",
-        "betrokkeneRoltype.KLANTCONTACTER",
-        "betrokkeneRoltype.ZAAKCOORDINATOR",
+        "betrokkene-roltype.alle",
+        "betrokkene-roltype.initiator",
+        "betrokkene-roltype.mede-initiator",
+        "betrokkene-roltype.belanghebbende",
+        "betrokkene-roltype.beslisser",
+        "betrokkene-roltype.adviseur",
+        "betrokkene-roltype.klantcontacter",
+        "betrokkene-roltype.zaakcoordinator",
       ]);
     });
 
@@ -105,7 +105,7 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
         makeZoekParameters({ [ZoekVeld.ZAAK_BETROKKENE_ADVISEUR]: "fakeId" }),
       );
 
-      expect(roltypeSelect()).toHaveTextContent("betrokkeneRoltype.INITIATOR");
+      expect(roltypeSelect()).toHaveTextContent("betrokkene-roltype.initiator");
     });
 
     it.each([
@@ -218,7 +218,7 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       });
       await setup(zoekparameters);
 
-      await selectRoltype("betrokkeneRoltype.ADVISEUR");
+      await selectRoltype("betrokkene-roltype.adviseur");
 
       expect(zoekparameters.zoeken).toEqual({
         [ZoekVeld.ZAAK_BETROKKENE_ADVISEUR]: "fakeId",
@@ -230,7 +230,7 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       const zoekparameters = makeZoekParameters();
       await setup(zoekparameters);
 
-      await selectRoltype("betrokkeneRoltype.BESLISSER");
+      await selectRoltype("betrokkene-roltype.beslisser");
 
       expect(zoekparameters.zoeken).toEqual({
         [ZoekVeld.ZAAK_BETROKKENE_BESLISSER]: "",
@@ -242,7 +242,7 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       const zoekparameters = makeZoekParameters();
       await setup(zoekparameters);
 
-      await selectRoltype("betrokkeneRoltype.ZAAKCOORDINATOR");
+      await selectRoltype("betrokkene-roltype.zaakcoordinator");
       await enterId("fakeId");
 
       expect(zoekparameters.zoeken).toEqual({
@@ -254,7 +254,7 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       const zoekparameters = makeZoekParameters(null);
       await setup(zoekparameters);
 
-      await selectRoltype("betrokkeneRoltype.ADVISEUR");
+      await selectRoltype("betrokkene-roltype.adviseur");
 
       expect(zoekparameters.zoeken).toBeNull();
       expect(changed).not.toHaveBeenCalled();

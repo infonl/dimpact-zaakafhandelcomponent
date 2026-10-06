@@ -23,6 +23,7 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZaakLinkComponent } from "./zaak-link.component";
 
@@ -115,7 +116,7 @@ describe(ZaakLinkComponent.name, () => {
     await user.click(relationTypeSelect());
     await user.click(
       screen.getByRole("option", {
-        name: `zaak.koppelen.link.type.${relationType}`,
+        name: toI18nKey(`zaak.koppelen.link.type.${relationType}`),
       }),
     );
   };
@@ -156,7 +157,7 @@ describe(ZaakLinkComponent.name, () => {
     );
     await user.type(
       within(dateRangeField(label)).getByPlaceholderText(
-        "zoeken.filter.tot_en_met",
+        "zoeken.filter.tot-en-met",
       ),
       tot,
     );
@@ -176,9 +177,9 @@ describe(ZaakLinkComponent.name, () => {
     expect(
       screen.getAllByRole("option").map((option) => option.textContent?.trim()),
     ).toEqual([
-      "zaak.koppelen.link.type.DEELZAAK",
-      "zaak.koppelen.link.type.HOOFDZAAK",
-      "zaak.koppelen.link.type.GERELATEERD",
+      "zaak.koppelen.link.type.deelzaak",
+      "zaak.koppelen.link.type.hoofdzaak",
+      "zaak.koppelen.link.type.gerelateerd",
     ]);
   });
 
@@ -276,7 +277,7 @@ describe(ZaakLinkComponent.name, () => {
     await chooseRelationType("DEELZAAK");
     await user.type(screen.getByLabelText("Zaak.identificatie"), "ZAAK-2026");
     await user.type(
-      screen.getByLabelText("ZoekVeld.ZAAK_OMSCHRIJVING"),
+      screen.getByLabelText("Zoek-veld.zaak-omschrijving"),
       "ZAAKOMSCHR",
     );
     await fillDateRange("Startdatum", "01-02-2026", "01-03-2026");
@@ -480,7 +481,7 @@ describe(ZaakLinkComponent.name, () => {
       await clickSearch();
 
       expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAccessibleDescription(
-        `zaak.koppelen.niet-koppelbaar.${reason}`,
+        toI18nKey(`zaak.koppelen.niet-koppelbaar.${reason}`),
       );
     },
   );

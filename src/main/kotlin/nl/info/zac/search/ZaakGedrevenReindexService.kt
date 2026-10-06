@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
 import java.util.logging.Logger
 
-internal data class ReindexScope(val includeTaken: Boolean, val includeDocumenten: Boolean)
+internal data class ReindexScope(val shouldIncludeTaken: Boolean, val shouldIncludeDocumenten: Boolean)
 
 /**
  * Reindexes `ZAAK` together with, when requested, `TAAK` and/or `DOCUMENT` as one zaak-driven combined pass,
@@ -93,8 +93,8 @@ class ZaakGedrevenReindexService @Inject constructor(
      */
     internal fun reindex(scope: ReindexScope) {
         LOG.info(reindexSupportService.reindexStartedMessage(ZoekObjectType.ZAAK))
-        if (scope.includeTaken) LOG.info(reindexSupportService.reindexStartedMessage(ZoekObjectType.TAAK))
-        if (scope.includeDocumenten) LOG.info(reindexSupportService.reindexStartedMessage(ZoekObjectType.DOCUMENT))
+        if (scope.shouldIncludeTaken) LOG.info(reindexSupportService.reindexStartedMessage(ZoekObjectType.TAAK))
+        if (scope.shouldIncludeDocumenten) LOG.info(reindexSupportService.reindexStartedMessage(ZoekObjectType.DOCUMENT))
 
         val numberOfZaken = reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) { countZaken() }
         if (numberOfZaken == null) {
@@ -105,8 +105,8 @@ class ZaakGedrevenReindexService @Inject constructor(
         val plan = determineTaakDocumentReindexPlan(scope)
 
         reindexSupportService.deleteExistingEntities(ZoekObjectType.ZAAK)
-        if (plan.effectiveScope.includeTaken) reindexSupportService.deleteExistingEntities(ZoekObjectType.TAAK)
-        if (plan.effectiveScope.includeDocumenten) reindexSupportService.deleteExistingEntities(ZoekObjectType.DOCUMENT)
+        if (plan.effectiveScope.shouldIncludeTaken) reindexSupportService.deleteExistingEntities(ZoekObjectType.TAAK)
+        if (plan.effectiveScope.shouldIncludeDocumenten) reindexSupportService.deleteExistingEntities(ZoekObjectType.DOCUMENT)
 
         // tracks which informatieobjecten the zaak-driven stage already indexed, so the orphan sweep
         // below does not reconvert them
@@ -121,7 +121,7 @@ class ZaakGedrevenReindexService @Inject constructor(
             ZoekObjectType.ZAAK,
             ReindexSummary(counts.zaakCounts.successCount, counts.zaakCounts.skippedCount, numberOfZaken)
         )
-        if (scope.includeTaken) {
+        if (scope.shouldIncludeTaken) {
             reindexSupportService.finishReindex(
                 ZoekObjectType.TAAK,
                 plan.numberOfTasks?.let {
@@ -129,7 +129,7 @@ class ZaakGedrevenReindexService @Inject constructor(
                 }
             )
         }
-        if (scope.includeDocumenten) {
+        if (scope.shouldIncludeDocumenten) {
             reindexSupportService.finishReindex(
                 ZoekObjectType.DOCUMENT,
                 plan.numberOfInformatieobjecten?.let { total ->
@@ -147,28 +147,28 @@ class ZaakGedrevenReindexService @Inject constructor(
      * succeeded, so a count failure leaves that type untouched.
      */
     private fun determineTaakDocumentReindexPlan(requestedScope: ReindexScope): TaakDocumentReindexPlan {
-        val numberOfTasks = if (requestedScope.includeTaken) {
+        val numberOfTasks = if (requestedScope.shouldIncludeTaken) {
             reindexSupportService.continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
         } else {
             null
         }
-        val numberOfInformatieobjecten = if (requestedScope.includeDocumenten) {
+        val numberOfInformatieobjecten = if (requestedScope.shouldIncludeDocumenten) {
             reindexSupportService.continueOnExceptions(ZoekObjectType.DOCUMENT) { countInformatieobjecten() }
         } else {
             null
         }
-        if (requestedScope.includeTaken && numberOfTasks == null) {
+        if (requestedScope.shouldIncludeTaken && numberOfTasks == null) {
             LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count! Aborting reindexing")
         }
-        if (requestedScope.includeDocumenten && numberOfInformatieobjecten == null) {
+        if (requestedScope.shouldIncludeDocumenten && numberOfInformatieobjecten == null) {
             LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
         }
         return TaakDocumentReindexPlan(
             numberOfTasks = numberOfTasks,
             numberOfInformatieobjecten = numberOfInformatieobjecten,
             effectiveScope = ReindexScope(
-                includeTaken = requestedScope.includeTaken && numberOfTasks != null,
-                includeDocumenten = requestedScope.includeDocumenten && numberOfInformatieobjecten != null
+                shouldIncludeTaken = requestedScope.shouldIncludeTaken && numberOfTasks != null,
+                shouldIncludeDocumenten = requestedScope.shouldIncludeDocumenten && numberOfInformatieobjecten != null
             )
         )
     }
@@ -181,10 +181,10 @@ class ZaakGedrevenReindexService @Inject constructor(
     private fun reindexFallback(scope: ReindexScope) {
         LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
         reindexSupportService.finishReindex(ZoekObjectType.ZAAK, null)
-        if (scope.includeTaken) {
+        if (scope.shouldIncludeTaken) {
             reindexSupportService.finishReindex(ZoekObjectType.TAAK, reindexSupportService.reindexAllTaken())
         }
-        if (scope.includeDocumenten) {
+        if (scope.shouldIncludeDocumenten) {
             reindexSupportService.finishReindex(ZoekObjectType.DOCUMENT, reindexSupportService.reindexAllInformatieobjecten())
         }
     }
@@ -210,10 +210,10 @@ class ZaakGedrevenReindexService @Inject constructor(
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
             reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
                 reindexPage(
-                    pageNumber,
-                    numberOfZaken,
-                    scope,
-                    alreadyIndexedInformatieobjectUUIDs
+                    pageNumber = pageNumber,
+                    totalCount = numberOfZaken,
+                    scope = scope,
+                    alreadyIndexedInformatieobjectUUIDs = alreadyIndexedInformatieobjectUUIDs
                 )
             }?.let { counts += it }
         }
@@ -302,7 +302,7 @@ class ZaakGedrevenReindexService @Inject constructor(
         }
         val (zaak, zaakAutorisatieGegevensReusingZaak, zaakZoekObject) = zaakConversion
 
-        val takenOutcomes = if (scope.includeTaken) {
+        val takenOutcomes = if (scope.shouldIncludeTaken) {
             reindexSupportService.continueOnExceptions(ZoekObjectType.TAAK) {
                 flowableTaskService.listOpenTasksForZaak(zaakUUID)
             }
@@ -312,7 +312,7 @@ class ZaakGedrevenReindexService @Inject constructor(
             emptyList()
         }
 
-        val documentenOutcomes = if (scope.includeDocumenten) {
+        val documentenOutcomes = if (scope.shouldIncludeDocumenten) {
             reindexSupportService.continueOnExceptions(ZoekObjectType.DOCUMENT) {
                 zrcClientService.listZaakinformatieobjecten(zaak)
             }

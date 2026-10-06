@@ -128,7 +128,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
                         requestBodyAsString = """
                             {
                                 "zaakUUID": "$zaakUuid",
-                                "gekoppeldeZaakDocumenten": false
+                                "shouldIncludeGekoppeldeZaakDocumenten": false
                             }
                         """.trimIndent(),
                         testUser = RAADPLEGER_1

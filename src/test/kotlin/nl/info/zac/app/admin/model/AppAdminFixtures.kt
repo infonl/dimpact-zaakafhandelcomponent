@@ -75,8 +75,8 @@ fun createRestZaaktypeConfiguration(
     zaaktype = restZaaktypeOverzicht,
     productaanvraagtype = productaanvraagtype,
     smartDocuments = RestSmartDocuments(
-        enabledGlobally = true,
-        enabledForZaaktype = false
+        isEnabledGlobally = true,
+        isEnabledForZaaktype = false
     ),
     defaultBehandelaarId = defaultBehandelaarId,
     defaultGroepId = defaultGroupId,
@@ -87,7 +87,7 @@ fun createRestZaaktypeConfiguration(
 fun createRestBetrokkeneKoppelingen(
     brpKoppelen: Boolean = false,
     kvkKoppelen: Boolean = false
-) = RestBetrokkeneKoppelingen(brpKoppelen = brpKoppelen, kvkKoppelen = kvkKoppelen)
+) = RestBetrokkeneKoppelingen(isBrpKoppelenEnabled = brpKoppelen, isKvkKoppelenEnabled = kvkKoppelen)
 
 @Suppress("LongParameterList")
 fun createRestZaaktypeBpmnConfiguration(
@@ -129,12 +129,12 @@ fun createRestZaaktypeOverzicht(
     identificatie = identificatie,
     doel = doel,
     omschrijving = omschrijving,
-    servicenorm = servicenorm,
+    hasServicenorm = servicenorm,
     versiedatum = versiedatum,
     beginGeldigheid = beginGeldigheid,
     eindeGeldigheid = eindeGeldigheid,
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
-    nuGeldig = nuGeldig
+    isNuGeldig = nuGeldig
 )
 
 fun createRestZaakbeeindigReden(
@@ -157,9 +157,9 @@ fun createRestResultaattype(
     id = id,
     naam = name,
     naamGeneriek = genericName,
-    vervaldatumBesluitVerplicht = vervaldatumBesluitVerplicht,
-    datumKenmerkVerplicht = datumKenmerkVerplicht,
-    besluitVerplicht = besluitVerplicht
+    isVervaldatumBesluitVerplicht = vervaldatumBesluitVerplicht,
+    isDatumKenmerkVerplicht = datumKenmerkVerplicht,
+    isBesluitVerplicht = besluitVerplicht
 )
 
 fun createRestZaakbeeindigParameter(

@@ -95,9 +95,9 @@ describe(ZaakDialogService.name, () => {
     service.openVerwijderBagObject("Straat 1", jest.fn());
 
     const data = openedRedenData(open);
-    expect(data.titleKey).toBe("actie.bagObject.ontkoppelen");
+    expect(data.titleKey).toBe("actie.bag-object.ontkoppelen");
     expect(data.maxlength).toBe(80);
-    expect(data.uitleg).toBe("msg.bagObject.ontkoppelen.bevestigen");
+    expect(data.uitleg).toBe("msg.bag-object.ontkoppelen.bevestigen");
   });
 
   it("afbreken opens the dedicated afbreken dialog with options and callback", () => {

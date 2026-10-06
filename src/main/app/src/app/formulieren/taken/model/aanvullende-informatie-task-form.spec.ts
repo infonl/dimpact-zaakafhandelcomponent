@@ -28,15 +28,15 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
-    zaaktype: { opschortingMogelijk: false },
-    rechten: { behandelen: true },
+    zaaktype: { isOpschortingMogelijk: false },
+    rechten: { canBehandelen: true },
   });
 
   const mockAfzender = fromPartial<
     GeneratedType<"RestZaakAfzender"> & { key: string; value: string }
   >({
     mail: "afzender@example.com",
-    defaultMail: false,
+    isDefaultMail: false,
     replyTo: "reply@example.com",
   });
 
@@ -44,7 +44,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
     GeneratedType<"RestZaakAfzender"> & { key: string; value: string }
   >({
     mail: "default@example.com",
-    defaultMail: true,
+    isDefaultMail: true,
     replyTo: "default-reply@example.com",
   });
 
@@ -95,11 +95,11 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should return 11 fields for a suspendable zaak (adds zaakOpschorten)", async () => {
         const suspendableZaak = fromPartial<GeneratedType<"RestZaak">>({
           uuid: "zaak-uuid",
-          zaaktype: { opschortingMogelijk: true },
-          rechten: { behandelen: true },
+          zaaktype: { isOpschortingMogelijk: true },
+          rechten: { canBehandelen: true },
           redenOpschorting: undefined,
           isHeropend: false,
-          eerdereOpschorting: false,
+          hasEerdereOpschorting: false,
         });
 
         const fields = await formulier.requestForm(suspendableZaak);
@@ -309,7 +309,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg",
+          "msg.taak.aanvullende-informatie.fatale-datum-zaak.leeg",
         );
       });
 
@@ -317,14 +317,14 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         const zaakWithFatalDatum = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           uiterlijkeEinddatumAfdoening: "2026-12-31",
-          zaaktype: { opschortingMogelijk: false },
+          zaaktype: { isOpschortingMogelijk: false },
         });
 
         const fields = await formulier.requestForm(zaakWithFatalDatum);
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig.opgeschort",
+          "msg.taak.aanvullende-informatie.fatale-datum-taak.overig.opgeschort",
         );
       });
 
@@ -332,15 +332,15 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         const zaakWithFatalDatum = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           uiterlijkeEinddatumAfdoening: "2026-12-31",
-          zaaktype: { opschortingMogelijk: true },
-          rechten: { behandelen: true },
+          zaaktype: { isOpschortingMogelijk: true },
+          rechten: { canBehandelen: true },
         });
 
         const fields = await formulier.requestForm(zaakWithFatalDatum);
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig",
+          "msg.taak.aanvullende-informatie.fatale-datum-taak.overig",
         );
       });
 
@@ -348,7 +348,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         const zaakWithFatalDatum = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           uiterlijkeEinddatumAfdoening: "2026-06-01",
-          zaaktype: { opschortingMogelijk: false },
+          zaaktype: { isOpschortingMogelijk: false },
         });
 
         const fields = await formulier.requestForm(zaakWithFatalDatum);
@@ -361,7 +361,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         taakFataledatumField?.control?.setValue(moment("2026-12-31"));
 
         expect(messageField?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden.opgeschort",
+          "msg.taak.aanvullende-informatie.fatale-datum-taak.overschreden.opgeschort",
         );
       });
 
@@ -369,7 +369,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         const zaakWithFatalDatum = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           uiterlijkeEinddatumAfdoening: "2026-12-31",
-          zaaktype: { opschortingMogelijk: false },
+          zaaktype: { isOpschortingMogelijk: false },
         });
 
         const fields = await formulier.requestForm(zaakWithFatalDatum);
@@ -382,7 +382,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         taakFataledatumField?.control?.setValue(moment("2026-06-01"));
 
         expect(messageField?.control?.value).toBe(
-          "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig.opgeschort",
+          "msg.taak.aanvullende-informatie.fatale-datum-taak.overig.opgeschort",
         );
       });
     });
@@ -453,11 +453,11 @@ describe(AanvullendeInformatieTaskForm.name, () => {
     describe("zaakOpschorten", () => {
       const suspendableZaak = fromPartial<GeneratedType<"RestZaak">>({
         uuid: "zaak-uuid",
-        zaaktype: { opschortingMogelijk: true },
-        rechten: { behandelen: true },
+        zaaktype: { isOpschortingMogelijk: true },
+        rechten: { canBehandelen: true },
         redenOpschorting: undefined,
         isHeropend: false,
-        eerdereOpschorting: false,
+        hasEerdereOpschorting: false,
       });
 
       it("should not include zaakOpschorten field when zaak is not suspendable", async () => {
@@ -491,7 +491,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should not include zaakOpschorten when zaak rechten.behandelen is false", async () => {
         const zaak = fromPartial<GeneratedType<"RestZaak">>({
           ...suspendableZaak,
-          rechten: { behandelen: false },
+          rechten: { canBehandelen: false },
         });
 
         const fields = await formulier.requestForm(zaak);
@@ -502,7 +502,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should not include zaakOpschorten when zaak has eerdereOpschorting", async () => {
         const zaak = fromPartial<GeneratedType<"RestZaak">>({
           ...suspendableZaak,
-          eerdereOpschorting: true,
+          hasEerdereOpschorting: true,
         });
 
         const fields = await formulier.requestForm(zaak);
@@ -564,7 +564,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
   describe("handleForm", () => {
     const mockTaak = fromPartial<GeneratedType<"RestTask">>({
       status: "TOEGEKEND",
-      rechten: { wijzigen: true },
+      rechten: { canWijzigen: true },
       taakdata: {},
     });
 
@@ -694,7 +694,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         const opgeschortZaak = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           isOpgeschort: true,
-          rechten: { behandelen: true },
+          rechten: { canBehandelen: true },
         });
 
         const fields = await formulier.handleForm(mockTaak, opgeschortZaak);
@@ -706,7 +706,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         const opgeschortZaak = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           isOpgeschort: true,
-          rechten: { behandelen: true },
+          rechten: { canBehandelen: true },
         });
         const taakWithData = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -724,7 +724,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should show zaakHervatten on AFGEROND taak when taakdata zaakHervatten is true", async () => {
         const afgerondTaak = fromPartial<GeneratedType<"RestTask">>({
           status: "AFGEROND",
-          rechten: { wijzigen: true },
+          rechten: { canWijzigen: true },
           taakdata: { zaakHervatten: "true" },
         });
 
@@ -737,7 +737,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         const opgeschortZaak = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           isOpgeschort: true,
-          rechten: { behandelen: true },
+          rechten: { canBehandelen: true },
         });
         const taakWithUnknownValue = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -756,7 +756,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should show zaakHervatten when taak rechten.wijzigen is false and zaakHervatten taakdata is true", async () => {
         const taakZonderWijzigen = fromPartial<GeneratedType<"RestTask">>({
           status: "TOEGEKEND",
-          rechten: { wijzigen: false },
+          rechten: { canWijzigen: false },
           taakdata: { zaakHervatten: "true" },
         });
 
@@ -768,7 +768,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should not show zaakHervatten when taak rechten.wijzigen is false and zaakHervatten taakdata is not true", async () => {
         const taakZonderWijzigen = fromPartial<GeneratedType<"RestTask">>({
           status: "TOEGEKEND",
-          rechten: { wijzigen: false },
+          rechten: { canWijzigen: false },
           taakdata: { zaakHervatten: "false" },
         });
 
@@ -780,7 +780,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should not show zaakHervatten on AFGEROND taak when taakdata zaakHervatten is not true", async () => {
         const afgerondTaak = fromPartial<GeneratedType<"RestTask">>({
           status: "AFGEROND",
-          rechten: { wijzigen: true },
+          rechten: { canWijzigen: true },
           taakdata: { zaakHervatten: "false" },
         });
 

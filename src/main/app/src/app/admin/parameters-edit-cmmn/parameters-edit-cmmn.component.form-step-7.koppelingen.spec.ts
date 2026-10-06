@@ -55,8 +55,8 @@ describe("Koppelingen form step", () => {
       },
       zaakAfzenders: [
         {
-          speciaal: false,
-          defaultMail: true,
+          isSpeciaal: false,
+          isDefaultMail: true,
           mail: "test@example.com",
           replyTo: undefined,
         },
@@ -64,9 +64,12 @@ describe("Koppelingen form step", () => {
       humanTaskParameters: [],
       mailtemplateKoppelingen: [],
       zaakbeeindigParameters: [],
-      smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+      smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
       userEventListenerParameters: [],
-      betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+      betrokkeneKoppelingen: {
+        isBrpKoppelenEnabled: false,
+        isKvkKoppelenEnabled: false,
+      },
       brpDoelbindingen: {
         zoekWaarde: "",
         raadpleegWaarde: "",
@@ -74,7 +77,7 @@ describe("Koppelingen form step", () => {
       },
       productaanvraagtype: null,
       automaticEmailConfirmation: {
-        enabled: false,
+        isEnabled: false,
         templateName: null,
         emailSender: null,
         emailReply: null,
@@ -198,7 +201,7 @@ describe("Koppelingen form step", () => {
 
       expect(
         within(koppelingen).queryByRole("combobox", {
-          name: "brpDoelbinding.zoekWaarde",
+          name: "brp-doelbinding.zoek-waarde",
         }),
       ).not.toBeInTheDocument();
 
@@ -210,17 +213,17 @@ describe("Koppelingen form step", () => {
 
       expect(
         within(koppelingen).getByRole("combobox", {
-          name: "brpDoelbinding.zoekWaarde",
+          name: "brp-doelbinding.zoek-waarde",
         }),
       ).toBeVisible();
       expect(
         within(koppelingen).getByRole("combobox", {
-          name: "brpDoelbinding.raadpleegWaarde",
+          name: "brp-doelbinding.raadpleeg-waarde",
         }),
       ).toBeVisible();
       expect(
         within(koppelingen).getByRole("combobox", {
-          name: "brpDoelbinding.verwerkingregisterWaarde",
+          name: "brp-doelbinding.verwerkingregister-waarde",
         }),
       ).toBeVisible();
     });
@@ -241,9 +244,9 @@ describe("Koppelingen form step", () => {
       expect(opslaan).toBeDisabled();
 
       await chooseBrpDoelbinding(koppelingen, {
-        "brpDoelbinding.zoekWaarde": brpSearchValues[0],
-        "brpDoelbinding.raadpleegWaarde": brpViewValues[0],
-        "brpDoelbinding.verwerkingregisterWaarde": brpProcessingValues[0],
+        "brp-doelbinding.zoek-waarde": brpSearchValues[0],
+        "brp-doelbinding.raadpleeg-waarde": brpViewValues[0],
+        "brp-doelbinding.verwerkingregister-waarde": brpProcessingValues[0],
       });
 
       expect(opslaan).toBeEnabled();
@@ -266,7 +269,7 @@ describe("Koppelingen form step", () => {
 
       expect(
         within(koppelingen).queryByRole("combobox", {
-          name: "brpDoelbinding.zoekWaarde",
+          name: "brp-doelbinding.zoek-waarde",
         }),
       ).not.toBeInTheDocument();
       expect(opslaan).toBeEnabled();
@@ -281,14 +284,14 @@ describe("Koppelingen form step", () => {
 
       await user.click(brpKoppelen);
       await chooseBrpDoelbinding(koppelingen, {
-        "brpDoelbinding.zoekWaarde": brpSearchValues[0],
+        "brp-doelbinding.zoek-waarde": brpSearchValues[0],
       });
       await user.click(brpKoppelen);
       await user.click(brpKoppelen);
 
       expect(
         within(koppelingen).getByRole("combobox", {
-          name: "brpDoelbinding.zoekWaarde",
+          name: "brp-doelbinding.zoek-waarde",
         }),
       ).not.toHaveTextContent(brpSearchValues[0]);
     });
@@ -307,7 +310,10 @@ describe("Koppelingen form step", () => {
     it("shows the SmartDocuments form as disabled for a zaaktype that has it switched off", async () => {
       await setup(
         createParameters({
-          smartDocuments: { enabledGlobally: true, enabledForZaaktype: false },
+          smartDocuments: {
+            isEnabledGlobally: true,
+            isEnabledForZaaktype: false,
+          },
         }),
       );
       const koppelingen = await goToStep("gegevens.koppelingen");

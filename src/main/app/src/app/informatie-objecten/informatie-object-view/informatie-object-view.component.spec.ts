@@ -162,7 +162,7 @@ describe(InformatieObjectViewComponent.name, () => {
           of({
             ...enkelvoudigInformatieobject,
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              toevoegenNieuweVersie: false,
+              canToevoegenNieuweVersie: false,
             }),
           }),
         );
@@ -184,7 +184,7 @@ describe(InformatieObjectViewComponent.name, () => {
           of({
             ...enkelvoudigInformatieobject,
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              toevoegenNieuweVersie: true,
+              canToevoegenNieuweVersie: true,
             }),
           }),
         );
@@ -210,7 +210,7 @@ describe(InformatieObjectViewComponent.name, () => {
           of({
             ...enkelvoudigInformatieobject,
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              converteren: true,
+              canConverteren: true,
             }),
           }),
         );
@@ -232,7 +232,7 @@ describe(InformatieObjectViewComponent.name, () => {
           of({
             ...enkelvoudigInformatieobject,
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              converteren: false,
+              canConverteren: false,
             }),
           }),
         );
@@ -254,7 +254,7 @@ describe(InformatieObjectViewComponent.name, () => {
           of({
             ...enkelvoudigInformatieobject,
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              converteren: true,
+              canConverteren: true,
             }),
           }),
         );
@@ -282,7 +282,7 @@ describe(InformatieObjectViewComponent.name, () => {
             ...enkelvoudigInformatieobject,
             gelockedDoor: undefined,
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              ontgrendelen: true,
+              canOntgrendelen: true,
             }),
           }),
         );
@@ -305,7 +305,7 @@ describe(InformatieObjectViewComponent.name, () => {
             ...enkelvoudigInformatieobject,
             gelockedDoor: { id: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              ontgrendelen: false,
+              canOntgrendelen: false,
             }),
           }),
         );
@@ -328,7 +328,7 @@ describe(InformatieObjectViewComponent.name, () => {
             ...enkelvoudigInformatieobject,
             gelockedDoor: { id: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              ontgrendelen: true,
+              canOntgrendelen: true,
             }),
           }),
         );
@@ -358,7 +358,7 @@ describe(InformatieObjectViewComponent.name, () => {
             ...enkelvoudigInformatieobject,
             gelockedDoor: { id: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              ontgrendelen: true,
+              canOntgrendelen: true,
             }),
           }),
         );

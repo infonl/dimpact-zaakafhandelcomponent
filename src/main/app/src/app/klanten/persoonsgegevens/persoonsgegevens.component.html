@@ -44,7 +44,7 @@
           <mat-icon>edit</mat-icon>
         </button>
         <button
-          *ngIf="zaak().rechten.verwijderenInitiator"
+          *ngIf="zaak().rechten.canVerwijderenInitiator"
           mat-icon-button
           [disabled]="isDisabled()"
           [title]="'actie.ontkoppelen' | translate"

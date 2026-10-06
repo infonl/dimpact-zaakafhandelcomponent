@@ -49,7 +49,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
 
   async function setup(
     werklijstRechten: GeneratedType<"RestWerklijstRechten"> = fromPartial({
-      inboxProductaanvragenVerwijderen: true,
+      canInboxProductaanvragenVerwijderen: true,
     }),
   ) {
     const { fixture: renderedFixture } = await render(
@@ -246,7 +246,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await setup();
     await showProductaanvragen([inboxProductaanvraag]);
 
-    await user.click(screen.getByRole("combobox", { name: "filter.-alle-" }));
+    await user.click(screen.getByRole("combobox", { name: "filter.alle" }));
     await user.click(screen.getByRole("option", { name: "type-B" }));
 
     expect(await lastListRequestBody()).toMatchObject({
@@ -398,7 +398,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
   });
 
   it("offers no delete without the right to remove inbox productaanvragen", async () => {
-    await setup(fromPartial({ inboxProductaanvragenVerwijderen: false }));
+    await setup(fromPartial({ canInboxProductaanvragenVerwijderen: false }));
     await showProductaanvragen([inboxProductaanvraag]);
 
     expect(
@@ -419,7 +419,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     );
 
     expect(
-      screen.getByText("msg.inboxProductaanvraag.verwijderen.bevestigen"),
+      screen.getByText("msg.inbox-productaanvraag.verwijderen.bevestigen"),
     ).toBeVisible();
     httpTestingController.expectNone("/rest/inbox-productaanvragen/42");
   });

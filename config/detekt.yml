@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: EUPL-1.2+
 
 complexity:
+  NamedArguments:
+    active: true
+    # an argument already named after its parameter, such as `toRestZaak(zaak, zaakType)`, is clear without a name
+    ignoreArgumentsMatchingNames: true
   LongParameterList:
     # constructor injection lists a bean's dependencies; the container calls it, not a developer
     ignoreAnnotated: ['Inject']
@@ -15,6 +19,9 @@ comments:
     licenseTemplate: '/\*[ *\n]*SPDX-FileCopyrightText: [^\n]+\n[ *]*SPDX-License-Identifier: EUPL-1\.2\+[ *\n]*\*/'
     licenseTemplateIsRegex: true
 naming:
+  BooleanPropertyNaming:
+    active: true
+    allowedPattern: '^(is|has|are|can|should)'
   ClassNaming:
     # rejects all-caps acronyms of three or more letters (RESTZaak, ZAC); a regex cannot see where an acronym ends,
     # so a wrongly cased two-letter acronym (IoStream) or a lowercase word after an acronym (XMLformatter) still passes

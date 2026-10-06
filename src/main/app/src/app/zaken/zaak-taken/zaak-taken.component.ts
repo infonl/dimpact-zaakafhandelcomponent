@@ -44,9 +44,11 @@ import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { TakenService } from "../../taken/taken.service";
 
 @Component({
@@ -56,6 +58,7 @@ import { TakenService } from "../../taken/taken.service";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     MatCard,
     MatCardHeader,
@@ -187,6 +190,14 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     this.checkAllTakenExpanded();
   }
 
+  protected uitkomst(taak: GeneratedType<"RestTask">) {
+    const uitkomst = taak.taakinformatie?.uitkomst;
+    if (!uitkomst || taak.formulierDefinitieId !== "GOEDKEUREN")
+      return uitkomst;
+
+    return toI18nKey(uitkomst);
+  }
+
   private checkAllTakenExpanded() {
     const filter = this.toonAfgerondeTaken.value
       ? this.takenDataSource.data.filter((value) => !value.expanded)
@@ -226,7 +237,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
     if (taak.status === "AFGEROND") return false;
-    if (!taak.rechten.toekennen) return false;
+    if (!taak.rechten.canToekennen) return false;
     if (!taak.groep?.id) return false;
     const loggedInUser = this.loggedInUser.data();
     if (!loggedInUser) return false;

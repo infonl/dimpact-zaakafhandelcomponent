@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -68,7 +68,7 @@ public class RESTHumanTaskParametersConverter {
     ) {
         final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
         restHumanTaskParameters.id = zaaktypeCmmnHumantaskParameters.getId();
-        restHumanTaskParameters.actief = zaaktypeCmmnHumantaskParameters.getActief();
+        restHumanTaskParameters.actief = zaaktypeCmmnHumantaskParameters.isActief();
         restHumanTaskParameters.defaultGroepId = zaaktypeCmmnHumantaskParameters.getGroepID();
         restHumanTaskParameters.planItemDefinition = humanTaskDefinition;
         restHumanTaskParameters.formulierDefinitieId = zaaktypeCmmnHumantaskParameters.getFormulierDefinitieID();

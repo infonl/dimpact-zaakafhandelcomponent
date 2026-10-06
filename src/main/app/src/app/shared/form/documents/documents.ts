@@ -18,6 +18,7 @@ import { DocumentIconComponent } from "../../document-icon/document-icon.compone
 import { IndicatiesLayout } from "../../indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { BestandsomvangPipe } from "../../pipes/bestandsomvang.pipe";
+import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 import { MultiInputFormField } from "../BaseFormField";
 
@@ -27,6 +28,7 @@ import { MultiInputFormField } from "../BaseFormField";
   styleUrls: ["./documents.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     BestandsomvangPipe,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,

@@ -79,7 +79,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeVervaldatumBesluitArchiveTest : Beh
                     "zaakUuid":"$zaakUuid",
                     "planItemInstanceId":"$intakeId",
                     "actie":"${ItestConfiguration.ACTIE_INTAKE_AFRONDEN}",
-                    "zaakOntvankelijk":true
+                    "isZaakOntvankelijk":true
                 }
             """.trimIndent(),
             testUser = RECORDMANAGER_1

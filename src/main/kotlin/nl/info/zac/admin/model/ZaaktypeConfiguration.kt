@@ -69,7 +69,7 @@ abstract class ZaaktypeConfiguration {
     var defaultBehandelaarId: String? = null
 
     @Column(name = "smartdocuments_ingeschakeld")
-    var smartDocumentsEnabled: Boolean = false
+    var isSmartDocumentsEnabled: Boolean = false
 
     @field:NotNull
     @Column(name = "creatiedatum", nullable = false)

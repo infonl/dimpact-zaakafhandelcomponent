@@ -17,10 +17,12 @@ import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
 
 import { sleep, testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { toI18nKey } from "../shared/utils/i18n-key";
 import { DashboardComponent } from "./dashboard.component";
 import { InformatieobjectenCardComponent } from "./informatieobjecten-card/informatieobjecten-card.component";
 import { DashboardCard } from "./model/dashboard-card";
@@ -116,18 +118,17 @@ describe(DashboardComponent.name, () => {
     }) as typeof requestAnimationFrame;
 
     stacked = false;
-    jest.spyOn(window, "matchMedia").mockImplementation(
-      (query: string) =>
-        ({
-          matches: stacked && query.includes("max-width"),
-          media: query,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: jest.fn(),
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
-          onchange: null,
-        }) as unknown as MediaQueryList,
+    jest.spyOn(window, "matchMedia").mockImplementation((query: string) =>
+      fromPartial<MediaQueryList>({
+        matches: stacked && query.includes("max-width"),
+        media: query,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+        onchange: null,
+      }),
     );
   });
 
@@ -193,7 +194,9 @@ describe(DashboardComponent.name, () => {
   }
 
   function cardOf(cardId: DashboardCardId) {
-    return screen.getByRole("region", { name: `dashboard.card.${cardId}` });
+    return screen.getByRole("region", {
+      name: toI18nKey(`dashboard.card.${cardId}`),
+    });
   }
 
   function minHeightOf(cardId: DashboardCardId) {
@@ -347,7 +350,9 @@ describe(DashboardComponent.name, () => {
 
     expect(dashboardObserver().observed).not.toContain(removedCard);
     expect(
-      screen.queryByText(`dashboard.card.${DashboardCardId.MIJN_ZAKEN}`),
+      screen.queryByText(
+        toI18nKey(`dashboard.card.${DashboardCardId.MIJN_ZAKEN}`),
+      ),
     ).toBeNull();
   });
 

@@ -7,6 +7,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../utils/generated-types";
+import { toI18nKey } from "../../utils/i18n-key";
 import { IndicatiesLayout } from "../indicaties.component";
 import { PersoonIndicatiesComponent } from "./persoon-indicaties.component";
 
@@ -61,7 +62,7 @@ describe(PersoonIndicatiesComponent.name, () => {
     await fixture.whenStable();
 
     expect(
-      screen.getByRole("option", { name: "indicatie.OVERLEDEN" }),
+      screen.getByRole("option", { name: "indicatie.overleden" }),
     ).toBeInTheDocument();
   });
 
@@ -70,7 +71,7 @@ describe(PersoonIndicatiesComponent.name, () => {
     async ({ indicatie, expectedIcon }) => {
       await setup(makePersoon([indicatie]), IndicatiesLayout.COMPACT);
 
-      const chip = chipWithTooltip(`indicatie.${indicatie}`);
+      const chip = chipWithTooltip(toI18nKey(`indicatie.${indicatie}`));
       expect(within(chip).getByText(expectedIcon)).toBeInTheDocument();
       expect(chip).toHaveClass("mat-mdc-chip-highlighted");
     },
@@ -85,9 +86,9 @@ describe(PersoonIndicatiesComponent.name, () => {
     const options = screen.getAllByRole("option");
     expect(options).toHaveLength(2);
     expect(options[0]).toHaveAccessibleName(
-      "indicatie.GEHEIMHOUDING_OP_PERSOONSGEGEVENS",
+      "indicatie.geheimhouding-op-persoonsgegevens",
     );
-    expect(options[1]).toHaveAccessibleName("indicatie.OVERLEDEN");
+    expect(options[1]).toHaveAccessibleName("indicatie.overleden");
   });
 
   it("replaces the indicaties when the persoon input changes", async () => {
@@ -105,8 +106,8 @@ describe(PersoonIndicatiesComponent.name, () => {
 
     const options = screen.getAllByRole("option");
     expect(options).toHaveLength(2);
-    expect(options[0]).toHaveAccessibleName("indicatie.OVERLEDEN");
-    expect(options[1]).toHaveAccessibleName("indicatie.EMIGRATIE");
+    expect(options[0]).toHaveAccessibleName("indicatie.overleden");
+    expect(options[1]).toHaveAccessibleName("indicatie.emigratie");
   });
 
   it("clears the indicaties when the persoon input changes to one without indicaties", async () => {
@@ -127,7 +128,7 @@ describe(PersoonIndicatiesComponent.name, () => {
       await setup(makePersoon(["OVERLEDEN"]), IndicatiesLayout.EXTENDED);
 
       const option = screen.getByRole("option", {
-        name: "indicatie.OVERLEDEN",
+        name: "indicatie.overleden",
       });
       expect(within(option).getByText("deceased")).toBeInTheDocument();
       expect(screen.getByRole("listbox")).toHaveClass("extended");
@@ -138,7 +139,7 @@ describe(PersoonIndicatiesComponent.name, () => {
       async (layout) => {
         await setup(makePersoon(["OVERLEDEN"]), layout);
 
-        const chip = chipWithTooltip("indicatie.OVERLEDEN");
+        const chip = chipWithTooltip("indicatie.overleden");
         expect(within(chip).getByRole("option")).toHaveAccessibleName("");
         expect(within(chip).getByText("deceased")).toBeInTheDocument();
         expect(screen.getByRole("listbox")).toHaveClass(layout.toLowerCase());

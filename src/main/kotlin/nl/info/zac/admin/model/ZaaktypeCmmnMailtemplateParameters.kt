@@ -52,25 +52,25 @@ class ZaaktypeCmmnMailtemplateParameters :
             return false
         }
 
-        val result = mailTemplate?.let { mailtemplate ->
+        val isSameMailTemplate = mailTemplate?.let { mailtemplate ->
             other.mailTemplate?.let { that ->
                 Objects.equals(mailtemplate.id, that.id)
             }
         }
-        return checkNotNull(result) { "mailTemplate is null" }
+        return checkNotNull(isSameMailTemplate) { "mailTemplate is null" }
     }
 
     override fun hashCode(): Int = mailTemplate?.let { Objects.hash(it.id) } ?: 0
 
     @Suppress("UseCheckOrError")
     override fun isModifiedFrom(original: ZaaktypeCmmnMailtemplateParameters): Boolean {
-        val result = mailTemplate?.let { mailTemplate ->
+        val isModified = mailTemplate?.let { mailTemplate ->
             original.mailTemplate?.let { otherMailTemplate ->
                 Objects.equals(mailTemplate.mail, otherMailTemplate.mail) &&
                     !Objects.equals(mailTemplate.id, otherMailTemplate.id)
             }
         }
-        return result ?: throw IllegalStateException("mailTemplate is null")
+        return isModified ?: throw IllegalStateException("mailTemplate is null")
     }
 
     override fun applyChanges(changes: ZaaktypeCmmnMailtemplateParameters) {

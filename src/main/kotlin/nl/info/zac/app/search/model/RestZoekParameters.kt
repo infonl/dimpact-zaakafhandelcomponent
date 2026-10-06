@@ -6,6 +6,7 @@
  */
 package nl.info.zac.app.search.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.PositiveOrZero
 import nl.info.zac.app.shared.RestPageParameters
@@ -31,8 +32,20 @@ data class RestZoekParameters(
     var datums: Map<DatumVeld, RestDatumRange>? = null,
     var sorteerVeld: SorteerVeld? = null,
     var sorteerRichting: String? = null,
-    var alleenMijnZaken: Boolean = false,
-    var alleenOpenstaandeZaken: Boolean = false,
-    var alleenAfgeslotenZaken: Boolean = false,
-    var alleenMijnTaken: Boolean = false
+
+    @get:JsonbProperty("alleenMijnZaken")
+    @set:JsonbProperty("alleenMijnZaken")
+    var isAlleenMijnZaken: Boolean = false,
+
+    @get:JsonbProperty("alleenOpenstaandeZaken")
+    @set:JsonbProperty("alleenOpenstaandeZaken")
+    var isAlleenOpenstaandeZaken: Boolean = false,
+
+    @get:JsonbProperty("alleenAfgeslotenZaken")
+    @set:JsonbProperty("alleenAfgeslotenZaken")
+    var isAlleenAfgeslotenZaken: Boolean = false,
+
+    @get:JsonbProperty("alleenMijnTaken")
+    @set:JsonbProperty("alleenMijnTaken")
+    var isAlleenMijnTaken: Boolean = false
 ) : RestPageParameters

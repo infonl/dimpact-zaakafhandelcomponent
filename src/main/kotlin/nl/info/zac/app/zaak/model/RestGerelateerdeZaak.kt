@@ -24,5 +24,5 @@ data class RestGerelateerdeZaak(
 
     var rechten: RestZaakRechten? = null,
 
-    var ontkoppelen: Boolean = false,
+    var canOntkoppelen: Boolean = false,
 )

@@ -162,7 +162,7 @@ describe(CaseLocationEditComponent.name, () => {
       inputs: {
         zaak: fromPartial<GeneratedType<"RestZaak">>({
           uuid: "zaak-123",
-          rechten: { wijzigenLocatie: true },
+          rechten: { canWijzigenLocatie: true },
           ...zaak,
         }),
         sideNav,
@@ -356,7 +356,7 @@ describe(CaseLocationEditComponent.name, () => {
     await setup({
       zaakgeometrie: point,
       rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
-        wijzigenLocatie: false,
+        canWijzigenLocatie: false,
       }),
     });
 
@@ -370,7 +370,7 @@ describe(CaseLocationEditComponent.name, () => {
     await setup({
       zaakgeometrie: point,
       rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
-        wijzigenLocatie: false,
+        canWijzigenLocatie: false,
       }),
     });
 

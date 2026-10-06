@@ -29,8 +29,8 @@ const createInstellingen = () =>
     {
       type: "ZAAK_OP_NAAM",
       subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
+      isDashboardEnabled: false,
+      isMailEnabled: false,
     },
   ]);
 
@@ -66,7 +66,7 @@ describe(GroepSignaleringenComponent.name, () => {
   }
 
   async function chooseGroup() {
-    await user.click(screen.getByRole("combobox", { name: "groep.-kies-" }));
+    await user.click(screen.getByRole("combobox", { name: "groep.kies" }));
     await user.click(screen.getByRole("option", { name: "Fake groep" }));
   }
 
@@ -90,7 +90,7 @@ describe(GroepSignaleringenComponent.name, () => {
       undefined,
     );
 
-    await user.click(screen.getByRole("combobox", { name: "groep.-kies-" }));
+    await user.click(screen.getByRole("combobox", { name: "groep.kies" }));
 
     expect(screen.getByRole("option", { name: "Fake groep" })).toBeVisible();
   });
@@ -101,9 +101,9 @@ describe(GroepSignaleringenComponent.name, () => {
     await chooseGroup();
 
     expect(signaleringenServiceMock.list).toHaveBeenCalledWith("fakeGroupId");
-    expect(screen.getByText("signalering.subjecttype.ZAAK")).toBeVisible();
+    expect(screen.getByText("signalering.subjecttype.zaak")).toBeVisible();
     expect(
-      screen.getByText("signalering.type.ZAAK_OP_NAAM.group"),
+      screen.getByText("signalering.type.zaak-op-naam.group"),
     ).toBeVisible();
     expect(
       screen.getByRole("checkbox", { name: "actie.signalering.dashboard" }),
@@ -129,7 +129,10 @@ describe(GroepSignaleringenComponent.name, () => {
     expect(utilServiceMock.setLoading).toHaveBeenCalledWith(true);
     expect(signaleringenServiceMock.put).toHaveBeenCalledWith("fakeGroupId");
     expect(putMutation.mutationFn).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "ZAAK_OP_NAAM", dashboard: true }),
+      expect.objectContaining({
+        type: "ZAAK_OP_NAAM",
+        isDashboardEnabled: true,
+      }),
       expect.anything(),
     );
   });

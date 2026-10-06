@@ -157,7 +157,7 @@ class ZaakService @Inject constructor(
 
         val numberOfAssignedZaken = zaakUUIDs
             .map(zrcClientService::readZaak)
-            .count { assignZaakFromBatch(it, group, user, explanation) }
+            .count { assignZaakFromBatch(zaak = it, group = group, user = user, explanation = explanation) }
 
         LOG.fine { "Successfully assigned $numberOfAssignedZaken zaken." }
 
@@ -247,10 +247,10 @@ class ZaakService @Inject constructor(
 
     fun bepaalRolGroep(group: Group, zaak: Zaak) =
         RolOrganisatorischeEenheid(
-            zaak.url,
-            zgwApiService.readBehandelaarRoltype(zaak.zaaktype),
-            "Behandelend groep van de zaak",
-            OrganisatorischeEenheidIdentificatie().apply {
+            zaak = zaak.url,
+            roltype = zgwApiService.readBehandelaarRoltype(zaak.zaaktype),
+            roltoelichting = "Behandelend groep van de zaak",
+            organisatorischeEenheid = OrganisatorischeEenheidIdentificatie().apply {
                 identificatie = group.name
                 naam = group.description
             }
@@ -258,10 +258,10 @@ class ZaakService @Inject constructor(
 
     fun bepaalRolMedewerker(user: User, zaak: Zaak) =
         RolMedewerker(
-            zaak.url,
-            zgwApiService.readBehandelaarRoltype(zaak.zaaktype),
-            "Behandelaar van de zaak",
-            MedewerkerIdentificatie().apply {
+            zaak = zaak.url,
+            roltype = zgwApiService.readBehandelaarRoltype(zaak.zaaktype),
+            roltoelichting = "Behandelaar van de zaak",
+            medewerkerIdentificatie = MedewerkerIdentificatie().apply {
                 identificatie = user.id
                 voorletters = user.firstName
                 achternaam = user.lastName
@@ -327,19 +327,19 @@ class ZaakService @Inject constructor(
         val role = when (identificationType) {
             IdentificatieType.BSN ->
                 RolNatuurlijkPersoon(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    NatuurlijkPersoonIdentificatie().apply { inpBsn = identification }
+                    zaak = zaak.url,
+                    roltype = roleType,
+                    roltoelichting = explanation,
+                    betrokkeneIdentificatie = NatuurlijkPersoonIdentificatie().apply { inpBsn = identification }
                 )
 
             IdentificatieType.VN -> {
                 val (kvkNummer, vestigingsnummer) = identification.split(VESTIGING_IDENTIFICATIE_DELIMITER)
                 RolNietNatuurlijkPersoon(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    NietNatuurlijkPersoonIdentificatie().apply {
+                    zaak = zaak.url,
+                    roltype = roleType,
+                    roltoelichting = explanation,
+                    betrokkeneIdentificatie = NietNatuurlijkPersoonIdentificatie().apply {
                         this.kvkNummer = kvkNummer
                         this.vestigingsNummer = vestigingsnummer
                     }
@@ -348,10 +348,10 @@ class ZaakService @Inject constructor(
 
             IdentificatieType.RSIN ->
                 RolNietNatuurlijkPersoon(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    NietNatuurlijkPersoonIdentificatie().apply { this.kvkNummer = identification }
+                    zaak = zaak.url,
+                    roltype = roleType,
+                    roltoelichting = explanation,
+                    betrokkeneIdentificatie = NietNatuurlijkPersoonIdentificatie().apply { this.kvkNummer = identification }
                 )
         }
         zrcClientService.createRol(role, explanation)
@@ -528,8 +528,8 @@ class ZaakService @Inject constructor(
         zaakUUIDs: List<UUID>
     ) =
         user?.let {
-            val inGroup = identityService.isUserInGroup(user.id, group.name)
-            if (!inGroup) {
+            val isInGroup = identityService.isUserInGroup(user.id, group.name)
+            if (!isInGroup) {
                 LOG.warning(
                     "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.description}'. " +
                         "Skipping all zaken."
@@ -538,7 +538,7 @@ class ZaakService @Inject constructor(
                     .map(zrcClientService::readZaak)
                     .forEach { zaak -> eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak)) }
             }
-            inGroup
+            isInGroup
         } ?: true
 
     private fun isZaakOpen(zaak: Zaak) =

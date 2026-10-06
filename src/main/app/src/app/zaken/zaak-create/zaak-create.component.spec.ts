@@ -339,7 +339,7 @@ describe(ZaakCreateComponent.name, () => {
         const selectFields = await loader.getAllHarnesses(MatSelectHarness);
         expect(selectFields.length).toEqual(2);
         expect(await selectFields[1].getValueText()).toBe(
-          "vertrouwelijkheidaanduiding.OPENBAAR",
+          "vertrouwelijkheidaanduiding.openbaar",
         );
       });
 
@@ -519,11 +519,11 @@ describe(ZaakCreateComponent.name, () => {
 
     it("sets activeSideAction and opens sidenav for BAG action", async () => {
       await fixture.componentInstance["openSideNav"](
-        "actie.bagObject.koppelen",
+        "actie.bag-object.koppelen",
       );
       fixture.detectChanges();
       expect(fixture.componentInstance["activeSideAction"]).toBe(
-        "actie.bagObject.koppelen",
+        "actie.bag-object.koppelen",
       );
       expect(fixture.componentInstance["actionsSidenav"].opened).toBe(true);
     });
@@ -537,9 +537,9 @@ describe(ZaakCreateComponent.name, () => {
 
     it("renders zac-bag-zoek for BAG action", () => {
       fixture.componentInstance["activeSideAction"] =
-        "actie.bagObject.koppelen";
+        "actie.bag-object.koppelen";
       fixture.detectChanges();
-      expect(screen.getByText("actie.bagObject.koppelen")).toBeInTheDocument();
+      expect(screen.getByText("actie.bag-object.koppelen")).toBeInTheDocument();
     });
   });
 
@@ -589,7 +589,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: false,
+              isKvkKoppelenEnabled: false,
+            },
           },
         }),
       );
@@ -609,7 +612,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: true, kvkKoppelen: false },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: true,
+              isKvkKoppelenEnabled: false,
+            },
           },
         }),
       );
@@ -620,7 +626,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: true },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: false,
+              isKvkKoppelenEnabled: true,
+            },
           },
         }),
       );

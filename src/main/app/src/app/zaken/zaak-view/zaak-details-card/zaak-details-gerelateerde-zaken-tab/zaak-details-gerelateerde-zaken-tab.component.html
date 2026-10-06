@@ -11,7 +11,7 @@
     @for (column of gerelateerdeZaakColumns; track column) {
       <ng-container [matColumnDef]="column">
         <th mat-header-cell *matHeaderCellDef>
-          {{ "gerelateerde.zaak." + column | translate }}
+          {{ "gerelateerde.zaak." + column | i18nKey | translate }}
         </th>
         <td mat-cell *matCellDef="let row">
           {{ row[column] | empty | datum }}
@@ -21,7 +21,7 @@
     <ng-container matColumnDef="actions" stickyEnd>
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
-        @if (row.rechten.lezen) {
+        @if (row.rechten.canLezen) {
           <a
             mat-icon-button
             [routerLink]="['/zaken', row.identificatie]"
@@ -33,7 +33,7 @@
             <mat-icon>visibility</mat-icon>
           </a>
         }
-        @if (row.ontkoppelen) {
+        @if (row.canOntkoppelen) {
           <button
             mat-icon-button
             (click)="zaakOntkoppelen.emit(row)"

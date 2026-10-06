@@ -5,6 +5,7 @@
 
 package nl.info.zac.app.informatieobjecten.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
@@ -15,12 +16,15 @@ data class RestInformatieobjecttype(
     var uuid: UUID,
     var omschrijving: String? = null,
     var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = null,
-    var concept: Boolean = false
+
+    @get:JsonbProperty("isConcept")
+    @set:JsonbProperty("isConcept")
+    var isConcept: Boolean = false
 )
 
 fun InformatieObjectType.toRestInformatieobjecttype() = RestInformatieobjecttype(
     uuid = this.url.extractUuid(),
-    concept = this.concept,
+    isConcept = this.concept,
     omschrijving = this.omschrijving,
     vertrouwelijkheidaanduiding = this.vertrouwelijkheidaanduiding?.toRestVertrouwelijkheidaanduiding()
 )

@@ -82,10 +82,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the correct address") {
@@ -147,10 +147,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent") {
@@ -210,10 +210,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the correct address") {
@@ -249,10 +249,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no action is taken") {}
@@ -278,10 +278,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent") {
@@ -301,10 +301,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent") {}
@@ -323,10 +323,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent") {}
@@ -352,10 +352,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                specificEmail,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = specificEmail,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the application-specific email address without consulting betrokkene") {
@@ -392,10 +392,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                null,
-                specificEmail,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = null,
+                productaanvraagSpecificEmailAddress = specificEmail,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the application-specific email address") {
@@ -419,10 +419,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                null,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = null,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent") {}
@@ -462,10 +462,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak,
-                betrokkene,
-                null,
-                zaaktypeCmmnConfiguration
+                zaak = zaak,
+                betrokkene = betrokkene,
+                productaanvraagSpecificEmailAddress = null,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the first address as fallback") {

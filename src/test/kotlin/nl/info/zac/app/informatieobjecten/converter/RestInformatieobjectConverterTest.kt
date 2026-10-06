@@ -219,7 +219,16 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
-        } throws ZgwErrorException(ZgwError(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
+        } throws ZgwErrorException(
+            ZgwError(
+                type = null,
+                code = null,
+                title = null,
+                status = HttpStatus.NOT_FOUND_404,
+                detail = null,
+                instance = null
+            )
+        )
 
         `when`("We try to convert a list with that uuid") {
             val result = restInformatieobjectConverter.convertUUIDsToREST(listOf(uuid), null)
@@ -236,12 +245,12 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             drcClientService.readEnkelvoudigInformatieobject(uuid)
         } throws ZgwErrorException(
             ZgwError(
-                URI("https://example.com/fakeType"),
-                "fakeCode",
-                "fakeTitle",
-                HttpStatus.INTERNAL_SERVER_ERROR_500,
-                "fakeDetail",
-                URI("https://example.com/fakeInstance")
+                type = URI("https://example.com/fakeType"),
+                code = "fakeCode",
+                title = "fakeTitle",
+                status = HttpStatus.INTERNAL_SERVER_ERROR_500,
+                detail = "fakeDetail",
+                instance = URI("https://example.com/fakeInstance")
             )
         )
 

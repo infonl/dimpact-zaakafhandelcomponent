@@ -90,7 +90,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             } returns document
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-            } throws ZgwErrorException(ZgwError(null, null, null, 404, null, null))
+            } throws ZgwErrorException(ZgwError(type = null, code = null, title = null, status = 404, detail = null, instance = null))
             every {
                 detachedDocumentService.deleteIfExists(document.id!!)
             } just runs
@@ -117,7 +117,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             } returns document
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-            } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
+            } throws ZgwErrorException(ZgwError(type = null, code = null, title = null, status = 400, detail = null, instance = null))
 
             `when`("the delete endpoint is called with the id of that document") {
                 val exception =

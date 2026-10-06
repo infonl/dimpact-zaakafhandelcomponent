@@ -112,7 +112,7 @@ public class BagRestService {
     public void create(final RESTBAGObjectGegevens bagObjectGegevens) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).getToevoegenBagObject());
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).getCanToevoegenBagObject());
         if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
         }
@@ -122,7 +122,7 @@ public class BagRestService {
     public void delete(final RESTBAGObjectGegevens bagObjectGegevens) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).getCanBehandelen());
         final Zaakobject zaakobject = zrcClientService.readZaakobject(bagObjectGegevens.uuid);
         zrcClientService.deleteZaakobject(zaakobject, bagObjectGegevens.redenWijzigen);
     }
@@ -133,7 +133,7 @@ public class BagRestService {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).getLezen());
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).getCanLezen());
         zaakobjectListParameters.setZaak(zaak.getUrl());
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         if (zaakobjecten.count() > 0) {

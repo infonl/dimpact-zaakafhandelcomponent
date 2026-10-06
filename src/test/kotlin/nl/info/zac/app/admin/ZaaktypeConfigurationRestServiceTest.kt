@@ -95,7 +95,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 id = 1234L,
                 productaanvraagtype = productaanvraagtype
             )
-            every { policyService.readOverigeRechten().beheren } returns true
+            every { policyService.readOverigeRechten().canBeheren } returns true
             every {
                 zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(restZaakafhandelParameters)
             } returns zaakafhandelParameters
@@ -146,7 +146,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             val zaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = null
             )
-            every { policyService.readOverigeRechten().beheren } returns true
+            every { policyService.readOverigeRechten().canBeheren } returns true
             every {
                 zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
                     productaanvraagtype, restZaakafhandelParameters.zaaktype.omschrijving!!
@@ -176,7 +176,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     }
 
     given("SmartDocuments is disabled and empty set of templates is returned") {
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { smartDocumentsTemplatesService.listTemplates() } returns emptySet()
 
         `when`("storing templates mapping") {
@@ -197,7 +197,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
         val behandelaarId = "fakeBehandelaarId"
         val behandelaarGroupId = "fakeBehandelaarGroupId"
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every {
             identityService.validateIfUserIsInGroup(behandelaarId, behandelaarGroupId)
         } throws UserNotInGroupException()
@@ -225,7 +225,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
     given("Existing zaaktype configuration for CMMN") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
@@ -255,7 +255,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
     given("Existing zaaktype configuration for BPMN") {
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(id = null)
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
         } returns zaaktypeBpmnConfiguration
@@ -283,7 +283,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
     given("No existing zaaktype configuration") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
         } returns null

@@ -12,14 +12,16 @@
   ></mat-checkbox>
   <div class="flex-1">{{ node().name }}</div>
   <mat-form-field subscriptSizing="dynamic">
-    <mat-label>{{ "informatieobjectTypeOmschrijving" | translate }}</mat-label>
+    <mat-label>{{
+      "informatieobject-type-omschrijving" | translate
+    }}</mat-label>
     <mat-select
       [value]="node().informatieObjectTypeUUID"
       (valueChange)="selectDocumentType($event)"
-      placeholder="{{ 'informatieobjectType.-kies-' | translate }}"
+      placeholder="{{ 'informatieobject-type.kies' | translate }}"
     >
       <mat-option [value]="">{{
-        "informatieobjectType.-geen-" | translate
+        "informatieobject-type.geen" | translate
       }}</mat-option>
       <mat-option
         *ngFor="let informationObjectType of informationObjectTypes()"
@@ -34,7 +36,7 @@
       matInput
       [formControl]="confidentiality"
       translate="{{
-        'vertrouwelijkheidaanduiding.' + confidentiality.getRawValue()
+        'vertrouwelijkheidaanduiding.' + confidentiality.getRawValue() | i18nKey
       }}"
     />
   </mat-form-field>

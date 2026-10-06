@@ -98,7 +98,7 @@ class EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest : Behav
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
-                JSONObject(responseBody).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                JSONObject(responseBody).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
             }
         }
         `when`("the document is downloaded by a user holding the zaakspecifiek_autorisatie_behandelaar role") {
@@ -163,7 +163,7 @@ class EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest : Behav
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
-                JSONObject(responseBody).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                JSONObject(responseBody).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
             }
         }
         `when`("the document is downloaded by the behandelaar the zaak was taken away from") {
@@ -183,7 +183,7 @@ class EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest : Behav
             )
             then("the response should be a 200 HTTP response with rechten.lezen set to true") {
                 response.code shouldBe HTTP_OK
-                JSONObject(response.bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                JSONObject(response.bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
             }
         }
     }

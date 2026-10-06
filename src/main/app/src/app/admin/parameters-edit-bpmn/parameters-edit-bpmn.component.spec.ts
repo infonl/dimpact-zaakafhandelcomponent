@@ -60,7 +60,7 @@ describe(ParametersEditBpmnComponent.name, () => {
       name: "BPMN Process Definition - 2",
       version: 1,
       details: {
-        inUse: true,
+        isInUse: true,
       },
     },
     {
@@ -69,7 +69,7 @@ describe(ParametersEditBpmnComponent.name, () => {
       name: "BPMN Process Definition - 2",
       version: 1,
       details: {
-        inUse: true,
+        isInUse: true,
       },
     },
   ];
@@ -179,7 +179,7 @@ describe(ParametersEditBpmnComponent.name, () => {
       await createComponent();
 
       expect(selectedStep()).toHaveAccessibleName(
-        /gegevens.proces-model-methode.BPMN/,
+        /gegevens.proces-model-methode.bpmn/,
       );
     });
 
@@ -196,7 +196,7 @@ describe(ParametersEditBpmnComponent.name, () => {
       fixture.detectChanges();
 
       expect(selectedStep()).toHaveAccessibleName(
-        /gegevens.proces-model-methode.BPMN/,
+        /gegevens.proces-model-methode.bpmn/,
       );
     });
   });
@@ -208,13 +208,13 @@ describe(ParametersEditBpmnComponent.name, () => {
 
     it("should show 'nee' for a zaaktype without the eigenschap", () => {
       expect(fixture.nativeElement.textContent).toContain(
-        "zaakspecifiekAutoriseerbaar",
+        "zaakspecifiek-autoriseerbaar",
       );
       expect(fixture.nativeElement.textContent).toContain("actie.nee");
     });
 
     it("should show 'ja' for a zaaktype with the eigenschap", () => {
-      component["bpmnZaakafhandelParameters"].zaakspecifiekAutoriseerbaar =
+      component["bpmnZaakafhandelParameters"].isZaakspecifiekAutoriseerbaar =
         true;
       fixture.detectChanges();
 
@@ -233,7 +233,7 @@ describe(ParametersEditBpmnComponent.name, () => {
 
       const processDefinitionFieldValue =
         await processDefinitionField.getValueText();
-      expect(processDefinitionFieldValue).toBe("-kies.generiek-");
+      expect(processDefinitionFieldValue).toBe("kies.generiek");
 
       const groupField = selectFields[1];
 

@@ -110,9 +110,9 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every { signaleringService.sendSignalering(zaakVerlopendSignalering) } just runs
         every { signaleringService.createSignaleringVerzonden(zaakVerlopendSignalering) } returns mockk()
         every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
-        var wasSystemUserDuringCronWork: Boolean? = null
+        var isSystemUserDuringCronWork: Boolean? = null
         every { searchService.search(any()) } answers {
-            wasSystemUserDuringCronWork = LoggedInUserProvider.systemUser.get()
+            isSystemUserDuringCronWork = LoggedInUserProvider.systemUser.get()
             zoekResultaat
         }
         every { signaleringService.deleteSignaleringVerzonden(any()) } returns true
@@ -130,7 +130,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             }
 
             and("the cron work runs as the system user, and no longer does once it has finished") {
-                wasSystemUserDuringCronWork shouldBe true
+                isSystemUserDuringCronWork shouldBe true
                 wasSystemUserAfterCronWork shouldBe false
             }
         }

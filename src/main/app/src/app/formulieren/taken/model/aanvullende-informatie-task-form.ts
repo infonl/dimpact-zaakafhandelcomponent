@@ -60,7 +60,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       });
 
     const defaultAfzender = afzendersVoorZaakOptions.find(
-      ({ defaultMail }) => defaultMail,
+      ({ isDefaultMail }) => isDefaultMail,
     );
 
     verzenderControl.setValue(defaultAfzender ?? null);
@@ -288,11 +288,11 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
   }
 
   private isZaakSuspendable(zaak: GeneratedType<"RestZaak">) {
-    if (!zaak.zaaktype.opschortingMogelijk) return false;
+    if (!zaak.zaaktype.isOpschortingMogelijk) return false;
     if (zaak.redenOpschorting) return false;
     if (zaak.isHeropend) return false;
-    if (!zaak.rechten.behandelen) return false;
-    if (zaak.eerdereOpschorting) return false;
+    if (!zaak.rechten.canBehandelen) return false;
+    if (zaak.hasEerdereOpschorting) return false;
 
     return true;
   }
@@ -306,7 +306,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       moment(zaak.uiterlijkeEinddatumAfdoening);
 
     if (!fatalZaakDate) {
-      return `msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg`;
+      return `msg.taak.aanvullende-informatie.fatale-datum-zaak.leeg`;
     }
 
     const suspendedTextSuffix = this.isZaakSuspendable(zaak)
@@ -314,23 +314,23 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       : ".opgeschort";
 
     if (!humanTaskDataFatalDate) {
-      return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
+      return `msg.taak.aanvullende-informatie.fatale-datum-taak.overig${suspendedTextSuffix}`;
     }
 
     if (moment(humanTaskDataFatalDate).isAfter(fatalZaakDate)) {
-      return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden${suspendedTextSuffix}`;
+      return `msg.taak.aanvullende-informatie.fatale-datum-taak.overschreden${suspendedTextSuffix}`;
     }
 
-    return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
+    return `msg.taak.aanvullende-informatie.fatale-datum-taak.overig${suspendedTextSuffix}`;
   }
 
   private toonHervatten(
     zaak: GeneratedType<"RestZaak">,
     taak: GeneratedType<"RestTask">,
   ) {
-    if (taak?.status === "AFGEROND" || !taak?.rechten.wijzigen) {
+    if (taak?.status === "AFGEROND" || !taak?.rechten.canWijzigen) {
       return taak.taakdata?.["zaakHervatten"] === "true";
     }
-    return Boolean(zaak.isOpgeschort && zaak.rechten.behandelen);
+    return Boolean(zaak.isOpgeschort && zaak.rechten.canBehandelen);
   }
 }

@@ -87,8 +87,8 @@ describe("Human tasks form step", () => {
     },
     zaakAfzenders: [
       {
-        speciaal: false,
-        defaultMail: true,
+        isSpeciaal: false,
+        isDefaultMail: true,
         mail: "test@example.com",
         replyTo: undefined,
       },
@@ -96,9 +96,12 @@ describe("Human tasks form step", () => {
     humanTaskParameters,
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+    smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
     userEventListenerParameters: [],
-    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+    betrokkeneKoppelingen: {
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
+    },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -106,7 +109,7 @@ describe("Human tasks form step", () => {
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
-      enabled: false,
+      isEnabled: false,
       templateName: null,
       emailSender: null,
       emailReply: null,
@@ -205,16 +208,16 @@ describe("Human tasks form step", () => {
   async function chooseFormulierDefinitie(
     humanTasks: HTMLElement,
     task: string,
-    formulierDefinitieId: string,
+    formulierDefinitieLabel: string,
   ) {
     await user.click(
       within(taskFields(humanTasks, task)).getByRole("combobox", {
-        name: "formulierDefinitie",
+        name: "formulier-definitie",
       }),
     );
     await user.click(
       screen.getByRole("option", {
-        name: `formulierDefinitie.${formulierDefinitieId}`,
+        name: formulierDefinitieLabel,
       }),
     );
   }
@@ -236,7 +239,7 @@ describe("Human tasks form step", () => {
 
     const fields = within(taskFields(humanTasks, "Taak 1"));
     expect(
-      fields.getByRole("combobox", { name: "formulierDefinitie" }),
+      fields.getByRole("combobox", { name: "formulier-definitie" }),
     ).toBeVisible();
     expect(
       fields.getByRole("combobox", { name: "groep.standaard" }),
@@ -274,7 +277,7 @@ describe("Human tasks form step", () => {
     await chooseFormulierDefinitie(
       humanTasks,
       "Taak 1",
-      "DEFAULT_TAAKFORMULIER",
+      "formulier-definitie.default-taakformulier",
     );
 
     expect(
@@ -302,11 +305,15 @@ describe("Human tasks form step", () => {
     const { humanTasks } = await setup();
 
     await user.click(taskHeader(humanTasks, "Taak 1"));
-    await chooseFormulierDefinitie(humanTasks, "Taak 1", "ADVIES");
+    await chooseFormulierDefinitie(
+      humanTasks,
+      "Taak 1",
+      "formulier-definitie.advies",
+    );
 
     expect(
       within(taskFields(humanTasks, "Taak 1")).getByRole("combobox", {
-        name: "referentietabel.ADVIES",
+        name: "referentietabel.advies",
       }),
     ).toBeVisible();
   });
@@ -318,7 +325,7 @@ describe("Human tasks form step", () => {
     await chooseFormulierDefinitie(
       humanTasks,
       "Taak 1",
-      "DEFAULT_TAAKFORMULIER",
+      "formulier-definitie.default-taakformulier",
     );
 
     const fields = within(taskFields(humanTasks, "Taak 1"));

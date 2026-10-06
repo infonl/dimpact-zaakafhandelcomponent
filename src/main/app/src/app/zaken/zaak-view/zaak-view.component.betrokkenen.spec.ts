@@ -88,7 +88,7 @@ describe(ZaakViewComponent.name, () => {
     }),
     indicaties: [],
     rechten: {
-      behandelen: true,
+      canBehandelen: true,
     },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
@@ -240,7 +240,7 @@ describe(ZaakViewComponent.name, () => {
       ...zaak,
       rechten: {
         ...zaak.rechten,
-        toevoegenInitiatorPersoon: true,
+        canToevoegenInitiatorPersoon: true,
       },
       zaaktype: {
         ...zaak.zaaktype,
@@ -249,7 +249,7 @@ describe(ZaakViewComponent.name, () => {
         >({
           betrokkeneKoppelingen: fromPartial<
             GeneratedType<"RestBetrokkeneKoppelingen">
-          >({ brpKoppelen: true }),
+          >({ isBrpKoppelenEnabled: true }),
         }),
       },
     } satisfies GeneratedType<"RestZaak">;
@@ -260,7 +260,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: true,
+          canZoeken: true,
         }),
       );
 
@@ -278,7 +278,7 @@ describe(ZaakViewComponent.name, () => {
           ...zaakWithPersoonRechten,
           rechten: {
             ...zaakWithPersoonRechten.rechten,
-            toevoegenInitiatorPersoon: false,
+            canToevoegenInitiatorPersoon: false,
           },
         },
       });
@@ -298,7 +298,7 @@ describe(ZaakViewComponent.name, () => {
             >({
               betrokkeneKoppelingen: fromPartial<
                 GeneratedType<"RestBetrokkeneKoppelingen">
-              >({ brpKoppelen: false }),
+              >({ isBrpKoppelenEnabled: false }),
             }),
           },
         },
@@ -312,7 +312,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: false,
+          canZoeken: false,
         }),
       );
       fixture.detectChanges();
@@ -552,7 +552,7 @@ describe(ZaakViewComponent.name, () => {
         zaakobject: bagObject,
       });
       expect(list).toHaveBeenCalledWith(zaak.uuid);
-      expect(openSnackbar).toHaveBeenCalledWith("msg.bagObject.gekoppeld");
+      expect(openSnackbar).toHaveBeenCalledWith("msg.bag-object.gekoppeld");
     });
   });
 });

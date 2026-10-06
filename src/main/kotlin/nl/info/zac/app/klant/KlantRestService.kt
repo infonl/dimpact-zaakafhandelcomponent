@@ -214,14 +214,16 @@ class KlantRestService @Inject constructor(
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
     ): RESTResultaat<RestPersoon> {
         val brpRechten = policyService.readBrpRechten(restListPersonenParameters.gemeenteVanInschrijving)
-        assertPolicy(brpRechten.zoeken)
+        assertPolicy(brpRechten.canZoeken)
         return restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
                 listOfNotNull(
                     brpClientService.retrievePersoon(
-                        bsn, zaaktypeUuid, loggedInUserInstance.get().id,
-                        restListPersonenParameters.gemeenteVanInschrijving
+                        burgerservicenummer = bsn,
+                        zaaktypeUuid = zaaktypeUuid,
+                        userName = loggedInUserInstance.get().id,
+                        gemeenteVanInschrijving = restListPersonenParameters.gemeenteVanInschrijving
                     )
                 )
                     .map { it.toRestPersoon() }

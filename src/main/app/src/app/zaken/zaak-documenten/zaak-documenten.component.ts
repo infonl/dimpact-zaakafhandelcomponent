@@ -50,6 +50,7 @@ import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/inf
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -109,6 +110,7 @@ const GEKOPPELDE_COLUMNS = [
     DocumentViewerComponent,
     InformatieObjectIndicatiesComponent,
     EmptyPipe,
+    I18nKeyPipe,
     BestandsomvangPipe,
     DatumPipe,
     VertrouwelijkaanduidingToTranslationKeyPipe,
@@ -150,7 +152,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   private readonly documentenQuery = injectQuery(() =>
     this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaakUuid(),
-      gekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
+      shouldIncludeGekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
     }),
   );
 
@@ -399,7 +401,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
     return (
-      Boolean(enkelvoudigInformatieobject.rechten?.wijzigen) &&
+      Boolean(enkelvoudigInformatieobject.rechten?.canWijzigen) &&
       FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat) // The backend converter supports other formats (such as .txt), but only allow office formats in the UI
     );
   }

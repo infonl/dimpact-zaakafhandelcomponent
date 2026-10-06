@@ -16,5 +16,5 @@ class SolrSchemaV5 : SolrSchemaUpdate {
     override val teHerindexerenZoekObjectTypes = setOf(ZoekObjectType.ZAAK)
 
     override val schemaUpdates: List<SchemaRequest.Update> =
-        listOf(addFieldMultiValued("zaak_bagObjecten", STRING, indexed = true, stored = true))
+        listOf(addFieldMultiValued(name = "zaak_bagObjecten", type = STRING, indexed = true, stored = true))
 }

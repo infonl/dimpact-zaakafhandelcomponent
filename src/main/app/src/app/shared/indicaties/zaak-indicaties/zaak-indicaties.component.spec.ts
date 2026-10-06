@@ -71,7 +71,7 @@ describe(ZaakIndicatiesComponent.name, () => {
       });
 
       const chip = chipWithTooltip(
-        "indicatie.OPSCHORTING: Reden: fakeRedenOpschorting",
+        "indicatie.opschorting: Reden: fakeRedenOpschorting",
       );
       expect(within(chip).getByText("pause")).toBeInTheDocument();
       expect(chip).toHaveClass("mat-mdc-chip-highlighted");
@@ -89,7 +89,7 @@ describe(ZaakIndicatiesComponent.name, () => {
         }),
       });
 
-      const chip = chipWithTooltip("indicatie.HEROPEND: fakeStatusToelichting");
+      const chip = chipWithTooltip("indicatie.heropend: fakeStatusToelichting");
       expect(within(chip).getByText("restart_alt")).toBeInTheDocument();
       expect(chip).toHaveClass("mat-mdc-chip-highlighted");
     });
@@ -107,7 +107,7 @@ describe(ZaakIndicatiesComponent.name, () => {
       });
 
       const chip = chipWithTooltip(
-        "indicatie.HOOFDZAAK: Gekoppeld aan fakeDeelzaak1",
+        "indicatie.hoofdzaak: Gekoppeld aan fakeDeelzaak1",
       );
       expect(within(chip).getByText("account_tree")).toHaveAttribute(
         "outlined",
@@ -129,7 +129,7 @@ describe(ZaakIndicatiesComponent.name, () => {
       });
 
       expect(
-        chipWithTooltip("indicatie.HOOFDZAAK: Gekoppeld aan 2 zaken"),
+        chipWithTooltip("indicatie.hoofdzaak: Gekoppeld aan 2 zaken"),
       ).toBeInTheDocument();
     });
 
@@ -145,7 +145,7 @@ describe(ZaakIndicatiesComponent.name, () => {
       });
 
       const chip = chipWithTooltip(
-        "indicatie.DEELZAAK: Gekoppeld aan fakeHoofdzaak",
+        "indicatie.deelzaak: Gekoppeld aan fakeHoofdzaak",
       );
       expect(within(chip).getByText("account_tree")).toHaveAttribute(
         "outlined",
@@ -163,8 +163,8 @@ describe(ZaakIndicatiesComponent.name, () => {
         }),
       });
 
-      expect(chipWithTooltip("indicatie.HOOFDZAAK")).toBeInTheDocument();
-      expect(chipWithTooltip("indicatie.DEELZAAK")).toBeInTheDocument();
+      expect(chipWithTooltip("indicatie.hoofdzaak")).toBeInTheDocument();
+      expect(chipWithTooltip("indicatie.deelzaak")).toBeInTheDocument();
     });
 
     it("shows VERLENGD as a plain 'update' chip with the reden van verlenging", async () => {
@@ -177,7 +177,7 @@ describe(ZaakIndicatiesComponent.name, () => {
       });
 
       const chip = chipWithTooltip(
-        "indicatie.VERLENGD: Reden: fakeRedenVerlenging",
+        "indicatie.verlengd: Reden: fakeRedenVerlenging",
       );
       expect(within(chip).getByText("update")).toBeInTheDocument();
       expect(chip).not.toHaveClass("mat-mdc-chip-highlighted");
@@ -190,7 +190,7 @@ describe(ZaakIndicatiesComponent.name, () => {
       });
 
       const chip = chipWithTooltip(
-        "indicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD",
+        "indicatie.ontvangstbevestiging-niet-verstuurd",
       );
       expect(within(chip).getByText("unsubscribe")).toBeInTheDocument();
       expect(chip).not.toHaveClass("mat-mdc-chip-highlighted");
@@ -206,9 +206,9 @@ describe(ZaakIndicatiesComponent.name, () => {
 
       const options = screen.getAllByRole("option");
       expect(options).toHaveLength(2);
-      expect(options[0]).toHaveAccessibleName("indicatie.VERLENGD");
+      expect(options[0]).toHaveAccessibleName("indicatie.verlengd");
       expect(options[1]).toHaveAccessibleName(
-        "indicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD",
+        "indicatie.ontvangstbevestiging-niet-verstuurd",
       );
     });
 
@@ -223,7 +223,7 @@ describe(ZaakIndicatiesComponent.name, () => {
 
       const chip = chipWithTooltip("Reden: fakeRedenOpschorting");
       expect(
-        within(chip).getByRole("option", { name: "indicatie.OPSCHORTING" }),
+        within(chip).getByRole("option", { name: "indicatie.opschorting" }),
       ).toBeInTheDocument();
     });
 
@@ -245,7 +245,7 @@ describe(ZaakIndicatiesComponent.name, () => {
 
       const options = screen.getAllByRole("option");
       expect(options).toHaveLength(1);
-      expect(options[0]).toHaveAccessibleName("indicatie.VERLENGD");
+      expect(options[0]).toHaveAccessibleName("indicatie.verlengd");
       expect(chipWithTooltip("Reden: fakeRedenVerlenging")).toBeInTheDocument();
     });
   });
@@ -272,13 +272,13 @@ describe(ZaakIndicatiesComponent.name, () => {
       });
 
       expect(
-        chipWithTooltip("indicatie.OPSCHORTING: Reden: fakeRedenOpschorting"),
+        chipWithTooltip("indicatie.opschorting: Reden: fakeRedenOpschorting"),
       ).toHaveClass("mat-mdc-chip-highlighted");
       expect(
-        chipWithTooltip("indicatie.HEROPEND: fakeStatusToelichting"),
+        chipWithTooltip("indicatie.heropend: fakeStatusToelichting"),
       ).toHaveClass("mat-mdc-chip-highlighted");
       expect(
-        chipWithTooltip("indicatie.VERLENGD: Reden: fakeRedenVerlenging"),
+        chipWithTooltip("indicatie.verlengd: Reden: fakeRedenVerlenging"),
       ).not.toHaveClass("mat-mdc-chip-highlighted");
     });
 
@@ -290,8 +290,8 @@ describe(ZaakIndicatiesComponent.name, () => {
         }),
       });
 
-      expect(chipWithTooltip("indicatie.HOOFDZAAK")).toBeInTheDocument();
-      expect(chipWithTooltip("indicatie.DEELZAAK")).toBeInTheDocument();
+      expect(chipWithTooltip("indicatie.hoofdzaak")).toBeInTheDocument();
+      expect(chipWithTooltip("indicatie.deelzaak")).toBeInTheDocument();
     });
 
     it("replaces the indicaties when the zaakZoekObject input changes", async () => {
@@ -311,7 +311,7 @@ describe(ZaakIndicatiesComponent.name, () => {
 
       expect(screen.getAllByRole("option")).toHaveLength(1);
       expect(
-        chipWithTooltip("indicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD"),
+        chipWithTooltip("indicatie.ontvangstbevestiging-niet-verstuurd"),
       ).toBeInTheDocument();
     });
   });
@@ -325,7 +325,7 @@ describe(ZaakIndicatiesComponent.name, () => {
 
     const options = screen.getAllByRole("option");
     expect(options).toHaveLength(1);
-    expect(options[0]).toHaveAccessibleName("indicatie.VERLENGD");
+    expect(options[0]).toHaveAccessibleName("indicatie.verlengd");
   });
 
   it("shows no indicaties when neither a zaak nor a zaakZoekObject is given", async () => {

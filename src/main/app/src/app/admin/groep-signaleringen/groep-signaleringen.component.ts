@@ -22,6 +22,7 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { runMutation } from "../../shared/http/run-mutation";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -32,6 +33,7 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
   styleUrls: ["./groep-signaleringen.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     AsyncPipe,
     NgClass,
     NgFor,
@@ -58,6 +60,13 @@ export class GroepSignaleringenComponent
   protected groepen!: Observable<GeneratedType<"RestGroup">[]>;
   protected groepId: string | undefined;
   protected columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
+  protected readonly settingPerColumn: Record<
+    string,
+    "isDashboardEnabled" | "isMailEnabled"
+  > = {
+    dashboard: "isDashboardEnabled",
+    mail: "isMailEnabled",
+  };
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestSignaleringInstellingen">
   >();
@@ -94,7 +103,7 @@ export class GroepSignaleringenComponent
   ): void {
     if (!this.groepId) return;
     this.utilService.setLoading(true);
-    (row as Record<string, unknown>)[column] = checked;
+    row[this.settingPerColumn[column]] = checked;
     runMutation(this.queryClient, this.service.put(this.groepId), row)
       .pipe(finalize(() => this.utilService.setLoading(false)))
       .subscribe({ error: () => undefined });

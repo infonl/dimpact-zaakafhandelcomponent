@@ -367,11 +367,11 @@ class SuspensionZaakHelperTest : BehaviorSpec({
 
             `when`("it is extended") {
                 val updatedZaak = suspensionZaakHelper.extendZaak(
-                    zaak,
-                    today,
-                    tomorrow,
-                    description,
-                    numberOfDays.toInt()
+                    zaak = zaak,
+                    dueDate = today,
+                    fatalDate = tomorrow,
+                    extensionReason = description,
+                    numberOfDays = numberOfDays.toInt()
                 )
 
                 then("it returns an updated zaak") {

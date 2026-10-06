@@ -135,12 +135,6 @@ to this
 @field:QueryParam("fakeFieldName")
 ```
 
-**l) Use named parameters** — when calling methods with multiple parameters, use named arguments for clarity:
-```kotlin
-// Java: someMethod(x, y, z);
-// Kotlin: someMethod(x = x, y = y, z = z)
-```
-
 **m) Prefer extension functions for single-argument conversions** — a Java `static` method that takes exactly one argument and converts it to another type is a converter/mapper, and should become a Kotlin extension function on that argument's type, not a top-level function taking it as a parameter. Give it a descriptive `toXxx()`/`fromXxx()` name rather than reusing the old method name (`convert`, `map`, ...) — the receiver already tells the reader what's being converted, so the name should say what it becomes. Declare it as a top-level function, not inside an `object` — see the static-utility-class bullet under (d), including its ban on `@file:JvmName`: the receiver becomes the first parameter for Java, so a Java caller of `Foo.convert(note)` moves to `FooKt.toDto(note)`.
 
 Don't put it in a standalone `XxxConverter.kt` file/package by default. This project's layers only depend downward (`app`/REST-facing model classes depend on domain/persistence model classes, never the reverse), so when a conversion function's two types sit in different layers, put the function in the file of whichever type is in the *higher* layer — that file already legitimately imports the lower-layer type, so colocating there adds no new dependency, whereas a separate `converter` package is just indirection. Both directions of a to/from pair go in the same (higher-layer) file, since both directions need only the "higher depends on lower" relationship. See `nl.info.zac.app.admin.model.RestMailtemplate` — it has `toRestMailtemplate()` (`MailTemplate` → `RestMailtemplate`) and `toMailTemplate()` (`RestMailtemplate` → `MailTemplate`) both living next to the `RestMailtemplate` class itself, because `nl.info.zac.app.admin.model` (REST layer) already depends on `nl.info.zac.mailtemplates.model` (domain layer) — not the other way around. `nl.info.zac.app.admin.model.RestZaakbeeindigParameter` and `nl.info.zac.app.admin.model.RestReferenceTable` follow the same pattern. Only fall back to a separate converter file when neither type's layer can see the other (e.g. converting between two peer REST models in unrelated packages) — and even then, prefer adding a dependency from one to the other over a converter package if the layering allows it. For example:

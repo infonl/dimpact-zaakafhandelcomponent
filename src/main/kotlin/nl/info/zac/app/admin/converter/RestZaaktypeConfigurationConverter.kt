@@ -57,14 +57,14 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         val restZaaktypeConfiguration = RestZaaktypeConfiguration(
             id = zaaktypeCmmnConfiguration.id,
             zaaktype = zaaktype.toRestZaaktypeOverzicht(),
-            zaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(zaaktype),
+            isZaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(zaaktype),
             defaultGroepId = zaaktypeCmmnConfiguration.groepID,
             defaultBehandelaarId = zaaktypeCmmnConfiguration.defaultBehandelaarId,
             einddatumGeplandWaarschuwing = zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing,
             uiterlijkeEinddatumAfdoeningWaarschuwing = zaaktypeCmmnConfiguration
                 .uiterlijkeEinddatumAfdoeningWaarschuwing,
             creatiedatum = zaaktypeCmmnConfiguration.creatiedatum,
-            valide = zaaktypeCmmnConfiguration.isValide(),
+            isValide = zaaktypeCmmnConfiguration.isValide(),
             caseDefinition = zaaktypeCmmnConfiguration.caseDefinitionID?.let {
                 caseDefinitionConverter.convertToRestCaseDefinition(it, inclusiefRelaties)
             },
@@ -120,7 +120,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             productaanvraagtype = restZaaktypeConfiguration.productaanvraagtype?.trim()
             defaultBehandelaarId = restZaaktypeConfiguration.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaaktypeConfiguration.einddatumGeplandWaarschuwing
-            smartDocumentsEnabled = restZaaktypeConfiguration.smartDocuments.enabledForZaaktype
+            isSmartDocumentsEnabled = restZaaktypeConfiguration.smartDocuments.isEnabledForZaaktype
             creatiedatum = restZaaktypeConfiguration.creatiedatum ?: ZonedDateTime.now()
         }.also {
             it.setHumanTaskParametersCollection(
@@ -158,7 +158,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         val restZaaktypeConfiguration = RestZaaktypeConfiguration(
             id = zaaktypeBpmnConfiguration.id,
             zaaktype = zaaktype.toRestZaaktypeOverzicht(),
-            zaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(zaaktype),
+            isZaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(zaaktype),
             defaultGroepId = zaaktypeBpmnConfiguration.groepID,
             creatiedatum = zaaktypeBpmnConfiguration.creatiedatum,
             productaanvraagtype = zaaktypeBpmnConfiguration.productaanvraagtype,

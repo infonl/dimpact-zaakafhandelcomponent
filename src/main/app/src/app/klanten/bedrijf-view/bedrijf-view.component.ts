@@ -14,6 +14,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { UtilService } from "../../core/service/util.service";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
@@ -24,6 +25,7 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./bedrijf-view.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     NgFor,
     MatSidenavModule,

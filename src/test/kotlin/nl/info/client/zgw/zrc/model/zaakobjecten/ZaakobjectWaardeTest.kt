@@ -21,13 +21,21 @@ class ZaakobjectWaardeTest : BehaviorSpec({
     val fakeUuid = UUID.randomUUID()
 
     given("a ZaakobjectAdres wrapping an ObjectAdres") {
-        val objectAdres = ObjectAdres("fakeIdentificatie", "fakeWoonplaats", "fakeOpenbareRuimte", 1, null, null, null)
+        val objectAdres = ObjectAdres(
+            identificatie = "fakeIdentificatie",
+            wplWoonplaatsNaam = "fakeWoonplaats",
+            gorOpenbareRuimteNaam = "fakeOpenbareRuimte",
+            huisnummer = 1,
+            huisletter = null,
+            huisnummertoevoeging = null,
+            postcode = null
+        )
         val zaakobject = ZaakobjectAdres(
-            URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            URI("https://example.com/adres/${UUID.randomUUID()}"),
-            objectAdres,
-            fakeUrl,
-            fakeUuid
+            zaak = URI("https://example.com/zaak/${UUID.randomUUID()}"),
+            bagobjectURI = URI("https://example.com/adres/${UUID.randomUUID()}"),
+            adres = objectAdres,
+            url = fakeUrl,
+            uuid = fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -38,13 +46,21 @@ class ZaakobjectWaardeTest : BehaviorSpec({
     }
 
     given("a ZaakobjectNummeraanduiding wrapping an ObjectNummeraanduiding") {
-        val objectNummeraanduiding = ObjectNummeraanduiding("fakeIdentificatie", 1, null, null, null, null, null)
+        val objectNummeraanduiding = ObjectNummeraanduiding(
+            identificatie = "fakeIdentificatie",
+            huisnummer = 1,
+            huisletter = null,
+            huisnummertoevoeging = null,
+            postcode = null,
+            typeAdresseerbaarObject = null,
+            status = null
+        )
         val zaakobject = ZaakobjectNummeraanduiding(
-            URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            URI("https://example.com/nummeraanduiding/${UUID.randomUUID()}"),
-            objectNummeraanduiding,
-            fakeUrl,
-            fakeUuid
+            zaak = URI("https://example.com/zaak/${UUID.randomUUID()}"),
+            bagObjectUri = URI("https://example.com/nummeraanduiding/${UUID.randomUUID()}"),
+            nummeraanduiding = objectNummeraanduiding,
+            url = fakeUrl,
+            uuid = fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -56,11 +72,11 @@ class ZaakobjectWaardeTest : BehaviorSpec({
 
     given("a ZaakobjectOpenbareRuimte wrapping an ObjectOpenbareRuimte") {
         val zaakobject = ZaakobjectOpenbareRuimte(
-            URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            URI("https://example.com/openbareruimte/${UUID.randomUUID()}"),
-            createObjectOpenbareRuimte(identificatie = "fakeIdentificatie"),
-            fakeUrl,
-            fakeUuid
+            zaak = URI("https://example.com/zaak/${UUID.randomUUID()}"),
+            bagobjectURI = URI("https://example.com/openbareruimte/${UUID.randomUUID()}"),
+            objectOpenbareRuimte = createObjectOpenbareRuimte(identificatie = "fakeIdentificatie"),
+            url = fakeUrl,
+            uuid = fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -72,11 +88,11 @@ class ZaakobjectWaardeTest : BehaviorSpec({
 
     given("a ZaakobjectPand wrapping an ObjectPand") {
         val zaakobject = ZaakobjectPand(
-            URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            URI("https://example.com/pand/${UUID.randomUUID()}"),
-            createObjectPand(identificatie = "fakeIdentificatie"),
-            fakeUrl,
-            fakeUuid
+            zaak = URI("https://example.com/zaak/${UUID.randomUUID()}"),
+            bagobjectUri = URI("https://example.com/pand/${UUID.randomUUID()}"),
+            pand = createObjectPand(identificatie = "fakeIdentificatie"),
+            url = fakeUrl,
+            uuid = fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -89,10 +105,10 @@ class ZaakobjectWaardeTest : BehaviorSpec({
     given("a ZaakobjectProductaanvraag") {
         val productaanvraagURI = URI("https://example.com/productaanvraag/${UUID.randomUUID()}")
         val zaakobject = ZaakobjectProductaanvraag(
-            URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            productaanvraagURI,
-            fakeUrl,
-            fakeUuid
+            zaak = URI("https://example.com/zaak/${UUID.randomUUID()}"),
+            productaanvraag = productaanvraagURI,
+            url = fakeUrl,
+            uuid = fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -105,11 +121,11 @@ class ZaakobjectWaardeTest : BehaviorSpec({
     given("a ZaakobjectWoonplaats wrapping an ObjectWoonplaats") {
         val objectWoonplaats = ObjectWoonplaats("fakeIdentificatie", "fakeWoonplaatsNaam")
         val zaakobject = ZaakobjectWoonplaats(
-            URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            URI("https://example.com/woonplaats/${UUID.randomUUID()}"),
-            objectWoonplaats,
-            fakeUrl,
-            fakeUuid
+            zaak = URI("https://example.com/zaak/${UUID.randomUUID()}"),
+            bagobjectUri = URI("https://example.com/woonplaats/${UUID.randomUUID()}"),
+            woonplaats = objectWoonplaats,
+            url = fakeUrl,
+            uuid = fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -121,10 +137,10 @@ class ZaakobjectWaardeTest : BehaviorSpec({
 
     given("a ZaakobjectProductaanvraag without a productaanvraag URI") {
         val zaakobject = ZaakobjectProductaanvraag(
-            URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            null,
-            fakeUrl,
-            fakeUuid
+            zaak = URI("https://example.com/zaak/${UUID.randomUUID()}"),
+            productaanvraag = null,
+            url = fakeUrl,
+            uuid = fakeUuid
         )
 
         `when`("getWaarde is called") {

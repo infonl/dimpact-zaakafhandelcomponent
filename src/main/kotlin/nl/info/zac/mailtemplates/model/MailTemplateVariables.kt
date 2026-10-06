@@ -4,7 +4,7 @@
  */
 package nl.info.zac.mailtemplates.model
 
-enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
+enum class MailTemplateVariables(val shouldResolveVariableAsEmptyString: Boolean) {
     DOCUMENT_TITEL(false),
     DOCUMENT_LINK(false),
     DOCUMENT_URL(false),

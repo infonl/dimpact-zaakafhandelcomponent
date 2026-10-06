@@ -236,10 +236,10 @@ class BrpConfigurationTest : BehaviorSpec({
             val brpConfiguration = createBrpConfiguration(doelbindingPerZaaktypeEnabled = false)
 
             `when`("isDoelbindingPerZaaktypeEnabled is called") {
-                val result = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
+                val isDoelbindingPerZaaktypeEnabled = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
 
                 then("false is returned") {
-                    result.shouldBeFalse()
+                    isDoelbindingPerZaaktypeEnabled.shouldBeFalse()
                 }
             }
         }
@@ -248,10 +248,10 @@ class BrpConfigurationTest : BehaviorSpec({
             val brpConfiguration = createBrpConfiguration(doelbindingPerZaaktypeEnabled = true)
 
             `when`("isDoelbindingPerZaaktypeEnabled is called") {
-                val result = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
+                val isDoelbindingPerZaaktypeEnabled = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
 
                 then("true is returned") {
-                    result.shouldBeTrue()
+                    isDoelbindingPerZaaktypeEnabled.shouldBeTrue()
                 }
             }
         }
@@ -265,10 +265,10 @@ class BrpConfigurationTest : BehaviorSpec({
             )
 
             `when`("isDoelbindingPerZaaktypeEnabled is called") {
-                val result = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
+                val isDoelbindingPerZaaktypeEnabled = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
 
                 then("false is returned because doelbinding header is disabled") {
-                    result.shouldBeFalse()
+                    isDoelbindingPerZaaktypeEnabled.shouldBeFalse()
                 }
             }
         }
@@ -280,10 +280,10 @@ class BrpConfigurationTest : BehaviorSpec({
             val brpConfiguration = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = false)
 
             `when`("isVerwerkingRegisterExtendedWithZaaktype is called") {
-                val result = brpConfiguration.isVerwerkingRegisterExtendedWithZaaktype()
+                val isVerwerkingRegisterExtendedWithZaaktype = brpConfiguration.isVerwerkingRegisterExtendedWithZaaktype()
 
                 then("false is returned") {
-                    result.shouldBeFalse()
+                    isVerwerkingRegisterExtendedWithZaaktype.shouldBeFalse()
                 }
             }
         }
@@ -292,10 +292,10 @@ class BrpConfigurationTest : BehaviorSpec({
             val brpConfiguration = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = true)
 
             `when`("isVerwerkingRegisterExtendedWithZaaktype is called") {
-                val result = brpConfiguration.isVerwerkingRegisterExtendedWithZaaktype()
+                val isVerwerkingRegisterExtendedWithZaaktype = brpConfiguration.isVerwerkingRegisterExtendedWithZaaktype()
 
                 then("true is returned") {
-                    result.shouldBeTrue()
+                    isVerwerkingRegisterExtendedWithZaaktype.shouldBeTrue()
                 }
             }
         }

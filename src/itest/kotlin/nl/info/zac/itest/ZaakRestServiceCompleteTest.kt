@@ -82,7 +82,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                     "zaakUuid":"$zaakUUID",
                     "planItemInstanceId":"$intakeId",
                     "actie":"$ACTIE_INTAKE_AFRONDEN",
-                    "zaakOntvankelijk":true
+                    "isZaakOntvankelijk":true
                 }
             """.trimIndent(),
             testUser = RECORDMANAGER_1
@@ -272,14 +272,14 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                         "actie":"$ACTIE_ZAAK_AFHANDELEN",
                         "resultaattypeUuid": "$resultaatTypeUuid",
                         "resultaatToelichting":"afronden",
-                        "zaakOntvankelijk": false,
+                        "isZaakOntvankelijk": false,
                         "restMailGegevens": {
                             "verzender": "$senderMail",
                             "ontvanger": "$receiverMail",
                             "replyTo": "replyTo@example.com",
                             "onderwerp": "closed zaak subject",
                             "body": "$mailBody",
-                            "createDocumentFromMail": false
+                            "shouldCreateDocumentFromMail": false
                         }
                     }
                 """.trimIndent(),

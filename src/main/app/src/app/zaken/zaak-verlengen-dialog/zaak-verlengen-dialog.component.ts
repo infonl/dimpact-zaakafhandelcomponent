@@ -183,7 +183,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       einddatumGepland: formValues.einddatumGepland?.toISOString(),
       uiterlijkeEinddatumAfdoening:
         formValues.uiterlijkeEinddatumAfdoening?.toISOString(),
-      takenVerlengen: formValues.takenVerlengen ?? false,
+      shouldTakenVerlengen: formValues.takenVerlengen ?? false,
       redenVerlenging: formValues.redenVerlenging,
       duurDagen: formValues.duurDagen,
       verlengingVastleggen: formValues.verlengingVastleggen ?? false,

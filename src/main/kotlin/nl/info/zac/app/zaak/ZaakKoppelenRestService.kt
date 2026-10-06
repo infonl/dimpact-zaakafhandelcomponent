@@ -213,7 +213,7 @@ class ZaakKoppelenRestService @Inject constructor(
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .asSequence()
             .filter {
-                policyService.readOverigeRechten(it.omschrijving).zoeken
+                policyService.readOverigeRechten(it.omschrijving).canZoeken
             }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
@@ -231,8 +231,8 @@ class ZaakKoppelenRestService @Inject constructor(
                 isHoofdzaak = this.isIndicatie(HOOFDZAAK),
                 isDeelzaak =  this.isIndicatie(DEELZAAK),
                 zaaktypeUUID = UUID.fromString(this.zaaktypeUuid),
-                lezen = rechten.lezen,
-                koppelen = rechten.koppelen
+                canLezen = rechten.canLezen,
+                canKoppelen = rechten.canKoppelen
             )
         }
 
@@ -276,7 +276,12 @@ class ZaakKoppelenRestService @Inject constructor(
                 val zaakZoekObject = it as ZaakZoekObject
                 zaakZoekObject.toRestZaakKoppelenZoekObject(
                     zaak.alreadyGerelateerdReason(UUID.fromString(zaakZoekObject.getObjectId()))
-                        ?: notLinkableReason(koppelData, zaaktype, zaakZoekObject, relationType),
+                        ?: notLinkableReason(
+                            sourceZaak = koppelData,
+                            sourceZaaktype = zaaktype,
+                            targetZaak = zaakZoekObject,
+                            relationType = relationType
+                        ),
                 )
             },
             searchResults.count

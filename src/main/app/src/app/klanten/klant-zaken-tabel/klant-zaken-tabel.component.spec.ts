@@ -113,7 +113,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
   async function chooseRoltype(roltype: string) {
     await user.click(
-      screen.getByRole("combobox", { name: "betrokkeneRoltype.-kies-" }),
+      screen.getByRole("combobox", { name: "betrokkene-roltype.kies" }),
     );
     await user.click(screen.getByRole("option", { name: roltype }));
     await sleep();

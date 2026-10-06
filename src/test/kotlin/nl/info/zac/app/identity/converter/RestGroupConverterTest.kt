@@ -31,7 +31,7 @@ class RestGroupConverterTest : BehaviorSpec({
                 then("it returns a RestGroup with the correct id and naam") {
                     result.id shouldBe group.name
                     result.naam shouldBe group.description
-                    result.active shouldBe group.active
+                    result.isActive shouldBe group.isActive
                 }
             }
         }

@@ -37,7 +37,7 @@ const makeZaak = (
       uuid: "fake-zaaktype-uuid",
     }),
     rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
-      verwijderenBetrokkene: true,
+      canVerwijderenBetrokkene: true,
     }),
     ...fields,
   });
