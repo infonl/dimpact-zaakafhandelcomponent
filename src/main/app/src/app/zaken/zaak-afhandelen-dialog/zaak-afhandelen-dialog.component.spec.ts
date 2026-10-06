@@ -86,7 +86,7 @@ const resultaattypes = [
 const afzenders = [
   fromPartial<GeneratedType<"RestZaakAfzender">>({
     mail: "fakeAfzender@example.com",
-    suffix: "fakeAfzenderSuffix",
+    suffix: "gegevens.mail.afzender.GEMEENTE",
     replyTo: "fakeReplyTo@example.com",
   }),
 ];
@@ -260,8 +260,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await openVerzenderOptions();
 
       expect(
-        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
-      ).toHaveTextContent("fakeAfzender@example.com fakeAfzenderSuffix");
+        screen.getByRole("option", {
+          name: /gegevens\.mail\.afzender\.gemeente/,
+        }),
+      ).toHaveTextContent(
+        "fakeAfzender@example.com gegevens.mail.afzender.gemeente",
+      );
     });
 
     it("shows only the mail address of the afzender once it is selected", async () => {
@@ -271,11 +275,13 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await toggleSendMail();
       await openVerzenderOptions();
       await user.click(
-        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
+        screen.getByRole("option", {
+          name: /gegevens\.mail\.afzender\.gemeente/,
+        }),
       );
 
       expect(verzenderSelect()).toHaveTextContent("fakeAfzender@example.com");
-      expect(verzenderSelect()).not.toHaveTextContent("fakeAfzenderSuffix");
+      expect(verzenderSelect()).not.toHaveTextContent("gegevens.mail.afzender");
     });
   });
 
@@ -375,7 +381,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await toggleSendMail();
       await openVerzenderOptions();
       await user.click(
-        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
+        screen.getByRole("option", {
+          name: /gegevens\.mail\.afzender\.gemeente/,
+        }),
       );
       await user.type(
         screen.getByRole("textbox", { name: /Ontvanger/ }),
