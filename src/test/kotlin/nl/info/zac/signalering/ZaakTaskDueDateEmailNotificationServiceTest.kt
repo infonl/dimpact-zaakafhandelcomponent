@@ -142,6 +142,28 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         }
     }
 
+    given("A zaaktype without a zaaktype configuration and no open tasks") {
+        val defaultCatalogusURI = URI("https://example.com/fakeCatalogusURI")
+        val zaakTypeUUID = UUID.randomUUID()
+        val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaakTypeUUID"))
+        every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogusURI
+        every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns listOf(zaakType)
+        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns null
+        every { flowableTaskService.listOpenTasksDueNow() } returns emptyList()
+        every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
+
+        `when`("the send due date email notifications method is called") {
+            zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
+
+            then("no zaken are searched for and no signalering is sent") {
+                verify(exactly = 0) {
+                    searchService.search(any())
+                    signaleringService.sendSignalering(any())
+                }
+            }
+        }
+    }
+
     given("An open task which is due now and for which a signalering was not yet sent") {
         val defaultCatalogusURI = URI("https://example.com/dummeCatalogusURI")
         val zaakTypeUUID1 = UUID.randomUUID()

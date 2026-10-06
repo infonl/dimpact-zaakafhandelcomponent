@@ -18,6 +18,7 @@ import net.atos.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.converter.toRestMailtemplateKoppeling
@@ -109,6 +110,30 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
 
                 then("each koppeling is returned with the configuration of its zaaktype") {
                     result.single().id shouldBe 7L
+                    result.single().zaakafhandelParameters shouldBe restZaaktypeConfiguration
+                }
+            }
+        }
+
+        given("Policy permits and a koppeling of a BPMN zaaktype configuration exists") {
+            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
+            val fakeKoppeling = createMailtemplateKoppelingen(
+                id = 8L,
+                zaaktypeConfiguration = zaaktypeBpmnConfiguration,
+                mailTemplate = createMailTemplate()
+            )
+            val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
+            every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
+            every { mailTemplateKoppelingenService.listMailtemplateKoppelingen() } returns listOf(fakeKoppeling)
+            every {
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
+            } returns restZaaktypeConfiguration
+
+            `when`("listMailtemplateKoppelingen is called") {
+                val result = service.listMailtemplateKoppelingen()
+
+                then("the koppeling is returned with the converted BPMN configuration of its zaaktype") {
+                    result.single().id shouldBe 8L
                     result.single().zaakafhandelParameters shouldBe restZaaktypeConfiguration
                 }
             }

@@ -1138,6 +1138,51 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        given(
+            """a zaaktype with only an einddatum-gepland warning window of 2 days, a zaak of that zaaktype 1 day
+                from its einddatum gepland, and a zaak of that zaaktype 5 days from it"""
+        ) {
+            val zaaktypeUuid = UUID.randomUUID()
+            val zaakNearItsEinddatumGepland = createZaak(
+                zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
+                einddatumGepland = LocalDate.now().plusDays(1),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+            )
+            val zaakFarFromItsEinddatumGepland = createZaak(
+                zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
+                einddatumGepland = LocalDate.now().plusDays(5),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+            )
+            val loggedInUser = createLoggedInUser()
+            val restZaakOverzicht = mockk<RestZaakOverzicht>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaaktypeConfigurationService.listDeadlineWarningWindows() } returns listOf(
+                ZaaktypeDeadlineWarningWindows(
+                    zaaktypeUuid = zaaktypeUuid,
+                    einddatumGeplandWaarschuwing = 2,
+                    uiterlijkeEinddatumAfdoeningWaarschuwing = null
+                )
+            )
+            every { zrcClientService.listZaken(any()) } returns Results(
+                countValue = 2,
+                resultsValue = listOf(zaakNearItsEinddatumGepland, zaakFarFromItsEinddatumGepland)
+            )
+            every {
+                restZaakOverzichtConverter.convert(zaakNearItsEinddatumGepland, loggedInUser)
+            } returns restZaakOverzicht
+
+            `when`("the zaak warnings are listed") {
+                val zaakWarnings = zaakRestService.listZaakWarnings()
+
+                then(
+                    """only the zaak within the einddatum-gepland warning window is listed, regardless of its
+                        uiterlijke einddatum afdoening"""
+                ) {
+                    zaakWarnings shouldBe listOf(restZaakOverzicht)
+                }
+            }
+        }
     }
 
     context("Listing afzenders for zaak and reading the default afzender for a zaak") {
@@ -1298,6 +1343,34 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 then("no default afzender should be returned") {
                     returnedDefaultRestZaakAfzender shouldBe null
+                }
+            }
+        }
+
+        given("a zaak whose zaaktype has no zaaktype configuration") {
+            val zaakUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val zaak = createZaak(
+                uuid = zaakUUID,
+                zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+            )
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser(email = "fake-medewerker@example.com")
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
+            every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns null
+            every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the zaakafzenders are requested") {
+                val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)
+
+                then("only the two special mail afzenders are returned") {
+                    returnedRestZaakAfzenders.map { it.mail } shouldBe listOf(
+                        "fake-gemeente@example.com",
+                        "fake-medewerker@example.com"
+                    )
+                    returnedRestZaakAfzenders.all { it.isSpeciaal } shouldBe true
                 }
             }
         }

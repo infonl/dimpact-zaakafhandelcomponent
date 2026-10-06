@@ -82,6 +82,23 @@ class MailtemplateRestServiceTest : BehaviorSpec({
             }
         }
 
+        given("a zaak whose zaaktype has no zaaktype configuration") {
+            val defaultMailTemplate = createMailTemplate(mail = Mail.ZAAK_ALGEMEEN).apply {
+                mailTemplateNaam = "fakeDefaultMailTemplate"
+            }
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) } returns null
+            every { mailTemplateService.findDefaultMailtemplate(Mail.ZAAK_ALGEMEEN) } returns defaultMailTemplate
+
+            `when`("the mail template for that mail is requested") {
+                val restMailtemplate = mailtemplateRestService.findMailtemplate(Mail.ZAAK_ALGEMEEN, zaak.uuid)
+
+                then("the default mail template of that mail is returned") {
+                    restMailtemplate?.mailTemplateNaam shouldBe "fakeDefaultMailTemplate"
+                }
+            }
+        }
+
         given("a zaak without a linked mail template and a mail without a default mail template") {
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration().apply {
                 setMailtemplateKoppelingen(emptySet())

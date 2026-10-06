@@ -329,6 +329,32 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
 
+    given("A person exists for a given BSN and the zaaktype has no zaaktype configuration") {
+        val bsn = "123456789"
+        val person = createPersoon(bsn = bsn)
+        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) } returns null
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
+            brpProtocolleringContext = localContext
+        )
+
+        `when`("retrieve persoon is called") {
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
+
+            then("the person is returned with the default doelbinding and verwerking in the context headers") {
+                personResponse shouldBe person
+                localContext.headers["x-doelbinding"] shouldBe doelbindingRaadpleegMetDefault
+                localContext.headers["x-verwerking"] shouldBe verwerkingregisterDefault
+            }
+        }
+    }
+
     given("A logged-in user is provided") {
         val bsn = "123456789"
         val person = createPersoon(bsn = bsn)
