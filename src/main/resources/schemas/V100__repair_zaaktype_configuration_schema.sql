@@ -143,7 +143,8 @@ BEGIN
 END $$;
 
 -- Duplicate ids block the new BPMN primary key, and duplicate one-to-one children block the new unique
--- constraints. The physically last BPMN row and the child row with the highest id stay.
+-- constraints. The physically last BPMN row and the child row with the highest id stay. The id and
+-- zaaktype_configuration_id columns of the one-to-one child tables are NOT NULL, so every group is one configuration.
 DO $$
 BEGIN
     PERFORM pg_temp.quarantine(
