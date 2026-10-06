@@ -184,7 +184,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("REST human task data with a selected medewerker who gets a zaakspecifiek geautoriseerde medewerker rol") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 medewerker = createRestUser(id = "fakeTaakbehandelaarId"),
                 taakdata = mapOf("fakeKey" to "fakeValue")
@@ -243,7 +243,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("REST human task data with a selected medewerker on a zaak whose zaaktype lacks the zaakspecifiek geautoriseerde medewerker roltype") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 medewerker = createRestUser(id = "fakeTaakbehandelaarId")
             )
