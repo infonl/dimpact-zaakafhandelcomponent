@@ -325,7 +325,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
             then("the configured address is combined with the two special mail options, sorted") {
                 replyTos.map { it.mail } shouldBe listOf("GEMEENTE", "MEDEWERKER", "fakeReplyToAddress")
-                replyTos.map { it.speciaal } shouldBe listOf(true, true, false)
+                replyTos.map { it.isSpeciaal } shouldBe listOf(true, true, false)
             }
         }
     }
