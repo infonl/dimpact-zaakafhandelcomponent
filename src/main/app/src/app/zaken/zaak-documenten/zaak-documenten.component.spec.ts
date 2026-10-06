@@ -3,18 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, RenderResult, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
@@ -106,13 +100,7 @@ describe(ZaakDocumentenComponent.name, () => {
       inputs: { zaak },
       on: { documentMoveToCase },
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [provideZonelessChangeDetection()],
     });
 
     fixture = rendered.fixture;

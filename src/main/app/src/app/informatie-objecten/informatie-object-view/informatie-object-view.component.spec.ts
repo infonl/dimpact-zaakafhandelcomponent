@@ -6,25 +6,20 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, provideRouter } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { sleep } from "../../../../setupJest";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ConfirmDialogData } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
@@ -101,10 +96,6 @@ describe(InformatieObjectViewComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-        provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
