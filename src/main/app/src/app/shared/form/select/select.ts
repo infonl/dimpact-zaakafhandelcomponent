@@ -14,6 +14,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { TranslateModule } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
+import { toI18nKey } from "../../utils/i18n-key";
 import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
@@ -54,5 +55,10 @@ export class ZacSelect<
     if (suffix && suffix in option) return option[suffix];
 
     return null;
+  };
+
+  protected suffixTranslationKey = (option: Option) => {
+    const suffix = this.displaySuffix(option);
+    return suffix ? toI18nKey(String(suffix)) : null;
   };
 }

@@ -36,8 +36,8 @@
     </mat-option>
     <mat-option *ngFor="let option of availableOptions()" [value]="option">
       {{ displayWith(option) | translate }}
-      <div *ngIf="displaySuffix(option)">
-        {{ displaySuffix(option) | translate }}
+      <div *ngIf="suffixTranslationKey(option)">
+        {{ suffixTranslationKey(option) | translate }}
       </div>
     </mat-option>
   </mat-select>
