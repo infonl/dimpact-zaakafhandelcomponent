@@ -24,7 +24,7 @@ class BevraagAdressenParameters {
     var huisletter: String? = null
 
     @field:QueryParam("exacteMatch")
-    var exacteMatch: Boolean? = null
+    var isExacteMatch: Boolean? = null
 
     @field:QueryParam("adresseerbaarObjectIdentificatie")
     var adresseerbaarObjectIdentificatie: String? = null
@@ -51,5 +51,5 @@ class BevraagAdressenParameters {
     var q: String? = null
 
     @field:QueryParam("inclusiefEindStatus")
-    var inclusiefEindStatus: Boolean? = null
+    var isInclusiefEindStatus: Boolean? = null
 }

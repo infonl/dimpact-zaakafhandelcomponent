@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { AsyncPipe, NgClass, NgFor, NgIf } from "@angular/common";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, inject, OnInit, ViewChild } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -16,10 +16,13 @@ import {
 } from "@angular/material/sidenav";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
-import { Observable, finalize } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { finalize, Observable } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { runMutation } from "../../shared/http/run-mutation";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -30,6 +33,7 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
   styleUrls: ["./groep-signaleringen.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     AsyncPipe,
     NgClass,
     NgFor,
@@ -56,9 +60,18 @@ export class GroepSignaleringenComponent
   protected groepen!: Observable<GeneratedType<"RestGroup">[]>;
   protected groepId: string | undefined;
   protected columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
+  protected readonly settingPerColumn: Record<
+    string,
+    "isDashboardEnabled" | "isMailEnabled"
+  > = {
+    dashboard: "isDashboardEnabled",
+    mail: "isMailEnabled",
+  };
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestSignaleringInstellingen">
   >();
+
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     public utilService: UtilService,
@@ -90,10 +103,9 @@ export class GroepSignaleringenComponent
   ): void {
     if (!this.groepId) return;
     this.utilService.setLoading(true);
-    (row as Record<string, unknown>)[column] = checked;
-    this.service
-      .put(this.groepId, row)
+    row[this.settingPerColumn[column]] = checked;
+    runMutation(this.queryClient, this.service.put(this.groepId), row)
       .pipe(finalize(() => this.utilService.setLoading(false)))
-      .subscribe();
+      .subscribe({ error: () => undefined });
   }
 }

@@ -4,18 +4,17 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { screen, within } from "@testing-library/angular";
+import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 import { BagZoekComponent } from "./bag-zoek.component";
@@ -30,283 +29,306 @@ const makeBagObject = (
   });
 
 describe(BagZoekComponent.name, () => {
-  let component: BagZoekComponent;
-  let fixture: ComponentFixture<BagZoekComponent>;
-  let bagService: BAGService;
+  const user = userEvent.setup();
+  const listAdressen = jest.fn();
+  let detectChanges: () => void;
   let sideNav: MatDrawer;
 
-  const user = userEvent.setup();
+  function returnFromSearch(...bagObjecten: GeneratedType<"RESTBAGObject">[]) {
+    listAdressen.mockReturnValue(
+      createQueryOptions({ resultaten: bagObjecten }),
+    );
+  }
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        BagZoekComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+  async function setup({
+    gekoppeldeBagObjecten,
+    onBagObject,
+  }: {
+    gekoppeldeBagObjecten?:
+      | GeneratedType<"RESTBAGObject">[]
+      | FormControl<GeneratedType<"RESTBAGObject">[] | null>;
+    onBagObject?: (bagObject: GeneratedType<"RESTBAGObject">) => void;
+  } = {}) {
+    sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
+    const rendered = await render(BagZoekComponent, {
+      inputs: {
+        sideNav,
+        ...(gekoppeldeBagObjecten ? { gekoppeldeBagObjecten } : {}),
+      },
+      on: onBagObject ? { bagObject: onBagObject } : {},
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideRouter([]),
-        provideQueryClient(testQueryClient),
+        {
+          provide: BAGService,
+          useValue: fromPartial<BAGService>({ listAdressen }),
+        },
       ],
-    }).compileComponents();
+    });
 
-    bagService = TestBed.inject(BAGService);
-    sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
-    fixture = TestBed.createComponent(BagZoekComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput("sideNav", sideNav);
-    fixture.detectChanges();
-  });
-
-  function mockSearchResults(...resultaten: GeneratedType<"RESTBAGObject">[]) {
-    jest
-      .spyOn(bagService, "listAdressen")
-      .mockReturnValue(
-        of({ resultaten }) as unknown as ReturnType<
-          typeof bagService.listAdressen
-        >,
-      );
+    detectChanges = rendered.detectChanges;
   }
 
-  async function search(...resultaten: GeneratedType<"RESTBAGObject">[]) {
-    mockSearchResults(...resultaten);
-    await user.type(
-      screen.getByRole("textbox", { name: "bagObjecten" }),
-      "fakeTrefwoord",
-    );
+  async function search(trefwoorden: string) {
+    if (trefwoorden) {
+      await user.type(screen.getByLabelText("bag-objecten"), trefwoorden);
+    }
     await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
-    fixture.detectChanges();
+    await sleep();
   }
 
-  function listenForSelectedBagObjects() {
-    const selected: GeneratedType<"RESTBAGObject">[] = [];
-    component.bagObject.subscribe((bagObject) => selected.push(bagObject));
-    fixture.detectChanges();
-    return selected;
+  function rowOf(identificatie: string) {
+    return screen.findByRole("row", { name: new RegExp(identificatie) });
   }
 
-  const koppelButton = (identificatie: string) =>
-    within(
-      screen.getByRole("row", { name: new RegExp(identificatie) }),
-    ).getByRole("button", { name: "actie.koppelen" });
+  it("lists the bag objects found for the entered keywords", async () => {
+    returnFromSearch(makeBagObject());
+    await setup();
 
-  describe("zoek", () => {
-    it("should call bagService with trefwoorden and populate bagObjecten", () => {
+    await search("Teststraat 1");
+
+    expect(listAdressen).toHaveBeenCalledWith({ trefwoorden: "Teststraat 1" });
+    expect(await rowOf("0363010000012345")).toBeVisible();
+  });
+
+  it("does not search when no keywords are entered", async () => {
+    await setup();
+
+    await search("");
+
+    expect(listAdressen).not.toHaveBeenCalled();
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+  });
+
+  it("clears the keywords and the results", async () => {
+    returnFromSearch(makeBagObject());
+    await setup();
+    await search("Teststraat");
+
+    await user.click(screen.getByRole("button", { name: "actie.wissen" }));
+    detectChanges();
+
+    expect(screen.getByLabelText("bag-objecten")).toHaveValue("");
+    expect(screen.queryByRole("row", { name: /0363010000012345/ })).toBeNull();
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+  });
+
+  describe("linking a bag object", () => {
+    it("emits the bag object of the row it was clicked on", async () => {
       const bagObject = makeBagObject();
-      mockSearchResults(bagObject);
+      const onBagObject = jest.fn();
+      returnFromSearch(bagObject);
+      await setup({ onBagObject });
+      await search("Teststraat 1");
 
-      component["trefwoorden"].setValue("Teststraat 1");
-      component["zoek"]();
-
-      expect(bagService.listAdressen).toHaveBeenCalledWith({
-        trefwoorden: "Teststraat 1",
-      });
-      expect(component["bagObjecten"].data).toEqual([bagObject]);
-    });
-
-    it("should not call bagService when trefwoorden is empty", () => {
-      jest.spyOn(bagService, "listAdressen");
-      component["trefwoorden"].setValue("");
-      component["zoek"]();
-      expect(bagService.listAdressen).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("wissen", () => {
-    it("should reset trefwoorden and clear bagObjecten", () => {
-      component["trefwoorden"].setValue("Teststraat");
-      component["bagObjecten"].data = [makeBagObject()];
-
-      component["wissen"]();
-
-      expect(component["trefwoorden"].value).toBeNull();
-      expect(component["bagObjecten"].data).toHaveLength(0);
-    });
-  });
-
-  describe("selectBagObject", () => {
-    it("adds the selected object to the gekoppelde array it was given and emits it", () => {
-      const gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
-      fixture.componentRef.setInput(
-        "gekoppeldeBagObjecten",
-        gekoppeldeBagObjecten,
+      await user.click(
+        within(await rowOf("0363010000012345")).getByRole("button", {
+          name: "actie.koppelen",
+        }),
       );
-      const bagObject = makeBagObject();
-      const selected = listenForSelectedBagObjects();
+      detectChanges();
 
-      component["selectBagObject"](bagObject);
-
-      expect(gekoppeldeBagObjecten).toEqual([bagObject]);
-      expect(selected).toEqual([bagObject]);
-    });
-
-    it("should update FormControl value and emit when gekoppeldeBagObjecten is a FormControl", () => {
-      const existing = makeBagObject({ identificatie: "existing" });
-      const newObject = makeBagObject({ identificatie: "new" });
-      const control = new FormControl<GeneratedType<"RESTBAGObject">[] | null>([
-        existing,
-      ]);
-      fixture.componentRef.setInput("gekoppeldeBagObjecten", control);
-      const selected = listenForSelectedBagObjects();
-
-      component["selectBagObject"](newObject);
-
-      expect(control.value).toEqual([existing, newObject]);
-      expect(selected).toEqual([newObject]);
-    });
-  });
-
-  describe("reedsGekoppeld", () => {
-    it("should return true when identificatie and bagObjectType both match", () => {
-      fixture.componentRef.setInput("gekoppeldeBagObjecten", [
-        makeBagObject({ identificatie: "123", bagObjectType: "ADRES" }),
-      ]);
+      expect(onBagObject).toHaveBeenCalledWith(bagObject);
       expect(
-        component["reedsGekoppeld"](
+        within(await rowOf("0363010000012345")).getByRole("button", {
+          name: "actie.koppelen",
+        }),
+      ).toBeDisabled();
+    });
+
+    it("adds the bag object to the linked form control", async () => {
+      const alreadyLinked = makeBagObject({ identificatie: "existing" });
+      const bagObject = makeBagObject({ identificatie: "new" });
+      const gekoppeldeBagObjecten = new FormControl<
+        GeneratedType<"RESTBAGObject">[] | null
+      >([alreadyLinked]);
+      returnFromSearch(bagObject);
+      await setup({ gekoppeldeBagObjecten, onBagObject: jest.fn() });
+      await search("Teststraat 1");
+
+      await user.click(
+        within(await rowOf("new")).getByRole("button", {
+          name: "actie.koppelen",
+        }),
+      );
+
+      expect(gekoppeldeBagObjecten.value).toEqual([alreadyLinked, bagObject]);
+    });
+
+    it("cannot link a bag object that is already linked", async () => {
+      returnFromSearch(makeBagObject({ identificatie: "123" }));
+      await setup({
+        gekoppeldeBagObjecten: [
           makeBagObject({ identificatie: "123", bagObjectType: "ADRES" }),
-        ),
-      ).toBe(true);
+        ],
+        onBagObject: jest.fn(),
+      });
+
+      await search("Teststraat 1");
+
+      expect(
+        within(await rowOf("123")).getByRole("button", {
+          name: "actie.koppelen",
+        }),
+      ).toBeDisabled();
     });
 
-    it("should return false when identificatie differs", () => {
-      fixture.componentRef.setInput("gekoppeldeBagObjecten", [
-        makeBagObject({ identificatie: "123" }),
-      ]);
+    it("can link a bag object with another identificatie", async () => {
+      returnFromSearch(makeBagObject({ identificatie: "456" }));
+      await setup({
+        gekoppeldeBagObjecten: [makeBagObject({ identificatie: "123" })],
+        onBagObject: jest.fn(),
+      });
+
+      await search("Teststraat 1");
+
       expect(
-        component["reedsGekoppeld"](makeBagObject({ identificatie: "456" })),
-      ).toBe(false);
+        within(await rowOf("456")).getByRole("button", {
+          name: "actie.koppelen",
+        }),
+      ).toBeEnabled();
     });
 
-    it("should return false when bagObjectType differs", () => {
-      fixture.componentRef.setInput("gekoppeldeBagObjecten", [
-        makeBagObject({ identificatie: "123", bagObjectType: "ADRES" }),
-      ]);
+    it("can link a bag object with another bag object type", async () => {
+      returnFromSearch(
+        makeBagObject({ identificatie: "123", bagObjectType: "PAND" }),
+      );
+      await setup({
+        gekoppeldeBagObjecten: [
+          makeBagObject({ identificatie: "123", bagObjectType: "ADRES" }),
+        ],
+        onBagObject: jest.fn(),
+      });
+
+      await search("Teststraat 1");
+
       expect(
-        component["reedsGekoppeld"](
-          makeBagObject({ identificatie: "123", bagObjectType: "PAND" }),
-        ),
-      ).toBe(false);
+        within(await rowOf("123")).getByRole("button", {
+          name: "actie.koppelen",
+        }),
+      ).toBeEnabled();
     });
   });
 
-  describe("expandable", () => {
-    it("should return false for non-ADRES bag objects", () => {
+  it("adds the bag object to the linked array it was given", async () => {
+    const bagObject = makeBagObject();
+    const gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
+    returnFromSearch(bagObject);
+    await setup({ gekoppeldeBagObjecten, onBagObject: jest.fn() });
+    await search("Teststraat 1");
+
+    await user.click(
+      within(await rowOf("0363010000012345")).getByRole("button", {
+        name: "actie.koppelen",
+      }),
+    );
+
+    expect(gekoppeldeBagObjecten).toEqual([bagObject]);
+  });
+
+  it("closes the side nav and opens the page of the bag object", async () => {
+    returnFromSearch(makeBagObject());
+    await setup();
+    const navigate = jest
+      .spyOn(TestBed.inject(Router), "navigate")
+      .mockResolvedValue(true);
+    await search("Teststraat 1");
+
+    await user.click(
+      within(await rowOf("0363010000012345")).getByRole("button", {
+        name: "actie.bag-object.bekijken",
+      }),
+    );
+
+    expect(sideNav.close).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith([
+      "/bag-objecten",
+      "adres",
+      "0363010000012345",
+    ]);
+  });
+
+  it("closes the side nav from the header", async () => {
+    await setup({ onBagObject: jest.fn() });
+
+    const [header] = screen.getAllByRole("heading", {
+      name: "actie.bag-object.koppelen",
+    });
+    await user.click(within(header).getByRole("button"));
+
+    expect(sideNav.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes the side nav when cancelled", async () => {
+    await setup();
+
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+    expect(sideNav.close).toHaveBeenCalledTimes(1);
+  });
+
+  describe("related objects of a row", () => {
+    it("cannot be shown for a bag object that is not an adres", async () => {
+      returnFromSearch(makeBagObject({ bagObjectType: "PAND" }));
+      await setup();
+
+      await search("Teststraat 1");
+
       expect(
-        component["expandable"](makeBagObject({ bagObjectType: "PAND" })),
-      ).toBeFalsy();
+        within(await rowOf("0363010000012345")).queryByRole("button", {
+          name: "actie.gerelateerde.gegevens.tonen",
+        }),
+      ).toBeNull();
     });
 
-    it("should return false for ADRES without child objects", () => {
-      expect(
-        component["expandable"](
-          makeBagObject({
+    it("cannot be shown for an adres without related objects", async () => {
+      returnFromSearch(
+        makeBagObject(
+          fromPartial<GeneratedType<"RESTBAGAdres">>({
             bagObjectType: "ADRES",
             openbareRuimte: undefined,
             nummeraanduiding: undefined,
             woonplaats: undefined,
             panden: [],
-          } as Partial<GeneratedType<"RESTBAGAdres">>),
+          }),
         ),
-      ).toBeFalsy();
-    });
+      );
+      await setup();
 
-    it("should return truthy for ADRES with nummeraanduiding", () => {
+      await search("Teststraat 1");
+
       expect(
-        component["expandable"](
-          makeBagObject({
+        within(await rowOf("0363010000012345")).queryByRole("button", {
+          name: "actie.gerelateerde.gegevens.tonen",
+        }),
+      ).toBeNull();
+    });
+
+    it("shows the nummeraanduiding of an adres as an extra row", async () => {
+      returnFromSearch(
+        makeBagObject(
+          fromPartial<GeneratedType<"RESTBAGAdres">>({
             bagObjectType: "ADRES",
-            nummeraanduiding: fromPartial({
+            nummeraanduiding: {
               identificatie: "0363200000400021",
-            }),
-          } as Partial<GeneratedType<"RESTBAGAdres">>),
+              bagObjectType: "NUMMERAANDUIDING",
+            },
+          }),
         ),
-      ).toBeTruthy();
-    });
-  });
-
-  describe("linking a bag object", () => {
-    it("disables linking the objects that are in the gekoppelde array", async () => {
-      fixture.componentRef.setInput("gekoppeldeBagObjecten", [
-        makeBagObject({ identificatie: "0363010000000001" }),
-      ]);
-      listenForSelectedBagObjects();
-
-      await search(
-        makeBagObject({ identificatie: "0363010000000001" }),
-        makeBagObject({ identificatie: "0363010000000002" }),
       );
-
-      expect(koppelButton("0363010000000001")).toBeDisabled();
-      expect(koppelButton("0363010000000002")).toBeEnabled();
-    });
-
-    it("disables linking the objects that are in the gekoppelde form control", async () => {
-      fixture.componentRef.setInput(
-        "gekoppeldeBagObjecten",
-        new FormControl([makeBagObject({ identificatie: "0363010000000001" })]),
-      );
-      listenForSelectedBagObjects();
-
-      await search(
-        makeBagObject({ identificatie: "0363010000000001" }),
-        makeBagObject({ identificatie: "0363010000000002" }),
-      );
-
-      expect(koppelButton("0363010000000001")).toBeDisabled();
-      expect(koppelButton("0363010000000002")).toBeEnabled();
-    });
-
-    it("emits the linked object and disables linking it again when no gekoppelde objecten were given", async () => {
-      const selected = listenForSelectedBagObjects();
-      const bagObject = makeBagObject({ identificatie: "0363010000000001" });
-      await search(bagObject);
-
-      await user.click(koppelButton("0363010000000001"));
-      fixture.detectChanges();
-
-      expect(selected).toEqual([bagObject]);
-      expect(koppelButton("0363010000000001")).toBeDisabled();
-    });
-
-    it("closes the side nav from the header", async () => {
-      listenForSelectedBagObjects();
-
-      const [header] = screen.getAllByRole("heading", {
-        name: "actie.bagObject.koppelen",
-      });
-      await user.click(within(header).getByRole("button"));
-
-      expect(sideNav.close).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("viewing a bag object", () => {
-    it("closes the side nav and opens the page of the bag object", async () => {
-      const navigate = jest
-        .spyOn(TestBed.inject(Router), "navigate")
-        .mockResolvedValue(true);
-      await search(makeBagObject({ identificatie: "0363010000000001" }));
+      await setup();
+      await search("Teststraat 1");
 
       await user.click(
-        within(screen.getByRole("row", { name: /0363010000000001/ })).getByRole(
-          "button",
-          { name: "actie.bagObject.bekijken" },
-        ),
+        within(await rowOf("0363010000012345")).getByRole("button", {
+          name: "actie.gerelateerde.gegevens.tonen",
+        }),
       );
+      detectChanges();
 
-      expect(sideNav.close).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith([
-        "/bag-objecten",
-        "adres",
-        "0363010000000001",
-      ]);
+      expect(await rowOf("0363200000400021")).toBeVisible();
     });
-  });
-
-  it("closes the side nav when cancelled", async () => {
-    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
-
-    expect(sideNav.close).toHaveBeenCalledTimes(1);
   });
 });

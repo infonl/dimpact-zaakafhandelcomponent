@@ -593,7 +593,7 @@ describe(ZacFile.name, () => {
       componentRef.setInput("key", "document");
       component.ngOnInit();
       translateService.setTranslation("en", {
-        "validators.fileTypeInvalid": "Type {{type}} is not allowed",
+        "validators.file-type-invalid": "Type {{type}} is not allowed",
       });
       translateService.use("en");
       await loadAllowedFileTypes();

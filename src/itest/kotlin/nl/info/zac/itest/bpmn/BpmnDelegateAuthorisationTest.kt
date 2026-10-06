@@ -26,8 +26,8 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     given("Users attempt BPMN process actions without the required permissions") {
-        var bpmnZaakUuid: UUID? = null
-        var zaakIdentificatie: String? = null
+        lateinit var bpmnZaakUuid: UUID
+        lateinit var zaakIdentificatie: String
 
         `when`("zaak is created for sendEmailAfterClosingZaak") {
             val response = zacClient.createZaakAndRetrieve(
@@ -55,7 +55,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
 
         `when`("the 'chooseTestProcess' form is submitted for sendEmailAfterClosingZaak") {
             val takenResponse = zacClient.submitFormDataRaw(
-                bpmnZaakUuid = bpmnZaakUuid!!,
+                bpmnZaakUuid = bpmnZaakUuid,
                 taakData = """
                    {
                      "testProcess":"sendEmailAfterClosingZaak"
@@ -96,7 +96,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
 
         `when`("the 'chooseTestProcess' form is submitted for resumeZaakWhichIsNotSuspended") {
             val takenResponse = zacClient.submitFormDataRaw(
-                bpmnZaakUuid = bpmnZaakUuid!!,
+                bpmnZaakUuid = bpmnZaakUuid,
                 taakData = """
                    {
                      "testProcess":"resumeZaakWhichIsNotSuspended"
@@ -137,7 +137,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
 
         `when`("the 'chooseTestProcess' form is submitted for assignZaak as a raadpleger") {
             val takenResponse = zacClient.submitFormDataRaw(
-                bpmnZaakUuid = bpmnZaakUuid!!,
+                bpmnZaakUuid = bpmnZaakUuid,
                 taakData = """
                    {
                      "testProcess":"assignZaak"

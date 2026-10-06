@@ -7,7 +7,7 @@ import {
   Component,
   effect,
   EventEmitter,
-  Input,
+  input,
   OnDestroy,
   OnInit,
   Output,
@@ -71,15 +71,16 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
     ZacInput,
     ZacFormActions,
   ],
+  providers: [VertrouwelijkaanduidingToTranslationKeyPipe],
 })
 export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
 {
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input() taak?: GeneratedType<"RestTask">;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Input({ required: false }) smartDocumentsGroupId?: string;
-  @Input({ required: false }) smartDocumentsTemplateId?: string;
+  readonly zaak = input.required<GeneratedType<"RestZaak">>();
+  readonly taak = input<GeneratedType<"RestTask">>();
+  readonly sideNav = input.required<MatDrawer>();
+  readonly smartDocumentsGroupId = input<string>();
+  readonly smartDocumentsTemplateId = input<string>();
   @Output() document = new EventEmitter<
     GeneratedType<"RestDocumentCreationAttendedData">
   >();
@@ -163,7 +164,7 @@ export class InformatieObjectCreateAttendedComponent
     > = from(
       this.queryClient.query(
         this.smartDocumentsService.getTemplatesMappingQuery(
-          this.zaak.zaaktype.uuid,
+          this.zaak().zaaktype.uuid,
         ),
       ),
     ).pipe(startWith([]));
@@ -174,9 +175,9 @@ export class InformatieObjectCreateAttendedComponent
       .subscribe((value) => {
         this.templates = value?.templates ?? [];
 
-        if (this.smartDocumentsTemplateId !== undefined) {
+        if (this.smartDocumentsTemplateId() !== undefined) {
           const smartDocumentsTemplate = this.templates.find(
-            ({ id }) => id === this.smartDocumentsTemplateId,
+            ({ id }) => id === this.smartDocumentsTemplateId(),
           );
           if (smartDocumentsTemplate) {
             this.form.controls.template.setValue(smartDocumentsTemplate);
@@ -236,9 +237,9 @@ export class InformatieObjectCreateAttendedComponent
     templateGroupsFetcher
       .pipe(takeUntil(this.destroy$))
       .subscribe((templateGroups) => {
-        if (this.smartDocumentsGroupId !== undefined) {
+        if (this.smartDocumentsGroupId() !== undefined) {
           const smartDocumentsTemplateGroup = templateGroups.find(
-            ({ id }) => id === this.smartDocumentsGroupId,
+            ({ id }) => id === this.smartDocumentsGroupId(),
           );
           if (smartDocumentsTemplateGroup) {
             this.form.controls.templateGroup.setValue(
@@ -253,7 +254,7 @@ export class InformatieObjectCreateAttendedComponent
 
   private fetchInformatieobjecttypes() {
     this.informatieObjectenService
-      .listInformatieobjecttypes(this.zaak.zaaktype.uuid)
+      .listInformatieobjecttypes(this.zaak().zaaktype.uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe((types) => {
         this.informatieObjectTypes$.next(types);
@@ -264,7 +265,7 @@ export class InformatieObjectCreateAttendedComponent
     const values = formData?.getRawValue();
 
     if (!formData?.valid || !values) {
-      void this.sideNav.close();
+      void this.sideNav().close();
       return;
     }
 
@@ -275,8 +276,8 @@ export class InformatieObjectCreateAttendedComponent
       title: values.title!,
       creationDate: values.creationDate!.toISOString(),
       description: values.description,
-      zaakUuid: this.zaak.uuid,
-      taskId: this.taak?.id,
+      zaakUuid: this.zaak().uuid,
+      taskId: this.taak()?.id,
     };
 
     this.createDocumentMutation.mutate(data, {

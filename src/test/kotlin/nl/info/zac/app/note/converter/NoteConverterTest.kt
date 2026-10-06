@@ -42,7 +42,7 @@ class NoteConverterTest : BehaviorSpec({
                 val result = noteConverter.toRestNote(note)
 
                 then("updatingAllowed is true because logged-in user is the author") {
-                    result.updatingAllowed shouldBe true
+                    result.isBewerkenToegestaan shouldBe true
                 }
 
                 then("employeeFullname is first + last name") {
@@ -74,7 +74,7 @@ class NoteConverterTest : BehaviorSpec({
                 val result = noteConverter.toRestNote(note)
 
                 then("updatingAllowed is false") {
-                    result.updatingAllowed shouldBe false
+                    result.isBewerkenToegestaan shouldBe false
                 }
             }
         }

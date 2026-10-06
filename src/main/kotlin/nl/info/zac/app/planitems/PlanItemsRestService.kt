@@ -17,7 +17,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.mail.model.toMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -30,8 +30,8 @@ import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
-import nl.info.zac.app.planitems.model.RESTHumanTaskData
-import nl.info.zac.app.planitems.model.RESTPlanItem
+import nl.info.zac.app.planitems.model.RestHumanTaskData
+import nl.info.zac.app.planitems.model.RestPlanItem
 import nl.info.zac.app.planitems.model.RestUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.util.toLocalDate
@@ -72,7 +72,7 @@ private val LOG = Logger.getLogger(PlanItemsRestService::class.java.name)
 @Suppress("LongParameterList", "TooManyFunctions")
 class PlanItemsRestService @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val cmmnService: CMMNService,
+    private val cmmnService: CmmnService,
     private val zrcClientService: ZrcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val planItemConverter: RestPlanItemConverter,
@@ -92,16 +92,16 @@ class PlanItemsRestService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/humanTaskPlanItems")
-    fun listHumanTaskPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RESTPlanItem> =
+    fun listHumanTaskPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RestPlanItem> =
         cmmnService.listHumanTaskPlanItems(zaakUUID).let { humanTaskPlanItems ->
             zrcClientService.readZaak(zaakUUID).let { zaak ->
-                planItemConverter.convertPlanItems(humanTaskPlanItems, zaak).filter { it.actief }
+                planItemConverter.convertPlanItems(humanTaskPlanItems, zaak).filter { it.isActief }
             }
         }
 
     @GET
     @Path("zaak/{uuid}/userEventListenerPlanItems")
-    fun listUserEventListenerPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RESTPlanItem> =
+    fun listUserEventListenerPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RestPlanItem> =
         cmmnService.listUserEventListenerPlanItems(zaakUUID).let { userEventListenerPlanItems ->
             zrcClientService.readZaak(zaakUUID).let { zaak ->
                 planItemConverter.convertPlanItems(userEventListenerPlanItems, zaak)
@@ -110,11 +110,11 @@ class PlanItemsRestService @Inject constructor(
 
     @GET
     @Path("humanTaskPlanItem/{id}")
-    fun readHumanTaskPlanItem(@PathParam("id") planItemId: String): RESTPlanItem =
+    fun readHumanTaskPlanItem(@PathParam("id") planItemId: String): RestPlanItem =
         convertPlanItem(planItemId)
 
     @Suppress("NestedBlockDepth")
-    private fun convertPlanItem(planItemId: String): RESTPlanItem =
+    private fun convertPlanItem(planItemId: String): RestPlanItem =
         cmmnService.readOpenPlanItem(planItemId).let { planItemInstance ->
             zaakVariabelenService.readZaakUUID(planItemInstance).let { zaakUUID ->
                 zaakVariabelenService.readZaaktypeUUID(planItemInstance).let { zaaktypeUUID ->
@@ -128,12 +128,12 @@ class PlanItemsRestService @Inject constructor(
     @POST
     @Path("doHumanTaskPlanItem")
     @Suppress("LongMethod")
-    fun doHumanTaskplanItem(@Valid humanTaskData: RESTHumanTaskData) {
+    fun doHumanTaskplanItem(@Valid humanTaskData: RestHumanTaskData) {
         val planItem = cmmnService.readOpenPlanItem(humanTaskData.planItemInstanceId)
         val zaakUUID = zaakVariabelenService.readZaakUUID(planItem)
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).startenTaak)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canStartenTaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
@@ -148,9 +148,9 @@ class PlanItemsRestService @Inject constructor(
             }
         }
 
-        val sendMail = TaakVariabelenService.isSendDataSendMail(taakdata) || humanTaskData.taakStuurGegevens?.sendMail ?: false
+        val shouldSendMail = TaakVariabelenService.isSendDataSendMail(taakdata) || humanTaskData.taakStuurGegevens?.shouldSendMail ?: false
         val sendDataMail = TaakVariabelenService.readSendDataMail(taakdata).getOrNull() ?: humanTaskData.taakStuurGegevens?.mail
-        if (sendMail && sendDataMail != null) {
+        if (shouldSendMail && sendDataMail != null) {
             val mail = Mail.valueOf(sendDataMail)
 
             val mailTemplate = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
@@ -201,11 +201,11 @@ class PlanItemsRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak, loggedInUserInstance.get())
         when (userEventListenerData.actie) {
-            UserEventListenerActie.BRONDATUM_ZETTEN -> assertPolicy(zaakRechten.brondatumZetten)
-            else -> assertPolicy(zaakRechten.startenTaak)
+            UserEventListenerActie.BRONDATUM_ZETTEN -> assertPolicy(zaakRechten.canBrondatumZetten)
+            else -> assertPolicy(zaakRechten.canStartenTaak)
         }
         userEventListenerData.restMailGegevens?.run {
-            assertPolicy(zaakRechten.versturenEmail)
+            assertPolicy(zaakRechten.canVersturenEmail)
         }
 
         when (userEventListenerData.actie) {
@@ -231,10 +231,10 @@ class PlanItemsRestService @Inject constructor(
     ) {
         userEventListenerData.planItemInstanceId?.let {
             val planItemInstance = cmmnService.readOpenPlanItem(it)
-            zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk)
+            zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.isZaakOntvankelijk)
         }
 
-        if (userEventListenerData.zaakOntvankelijk) return
+        if (userEventListenerData.isZaakOntvankelijk) return
 
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
@@ -274,7 +274,7 @@ class PlanItemsRestService @Inject constructor(
     }
 
     private fun calculateFatalDate(
-        humanTaskData: RESTHumanTaskData,
+        humanTaskData: RestHumanTaskData,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         planItem: PlanItemInstance,
         zaak: Zaak

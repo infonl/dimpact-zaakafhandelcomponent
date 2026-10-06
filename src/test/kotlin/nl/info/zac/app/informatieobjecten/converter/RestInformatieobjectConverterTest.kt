@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.shared.model.ZgwError
@@ -218,7 +219,16 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
-        } throws ZgwErrorException(ZgwError(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
+        } throws ZgwErrorException(
+            ZgwError(
+                type = null,
+                code = null,
+                title = null,
+                status = HttpStatus.NOT_FOUND_404,
+                detail = null,
+                instance = null
+            )
+        )
 
         `when`("We try to convert a list with that uuid") {
             val result = restInformatieobjectConverter.convertUUIDsToREST(listOf(uuid), null)
@@ -235,12 +245,12 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             drcClientService.readEnkelvoudigInformatieobject(uuid)
         } throws ZgwErrorException(
             ZgwError(
-                URI("https://example.com/fakeType"),
-                "fakeCode",
-                "fakeTitle",
-                HttpStatus.INTERNAL_SERVER_ERROR_500,
-                "fakeDetail",
-                URI("https://example.com/fakeInstance")
+                type = URI("https://example.com/fakeType"),
+                code = "fakeCode",
+                title = "fakeTitle",
+                status = HttpStatus.INTERNAL_SERVER_ERROR_500,
+                detail = "fakeDetail",
+                instance = URI("https://example.com/fakeInstance")
             )
         )
 
@@ -276,6 +286,22 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     informatieobjecttype shouldBe informatieobjectType.url
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
+            }
+        }
+    }
+
+    given("A 'REST enkelvoudiginformatieobject versie gegevens' object without an informatieobjecttype UUID") {
+        val restEnkelvoudigInformatieobjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens(
+            informatieobjectTypeUUID = null
+        )
+
+        `when`("this object is converted") {
+            val enkelvoudigInformatieObjectWithLockRequest =
+                restInformatieobjectConverter.convert(restEnkelvoudigInformatieobjectVersieGegevens)
+
+            then("the informatieobjecttype is left unchanged, so it is not looked up in the catalogue") {
+                enkelvoudigInformatieObjectWithLockRequest.informatieobjecttype shouldBe null
+                verify(exactly = 0) { ztcClientService.readInformatieobjecttype(any<UUID>()) }
             }
         }
     }

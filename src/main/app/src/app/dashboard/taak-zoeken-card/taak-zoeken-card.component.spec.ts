@@ -114,8 +114,8 @@ describe(TaakZoekenCardComponent.name, () => {
 
     expect(headers).toHaveLength(5);
     expect(headers[0]).toHaveTextContent("naam");
-    expect(headers[1]).toHaveTextContent("creatiedatumTijd");
-    expect(headers[2]).toHaveTextContent("zaakIdentificatie");
+    expect(headers[1]).toHaveTextContent("creatiedatum-tijd");
+    expect(headers[2]).toHaveTextContent("zaak-identificatie");
     expect(headers[3]).toHaveTextContent("zaaktype");
     expect(headers[4].textContent?.trim()).toBe("");
   });

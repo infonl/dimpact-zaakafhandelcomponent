@@ -21,16 +21,16 @@ import {
 } from "@angular/material/sidenav";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../../shared/form/html-editor/html-editor";
-import { PostBody } from "../../shared/http/http-client";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { mailSelectList } from "../model/mail-utils";
@@ -47,7 +47,8 @@ import { mailSelectList } from "../model/mail-utils";
     RouterModule,
     TranslateModule,
     SideNavComponent,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacInput,
     ZacHtmlEditor,
     ZacFormActions,
   ],
@@ -87,24 +88,13 @@ export class MailtemplateComponent
     value: GeneratedType<"Mail">;
   }[] = mailSelectList();
 
-  protected readonly saveMailtemplateMutation = injectMutation(() => ({
-    mutationFn: (body: PostBody<"/rest/beheer/mailtemplates">) =>
-      this.mailTemplateBeheerService.saveMailtemplate(
-        this.mailTemplate()?.id,
-        body,
-      ),
-    onSuccess: () => {
-      const id = this.mailTemplate()?.id;
-      if (id != null) {
-        this.queryClient.invalidateQueries({
-          queryKey:
-            this.mailTemplateBeheerService.readMailtemplateQuery(id).queryKey,
-        });
-      }
-      this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
-      void this.router.navigate(["/admin/mailtemplates"]);
+  protected readonly saveMailtemplateMutation = injectMutation(
+    () =>
+      this.mailTemplateBeheerService.saveMailtemplate(this.mailTemplate()?.id),
+    {
+      onSuccess: () => void this.router.navigate(["/admin/mailtemplates"]),
     },
-  }));
+  );
 
   constructor(
     public utilService: UtilService,
@@ -113,7 +103,6 @@ export class MailtemplateComponent
     private route: ActivatedRoute,
     private router: Router,
     private readonly formBuilder: FormBuilder,
-    private readonly queryClient: QueryClient,
   ) {
     super(utilService, configuratieService);
 
@@ -136,7 +125,7 @@ export class MailtemplateComponent
         ...mailTemplate,
         mail: mailTemplate?.mail
           ? {
-              label: "mail." + mailTemplate.mail,
+              label: toI18nKey("mail." + mailTemplate.mail),
               value: mailTemplate.mail,
             }
           : null,
@@ -146,7 +135,7 @@ export class MailtemplateComponent
       this.mailControlLocked = true;
 
       this.mailTemplates.push({
-        label: "mail." + mailTemplate.mail,
+        label: toI18nKey("mail." + mailTemplate.mail),
         value: mailTemplate.mail,
       });
       this.form.controls.mail.disable();

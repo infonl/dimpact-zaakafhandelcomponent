@@ -4,9 +4,9 @@
  */
 package nl.info.zac.app.klant.model.klant
 
-abstract class RestKlant {
-    abstract var emailadres: String?
-    abstract var naam: String?
-    abstract var telefoonnummer: String?
-    abstract fun getIdentificatieType(): IdentificatieType?
+interface RestKlant {
+    var emailadres: String?
+    var naam: String?
+    var telefoonnummer: String?
+    fun getIdentificatieType(): IdentificatieType?
 }

@@ -17,13 +17,7 @@ import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.ProcessingException
-import java.io.IOException
-import java.net.URI
-import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.logging.Handler
-import java.util.logging.LogRecord
-import java.util.logging.Logger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -46,10 +40,10 @@ import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.task.model.TaakSortering
-import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
+import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
@@ -69,13 +63,20 @@ import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.flowable.task.api.Task
+import java.io.IOException
+import java.net.URI
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 private data class TestContext(
     val solrClient: Http2SolrClient,
     val zaakZoekObjectConverter: ZaakZoekObjectConverter,
     val taakZoekObjectConverter: TaakZoekObjectConverter,
-    val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
-    val converterInstancesIterator: MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>,
+    val converterInstances: Instance<ZoekObjectConverter<out ZoekObject>>,
+    val converterInstancesIterator: MutableIterator<ZoekObjectConverter<out ZoekObject>>,
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
     val zrcClientService: ZrcClientService,
@@ -121,8 +122,8 @@ private fun setupContext(): TestContext {
 
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
     val taakZoekObjectConverter = mockk<TaakZoekObjectConverter>()
-    val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject>>>()
-    val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>>()
+    val converterInstances = mockk<Instance<ZoekObjectConverter<out ZoekObject>>>()
+    val converterInstancesIterator = mockk<MutableIterator<ZoekObjectConverter<out ZoekObject>>>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -131,12 +132,13 @@ private fun setupContext(): TestContext {
     val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
 
     val reindexSupportService = ReindexSupportService(
-        converterInstances,
-        zrcClientService,
-        drcClientService,
-        flowableTaskService,
-        zaakspecifiekeAutorisatieService,
-        solrClientFactory
+        converterInstances = converterInstances,
+        zrcClientService = zrcClientService,
+        drcClientService = drcClientService,
+        flowableTaskService = flowableTaskService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
+        solrClientFactory = solrClientFactory,
+        dispatcher = Dispatchers.IO
     )
     val zaakGedrevenReindexService = ZaakGedrevenReindexService(
         reindexSupportService,
@@ -148,14 +150,14 @@ private fun setupContext(): TestContext {
         taakZoekObjectConverter
     )
     val indexingService = IndexingService(
-        reindexSupportService,
-        zaakGedrevenReindexService,
-        zrcClientService,
-        flowableTaskService,
-        documentZoekObjectConverter,
-        zaakZoekObjectConverter,
-        taakZoekObjectConverter,
-        testDispatcher
+        reindexSupportService = reindexSupportService,
+        zaakGedrevenReindexService = zaakGedrevenReindexService,
+        zrcClientService = zrcClientService,
+        flowableTaskService = flowableTaskService,
+        documentZoekObjectConverter = documentZoekObjectConverter,
+        zaakZoekObjectConverter = zaakZoekObjectConverter,
+        taakZoekObjectConverter = taakZoekObjectConverter,
+        dispatcher = testDispatcher
     )
 
     return TestContext(
@@ -309,6 +311,8 @@ class IndexingServiceTest : BehaviorSpec({
                 val current = activeConversions.incrementAndGet()
                 maxObservedConcurrency.updateAndGet { previousMax -> maxOf(previousMax, current) }
                 try {
+                    // the converter is a blocking call made from a worker thread, so blocking that thread is the point
+                    @Suppress("SleepInsteadOfDelay")
                     Thread.sleep(50)
                 } finally {
                     activeConversions.decrementAndGet()
@@ -517,10 +521,10 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
 
         `when`("addOrUpdateZaak is called") {
-            val zaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+            val isZaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
 
             then("it reports that the zaak itself was indexed successfully") {
-                zaakIndexed shouldBe true
+                isZaakIndexed shouldBe true
             }
 
             then("the zaak and only its open taken are reindexed, without listing its completed taken") {
@@ -1335,13 +1339,13 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.flowableTaskService.countOpenTasks() } returns 0
 
         `when`("reindexAsync is called") {
-            val started = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+            val isStarted = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
 
             then(
                 """reindexing is reported as started, but does not run until the coroutine dispatcher
                    is advanced"""
             ) {
-                started shouldBe true
+                isStarted shouldBe true
                 verify(exactly = 0) {
                     ctx.flowableTaskService.countOpenTasks()
                 }
@@ -1367,10 +1371,10 @@ class IndexingServiceTest : BehaviorSpec({
         ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
 
         `when`("reindexAsync is called again before the first launch has run") {
-            val startedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+            val isStartedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
 
             then("the second call is rejected instead of running a duplicate reindex") {
-                startedAgain shouldBe false
+                isStartedAgain shouldBe false
 
                 // let the still-pending launch from the first call run, so it releases its viewfinder
                 // entry and does not leak into any other test relying on the
@@ -1395,8 +1399,8 @@ class IndexingServiceTest : BehaviorSpec({
                     it.message == "Unexpected failure while reindexing" && it.thrown?.message == "fakeUnexpectedFailure"
                 } shouldBe true
 
-                val startedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
-                startedAgain shouldBe true
+                val isStartedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+                isStartedAgain shouldBe true
                 ctx.testDispatcher.scheduler.advanceUntilIdle()
             }
         }
@@ -1436,9 +1440,9 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(listOf(taakZoekObject)) } returns UpdateResponse()
 
         `when`("addOrUpdateZaak is called") {
-            var zaakIndexed = true
+            var isZaakIndexed = true
             val logRecords = captureLogRecords {
-                zaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+                isZaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
             }
 
             then("the zaak's open taak is still indexed despite the zaak's own Solr indexing failing") {
@@ -1454,7 +1458,7 @@ class IndexingServiceTest : BehaviorSpec({
             }
 
             then("the return value reports that indexing the zaak itself failed") {
-                zaakIndexed shouldBe false
+                isZaakIndexed shouldBe false
             }
         }
     }

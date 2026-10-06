@@ -20,19 +20,13 @@ enum class Formaat(private val value: String) : AbstractEnum {
 
     DATUM_TIJD("datum_tijd");
 
-    override fun toValue(): String {
-        return value
-    }
+    override fun toValue(): String = value
 
     internal class Adapter : AbstractEnum.Adapter<Formaat>() {
-        override fun getEnums(): Array<Formaat> {
-            return entries.toTypedArray()
-        }
+        override fun getEnums(): Array<Formaat> = entries.toTypedArray()
     }
 
     companion object {
-        fun fromValue(value: String): Formaat {
-            return AbstractEnum.fromValue(entries.toTypedArray(), value)
-        }
+        fun fromValue(value: String): Formaat = AbstractEnum.fromValue(entries.toTypedArray(), value)
     }
 }

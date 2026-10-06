@@ -14,8 +14,8 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.zac.app.admin.model.RESTBuildInformation
-import nl.info.zac.app.admin.model.RESTZaaktypeInrichtingscheck
+import nl.info.zac.app.admin.model.RestBuildInformation
+import nl.info.zac.app.admin.model.RestZaaktypeInrichtingscheck
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
@@ -38,8 +38,8 @@ class HealthCheckRestService @Inject constructor(
 ) {
     @GET
     @Path("zaaktypes")
-    fun listZaaktypeInrichtingschecks(): List<RESTZaaktypeInrichtingscheck> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+    fun listZaaktypeInrichtingschecks(): List<RestZaaktypeInrichtingscheck> {
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         return listZaaktypes().map {
             convertToREST(healthCheckService.controleerZaaktype(it.url))
         }
@@ -48,14 +48,14 @@ class HealthCheckRestService @Inject constructor(
     @GET
     @Path("bestaat-communicatiekanaal-eformulier")
     fun readBestaatCommunicatiekanaalEformulier(): Boolean {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         return healthCheckService.bestaatCommunicatiekanaalEformulier()
     }
 
     @DELETE
     @Path("ztc-cache")
     fun clearZTCCaches(): ZonedDateTime {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         ztcClientService.clearZaaktypeCache()
         ztcClientService.clearStatustypeCache()
         ztcClientService.clearResultaattypeCache()
@@ -71,7 +71,7 @@ class HealthCheckRestService @Inject constructor(
     @GET
     @Path("ztc-cache")
     fun readZTCCacheTime(): ZonedDateTime {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         return ztcClientService.resetCacheTimeToNow()
     }
 
@@ -82,7 +82,12 @@ class HealthCheckRestService @Inject constructor(
     @Path("build-informatie")
     fun readBuildInformatie() =
         healthCheckService.readBuildInformatie().let {
-            RESTBuildInformation(it.commit, it.buildId, it.buildDateTime, it.versionNumber)
+            RestBuildInformation(
+                commit = it.commit,
+                buildId = it.buildId,
+                buildDatumTijd = it.buildDateTime,
+                versienummer = it.versionNumber
+            )
         }
 
     private fun listZaaktypes() =
@@ -90,27 +95,27 @@ class HealthCheckRestService @Inject constructor(
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
 
-    private fun convertToREST(check: ZaaktypeInrichtingscheck): RESTZaaktypeInrichtingscheck =
-        RESTZaaktypeInrichtingscheck(
+    private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =
+        RestZaaktypeInrichtingscheck(
             zaaktype = check.zaaktype.toRestZaaktypeOverzicht(),
-            besluittypeAanwezig = check.isBesluittypeAanwezig,
+            isBesluittypeAanwezig = check.isBesluittypeAanwezig,
             resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit,
-            resultaattypeAanwezig = check.isResultaattypeAanwezig,
-            informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig,
+            isResultaattypeAanwezig = check.isResultaattypeAanwezig,
+            isInformatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig,
             aantalBehandelaarroltypen = check.aantalBehandelaarroltypen,
             aantalInitiatorroltypen = check.aantalInitiatorroltypen,
-            rolOverigeAanwezig = check.isRolOverigeAanwezig,
-            statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig,
-            statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer,
-            statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig,
-            statustypeAanvullendeInformatieVereist = check.isStatustypeAanvullendeInformatieVereist,
-            statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig,
-            statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig,
-            zaakafhandelParametersValide = check.isZaakafhandelParametersValide,
-            brpInstellingenCorrect = check.isBrpInstellingenCorrect,
+            isRolOverigeAanwezig = check.isRolOverigeAanwezig,
+            isStatustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig,
+            isStatustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer,
+            isStatustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig,
+            isStatustypeAanvullendeInformatieVereist = check.isStatustypeAanvullendeInformatieVereist,
+            isStatustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig,
+            isStatustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig,
+            isZaakafhandelParametersValide = check.isZaakafhandelParametersValide,
+            isBrpInstellingenCorrect = check.isBrpInstellingenCorrect,
             isZaakspecifiekeAutorisatieEigenschapAanwezig = check.isZaakspecifiekeAutorisatieEigenschapAanwezig,
             isZaakspecifiekeAutorisatieRoltypeAanwezig = check.isZaakspecifiekeAutorisatieRoltypeAanwezig,
-            heeftWaarschuwingen = check.heeftWaarschuwingen,
-            valide = check.isValide
+            hasWaarschuwingen = check.hasWaarschuwingen,
+            isValide = check.isValide
         )
 }

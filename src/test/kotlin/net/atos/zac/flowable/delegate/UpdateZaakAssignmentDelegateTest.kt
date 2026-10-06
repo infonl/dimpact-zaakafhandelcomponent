@@ -69,7 +69,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         val reasonExpression = mockk<JuelExpression>()
         every { reasonExpression.getValue(delegateExecution) } returns reason
 
-        every { zaakService.assignZaak(zaak, groupId, userId, reason) } just runs
+        every { zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = userId, reason = reason) } just runs
 
         val updateZaakAssignmentDelegate = UpdateZaakAssignmentDelegate().apply {
             groepId = groupExpression
@@ -82,7 +82,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
 
             then("zaak is updated with correct assignment") {
                 verify(exactly = 1) {
-                    zaakService.assignZaak(zaak, groupId, userId, reason)
+                    zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = userId, reason = reason)
                 }
             }
         }
@@ -109,7 +109,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         val reasonExpression = mockk<FixedValue>()
         every { reasonExpression.getValue(delegateExecution) } returns reason
 
-        every { zaakService.assignZaak(zaak, groupId, null, reason) } just runs
+        every { zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = null, reason = reason) } just runs
 
         val updateZaakAssignmentDelegate = UpdateZaakAssignmentDelegate().apply {
             groepId = groupExpression
@@ -121,7 +121,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
 
             then("zaak is updated with correct assignment") {
                 verify(exactly = 1) {
-                    zaakService.assignZaak(zaak, groupId, null, reason)
+                    zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = null, reason = reason)
                 }
             }
         }
@@ -158,7 +158,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
 
             and("the zaak is not assigned") {
                 verify(exactly = 0) {
-                    zaakService.assignZaak(any(), any(), any(), any())
+                    zaakService.assignZaak(zaak = any(), groupId = any(), userName = any(), reason = any())
                 }
             }
         }

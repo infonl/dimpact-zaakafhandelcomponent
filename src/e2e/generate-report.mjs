@@ -14,11 +14,12 @@ generate({
   openReportInBrowser: false,
   displayDuration: true,
   customData: {
-    title: "Run info",
-    data: [
-      { label: "App", value: "Dimpact e2e test" },
-      { label: "Test Environment", value: "Test" },
-    ],
+    App: "Dimpact e2e test",
+    "Test Environment": "Test",
+    Branch: process.env.GITHUB_REF_NAME ?? "local",
+    Run: process.env.GITHUB_RUN_ID
+      ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+      : undefined,
   },
 });
 await writeVideoHtmlPage()

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
+import { LowerCasePipe, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -29,7 +29,7 @@ import { MatSort, MatSortHeader, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { lastValueFrom } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -44,9 +44,11 @@ import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { TakenService } from "../../taken/taken.service";
 
 @Component({
@@ -56,6 +58,7 @@ import { TakenService } from "../../taken/taken.service";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     MatCard,
     MatCardHeader,
@@ -76,6 +79,7 @@ import { TakenService } from "../../taken/taken.service";
     DatumPipe,
     EmptyPipe,
     StaticTextComponent,
+    LowerCasePipe,
   ],
 })
 export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -83,7 +87,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly websocketService = inject(WebsocketService);
   private readonly utilService = inject(UtilService);
   private readonly identityService = inject(IdentityService);
-  private readonly queryClient = inject(QueryClient);
 
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -146,7 +149,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
       Opcode.UPDATED,
       ObjectType.ZAAK_TAKEN,
       zaak.uuid,
-      () => this.invalidate(),
+      () => void this.takenService.invalidateTakenVoorZaak(zaak.uuid),
     );
 
     this.takenQuery.refetch();
@@ -177,13 +180,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     this.websocketService.removeListener(this.zaakTakenListener);
   }
 
-  private invalidate() {
-    this.queryClient.invalidateQueries({
-      queryKey: this.takenService.listTakenVoorZaakQuery(this.zaak().uuid)
-        .queryKey,
-    });
-  }
-
   protected expandTaken(expand: boolean) {
     this.takenDataSource.data.forEach((value) => (value.expanded = expand));
     this.checkAllTakenExpanded();
@@ -192,6 +188,14 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   protected expandTaak(taak: ExpandableTableData<GeneratedType<"RestTask">>) {
     taak.expanded = !taak.expanded;
     this.checkAllTakenExpanded();
+  }
+
+  protected uitkomst(taak: GeneratedType<"RestTask">) {
+    const uitkomst = taak.taakinformatie?.uitkomst;
+    if (!uitkomst || taak.formulierDefinitieId !== "GOEDKEUREN")
+      return uitkomst;
+
+    return toI18nKey(uitkomst);
   }
 
   private checkAllTakenExpanded() {
@@ -233,7 +237,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
     if (taak.status === "AFGEROND") return false;
-    if (!taak.rechten.toekennen) return false;
+    if (!taak.rechten.canToekennen) return false;
     if (!taak.groep?.id) return false;
     const loggedInUser = this.loggedInUser.data();
     if (!loggedInUser) return false;

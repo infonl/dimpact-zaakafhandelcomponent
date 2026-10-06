@@ -52,6 +52,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import {
   SessionStorageUtil,
@@ -170,7 +171,7 @@ export class InboxProductaanvragenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.productaanvragen.inboxProductaanvragen");
+    this.utilService.setTitle("title.productaanvragen.inbox-productaanvragen");
   }
 
   ngAfterViewInit() {
@@ -182,7 +183,10 @@ export class InboxProductaanvragenListComponent
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
-          return this.inboxProductaanvragenService.list(this.listParameters);
+          return runQuery(
+            this.queryClient,
+            this.inboxProductaanvragenService.list({ ...this.listParameters }),
+          );
         }),
         map((data) => {
           this.isLoadingResults = false;
@@ -307,7 +311,7 @@ export class InboxProductaanvragenListComponent
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
-          "msg.inboxProductaanvraag.verwijderen.bevestigen",
+          "msg.inbox-productaanvraag.verwijderen.bevestigen",
         ),
       })
       .afterClosed()

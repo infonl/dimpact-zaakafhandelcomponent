@@ -7,6 +7,7 @@ package nl.info.zac.app.zaak.model
 
 import nl.info.zac.app.search.model.RestDatumRange
 
+@Suppress("LongParameterList")
 fun createRestFindLinkableZakenRequest(
     zoekZaakIdentifier: String? = "ZAAK-2000-00002",
     zoekZaakOmschrijving: String? = null,

@@ -60,7 +60,12 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
             .forEach { form ->
                 val folderPrefix = if (form.isUsedIn(formKeys)) "" else "$UNUSED_FORMS_FOLDER/"
                 files.add(
-                    getFormPath(folderPrefix, form.filename, form.name, usedPaths) to
+                    getFormPath(
+                        folderPrefix = folderPrefix,
+                        filename = form.filename,
+                        name = form.name,
+                        usedPaths = usedPaths
+                    ) to
                         form.content.toByteArray()
                 )
             }

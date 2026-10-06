@@ -18,7 +18,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.mail.model.createRestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
@@ -34,8 +34,8 @@ import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.UserEventListenerActie
-import nl.info.zac.app.planitems.model.createRESTHumanTaskData
-import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
+import nl.info.zac.app.planitems.model.createRestHumanTaskData
+import nl.info.zac.app.planitems.model.createRestTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRestUserEventListenerData
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.authentication.LoggedInUser
@@ -63,7 +63,7 @@ import java.util.UUID
 @Suppress("LargeClass")
 class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val planItemConverter = mockk<RestPlanItemConverter>()
@@ -106,7 +106,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     context("doHumanTaskplanItem") {
 
         given("Valid REST human task data without a fatal date") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf("fakeKey" to "fakeValue"),
                 fataledatum = null
@@ -125,13 +125,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every {
                 cmmnService.startHumanTaskPlanItem(
-                    planItemInstanceId,
-                    restHumanTaskData.groep.id,
-                    null,
-                    any(),
-                    restHumanTaskData.toelichting,
-                    capture(taskDataSlot),
-                    zaak.uuid
+                    planItemInstanceId = planItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = null,
+                    dueDate = any(),
+                    description = restHumanTaskData.toelichting,
+                    taakdata = capture(taskDataSlot),
+                    zaakUUID = zaak.uuid
                 )
             } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -143,7 +143,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("A CMMN human task plan item is started and the zaak is re-indexed") {
                     verify(exactly = 1) {
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
@@ -167,7 +175,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
         given("Valid REST human task data with a fatal date and with zaak opschorten set to true") {
             val opgeschorteZaak = createZaak()
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue",
@@ -189,13 +197,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every {
                 cmmnService.startHumanTaskPlanItem(
-                    planItemInstanceId,
-                    restHumanTaskData.groep.id,
-                    null,
-                    restHumanTaskData.fataledatum?.let(::convertToDate),
-                    restHumanTaskData.toelichting,
-                    any(),
-                    zaak.uuid
+                    planItemInstanceId = planItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = null,
+                    dueDate = restHumanTaskData.fataledatum?.let(::convertToDate),
+                    description = restHumanTaskData.toelichting,
+                    taakdata = any(),
+                    zaakUUID = zaak.uuid
                 )
             } just runs
             every {
@@ -208,7 +216,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("A CMMN human task plan item is started and the zaak is opgeschort and re-indexed") {
                     verify(exactly = 1) {
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         indexingService.addOrUpdateZaakOrThrow(any(), any())
                         suspensionZaakHelper.suspendZaak(any(), any(), any())
                     }
@@ -217,7 +233,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("REST human task data with a user-set fatal date that comes after the fatal date of the related zaak") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue"
@@ -245,7 +261,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 }
                 then("An exception is thrown and the human task item is not started and the zaak is not indexed") {
                     verify(exactly = 0) {
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
@@ -253,7 +277,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("REST human task data with a calculated fatal date after the fatal date of the related zaak") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue"
@@ -281,13 +305,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 }
             every {
                 cmmnService.startHumanTaskPlanItem(
-                    planItemInstanceId,
-                    restHumanTaskData.groep.id,
-                    null,
-                    convertToDate(zaak.uiterlijkeEinddatumAfdoening),
-                    restHumanTaskData.toelichting,
-                    any(),
-                    zaak.uuid
+                    planItemInstanceId = planItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = null,
+                    dueDate = convertToDate(zaak.uiterlijkeEinddatumAfdoening),
+                    description = restHumanTaskData.toelichting,
+                    taakdata = any(),
+                    zaakUUID = zaak.uuid
                 )
             } just runs
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
@@ -298,7 +322,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("The task is created with the zaak fatal date") {
                     verify(exactly = 1) {
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
@@ -308,7 +340,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         given("Additional info human task with a fatal date after the fatal date of the related zaak") {
             val numberOfDays = 3L
             val additionalInfoPlanItemInstanceId = FormulierDefinitie.AANVULLENDE_INFORMATIE.toString()
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = additionalInfoPlanItemInstanceId,
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue"
@@ -345,13 +377,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             } returns extendedZaak
             every {
                 cmmnService.startHumanTaskPlanItem(
-                    additionalInfoPlanItemInstanceId,
-                    restHumanTaskData.groep.id,
-                    null,
-                    restHumanTaskData.fataledatum?.let(::convertToDate),
-                    restHumanTaskData.toelichting,
-                    any(),
-                    zaak.uuid
+                    planItemInstanceId = additionalInfoPlanItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = null,
+                    dueDate = restHumanTaskData.fataledatum?.let(::convertToDate),
+                    description = restHumanTaskData.toelichting,
+                    taakdata = any(),
+                    zaakUUID = zaak.uuid
                 )
             } just runs
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
@@ -362,7 +394,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("The task is created with its own fatal date") {
                     verify(exactly = 1) {
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
@@ -376,7 +416,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("Task data with send mail information") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "taakStuurGegevens.sendMail" to "true",
@@ -405,13 +445,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
             every {
                 cmmnService.startHumanTaskPlanItem(
-                    planItemInstanceId,
-                    restHumanTaskData.groep.id,
-                    null,
-                    any(),
-                    restHumanTaskData.toelichting,
-                    capture(taskDataSlot),
-                    zaak.uuid
+                    planItemInstanceId = planItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = null,
+                    dueDate = any(),
+                    description = restHumanTaskData.toelichting,
+                    taakdata = capture(taskDataSlot),
+                    zaakUUID = zaak.uuid
                 )
             } just runs
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
@@ -424,7 +464,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("A CMMN human task plan item is started and the zaak is re-indexed") {
                     verify(exactly = 1) {
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
@@ -453,13 +501,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         given("Send mail information in TaakStuurGegevens object") {
-            val restHumanTaskData = createRESTHumanTaskData(
+            val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
                     "emailadres" to "example@example.com",
                     "body" to "body"
                 ),
-                taakStuurGegevens = createRESTTaakStuurGegevens(true, "TAAK_AANVULLENDE_INFORMATIE"),
+                taakStuurGegevens = createRestTaakStuurGegevens(true, "TAAK_AANVULLENDE_INFORMATIE"),
                 fataledatum = null
             )
             val taskDataSlot = slot<Map<String, String>>()
@@ -480,13 +528,13 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
             every {
                 cmmnService.startHumanTaskPlanItem(
-                    planItemInstanceId,
-                    restHumanTaskData.groep.id,
-                    null,
-                    any(),
-                    restHumanTaskData.toelichting,
-                    capture(taskDataSlot),
-                    zaak.uuid
+                    planItemInstanceId = planItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = null,
+                    dueDate = any(),
+                    description = restHumanTaskData.toelichting,
+                    taakdata = capture(taskDataSlot),
+                    zaakUUID = zaak.uuid
                 )
             } just runs
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
@@ -499,7 +547,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("A CMMN human task plan item is started and the zaak is re-indexed") {
                     verify(exactly = 1) {
-                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        cmmnService.startHumanTaskPlanItem(
+                            planItemInstanceId = any(),
+                            groupId = any(),
+                            assignee = any(),
+                            dueDate = any(),
+                            description = any(),
+                            taakdata = any(),
+                            zaakUUID = any()
+                        )
                         indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
@@ -596,7 +652,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every {
-                zgwApiService.closeZaak(zaak, resultaattypeUuid, null, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
+                zgwApiService.closeZaak(
+                    zaak = zaak,
+                    resultaatTypeUUID = resultaattypeUuid,
+                    description = null,
+                    brondatum = ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
+                )
             } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -605,7 +666,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("the zaak is closed") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
+                        zgwApiService.closeZaak(
+                            zaak = zaak,
+                            resultaatTypeUUID = resultaattypeUuid,
+                            description = null,
+                            brondatum = ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
+                        )
                     }
                 }
             }
@@ -636,7 +702,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("an InputValidationFailedException is thrown and the zaak is not closed") {
                     inputValidationFailedException.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any(), any(), any(), any())
+                        zgwApiService.closeZaak(zaak = any(), resultaatTypeUUID = any(), description = any(), brondatum = any())
                     }
                 }
             }
@@ -741,7 +807,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
             ).apply {
-                this.zaakOntvankelijk = false
+                this.isZaakOntvankelijk = false
                 this.resultaatToelichting = resultaatToelichting
                 this.planItemInstanceId = planItemInstanceId
             }
@@ -788,7 +854,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
             ).apply {
-                this.zaakOntvankelijk = true
+                this.isZaakOntvankelijk = true
                 this.planItemInstanceId = planItemInstanceId
             }
             val loggedInUser = createLoggedInUser()
@@ -824,7 +890,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
             ).apply {
-                this.zaakOntvankelijk = false
+                this.isZaakOntvankelijk = false
                 this.planItemInstanceId = planItemInstanceId
             }
             val geenResultaattypeZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(

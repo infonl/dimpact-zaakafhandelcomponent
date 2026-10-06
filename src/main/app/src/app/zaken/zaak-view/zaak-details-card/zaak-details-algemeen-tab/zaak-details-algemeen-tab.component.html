@@ -22,9 +22,9 @@
     <mat-divider class="mat-divider-wrapper full-width"></mat-divider>
 
     <zac-static-text label="groep" [value]="zaak().groep?.naam | empty">
-      @if (zaak().groep?.active === false) {
-        <em position="content-after"
-          >&nbsp;({{ "inactief" | translate | lowercase }})</em
+      @if (zaak().groep?.isActive === false) {
+        <em position="content-after" class="inactive-label"
+          >({{ "inactief" | translate | lowercase }})</em
         >
       }
     </zac-static-text>
@@ -39,7 +39,7 @@
     >
     </zac-static-text>
 
-    @if (zaak().rechten.wijzigen || zaak().rechten.toekennen) {
+    @if (zaak().rechten.canWijzigen || zaak().rechten.canToekennen) {
       @let editZaakLabel = "actie.zaak.wijzigen" | translate;
       <button
         mat-icon-button
@@ -78,8 +78,8 @@
               <mat-icon>pause</mat-icon>
               {{
                 (zaakOpschorting()?.duurDagen === 1
-                  ? "duurDagenOpschorting.enkelvoud"
-                  : "duurDagenOpschorting"
+                  ? "duur-dagen-opschorting.enkelvoud"
+                  : "duur-dagen-opschorting"
                 ) | translate: { duur: zaakOpschorting()?.duurDagen }
               }}
             </div>
@@ -88,7 +88,7 @@
             <div class="flex-row items-center gap-5">
               <mat-icon>update</mat-icon>
               {{
-                "duurVerlenging" | translate: { duur: zaak().duurVerlenging }
+                "duur-verlenging" | translate: { duur: zaak().duurVerlenging }
               }}
             </div>
           }

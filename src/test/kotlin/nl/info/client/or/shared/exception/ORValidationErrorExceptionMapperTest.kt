@@ -15,10 +15,10 @@ class ORValidationErrorExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val result = mapper.handles(400, headers)
+            val isHandled = mapper.handles(400, headers)
 
             then("The status code should be mapped") {
-                result shouldBe true
+                isHandled shouldBe true
             }
         }
     }
@@ -26,10 +26,10 @@ class ORValidationErrorExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val result = mapper.handles(401, headers)
+            val isHandled = mapper.handles(401, headers)
 
             then("The status code should not be mapped") {
-                result shouldBe false
+                isHandled shouldBe false
             }
         }
     }
@@ -37,10 +37,10 @@ class ORValidationErrorExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val result = mapper.handles(500, headers)
+            val isHandled = mapper.handles(500, headers)
 
             then("The status code should not be mapped") {
-                result shouldBe false
+                isHandled shouldBe false
             }
         }
     }

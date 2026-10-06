@@ -219,7 +219,7 @@ class ZtcClientService @Inject constructor(
     fun readInformatieobjecttypen(zaaktypeURI: URI): List<InformatieObjectType> =
         uriToInformatieObjectTypeListCache.get(zaaktypeURI) {
             readZaaktypeInformatieobjecttypen(zaaktypeURI)
-                .map { readInformatieobjecttype(it.informatieobjecttype) }
+                .map { zaaktypeInformatieobjecttype -> readInformatieobjecttype(zaaktypeInformatieobjecttype.informatieobjecttype) }
         }
 
     /**
@@ -292,10 +292,10 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, roltypeOmschrijving: String?): List<RolType> =
         uriOmschrijvingEnumToRolTypeCache.get("$zaaktypeURI$roltypeOmschrijving") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results().filter {
+            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results().filter { rolType ->
                 // No query parameter is available for roltypeOmschrijving, so we filter here. See:
                 // https://github.com/open-zaak/open-zaak/issues/1933
-                it.omschrijving == roltypeOmschrijving
+                rolType.omschrijving == roltypeOmschrijving
             }
         }
 

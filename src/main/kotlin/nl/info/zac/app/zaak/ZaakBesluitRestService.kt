@@ -65,7 +65,7 @@ class ZaakBesluitRestService @Inject constructor(
     @Path("besluit")
     fun createBesluit(@Valid besluitToevoegenGegevens: RestBesluitCreateData): RestBesluit {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(besluitToevoegenGegevens.zaakUuid)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).vastleggenBesluit)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canVastleggenBesluit)
         assertPolicy(CollectionUtils.isNotEmpty(zaakType.besluittypen))
 
         return besluitService.createBesluit(zaak, besluitToevoegenGegevens).let {
@@ -83,7 +83,7 @@ class ZaakBesluitRestService @Inject constructor(
         besluitService.readBesluit(restBesluitWithdrawalData).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(
-                    zaak.isOpen() && policyService.readZaakRechten(zaak, loggedInUserInstance.get()).behandelen
+                    zaak.isOpen() && policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canBehandelen
                 )
 
                 besluitService.withdrawBesluit(besluit, restBesluitWithdrawalData.reden).let {
@@ -102,7 +102,7 @@ class ZaakBesluitRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.lezen)
+        assertPolicy(zaakRechten.canLezen)
         return brcClientService.listBesluiten(zaak)
             .map { restBesluitConverter.convertToRestBesluit(it) }
     }
@@ -113,7 +113,7 @@ class ZaakBesluitRestService @Inject constructor(
         val besluit = brcClientService.readBesluit(besluitUuid)
         val zaak = zrcClientService.readZaak(besluit.zaak)
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).lezen)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canLezen)
         return brcClientService.listAuditTrail(besluitUuid).let {
             zaakHistoryLineConverter.convert(it)
         }
@@ -124,7 +124,7 @@ class ZaakBesluitRestService @Inject constructor(
     fun listBesluittypes(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
     ): List<RestBesluitType> {
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken)
+        assertPolicy(policyService.readWerklijstRechten().canZakenTaken)
         return ztcClientService.readBesluittypen(ztcClientService.readZaaktype(zaaktypeUUID).url)
             .filter { dateNowIsBetween(it) }
             .toRestBesluitTypes()
@@ -135,7 +135,7 @@ class ZaakBesluitRestService @Inject constructor(
     fun updateBesluit(@Valid restBesluitChangeData: RestBesluitChangeData) =
         brcClientService.readBesluit(restBesluitChangeData.besluitUuid).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
-                assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).vastleggenBesluit)
+                assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canVastleggenBesluit)
 
                 besluitService.updateBesluit(besluit, restBesluitChangeData).let { updatedBesluit ->
                     restBesluitConverter.convertToRestBesluit(updatedBesluit).also {

@@ -79,7 +79,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeTermijnArchiveTest : BehaviorSpec({
                     "zaakUuid":"$zaakUuid",
                     "planItemInstanceId":"$intakeId",
                     "actie":"$ACTIE_INTAKE_AFRONDEN",
-                    "zaakOntvankelijk":true
+                    "isZaakOntvankelijk":true
                 }
             """.trimIndent(),
             testUser = RECORDMANAGER_1

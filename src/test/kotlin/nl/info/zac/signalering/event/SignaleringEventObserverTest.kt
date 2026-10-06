@@ -36,6 +36,7 @@ import nl.info.client.zgw.ztc.model.createBehandelaarRolType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
@@ -92,7 +93,11 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 isDashboard = true,
                 isMail = false
             )
-            every { signaleringService.storeSignalering(capture(storedSignalering)) } answers { firstArg() }
+            var isSystemUserWhileStoring: Boolean? = null
+            every { signaleringService.storeSignalering(capture(storedSignalering)) } answers {
+                isSystemUserWhileStoring = LoggedInUserProvider.systemUser.get()
+                firstArg()
+            }
 
             `when`("the event is handled") {
                 signaleringEventObserver.onFire(signaleringEvent)
@@ -103,6 +108,11 @@ class SignaleringEventObserverTest : BehaviorSpec({
                         target shouldBe user.id
                         subject shouldBe zaak.uuid.toString()
                     }
+                }
+
+                and("it is stored as the system user, which is no longer set once the event has been handled") {
+                    isSystemUserWhileStoring shouldBe true
+                    LoggedInUserProvider.systemUser.get() shouldBe false
                 }
             }
         }

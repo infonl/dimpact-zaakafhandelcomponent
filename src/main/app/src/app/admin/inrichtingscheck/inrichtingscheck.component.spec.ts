@@ -46,16 +46,16 @@ import { VersionComponent } from "../../shared/version/version.component";
 import { HealthCheckService } from "../health-check.service";
 import { InrichtingscheckComponent } from "./inrichtingscheck.component";
 
-const VALIDE_ICON_LABEL = "healthCheck.zaaktype.status.valide";
-const WAARSCHUWING_ICON_LABEL = "healthCheck.zaaktype.status.waarschuwing";
-const NIET_VALIDE_ICON_LABEL = "healthCheck.zaaktype.status.niet-valide";
+const VALIDE_ICON_LABEL = "health-check.zaaktype.status.valide";
+const WAARSCHUWING_ICON_LABEL = "health-check.zaaktype.status.waarschuwing";
+const NIET_VALIDE_ICON_LABEL = "health-check.zaaktype.status.niet-valide";
 const ROLTYPE_ONTBREEKT_MESSAGE =
-  "healthCheck.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt";
+  "health-check.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt";
 const EIGENSCHAP_ONTBREEKT_MESSAGE =
-  "healthCheck.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt";
+  "health-check.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt";
 
 const volledigIngerichtZaaktype = fromPartial<
-  GeneratedType<"RESTZaaktypeInrichtingscheck">
+  GeneratedType<"RestZaaktypeInrichtingscheck">
 >({
   zaaktype: {
     uuid: "fakeZaaktypeUuid1",
@@ -63,29 +63,29 @@ const volledigIngerichtZaaktype = fromPartial<
     doel: "Doel A",
     beginGeldigheid: "2024-01-01",
   },
-  valide: true,
-  heeftWaarschuwingen: false,
-  zaakafhandelParametersValide: true,
-  statustypeIntakeAanwezig: true,
-  statustypeInBehandelingAanwezig: true,
-  statustypeHeropendAanwezig: true,
-  statustypeAanvullendeInformatieVereist: true,
-  statustypeAfgerondAanwezig: true,
-  statustypeAfgerondLaatsteVolgnummer: true,
-  resultaattypeAanwezig: true,
+  isValide: true,
+  hasWaarschuwingen: false,
+  isZaakafhandelParametersValide: true,
+  isStatustypeIntakeAanwezig: true,
+  isStatustypeInBehandelingAanwezig: true,
+  isStatustypeHeropendAanwezig: true,
+  isStatustypeAanvullendeInformatieVereist: true,
+  isStatustypeAfgerondAanwezig: true,
+  isStatustypeAfgerondLaatsteVolgnummer: true,
+  isResultaattypeAanwezig: true,
   aantalInitiatorroltypen: 1,
   aantalBehandelaarroltypen: 1,
-  rolOverigeAanwezig: true,
-  informatieobjecttypeEmailAanwezig: true,
+  isRolOverigeAanwezig: true,
+  isInformatieobjecttypeEmailAanwezig: true,
   resultaattypesMetVerplichtBesluit: [],
-  besluittypeAanwezig: true,
-  brpInstellingenCorrect: true,
+  isBesluittypeAanwezig: true,
+  isBrpInstellingenCorrect: true,
   isZaakspecifiekeAutorisatieEigenschapAanwezig: true,
   isZaakspecifiekeAutorisatieRoltypeAanwezig: true,
 });
 
 const nietValideZaaktype = fromPartial<
-  GeneratedType<"RESTZaaktypeInrichtingscheck">
+  GeneratedType<"RestZaaktypeInrichtingscheck">
 >({
   ...volledigIngerichtZaaktype,
   zaaktype: {
@@ -94,12 +94,12 @@ const nietValideZaaktype = fromPartial<
     doel: "Doel B",
     beginGeldigheid: "2024-06-01",
   },
-  valide: false,
-  zaakafhandelParametersValide: false,
+  isValide: false,
+  isZaakafhandelParametersValide: false,
 });
 
 const zaaktypeZonderRoltype = fromPartial<
-  GeneratedType<"RESTZaaktypeInrichtingscheck">
+  GeneratedType<"RestZaaktypeInrichtingscheck">
 >({
   ...volledigIngerichtZaaktype,
   zaaktype: {
@@ -108,13 +108,13 @@ const zaaktypeZonderRoltype = fromPartial<
     doel: "Doel C",
     beginGeldigheid: "2024-07-01",
   },
-  heeftWaarschuwingen: true,
+  hasWaarschuwingen: true,
   isZaakspecifiekeAutorisatieEigenschapAanwezig: true,
   isZaakspecifiekeAutorisatieRoltypeAanwezig: false,
 });
 
 const zaaktypeZonderEigenschap = fromPartial<
-  GeneratedType<"RESTZaaktypeInrichtingscheck">
+  GeneratedType<"RestZaaktypeInrichtingscheck">
 >({
   ...volledigIngerichtZaaktype,
   zaaktype: {
@@ -123,7 +123,7 @@ const zaaktypeZonderEigenschap = fromPartial<
     doel: "Doel D",
     beginGeldigheid: "2024-08-01",
   },
-  heeftWaarschuwingen: true,
+  hasWaarschuwingen: true,
   isZaakspecifiekeAutorisatieEigenschapAanwezig: false,
   isZaakspecifiekeAutorisatieRoltypeAanwezig: true,
 });
@@ -407,7 +407,7 @@ describe(InrichtingscheckComponent.name, () => {
   it("should show 'beschikbaar' text when communicatiekanaal e-formulier exists", () => {
     expect(
       screen.getByText(
-        "healthCheck.communicatiekanaal.e-formulier.beschikbaar",
+        "health-check.communicatiekanaal.e-formulier.beschikbaar",
       ),
     ).toBeInTheDocument();
   });
@@ -419,7 +419,7 @@ describe(InrichtingscheckComponent.name, () => {
 
     expect(
       screen.getByText(
-        "healthCheck.communicatiekanaal.e-formulier.niet.beschikbaar",
+        "health-check.communicatiekanaal.e-formulier.niet.beschikbaar",
       ),
     ).toBeInTheDocument();
   });
@@ -428,7 +428,9 @@ describe(InrichtingscheckComponent.name, () => {
     setValideFilter(ToggleSwitchOptions.INDETERMINATE);
     expect(component["dataSource"].filteredData.length).toBe(4);
 
-    const event = { target: { value: "Zaaktype A" } } as unknown as Event;
+    const event = fromPartial<Event>({
+      target: fromPartial<HTMLInputElement>({ value: "Zaaktype A" }),
+    });
     component["applyFilter"](event);
     expect(component["dataSource"].filteredData.length).toBe(1);
     expect(component["dataSource"].filteredData[0].zaaktype.omschrijving).toBe(
@@ -450,7 +452,7 @@ describe(InrichtingscheckComponent.name, () => {
 
     expect(
       screen.getByRole("button", {
-        name: "healthCheck.synchroniseer.ztc.button",
+        name: "health-check.synchroniseer.ztc.button",
       }),
     ).toBeDisabled();
   });

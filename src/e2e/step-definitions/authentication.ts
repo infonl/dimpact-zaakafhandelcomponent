@@ -4,7 +4,13 @@
  */
 
 import { Given, When } from "@cucumber/cucumber";
-import { ONE_MINUTE_IN_MS } from "../support/time-constants";
+import { expect } from "@playwright/test";
+import {
+  FIFTEEN_SECONDS_IN_MS,
+  INFLATED_STEP_TIMEOUT_IN_MS,
+  ONE_MINUTE_IN_MS,
+  TWENTY_SECONDS_IN_MS,
+} from "../support/time-constants";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
@@ -29,18 +35,32 @@ async function loginToZac(this: CustomWorld, user: string) {
 async function waitForPage(world: CustomWorld) {
   const account_circle = world.page.getByText("account_circle");
   const loginHeader = world.page.getByText("ZAAKAFHANDELCOMPONENT");
-  return account_circle.or(loginHeader).first().waitFor({ state: "attached" });
+  return account_circle
+    .or(loginHeader)
+    .first()
+    .waitFor({ state: "attached", timeout: TWENTY_SECONDS_IN_MS })
+    .then(() => true)
+    .catch(() => false);
 }
 
 async function logout(world: CustomWorld) {
-  await waitForPage(world);
+  if (!(await waitForPage(world))) return;
   if (!(await world.page.getByText("account_circle").isVisible())) return;
   await world.page.getByText("account_circle").first().click();
   await world.page.getByText("Uitloggen").first().click();
 }
 
+// Keycloak can land on a page without the login form, e.g. a blank page or an expired-login page.
+async function isLoginFormShown(world: CustomWorld) {
+  return world.page
+    .getByLabel("Username or email")
+    .waitFor({ timeout: FIFTEEN_SECONDS_IN_MS })
+    .then(() => true)
+    .catch(() => false);
+}
+
 async function isLoggedIn(world: CustomWorld, user: keyof typeof users) {
-  await waitForPage(world);
+  if (!(await waitForPage(world))) return false;
   const account_circle = world.page.getByText("account_circle");
   if (!(await account_circle.isVisible())) return false;
   await account_circle.click();
@@ -48,7 +68,10 @@ async function isLoggedIn(world: CustomWorld, user: keyof typeof users) {
   const profileText = world.page.getByRole("menu").filter({
     hasText: username,
   });
-  const isVisible = await profileText.isVisible();
+  const isVisible = await profileText
+    .waitFor({ timeout: FIFTEEN_SECONDS_IN_MS })
+    .then(() => true)
+    .catch(() => false);
   await world.page.keyboard.press("Escape");
   return isVisible;
 }
@@ -79,14 +102,21 @@ When(
 
 Given(
   "{string} is logged in to zac",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user: keyof typeof users) {
     const expectedUrl = this.worldParameters.urls["zac"];
     await this.openUrl(expectedUrl);
+    let loggedIn = await isLoggedIn(this, user);
     let tries = 0;
-    while (!(await isLoggedIn(this, user)) && tries++ < 4) {
+    while (!loggedIn && tries++ < 4) {
       await logout(this);
-      await loginToZac.call(this, user);
+      if (await isLoginFormShown(this)) {
+        await loginToZac.call(this, user);
+      } else {
+        await this.openUrl(expectedUrl);
+      }
+      loggedIn = await isLoggedIn(this, user);
     }
+    expect(loggedIn, `Failed to log in to ZAC as "${user}"`).toBe(true);
   },
 );

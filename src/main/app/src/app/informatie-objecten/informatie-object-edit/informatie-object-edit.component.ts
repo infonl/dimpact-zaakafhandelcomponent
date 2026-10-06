@@ -27,9 +27,9 @@ import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { toDocumentFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 
@@ -51,7 +51,6 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
     ZacFormActions,
     ZacInput,
     ZacSelect,
-    MaterialFormBuilderModule,
   ],
 })
 export class InformatieObjectEditComponent {
@@ -207,7 +206,7 @@ export class InformatieObjectEditComponent {
       status: infoObject.status
         ? {
             label: this.translateService.instant(
-              "informatieobject.status." + infoObject.status,
+              toI18nKey("informatieobject.status." + infoObject.status),
             ),
             value: infoObject.status,
           }

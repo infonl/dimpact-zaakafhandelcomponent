@@ -102,7 +102,7 @@ class RestInformatieobjectConverter @Inject constructor(
             rechten = rechten.toRestDocumentRechten(),
             isBesluitDocument = isBesluitDocument
         )
-        if (rechten.lezen) {
+        if (rechten.canLezen) {
             convertEnkelvoudigInformatieObject(
                 enkelvoudigInformatieObject = enkelvoudigInformatieObject,
                 lock = lock,
@@ -157,9 +157,7 @@ class RestInformatieobjectConverter @Inject constructor(
         restEnkelvoudigInformatieobject.beschrijving = enkelvoudigInformatieObject.beschrijving
         restEnkelvoudigInformatieobject.ontvangstdatum = enkelvoudigInformatieObject.ontvangstdatum
         restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.verzenddatum
-        if (lock != null) {
-            restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(lock.userId!!).toRestUser()
-        }
+        lock?.userId?.let { restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(it).toRestUser() }
         restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.bestandsomvang?.toLong() ?: 0
         restEnkelvoudigInformatieobject.informatieobjectTypeOmschrijving = ztcClientService
             .readInformatieobjecttype(enkelvoudigInformatieObject.informatieobjecttype).omschrijving
@@ -199,6 +197,8 @@ class RestInformatieobjectConverter @Inject constructor(
 
     fun convert(documentData: RestTaskDocumentData, bestand: RestFileUpload): EnkelvoudigInformatieObjectCreateLockRequest {
         val informatieObjectType = ztcClientService.readInformatieobjecttype(documentData.documentType.uuid)
+        // task form attachments are held in memory, so their content travels in the request itself
+        val fileContent = checkNotNull(bestand.file) { "Task form attachment '${bestand.filename}' has no content" }
         return EnkelvoudigInformatieObjectCreateLockRequest().apply {
             bronorganisatie = configurationService.readBronOrganisatie()
             creatiedatum = LocalDate.now()
@@ -206,9 +206,8 @@ class RestInformatieobjectConverter @Inject constructor(
             auteur = loggedInUserInstance.get().getFullName()
             taal = ConfigurationService.TAAL_NEDERLANDS
             informatieobjecttype = informatieObjectType.url
-            // task form attachments are held in memory, so their content travels in the request itself
-            inhoud = bestand.file!!.toBase64String()
-            bestandsomvang = bestand.file!!.size
+            inhoud = fileContent.toBase64String()
+            bestandsomvang = fileContent.size
             formaat = bestand.type
             bestandsnaam = bestand.filename
             status = StatusEnum.DEFINITIEF
@@ -254,8 +253,9 @@ class RestInformatieobjectConverter @Inject constructor(
             enkelvoudigInformatieObjectWithLockRequest.bestandsnaam = restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam
             enkelvoudigInformatieObjectWithLockRequest.formaat = restEnkelvoudigInformatieObjectVersieGegevens.formaat
         }
-        enkelvoudigInformatieObjectWithLockRequest.informatieobjecttype =
-            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID!!).url
+        restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID?.let {
+            enkelvoudigInformatieObjectWithLockRequest.informatieobjecttype = ztcClientService.readInformatieobjecttype(it).url
+        }
         return enkelvoudigInformatieObjectWithLockRequest
     }
 
@@ -282,9 +282,7 @@ class RestInformatieobjectConverter @Inject constructor(
         if (restEnkelvoudigInformatieObjectVersieGegevens.titel != null) {
             enkelvoudigInformatieObjectWithLockData.titel = restEnkelvoudigInformatieObjectVersieGegevens.titel
         }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.taal != null) {
-            enkelvoudigInformatieObjectWithLockData.taal = restEnkelvoudigInformatieObjectVersieGegevens.taal!!.code
-        }
+        restEnkelvoudigInformatieObjectVersieGegevens.taal?.let { enkelvoudigInformatieObjectWithLockData.taal = it.code }
         if (restEnkelvoudigInformatieObjectVersieGegevens.auteur != null) {
             enkelvoudigInformatieObjectWithLockData.auteur = restEnkelvoudigInformatieObjectVersieGegevens.auteur
         }
@@ -331,7 +329,7 @@ class RestInformatieobjectConverter @Inject constructor(
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.identificatie
         restEnkelvoudigInformatieobject.rechten = documentRechten.toRestDocumentRechten()
-        if (documentRechten.lezen) {
+        if (documentRechten.canLezen) {
             convertEnkelvoudigInformatieObject(
                 enkelvoudigInformatieObject = enkelvoudigInformatieObject,
                 lock = lock,

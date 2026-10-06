@@ -40,7 +40,7 @@ class CsvRestServiceTest : BehaviorSpec({
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten()
         val csvStreamingOutput = mockk<StreamingOutput>()
 
-        every { policyService.readWerklijstRechten().zakenTakenExporteren } returns true
+        every { policyService.readWerklijstRechten().canZakenTakenExporteren } returns true
         every { restZoekParametersConverter.convert(restZoekParameters) } returns zoekParameters
         every { searchService.search(zoekParameters) } returns zoekResultaat
         every { csvService.exportToCsv(zoekResultaat) } returns csvStreamingOutput

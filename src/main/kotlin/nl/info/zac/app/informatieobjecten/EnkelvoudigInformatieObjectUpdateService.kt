@@ -72,10 +72,8 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         beschrijving = enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
         omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN,
         content = content
-    ).also {
-        taskId?.let { taskId ->
-            addZaakInformatieobjectToTaak(taskId, it, skipPolicyCheck)
-        }
+    ).also { zaakInformatieobject ->
+        taskId?.let { addZaakInformatieobjectToTaak(it, zaakInformatieobject, skipPolicyCheck) }
     }
 
     fun verzendEnkelvoudigInformatieObject(uuid: UUID, verzenddatum: LocalDate?, toelichting: String?) {
@@ -149,7 +147,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         try {
             val task = flowableTaskService.findOpenTask(taskId)
                 ?: throw TaskNotFoundException("No open task found with task id: '$taskId'")
-            assertPolicy(skipPolicyCheck || policyService.readTaakRechten(task).toevoegenDocument)
+            assertPolicy(skipPolicyCheck || policyService.readTaakRechten(task).canToevoegenDocument)
 
             mutableListOf<UUID>().apply {
                 addAll(readTaskDocuments(task))

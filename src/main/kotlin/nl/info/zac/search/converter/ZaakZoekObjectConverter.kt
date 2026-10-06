@@ -40,7 +40,7 @@ class ZaakZoekObjectConverter @Inject constructor(
     private val identityService: IdentityService,
     private val flowableTaskService: FlowableTaskService,
     private val reindexSupportService: ReindexSupportService
-) : AbstractZoekObjectConverter<ZaakZoekObject>() {
+) : ZoekObjectConverter<ZaakZoekObject> {
 
     override fun convert(id: String): ZaakZoekObject =
         zrcClientService.readZaak(UUID.fromString(id)).let { zaak ->
@@ -148,7 +148,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // In this case, we treat the rol as an empty 'orphaned' role and ignore it here.
             role.toBetrokkeneIdentification()?.run {
                 zaakZoekObject.addBetrokkene(
-                    rol = role.omschrijving.orEmpty(),
+                    rol = role.omschrijving,
                     identificatie = this.toSolrFormatting()
                 )
             }

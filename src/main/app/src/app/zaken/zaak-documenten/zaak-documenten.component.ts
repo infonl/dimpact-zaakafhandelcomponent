@@ -44,11 +44,13 @@ import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-obje
 import { detailExpand } from "../../shared/animations/animations";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
+import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -108,6 +110,7 @@ const GEKOPPELDE_COLUMNS = [
     DocumentViewerComponent,
     InformatieObjectIndicatiesComponent,
     EmptyPipe,
+    I18nKeyPipe,
     BestandsomvangPipe,
     DatumPipe,
     VertrouwelijkaanduidingToTranslationKeyPipe,
@@ -147,9 +150,9 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   );
 
   private readonly documentenQuery = injectQuery(() =>
-    this.informatieObjectenService.listEnkelvoudigInformatieobjectenQuery({
+    this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaakUuid(),
-      gekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
+      shouldIncludeGekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
     }),
   );
 
@@ -249,7 +252,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   private reloadDocumenten() {
     return this.queryClient.invalidateQueries({
-      queryKey: [LIST_QUERY_KEY, this.zaakUuid()],
+      queryKey: [LIST_QUERY_KEY, { zaakUUID: this.zaakUuid() }],
     });
   }
 
@@ -318,20 +321,20 @@ export class ZaakDocumentenComponent implements AfterViewInit {
         }
         this.documentDialogService
           .openOntkoppelDocument(melding, (reden) =>
-            this.zakenService.ontkoppelInformatieObject({
-              zaakUUID: this.zaak().uuid,
-              documentUUID: informatieobject.uuid!,
-              reden: reden,
-            }),
+            runMutation(
+              this.queryClient,
+              this.zakenService.ontkoppelInformatieObject(informatieobject),
+              {
+                zaakUUID: this.zaak().uuid,
+                documentUUID: informatieobject.uuid!,
+                reden,
+              },
+            ),
           )
           .afterClosed()
           .subscribe((result) => {
             if (result) {
               this.reloadDocumenten();
-              this.utilService.openSnackbar(
-                "msg.document.ontkoppelen.uitgevoerd",
-                { document: informatieobject.titel },
-              );
             }
           });
       });
@@ -398,7 +401,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
     return (
-      Boolean(enkelvoudigInformatieobject.rechten?.wijzigen) &&
+      Boolean(enkelvoudigInformatieobject.rechten?.canWijzigen) &&
       FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat) // The backend converter supports other formats (such as .txt), but only allow office formats in the UI
     );
   }

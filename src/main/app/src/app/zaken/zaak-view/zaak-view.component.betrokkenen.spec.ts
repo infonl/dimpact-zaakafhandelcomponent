@@ -3,11 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -38,7 +34,6 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
-import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -54,7 +49,7 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
-const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+const planItemsQuery = (planItems: GeneratedType<"RestPlanItem">[]) =>
   queryOptions({
     queryKey: ["fakePlanItems", planItems],
     queryFn: () => planItems,
@@ -93,7 +88,7 @@ describe(ZaakViewComponent.name, () => {
     }),
     indicaties: [],
     rechten: {
-      behandelen: true,
+      canBehandelen: true,
     },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
@@ -127,14 +122,11 @@ describe(ZaakViewComponent.name, () => {
         StaticTextComponent,
         ZaakProcessFlowComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         PlanItemsService,
         {
@@ -158,7 +150,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -169,7 +161,7 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
         planItemsQuery([
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
@@ -248,7 +240,7 @@ describe(ZaakViewComponent.name, () => {
       ...zaak,
       rechten: {
         ...zaak.rechten,
-        toevoegenInitiatorPersoon: true,
+        canToevoegenInitiatorPersoon: true,
       },
       zaaktype: {
         ...zaak.zaaktype,
@@ -257,7 +249,7 @@ describe(ZaakViewComponent.name, () => {
         >({
           betrokkeneKoppelingen: fromPartial<
             GeneratedType<"RestBetrokkeneKoppelingen">
-          >({ brpKoppelen: true }),
+          >({ isBrpKoppelenEnabled: true }),
         }),
       },
     } satisfies GeneratedType<"RestZaak">;
@@ -268,7 +260,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: true,
+          canZoeken: true,
         }),
       );
 
@@ -286,7 +278,7 @@ describe(ZaakViewComponent.name, () => {
           ...zaakWithPersoonRechten,
           rechten: {
             ...zaakWithPersoonRechten.rechten,
-            toevoegenInitiatorPersoon: false,
+            canToevoegenInitiatorPersoon: false,
           },
         },
       });
@@ -306,7 +298,7 @@ describe(ZaakViewComponent.name, () => {
             >({
               betrokkeneKoppelingen: fromPartial<
                 GeneratedType<"RestBetrokkeneKoppelingen">
-              >({ brpKoppelen: false }),
+              >({ isBrpKoppelenEnabled: false }),
             }),
           },
         },
@@ -320,7 +312,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: false,
+          canZoeken: false,
         }),
       );
       fixture.detectChanges();
@@ -560,7 +552,7 @@ describe(ZaakViewComponent.name, () => {
         zaakobject: bagObject,
       });
       expect(list).toHaveBeenCalledWith(zaak.uuid);
-      expect(openSnackbar).toHaveBeenCalledWith("msg.bagObject.gekoppeld");
+      expect(openSnackbar).toHaveBeenCalledWith("msg.bag-object.gekoppeld");
     });
   });
 });

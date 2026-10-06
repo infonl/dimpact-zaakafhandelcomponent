@@ -17,6 +17,7 @@ import {
 import { testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
+import { PutBody } from "../shared/http/http-client";
 import { InboxProductaanvragenService } from "./inbox-productaanvragen.service";
 
 describe(InboxProductaanvragenService.name, () => {
@@ -57,7 +58,20 @@ describe(InboxProductaanvragenService.name, () => {
       await runMutationOnSuccess(service.delete(), 42);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
+        "msg.inbox-productaanvraag.verwijderen.uitgevoerd",
+      );
+    });
+
+    it("marks every cached read of the inbox productaanvragen stale, so that the werklijst re-reads instead of showing the deleted row", async () => {
+      const listQueryKey = service.list(
+        fromPartial<PutBody<"/rest/inbox-productaanvragen">>({ page: 0 }),
+      ).queryKey;
+      testQueryClient.setQueryData(listQueryKey, {});
+
+      await runMutationOnSuccess(service.delete(), 42);
+
+      expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
+        true,
       );
     });
   });

@@ -28,10 +28,11 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
+import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
@@ -39,6 +40,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   styleUrls: ["./zaak-brondatum-zetten-dialog.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     ReactiveFormsModule,
     MatToolbarModule,
@@ -51,7 +53,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
     MatFormFieldModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacDate,
   ],
 })
 export class ZaakBrondatumZettenDialogComponent {
@@ -60,7 +62,7 @@ export class ZaakBrondatumZettenDialogComponent {
   );
   public readonly data = inject(MAT_DIALOG_DATA) as {
     zaak: GeneratedType<"RestZaak">;
-    planItem?: GeneratedType<"RESTPlanItem">;
+    planItem?: GeneratedType<"RestPlanItem">;
   };
   private readonly formBuilder = inject(FormBuilder);
   private readonly zacQueryClient = inject(ZacQueryClient);
@@ -101,7 +103,7 @@ export class ZaakBrondatumZettenDialogComponent {
   );
 
   constructor() {
-    if (this.data.zaak.resultaat?.resultaattype?.datumKenmerkVerplicht) {
+    if (this.data.zaak.resultaat?.resultaattype?.isDatumKenmerkVerplicht) {
       this.brondatumLabel =
         this.data.zaak.resultaat?.resultaattype.datumKenmerkOmschrijving;
     }
@@ -150,7 +152,7 @@ export class ZaakBrondatumZettenDialogComponent {
     }
   }
 
-  private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
+  private planItemAfhandelen(planItem: GeneratedType<"RestPlanItem">) {
     const { value } = this.form;
 
     this.planItemAfhandelenMutation.mutate({

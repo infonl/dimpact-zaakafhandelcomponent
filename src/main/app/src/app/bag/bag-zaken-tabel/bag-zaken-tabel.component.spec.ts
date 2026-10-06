@@ -40,6 +40,15 @@ describe(BagZakenTabelComponent.name, () => {
     return list.mock.lastCall![0] as Parameters<ZoekenService["list"]>[0];
   }
 
+  function failNextSearch() {
+    list.mockReturnValue({
+      queryKey: ["failing-query"],
+      queryFn: jest
+        .fn()
+        .mockRejectedValue(new HttpErrorResponse({ status: 500 })),
+    });
+  }
+
   async function settle() {
     await sleep();
     // the table creates the row views in one pass and binds their cells in the next
@@ -93,13 +102,19 @@ describe(BagZakenTabelComponent.name, () => {
     expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
   });
 
+  it("searches once when it is first rendered", async () => {
+    await setup();
+
+    expect(list).toHaveBeenCalledTimes(1);
+  });
+
   it("searches for open zaken only until afgeronde zaken are shown as well", async () => {
     await setup();
 
     expect(lastSearch().alleenOpenstaandeZaken).toBe(true);
 
     await user.click(
-      screen.getByRole("switch", { name: "toonAfgerondeZaken" }),
+      screen.getByRole("switch", { name: "toon-afgeronde-zaken" }),
     );
     await settle();
 
@@ -114,31 +129,45 @@ describe(BagZakenTabelComponent.name, () => {
     expect(lastSearch().page).toBe(1);
 
     await user.click(
-      screen.getByRole("switch", { name: "toonAfgerondeZaken" }),
+      screen.getByRole("switch", { name: "toon-afgeronde-zaken" }),
     );
     await settle();
 
     expect(lastSearch().page).toBe(0);
   });
 
+  it("stays on the page it is showing when the search for the next one fails", async () => {
+    await setup(
+      makeZoekResultaat({
+        totaal: 25,
+        resultaten: [
+          fromPartial<ZaakZoekObject>({ identificatie: "ZAAK-001" }),
+        ],
+      }),
+    );
+    failNextSearch();
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await settle();
+
+    expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
+    expect(screen.getByText("1 – 10 of 25")).toBeVisible();
+  });
+
   it("keeps searching after a search has failed", async () => {
     await setup(makeZoekResultaat({ totaal: 25 }));
-    list.mockReturnValue({
-      queryKey: ["failing-query"],
-      queryFn: jest
-        .fn()
-        .mockRejectedValue(new HttpErrorResponse({ status: 500 })),
-    });
+    failNextSearch();
 
     await user.click(screen.getByRole("button", { name: "Next page" }));
     await settle();
     expect(lastSearch().page).toBe(1);
 
     list.mockReturnValue(createQueryOptions(makeZoekResultaat({ totaal: 25 })));
-    await user.click(screen.getByRole("button", { name: "Previous page" }));
+    await user.click(screen.getByRole("button", { name: "Next page" }));
     await settle();
 
-    expect(lastSearch().page).toBe(0);
+    expect(lastSearch().page).toBe(1);
+    expect(screen.getByText("11 – 20 of 25")).toBeVisible();
   });
 
   it("searches again when it is pointed at another bag object", async () => {

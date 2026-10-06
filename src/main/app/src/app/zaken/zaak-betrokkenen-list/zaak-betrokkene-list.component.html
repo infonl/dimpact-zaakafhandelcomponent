@@ -46,20 +46,20 @@
           <span>{{ betrokkene.bsn }} </span>
         }
         @if (betrokkene.type === "NATUURLIJK_PERSOON") {
-          <span [matTooltip]="'identificatieType.BSN' | translate">(P)</span>
+          <span [matTooltip]="'identificatie-type.bsn' | translate">(P)</span>
         }
         @if (
           betrokkene.type === "NIET_NATUURLIJK_PERSOON" &&
           betrokkene.identificatieType === "RSIN"
         ) {
-          <span [matTooltip]="'identificatieType.RSIN' | translate">(R)</span>
+          <span [matTooltip]="'identificatie-type.rsin' | translate">(R)</span>
         }
         @if (
           (betrokkene.type === "NIET_NATUURLIJK_PERSOON" &&
             betrokkene.identificatieType === "VN") ||
           betrokkene.type === "VESTIGING"
         ) {
-          <span [matTooltip]="'identificatieType.VN' | translate">(V)</span>
+          <span [matTooltip]="'identificatie-type.vn' | translate">(V)</span>
         }
       </td>
     </ng-container>
@@ -112,7 +112,7 @@
           [betrokkene]="betrokkene"
           [zaaktypeUuid]="zaak().zaaktype.uuid"
         />
-        @if (zaak().rechten.verwijderenBetrokkene) {
+        @if (zaak().rechten.canVerwijderenBetrokkene) {
           <button
             mat-icon-button
             (click)="deleteBetrokkene(betrokkene)"

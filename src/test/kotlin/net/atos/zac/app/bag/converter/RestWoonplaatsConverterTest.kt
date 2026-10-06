@@ -44,11 +44,11 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
             val fakeZaakUri = URI("https://example.com/zaken/fakeZaakUri")
             val objectWoonplaats = ObjectWoonplaats("fakeIdentificatie", "fakeWoonplaatsNaam")
             val zaakobjectWoonplaats = ZaakobjectWoonplaats(
-                fakeZaakUri,
-                fakeObjectUri,
-                objectWoonplaats,
-                URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
-                UUID.randomUUID()
+                zaak = fakeZaakUri,
+                bagobjectUri = fakeObjectUri,
+                woonplaats = objectWoonplaats,
+                url = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+                uuid = UUID.randomUUID()
             )
 
             `when`("convertToREST is called") {

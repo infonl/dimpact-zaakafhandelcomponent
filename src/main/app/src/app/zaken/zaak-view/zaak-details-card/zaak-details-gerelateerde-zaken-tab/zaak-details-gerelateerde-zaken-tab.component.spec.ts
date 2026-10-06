@@ -25,7 +25,7 @@ describe(ZaakDetailsGerelateerdeZakenTabComponent.name, () => {
       startdatum: "2026-01-15",
       relatieType: "VERVOLG",
       rechten: fromPartial<GeneratedType<"RestGerelateerdeZaak">["rechten"]>({
-        lezen: true,
+        canLezen: true,
       }),
       ...overrides,
     });
@@ -74,7 +74,7 @@ describe(ZaakDetailsGerelateerdeZakenTabComponent.name, () => {
     renderZaken([
       gerelateerdeZaak({
         rechten: fromPartial<GeneratedType<"RestGerelateerdeZaak">["rechten"]>({
-          lezen: false,
+          canLezen: false,
         }),
       }),
     ]);
@@ -86,7 +86,7 @@ describe(ZaakDetailsGerelateerdeZakenTabComponent.name, () => {
 
   it("emits zaakOntkoppelen for a zaak that may be ontkoppeld", () => {
     const zaakOntkoppelen = jest.fn();
-    const ontkoppelbareZaak = gerelateerdeZaak({ ontkoppelen: true });
+    const ontkoppelbareZaak = gerelateerdeZaak({ canOntkoppelen: true });
     renderZaken([ontkoppelbareZaak]);
     fixture.componentInstance.zaakOntkoppelen.subscribe(zaakOntkoppelen);
 
@@ -96,7 +96,7 @@ describe(ZaakDetailsGerelateerdeZakenTabComponent.name, () => {
   });
 
   it("offers no ontkoppelen button for a zaak that may not be ontkoppeld", () => {
-    renderZaken([gerelateerdeZaak({ ontkoppelen: false })]);
+    renderZaken([gerelateerdeZaak({ canOntkoppelen: false })]);
 
     expect(
       screen().queryByRole("button", { name: "actie.zaak.ontkoppelen" }),

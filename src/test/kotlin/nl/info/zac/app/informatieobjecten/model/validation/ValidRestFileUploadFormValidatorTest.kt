@@ -25,10 +25,10 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             )
 
             `when`("validated") {
-                val result = validator.isValid(upload, null)
+                val isValid = validator.isValid(upload, null)
 
                 then("it is accepted") {
-                    result shouldBe true
+                    isValid shouldBe true
                 }
             }
         }
@@ -42,10 +42,10 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             )
 
             `when`("validated") {
-                val result = validator.isValid(upload, null)
+                val isValid = validator.isValid(upload, null)
 
                 then("it is accepted because only the extension is validated") {
-                    result shouldBe true
+                    isValid shouldBe true
                 }
             }
         }
@@ -59,10 +59,10 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             )
 
             `when`("validated") {
-                val result = validator.isValid(upload, null)
+                val isValid = validator.isValid(upload, null)
 
                 then("it is rejected") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -71,10 +71,10 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             val upload = RestFileUpload()
 
             `when`("validated") {
-                val result = validator.isValid(upload, null)
+                val isValid = validator.isValid(upload, null)
 
                 then("it is accepted because no actual upload is happening") {
-                    result shouldBe true
+                    isValid shouldBe true
                 }
             }
         }
@@ -88,10 +88,10 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             )
 
             `when`("validated") {
-                val result = validator.isValid(upload, null)
+                val isValid = validator.isValid(upload, null)
 
                 then("it is rejected") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -105,10 +105,10 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             )
 
             `when`("validated") {
-                val result = validator.isValid(upload, null)
+                val isValid = validator.isValid(upload, null)
 
                 then("it is rejected because the allowlist can only be applied with a filename") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -122,10 +122,10 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             )
 
             `when`("validated") {
-                val result = validator.isValid(upload, null)
+                val isValid = validator.isValid(upload, null)
 
                 then("it is rejected") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }
@@ -139,10 +139,10 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             )
 
             `when`("validated") {
-                val result = validator.isValid(upload, null)
+                val isValid = validator.isValid(upload, null)
 
                 then("it is rejected") {
-                    result shouldBe false
+                    isValid shouldBe false
                 }
             }
         }

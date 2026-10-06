@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 @Suppress("TooManyFunctions")
 class ItestHttpClient {
     private val logger = KotlinLogging.logger {}
-    private var okHttpClient: OkHttpClient = OkHttpClient.Builder()
+    private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .followRedirects(false)
         .build()

@@ -5,7 +5,7 @@
 <mat-accordion>
   <mat-expansion-panel
     (afterExpand)="loadBesluitData(besluit.uuid)"
-    *ngFor="let besluit of besluiten; first as isFirst"
+    *ngFor="let besluit of besluiten(); first as isFirst"
     [expanded]="isFirst"
   >
     <mat-expansion-panel-header>
@@ -63,31 +63,35 @@
             [icon]="besluit.vervalreden ? toolTipIcon : null"
             [matTooltip]="
               besluit.vervalreden
-                ? ('besluit.vervalreden.' + besluit.vervalreden | translate)
+                ? ('besluit.vervalreden.' + besluit.vervalreden
+                  | i18nKey
+                  | translate)
                 : null
             "
             [attr.role]="besluit.vervalreden ? 'tooltip' : null"
             [attr.aria-label]="
               besluit.vervalreden
-                ? ('besluit.vervalreden.' + besluit.vervalreden | translate)
+                ? ('besluit.vervalreden.' + besluit.vervalreden
+                  | i18nKey
+                  | translate)
                 : null
             "
           />
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="besluit.besluittype?.publication?.enabled"
+            *ngIf="besluit.besluittype?.publication?.isEnabled"
             label="publicatiedatum"
             [value]="besluit.publicationDate | datum"
           />
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="besluit.besluittype?.publication?.enabled"
+            *ngIf="besluit.besluittype?.publication?.isEnabled"
             label="uiterlijkereactiedatum"
             [value]="besluit.lastResponseDate | datum"
           />
           <zac-static-text
             class="flex-fill-row"
-            label="besluitToelichting"
+            label="besluit-toelichting"
             [value]="besluit.toelichting"
           />
           <zac-documents
@@ -134,7 +138,7 @@
               </th>
               <td mat-cell *matCellDef="let regel">
                 <read-more
-                  [text]="regel.attribuutLabel | translate"
+                  [text]="regel.attribuutLabel | i18nLabel"
                   [maxLength]="20"
                 ></read-more>
               </td>
@@ -201,7 +205,7 @@
               "
             ></tr>
           </table>
-          <p *ngIf="histories[besluit.uuid]?.data?.length == 0">
+          <p *ngIf="histories[besluit.uuid]?.data?.length === 0">
             {{ "msg.geen.gegevens.gevonden" | translate }}
           </p>
         </div>

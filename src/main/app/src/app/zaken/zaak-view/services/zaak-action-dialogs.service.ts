@@ -6,13 +6,13 @@
 import { ComponentType } from "@angular/cdk/portal";
 import { inject, Injectable, signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../shared/utils/i18n-key";
 import { TakenService } from "../../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../../intake-afronden-dialog/intake-afronden-dialog.component";
 import { isRestZaak } from "../../is-rest-zaak";
@@ -26,7 +26,7 @@ import { ZakenService } from "../../zaken.service";
 import { ZaakSideActionService } from "./zaak-side-action.service";
 
 type Zaak = GeneratedType<"RestZaak">;
-type PlanItem = GeneratedType<"RESTPlanItem">;
+type PlanItem = GeneratedType<"RestPlanItem">;
 
 /**
  * Opens the dialogs that act on the zaak as a whole and applies their outcome:
@@ -35,7 +35,6 @@ type PlanItem = GeneratedType<"RESTPlanItem">;
 @Injectable()
 export class ZaakActionDialogsService {
   private readonly dialog = inject(MatDialog);
-  private readonly queryClient = inject(QueryClient);
   private readonly takenService = inject(TakenService);
   private readonly utilService = inject(UtilService);
   private readonly zaakDialogService = inject(ZaakDialogService);
@@ -50,7 +49,7 @@ export class ZaakActionDialogsService {
    * separately. Kept here because the hervatten dialog is their only writer.
    */
   readonly opschorting = signal<
-    GeneratedType<"RESTZaakOpschorting"> | undefined
+    GeneratedType<"RestZaakOpschorting"> | undefined
   >(undefined);
 
   loadOpschorting(zaak: Zaak) {
@@ -62,12 +61,6 @@ export class ZaakActionDialogsService {
     this.zakenService
       .readOpschortingZaak(zaak.uuid)
       .subscribe((opschorting) => this.opschorting.set(opschorting));
-  }
-
-  private refreshTaken(zaak: Zaak) {
-    this.queryClient.invalidateQueries({
-      queryKey: this.takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
-    });
   }
 
   /**
@@ -107,7 +100,9 @@ export class ZaakActionDialogsService {
         }
 
         this.utilService.openSnackbar(
-          `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
+          toI18nKey(
+            `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
+          ),
         );
         this.zakenService.invalidateZaak(zaak.uuid);
       },
@@ -163,7 +158,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.cacheOrRefetch(zaak, result);
-        this.refreshTaken(zaak);
+        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.afgebroken");
       },
     );
@@ -179,7 +174,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.cacheOrRefetch(zaak, result);
-        this.refreshTaken(zaak);
+        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.heropend");
       },
     );
@@ -195,7 +190,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.zakenService.invalidateZaak(zaak.uuid);
-        this.refreshTaken(zaak);
+        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.afgesloten");
       },
     );
@@ -211,7 +206,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.zakenService.invalidateZaak(zaak.uuid);
-        this.refreshTaken(zaak);
+        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.brondatum.gezet");
       },
     );

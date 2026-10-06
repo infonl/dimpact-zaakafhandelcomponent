@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
@@ -20,10 +21,21 @@ data class RestResultaattype(
     var id: UUID,
     var naam: String? = null,
     var naamGeneriek: String? = null,
-    var vervaldatumBesluitVerplicht: Boolean,
-    var datumKenmerkVerplicht: Boolean,
+
+    @get:JsonbProperty("isVervaldatumBesluitVerplicht")
+    @set:JsonbProperty("isVervaldatumBesluitVerplicht")
+    var isVervaldatumBesluitVerplicht: Boolean,
+
+    @get:JsonbProperty("isDatumKenmerkVerplicht")
+    @set:JsonbProperty("isDatumKenmerkVerplicht")
+    var isDatumKenmerkVerplicht: Boolean,
+
     var datumKenmerkOmschrijving: String? = null,
-    var besluitVerplicht: Boolean,
+
+    @get:JsonbProperty("isBesluitVerplicht")
+    @set:JsonbProperty("isBesluitVerplicht")
+    var isBesluitVerplicht: Boolean,
+
     var toelichting: String? = null,
     var archiefNominatie: String? = null,
     var archiefTermijn: String? = null,
@@ -41,9 +53,9 @@ fun ResultaatType.toRestResultaatType() = RestResultaattype(
         PeriodUtil.format(Period.parse(it))
     },
     bronArchiefprocedure = this.brondatumArchiefprocedure,
-    besluitVerplicht = this.isBesluitVerplicht(),
-    vervaldatumBesluitVerplicht = this.isVervaldatumBesluitVerplicht(),
-    datumKenmerkVerplicht = this.isDatumKenmerkVerplicht()
+    isBesluitVerplicht = this.isBesluitVerplicht(),
+    isVervaldatumBesluitVerplicht = this.isVervaldatumBesluitVerplicht(),
+    isDatumKenmerkVerplicht = this.isDatumKenmerkVerplicht()
 )
 
 fun List<ResultaatType>.toRestResultaatTypes(): List<RestResultaattype> = this.map { it.toRestResultaatType() }

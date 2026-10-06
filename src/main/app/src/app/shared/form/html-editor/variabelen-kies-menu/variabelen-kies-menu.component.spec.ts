@@ -50,10 +50,10 @@ describe(VariabelenKiesMenuComponent.name, () => {
     const [naamItem, adresItem, ...otherItems] =
       screen.getAllByRole("menuitem");
     expect(naamItem).toHaveAccessibleName(
-      "fakeNaam: mailtemplate.variabele.fakeNaam",
+      "fakeNaam: mailtemplate.variabele.fake-naam",
     );
     expect(adresItem).toHaveAccessibleName(
-      "fakeAdres: mailtemplate.variabele.fakeAdres",
+      "fakeAdres: mailtemplate.variabele.fake-adres",
     );
     expect(otherItems).toHaveLength(0);
   });

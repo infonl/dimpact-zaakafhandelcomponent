@@ -31,7 +31,9 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.time.ZonedDateTime
+import java.time.format.DateTimeParseException
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 import javax.imageio.ImageIO
 
@@ -102,8 +104,8 @@ class BpmnService @Inject constructor(
                 paddedBottom - paddedTop + 1
             )
             return ByteArrayInputStream(
-                ByteArrayOutputStream().also {
-                    ImageIO.write(cropped, "png", it)
+                ByteArrayOutputStream().also { outputStream ->
+                    ImageIO.write(cropped, "png", outputStream)
                 }.toByteArray()
             )
         }
@@ -299,7 +301,7 @@ class BpmnService @Inject constructor(
         // Fill metadata based on the first process
         bpmnModel.processes.firstOrNull()?.let { first ->
             documentation = first.documentation
-            modificationDate = getModificationDate(first.extensionElements)
+            modificationDate = getModificationDate(processDefinition.key, first.extensionElements)
         }
         // Find all user tasks with form keys
         bpmnModel.processes.forEach { process ->
@@ -312,18 +314,33 @@ class BpmnService @Inject constructor(
                 }
         }
         return BpmnProcessDefinitionMetadata(
-            documentation,
-            modificationDate,
-            getUploadDate(processDefinition.deploymentId),
-            formKeys,
+            documentation = documentation,
+            modificationDate = modificationDate,
+            uploadDate = getUploadDate(processDefinition.deploymentId),
+            formKeys = formKeys,
         )
     }
 
-    private fun getModificationDate(extensionElements: Map<String, List<ExtensionElement>>): ZonedDateTime? {
+    private fun getModificationDate(
+        processDefinitionKey: String,
+        extensionElements: Map<String, List<ExtensionElement>>
+    ): ZonedDateTime? {
         return extensionElements["modificationdate"]
             ?.firstOrNull()
             ?.elementText
-            ?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
+            ?.let { modificationDate ->
+                try {
+                    ZonedDateTime.parse(modificationDate)
+                } catch (dateTimeParseException: DateTimeParseException) {
+                    LOG.log(
+                        Level.WARNING,
+                        "Ignoring unparseable modification date '$modificationDate' " +
+                            "in BPMN process definition '$processDefinitionKey'",
+                        dateTimeParseException
+                    )
+                    null
+                }
+            }
     }
 
     private fun getUploadDate(deploymentId: String): ZonedDateTime? {

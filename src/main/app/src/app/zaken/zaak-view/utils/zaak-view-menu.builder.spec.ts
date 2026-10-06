@@ -72,7 +72,10 @@ describe(buildZaakMenu.name, () => {
   describe("while the plan items are still loading", () => {
     it("renders the zaak section without the acties, taken and koppelingen sections", () => {
       const menu = buildZaakMenu(
-        createZaak({}, { behandelen: true, wijzigen: true, afbreken: true }),
+        createZaak(
+          {},
+          { canBehandelen: true, canWijzigen: true, canAfbreken: true },
+        ),
         null,
         handlers,
         dialogs,
@@ -86,12 +89,15 @@ describe(buildZaakMenu.name, () => {
 
   describe("the zaak section", () => {
     it("offers the ontvangstbevestiging only when it has not been sent yet", () => {
-      const rechten = { behandelen: true, versturenOntvangstbevestiging: true };
+      const rechten = {
+        canBehandelen: true,
+        canVersturenOntvangstbevestiging: true,
+      };
 
       expect(
         titles(
           buildZaakMenu(
-            createZaak({ heeftOntvangstbevestigingVerstuurd: false }, rechten),
+            createZaak({ isOntvangstbevestigingVerstuurd: false }, rechten),
             noPlanItems,
             handlers,
             dialogs,
@@ -104,7 +110,7 @@ describe(buildZaakMenu.name, () => {
       expect(
         titles(
           buildZaakMenu(
-            createZaak({ heeftOntvangstbevestigingVerstuurd: true }, rechten),
+            createZaak({ isOntvangstbevestigingVerstuurd: true }, rechten),
             noPlanItems,
             handlers,
             dialogs,
@@ -119,7 +125,7 @@ describe(buildZaakMenu.name, () => {
       const menu = buildZaakMenu(
         createZaak(
           { isProcesGestuurd: true },
-          { behandelen: true, versturenEmail: true },
+          { canBehandelen: true, canVersturenEmail: true },
         ),
         noPlanItems,
         handlers,
@@ -140,13 +146,13 @@ describe(buildZaakMenu.name, () => {
                 zaaktype: fromPartial({
                   zaakafhandelparameters: fromPartial({
                     smartDocuments: fromPartial({
-                      enabledGlobally,
-                      enabledForZaaktype,
+                      isEnabledGlobally: enabledGlobally,
+                      isEnabledForZaaktype: enabledForZaaktype,
                     }),
                   }),
                 }),
               },
-              { creerenDocument: true },
+              { canCreerenDocument: true },
             ),
             noPlanItems,
             handlers,
@@ -163,7 +169,7 @@ describe(buildZaakMenu.name, () => {
 
     it("offers toevoegen and verzenden whenever documents may be created, regardless of SmartDocuments", () => {
       const menu = buildZaakMenu(
-        createZaak({}, { creerenDocument: true }),
+        createZaak({}, { canCreerenDocument: true }),
         noPlanItems,
         handlers,
         dialogs,
@@ -180,7 +186,7 @@ describe(buildZaakMenu.name, () => {
     });
 
     it("offers zaakdata bekijken only when the zaak actually carries zaakdata", () => {
-      const rechten = { bekijkenZaakdata: true };
+      const rechten = { canBekijkenZaakdata: true };
 
       expect(
         titles(
@@ -210,7 +216,7 @@ describe(buildZaakMenu.name, () => {
     });
 
     it("labels the zaakdata button as archief when the zaakdata is archived", () => {
-      const rechten = { bekijkenZaakdata: true };
+      const rechten = { canBekijkenZaakdata: true };
       const zaak = createZaak({ zaakdata: { fakeKey: "fakeValue" } }, rechten);
       const hasBrpSearchRight = false;
       const isArchief = true;
@@ -269,7 +275,7 @@ describe(buildZaakMenu.name, () => {
 
     it("routes every zaak section button to the side action panel", () => {
       const menu = buildZaakMenu(
-        createZaak({}, { creerenDocument: true }),
+        createZaak({}, { canCreerenDocument: true }),
         noPlanItems,
         handlers,
         dialogs,
@@ -288,49 +294,49 @@ describe(buildZaakMenu.name, () => {
       [
         "actie.zaak.heropenen",
         { isOpen: false },
-        { heropenen: true },
+        { canHeropenen: true },
         "openHeropenen" as const,
       ],
       [
         "actie.zaak.opschorten",
         {
           isOpen: true,
-          zaaktype: fromPartial<Zaaktype>({ opschortingMogelijk: true }),
+          zaaktype: fromPartial<Zaaktype>({ isOpschortingMogelijk: true }),
         },
-        { behandelen: true },
+        { canBehandelen: true },
         "openOpschorten" as const,
       ],
       [
         "actie.zaak.verlengen",
         {
           isOpen: true,
-          zaaktype: fromPartial<Zaaktype>({ verlengingMogelijk: true }),
+          zaaktype: fromPartial<Zaaktype>({ isVerlengingMogelijk: true }),
         },
-        { wijzigenDoorlooptijd: true },
+        { canWijzigenDoorlooptijd: true },
         "openVerlengen" as const,
       ],
       [
         "actie.zaak.hervatten",
         { isOpgeschort: true },
-        { behandelen: true },
+        { canBehandelen: true },
         "openHervatten" as const,
       ],
       [
         "actie.zaak.afbreken",
         { isOpen: true },
-        { afbreken: true },
+        { canAfbreken: true },
         "openAfbreken" as const,
       ],
       [
         "actie.zaak.afsluiten",
         { isHeropend: true },
-        { behandelen: true },
+        { canBehandelen: true },
         "openAfsluiten" as const,
       ],
     ])(
       "wires %s to its own dialog, on the zaak the menu was built for",
       (title, zaakState, rechten, dialog) => {
-        const zaak = createZaak(zaakState, { behandelen: true, ...rechten });
+        const zaak = createZaak(zaakState, { canBehandelen: true, ...rechten });
         const menu = buildZaakMenu(
           zaak,
           noPlanItems,
@@ -360,7 +366,7 @@ describe(buildZaakMenu.name, () => {
               }),
             }),
           },
-          { brondatumZetten: true },
+          { canBrondatumZetten: true },
         );
 
       expect(
@@ -374,7 +380,7 @@ describe(buildZaakMenu.name, () => {
             false,
           ),
         ),
-      ).toContain("actie.zaak.brondatumZetten");
+      ).toContain("actie.zaak.brondatum-zetten");
       expect(
         titles(
           buildZaakMenu(
@@ -386,7 +392,7 @@ describe(buildZaakMenu.name, () => {
             false,
           ),
         ),
-      ).not.toContain("actie.zaak.brondatumZetten");
+      ).not.toContain("actie.zaak.brondatum-zetten");
     });
 
     it("does not offer opschorten when the zaak was already opgeschort before", () => {
@@ -394,10 +400,10 @@ describe(buildZaakMenu.name, () => {
         createZaak(
           {
             isOpen: true,
-            eerdereOpschorting: true,
-            zaaktype: fromPartial({ opschortingMogelijk: true }),
+            hasEerdereOpschorting: true,
+            zaaktype: fromPartial({ isOpschortingMogelijk: true }),
           },
-          { behandelen: true },
+          { canBehandelen: true },
         ),
         noPlanItems,
         handlers,
@@ -411,7 +417,7 @@ describe(buildZaakMenu.name, () => {
 
     it("omits the acties header when there is neither an action nor a user event listener", () => {
       const menu = buildZaakMenu(
-        createZaak({ isOpen: true }, { behandelen: true }),
+        createZaak({ isOpen: true }, { canBehandelen: true }),
         noPlanItems,
         handlers,
         dialogs,
@@ -425,11 +431,11 @@ describe(buildZaakMenu.name, () => {
 
   describe("the plan item sections", () => {
     const humanTask = (naam: string, id: string) =>
-      fromPartial<GeneratedType<"RESTPlanItem">>({ naam, id });
+      fromPartial<GeneratedType<"RestPlanItem">>({ naam, id });
 
     it("sorts the human tasks by name", () => {
       const menu = buildZaakMenu(
-        createZaak({}, { behandelen: true }),
+        createZaak({}, { canBehandelen: true }),
         {
           userEventListener: [],
           humanTask: [
@@ -457,10 +463,10 @@ describe(buildZaakMenu.name, () => {
 
     it("hides both plan item sections from a user without the behandelen recht", () => {
       const menu = buildZaakMenu(
-        createZaak({}, { behandelen: false }),
+        createZaak({}, { canBehandelen: false }),
         {
           userEventListener: [
-            fromPartial<GeneratedType<"RESTPlanItem">>({
+            fromPartial<GeneratedType<"RestPlanItem">>({
               userEventListenerActie: "INTAKE_AFRONDEN",
             }),
           ],
@@ -473,13 +479,13 @@ describe(buildZaakMenu.name, () => {
       );
 
       expect(titles(menu)).not.toContain("actie.taak.starten");
-      expect(titles(menu)).not.toContain("planitem.INTAKE_AFRONDEN");
+      expect(titles(menu)).not.toContain("planitem.intake-afronden");
     });
 
     it("wires a human task to startHumanTask with the plan item it belongs to", () => {
       const planItem = humanTask("Advies", "1");
       const menu = buildZaakMenu(
-        createZaak({}, { behandelen: true }),
+        createZaak({}, { canBehandelen: true }),
         { userEventListener: [], humanTask: [planItem] },
         handlers,
         dialogs,
@@ -493,10 +499,10 @@ describe(buildZaakMenu.name, () => {
     });
 
     it("wires a user event listener to startUserEventListener", () => {
-      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+      const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
         userEventListenerActie: "ZAAK_AFHANDELEN",
       });
-      const zaak = createZaak({}, { behandelen: true });
+      const zaak = createZaak({}, { canBehandelen: true });
       const menu = buildZaakMenu(
         zaak,
         { userEventListener: [planItem], humanTask: [] },
@@ -506,7 +512,7 @@ describe(buildZaakMenu.name, () => {
         false,
       );
 
-      buttonNamed(menu, "planitem.ZAAK_AFHANDELEN")?.fn();
+      buttonNamed(menu, "planitem.zaak-afhandelen")?.fn();
 
       expect(dialogs.openPlanItemStarten).toHaveBeenCalledWith(zaak, planItem);
     });
@@ -515,7 +521,7 @@ describe(buildZaakMenu.name, () => {
   describe("the koppelingen section", () => {
     it("is left out entirely for a user with neither behandelen nor wijzigen", () => {
       const menu = buildZaakMenu(
-        createZaak({}, { toevoegenBagObject: true }),
+        createZaak({}, { canToevoegenBagObject: true }),
         noPlanItems,
         handlers,
         dialogs,
@@ -524,11 +530,11 @@ describe(buildZaakMenu.name, () => {
       );
 
       expect(titles(menu)).not.toContain("koppelingen");
-      expect(titles(menu)).not.toContain("actie.bagObject.koppelen");
+      expect(titles(menu)).not.toContain("actie.bag-object.koppelen");
     });
 
     it("offers locatie koppelen only while the zaak has no geometrie yet", () => {
-      const rechten = { wijzigen: true, wijzigenLocatie: true };
+      const rechten = { canWijzigen: true, canWijzigenLocatie: true };
 
       expect(
         titles(
@@ -562,11 +568,13 @@ describe(buildZaakMenu.name, () => {
         {
           zaaktype: fromPartial({
             zaakafhandelparameters: fromPartial({
-              betrokkeneKoppelingen: fromPartial({ brpKoppelen: true }),
+              betrokkeneKoppelingen: fromPartial({
+                isBrpKoppelenEnabled: true,
+              }),
             }),
           }),
         },
-        { wijzigen: true, toevoegenInitiatorPersoon: true },
+        { canWijzigen: true, canToevoegenInitiatorPersoon: true },
       );
 
       expect(

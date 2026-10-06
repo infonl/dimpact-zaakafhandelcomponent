@@ -250,8 +250,8 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         )
 
         val betrokkeneKoppelingen = ZaaktypeBetrokkeneParameters().apply {
-            brpKoppelen = true
-            kvkKoppelen = false
+            isBrpKoppelenEnabled = true
+            isKvkKoppelenEnabled = false
             zaaktypeConfiguration = originalZaaktypeCmmnConfiguration
         }
 
@@ -314,7 +314,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     intakeMail shouldBe originalZaaktypeCmmnConfiguration.intakeMail
                     afrondenMail shouldBe originalZaaktypeCmmnConfiguration.afrondenMail
                     productaanvraagtype shouldBe originalZaaktypeCmmnConfiguration.productaanvraagtype
-                    smartDocumentsEnabled shouldBe originalZaaktypeCmmnConfiguration.smartDocumentsEnabled
+                    isSmartDocumentsEnabled shouldBe originalZaaktypeCmmnConfiguration.isSmartDocumentsEnabled
                 }
             }
 
@@ -327,7 +327,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
                     new.zaaktypeCmmnConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
                     new.groepID shouldNotBe original.groepID
-                    new.actief shouldBe original.actief
+                    new.isActief shouldBe original.isActief
                     new.doorlooptijd shouldBe original.doorlooptijd
                     new.getFormulierDefinitieID() shouldBe original.getFormulierDefinitieID()
                     new.doorlooptijd shouldBe original.doorlooptijd
@@ -381,7 +381,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     new.id shouldBe null
                     new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
                     new.zaaktypeCmmnConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
-                    new.defaultMail shouldBe original.defaultMail
+                    new.isDefaultMail shouldBe original.isDefaultMail
                     new.mail shouldBe original.mail
                     new.replyTo shouldBe original.replyTo
                 }
@@ -389,8 +389,8 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
             and("The betrokkene koppelingen should get copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.getBetrokkeneParameters().let {
-                    it.brpKoppelen shouldBe originalZaaktypeCmmnConfiguration.getBetrokkeneParameters().brpKoppelen
-                    it.kvkKoppelen shouldBe originalZaaktypeCmmnConfiguration.getBetrokkeneParameters().kvkKoppelen
+                    it.isBrpKoppelenEnabled shouldBe originalZaaktypeCmmnConfiguration.getBetrokkeneParameters().isBrpKoppelenEnabled
+                    it.isKvkKoppelenEnabled shouldBe originalZaaktypeCmmnConfiguration.getBetrokkeneParameters().isKvkKoppelenEnabled
                 }
             }
 
@@ -425,7 +425,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
             and("The automatic email confirmation should be copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.zaaktypeCmmnEmailParameters.let {
-                    it?.enabled shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.enabled
+                    it?.isEnabled shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.isEnabled
                     it?.templateName shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
                     it?.emailSender shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
                     it?.emailReply shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
@@ -515,12 +515,12 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     with(configurationSlot.captured) {
                         groepID shouldBe "fakeGroupId"
                         defaultBehandelaarId shouldBe "fakeDefaultBehandelaarId"
-                        smartDocumentsEnabled shouldBe true
+                        isSmartDocumentsEnabled shouldBe true
                         productaanvraagtype shouldBe "fakeProductaanvraagtype"
                         zaaktypeOmschrijving shouldBe zaakType.omschrijving
                         with(zaaktypeBetrokkeneParameters!!) {
-                            kvkKoppelen shouldBe true
-                            brpKoppelen shouldBe false
+                            isKvkKoppelenEnabled shouldBe true
+                            isBrpKoppelenEnabled shouldBe false
                         }
                         zaaktypeBrpParameters!!.raadpleegWaarde shouldBe "fakeRaadpleegWaarde"
                     }

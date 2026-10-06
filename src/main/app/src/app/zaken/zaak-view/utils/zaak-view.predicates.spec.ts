@@ -16,7 +16,10 @@ import {
   showInitiator,
 } from "./zaak-view.predicates";
 
-type Koppelingen = { brpKoppelen?: boolean; kvkKoppelen?: boolean };
+type Koppelingen = {
+  isBrpKoppelenEnabled?: boolean;
+  isKvkKoppelenEnabled?: boolean;
+};
 
 type InitiatorType = NonNullable<
   NonNullable<GeneratedType<"RestZaak">["initiatorIdentificatie"]>["type"]
@@ -116,14 +119,19 @@ describe(showInitiator.name, () => {
   it("is false when both koppelingen are switched off", () => {
     expect(
       showInitiator(
-        createZaak({ koppelingen: { brpKoppelen: false, kvkKoppelen: false } }),
+        createZaak({
+          koppelingen: {
+            isBrpKoppelenEnabled: false,
+            isKvkKoppelenEnabled: false,
+          },
+        }),
       ),
     ).toBe(false);
   });
 
   it.each([
-    ["brpKoppelen", { brpKoppelen: true }],
-    ["kvkKoppelen", { kvkKoppelen: true }],
+    ["brpKoppelen", { isBrpKoppelenEnabled: true }],
+    ["kvkKoppelen", { isKvkKoppelenEnabled: true }],
   ])("is true when %s is switched on", (_name, koppelingen) => {
     expect(showInitiator(createZaak({ koppelingen }))).toBe(true);
   });
@@ -142,7 +150,7 @@ describe(initiatorViewType.name, () => {
     expect(
       initiatorViewType(
         createZaak({
-          koppelingen: { brpKoppelen: true },
+          koppelingen: { isBrpKoppelenEnabled: true },
           initiatorType: "BSN",
         }),
       ),
@@ -154,7 +162,10 @@ describe(initiatorViewType.name, () => {
     (initiatorType) => {
       expect(
         initiatorViewType(
-          createZaak({ koppelingen: { kvkKoppelen: true }, initiatorType }),
+          createZaak({
+            koppelingen: { isKvkKoppelenEnabled: true },
+            initiatorType,
+          }),
         ),
       ).toBe("COMPANY");
     },
@@ -164,7 +175,7 @@ describe(initiatorViewType.name, () => {
     expect(
       initiatorViewType(
         createZaak({
-          koppelingen: { kvkKoppelen: true },
+          koppelingen: { isKvkKoppelenEnabled: true },
           initiatorType: "BSN",
         }),
       ),
@@ -175,7 +186,7 @@ describe(initiatorViewType.name, () => {
     expect(
       initiatorViewType(
         createZaak({
-          koppelingen: { brpKoppelen: true },
+          koppelingen: { isBrpKoppelenEnabled: true },
           contactDetails: { telephoneNumber: "0612345678" },
         }),
       ),
@@ -186,7 +197,7 @@ describe(initiatorViewType.name, () => {
     expect(
       initiatorViewType(
         createZaak({
-          koppelingen: { brpKoppelen: true },
+          koppelingen: { isBrpKoppelenEnabled: true },
           initiatorType: "BSN",
           contactDetails: { telephoneNumber: "0612345678" },
         }),
@@ -204,8 +215,8 @@ describe(allowBedrijf.name, () => {
     expect(
       allowBedrijf(
         createZaak({
-          koppelingen: { kvkKoppelen: true },
-          rechten: { toevoegenInitiatorBedrijf: true },
+          koppelingen: { isKvkKoppelenEnabled: true },
+          rechten: { canToevoegenInitiatorBedrijf: true },
         }),
       ),
     ).toBe(true);
@@ -215,8 +226,8 @@ describe(allowBedrijf.name, () => {
     expect(
       allowBedrijf(
         createZaak({
-          koppelingen: { kvkKoppelen: false },
-          rechten: { toevoegenInitiatorBedrijf: true },
+          koppelingen: { isKvkKoppelenEnabled: false },
+          rechten: { canToevoegenInitiatorBedrijf: true },
         }),
       ),
     ).toBe(false);
@@ -226,8 +237,8 @@ describe(allowBedrijf.name, () => {
     expect(
       allowBedrijf(
         createZaak({
-          koppelingen: { kvkKoppelen: true },
-          rechten: { toevoegenInitiatorBedrijf: false },
+          koppelingen: { isKvkKoppelenEnabled: true },
+          rechten: { canToevoegenInitiatorBedrijf: false },
         }),
       ),
     ).toBe(false);
@@ -236,8 +247,8 @@ describe(allowBedrijf.name, () => {
 
 describe(allowPersoon.name, () => {
   const zaak = createZaak({
-    koppelingen: { brpKoppelen: true },
-    rechten: { toevoegenInitiatorPersoon: true },
+    koppelingen: { isBrpKoppelenEnabled: true },
+    rechten: { canToevoegenInitiatorPersoon: true },
   });
 
   it("is true when the recht, brpKoppelen and the BRP search permission all agree", () => {
@@ -252,8 +263,8 @@ describe(allowPersoon.name, () => {
     expect(
       allowPersoon(
         createZaak({
-          koppelingen: { brpKoppelen: false },
-          rechten: { toevoegenInitiatorPersoon: true },
+          koppelingen: { isBrpKoppelenEnabled: false },
+          rechten: { canToevoegenInitiatorPersoon: true },
         }),
         true,
       ),
@@ -266,8 +277,8 @@ describe(allowedToAddBetrokkene.name, () => {
     expect(
       allowedToAddBetrokkene(
         createZaak({
-          koppelingen: { brpKoppelen: true },
-          rechten: { toevoegenInitiatorPersoon: true },
+          koppelingen: { isBrpKoppelenEnabled: true },
+          rechten: { canToevoegenInitiatorPersoon: true },
         }),
         true,
       ),
@@ -278,8 +289,8 @@ describe(allowedToAddBetrokkene.name, () => {
     expect(
       allowedToAddBetrokkene(
         createZaak({
-          koppelingen: { brpKoppelen: true },
-          rechten: { toevoegenInitiatorPersoon: true },
+          koppelingen: { isBrpKoppelenEnabled: true },
+          rechten: { canToevoegenInitiatorPersoon: true },
         }),
         false,
       ),
@@ -290,8 +301,8 @@ describe(allowedToAddBetrokkene.name, () => {
     expect(
       allowedToAddBetrokkene(
         createZaak({
-          koppelingen: { kvkKoppelen: true },
-          rechten: { toevoegenInitiatorBedrijf: true },
+          koppelingen: { isKvkKoppelenEnabled: true },
+          rechten: { canToevoegenInitiatorBedrijf: true },
         }),
         false,
       ),
@@ -303,8 +314,8 @@ describe(allowedToAddBetrokkene.name, () => {
       allowedToAddBetrokkene(
         createZaak({
           rechten: {
-            toevoegenInitiatorPersoon: true,
-            toevoegenInitiatorBedrijf: true,
+            canToevoegenInitiatorPersoon: true,
+            canToevoegenInitiatorBedrijf: true,
           },
         }),
         true,
@@ -314,7 +325,7 @@ describe(allowedToAddBetrokkene.name, () => {
 });
 
 describe(showBetrokkeneKoppelingen.name, () => {
-  const zaak = createZaak({ koppelingen: { brpKoppelen: true } });
+  const zaak = createZaak({ koppelingen: { isBrpKoppelenEnabled: true } });
 
   it("is false when the zaak has no betrokkenen, even with a koppeling configured", () => {
     expect(showBetrokkeneKoppelingen(zaak, 0)).toBe(false);

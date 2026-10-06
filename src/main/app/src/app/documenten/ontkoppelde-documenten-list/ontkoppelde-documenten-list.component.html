@@ -58,10 +58,10 @@
                   [compareWith]="compareUser"
                   (selectionChange)="filtersChanged()"
                   id="ontkoppeldDoor_filter"
-                  placeholder="{{ 'filter.-alle-' | translate }}"
+                  placeholder="{{ 'filter.alle' | translate }}"
                   [value]="listParameters.ontkoppeldDoor"
                 >
-                  <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
+                  <mat-option>{{ "filter.alle" | translate }}</mat-option>
                   <mat-option
                     *ngFor="let value of filterOntkoppeldDoor"
                     [value]="value"
@@ -74,7 +74,7 @@
           <ng-container matColumnDef="ontkoppeldOp_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-date-range-filter
-                label="ontkoppeldOp"
+                label="ontkoppeld-op"
                 [range]="listParameters.ontkoppeldOp"
                 (changed)="filtersChanged()"
               ></zac-date-range-filter>
@@ -125,7 +125,7 @@
 
           <ng-container matColumnDef="ontkoppeldDoor">
             <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>
-              {{ "ontkoppeldDoor" | translate }}
+              {{ "ontkoppeld-door" | translate }}
             </th>
             <td mat-cell *matCellDef="let row">
               {{ row.ontkoppeldDoor.naam }}
@@ -134,7 +134,7 @@
 
           <ng-container matColumnDef="ontkoppeldOp">
             <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>
-              {{ "ontkoppeldOp" | translate }}
+              {{ "ontkoppeld-op" | translate }}
             </th>
             <td mat-cell *matCellDef="let row">
               {{ row.ontkoppeldOp | datum: "short" }}
@@ -170,7 +170,7 @@
                 </a>
                 <button
                   *ngIf="
-                    werklijstRechten.ontkoppeldeDocumentenVerwijderen &&
+                    werklijstRechten.canOntkoppeldeDocumentenVerwijderen &&
                     !row.isVergrendeld
                   "
                   mat-icon-button
@@ -181,7 +181,7 @@
                 </button>
                 <div *ngIf="row.isVergrendeld" class="indication">
                   <mat-icon
-                    title="{{ 'indicatie.VERGRENDELD' | translate }}"
+                    title="{{ 'indicatie.vergrendeld' | translate }}"
                     class="mat-mdc-standard-chip mat-mdc-chip-highlighted mat-accent lock-icon"
                   >
                     lock

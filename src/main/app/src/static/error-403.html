@@ -163,37 +163,6 @@
       .page-wrapper p:last-child {
         margin-bottom: 0;
       }
-
-      .primary-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 16px;
-        margin-top: 16px;
-        border-radius: 4px;
-        background-color: rgb(63, 81, 181);
-        color: white;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow:
-          0px 1.5px 2.5px -0.5px rgba(0, 0, 0, 0.2),
-          0px 3px 5px 0px rgba(0, 0, 0, 0.14),
-          0px 0.5px 9px 0px rgba(0, 0, 0, 0.12);
-      }
-
-      .primary-button:hover {
-        background: linear-gradient(
-            rgba(255, 255, 255, 0.05),
-            rgba(255, 255, 255, 0.05)
-          ),
-          rgb(63, 81, 181);
-        box-shadow:
-          0px 2.5px 2.5px -1.5px rgba(0, 0, 0, 0.2),
-          0px 4px 5px 0.5px rgba(0, 0, 0, 0.14),
-          0px 1.5px 7px 1px rgba(0, 0, 0, 0.12);
-      }
     </style>
   </head>
   <body>
@@ -220,9 +189,25 @@
       <main class="mdl-layout__content">
         <div class="page-wrapper">
           <p>U heeft geen toestemming om deze pagina te bekijken.</p>
-          <a href="/sign-out" class="primary-button" role="button">Uitloggen</a>
+          <div id="server-error-texts"></div>
         </div>
       </main>
     </div>
+    <script>
+      fetch("/rest/referentietabellen/server-error-text", {
+        redirect: "manual",
+        cache: "no-store",
+      })
+        .then((response) => (response.ok ? response.json() : []))
+        .then((serverErrorTexts) => {
+          const container = document.getElementById("server-error-texts");
+          for (const serverErrorText of serverErrorTexts) {
+            const paragraph = document.createElement("p");
+            paragraph.textContent = serverErrorText;
+            container.appendChild(paragraph);
+          }
+        })
+        .catch(() => {});
+    </script>
   </body>
 </html>

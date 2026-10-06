@@ -59,14 +59,14 @@
     </button>
   </div>
   <button
-    [disabled]="actieveZoekopdracht != null"
+    [disabled]="actieveZoekopdracht !== null"
     mat-icon-button
     (click)="saveSearch()"
     id="saveZoekopdrachtButton"
     [attr.aria-label]="'actie.zoekopdracht.opslaan' | translate"
   >
     <mat-icon
-      [attr.outlined]="actieveZoekopdracht == null ? true : null"
+      [attr.outlined]="actieveZoekopdracht === null ? true : null"
       title="{{
         actieveZoekopdracht?.naam ?? 'actie.zoekopdracht.opslaan' | translate
       }}"

@@ -33,7 +33,7 @@ class TaakZoekObjectConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
     private val reindexSupportService: ReindexSupportService
-) : AbstractZoekObjectConverter<TaakZoekObject>() {
+) : ZoekObjectConverter<TaakZoekObject> {
 
     override fun convert(id: String): TaakZoekObject =
         convert(id, reindexSupportService::zaakAutorisatieGegevens)
@@ -56,7 +56,12 @@ class TaakZoekObjectConverter @Inject constructor(
      * conversion.
      */
     fun convert(id: String, zaak: Zaak, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens): TaakZoekObject =
-        convert(id, flowableTaskService.readTask(id), zaak, zaakAutorisatieGegevens)
+        convert(
+            id = id,
+            taskInfo = flowableTaskService.readTask(id),
+            zaak = zaak,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
 
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.TAAK
 

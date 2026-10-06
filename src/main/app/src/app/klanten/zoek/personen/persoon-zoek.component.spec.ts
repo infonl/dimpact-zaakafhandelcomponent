@@ -5,8 +5,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import {
   ComponentFixture,
   fakeAsync,
@@ -18,17 +16,15 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of, Subject } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "src/app/shared/material/material.module";
-import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../../setupJest";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -61,16 +57,11 @@ describe(PersoonZoekComponent.name, () => {
         PersoonZoekComponent,
         FormsModule,
         ReactiveFormsModule,
-        MaterialFormBuilderModule,
         MatIconModule,
-        MaterialModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
         {
           provide: UtilService,
           useValue: {
@@ -107,7 +98,9 @@ describe(PersoonZoekComponent.name, () => {
     jest
       .spyOn(klantenService, "listPersonen")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({})),
+        createQueryOptions(
+          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({}),
+        ) as never,
       );
 
     const configuratieService = TestBed.inject(ConfiguratieService);
@@ -140,6 +133,7 @@ describe(PersoonZoekComponent.name, () => {
     await user.type(screen.getByRole("textbox", { name: "Bsn" }), bsn);
     fixture.detectChanges();
     await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
+    await sleep();
     fixture.detectChanges();
     fixture.detectChanges();
   }
@@ -293,11 +287,11 @@ describe(PersoonZoekComponent.name, () => {
 
     beforeEach(() => {
       jest.spyOn(klantenService, "listPersonen").mockReturnValue(
-        of(
+        createQueryOptions(
           fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
             resultaten: [fakePersoon],
           }),
-        ),
+        ) as never,
       );
     });
 
@@ -392,11 +386,11 @@ describe(PersoonZoekComponent.name, () => {
 
     beforeEach(() => {
       jest.spyOn(klantenService, "listPersonen").mockReturnValue(
-        of(
+        createQueryOptions(
           fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
             resultaten: [fakePersoon],
           }),
-        ),
+        ) as never,
       );
       navigate = jest
         .spyOn(TestBed.inject(Router), "navigate")

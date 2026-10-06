@@ -3,14 +3,27 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { DestroyRef, Injectable, inject } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
+import { DOCUMENT, DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Observable, Subject, forkJoin, throwError, timer } from "rxjs";
-import { catchError, switchMap, timeout } from "rxjs/operators";
+import {
+  Observable,
+  Subject,
+  forkJoin,
+  fromEvent,
+  lastValueFrom,
+  race,
+  throwError,
+  timer,
+} from "rxjs";
+import { catchError, filter, switchMap, take, timeout } from "rxjs/operators";
 import { WebSocketSubject } from "rxjs/webSocket";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
+import { HttpClient } from "../../shared/http/http-client";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { UtilService } from "../service/util.service";
 import { isCausedByCurrentUser } from "./is-caused-by-current-user";
 import { EventCallback } from "./model/event-callback";
@@ -22,7 +35,11 @@ import { ScreenEventId } from "./model/screen-event-id";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
+import { reconnectDelay } from "./reconnect-delay";
 import { WEBSOCKET_FACTORY } from "./websocket-factory";
+
+/** Sent by `WebSocketServerEndPoint` when the handshake carries no logged-in user. */
+const POLICY_VIOLATION_CLOSE_CODE = 1008;
 
 type SocketMessage = {
   opcode: Opcode;
@@ -39,8 +56,6 @@ export class WebsocketService {
   // This must be bigger than the SECONDS_TO_DELAY defined in ScreenEventObserver.java
   private static DEFAULT_SUSPENSION_TIMEOUT = 5; // seconds
 
-  private static RECONNECT_DELAY_MS = 3000;
-
   private readonly PROTOCOL: string = window.location.protocol.replace(
     /^http/,
     "ws",
@@ -53,6 +68,9 @@ export class WebsocketService {
 
   private readonly URL: string =
     this.PROTOCOL + "//" + this.HOST + "/websocket";
+
+  private reconnectAttempt = 0;
+  private closeCode: number | null = null;
 
   private connection$: WebSocketSubject<
     SocketMessage | SubscriptionMessage
@@ -68,12 +86,18 @@ export class WebsocketService {
 
   private readonly queryClient = inject(QueryClient);
   private readonly identityService = inject(IdentityService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly httpClient = inject(HttpClient);
   private readonly webSocketFactory = inject(WEBSOCKET_FACTORY);
+  private readonly document = inject(DOCUMENT);
+  private readonly translate = inject(TranslateService);
+  private readonly utilService = inject(UtilService);
+  private readonly tabBecameVisible$ = fromEvent(
+    this.document,
+    "visibilitychange",
+  ).pipe(filter(() => this.document.visibilityState === "visible"));
 
-  constructor(
-    private translate: TranslateService,
-    private utilService: UtilService,
-  ) {
+  constructor() {
     this.receive(this.URL);
     this.destroyRef.onDestroy(() => this.close());
   }
@@ -82,13 +106,20 @@ export class WebsocketService {
     url: string,
   ): WebSocketSubject<SocketMessage | SubscriptionMessage> {
     if (!this.connection$) {
+      this.closeCode = null;
       this.connection$ = this.webSocketFactory({
         url,
         openObserver: {
           next: () => {
-            console.log("Websocket geopend: " + url);
+            console.log("Websocket opened: " + url);
+            if (this.reconnectAttempt > 0)
+              void this.queryClient.invalidateQueries();
+            this.reconnectAttempt = 0;
             this.resubscribeAll();
           },
+        },
+        closeObserver: {
+          next: (closeEvent) => (this.closeCode = closeEvent.code),
         },
       });
     }
@@ -108,19 +139,44 @@ export class WebsocketService {
         next: (message) => this.onMessage(message as SocketMessage),
         error: (error) => {
           this.onError(error);
-          this.reconnect(url);
+          this.onClose(url);
         },
-        complete: () => this.reconnect(url),
+        complete: () => this.onClose(url),
       });
   }
 
-  private reconnect(url: string) {
-    console.warn(
-      `Websocket verbinding gesloten, opnieuw verbinden over ${WebsocketService.RECONNECT_DELAY_MS}ms`,
-    );
+  private onClose(url: string) {
     this.connection$ = null;
-    timer(WebsocketService.RECONNECT_DELAY_MS)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    if (this.closeCode === POLICY_VIOLATION_CLOSE_CODE) {
+      this.reconnectIfLoggedIn(url);
+      return;
+    }
+    this.reconnect(url);
+  }
+
+  // A websocket cannot follow the login redirect; a REST call can.
+  private reconnectIfLoggedIn(url: string) {
+    // Not via QueryClient: its global error handling would show a dialog.
+    lastValueFrom(this.httpClient.GET("/rest/identity/loggedInUser")).then(
+      () => this.reconnect(url),
+      (error: unknown) => {
+        // Status 0 = blocked login redirect; anything else is retried.
+        if (error instanceof HttpErrorResponse && error.status === 0) {
+          this.foutAfhandelingService.foutAfhandelen(error);
+          return;
+        }
+        this.reconnect(url);
+      },
+    );
+  }
+
+  private reconnect(url: string) {
+    const delay = reconnectDelay(this.reconnectAttempt++);
+    console.warn(
+      `Websocket connection closed, reconnecting in ${Math.round(delay)}ms`,
+    );
+    race(timer(delay), this.tabBecameVisible$)
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.receive(url));
   }
 
@@ -128,14 +184,14 @@ export class WebsocketService {
     if (this.connection$) {
       this.connection$.next(data);
     } else {
-      console.error("Websocket is niet open");
+      console.error("Websocket is not open");
     }
   }
 
   private close() {
     if (this.connection$) {
       this.connection$.complete();
-      console.warn("Websocket gesloten");
+      console.warn("Websocket closed");
       this.connection$ = null;
     }
   }
@@ -207,14 +263,16 @@ export class WebsocketService {
 
       forkJoin({
         msgPart1: this.translate.get(
-          "msg.gewijzigd.objecttype." + event.objectType,
+          toI18nKey("msg.gewijzigd.objecttype." + event.objectType),
         ),
         msgPart2: this.translate.get(
           event.objectType.indexOf("_") < 0
             ? "msg.gewijzigd.2"
             : "msg.gewijzigd.2.details",
         ),
-        msgPart3: this.translate.get("msg.gewijzigd.operatie." + event.opcode),
+        msgPart3: this.translate.get(
+          toI18nKey("msg.gewijzigd.operatie." + event.opcode),
+        ),
         msgPart4: this.translate.get("msg.gewijzigd.4"),
       }).subscribe((result) => {
         callback(event);

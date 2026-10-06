@@ -34,7 +34,7 @@ class DocumentZoekObjectConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val reindexSupportService: ReindexSupportService
-) : AbstractZoekObjectConverter<DocumentZoekObject>() {
+) : ZoekObjectConverter<DocumentZoekObject> {
 
     override fun convert(id: String): DocumentZoekObject? =
         convert(id, reindexSupportService::zaakAutorisatieGegevens)
@@ -52,7 +52,12 @@ class DocumentZoekObjectConverter @Inject constructor(
         val document = drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(id))
         val zaakInformatieobject = zrcClientService.listZaakinformatieobjecten(document).firstOrNull() ?: return null
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaakUUID)
-        return convert(document, zaak, zaakInformatieobject, zaakAutorisatieGegevens)
+        return convert(
+            informatieobject = document,
+            zaak = zaak,
+            gekoppeldeZaakInformatieobject = zaakInformatieobject,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
     }
 
     /**
@@ -70,7 +75,12 @@ class DocumentZoekObjectConverter @Inject constructor(
         zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens
     ): DocumentZoekObject {
         val document = drcClientService.readEnkelvoudigInformatieobject(zaakInformatieobject.informatieobject.extractUuid())
-        return convert(document, zaak, zaakInformatieobject, zaakAutorisatieGegevens)
+        return convert(
+            informatieobject = document,
+            zaak = zaak,
+            gekoppeldeZaakInformatieobject = zaakInformatieobject,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
     }
 
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.DOCUMENT

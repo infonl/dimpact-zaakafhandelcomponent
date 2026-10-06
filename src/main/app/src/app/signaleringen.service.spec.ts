@@ -9,6 +9,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
+import { TranslateModule } from "@ngx-translate/core";
 import { WebsocketService } from "./core/websocket/websocket.service";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
 import { SignaleringenService } from "./signaleringen.service";
@@ -18,7 +19,7 @@ describe("SignaleringenService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [],
+      imports: [TranslateModule.forRoot()],
       providers: [
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: WebsocketService, useValue: {} },

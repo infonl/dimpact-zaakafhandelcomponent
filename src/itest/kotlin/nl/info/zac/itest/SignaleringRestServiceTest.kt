@@ -65,10 +65,10 @@ class SignaleringRestServiceTest : BehaviorSpec({
     given("A logged-in behandelaar") {
         `when`("dashboard signaleringen are turned on for all signalering types") {
             val notificationBodies = arrayOf(
-                """{"dashboard":true,"mail":false,"subjecttype":"ZAAK","type":"ZAAK_DOCUMENT_TOEGEVOEGD"}""",
-                """{"dashboard":true,"mail":false,"subjecttype":"ZAAK","type":"ZAAK_OP_NAAM"}""",
-                """{"dashboard":true,"mail":false,"subjecttype":"ZAAK","type":"ZAAK_VERLOPEND"}""",
-                """{"dashboard":true,"mail":false,"subjecttype":"TAAK","type":"TAAK_OP_NAAM"}"""
+                """{"isDashboardEnabled":true,"isMailEnabled":false,"subjecttype":"ZAAK","type":"ZAAK_DOCUMENT_TOEGEVOEGD"}""",
+                """{"isDashboardEnabled":true,"isMailEnabled":false,"subjecttype":"ZAAK","type":"ZAAK_OP_NAAM"}""",
+                """{"isDashboardEnabled":true,"isMailEnabled":false,"subjecttype":"ZAAK","type":"ZAAK_VERLOPEND"}""",
+                """{"isDashboardEnabled":true,"isMailEnabled":false,"subjecttype":"TAAK","type":"TAAK_OP_NAAM"}"""
             )
             notificationBodies.forEach {
                 val response = itestHttpClient.performPutRequest(
@@ -280,7 +280,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val zaakInformatieObjectenResponse = itestHttpClient.performZgwApiGetRequest(
                 url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
             )
-            var responseBody = zaakInformatieObjectenResponse.bodyAsString
+            val responseBody = zaakInformatieObjectenResponse.bodyAsString
             logger.info { "Response: $responseBody" }
             val now = ZonedDateTime.now(ZoneId.of("UTC"))
             zaakInformatieObjectenResponse.code shouldBe HTTP_OK

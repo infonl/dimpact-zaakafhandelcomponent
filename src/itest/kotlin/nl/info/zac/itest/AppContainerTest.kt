@@ -9,12 +9,16 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
+import nl.info.zac.itest.config.USER_WITHOUT_READ_ROLE
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_MOVED_TEMP
@@ -82,26 +86,26 @@ class AppContainerTest : BehaviorSpec({
             and("it should include OpenZaak readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
-                var foundOpenZaakCheck = false
+                var isOpenZaakCheckFound = false
                 for (i in 0 until checks.length()) {
                     val check = checks.getJSONObject(i)
                     if (check.getString("name") == "nl.info.zac.health.OpenZaakReadinessHealthCheck") {
-                        foundOpenZaakCheck = true
+                        isOpenZaakCheckFound = true
                         check.getString("status") shouldBe "UP"
                         break
                     }
                 }
-                foundOpenZaakCheck shouldBe true
+                isOpenZaakCheckFound shouldBe true
             }
 
             and("it should include Solr readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
-                var foundSolrCheck = false
+                var isSolrCheckFound = false
                 for (i in 0 until checks.length()) {
                     val check = checks.getJSONObject(i)
                     if (check.getString("name") == "nl.info.zac.health.SolrReadinessHealthCheck") {
-                        foundSolrCheck = true
+                        isSolrCheckFound = true
                         check.getString("status") shouldBe "UP"
 
                         // Check that Solr-specific data is included
@@ -113,22 +117,22 @@ class AppContainerTest : BehaviorSpec({
                         break
                     }
                 }
-                foundSolrCheck shouldBe true
+                isSolrCheckFound shouldBe true
             }
 
             and("it should include PABC readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
-                var foundOpenZaakCheck = false
+                var isOpenZaakCheckFound = false
                 for (i in 0 until checks.length()) {
                     val check = checks.getJSONObject(i)
                     if (check.getString("name") == "nl.info.zac.health.PabcReadinessHealthCheck") {
-                        foundOpenZaakCheck = true
+                        isOpenZaakCheckFound = true
                         check.getString("status") shouldBe "UP"
                         break
                     }
                 }
-                foundOpenZaakCheck shouldBe true
+                isOpenZaakCheckFound shouldBe true
             }
         }
 
@@ -198,8 +202,16 @@ class AppContainerTest : BehaviorSpec({
                 url = "$ZAC_BASE_URI/admin",
                 testUser = BEHANDELAAR_1
             )
-            then("the response should be forbidden") {
+            then(
+                "the response is forbidden and shows the generic no-permission page, with a home button " +
+                    "and without a log-out button"
+            ) {
                 response.code shouldBe HTTP_FORBIDDEN
+                with(response.bodyAsString) {
+                    shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
+                    shouldContain("class=\"home-button\"")
+                    shouldNotContain("/sign-out")
+                }
             }
         }
     }
@@ -210,8 +222,9 @@ class AppContainerTest : BehaviorSpec({
                 url = ZAC_BASE_URI,
                 testUser = USER_WITHOUT_ANY_ROLE
             )
-            then("the response should be forbidden") {
+            then("the response is forbidden and shows the no-read-role page") {
                 response.code shouldBe HTTP_FORBIDDEN
+                response.bodyAsString shouldContain "basisrol nodig om deze applicatie te kunnen"
             }
         }
 
@@ -219,6 +232,60 @@ class AppContainerTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/sign-out",
                 testUser = USER_WITHOUT_ANY_ROLE
+            )
+            then("the response should redirect to the ZAC root") {
+                response.code shouldBe HTTP_MOVED_TEMP
+                response.headers["Location"] shouldBe "$ZAC_BASE_URI/"
+            }
+        }
+    }
+
+    given(
+        "A logged-in user who only has ZAC application roles without read rights: brp_zoeken and " +
+            "zaakspecifiek_geautoriseerd"
+    ) {
+        `when`("The ZAC base URI is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = ZAC_BASE_URI,
+                testUser = USER_WITHOUT_READ_ROLE
+            )
+            then(
+                "the response is forbidden and shows the no-read-role page instead of the ZAC app, with a log-out " +
+                    "button and without a home button"
+            ) {
+                response.code shouldBe HTTP_FORBIDDEN
+                with(response.bodyAsString) {
+                    shouldContain("basisrol nodig om deze applicatie te kunnen")
+                    shouldContain("href=\"/sign-out\"")
+                    shouldNotContain("home-button")
+                }
+            }
+        }
+
+        `when`("A ZAC REST endpoint is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/identity/loggedInUser",
+                testUser = USER_WITHOUT_READ_ROLE
+            )
+            then("the response is forbidden") {
+                response.code shouldBe HTTP_FORBIDDEN
+            }
+        }
+
+        `when`("The server error texts that the error pages show are requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/referentietabellen/server-error-text",
+                testUser = USER_WITHOUT_READ_ROLE
+            )
+            then("the response is ok, so the no-read-role page can show them") {
+                response.code shouldBe HTTP_OK
+            }
+        }
+
+        `when`("The ZAC logout URI is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/sign-out",
+                testUser = USER_WITHOUT_READ_ROLE
             )
             then("the response should redirect to the ZAC root") {
                 response.code shouldBe HTTP_MOVED_TEMP

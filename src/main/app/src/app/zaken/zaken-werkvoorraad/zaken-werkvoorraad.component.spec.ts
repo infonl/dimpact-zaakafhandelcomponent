@@ -41,8 +41,8 @@ describe(ZakenWerkvoorraadComponent.name, () => {
     aantalPerPagina: 10,
     pageSizeOptions: [10, 25, 50],
     werklijstRechten: fromPartial<GeneratedType<"RestWerklijstRechten">>({
-      zakenTakenVerdelen: true,
-      zakenTakenExporteren: true,
+      canZakenTakenVerdelen: true,
+      canZakenTakenExporteren: true,
     }),
   };
 
@@ -97,7 +97,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         await setup();
         const zaakZoekObject = fromPartial<ZaakZoekObject>({
           id: "zaak1",
-          rechten: { toekennen: true },
+          rechten: { canToekennen: true },
           groepId: "groupA",
           behandelaarGebruikersnaam: user,
         });
@@ -110,7 +110,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       await setup();
       const zaakZoekObject = fromPartial<ZaakZoekObject>({
         id: "zaak-no-assign",
-        rechten: { toekennen: false },
+        rechten: { canToekennen: false },
         groepId: "groupA",
         behandelaarGebruikersnaam: "user2",
       });
@@ -125,7 +125,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       );
       const zaakZoekObject = fromPartial<ZaakZoekObject>({
         id: "zaak-no-user",
-        rechten: { toekennen: true },
+        rechten: { canToekennen: true },
         groepId: "groupA",
         behandelaarGebruikersnaam: "user2",
       });
@@ -136,7 +136,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       await setup();
       const zaakZoekObject = fromPartial<ZaakZoekObject>({
         id: "zaak-other-group",
-        rechten: { toekennen: true },
+        rechten: { canToekennen: true },
         groepId: "groupC",
         behandelaarGebruikersnaam: "user2",
       });
@@ -152,7 +152,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         groepId: "groupA",
         behandelaarNaam: "",
         behandelaarGebruikersnaam: "",
-        rechten: { toekennen: true },
+        rechten: { canToekennen: true },
       });
 
     async function showZaak(zaak: ZaakZoekObject) {
@@ -232,13 +232,13 @@ describe(ZakenWerkvoorraadComponent.name, () => {
   describe("selection", () => {
     const mockZaak1 = fromPartial<ZaakZoekObject>({
       id: "zaak1",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
     });
 
     const mockZaak2 = fromPartial<ZaakZoekObject>({
       id: "zaak2",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
       behandelaarNaam: "Other User",
       behandelaarGebruikersnaam: "user2",
@@ -362,21 +362,21 @@ describe(ZakenWerkvoorraadComponent.name, () => {
   describe("skipped zaken in a batch verdelen or vrijgeven", () => {
     const geautoriseerdeZaak = fromPartial<ZaakZoekObject>({
       id: "zaak-geautoriseerd",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
       behandelaarGebruikersnaam: "user2",
       isZaakspecifiekGeautoriseerd: true,
     });
     const tweedeGeautoriseerdeZaak = fromPartial<ZaakZoekObject>({
       id: "zaak-geautoriseerd-2",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
       behandelaarGebruikersnaam: "user2",
       isZaakspecifiekGeautoriseerd: true,
     });
     const gewoneZaak = fromPartial<ZaakZoekObject>({
       id: "zaak-gewoon",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
       behandelaarGebruikersnaam: "user2",
     });

@@ -10,13 +10,19 @@ import {
   QueryClient,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
-import { lastValueFrom } from "rxjs";
+import { lastValueFrom, map } from "rxjs";
 import { UtilService } from "../core/service/util.service";
-import { PatchBody, PutBody } from "../shared/http/http-client";
+import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { toI18nKey } from "../shared/utils/i18n-key";
+
+function withI18nKeySuffix(afzender: GeneratedType<"RestZaakAfzender">) {
+  if (!afzender?.suffix) return afzender;
+  return { ...afzender, suffix: toI18nKey(afzender.suffix) };
+}
 
 /** Fields the "zaakgegevens bewerken" form may update; all optional (partial PATCH). */
 type ZaakDetailsUpdate = Partial<
@@ -171,8 +177,8 @@ export class ZakenService {
     return this.zacQueryClient.PUT("/rest/zaken/lijst/vrijgeven");
   }
 
-  toekennenAanIngelogdeMedewerker(body: PutBody<"/rest/zaken/toekennen/mij">) {
-    return this.zacHttpClient.PUT("/rest/zaken/toekennen/mij", body);
+  toekennenAanIngelogdeMedewerker() {
+    return this.zacQueryClient.PUT("/rest/zaken/toekennen/mij");
   }
 
   updateInitiator() {
@@ -220,24 +226,29 @@ export class ZakenService {
   }
 
   ontkoppelInformatieObject(
-    body: PutBody<"/rest/zaken/zaakinformatieobjecten/ontkoppel">,
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
-    return this.zacHttpClient.PUT(
-      "/rest/zaken/zaakinformatieobjecten/ontkoppel",
-      body,
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/zaken/zaakinformatieobjecten/ontkoppel"),
+      {
+        onSuccess: () =>
+          this.utilService.openSnackbar("msg.document.ontkoppelen.uitgevoerd", {
+            document: informatieobject.titel,
+          }),
+      },
     );
   }
 
-  toekennenAanIngelogdeMedewerkerVanuitLijst(
-    zaakUUID: string,
-    groepId: string,
-    reden?: string,
-  ) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/toekennen/mij", {
-      zaakUUID,
-      groepId,
-      reden,
-    });
+  toekennenAanIngelogdeMedewerkerVanuitLijst() {
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/zaken/lijst/toekennen/mij"),
+      {
+        onSuccess: (zaak) =>
+          this.utilService.openSnackbar("msg.zaak.toegekend", {
+            behandelaar: zaak.behandelaar?.naam,
+          }),
+      },
+    );
   }
 
   listHistorieVoorZaakQuery(uuid: string) {
@@ -264,15 +275,15 @@ export class ZakenService {
   }
 
   listAfzendersVoorZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/afzender", {
-      path: { uuid },
-    });
+    return this.zacHttpClient
+      .GET("/rest/zaken/zaak/{uuid}/afzender", { path: { uuid } })
+      .pipe(map((afzenders) => afzenders.map(withI18nKeySuffix)));
   }
 
   readDefaultAfzenderVoorZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/afzender/default", {
-      path: { uuid },
-    });
+    return this.zacHttpClient
+      .GET("/rest/zaken/zaak/{uuid}/afzender/default", { path: { uuid } })
+      .pipe(map(withI18nKeySuffix));
   }
 
   afbreken(uuid: string, body: PatchBody<"/rest/zaken/zaak/{uuid}/afbreken">) {

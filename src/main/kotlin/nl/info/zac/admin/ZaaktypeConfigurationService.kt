@@ -94,7 +94,6 @@ class ZaaktypeConfigurationService @Inject constructor(
         return entityManager.createQuery(query).setMaxResults(1).resultList.firstOrNull()
     }
 
-    fun isSmartDocumentsEnabled(zaaktypeUUID: UUID): Boolean {
-        return readZaaktypeConfiguration(zaaktypeUUID)?.smartDocumentsEnabled ?: false
-    }
+    fun isSmartDocumentsEnabled(zaaktypeUUID: UUID): Boolean =
+        readZaaktypeConfiguration(zaaktypeUUID)?.isSmartDocumentsEnabled ?: false
 }

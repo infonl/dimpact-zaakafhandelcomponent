@@ -38,7 +38,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val smartDocuments = """
-        "smartDocuments": { "enabledGlobally": true, "enabledForZaaktype": false }
+        "smartDocuments": { "isEnabledGlobally": true, "isEnabledForZaaktype": false }
     """.trimIndent()
     val bpmnZaakType1 = """
         {

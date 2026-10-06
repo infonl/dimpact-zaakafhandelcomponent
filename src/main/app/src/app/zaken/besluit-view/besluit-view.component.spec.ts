@@ -26,7 +26,7 @@ const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
     identificatie: "BESLUIT-001",
     besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
       naam: "Besluittype 1",
-      publication: { enabled: false },
+      publication: { isEnabled: false },
     }),
     ingangsdatum: "2026-01-01",
     vervaldatum: "2026-12-31",
@@ -181,6 +181,12 @@ describe(BesluitViewComponent.name, () => {
 
     expect(listBesluitHistorie).toHaveBeenCalledWith("besluit-uuid-1");
     expect(listBesluitHistorie).not.toHaveBeenCalledWith("besluit-uuid-2");
+  });
+
+  it("loads the history of the first besluit only once when it is first rendered", async () => {
+    const { listBesluitHistorie } = await setup();
+
+    expect(listBesluitHistorie).toHaveBeenCalledTimes(1);
   });
 
   it("reloads the history of an opened besluit when the besluiten change", async () => {

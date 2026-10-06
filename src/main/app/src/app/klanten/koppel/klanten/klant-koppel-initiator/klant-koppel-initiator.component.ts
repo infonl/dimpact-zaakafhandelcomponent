@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, input, Output } from "@angular/core";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTabsModule } from "@angular/material/tabs";
 import { TranslateModule } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { SharedModule } from "src/app/shared/shared.module";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { BedrijfZoekComponent } from "../../../zoek/bedrijven/bedrijf-zoek.component";
@@ -15,35 +15,35 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
 @Component({
   selector: "zac-klant-koppel-initiator-persoon",
   imports: [
-    SharedModule,
+    MatIconModule,
+    MatTabsModule,
     TranslateModule,
-    MaterialFormBuilderModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,
   ],
   template: `
     <ng-template mat-tab-label>
-      @if (type === "bedrijf") {
+      @if (type() === "bedrijf") {
         <mat-icon>business</mat-icon>
       }
-      @if (type === "persoon") {
+      @if (type() === "persoon") {
         <mat-icon>emoji_people</mat-icon>
       }
-      @if (type === "bedrijf") {
+      @if (type() === "bedrijf") {
         <span>{{ "betrokkene.bedrijf" | translate }}</span>
       }
-      @if (type === "persoon") {
+      @if (type() === "persoon") {
         <span> {{ "betrokkene.persoon" | translate }}</span>
       }
     </ng-template>
-    @if (type === "persoon") {
+    @if (type() === "persoon") {
       <zac-persoon-zoek
         [syncEnabled]="true"
-        [zaaktypeUUID]="zaaktypeUUID"
+        [zaaktypeUUID]="zaaktypeUUID()"
         (persoon)="klantGeselecteerd($event)"
       ></zac-persoon-zoek>
     }
-    @if (type === "bedrijf") {
+    @if (type() === "bedrijf") {
       <zac-bedrijf-zoek
         [syncEnabled]="true"
         (bedrijf)="klantGeselecteerd($event)"
@@ -52,8 +52,8 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   `,
 })
 export class KlantKoppelInitiator {
-  @Input() type: "persoon" | "bedrijf" = "persoon";
-  @Input() zaaktypeUUID?: string | null = null;
+  readonly type = input<"persoon" | "bedrijf">("persoon");
+  readonly zaaktypeUUID = input<string | null | undefined>(null);
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
 
   klantGeselecteerd(klant: GeneratedType<"RestBedrijf" | "RestPersoon">): void {

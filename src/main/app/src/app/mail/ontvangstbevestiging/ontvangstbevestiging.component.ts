@@ -13,13 +13,18 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { ZacDocuments } from "../../shared/form/documents/documents";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../../shared/form/html-editor/html-editor";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
@@ -37,12 +42,16 @@ import { MailService } from "../mail.service";
     MatDividerModule,
     MatExpansionPanelActionRow,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacFormActions,
+    ZacInput,
+    ZacDocuments,
     ZacHtmlEditor,
   ],
 })
 export class OntvangstbevestigingComponent implements OnInit {
   private readonly zakenService = inject(ZakenService);
+  private readonly queryClient = inject(QueryClient);
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
@@ -89,13 +98,14 @@ export class OntvangstbevestigingComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.informatieObjectenService
-      .listEnkelvoudigInformatieobjecten({
+    runQuery(
+      this.queryClient,
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
         zaakUUID: this.zaak().uuid,
-      })
-      .subscribe((documents) => {
-        this.documents = documents;
-      });
+      }),
+    ).subscribe((documents) => {
+      this.documents = documents;
+    });
 
     this.zakenService
       .listAfzendersVoorZaak(this.zaak().uuid)
@@ -132,7 +142,7 @@ export class OntvangstbevestigingComponent implements OnInit {
       onderwerp: value.onderwerp!,
       body: value.body!,
       bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
-      createDocumentFromMail: true,
+      shouldCreateDocumentFromMail: true,
       vertrouwelijkheidaanduiding: "OPENBAAR",
     });
   }

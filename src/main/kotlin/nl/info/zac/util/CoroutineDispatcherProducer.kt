@@ -18,5 +18,6 @@ import kotlinx.coroutines.Dispatchers
 class CoroutineDispatcherProducer {
 
     @Produces
+    @Suppress("InjectDispatcher")
     fun provideDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }

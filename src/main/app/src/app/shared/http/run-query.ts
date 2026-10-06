@@ -10,8 +10,9 @@ import {
 import { defer, Observable } from "rxjs";
 
 /**
- * Reports a query as an observable, for the callers that are not components and
- * cannot use `injectQuery`.
+ * Reports a query as an observable, for the callers that consume a read inside an
+ * RxJS pipeline and so cannot use `injectQuery`, such as a service or a
+ * werklijst whose table reloads through `merge(...).pipe(switchMap(...))`.
  *
  * The observable is cold, so re-subscribing re-reads. Going through the query
  * client rather than calling `queryFn` directly means these callers share the

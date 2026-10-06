@@ -84,7 +84,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
       });
@@ -100,7 +100,7 @@ describe(DefaultTaskForm.name, () => {
       it("should render redenStart as plain-text", () => {
         const field = fields.find((field) => field.key === "redenStart");
         expect(field?.type).toBe("plain-text");
-        expect(field?.label).toBe("redenStart");
+        expect(field?.label).toBe("reden-start");
       });
 
       it("should render afhandeling as a textarea", () => {
@@ -147,7 +147,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: { afhandeling: "eerder opgeslagen afhandeling" },
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -160,7 +160,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -172,7 +172,7 @@ describe(DefaultTaskForm.name, () => {
         const fields = await formulier.handleForm(
           fromPartial<GeneratedType<"RestTask">>({
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -187,7 +187,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "AFGEROND" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: true }),
+            rechten: fromPartial({ canWijzigen: true }),
           }),
         );
         expect(
@@ -200,7 +200,7 @@ describe(DefaultTaskForm.name, () => {
           fromPartial<GeneratedType<"RestTask">>({
             taakdata: {},
             status: "OPEN" as GeneratedType<"TaakStatus">,
-            rechten: fromPartial({ wijzigen: false }),
+            rechten: fromPartial({ canWijzigen: false }),
           }),
         );
         expect(

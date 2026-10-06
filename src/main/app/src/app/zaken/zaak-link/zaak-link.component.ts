@@ -6,7 +6,6 @@
 import {
   Component,
   EventEmitter,
-  Input,
   Output,
   computed,
   effect,
@@ -41,11 +40,12 @@ import { DateRangeFilterComponent } from "src/app/shared/table-zoek-filters/date
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { ZakenService } from "../zaken.service";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ({
-    label: `zaak.koppelen.link.type.${value}`,
+    label: toI18nKey(`zaak.koppelen.link.type.${value}`),
     value,
   }) as const;
 
@@ -75,7 +75,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
 })
 export class ZaakLinkComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
-  @Input({ required: true }) sideNav!: MatDrawer;
+  readonly sideNav = input.required<MatDrawer>();
   @Output() zaakLinked = new EventEmitter<void>();
 
   private readonly formBuilder = inject(FormBuilder);
@@ -268,7 +268,7 @@ export class ZaakLinkComponent {
 
   protected rowTooltip(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     return row.nietKoppelbaarReden
-      ? `zaak.koppelen.niet-koppelbaar.${row.nietKoppelbaarReden}`
+      ? toI18nKey(`zaak.koppelen.niet-koppelbaar.${row.nietKoppelbaarReden}`)
       : "actie.zaak.koppelen";
   }
 
@@ -296,7 +296,7 @@ export class ZaakLinkComponent {
   }
 
   protected close() {
-    void this.sideNav.close();
+    void this.sideNav().close();
     this.reset();
   }
 

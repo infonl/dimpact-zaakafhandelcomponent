@@ -7,23 +7,23 @@ package nl.info.zac.app.policy.model
 import nl.info.zac.policy.output.DocumentRechten
 
 data class RestDocumentRechten(
-    val lezen: Boolean,
-    val wijzigen: Boolean,
-    val verwijderen: Boolean,
-    val vergrendelen: Boolean,
-    val ontgrendelen: Boolean,
-    val ondertekenen: Boolean,
-    val toevoegenNieuweVersie: Boolean,
-    val converteren: Boolean
+    val canLezen: Boolean,
+    val canWijzigen: Boolean,
+    val canVerwijderen: Boolean,
+    val canVergrendelen: Boolean,
+    val canOntgrendelen: Boolean,
+    val canOndertekenen: Boolean,
+    val canToevoegenNieuweVersie: Boolean,
+    val canConverteren: Boolean
 )
 
 fun DocumentRechten.toRestDocumentRechten() = RestDocumentRechten(
-    lezen = this.lezen,
-    wijzigen = this.wijzigen,
-    ontgrendelen = this.ontgrendelen,
-    vergrendelen = this.vergrendelen,
-    verwijderen = this.verwijderen,
-    ondertekenen = this.ondertekenen,
-    toevoegenNieuweVersie = this.toevoegenNieuweVersie,
-    converteren = this.converteren
+    canLezen = this.canLezen,
+    canWijzigen = this.canWijzigen,
+    canOntgrendelen = this.canOntgrendelen,
+    canVergrendelen = this.canVergrendelen,
+    canVerwijderen = this.canVerwijderen,
+    canOndertekenen = this.canOndertekenen,
+    canToevoegenNieuweVersie = this.canToevoegenNieuweVersie,
+    canConverteren = this.canConverteren
 )

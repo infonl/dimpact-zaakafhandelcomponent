@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { readFile, writeFile } from 'fs/promises';
+import { appendFile, readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 
 const REPORT_PATH = 'reports/e2e-report.json';
 const METRICS_OUTPUT = 'reports/e2e-metrics.json';
+const NUMBER_OF_SLOWEST_SCENARIOS = 15;
 
 /**
  * Extracts metrics from the Cucumber JSON report (reports/e2e-report.json) generated during e2e test runs.
@@ -122,7 +123,7 @@ async function extractMetrics() {
         metrics.failedScenarios.push({
           feature: feature.name,
           scenario: scenario.name,
-          step: failedStep?.name || 'Unknown',
+          step: failedStep?.hidden ? `${failedStep.keyword} hook` : failedStep?.name || 'Unknown',
           error: failedStep?.result.error_message?.split('\n')[0] || 'No error message',
           duration: formatDuration(duration),
         });
@@ -135,7 +136,7 @@ async function extractMetrics() {
 
   // Sort slowest scenarios
   metrics.slowestScenarios.sort((a, b) => b.duration - a.duration);
-  metrics.slowestScenarios = metrics.slowestScenarios.slice(0, 10);
+  metrics.slowestScenarios = metrics.slowestScenarios.slice(0, NUMBER_OF_SLOWEST_SCENARIOS);
 
   // Calculate summary statistics
   metrics.summary.totalDurationFormatted = formatDuration(metrics.summary.totalDuration);
@@ -156,6 +157,7 @@ async function extractMetrics() {
 
   // Write metrics to file
   await writeFile(METRICS_OUTPUT, JSON.stringify(metrics, null, 2));
+  await writeSummaries(metrics);
 
   // Console output
   console.log('\n📈 E2E Test Metrics Summary:');
@@ -177,13 +179,88 @@ async function extractMetrics() {
     });
   }
 
-  console.log('\n🐌 Top 5 Slowest Scenarios:');
+  console.log(`\n🐌 Top ${NUMBER_OF_SLOWEST_SCENARIOS} Slowest Scenarios:`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  metrics.slowestScenarios.slice(0, 5).forEach((scenario, idx) => {
+  metrics.slowestScenarios.forEach((scenario, idx) => {
     console.log(`${idx + 1}. ${scenario.durationFormatted.padEnd(10)} - ${scenario.feature} → ${scenario.scenario}`);
   });
 
   console.log(`\n✅ Metrics saved to ${METRICS_OUTPUT}`);
+}
+
+// Slack refuses a section whose text is longer than this.
+const SUMMARY_TEXT_LIMIT = 3000;
+const SLACK_SCENARIO_NAME_LIMIT = 100;
+
+const githubMarkup = {
+  bullet: '-',
+  scenarioNameLimit: Infinity,
+  bold: (text) => `**${text}**`,
+  escape: (text) => String(text).replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
+};
+
+const slackMarkup = {
+  bullet: '•',
+  scenarioNameLimit: SLACK_SCENARIO_NAME_LIMIT,
+  bold: (text) => `*${text}*`,
+  escape: (text) =>
+    String(text).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
+};
+
+function truncate(text, limit) {
+  const characters = Array.from(text);
+  return characters.length > limit ? `${characters.slice(0, limit - 1).join('')}…` : text;
+}
+
+function formatSummary(metrics, { bullet, scenarioNameLimit, bold, escape }) {
+  const { summary } = metrics;
+  const statusIcon = summary.totalScenarios > 0 && summary.passedScenarios === summary.totalScenarios
+    ? '✅'
+    : '❌';
+  const commit = (process.env.GITHUB_SHA ?? '').slice(0, 7);
+  const branch = process.env.GITHUB_REF_NAME ?? '';
+  const scenarioName = ({ feature, scenario }) => escape(truncate(`${feature} → ${scenario}`, scenarioNameLimit));
+
+  const header = `${statusIcon} ${bold(`${summary.passedScenarios}/${summary.totalScenarios} passed`)} (${summary.passRate}) · total ${bold(summary.totalDurationFormatted)} · avg ${summary.averageScenarioDuration} · \`${escape(branch)}\` @ \`${commit}\``;
+
+  const slowest = metrics.slowestScenarios;
+  const slowestSection = [
+    '',
+    bold(`🐌 Slowest ${slowest.length}`),
+    ...slowest.map((scenario) => `${bullet} ${scenario.durationFormatted} — ${scenarioName(scenario)}`),
+  ].join('\n');
+
+  const failed = metrics.failedScenarios.map(
+    (failure) => `${bullet} ${scenarioName(failure)} — _${escape(failure.step)}_`
+  );
+  const failedSection = [];
+  if (failed.length > 0) {
+    const budget = SUMMARY_TEXT_LIMIT - header.length - slowestSection.length - 100;
+    for (const line of failed) {
+      if ([...failedSection, line].join('\n').length > budget) break;
+      failedSection.push(line);
+    }
+    const hidden = failed.length - failedSection.length;
+    if (hidden > 0) failedSection.push(`…and ${hidden} more`);
+    failedSection.unshift('', bold(`❌ Failed (${failed.length})`));
+  }
+
+  return [header, ...failedSection, slowestSection].join('\n');
+}
+
+/**
+ * Shows the summary on the Summary page of a GitHub Actions run, and exposes it JSON-encoded as the
+ * `slack_summary` step output for the Slack message; GitHub sets both environment variables.
+ */
+async function writeSummaries(metrics) {
+  const { GITHUB_STEP_SUMMARY, GITHUB_OUTPUT } = process.env;
+  if (GITHUB_STEP_SUMMARY) {
+    await appendFile(GITHUB_STEP_SUMMARY, `## E2E metrics\n\n${formatSummary(metrics, githubMarkup)}\n`);
+  }
+  if (GITHUB_OUTPUT) {
+    const slackSummary = truncate(formatSummary(metrics, slackMarkup), SUMMARY_TEXT_LIMIT);
+    await appendFile(GITHUB_OUTPUT, `slack_summary=${JSON.stringify(slackSummary)}\n`);
+  }
 }
 
 /**

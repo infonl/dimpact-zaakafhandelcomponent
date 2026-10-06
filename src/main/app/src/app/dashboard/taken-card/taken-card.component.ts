@@ -80,7 +80,7 @@ export class TakenCardComponent extends DashboardCardComponent<
   ];
 
   parameters = computed(() => ({
-    signaleringType: this.data?.signaleringType,
+    signaleringType: this.data().signaleringType,
   }));
 
   takenQuery = injectQuery(() => ({
@@ -107,7 +107,7 @@ export class TakenCardComponent extends DashboardCardComponent<
   }
 
   protected onLoad(): void {
-    if (!this.data?.signaleringType) {
+    if (!this.data().signaleringType) {
       this.dataSource.data = [];
       return;
     }

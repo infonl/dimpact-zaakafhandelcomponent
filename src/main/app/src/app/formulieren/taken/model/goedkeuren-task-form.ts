@@ -5,11 +5,14 @@
 
 import { inject, Injectable } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
-import { lastValueFrom, map } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { map } from "rxjs";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
+import { runQuery } from "../../../shared/http/run-query";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../shared/utils/i18n-key";
 import { Goedkeuring } from "../goedkeuring.enum";
 import { AbstractTaskForm } from "./abstract-task-form";
 
@@ -18,6 +21,7 @@ import { AbstractTaskForm } from "./abstract-task-form";
 })
 export class GoedkeurenTaskForm extends AbstractTaskForm {
   private informatieObjectenService = inject(InformatieObjectenService);
+  private readonly queryClient = inject(QueryClient);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
     return [
@@ -32,17 +36,17 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
       {
         type: "documents",
         key: "relevanteDocumenten",
-        options: this.informatieObjectenService
-          .listEnkelvoudigInformatieobjecten({
+        options: runQuery(
+          this.queryClient,
+          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
             zaakUUID: zaak.uuid,
-          })
-          .pipe(
-            map(
-              (
-                documenten: GeneratedType<"RestEnkelvoudigInformatieobject">[],
-              ) => documenten.filter((document) => !document.ondertekening),
-            ),
+          }),
+        ).pipe(
+          map(
+            (documenten: GeneratedType<"RestEnkelvoudigInformatieobject">[]) =>
+              documenten.filter((document) => !document.ondertekening),
           ),
+        ),
       },
     ];
   }
@@ -57,7 +61,7 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
       taak.taakdata?.["ondertekenen"],
     );
 
-    const documents = await lastValueFrom(
+    const documents = await this.queryClient.fetchQuery(
       this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
         zaakUUID: taak.zaakUuid,
         informatieobjectUUIDs: signedDocumentUUIDs,
@@ -72,7 +76,7 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
     taak: GeneratedType<"RestTask">,
     relevantDocumentUUIDs: string[],
   ) {
-    const documents = await lastValueFrom(
+    const documents = await this.queryClient.fetchQuery(
       this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
         zaakUUID: taak.zaakUuid,
         informatieobjectUUIDs: relevantDocumentUUIDs,
@@ -115,7 +119,7 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
       taak.taakdata?.["relevanteDocumenten"],
     );
 
-    const readonly = taak.status === "AFGEROND" || !taak.rechten?.wijzigen;
+    const readonly = taak.status === "AFGEROND" || !taak.rechten?.canWijzigen;
 
     const documentsToSign = readonly
       ? await this.readSignedDocuments(taak)
@@ -156,6 +160,7 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
         options: Object.values(Goedkeuring).map(
           (value) => `goedkeuren.${value}`,
         ),
+        optionDisplayValue: (option) => toI18nKey(String(option)),
         control: goedkeurenControl,
       },
     ];

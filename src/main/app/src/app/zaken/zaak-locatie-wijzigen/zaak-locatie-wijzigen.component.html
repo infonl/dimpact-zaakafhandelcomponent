@@ -4,16 +4,16 @@
   -->
 
 <mat-toolbar role="heading" class="gap-16">
-  <mat-icon>{{ zaak.zaakgeometrie ? "edit" : "add_location_alt" }}</mat-icon>
+  <mat-icon>{{ zaak().zaakgeometrie ? "edit" : "add_location_alt" }}</mat-icon>
   <span class="flex-grow-1">
     {{
-      (zaak.zaakgeometrie
+      (zaak().zaakgeometrie
         ? "actie.zaak.locatie.wijzigen"
         : "actie.zaak.locatie.koppelen"
       ) | translate
     }}
   </span>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
@@ -42,7 +42,7 @@
               matSuffix
               [attr.aria-label]="'actie.ontkoppelen' | translate"
               (click)="resetLocation()"
-              [disabled]="!(markerLocatie$ | async)"
+              [disabled]="(markerLocatie$ | async) === null"
             >
               <mat-icon>link_off</mat-icon>
             </button>

@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
+import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import nl.info.client.zgw.shared.ZgwApiService
@@ -39,7 +39,7 @@ import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import java.time.LocalDate
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
-    val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
+    val caseDefinitionConverter = mockk<RestCaseDefinitionConverter>()
     val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -63,6 +63,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
 
+    val restCaseDefinition = RESTCaseDefinition("fakeCaseName", "fakeCaseKey").apply {
+        humanTaskDefinitions = emptyList()
+        userEventListenerDefinitions = emptyList()
+    }
+
     afterEach {
         checkUnnecessaryStub()
     }
@@ -85,11 +90,14 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns listOf(restZaakbeeindigParameter)
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRESTCaseDefinition(
-                zaaktypeCmmnConfiguration.caseDefinitionID,
+            caseDefinitionConverter.convertToRestCaseDefinition(
+                checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID),
                 true
             )
-        } returns null
+        } returns restCaseDefinition
+        every {
+            restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
+        } returns emptyList()
         every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns null
 
         `when`("converted to REST representation") {
@@ -106,14 +114,14 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         identificatie shouldBe zaakType.identificatie
                         doel shouldBe zaakType.doel
                         omschrijving shouldBe zaakType.omschrijving
-                        servicenorm shouldBe false
+                        hasServicenorm shouldBe false
                         versiedatum shouldBe zaakType.versiedatum
                         beginGeldigheid shouldBe zaakType.beginGeldigheid
                         eindeGeldigheid shouldBe zaakType.eindeGeldigheid
                         vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
-                        nuGeldig shouldBe true
+                        isNuGeldig shouldBe true
                     }
-                    caseDefinition shouldBe null
+                    caseDefinition shouldBe restCaseDefinition
                     defaultBehandelaarId shouldBe null
                     defaultGroepId shouldBe null
                     einddatumGeplandWaarschuwing shouldBe null
@@ -125,20 +133,20 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     // default value should be set
                     afrondenMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT
                     productaanvraagtype shouldBe null
-                    valide shouldBe false
-                    zaakspecifiekAutoriseerbaar shouldBe false
+                    isValide shouldBe false
+                    isZaakspecifiekAutoriseerbaar shouldBe false
                     humanTaskParameters shouldBe emptyList()
                     userEventListenerParameters shouldBe emptyList()
                     mailtemplateKoppelingen shouldHaveSize 1
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
                     zaakAfzenders shouldBe listOf(
                         RestZaakAfzender(id = null, mail = "mail@example.com", replyTo = "replyTo@example.com"),
-                        RestZaakAfzender(mail = "GEMEENTE", speciaal = true),
-                        RestZaakAfzender(mail = "MEDEWERKER", speciaal = true)
+                        RestZaakAfzender(mail = "GEMEENTE", isSpeciaal = true),
+                        RestZaakAfzender(mail = "MEDEWERKER", isSpeciaal = true)
                     )
                     smartDocuments shouldBe RestSmartDocuments(
-                        enabledGlobally = true,
-                        enabledForZaaktype = false
+                        isEnabledGlobally = true,
+                        isEnabledForZaaktype = false
                     )
                 }
             }
@@ -177,7 +185,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     intakeMail shouldBe null
                     afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
-                    smartDocumentsEnabled shouldBe false
+                    isSmartDocumentsEnabled shouldBe false
                 }
             }
         }
@@ -215,22 +223,22 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         identificatie shouldBe zaakType.identificatie
                         doel shouldBe zaakType.doel
                         omschrijving shouldBe zaakType.omschrijving
-                        servicenorm shouldBe false
+                        hasServicenorm shouldBe false
                         versiedatum shouldBe zaakType.versiedatum
                         beginGeldigheid shouldBe zaakType.beginGeldigheid
                         eindeGeldigheid shouldBe zaakType.eindeGeldigheid
                         vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
-                        nuGeldig shouldBe true
+                        isNuGeldig shouldBe true
                     }
                     defaultGroepId shouldBe null
                     creatiedatum shouldNotBe null
                     zaakNietOntvankelijkResultaattype shouldBe restResultType
                     productaanvraagtype shouldBe null
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
-                    zaakspecifiekAutoriseerbaar shouldBe false
+                    isZaakspecifiekAutoriseerbaar shouldBe false
                     smartDocuments shouldBe RestSmartDocuments(
-                        enabledGlobally = true,
-                        enabledForZaaktype = false
+                        isEnabledGlobally = true,
+                        isEnabledForZaaktype = false
                     )
                 }
             }
@@ -251,8 +259,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRESTCaseDefinition(zaaktypeCmmnConfiguration.caseDefinitionID, true)
-        } returns null
+            caseDefinitionConverter.convertToRestCaseDefinition(checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID), true)
+        } returns restCaseDefinition
+        every {
+            restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
+        } returns emptyList()
         every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns
             createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
         every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaakType.url) } returns createRolType(
@@ -268,7 +279,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             )
 
             then("the zaaktype configuration is marked as 'zaakspecifiek autoriseerbaar'") {
-                restZaakafhandelParameters.zaakspecifiekAutoriseerbaar shouldBe true
+                restZaakafhandelParameters.isZaakspecifiekAutoriseerbaar shouldBe true
             }
         }
     }
@@ -287,8 +298,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRESTCaseDefinition(zaaktypeCmmnConfiguration.caseDefinitionID, true)
-        } returns null
+            caseDefinitionConverter.convertToRestCaseDefinition(checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID), true)
+        } returns restCaseDefinition
+        every {
+            restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
+        } returns emptyList()
         every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns
             createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
         every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaakType.url) } returns null
@@ -300,7 +314,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             )
 
             then("the zaaktype configuration is not marked as 'zaakspecifiek autoriseerbaar'") {
-                restZaakafhandelParameters.zaakspecifiekAutoriseerbaar shouldBe false
+                restZaakafhandelParameters.isZaakspecifiekAutoriseerbaar shouldBe false
             }
         }
     }

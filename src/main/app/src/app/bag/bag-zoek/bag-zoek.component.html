@@ -5,8 +5,8 @@
 
 <mat-toolbar role="heading" class="gap-16" *ngIf="bagObject.observed">
   <mat-icon>add_home_work</mat-icon>
-  <h3 class="flex-grow-1">{{ "actie.bagObject.koppelen" | translate }}</h3>
-  <button mat-icon-button (click)="sideNav.close()">
+  <h3 class="flex-grow-1">{{ "actie.bag-object.koppelen" | translate }}</h3>
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button></mat-toolbar
 >
@@ -26,13 +26,13 @@
         >
           <mat-icon>search</mat-icon>
         </button>
-        <mat-label>{{ "bagObjecten" | translate }}</mat-label>
+        <mat-label>{{ "bag-objecten" | translate }}</mat-label>
         <input
           matInput
           id="trefwoorden"
           cdkFocusInitial
           maxlength="255"
-          placeholder="{{ 'msg.zoeken.bagObject.label' | translate }}"
+          placeholder="{{ 'msg.zoeken.bag-object.label' | translate }}"
           (keyup.enter)="!trefwoorden.valid || zoek()"
           [formControl]="trefwoorden"
         />
@@ -90,7 +90,7 @@
         {{ "type" | translate }}
       </th>
       <td *matCellDef="let bagObject" mat-cell>
-        {{ "objecttype." + bagObject.bagObjectType | translate }}
+        {{ "objecttype." + bagObject.bagObjectType | i18nKey | translate }}
       </td>
     </ng-container>
     <ng-container matColumnDef="omschrijving">
@@ -112,7 +112,7 @@
         <span *ngSwitchCase="'PAND'">
           {{ "bouwjaar" | translate }}:
           {{ bagObject.oorspronkelijkBouwjaar }} ({{
-            "bagObject.pand.status." + bagObject.status | translate
+            "bag-object.pand.status." + bagObject.status | i18nKey | translate
           }})
         </span>
         <span *ngSwitchCase="'OPENBARE_RUIMTE'"
@@ -139,7 +139,7 @@
           mat-icon-button
           (click)="openBagTonenPagina(row)"
           [id]="'bagObjectBekijken_' + row.identificatie + '_button'"
-          title="{{ 'actie.bagObject.bekijken' | translate }}"
+          title="{{ 'actie.bag-object.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>
         </button>
@@ -157,7 +157,7 @@
   </p>
   <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
   <mat-action-row class="px-3">
-    <button mat-raised-button (click)="sideNav.close()">
+    <button mat-raised-button (click)="sideNav().close()">
       {{ "actie.annuleren" | translate }}
     </button>
   </mat-action-row>

@@ -213,7 +213,7 @@ class ZaakKoppelenRestService @Inject constructor(
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .asSequence()
             .filter {
-                policyService.readOverigeRechten(it.omschrijving).zoeken
+                policyService.readOverigeRechten(it.omschrijving).canZoeken
             }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
@@ -231,8 +231,8 @@ class ZaakKoppelenRestService @Inject constructor(
                 isHoofdzaak = this.isIndicatie(HOOFDZAAK),
                 isDeelzaak =  this.isIndicatie(DEELZAAK),
                 zaaktypeUUID = UUID.fromString(this.zaaktypeUuid),
-                lezen = rechten.lezen,
-                koppelen = rechten.koppelen
+                canLezen = rechten.canLezen,
+                canKoppelen = rechten.canKoppelen
             )
         }
 
@@ -276,7 +276,12 @@ class ZaakKoppelenRestService @Inject constructor(
                 val zaakZoekObject = it as ZaakZoekObject
                 zaakZoekObject.toRestZaakKoppelenZoekObject(
                     zaak.alreadyGerelateerdReason(UUID.fromString(zaakZoekObject.getObjectId()))
-                        ?: notLinkableReason(koppelData, zaaktype, zaakZoekObject, relationType),
+                        ?: notLinkableReason(
+                            sourceZaak = koppelData,
+                            sourceZaaktype = zaaktype,
+                            targetZaak = zaakZoekObject,
+                            relationType = relationType
+                        ),
                 )
             },
             searchResults.count
@@ -288,27 +293,28 @@ class ZaakKoppelenRestService @Inject constructor(
         sourceZaaktype: ZaakType,
         targetZaak: ZaakZoekObject,
         relationType: RelatieType
-    ): ZaakNotLinkableReason? {
-        val targetZaakLinkData = targetZaak.toZaakLinkData()
-        return when (relationType) {
-            // "The case you are searching for here will become the main case"
-            RelatieType.HOOFDZAAK -> sourceZaak.statusNotLinkableReason(targetZaakLinkData)
+    ): ZaakNotLinkableReason? = when (relationType) {
+        // "The case you are searching for here will become the main case"
+        RelatieType.HOOFDZAAK -> targetZaak.toZaakLinkData().let { targetZaakLinkData ->
+            sourceZaak.statusNotLinkableReason(targetZaakLinkData)
                 ?: targetZaakLinkData.hoofdzaakDeelzaakNotLinkableReason(
                     deelzaak = sourceZaak,
                     allowedDeelzaaktypes = ztcClientService
                         .readZaaktype(UUID.fromString(targetZaak.zaaktypeUuid))
                         .getDeelzaaktypenSet()
                 )
-            RelatieType.DEELZAAK -> sourceZaak.statusNotLinkableReason(targetZaakLinkData)
+        }
+        RelatieType.DEELZAAK -> targetZaak.toZaakLinkData().let { targetZaakLinkData ->
+            sourceZaak.statusNotLinkableReason(targetZaakLinkData)
                 ?: sourceZaak.hoofdzaakDeelzaakNotLinkableReason(
                     deelzaak = targetZaakLinkData,
                     allowedDeelzaaktypes = sourceZaaktype.getDeelzaaktypenSet()
                 )
-            RelatieType.GERELATEERD -> sourceZaak.gerelateerdNotLinkableReason(targetZaakLinkData)
-            else -> throw IllegalArgumentException(
-                "RelatieType $relationType cannot be used for linking zaken"
-            )
         }
+        RelatieType.GERELATEERD -> sourceZaak.gerelateerdNotLinkableReason()
+        else -> throw IllegalArgumentException(
+            "RelatieType $relationType cannot be used for linking zaken"
+        )
     }
 
     private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(notLinkableReason: ZaakNotLinkableReason?) =
@@ -390,6 +396,6 @@ class ZaakKoppelenRestService @Inject constructor(
         andereZaakURI: URI
     ): List<GerelateerdeZaak> {
         gerelateerdeZaken?.removeIf { it.url == andereZaakURI }
-        return gerelateerdeZaken ?: emptyList()
+        return gerelateerdeZaken.orEmpty()
     }
 }

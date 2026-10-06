@@ -4,16 +4,22 @@
  */
 package nl.info.zac.app.admin.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 data class RestSmartDocuments(
-    var enabledGlobally: Boolean,
-    var enabledForZaaktype: Boolean
+    @get:JsonbProperty("isEnabledGlobally")
+    @set:JsonbProperty("isEnabledGlobally")
+    var isEnabledGlobally: Boolean,
+
+    @get:JsonbProperty("isEnabledForZaaktype")
+    @set:JsonbProperty("isEnabledForZaaktype")
+    var isEnabledForZaaktype: Boolean
 )
 
 fun ZaaktypeConfiguration.toRestSmartDocuments(enabledGlobally: Boolean) = RestSmartDocuments(
-    enabledGlobally = enabledGlobally,
-    enabledForZaaktype = smartDocumentsEnabled
+    isEnabledGlobally = enabledGlobally,
+    isEnabledForZaaktype = isSmartDocumentsEnabled
 )

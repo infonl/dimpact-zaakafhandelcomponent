@@ -6,11 +6,8 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { HttpEventType, provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpEventType } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -20,7 +17,6 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideQueryClient,
@@ -32,8 +28,6 @@ import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
@@ -103,7 +97,7 @@ describe(InformatieObjectAddComponent.name, () => {
     ontvangstdatum: null,
     verzenddatum: moment("2025-09-24T11:59:23.333Z"),
     vertrouwelijkheidaanduiding: {
-      label: "vertrouwelijkheidaanduiding.INTERN",
+      label: "vertrouwelijkheidaanduiding.intern",
       value: "INTERN",
     },
     taal: mockTalen[0],
@@ -117,17 +111,12 @@ describe(InformatieObjectAddComponent.name, () => {
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
-        MaterialModule,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
       providers: [
         provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
         provideTanStackQuery(testQueryClient),
         provideQueryClient(testQueryClient),
         VertrouwelijkaanduidingToTranslationKeyPipe,
@@ -406,7 +395,7 @@ describe(InformatieObjectAddComponent.name, () => {
         taal: mockTalen[0],
         informatieobjectType: mockInformatieObjectTypes[0],
         vertrouwelijkheidaanduiding: {
-          label: "vertrouwelijkheidaanduiding.INTERN",
+          label: "vertrouwelijkheidaanduiding.intern",
           value: "INTERN",
         },
         auteur: "Test Author",

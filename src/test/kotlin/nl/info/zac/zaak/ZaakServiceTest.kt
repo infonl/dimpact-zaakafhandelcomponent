@@ -23,7 +23,7 @@ import java.util.UUID
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
@@ -87,7 +87,7 @@ class ZaakServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val pabcClientService = mockk<PabcClientService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val zaakService = ZaakService(
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
@@ -311,7 +311,12 @@ class ZaakServiceTest : BehaviorSpec({
 
                 and("the previous behandelaar keeps no access, because the zaak is not zaakspecifiek geautoriseerd") {
                     verify(exactly = 0) {
-                        zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(zaak, any(), any(), any())
+                        zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
+                            zaak = zaak,
+                            medewerker = any(),
+                            reason = any(),
+                            zaakspecifiekGeautoriseerdeMedewerkers = any()
+                        )
                     }
                 }
 
@@ -567,10 +572,10 @@ class ZaakServiceTest : BehaviorSpec({
             } just runs
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
-                    zaak,
-                    previousBehandelaarIdentificatie,
-                    reason,
-                    any()
+                    zaak = zaak,
+                    medewerker = previousBehandelaarIdentificatie,
+                    reason = reason,
+                    zaakspecifiekGeautoriseerdeMedewerkers = any()
                 )
             } returns true
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
@@ -595,10 +600,10 @@ class ZaakServiceTest : BehaviorSpec({
                 then("the previous behandelaar is granted an individual authorisation before losing their rol") {
                     verifyOrder {
                         zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
-                            zaak,
-                            previousBehandelaarIdentificatie,
-                            reason,
-                            any()
+                            zaak = zaak,
+                            medewerker = previousBehandelaarIdentificatie,
+                            reason = reason,
+                            zaakspecifiekGeautoriseerdeMedewerkers = any()
                         )
                         zrcClientService.deleteRol(previousBehandelaarRol, reason)
                         zrcClientService.createRol(any(), reason)
@@ -644,10 +649,10 @@ class ZaakServiceTest : BehaviorSpec({
             } just runs
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
-                    zaak,
-                    currentBehandelaarIdentificatie,
-                    reason,
-                    any()
+                    zaak = zaak,
+                    medewerker = currentBehandelaarIdentificatie,
+                    reason = reason,
+                    zaakspecifiekGeautoriseerdeMedewerkers = any()
                 )
             } returns true
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
@@ -688,10 +693,10 @@ class ZaakServiceTest : BehaviorSpec({
                 and("the behandelaar they take over from is granted an individual authorisation") {
                     verify(exactly = 1) {
                         zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
-                            zaak,
-                            currentBehandelaarIdentificatie,
-                            reason,
-                            any()
+                            zaak = zaak,
+                            medewerker = currentBehandelaarIdentificatie,
+                            reason = reason,
+                            zaakspecifiekGeautoriseerdeMedewerkers = any()
                         )
                     }
                 }
@@ -730,7 +735,12 @@ class ZaakServiceTest : BehaviorSpec({
                 then("the behandelaar rol is created and there is nobody to grant an authorisation to") {
                     verify(exactly = 1) { zrcClientService.createRol(any(), reason) }
                     verify(exactly = 0) {
-                        zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(zaak, any(), any(), any())
+                        zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
+                            zaak = zaak,
+                            medewerker = any(),
+                            reason = any(),
+                            zaakspecifiekGeautoriseerdeMedewerkers = any()
+                        )
                         zrcClientService.deleteRol(any<Rol<*>>(), reason)
                     }
                 }
@@ -1248,10 +1258,10 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(any(), user.id) } just runs
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
-                    markedZaak,
-                    previousBehandelaarIdentificatie,
-                    explanation,
-                    any()
+                    zaak = markedZaak,
+                    medewerker = previousBehandelaarIdentificatie,
+                    reason = explanation,
+                    zaakspecifiekGeautoriseerdeMedewerkers = any()
                 )
             } returns true
             every { zgwApiService.readBehandelaarRoltype(zaaktype.url) } returns behandelaarRolType
@@ -1277,10 +1287,10 @@ class ZaakServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zrcClientService.updateRol(markedZaak, any(), explanation)
                         zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
-                            markedZaak,
-                            previousBehandelaarIdentificatie,
-                            explanation,
-                            any()
+                            zaak = markedZaak,
+                            medewerker = previousBehandelaarIdentificatie,
+                            reason = explanation,
+                            zaakspecifiekGeautoriseerdeMedewerkers = any()
                         )
                     }
                     verify(exactly = 0) { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(markedZaak)) }
@@ -1729,11 +1739,11 @@ class ZaakServiceTest : BehaviorSpec({
                 omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING
             }
             val status = createZaakStatus(
-                statusUuid,
-                URI(statusUuid.toString()),
-                zaak.url,
-                statusType.url,
-                ZonedDateTime.now().toOffsetDateTime()
+                uuid = statusUuid,
+                uri = URI(statusUuid.toString()),
+                zaakURI = zaak.url,
+                statustypeURI = statusType.url,
+                datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
             )
 
             every { zrcClientService.readStatus(zaak.status) } returns status

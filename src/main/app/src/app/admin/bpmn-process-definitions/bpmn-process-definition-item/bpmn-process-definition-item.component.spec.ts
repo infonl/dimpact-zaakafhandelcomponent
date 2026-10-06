@@ -16,7 +16,6 @@ import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
-import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
@@ -47,19 +46,19 @@ const zipResponse = new HttpResponse({
 const uploadedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-uploaded",
   title: "Uploaded Form",
-  uploaded: true,
+  isUploaded: true,
 };
 
 const missingForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-missing",
   title: "Missing Form",
-  uploaded: false,
+  isUploaded: false,
 };
 
 const orphanedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-orphaned",
   title: "Orphaned Form",
-  uploaded: true,
+  isUploaded: true,
 };
 
 const baseProcessDefinition = fromPartial<
@@ -70,7 +69,7 @@ const baseProcessDefinition = fromPartial<
   name: "Test Process",
   version: 2,
   details: {
-    inUse: false,
+    isInUse: false,
     uploadDate: "2026-01-15T10:00:00Z",
     modificationDate: "2026-02-20T14:30:00Z",
     documentation: "Test documentation",
@@ -119,7 +118,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     const rendered = await render(BpmnProcessDefinitionItemComponent, {
       inputs: { processDefinition },
       on: { bpmnFormListChanged },
-      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideQueryClient(testQueryClient),
         { provide: BpmnService, useValue: bpmnService },
@@ -158,8 +157,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   }
 
   beforeEach(() => {
-    // the component imports SharedModule, so it injects MatDialog from its own
-    // standalone injector rather than the one the TestBed hands out
     dialogOpen = jest
       .spyOn(MatDialog.prototype, "open")
       .mockReturnValue(
@@ -370,7 +367,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   });
 
   it("tells the user when the process definition is in use", async () => {
-    await setup(withDetails({ inUse: true }));
+    await setup(withDetails({ isInUse: true }));
 
     expect(
       screen.getByText("bpmn.process-definition.card.details.in-use"),
@@ -435,7 +432,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   });
 
   it("does not allow deleting task forms of a process definition that is in use", async () => {
-    await setup(withDetails({ inUse: true }));
+    await setup(withDetails({ isInUse: true }));
 
     expect(
       within(rowOf("form-uploaded")).getByRole("button", {

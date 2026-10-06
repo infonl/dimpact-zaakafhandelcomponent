@@ -59,7 +59,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "zaaktype.identificatie",
                         ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                     )
-                    shouldContainJsonKeyValue("zaakspecifiekAutoriseerbaar", false)
+                    shouldContainJsonKeyValue("isZaakspecifiekAutoriseerbaar", false)
                 }
             }
         }
@@ -82,12 +82,12 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                        "automaticEmailConfirmation": {
                          "emailReply": "reply@example.com",
                          "emailSender": "GEMEENTE",
-                         "enabled": true,
+                         "isEnabled": true,
                          "templateName": "Ontvangstbevestiging"
                       },
                       "betrokkeneKoppelingen": {
-                        "brpKoppelen": true,
-                        "kvkKoppelen": true
+                        "isBrpKoppelenEnabled": true,
+                        "isKvkKoppelenEnabled": true
                       },
                       "brpDoelbindingen": {
                         "raadpleegWaarde": "BRPACT-AlgemeneTaken",
@@ -227,8 +227,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                       ],
                       "productaanvraagtype" : "$PRODUCTAANVRAAG_TYPE_2",
                       "smartDocuments" : {
-                        "enabledForZaaktype" : true,
-                        "enabledGlobally" : true
+                        "isEnabledForZaaktype" : true,
+                        "isEnabledGlobally" : true
                       },
                       "uiterlijkeEinddatumAfdoeningWaarschuwing": 1,
                       "userEventListenerParameters" : [ {
@@ -238,21 +238,21 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "id" : "ZAAK_AFHANDELEN",
                         "naam" : "Zaak afhandelen"
                       } ],
-                      "valide" : true,
+                      "isValide" : true,
                       "zaakAfzenders" : [ {
-                        "defaultMail" : true,
+                        "isDefaultMail" : true,
                         "mail" : "GEMEENTE",
                         "replyTo" : "GEMEENTE",
-                        "speciaal" : true
+                        "isSpeciaal" : true
                       }, {
-                        "defaultMail" : false,
+                        "isDefaultMail" : false,
                         "mail" : "MEDEWERKER",
-                        "speciaal" : true
+                        "isSpeciaal" : true
                       } ],
                       "zaakNietOntvankelijkResultaattype" : {
                         "archiefNominatie" : "VERNIETIGEN",
                         "archiefTermijn" : "5 jaren",
-                        "besluitVerplicht" : false,
+                        "isBesluitVerplicht" : false,
                         "bronArchiefprocedure": {
                           "afleidingswijze": "afgehandeld",
                           "datumkenmerk": "",
@@ -260,22 +260,22 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                           "objecttype": "",
                           "registratie": ""
                         },
-                        "datumKenmerkVerplicht": false,
+                        "isDatumKenmerkVerplicht": false,
                         "id" : "$RESULTAAT_TYPE_GEWEIGERD_UUID",
                         "naam" : "Geweigerd",
                         "naamGeneriek" : "Geweigerd",
                         "toelichting" : "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
-                        "vervaldatumBesluitVerplicht" : false
+                        "isVervaldatumBesluitVerplicht" : false
                       },
                       "zaakbeeindigParameters" : [ ],
-                      "zaakspecifiekAutoriseerbaar" : true,
+                      "isZaakspecifiekAutoriseerbaar" : true,
                       "zaaktype" : {
                         "beginGeldigheid" : "2023-10-01",
                         "doel" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
                         "identificatie" : "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
-                        "nuGeldig" : true,
+                        "isNuGeldig" : true,
                         "omschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
-                        "servicenorm" : false,
+                        "hasServicenorm" : false,
                         "uuid" : "$ZAAKTYPE_CMMN_TEST_2_UUID",
                         "versiedatum" : "2023-10-01",
                         "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"

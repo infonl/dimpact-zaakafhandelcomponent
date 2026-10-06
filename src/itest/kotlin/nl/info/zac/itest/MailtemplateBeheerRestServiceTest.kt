@@ -212,12 +212,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "automaticEmailConfirmation": {
                           "emailReply": "reply@example.com",
                           "emailSender": "GEMEENTE",
-                          "enabled": true,
+                          "isEnabled": true,
                           "templateName": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME"
                         },
                         "betrokkeneKoppelingen": {
-                          "brpKoppelen": true,
-                          "kvkKoppelen": true
+                          "isBrpKoppelenEnabled": true,
+                          "isKvkKoppelenEnabled": true
                         },
                         "brpDoelbindingen": {
                           "raadpleegWaarde": "BRPACT-AlgemeneTaken",
@@ -233,20 +233,20 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "mailtemplateKoppelingen": [],
                         "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_3",
                         "smartDocuments": {
-                          "enabledForZaaktype": true,
-                          "enabledGlobally": true
+                          "isEnabledForZaaktype": true,
+                          "isEnabledGlobally": true
                         },
                         "userEventListenerParameters": [],
-                        "valide": true,
+                        "isValide": true,
                         "zaakAfzenders": [],
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2025_07_01",
                           "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
                           "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
-                          "nuGeldig": true,
+                          "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
-                          "servicenorm": false,
+                          "hasServicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID",
                           "versiedatum": "$DATE_2025_07_01",
                           "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
@@ -281,12 +281,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "automaticEmailConfirmation": {
                           "emailReply": "reply@example.com",
                           "emailSender": "GEMEENTE",
-                          "enabled": true,
+                          "isEnabled": true,
                           "templateName": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME"
                         },
                         "betrokkeneKoppelingen": {
-                          "brpKoppelen": true,
-                          "kvkKoppelen": true
+                          "isBrpKoppelenEnabled": true,
+                          "isKvkKoppelenEnabled": true
                         },
                         "brpDoelbindingen": {
                           "raadpleegWaarde": "BRPACT-AlgemeneTaken",
@@ -302,20 +302,20 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "mailtemplateKoppelingen": [],
                         "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_2",
                         "smartDocuments": {
-                          "enabledForZaaktype": true,
-                          "enabledGlobally": true
+                          "isEnabledForZaaktype": true,
+                          "isEnabledGlobally": true
                         },
                         "userEventListenerParameters": [],
-                        "valide": true,
+                        "isValide": true,
                         "zaakAfzenders": [],
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_10_01",
                           "doel": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
                           "identificatie": "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
-                          "nuGeldig": true,
+                          "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
-                          "servicenorm": false,
+                          "hasServicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
                           "versiedatum": "$DATE_2023_10_01",
                           "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
@@ -350,12 +350,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "automaticEmailConfirmation": {
                           "emailReply": "reply@example.com",
                           "emailSender": "GEMEENTE",
-                          "enabled": true,                           
+                          "isEnabled": true,                           
                           "templateName": "Ontvangstbevestiging"
                         },
                         "betrokkeneKoppelingen": {
-                          "brpKoppelen": true,
-                          "kvkKoppelen": true
+                          "isBrpKoppelenEnabled": true,
+                          "isKvkKoppelenEnabled": true
                         },
                         "brpDoelbindingen": {
                           "raadpleegWaarde": "BRPACT-AlgemeneTaken",
@@ -371,20 +371,20 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "mailtemplateKoppelingen": [],
                         "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_1",
                         "smartDocuments": {
-                          "enabledForZaaktype": true,
-                          "enabledGlobally": true
+                          "isEnabledForZaaktype": true,
+                          "isEnabledGlobally": true
                         },
                         "userEventListenerParameters": [],
-                        "valide": true,
+                        "isValide": true,
                         "zaakAfzenders": [],
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_09_21",
                           "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
                           "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
-                          "nuGeldig": true,
+                          "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
-                          "servicenorm": false,
+                          "hasServicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                           "versiedatum": "$DATE_2023_09_21",
                           "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
@@ -419,12 +419,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "automaticEmailConfirmation": {
                           "emailReply": "reply@example.com",
                           "emailSender": "GEMEENTE",
-                          "enabled": true,                           
+                          "isEnabled": true,                           
                           "templateName": "Ontvangstbevestiging"
                         },
                         "betrokkeneKoppelingen": {
-                          "brpKoppelen": true,
-                          "kvkKoppelen": true
+                          "isBrpKoppelenEnabled": true,
+                          "isKvkKoppelenEnabled": true
                         },
                         "brpDoelbindingen": {
                           "raadpleegWaarde": "BRPACT-AlgemeneTaken",
@@ -440,20 +440,20 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "mailtemplateKoppelingen": [],
                         "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_4",
                         "smartDocuments": {
-                          "enabledForZaaktype": true,
-                          "enabledGlobally": true
+                          "isEnabledForZaaktype": true,
+                          "isEnabledGlobally": true
                         },
                         "userEventListenerParameters": [],
-                        "valide": true,
+                        "isValide": true,
                         "zaakAfzenders": [],
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2026_07_23",
                           "doel": "$ZAAKTYPE_CMMN_TEST_4_DOEL",
                           "identificatie": "$ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE",
-                          "nuGeldig": true,
+                          "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_CMMN_TEST_4_DESCRIPTION",
-                          "servicenorm": false,
+                          "hasServicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_4_UUID",
                           "versiedatum": "$DATE_2023_10_01",
                           "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"

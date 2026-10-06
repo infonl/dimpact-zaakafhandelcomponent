@@ -130,7 +130,7 @@ class BpmnServiceTest : BehaviorSpec({
         every { processInstanceBuilder.start() } returns processInstance
 
         `when`("the zaak is started using a BPMN process definition") {
-            bpmnService.startProcess(zaak, zaakType, referentieProcesName, zaakData)
+            bpmnService.startProcess(zaak = zaak, zaaktype = zaakType, processDefinitionKey = referentieProcesName, zaakData = zaakData)
 
             then("a Flowable BPMN process instance should be started") {
                 verify(exactly = 1) {
@@ -286,10 +286,10 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 2
 
         `when`("checking it has process instances by process definition key") {
-            val result = bpmnService.hasProcessInstances(processDefinitionKey)
+            val hasProcessInstances = bpmnService.hasProcessInstances(processDefinitionKey)
 
             then("true is returned") {
-                result shouldBe true
+                hasProcessInstances shouldBe true
             }
         }
     }
@@ -303,10 +303,10 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 0
 
         `when`("checking it has process instances by process definition key") {
-            val result = bpmnService.hasProcessInstances(processDefinitionKey)
+            val hasProcessInstances = bpmnService.hasProcessInstances(processDefinitionKey)
 
             then("false is returned") {
-                result shouldBe false
+                hasProcessInstances shouldBe false
             }
         }
     }
@@ -319,10 +319,10 @@ class BpmnServiceTest : BehaviorSpec({
         } returns linkedProcessDefinitionKeys
 
         `when`("checking it has linked configurations by process definition key") {
-            val result = bpmnService.hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
+            val hasLinkedZaaktypeBpmnConfiguration = bpmnService.hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
 
             then("true is returned") {
-                result shouldBe true
+                hasLinkedZaaktypeBpmnConfiguration shouldBe true
             }
         }
     }
@@ -335,10 +335,10 @@ class BpmnServiceTest : BehaviorSpec({
         } returns linkedProcessDefinitionKeys
 
         `when`("checking it has linked configurations by process definition key") {
-            val result = bpmnService.hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
+            val hasLinkedZaaktypeBpmnConfiguration = bpmnService.hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
 
             then("false is returned") {
-                result shouldBe false
+                hasLinkedZaaktypeBpmnConfiguration shouldBe false
             }
         }
     }
@@ -352,10 +352,10 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 3
 
         `when`("checking the process definition is in use by process definition key") {
-            val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
+            val isProcessDefinitionInUse = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
             then("true is returned") {
-                result shouldBe true
+                isProcessDefinitionInUse shouldBe true
                 verify(exactly = 0) {
                     zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
                 }
@@ -376,10 +376,10 @@ class BpmnServiceTest : BehaviorSpec({
         } returns linkedProcessDefinitionKeys
 
         `when`("checking the process definition is in use by process definition key") {
-            val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
+            val isProcessDefinitionInUse = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
             then("true is returned") {
-                result shouldBe true
+                isProcessDefinitionInUse shouldBe true
             }
         }
     }
@@ -397,10 +397,10 @@ class BpmnServiceTest : BehaviorSpec({
         } returns linkedProcessDefinitionKeys
 
         `when`("checking the process definition is in use by process definition key") {
-            val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
+            val isProcessDefinitionInUse = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
             then("false is returned") {
-                result shouldBe false
+                isProcessDefinitionInUse shouldBe false
             }
         }
     }
@@ -613,6 +613,37 @@ class BpmnServiceTest : BehaviorSpec({
 
                 then("modification date is null") {
                     result.modificationDate shouldBe null
+                }
+            }
+        }
+
+        given("A process definition with a modificationDate extension element that is not a date") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+
+            val extensionElement = mockk<ExtensionElement>()
+            every { extensionElement.elementText } returns "not a date"
+
+            val process = mockk<Process>()
+            every { process.documentation } returns "Some documentation"
+            every { process.extensionElements } returns mapOf("modificationdate" to listOf(extensionElement))
+            every { process.flowElements } returns emptyList()
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns listOf(process)
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
+
+            `when`("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                then("the modification date is null and the rest of the metadata is still returned") {
+                    result.modificationDate shouldBe null
+                    result.documentation shouldBe "Some documentation"
                 }
             }
         }

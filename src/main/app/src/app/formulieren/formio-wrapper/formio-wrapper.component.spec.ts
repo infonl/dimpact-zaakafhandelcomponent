@@ -8,10 +8,12 @@ import {
   configure,
   render,
   RenderComponentOptions,
+  waitFor,
   within,
 } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
@@ -142,10 +144,10 @@ describe(FormioWrapperComponent.name, () => {
             contains: (className: string) => className === "choices",
           },
         };
-        const event = {
+        const event = fromPartial<MouseEvent>({
           composedPath: () => [mockChoicesElement],
           stopPropagation: jest.fn(),
-        } as unknown as MouseEvent;
+        });
 
         component.onClickInside(event);
 
@@ -158,10 +160,10 @@ describe(FormioWrapperComponent.name, () => {
             contains: () => false,
           },
         };
-        const event = {
+        const event = fromPartial<MouseEvent>({
           composedPath: () => [mockOtherElement],
           stopPropagation: jest.fn(),
-        } as unknown as MouseEvent;
+        });
 
         component.onClickInside(event);
 
@@ -170,10 +172,10 @@ describe(FormioWrapperComponent.name, () => {
 
       it("should handle elements without classList gracefully", () => {
         const mockElementNoClassList = {};
-        const event = {
+        const event = fromPartial<MouseEvent>({
           composedPath: () => [mockElementNoClassList],
           stopPropagation: jest.fn(),
-        } as unknown as MouseEvent;
+        });
 
         component.onClickInside(event);
 
@@ -370,6 +372,7 @@ describe(FormioWrapperComponent.name, () => {
       const formSubmit = jest.fn();
       const submissionDone = jest.fn();
       const submissionError = jest.fn();
+      const createDocument = jest.fn();
       const { fixture } = await render(FormioWrapperComponent, {
         inputs: {
           form,
@@ -379,7 +382,7 @@ describe(FormioWrapperComponent.name, () => {
           submitPending: false,
           ...inputs,
         },
-        on: { formSubmit, submissionDone, submissionError },
+        on: { formSubmit, submissionDone, submissionError, createDocument },
         providers: [
           {
             provide: FormioCustomFunctions,
@@ -404,6 +407,7 @@ describe(FormioWrapperComponent.name, () => {
         formSubmit,
         submissionDone,
         submissionError,
+        createDocument,
       };
     }
 
@@ -548,6 +552,91 @@ describe(FormioWrapperComponent.name, () => {
 
         expect(await formio.findByDisplayValue("fakeTekst")).not.toBe(textbox);
       });
+
+      it("should rebuild the form once when the form and the zaak change together", async () => {
+        const { fixture, formio } = await renderOpenForm();
+
+        fixture.componentRef.setInput("form", otherForm);
+        fixture.componentRef.setInput("zaak", otherZaak);
+        fixture.detectChanges();
+
+        expect(
+          await formio.findByRole("textbox", { name: "Adres" }),
+        ).toBeInTheDocument();
+        expect(prepareFormContext).toHaveBeenCalledTimes(2);
+        expect(prepareFormContext).toHaveBeenLastCalledWith(
+          otherForm,
+          { naam: "fakeNaam1" },
+          otherZaak,
+          taak,
+        );
+      });
+
+      it("should rebuild the form from the new taak when the zaak and the taak change together", async () => {
+        const { fixture, formio } = await renderOpenForm();
+
+        fixture.componentRef.setInput("zaak", otherZaak);
+        fixture.componentRef.setInput("taak", otherTaak);
+        fixture.detectChanges();
+
+        expect(
+          await formio.findByText(
+            "Zaak fakeZaakIdentificatie2, taak fakeTaakNaam2",
+          ),
+        ).toBeInTheDocument();
+        expect(
+          await formio.findByDisplayValue("fakeNaam2"),
+        ).toHaveAccessibleName("Naam");
+        expect(prepareFormContext).toHaveBeenCalledTimes(2);
+        expect(prepareFormContext).toHaveBeenLastCalledWith(
+          form,
+          { naam: "fakeNaam2" },
+          otherZaak,
+          otherTaak,
+        );
+        expect(asContextValue).not.toHaveBeenCalled();
+      });
+
+      it("should not rebuild the form when only the read-only state changes", async () => {
+        const { fixture } = await renderOpenForm();
+
+        fixture.componentRef.setInput("readOnly", true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(prepareFormContext).toHaveBeenCalledTimes(1);
+      });
+
+      it("should not rebuild the form for a submit", async () => {
+        const { fixture } = await renderFormWithSubmitInFlight();
+
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(prepareFormContext).toHaveBeenCalledTimes(1);
+      });
+
+      it("should build the form from a taak that changed before the form arrived", async () => {
+        const { fixture, formio } = await renderFormioWrapper({
+          form: undefined,
+        });
+        fixture.componentRef.setInput("taak", otherTaak);
+        fixture.detectChanges();
+
+        fixture.componentRef.setInput("form", form);
+        fixture.detectChanges();
+
+        expect(
+          await formio.findByDisplayValue("fakeNaam2"),
+        ).toHaveAccessibleName("Naam");
+        expect(prepareFormContext).toHaveBeenLastCalledWith(
+          form,
+          { naam: "fakeNaam2" },
+          zaak,
+          otherTaak,
+        );
+      });
     });
 
     describe("a new taak for a form that is open", () => {
@@ -609,6 +698,39 @@ describe(FormioWrapperComponent.name, () => {
         ).toBeInTheDocument();
         expect(await formio.findByText(submitDoneMessage)).toBeInTheDocument();
         expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should show the latest of several taken that arrive while a submit is in flight", async () => {
+        const { fixture, formio } = await renderFormWithSubmitInFlight();
+
+        fixture.componentRef.setInput("taak", otherTaak);
+        fixture.detectChanges();
+        fixture.componentRef.setInput(
+          "taak",
+          fromPartial<GeneratedType<"RestTask">>({
+            naam: "fakeTaakNaam3",
+            taakdata: { naam: "fakeNaam3" },
+          }),
+        );
+        fixture.detectChanges();
+
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(
+          formio.getByText("Zaak fakeZaakIdentificatie1, taak fakeTaakNaam3"),
+        ).toBeInTheDocument();
+      });
+
+      it("should report nothing for a new taak that arrives without a submit", async () => {
+        const { fixture, submissionDone, submissionError } =
+          await renderOpenForm();
+
+        fixture.componentRef.setInput("taak", otherTaak);
+        fixture.detectChanges();
+
+        expect(submissionDone).not.toHaveBeenCalled();
+        expect(submissionError).not.toHaveBeenCalled();
       });
     });
 
@@ -674,6 +796,126 @@ describe(FormioWrapperComponent.name, () => {
 
         expect(formio.getByRole("textbox", { name: "Naam" })).toBe(textbox);
         expect(textbox).toBeDisabled();
+      });
+
+      it("should disable the submit button without redrawing it, which would discard its spinner", async () => {
+        const { fixture, formio, user } = await renderOpenForm();
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        const submittingButton = formio.getByRole("button", {
+          name: "Opslaan",
+        });
+
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+
+        expect(formio.getByRole("button", { name: "Opslaan" })).toBe(
+          submittingButton,
+        );
+        expect(submittingButton).toBeDisabled();
+      });
+
+      it("should keep the submit button disabled while the submit is in flight, also after Form.io reports a change", async () => {
+        const { fixture, formio, user, formSubmit, textbox } =
+          await renderOpenForm();
+        await user.type(textbox, "fakeTekst");
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        await waitFor(() => expect(formSubmit).toHaveBeenCalledTimes(1));
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+
+        // Form.io reports a change shortly after a submit, debounced
+        await sleep(300);
+
+        expect(formio.getByRole("button", { name: "Opslaan" })).toBeDisabled();
+      });
+
+      it("should not hand over a second click on the submit button while the submit is in flight", async () => {
+        const { fixture, formio, user, formSubmit, textbox } =
+          await renderOpenForm();
+        await user.type(textbox, "fakeTekst");
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        await waitFor(() => expect(formSubmit).toHaveBeenCalledTimes(1));
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+        await sleep(300);
+
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        await sleep(300);
+
+        expect(formSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      it("should hand over a click on the submit button again once the submit settles", async () => {
+        const { fixture, formio, user, formSubmit, textbox } =
+          await renderOpenForm();
+        await user.type(textbox, "fakeTekst");
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        await waitFor(() => expect(formSubmit).toHaveBeenCalledTimes(1));
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+
+        await waitFor(() => expect(formSubmit).toHaveBeenCalledTimes(2));
+      });
+
+      it("should keep the submit button of a read-only form disabled after the submit settles", async () => {
+        const { fixture, formio } = await renderFormWithSubmitInFlight({
+          readOnly: true,
+        });
+
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(formio.getByRole("button", { name: "Opslaan" })).toBeDisabled();
+      });
+
+      describe("a button that the form disables itself", () => {
+        const formWithDisabledButton = {
+          ...form,
+          components: [
+            ...form.components,
+            {
+              type: "button",
+              key: "createDocument",
+              label: "Document maken",
+              action: "event",
+              event: "createDocument",
+              input: true,
+              disabled: true,
+            },
+          ],
+        };
+
+        it("should stay disabled after the submit settles", async () => {
+          const { fixture, formio } = await renderFormWithSubmitInFlight({
+            form: formWithDisabledButton,
+          });
+
+          fixture.componentRef.setInput("submitPending", false);
+          fixture.detectChanges();
+
+          expect(
+            formio.getByRole("button", { name: "Document maken" }),
+          ).toBeDisabled();
+        });
+
+        it("should not hand over a click after the submit settles", async () => {
+          const { fixture, formio, user, createDocument } =
+            await renderFormWithSubmitInFlight({
+              form: formWithDisabledButton,
+            });
+          fixture.componentRef.setInput("submitPending", false);
+          fixture.detectChanges();
+
+          await user.click(
+            formio.getByRole("button", { name: "Document maken" }),
+          );
+
+          expect(createDocument).not.toHaveBeenCalled();
+        });
       });
 
       it("should unlock the fields once the submit settles", async () => {
@@ -762,6 +1004,74 @@ describe(FormioWrapperComponent.name, () => {
 
         expect(() => fixture.detectChanges()).not.toThrow();
         expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should report every submit once when the form is submitted twice", async () => {
+        const { fixture, formio, user, submissionDone } =
+          await renderFormWithSubmitInFlight();
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(submissionDone).toHaveBeenCalledTimes(2);
+      });
+
+      it("should report a successful submit as done after a failed one", async () => {
+        const { fixture, formio, user, submissionDone, submissionError } =
+          await renderFormWithSubmitInFlight();
+        fixture.componentRef.setInput("submitFailed", true);
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        await user.click(formio.getByRole("button", { name: "Opslaan" }));
+        fixture.componentRef.setInput("submitFailed", false);
+        fixture.componentRef.setInput("submitPending", true);
+        fixture.detectChanges();
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(submissionError).toHaveBeenCalledTimes(1);
+        expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should report a submit that started before the form was rendered", async () => {
+        const { fixture, submissionDone } = await renderOpenForm({
+          submitPending: true,
+        });
+
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should keep the fields locked when the submit settles and the form becomes read-only at the same time", async () => {
+        const { fixture, formio, submissionDone } =
+          await renderFormWithSubmitInFlight();
+
+        fixture.componentRef.setInput("readOnly", true);
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(formio.getByRole("textbox", { name: "Naam" })).toBeDisabled();
+        expect(submissionDone).toHaveBeenCalledTimes(1);
+      });
+
+      it("should unlock the fields when the submit settles and the form stops being read-only at the same time", async () => {
+        const { fixture, formio } = await renderFormWithSubmitInFlight({
+          readOnly: true,
+        });
+
+        fixture.componentRef.setInput("readOnly", false);
+        fixture.componentRef.setInput("submitPending", false);
+        fixture.detectChanges();
+
+        expect(formio.getByRole("textbox", { name: "Naam" })).toBeEnabled();
       });
     });
   });

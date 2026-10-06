@@ -25,7 +25,7 @@ import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 // rendering this seven step form once per test needs more room than the default timeout
 describe(ParametersEditCmmnComponent.name, () => {
   const stepLabels = [
-    "gegevens.proces-model-methode.CMMN",
+    "gegevens.proces-model-methode.cmmn",
     "gegevens.algemeen",
     "gegevens.humantasks",
     "gegevens.acties",
@@ -48,8 +48,8 @@ describe(ParametersEditCmmnComponent.name, () => {
     zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
       {
-        speciaal: false,
-        defaultMail: true,
+        isSpeciaal: false,
+        isDefaultMail: true,
         mail: "test@example.com",
         replyTo: undefined,
       },
@@ -57,9 +57,12 @@ describe(ParametersEditCmmnComponent.name, () => {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+    smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
     userEventListenerParameters: [],
-    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+    betrokkeneKoppelingen: {
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
+    },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -67,7 +70,7 @@ describe(ParametersEditCmmnComponent.name, () => {
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
-      enabled: false,
+      isEnabled: false,
       templateName: null,
       emailSender: null,
       emailReply: null,
@@ -117,7 +120,8 @@ describe(ParametersEditCmmnComponent.name, () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listGroups: () => of([{ id: "test-group-id", naam: "test-group" }]),
+            listBehandelaarGroupsForZaaktype: () =>
+              of([{ id: "test-group-id", naam: "test-group" }]),
             listUsersInGroup: () =>
               of([{ id: "test-user-id", naam: "test-user" }]),
           }),

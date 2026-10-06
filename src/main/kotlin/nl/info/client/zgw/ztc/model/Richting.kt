@@ -18,19 +18,13 @@ enum class Richting(private val value: String) : AbstractEnum {
 
     UITGAAND("uitgaand");
 
-    override fun toValue(): String {
-        return value
-    }
+    override fun toValue(): String = value
 
     internal class Adapter : AbstractEnum.Adapter<Richting>() {
-        override fun getEnums(): Array<Richting> {
-            return entries.toTypedArray()
-        }
+        override fun getEnums(): Array<Richting> = entries.toTypedArray()
     }
 
     companion object {
-        fun fromValue(value: String): Richting {
-            return AbstractEnum.fromValue(entries.toTypedArray(), value)
-        }
+        fun fromValue(value: String): Richting = AbstractEnum.fromValue(entries.toTypedArray(), value)
     }
 }

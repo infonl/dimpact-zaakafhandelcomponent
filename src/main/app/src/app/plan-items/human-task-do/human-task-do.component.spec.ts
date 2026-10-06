@@ -31,6 +31,7 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { TakenService } from "../../taken/taken.service";
 import { HumanTaskDoComponent } from "./human-task-do.component";
 
 describe("HumanTaskDoComponent", () => {
@@ -44,13 +45,14 @@ describe("HumanTaskDoComponent", () => {
   let httpTestingController: HttpTestingController;
 
   const zaak = fromPartial<GeneratedType<"RestZaak">>({
+    uuid: "fakeZaakUuid",
     zaaktype: {
       uuid: "fakeZaaktypeUuid",
       omschrijving: "fakeZaaktypeOmschrijving",
     },
   });
   const sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
-  const humanTaskPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+  const humanTaskPlanItem = fromPartial<GeneratedType<"RestPlanItem">>({
     type: "HUMAN_TASK",
     formulierDefinitie: "ADVIES",
   });
@@ -137,7 +139,7 @@ describe("HumanTaskDoComponent", () => {
     it("should show the name of the plan item in its title", async () => {
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           naam: "fakePlanItemNaam",
         }),
@@ -153,7 +155,7 @@ describe("HumanTaskDoComponent", () => {
     it("should keep the form it built for a new plan item, and only show the new name in its title", async () => {
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           naam: "fakePlanItemNaam1",
         }),
@@ -162,7 +164,7 @@ describe("HumanTaskDoComponent", () => {
 
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           naam: "fakePlanItemNaam2",
         }),
@@ -225,7 +227,7 @@ describe("HumanTaskDoComponent", () => {
         .mockReturnValue(of([]));
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           formulierDefinitie: "ADVIES",
           groepId: "1",
@@ -247,7 +249,7 @@ describe("HumanTaskDoComponent", () => {
         .mockReturnValue(of(mockUsers));
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "HUMAN_TASK",
           formulierDefinitie: "ADVIES",
           groepId: "1",
@@ -339,7 +341,7 @@ describe("HumanTaskDoComponent", () => {
       );
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           type: "PROCESS_TASK",
         }),
       );
@@ -362,7 +364,7 @@ describe("HumanTaskDoComponent", () => {
       jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
       fixture.componentRef.setInput(
         "planItem",
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           id: "test-plan-item-id",
           type: "HUMAN_TASK",
           formulierDefinitie: "ADVIES",
@@ -408,6 +410,24 @@ describe("HumanTaskDoComponent", () => {
       expect(doneSpy).toHaveBeenCalled();
     });
 
+    it("should refetch the taken of the zaak when saving succeeds, so the new taak shows without waiting for a websocket event", async () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      component["onFormSubmit"](component["form"]);
+      await sleep();
+
+      httpTestingController
+        .expectOne("/rest/planitems/doHumanTaskPlanItem")
+        .flush({});
+      await sleep();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey:
+          TestBed.inject(TakenService).listTakenVoorZaakQuery("fakeZaakUuid")
+            .queryKey,
+      });
+    });
+
     it("should show an error message and not emit done when saving fails", async () => {
       const doneSpy = jest.spyOn(component.done, "emit");
 
@@ -428,6 +448,14 @@ describe("HumanTaskDoComponent", () => {
   });
 
   describe("cancelling the form", () => {
+    it("should not refetch the taken of the zaak", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      component["onFormCancel"]();
+
+      expect(invalidateSpy).not.toHaveBeenCalled();
+    });
+
     it("should emit done", () => {
       const doneSpy = jest.spyOn(component.done, "emit");
 

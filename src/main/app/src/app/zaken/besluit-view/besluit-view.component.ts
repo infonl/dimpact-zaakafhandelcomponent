@@ -7,11 +7,12 @@ import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
-  Input,
-  OnChanges,
+  inject,
+  input,
   OnInit,
   Output,
 } from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -23,6 +24,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { skip } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ZacDocuments } from "../../shared/form/documents/documents";
@@ -30,6 +32,8 @@ import { BesluitIndicatiesComponent } from "../../shared/indicaties/besluit-indi
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { I18nLabelPipe } from "../../shared/pipes/i18n-label.pipe";
 import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -55,6 +59,8 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
     TranslateModule,
     DatumPipe,
     EmptyPipe,
+    I18nKeyPipe,
+    I18nLabelPipe,
     MimetypeToExtensionPipe,
     StaticTextComponent,
     ReadMoreComponent,
@@ -62,10 +68,15 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
     ZacDocuments,
   ],
 })
-export class BesluitViewComponent implements OnInit, OnChanges {
-  @Input({ required: true }) besluiten!: GeneratedType<"RestBesluit">[];
-  @Input({ required: true }) readonly!: boolean;
+export class BesluitViewComponent implements OnInit {
+  readonly besluiten = input.required<GeneratedType<"RestBesluit">[]>();
+  readonly readonly = input.required<boolean>();
   @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
+
+  private readonly zakenService = inject(ZakenService);
+  private readonly dialog = inject(MatDialog);
+  private readonly formBuilder = inject(FormBuilder);
+
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<
     string,
@@ -90,21 +101,19 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     true,
   );
 
-  constructor(
-    private zakenService: ZakenService,
-    private dialog: MatDialog,
-    private formBuilder: FormBuilder,
-  ) {}
-
-  ngOnInit(): void {
-    if (this.besluiten.length > 0) {
-      this.loadBesluitData(this.besluiten[0].uuid);
-    }
+  constructor() {
+    toObservable(this.besluiten)
+      .pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => {
+        for (const historieKey in this.histories) {
+          this.loadHistorie(historieKey);
+        }
+      });
   }
 
-  ngOnChanges() {
-    for (const historieKey in this.histories) {
-      this.loadHistorie(historieKey);
+  ngOnInit(): void {
+    if (this.besluiten().length > 0) {
+      this.loadBesluitData(this.besluiten()[0].uuid);
     }
   }
 
@@ -130,7 +139,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   }
 
   protected isReadonly(besluit: GeneratedType<"RestBesluit">) {
-    return this.readonly || besluit.isIngetrokken;
+    return this.readonly() || besluit.isIngetrokken;
   }
 
   protected intrekken(besluit: GeneratedType<"RestBesluit">) {

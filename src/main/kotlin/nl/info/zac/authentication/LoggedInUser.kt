@@ -29,4 +29,10 @@ class LoggedInUser(
 
     val brpGemeenten: Map<String, String> = emptyMap(),
 
+    /**
+     * Whether the user holds at least one read ('lezen') application role, for a zaaktype or as an overall role.
+     * Determined once per session, so that the request authorization filter does not need to ask OPA per request.
+     */
+    val hasReadApplicationRole: Boolean = false,
+
 ) : User(id, firstName, lastName, displayName, email)

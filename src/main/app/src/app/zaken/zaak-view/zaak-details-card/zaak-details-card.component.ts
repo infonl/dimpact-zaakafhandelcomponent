@@ -63,7 +63,7 @@ import { ZaakDetailsGerelateerdeZakenTabComponent } from "./zaak-details-gerelat
 })
 export class ZaakDetailsCardComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
-  readonly zaakOpschorting = input<GeneratedType<"RESTZaakOpschorting">>();
+  readonly zaakOpschorting = input<GeneratedType<"RestZaakOpschorting">>();
   readonly bagObjecten =
     input.required<GeneratedType<"RESTBAGObjectGegevens">[]>();
   readonly showBetrokkeneKoppelingen = input(false);

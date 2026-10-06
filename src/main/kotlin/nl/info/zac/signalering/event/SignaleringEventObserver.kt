@@ -26,6 +26,7 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
@@ -49,7 +50,10 @@ class SignaleringEventObserver @Inject constructor(
         private val LOG = Logger.getLogger(SignaleringEventObserver::class.java.name)
     }
 
-    override fun onFire(@ObservesAsync event: SignaleringEvent<*>) {
+    // signaleringen are sent on behalf of ZAC, and this async thread has no user session
+    override fun onFire(@ObservesAsync event: SignaleringEvent<*>) = runAsSystemUser { handle(event) }
+
+    private fun handle(event: SignaleringEvent<*>) {
         LOG.fine { "Signalering event received: $event" }
         event.delay()
 
@@ -97,7 +101,7 @@ class SignaleringEventObserver @Inject constructor(
         }
 
     private fun getSignaleringVoorBehandelaarRol(event: SignaleringEvent<*>, rol: Rol<*>): Signalering? {
-        val zaak = zrcClientService.readZaak(rol.zaak!!)
+        val zaak = zrcClientService.readZaak(checkNotNull(rol.zaak) { "Rol '${rol.uuid}' has no zaak" })
         return when (rol) {
             is RolMedewerker -> getSignaleringVoorMedewerker(event = event, zaak = zaak, rolMedewerker = rol)
             is RolOrganisatorischeEenheid ->
@@ -112,7 +116,10 @@ class SignaleringEventObserver @Inject constructor(
     private fun getSignaleringVoorMedewerker(event: SignaleringEvent<*>, zaak: Zaak, rolMedewerker: RolMedewerker) =
         signaleringService.signaleringInstance(event.objectType).apply {
             setSubject(zaak)
-            setTarget(identityService.readUser(rolMedewerker.betrokkeneIdentificatie!!.identificatie))
+            val medewerkerIdentificatie = checkNotNull(rolMedewerker.betrokkeneIdentificatie) {
+                "Rol '${rolMedewerker.uuid}' has no medewerker"
+            }
+            setTarget(identityService.readUser(medewerkerIdentificatie.identificatie))
         }
 
     private fun getSignaleringVoorGroup(
@@ -122,7 +129,10 @@ class SignaleringEventObserver @Inject constructor(
     ) = if (getRolBehandelaarMedewerker(zaak) == null) {
         signaleringService.signaleringInstance(event.objectType).apply {
             setSubject(zaak)
-            setTarget(identityService.readGroup(rolOrganisatorischeEenheid.betrokkeneIdentificatie!!.identificatie))
+            val organisatorischeEenheidIdentificatie = checkNotNull(rolOrganisatorischeEenheid.betrokkeneIdentificatie) {
+                "Rol '${rolOrganisatorischeEenheid.uuid}' has no organisatorische eenheid"
+            }
+            setTarget(identityService.readGroup(organisatorischeEenheidIdentificatie.identificatie))
         }
     } else {
         null

@@ -33,7 +33,7 @@ class SuspendZaakDelegate : AbstractDelegate() {
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
         val loggedInUser = flowableHelper.loggedInUserInstance.get()
         assertPolicy(
-            flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).opschorten,
+            flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canOpschorten,
             LOG,
             "User '${loggedInUser.id}' not authorised to suspend zaak '${zaak.identificatie}'"
         )

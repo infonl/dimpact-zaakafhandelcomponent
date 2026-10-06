@@ -5,11 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -17,7 +13,6 @@ import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideTanStackQuery,
@@ -28,7 +23,6 @@ import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
-import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
@@ -72,8 +66,8 @@ describe(BedrijfsgegevensComponent.name, () => {
   const testZaak = fromPartial<GeneratedType<"RestZaak">>({
     initiatorIdentificatie: betrokkeneIdentificatie,
     rechten: {
-      toevoegenInitiatorBedrijf: false,
-      verwijderenInitiator: false,
+      canToevoegenInitiatorBedrijf: false,
+      canVerwijderenInitiator: false,
     },
   });
 
@@ -89,15 +83,8 @@ describe(BedrijfsgegevensComponent.name, () => {
         BedrijfsgegevensComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MaterialModule,
       ],
-      providers: [
-        KlantenService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-        provideTanStackQuery(queryClient),
-      ],
+      providers: [KlantenService, provideTanStackQuery(queryClient)],
     });
 
     klantenService = TestBed.inject(KlantenService);
@@ -136,8 +123,8 @@ describe(BedrijfsgegevensComponent.name, () => {
         fromPartial<GeneratedType<"RestZaak">>({
           ...testZaak,
           rechten: {
-            toevoegenInitiatorBedrijf: true,
-            verwijderenInitiator: false,
+            canToevoegenInitiatorBedrijf: true,
+            canVerwijderenInitiator: false,
           },
         }),
       );
@@ -166,8 +153,8 @@ describe(BedrijfsgegevensComponent.name, () => {
         fromPartial<GeneratedType<"RestZaak">>({
           ...testZaak,
           rechten: {
-            toevoegenInitiatorBedrijf: false,
-            verwijderenInitiator: true,
+            canToevoegenInitiatorBedrijf: false,
+            canVerwijderenInitiator: true,
           },
         }),
       );
@@ -229,7 +216,7 @@ describe(BedrijfsgegevensComponent.name, () => {
     });
 
     it("renders the bedrijf type from bedrijfQuery data, not the identificatieType", () => {
-      expect(screen.getByText("fakeType1")).toBeInTheDocument();
+      expect(screen.getByText("fake-type1")).toBeInTheDocument();
     });
   });
 
@@ -472,7 +459,9 @@ describe(BedrijfsgegevensComponent.name, () => {
         component["ophalenProfiel"]();
         fixture.detectChanges();
 
-        expect(screen.getByText("totaalWerkzamePersonen")).toBeInTheDocument();
+        expect(
+          screen.getByText("totaal-werkzame-personen"),
+        ).toBeInTheDocument();
         expect(screen.getByText("25")).toBeInTheDocument();
       });
 
@@ -572,7 +561,7 @@ describe(BedrijfsgegevensComponent.name, () => {
         component["ophalenProfiel"]();
         fixture.detectChanges();
 
-        expect(screen.getByText("uitgebreideRechtsvorm")).toBeInTheDocument();
+        expect(screen.getByText("uitgebreide-rechtsvorm")).toBeInTheDocument();
         expect(screen.getByText("Besloten Vennootschap")).toBeInTheDocument();
       });
 
@@ -585,7 +574,7 @@ describe(BedrijfsgegevensComponent.name, () => {
         component["ophalenProfiel"]();
         fixture.detectChanges();
 
-        expect(screen.getByText("statutaireNaam")).toBeInTheDocument();
+        expect(screen.getByText("statutaire-naam")).toBeInTheDocument();
         expect(screen.getByText("Test BV Statutair")).toBeInTheDocument();
       });
     });

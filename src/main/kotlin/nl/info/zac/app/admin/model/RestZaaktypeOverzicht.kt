@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.admin.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
@@ -29,12 +30,15 @@ data class RestZaaktypeOverzicht(
     var identificatie: String? = null,
     var doel: String? = null,
     var omschrijving: String? = null,
-    var servicenorm: Boolean = false,
+    var hasServicenorm: Boolean = false,
     var versiedatum: LocalDate? = null,
     var beginGeldigheid: LocalDate? = null,
     var eindeGeldigheid: LocalDate? = null,
     var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = null,
-    var nuGeldig: Boolean = false
+
+    @get:JsonbProperty("isNuGeldig")
+    @set:JsonbProperty("isNuGeldig")
+    var isNuGeldig: Boolean = false
 )
 
 fun ZaakType.toRestZaaktypeOverzicht() = RestZaaktypeOverzicht(
@@ -42,9 +46,9 @@ fun ZaakType.toRestZaaktypeOverzicht() = RestZaaktypeOverzicht(
     identificatie = this.getIdentificatie(),
     doel = this.getDoel(),
     omschrijving = this.getOmschrijving(),
-    servicenorm = this.isServicenormAvailable(),
+    hasServicenorm = this.isServicenormAvailable(),
     versiedatum = this.getVersiedatum(),
-    nuGeldig = this.isNuGeldig(),
+    isNuGeldig = this.isNuGeldig(),
     beginGeldigheid = this.getBeginGeldigheid(),
     eindeGeldigheid = this.getEindeGeldigheid(),
     vertrouwelijkheidaanduiding = this.getVertrouwelijkheidaanduiding()?.toRestVertrouwelijkheidaanduiding()

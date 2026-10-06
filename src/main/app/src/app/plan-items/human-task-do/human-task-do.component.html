@@ -6,9 +6,9 @@
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>assignment</mat-icon>
   <span class="flex-grow-1">
-    {{ "title.taak.starten" | translate: { taak: planItem?.naam || "" } }}
+    {{ "title.taak.starten" | translate: { taak: planItem()?.naam || "" } }}
   </span>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>

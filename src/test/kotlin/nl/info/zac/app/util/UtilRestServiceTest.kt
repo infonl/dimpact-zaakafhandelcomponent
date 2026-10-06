@@ -39,7 +39,7 @@ class UtilRestServiceTest : BehaviorSpec({
     }
 
     given("caches are empty") {
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
         every { ztcClientService.cacheStatistics() } returns mapOf(
             "ztc-cache1" to CacheStats.empty()
         )
@@ -66,7 +66,7 @@ class UtilRestServiceTest : BehaviorSpec({
     }
 
     given("A user with 'beheren' permissions") {
-        every { policyService.readOverigeRechten().beheren } returns true
+        every { policyService.readOverigeRechten().canBeheren } returns true
 
         `when`("index is requested") {
             val indexResponse = utilRESTService.index()
@@ -139,7 +139,7 @@ class UtilRestServiceTest : BehaviorSpec({
     }
 
     given("A user without 'beheren' permissions") {
-        every { policyService.readOverigeRechten().beheren } returns false
+        every { policyService.readOverigeRechten().canBeheren } returns false
 
         `when`("index is requested") {
             val exception = shouldThrow<PolicyException> {

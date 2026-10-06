@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input } from "@angular/core";
+import { Component, input, Signal } from "@angular/core";
 import { IndicatieItem } from "../model/indicatie-item";
 
 export enum IndicatiesLayout {
@@ -18,6 +18,6 @@ export enum IndicatiesLayout {
 })
 export abstract class IndicatiesComponent {
   protected Layout = IndicatiesLayout;
-  @Input({ required: true }) layout!: IndicatiesLayout;
-  protected indicaties: IndicatieItem[] = [];
+  readonly layout = input.required<IndicatiesLayout>();
+  protected abstract readonly indicaties: Signal<IndicatieItem[]>;
 }

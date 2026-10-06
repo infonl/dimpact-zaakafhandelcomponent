@@ -9,8 +9,8 @@ import {
   computed,
   effect,
   EventEmitter,
+  inject,
   input,
-  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -30,12 +30,15 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
-import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
+import { ZacDate } from "../../../shared/form/date/date";
+import { ZacInput } from "../../../shared/form/input/input";
+import { ZacSelect } from "../../../shared/form/select/select";
+import { runQuery } from "../../../shared/http/run-query";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import {
@@ -53,7 +56,9 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   styleUrls: ["./persoon-zoek.component.less"],
   standalone: true,
   imports: [
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacInput,
+    ZacDate,
     ReactiveFormsModule,
     MatTableModule,
     MatSortModule,
@@ -68,9 +73,9 @@ import { FormCommunicatieService } from "../form-communicatie-service";
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
-  @Input() zaaktypeUUID?: string | null = null;
-  @Input() sideNav?: MatSidenav;
-  @Input() syncEnabled: boolean = false;
+  readonly zaaktypeUUID = input<string | null | undefined>(null);
+  readonly sideNav = input<MatSidenav>();
+  readonly syncEnabled = input(false);
 
   protected blockSearch = input<boolean>(false);
 
@@ -128,6 +133,8 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     () => this.brpGemeentenQuery.data() || [],
   );
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly klantenService: KlantenService,
     private readonly utilService: UtilService,
@@ -161,7 +168,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (!this.syncEnabled) return;
+    if (!this.syncEnabled()) return;
 
     this.uuid = crypto.randomUUID();
 
@@ -297,8 +304,9 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.utilService.setLoading(true);
     this.personen.data = [];
     const { value } = this.formGroup;
-    this.klantenService
-      .listPersonen(
+    runQuery(
+      this.queryClient,
+      this.klantenService.listPersonen(
         {
           ...value,
           geboortedatum: value.geboortedatum?.toISOString(),
@@ -307,33 +315,33 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
               ? value.gemeenteVanInschrijving
               : value.gemeenteVanInschrijving?.code,
         },
-        this.zaaktypeUUID ?? "",
-      )
-      .subscribe({
-        next: (personen) => {
-          this.personen.data = personen.resultaten ?? [];
-          this.foutmelding = personen.foutmelding;
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-        error: () => {
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-      });
+        this.zaaktypeUUID() ?? "",
+      ),
+    ).subscribe({
+      next: (personen) => {
+        this.personen.data = personen.resultaten ?? [];
+        this.foutmelding = personen.foutmelding;
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+      error: () => {
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+    });
   }
 
   protected selectPersoon(persoon: GeneratedType<"RestPersoon">) {
     this.persoon.emit(persoon);
     this.clearFormAndData();
 
-    if (this.syncEnabled) {
+    if (this.syncEnabled()) {
       this.formCommunicationService.notifyItemSelected(this.uuid);
     }
   }
 
   protected openPersoonPagina(persoon: GeneratedType<"RestPersoon">) {
-    this.sideNav?.close();
+    this.sideNav()?.close();
     void this.router.navigate(["/persoon/", persoon.temporaryPersonId]);
   }
 

@@ -27,8 +27,8 @@ describe(ZaakInitiatorPanelComponent.name, () => {
   const screen = () => within(fixture.nativeElement as HTMLElement);
 
   const koppelingen = fromPartial<GeneratedType<"RestBetrokkeneKoppelingen">>({
-    brpKoppelen: true,
-    kvkKoppelen: true,
+    isBrpKoppelenEnabled: true,
+    isKvkKoppelenEnabled: true,
   });
 
   const zaakWith = (
@@ -38,7 +38,7 @@ describe(ZaakInitiatorPanelComponent.name, () => {
     fromPartial<GeneratedType<"RestZaak">>({
       uuid: "1234",
       indicaties: [],
-      rechten: { behandelen: true },
+      rechten: { canBehandelen: true },
       groep: {},
       vertrouwelijkheidaanduiding: "OPENBAAR",
       gerelateerdeZaken: [],
@@ -216,8 +216,8 @@ describe(ZaakInitiatorPanelComponent.name, () => {
             >({ telephoneNumber: null, emailAddress: null }),
           },
           fromPartial<GeneratedType<"RestBetrokkeneKoppelingen">>({
-            brpKoppelen: false,
-            kvkKoppelen: false,
+            isBrpKoppelenEnabled: false,
+            isKvkKoppelenEnabled: false,
           }),
         ),
       );
@@ -239,8 +239,8 @@ describe(ZaakInitiatorPanelComponent.name, () => {
         initiatorIdentificatie: null,
         zaakSpecificContactDetails: null,
         rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
-          toevoegenInitiatorPersoon: true,
-          toevoegenInitiatorBedrijf: true,
+          canToevoegenInitiatorPersoon: true,
+          canToevoegenInitiatorBedrijf: true,
         }),
       });
 
@@ -263,8 +263,8 @@ describe(ZaakInitiatorPanelComponent.name, () => {
           initiatorIdentificatie: null,
           zaakSpecificContactDetails: null,
           rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
-            toevoegenInitiatorPersoon: true,
-            toevoegenInitiatorBedrijf: false,
+            canToevoegenInitiatorPersoon: true,
+            canToevoegenInitiatorBedrijf: false,
           }),
         }),
         false,

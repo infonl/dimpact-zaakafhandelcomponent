@@ -9,7 +9,7 @@
   <button
     mat-icon-button
     [attr.aria-label]="'actie.paneel.sluiten' | translate"
-    (click)="sideNav.close()"
+    (click)="sideNav().close()"
   >
     <mat-icon>close</mat-icon>
   </button>
@@ -67,7 +67,7 @@
         />
         <zac-input
           [form]="form"
-          label="zoekVeld.ZAAK_OMSCHRIJVING"
+          label="zoek-veld.zaak-omschrijving"
           key="caseDescriptionToSearchFor"
         />
         <div class="row">
@@ -127,7 +127,7 @@
       </ng-container>
       <ng-container matColumnDef="zaaktypeOmschrijving">
         <th *matHeaderCellDef mat-header-cell>
-          {{ "zaaktypeOmschrijving" | translate }}
+          {{ "zaaktype-omschrijving" | translate }}
         </th>
         <td *matCellDef="let row" mat-cell>
           {{ row.zaaktypeOmschrijving | empty }}

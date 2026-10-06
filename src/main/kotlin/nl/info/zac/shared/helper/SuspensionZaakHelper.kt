@@ -43,7 +43,7 @@ class SuspensionZaakHelper @Inject constructor(
 
     fun suspendZaak(zaak: Zaak, numberOfDays: Long, suspensionReason: String?): Zaak {
         val loggedInUser = loggedInUserInstance.get()
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).opschorten)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).canOpschorten)
         assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
 
         val zaakUUID = zaak.uuid
@@ -64,7 +64,7 @@ class SuspensionZaakHelper @Inject constructor(
 
     fun resumeZaak(zaak: Zaak, resumeReason: String?, resumeDate: ZonedDateTime = ZonedDateTime.now()): Zaak {
         val loggedInUser = loggedInUserInstance.get()
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).hervatten)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).canHervatten)
         assertPolicy(zaak.isOpgeschort())
 
         val zaakUuid = zaak.uuid
@@ -95,8 +95,8 @@ class SuspensionZaakHelper @Inject constructor(
     fun extendZaakFatalDate(zaak: Zaak, numberOfDays: Long, description: String?): Zaak {
         val loggedInUser = loggedInUserInstance.get()
         policyService.readZaakRechten(zaak, loggedInUser).let {
-            assertPolicy(it.wijzigen)
-            assertPolicy(it.verlengenDoorlooptijd)
+            assertPolicy(it.canWijzigen)
+            assertPolicy(it.canVerlengenDoorlooptijd)
         }
 
         val endDatePlanned = zaak.einddatumGepland?.plusDays(numberOfDays)

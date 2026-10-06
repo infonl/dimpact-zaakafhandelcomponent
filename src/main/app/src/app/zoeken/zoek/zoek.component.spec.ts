@@ -4,6 +4,7 @@
  */
 
 import {
+  HttpErrorResponse,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -11,16 +12,18 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { screen } from "@testing-library/angular";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZoekResultaat } from "../model/zoek-resultaat";
 import { ZoekType } from "../model/zoek-type";
 import { ZoekVeld } from "../model/zoek-veld";
+import { ZoekenService } from "../zoeken.service";
 import { ZoekComponent } from "./zoek.component";
 
 describe(ZoekComponent.name, () => {
@@ -193,6 +196,58 @@ describe(ZoekComponent.name, () => {
         ).toBeUndefined();
       });
     });
+    describe("a search that fails", () => {
+      const zoekResultaat = fromPartial<
+        ZoekResultaat<
+          GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+        >
+      >({ resultaten: [], totaal: 25, filters: {} });
+      let list: jest.SpyInstance;
+
+      async function search(pageIndex: number) {
+        mockPaginator.pageIndex = pageIndex;
+        mockPaginator.page.emit(fromPartial<PageEvent>({ pageIndex }));
+        await sleep();
+      }
+
+      function failNextSearch() {
+        list.mockReturnValue({
+          queryKey: ["failing-query"],
+          queryFn: jest
+            .fn()
+            .mockRejectedValue(new HttpErrorResponse({ status: 500 })),
+        });
+      }
+
+      beforeEach(() => {
+        mockPaginator.pageIndex = 0;
+        list = jest.spyOn(TestBed.inject(ZoekenService), "list");
+        list.mockReturnValue(createQueryOptions(zoekResultaat));
+        component["trefwoordenControl"].setValue("fakeTrefwoord");
+      });
+
+      it("keeps the results and the page it is showing", async () => {
+        await search(1);
+        failNextSearch();
+
+        await search(2);
+
+        expect(mockPaginator.pageIndex).toBe(1);
+        expect(component["zoekResultaat"]).toEqual(zoekResultaat);
+      });
+
+      it("goes back to the first page when the results were cleared before it", async () => {
+        await search(2);
+        component["trefwoordenControl"].setValue("");
+        await search(0);
+        component["trefwoordenControl"].setValue("fakeTrefwoord");
+        failNextSearch();
+
+        await search(1);
+
+        expect(mockPaginator.pageIndex).toBe(0);
+      });
+    });
   });
 
   describe("personen button", () => {
@@ -205,7 +260,7 @@ describe(ZoekComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: true,
+          canZoeken: true,
         }),
       );
 
@@ -218,8 +273,9 @@ describe(ZoekComponent.name, () => {
 
     describe("when brpZoeken is true", () => {
       it("should show the personen button", () => {
-        const button = fixture.debugElement.query(By.css("#personen-button"));
-        expect(button).not.toBeNull();
+        expect(
+          screen.getByRole("button", { name: "actie.zoeken.persoon" }),
+        ).toBeVisible();
       });
     });
 
@@ -228,7 +284,7 @@ describe(ZoekComponent.name, () => {
         testQueryClient.setQueryData(
           policyService.readBrpRechten().queryKey,
           fromPartial<GeneratedType<"RestBrpRechten">>({
-            zoeken: false,
+            canZoeken: false,
           }),
         );
         fixture = TestBed.createComponent(ZoekComponent);
@@ -239,8 +295,9 @@ describe(ZoekComponent.name, () => {
       });
 
       it("should hide the personen button", () => {
-        const button = fixture.debugElement.query(By.css("#personen-button"));
-        expect(button).toBeNull();
+        expect(
+          screen.queryByRole("button", { name: "actie.zoeken.persoon" }),
+        ).not.toBeInTheDocument();
       });
     });
   });

@@ -12,7 +12,7 @@ import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.model.PlanItemType
-import nl.info.zac.app.planitems.model.RESTPlanItem
+import nl.info.zac.app.planitems.model.RestPlanItem
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import org.flowable.cmmn.api.runtime.PlanItemDefinitionType
 import org.flowable.cmmn.api.runtime.PlanItemInstance
@@ -22,7 +22,7 @@ import java.util.UUID
 class RestPlanItemConverter @Inject constructor(
     val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
 ) {
-    fun convertPlanItems(planItems: List<PlanItemInstance>, zaak: Zaak): List<RESTPlanItem> =
+    fun convertPlanItems(planItems: List<PlanItemInstance>, zaak: Zaak): List<RestPlanItem> =
         zaak.zaaktype.extractUuid().let { zaaktypeUUID ->
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).let { zaakafhandelParameters ->
                 planItems.map { convertPlanItem(it, zaak.uuid, zaakafhandelParameters) }
@@ -33,8 +33,8 @@ class RestPlanItemConverter @Inject constructor(
         planItem: PlanItemInstance,
         zaakUuid: UUID,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ): RESTPlanItem =
-        RESTPlanItem(
+    ): RestPlanItem =
+        RestPlanItem(
             id = planItem.id,
             naam = planItem.name,
             type = convertDefinitionType(planItem.planItemDefinitionType),
@@ -48,10 +48,10 @@ class RestPlanItemConverter @Inject constructor(
         }
 
     private fun convertUserEventListener(
-        restPlanItem: RESTPlanItem,
+        restPlanItem: RestPlanItem,
         userEventListenerPlanItem: PlanItemInstance,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ): RESTPlanItem =
+    ): RestPlanItem =
         restPlanItem.apply {
             userEventListenerActie = UserEventListenerActie.valueOf(userEventListenerPlanItem.planItemDefinitionId)
             toelichting = zaaktypeCmmnConfiguration.readUserEventListenerParameters(
@@ -61,15 +61,15 @@ class RestPlanItemConverter @Inject constructor(
 
     @Suppress("ExplicitItLambdaParameter")
     private fun convertHumanTask(
-        restPlanItem: RESTPlanItem,
+        restPlanItem: RestPlanItem,
         humanTaskPlanItem: PlanItemInstance,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ): RESTPlanItem =
+    ): RestPlanItem =
         restPlanItem.apply {
             zaaktypeCmmnConfiguration
                 .findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId)
                 ?.let { it ->
-                    actief = it.actief
+                    isActief = it.isActief
                     it.getFormulierDefinitieID()?.let { fd ->
                         formulierDefinitie = FormulierDefinitie.valueOf(fd)
                     }

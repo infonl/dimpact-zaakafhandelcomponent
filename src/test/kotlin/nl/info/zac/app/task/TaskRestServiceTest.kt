@@ -560,7 +560,7 @@ class TaskRestServiceTest : BehaviorSpec({
             )
             val loggedInUser = createLoggedInUser()
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak, loggedInUser).lezen } returns true
+            every { policyService.readZaakRechten(zaak, loggedInUser).canLezen } returns true
             every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
             every { restTaskConverter.convert(tasks) } returns restTasks
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -596,7 +596,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
             every { signaleringService.deleteSignaleringen(any()) } returns 2
             every { flowableTaskService.readTask(taskId) } returns taskInfo
-            every { policyService.readTaakRechten(taskInfo).lezen } returns true
+            every { policyService.readTaakRechten(taskInfo).canLezen } returns true
             every { restTaskConverter.convert(taskInfo) } returns restTask
             every { bpmnTaskFormRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
             every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(

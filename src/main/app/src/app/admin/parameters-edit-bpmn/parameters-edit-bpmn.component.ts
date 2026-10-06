@@ -11,7 +11,7 @@ import {
   Component,
   EventEmitter,
   inject,
-  Input,
+  input,
   OnDestroy,
   Output,
   ViewChild,
@@ -46,7 +46,9 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "src/app/shared/confirm-dialog/confirm-dialog.component";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
+import { ZacInput } from "src/app/shared/form/input/input";
+import { ZacRadio } from "src/app/shared/form/radio/radio";
+import { ZacSelect } from "src/app/shared/form/select/select";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -95,13 +97,15 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     MatSlideToggleModule,
     MatTableModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacRadio,
+    ZacInput,
     StaticTextComponent,
     SmartDocumentsFormComponent,
   ],
 })
 export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
-  @Input({ required: false }) selectedIndexStart: number = 0;
+  readonly selectedIndexStart = input<number>(0);
   @Output() switchModellingMethod =
     new EventEmitter<ProcessModelMethodSelection>();
 
@@ -116,14 +120,14 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
 
   protected bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] =
     [];
-  protected groepen = this.identityService.listGroups();
+  protected groepen: GeneratedType<"RestGroup">[] = [];
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
-    zaakspecifiekAutoriseerbaar: boolean;
+    isZaakspecifiekAutoriseerbaar: boolean;
   } = {
-    zaakspecifiekAutoriseerbaar: false,
+    isZaakspecifiekAutoriseerbaar: false,
     zaaktypeUuid: "",
     zaaktypeOmschrijving: "",
     bpmnProcessDefinitionKey: "",
@@ -136,8 +140,8 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       omschrijving: "",
     },
     betrokkeneKoppelingen: {
-      brpKoppelen: false,
-      kvkKoppelen: false,
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
     },
     brpDoelbindingen: {
       zoekWaarde: "",
@@ -235,6 +239,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         this.zaakafhandelParametersService.listResultaattypes(
           this.bpmnZaakafhandelParameters.zaaktype.uuid,
         ),
+        this.identityService.listBehandelaarGroupsForZaaktype(
+          this.bpmnZaakafhandelParameters.zaaktype.omschrijving!,
+        ),
       ]).subscribe(
         async ([
           brpSearchValues,
@@ -243,6 +250,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           brpDoelbindingSetupEnabled,
           zaakbeeindigRedenen,
           resultaattypes,
+          groepen,
         ]) => {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
@@ -250,6 +258,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
           this.zaakbeeindigRedenen = zaakbeeindigRedenen;
           this.resultaattypes = resultaattypes;
+          this.groepen = groepen;
           await this.createForm();
         },
       );
@@ -305,10 +314,11 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       });
 
     if (defaultGroepId) {
-      const groups = await this.groepen.toPromise();
-      const defaultGroup = groups?.find(({ id }) => id === defaultGroepId);
+      const defaultGroup = this.groepen?.find(
+        ({ id }) => id === defaultGroepId,
+      );
       this.algemeenFormGroup.controls.defaultGroep.setValue(
-        defaultGroup ?? groups?.at(0) ?? null,
+        defaultGroup ?? null,
       );
     }
 
@@ -323,12 +333,12 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   private createBetrokkeneKoppelingenForm() {
     this.betrokkeneKoppelingen = this.formBuilder.group({
       kvkKoppelen: [
-        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen?.kvkKoppelen ??
-          false,
+        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen
+          ?.isKvkKoppelenEnabled ?? false,
       ],
       brpKoppelen: [
-        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen?.brpKoppelen ??
-          false,
+        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen
+          ?.isBrpKoppelenEnabled ?? false,
       ],
     });
 
@@ -478,10 +488,10 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     }
 
     this.bpmnZaakafhandelParameters.betrokkeneKoppelingen = {
-      kvkKoppelen: Boolean(
+      isKvkKoppelenEnabled: Boolean(
         this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
       ),
-      brpKoppelen: Boolean(
+      isBrpKoppelenEnabled: Boolean(
         this.betrokkeneKoppelingen.controls.brpKoppelen.value,
       ),
     };
@@ -525,10 +535,10 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         zaakbeeindigParameters:
           this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
         smartDocuments: {
-          enabledGlobally:
-            this.bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ??
+          isEnabledGlobally:
+            this.bpmnZaakafhandelParameters.smartDocuments?.isEnabledGlobally ??
             false,
-          enabledForZaaktype:
+          isEnabledForZaaktype:
             this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false,
         },
       })

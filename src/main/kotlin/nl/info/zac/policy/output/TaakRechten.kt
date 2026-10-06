@@ -9,9 +9,9 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.opa.model.OpaRuleResult
 
 data class TaakRechten @JsonbCreator constructor(
-    @param:JsonbProperty("lezen") val lezen: Boolean,
-    @param:JsonbProperty("wijzigen") val wijzigen: Boolean,
-    @param:JsonbProperty("toekennen") val toekennen: Boolean,
-    @param:JsonbProperty("creeren_document") val creerenDocument: Boolean,
-    @param:JsonbProperty("toevoegen_document") val toevoegenDocument: Boolean
+    @param:JsonbProperty("lezen") val canLezen: Boolean,
+    @param:JsonbProperty("wijzigen") val canWijzigen: Boolean,
+    @param:JsonbProperty("toekennen") val canToekennen: Boolean,
+    @param:JsonbProperty("creeren_document") val canCreerenDocument: Boolean,
+    @param:JsonbProperty("toevoegen_document") val canToevoegenDocument: Boolean
 ) : OpaRuleResult

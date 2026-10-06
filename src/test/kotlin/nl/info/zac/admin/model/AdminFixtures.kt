@@ -4,6 +4,7 @@
  */
 package nl.info.zac.admin.model
 
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -18,8 +19,8 @@ fun createBetrokkeneKoppelingen(
 ) = ZaaktypeBetrokkeneParameters().apply {
     this.id = id
     this.zaaktypeConfiguration = zaaktypeConfiguration
-    this.brpKoppelen = brpKoppelen
-    this.kvkKoppelen = kvkKoppelen
+    this.isBrpKoppelenEnabled = brpKoppelen
+    this.isKvkKoppelenEnabled = kvkKoppelen
 }
 
 fun createZaaktypeBrpParameters(
@@ -41,7 +42,7 @@ fun createZaaktypeCmmnHumantaskParameters(
 ) = ZaaktypeCmmnHumantaskParameters().apply {
     this.planItemDefinitionID = planItemDefinitionId
     this.id = id
-    this.actief = actief
+    this.isActief = actief
     this.groepID = groepId
     this.doorlooptijd = doorlooptijd
     this.setReferentieTabellen(mutableListOf())
@@ -60,12 +61,12 @@ fun createHumanTaskParameters(
 ) = ZaaktypeCmmnHumantaskParameters().apply {
     this.id = id
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
-    this.actief = isActief
+    this.isActief = isActief
     this.setFormulierDefinitieID(formulierDefinitieID)
     this.planItemDefinitionID = planItemDefinitionID
     this.groepID = groupId
     this.doorlooptijd = leadTime
-    this.setReferentieTabellen((referenceTables ?: emptyList()).toMutableList())
+    this.setReferentieTabellen(referenceTables.orEmpty().toMutableList())
 }
 
 fun createHumanTaskReferentieTabel(
@@ -81,7 +82,7 @@ fun createHumanTaskReferentieTabel(
 }
 
 fun createReferenceTable(
-    id: Long = 1234L,
+    id: Long? = 1234L,
     code: String = "fakeCode",
     name: String = "fakeReferentieTabel",
     isSystemReferenceTable: Boolean = false,
@@ -95,7 +96,7 @@ fun createReferenceTable(
 }
 
 fun createReferenceTableValue(
-    id: Long = 1234L,
+    id: Long? = 1234L,
     name: String = "fakeReferentieTabelWaarde",
     sortOrder: Int = 1,
     isSystemValue: Boolean = false
@@ -135,7 +136,7 @@ fun createZaaktypeCmmnConfiguration(
         this.groepID = groupId
         this.caseDefinitionID = caseDefinitionId
         this.defaultBehandelaarId = defaultBehandelaarId
-        this.smartDocumentsEnabled = smartDocumentsEnabled
+        this.isSmartDocumentsEnabled = smartDocumentsEnabled
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
@@ -183,7 +184,7 @@ fun createZaaktypeBpmnConfiguration(
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.groepID = groupId
         this.defaultBehandelaarId = defaultBehandelaarId
-        this.smartDocumentsEnabled = smartDocumentsEnabled
+        this.isSmartDocumentsEnabled = smartDocumentsEnabled
         setZaakbeeindigParameters(zaaktypeCompletionParameters)
         val parameters = this
         this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
@@ -196,6 +197,26 @@ fun createZaaktypeBpmnConfiguration(
             this.bpmnProcessDefinitionKey = it
         }
     }
+
+data class ZaaktypeConfigurationUnderTest(
+    val configurationType: ZaaktypeConfigurationType,
+    val create: (nietOntvankelijkResultaattype: UUID) -> ZaaktypeConfiguration
+)
+
+/**
+ * One factory per configuration type, so that a test of behaviour that both engines share runs for each of them.
+ */
+fun createZaaktypeConfigurationsUnderTest() = listOf(
+    ZaaktypeConfigurationUnderTest(ZaaktypeConfigurationType.CMMN) {
+        createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattype = it)
+    },
+    ZaaktypeConfigurationUnderTest(ZaaktypeConfigurationType.BPMN) {
+        createZaaktypeBpmnConfiguration(
+            nietOntvankelijkResultaattype = it,
+            bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+        )
+    }
+)
 
 fun createZaaktypeCompletionParameters(
     id: Long? = 1234L,
@@ -228,7 +249,7 @@ fun createAutomaticEmailConfirmation(
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
 ) = ZaaktypeCmmnEmailParameters().apply {
     this.id = id
-    this.enabled = enabled
+    this.isEnabled = enabled
     this.templateName = templateName
     this.emailSender = emailSender
     this.emailReply = emailReply
@@ -254,7 +275,7 @@ fun createZaakAfzender(
 ) = ZaaktypeCmmnZaakafzenderParameters().apply {
     this.id = id
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
-    this.defaultMail = defaultMail
+    this.isDefaultMail = defaultMail
     this.mail = mail
     this.replyTo = replyTo
 }

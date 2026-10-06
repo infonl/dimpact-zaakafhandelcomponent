@@ -148,7 +148,7 @@ class UtilRestService @Inject constructor(
         )
     }
 
-    private fun checkBeherenPolicy() = assertPolicy(policyService.readOverigeRechten().beheren)
+    private fun checkBeherenPolicy() = assertPolicy(policyService.readOverigeRechten().canBeheren)
 
     private fun clearZtcClientCaches() =
         ZTC + ul(

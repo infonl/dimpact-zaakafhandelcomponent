@@ -403,13 +403,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "besluiten": [],
                       "bronorganisatie": "$BRON_ORGANISATIE",
                       "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
-                      "eerdereOpschorting": false,
+                      "hasEerdereOpschorting": false,
                       "gerelateerdeZaken": [],
                       "groep": {
                         "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
                       },
-                      "heeftOntvangstbevestigingVerstuurd": false,
+                      "isOntvangstbevestigingVerstuurd": false,
                       "identificatie": "$zaakIdentification",
                       "indicaties": ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
                       "isBesluittypeAanwezig": false,
@@ -424,25 +424,25 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "kenmerken": [],
                       "omschrijving": "$ZAAK_DESCRIPTION_2",
                       "rechten": {
-                        "afbreken": true,
-                        "behandelen": true,
-                        "bekijkenZaakdata": false,
-                        "creerenDocument": true,
-                        "heropenen": false,
-                        "lezen": true,
-                        "toekennen": true,
-                        "toevoegenBagObject": true,
-                        "toevoegenBetrokkeneBedrijf": true,
-                        "toevoegenBetrokkenePersoon": true,
-                        "toevoegenInitiatorBedrijf": true,
-                        "toevoegenInitiatorPersoon": true,
-                        "versturenEmail": true,
-                        "versturenOntvangstbevestiging": true,
-                        "verwijderenBetrokkene": true,
-                        "verwijderenInitiator": true,
-                        "wijzigen": true,
-                        "wijzigenDoorlooptijd": true,
-                        "wijzigenLocatie": true
+                        "canAfbreken": true,
+                        "canBehandelen": true,
+                        "canBekijkenZaakdata": false,
+                        "canCreerenDocument": true,
+                        "canHeropenen": false,
+                        "canLezen": true,
+                        "canToekennen": true,
+                        "canToevoegenBagObject": true,
+                        "canToevoegenBetrokkeneBedrijf": true,
+                        "canToevoegenBetrokkenePersoon": true,
+                        "canToevoegenInitiatorBedrijf": true,
+                        "canToevoegenInitiatorPersoon": true,
+                        "canVersturenEmail": true,
+                        "canVersturenOntvangstbevestiging": true,
+                        "canVerwijderenBetrokkene": true,
+                        "canVerwijderenInitiator": true,
+                        "canWijzigen": true,
+                        "canWijzigenDoorlooptijd": true,
+                        "canWijzigenLocatie": true
                       },
                       "registratiedatum": "${LocalDate.now()}",
                       "startdatum": "$DATE_2020_01_01",
@@ -463,13 +463,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
                           "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                         ],
-                        "nuGeldig": true,
+                        "isNuGeldig": true,
                         "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
-                        "opschortingMogelijk": false,
+                        "isOpschortingMogelijk": false,
                         "referentieproces": "$ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES",
-                        "servicenorm": false,
+                        "hasServicenorm": false,
                         "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
-                        "verlengingMogelijk": false,
+                        "isVerlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
                         "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                         "zaaktypeRelaties": []
@@ -499,25 +499,25 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                             getJSONObject("rechten").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
                              {
-                              "versturenOntvangstbevestiging" : true,
-                              "wijzigenDoorlooptijd" : true,
-                              "heropenen" : false,
-                              "toevoegenBetrokkeneBedrijf" : true,
-                              "verwijderenInitiator" : true,
-                              "lezen" : true,
-                              "wijzigen" : true,
-                              "toevoegenInitiatorPersoon" : true,
-                              "versturenEmail" : true,
-                              "verwijderenBetrokkene" : true,
-                              "toevoegenBetrokkenePersoon" : true,
-                              "creerenDocument" : true,
-                              "toevoegenBagObject" : true,
-                              "bekijkenZaakdata" : false,
-                              "wijzigenLocatie" : true,
-                              "toevoegenInitiatorBedrijf" : true,
-                              "afbreken" : true,
-                              "behandelen" : true,
-                              "toekennen" : true
+                              "canVersturenOntvangstbevestiging" : true,
+                              "canWijzigenDoorlooptijd" : true,
+                              "canHeropenen" : false,
+                              "canToevoegenBetrokkeneBedrijf" : true,
+                              "canVerwijderenInitiator" : true,
+                              "canLezen" : true,
+                              "canWijzigen" : true,
+                              "canToevoegenInitiatorPersoon" : true,
+                              "canVersturenEmail" : true,
+                              "canVerwijderenBetrokkene" : true,
+                              "canToevoegenBetrokkenePersoon" : true,
+                              "canCreerenDocument" : true,
+                              "canToevoegenBagObject" : true,
+                              "canBekijkenZaakdata" : false,
+                              "canWijzigenLocatie" : true,
+                              "canToevoegenInitiatorBedrijf" : true,
+                              "canAfbreken" : true,
+                              "canBehandelen" : true,
+                              "canToekennen" : true
                             }
                             """.trimIndent()
                         }
@@ -543,25 +543,25 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                             getJSONObject("rechten").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
                             {
-                              "versturenOntvangstbevestiging" : true,
-                              "wijzigenDoorlooptijd" : true,
-                              "heropenen" : true,
-                              "toevoegenBetrokkeneBedrijf" : true,
-                              "verwijderenInitiator" : true,
-                              "lezen" : true,
-                              "wijzigen" : true,
-                              "toevoegenInitiatorPersoon" : true,
-                              "versturenEmail" : true,
-                              "verwijderenBetrokkene" : true,
-                              "toevoegenBetrokkenePersoon" : true,
-                              "creerenDocument" : true,
-                              "toevoegenBagObject" : true,
-                              "bekijkenZaakdata" : true,
-                              "wijzigenLocatie" : true,
-                              "toevoegenInitiatorBedrijf" : true,
-                              "afbreken" : true,
-                              "behandelen" : true,
-                              "toekennen" : true
+                              "canVersturenOntvangstbevestiging" : true,
+                              "canWijzigenDoorlooptijd" : true,
+                              "canHeropenen" : true,
+                              "canToevoegenBetrokkeneBedrijf" : true,
+                              "canVerwijderenInitiator" : true,
+                              "canLezen" : true,
+                              "canWijzigen" : true,
+                              "canToevoegenInitiatorPersoon" : true,
+                              "canVersturenEmail" : true,
+                              "canVerwijderenBetrokkene" : true,
+                              "canToevoegenBetrokkenePersoon" : true,
+                              "canCreerenDocument" : true,
+                              "canToevoegenBagObject" : true,
+                              "canBekijkenZaakdata" : true,
+                              "canWijzigenLocatie" : true,
+                              "canToevoegenInitiatorBedrijf" : true,
+                              "canAfbreken" : true,
+                              "canBehandelen" : true,
+                              "canToekennen" : true
                             }
                             """.trimIndent()
                         }
@@ -824,7 +824,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "isInIntakeFase": true,
                       "isOpen": true,
                       "isOpgeschort": false,
-                      "eerdereOpschorting": false,
+                      "hasEerdereOpschorting": false,
                       "isProcesGestuurd": false,
                       "isVerlengd": false,
                       "kenmerken": [],
@@ -1141,11 +1141,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                         )
                     ) {
                         code shouldBe HTTP_OK
-                        JSONObject(bodyAsString).apply {
-                            getJSONObject("behandelaar").apply {
-                                getString("id") shouldBe BEHANDELAAR_1.username
-                                getString("naam") shouldBe BEHANDELAAR_1.displayName
-                            }
+                        JSONObject(bodyAsString).getJSONObject("behandelaar").apply {
+                            getString("id") shouldBe BEHANDELAAR_1.username
+                            getString("naam") shouldBe BEHANDELAAR_1.displayName
                         }
                     }
                 }
@@ -1362,7 +1360,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 and("the behandelaar still reads the zaak without holding the zaakspecifiek_geautoriseerd role") {
                     with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                         code shouldBe HTTP_OK
-                        JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                        JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                     }
                 }
 
@@ -1546,7 +1544,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                     with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                         code shouldBe HTTP_OK
-                        JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                        JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                     }
                 }
             }
@@ -1598,7 +1596,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     )
                     with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                         code shouldBe HTTP_OK
-                        JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+                        JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                     }
                 }
 
@@ -2052,25 +2050,25 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "taakNamen" : [ ]
                           },
                           "rechten" : {
-                            "afbreken" : true,
-                            "behandelen" : true,
-                            "bekijkenZaakdata" : false,
-                            "creerenDocument" : true,
-                            "heropenen" : false,
-                            "lezen" : true,
-                            "toekennen" : true,
-                            "toevoegenBagObject" : true,
-                            "toevoegenBetrokkeneBedrijf" : true,
-                            "toevoegenBetrokkenePersoon" : true,
-                            "toevoegenInitiatorBedrijf" : true,
-                            "toevoegenInitiatorPersoon" : true,
-                            "versturenEmail" : true,
-                            "versturenOntvangstbevestiging" : true,
-                            "verwijderenBetrokkene" : true,
-                            "verwijderenInitiator" : true,
-                            "wijzigen" : true,
-                            "wijzigenDoorlooptijd" : true,
-                            "wijzigenLocatie" : true
+                            "canAfbreken" : true,
+                            "canBehandelen" : true,
+                            "canBekijkenZaakdata" : false,
+                            "canCreerenDocument" : true,
+                            "canHeropenen" : false,
+                            "canLezen" : true,
+                            "canToekennen" : true,
+                            "canToevoegenBagObject" : true,
+                            "canToevoegenBetrokkeneBedrijf" : true,
+                            "canToevoegenBetrokkenePersoon" : true,
+                            "canToevoegenInitiatorBedrijf" : true,
+                            "canToevoegenInitiatorPersoon" : true,
+                            "canVersturenEmail" : true,
+                            "canVersturenOntvangstbevestiging" : true,
+                            "canVerwijderenBetrokkene" : true,
+                            "canVerwijderenInitiator" : true,
+                            "canWijzigen" : true,
+                            "canWijzigenDoorlooptijd" : true,
+                            "canWijzigenLocatie" : true
                           },
                           "startdatum" : "${yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
                           "status" : "Intake",

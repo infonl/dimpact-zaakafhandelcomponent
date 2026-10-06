@@ -69,7 +69,7 @@ abstract class ZaaktypeConfiguration {
     var defaultBehandelaarId: String? = null
 
     @Column(name = "smartdocuments_ingeschakeld")
-    var smartDocumentsEnabled: Boolean = false
+    var isSmartDocumentsEnabled: Boolean = false
 
     @field:NotNull
     @Column(name = "creatiedatum", nullable = false)
@@ -123,7 +123,7 @@ abstract class ZaaktypeConfiguration {
         )
 
     fun getZaakbeeindigParameters(): Set<ZaaktypeCompletionParameters> =
-        zaaktypeCompletionParameters ?: emptySet()
+        zaaktypeCompletionParameters.orEmpty()
 
     fun setZaakbeeindigParameters(newZaaktypeCompletionParameters: Collection<ZaaktypeCompletionParameters>) {
         val completionParameters = zaaktypeCompletionParameters ?: mutableSetOf<ZaaktypeCompletionParameters>().also {

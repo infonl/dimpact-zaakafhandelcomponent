@@ -31,7 +31,7 @@ const zaak = fromPartial<GeneratedType<"RestZaak">>({
   resultaat: null,
 });
 
-const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
   id: "fakePlanItemId",
   userEventListenerActie: "BRONDATUM_ZETTEN",
 });
@@ -47,7 +47,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
     planItemToHandle,
   }: {
     zaakToHandle?: GeneratedType<"RestZaak">;
-    planItemToHandle?: GeneratedType<"RESTPlanItem"> | null;
+    planItemToHandle?: GeneratedType<"RestPlanItem"> | null;
   } = {}) {
     dialogRef = fromPartial<MatDialogRef<ZaakBrondatumZettenDialogComponent>>({
       close: jest.fn(),
@@ -73,7 +73,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
   }
 
   function submitButton() {
-    return screen.getByRole("button", { name: "actie.zaak.brondatumZetten" });
+    return screen.getByRole("button", { name: "actie.zaak.brondatum-zetten" });
   }
 
   async function fillInBrondatum(date: moment.Moment) {
@@ -215,7 +215,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
         ...zaak,
         resultaat: fromPartial({
           resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-            datumKenmerkVerplicht: true,
+            isDatumKenmerkVerplicht: true,
             datumKenmerkOmschrijving: "fakeDatumKenmerkOmschrijving",
           }),
         }),

@@ -20,7 +20,7 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.shared.model.audit.ZrcAuditTrailRegel
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.validateZgwApiUri
@@ -55,12 +55,13 @@ class ZrcClientService @Inject constructor(
 ) {
     fun createRol(rol: Rol<*>) = createRol(rol, null)
 
-    fun createRol(rol: Rol<*>, auditExplanation: String?): Rol<*> {
-        return zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolCreate(rol) }
-    }
+    fun createRol(rol: Rol<*>, auditExplanation: String?): Rol<*> =
+        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolCreate(rol) }
 
     fun deleteRol(rol: Rol<*>, auditExplanation: String?) {
-        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) { zrcClient.rolDelete(rol.uuid!!) }
+        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
+            zrcClient.rolDelete(checkNotNull(rol.uuid) { "A rol without a UUID cannot be deleted" })
+        }
     }
 
     fun createZaakobject(zaakobject: ZaakobjectRequest): Zaakobject =
@@ -136,9 +137,8 @@ class ZrcClientService @Inject constructor(
     fun listZaakobjecten(zaakobjectListParameters: ZaakobjectListParameters): Results<Zaakobject> =
         zrcClient.zaakobjectList(zaakobjectListParameters)
 
-    fun patchZaak(zaakUUID: UUID, zaak: Zaak, explanation: String?): Zaak {
-        return zgwClientHeadersFactory.withAuditExplanation(explanation) { patchZaak(zaakUUID, zaak) }
-    }
+    fun patchZaak(zaakUUID: UUID, zaak: Zaak, explanation: String?): Zaak =
+        zgwClientHeadersFactory.withAuditExplanation(explanation) { patchZaak(zaakUUID, zaak) }
 
     fun patchZaak(zaakUUID: UUID, zaak: Zaak): Zaak = zrcClient.zaakPartialUpdate(zaakUUID, zaak)
 
@@ -225,18 +225,16 @@ class ZrcClientService @Inject constructor(
         createZaakInformatieobject(nieuweZaakInformatieObjectRequest, description)
     }
 
-    fun listAuditTrail(zaakUUID: UUID): List<ZRCAuditTrailRegel> =
+    fun listAuditTrail(zaakUUID: UUID): List<ZrcAuditTrailRegel> =
         zrcClient.listAuditTrail(zaakUUID)
 
-    fun closeCase(zaakUUID: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten {
-        return zrcClient.zaakAfsluiten(zaakUUID, zaakAfsluiten)
-    }
+    fun closeCase(zaakUUID: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten =
+        zrcClient.zaakAfsluiten(zaakUUID, zaakAfsluiten)
 
     fun deleteResultaat(resultaatUUID: UUID) = zrcClient.resultaatDelete(resultaatUUID)
 
-    fun createZaak(zaak: Zaak): Zaak {
-        return zgwClientHeadersFactory.withAuditExplanation(zaak.toelichting) { zrcClient.zaakCreate(zaak) }
-    }
+    fun createZaak(zaak: Zaak): Zaak =
+        zgwClientHeadersFactory.withAuditExplanation(zaak.toelichting) { zrcClient.zaakCreate(zaak) }
 
     fun createStatus(zaakUuid: UUID, status: StatusSub): StatusSub {
         val zaakBijwerken = ZaakBijwerken().apply {
@@ -247,13 +245,10 @@ class ZrcClientService @Inject constructor(
         }
     }
 
-    fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap {
-        return zrcClient.zaakeigenschapCreate(zaakUUID, zaakEigenschap)
-    }
+    fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap =
+        zrcClient.zaakeigenschapCreate(zaakUUID, zaakEigenschap)
 
-    fun listZaakeigenschappen(zaakUUID: UUID): List<ZaakEigenschap> {
-        return zrcClient.zaakeigenschapList(zaakUUID)
-    }
+    fun listZaakeigenschappen(zaakUUID: UUID): List<ZaakEigenschap> = zrcClient.zaakeigenschapList(zaakUUID)
 
     fun readZaakeigenschap(zaakUUID: UUID, zaakeigenschapUUID: UUID): ZaakEigenschap =
         zrcClient.zaakeigenschapRead(zaakUUID, zaakeigenschapUUID)

@@ -65,6 +65,20 @@ describe(TakenService.name, () => {
     });
   });
 
+  describe("invalidateTakenVoorZaak", () => {
+    it("invalidates the taken listing of the given zaak", async () => {
+      const invalidateQueries = jest
+        .spyOn(testQueryClient, "invalidateQueries")
+        .mockResolvedValue(undefined);
+
+      await service.invalidateTakenVoorZaak("zaak-uuid-1");
+
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: service.listTakenVoorZaakQuery("zaak-uuid-1").queryKey,
+      });
+    });
+  });
+
   describe("listHistorieVoorTaak", () => {
     it("fetches with the given task id", () => {
       jest.spyOn(zacHttpClient, "GET").mockReturnValue(of([] as never));

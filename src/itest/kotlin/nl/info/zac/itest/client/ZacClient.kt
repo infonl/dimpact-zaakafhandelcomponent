@@ -54,8 +54,6 @@ class ZacClient(
         vertrouwelijkheidaanduiding: String,
         testUser: TestUser
     ): ResponseContent {
-        val createEnkelvoudigInformatieobjectEndpointURI =
-            "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakUUID/$zaakUUID"
         val file = Thread.currentThread().contextClassLoader.getResource(fileName).let {
             File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
         }
@@ -99,8 +97,8 @@ class ZacClient(
               "groepNaam": "$defaultGroupName",
               "defaultBehandelaarId": "$defaultBehandelaarId",
               "betrokkeneKoppelingen": {
-                "brpKoppelen": true,
-                "kvkKoppelen": true
+                "isBrpKoppelenEnabled": true,
+                "isKvkKoppelenEnabled": true
               },
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
@@ -111,12 +109,12 @@ class ZacClient(
               "zaakNietOntvankelijkResultaattype": {
                 "archiefNominatie": "VERNIETIGEN",
                 "archiefTermijn": "5 jaren",
-                "besluitVerplicht": false,
+                "isBesluitVerplicht": false,
                 "id": "$nietOntvankelijkResultaattype",
                 "naam": "Geweigerd",
                 "naamGeneriek": "Geweigerd",
                 "toelichting": "fakeNietOntvankelijkToelichting",
-                "vervaldatumBesluitVerplicht": false
+                "isVervaldatumBesluitVerplicht": false
               }
             }
             """.trimIndent(),
@@ -261,18 +259,18 @@ class ZacClient(
                   "toelichting": null
                 }
               ],
-              "valide": false,
+              "isValide": false,
               "zaakAfzenders": [
               {
-                 "defaultMail": true,
+                 "isDefaultMail": true,
                  "mail": "GEMEENTE",
-                 "speciaal": true,
+                 "isSpeciaal": true,
                  "replyTo": "GEMEENTE"
                 },
                 {
-                  "defaultMail": false,
+                  "isDefaultMail": false,
                   "mail": "MEDEWERKER",
-                  "speciaal": true,
+                  "isSpeciaal": true,
                   "replyTo": null
                 }
               ],
@@ -281,9 +279,9 @@ class ZacClient(
                 "beginGeldigheid": "2023-09-21",
                 "doel": "$zaakTypeDescription",
                 "identificatie": "$zaakTypeIdentificatie",
-                "nuGeldig": true,
+                "isNuGeldig": true,
                 "omschrijving": "$zaakTypeDescription",
-                "servicenorm": false,
+                "hasServicenorm": false,
                 "uuid": "$zaakTypeUuid",
                 "versiedatum": "2023-09-21",
                 "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
@@ -348,19 +346,19 @@ class ZacClient(
               "zaakNietOntvankelijkResultaattype": {
                 "archiefNominatie": "VERNIETIGEN",
                 "archiefTermijn": "5 jaren",
-                "besluitVerplicht": false,
+                "isBesluitVerplicht": false,
                 "id": "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6",
                 "naam": "Geweigerd",
                 "naamGeneriek": "Geweigerd",
                 "toelichting": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
-                "vervaldatumBesluitVerplicht": false
+                "isVervaldatumBesluitVerplicht": false
               },
               "smartDocuments": {
-                "enabledForZaaktype": true
+                "isEnabledForZaaktype": true
               },
               "betrokkeneKoppelingen": {
-                "brpKoppelen": true,
-                "kvkKoppelen": true
+                "isBrpKoppelenEnabled": true,
+                "isKvkKoppelenEnabled": true
               },
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
@@ -368,7 +366,7 @@ class ZacClient(
                 "verwerkingregisterWaarde": "$brpVerwerkingregisterWaarde"
               },
               "automaticEmailConfirmation": {
-                "enabled": true,
+                "isEnabled": true,
                 "templateName": "Ontvangstbevestiging",
                 "emailSender": "GEMEENTE",
                 "emailReply": "$automaticEmailConfirmationReply"
@@ -404,7 +402,7 @@ class ZacClient(
                     "naam": "$naam"
                 },
             """
-        } ?: ""
+        }.orEmpty()
         return itestHttpClient.performJSONPostRequest(
             url = "${ZAC_API_URI}/zaken/zaak",
             requestBodyAsString = """
@@ -499,7 +497,7 @@ class ZacClient(
             requestBodyAsString = """{
                     "planItemInstanceId": "$planItemInstanceId",
                     "fataledatum": "${fatalDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
-                    "taakStuurGegevens": { "sendMail": $sendMail },
+                    "taakStuurGegevens": { "shouldSendMail": $sendMail },
                     "groep": { "id": "$groupId", "naam": "$groupName" },
                     "taakdata":{}
                 }

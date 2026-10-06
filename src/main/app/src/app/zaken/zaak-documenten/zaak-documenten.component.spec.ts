@@ -55,7 +55,7 @@ const fakeDocument = fromPartial<
   bestandsnaam: "test.pdf",
   formaat: "application/pdf",
   vertrouwelijkheidaanduiding: "OPENBAAR",
-  rechten: { lezen: true, wijzigen: false },
+  rechten: { canLezen: true, canWijzigen: false },
   isBesluitDocument: false,
 });
 
@@ -68,7 +68,7 @@ const fakeEditableDocument = fromPartial<
   formaat:
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   vertrouwelijkheidaanduiding: "OPENBAAR",
-  rechten: { lezen: true, wijzigen: true },
+  rechten: { canLezen: true, canWijzigen: true },
   isBesluitDocument: false,
 });
 
@@ -165,7 +165,7 @@ describe(ZaakDocumentenComponent.name, () => {
   };
 
   const linkedDocumentsToggle = () =>
-    screen.queryByRole("switch", { name: "toonGekoppeldeZaakDocumenten" });
+    screen.queryByRole("switch", { name: "toon-gekoppelde-zaak-documenten" });
 
   const openRowMenu = async (titel: string) => {
     await user.click(
@@ -313,7 +313,7 @@ describe(ZaakDocumentenComponent.name, () => {
     const { listRequest } = await setup(fakeZaakMetRelaties);
 
     expect(listRequest.request.body).toEqual(
-      expect.objectContaining({ gekoppeldeZaakDocumenten: true }),
+      expect.objectContaining({ shouldIncludeGekoppeldeZaakDocumenten: true }),
     );
   });
 
@@ -321,7 +321,7 @@ describe(ZaakDocumentenComponent.name, () => {
     const { listRequest } = await setup();
 
     expect(listRequest.request.body).toEqual(
-      expect.objectContaining({ gekoppeldeZaakDocumenten: false }),
+      expect.objectContaining({ shouldIncludeGekoppeldeZaakDocumenten: false }),
     );
   });
 
@@ -406,10 +406,10 @@ describe(ZaakDocumentenComponent.name, () => {
     await setup(fakeZaakMetRelaties);
 
     expect(
-      screen.getByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.getByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeVisible();
     expect(
-      screen.getByRole("columnheader", { name: "relatieType" }),
+      screen.getByRole("columnheader", { name: "relatie-type" }),
     ).toBeVisible();
   });
 
@@ -420,10 +420,10 @@ describe(ZaakDocumentenComponent.name, () => {
     await flushList([fakeDocument]);
 
     expect(
-      screen.queryByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.queryByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeNull();
     expect(
-      screen.queryByRole("columnheader", { name: "relatieType" }),
+      screen.queryByRole("columnheader", { name: "relatie-type" }),
     ).toBeNull();
   });
 
@@ -431,7 +431,7 @@ describe(ZaakDocumentenComponent.name, () => {
     await setup();
 
     expect(
-      screen.queryByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.queryByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeNull();
   });
 
@@ -443,6 +443,32 @@ describe(ZaakDocumentenComponent.name, () => {
 
     httpTestingController.expectOne(LIST_URL).flush([fakeDocument]);
     await settle();
+  });
+
+  it("reloads the documents of the zaak with and without related documents, but not those of another zaak", async () => {
+    await setup();
+    const withRelatedDocumentsKey = [
+      LIST_URL,
+      { zaakUUID: fakeZaak.uuid, shouldIncludeGekoppeldeZaakDocumenten: true },
+    ];
+    const otherZaakKey = [
+      LIST_URL,
+      { zaakUUID: "zaak-uuid-2", shouldIncludeGekoppeldeZaakDocumenten: false },
+    ];
+    testQueryClient.setQueryData(withRelatedDocumentsKey, [fakeDocument]);
+    testQueryClient.setQueryData(otherZaakKey, [fakeDocument]);
+
+    fixture.componentInstance.updateDocumentList();
+    await settle();
+    httpTestingController.expectOne(LIST_URL).flush([fakeDocument]);
+    await settle();
+
+    expect(
+      testQueryClient.getQueryState(withRelatedDocumentsKey)?.isInvalidated,
+    ).toBe(true);
+    expect(testQueryClient.getQueryState(otherZaakKey)?.isInvalidated).toBe(
+      false,
+    );
   });
 
   describe("selecting documents for a zip download", () => {
@@ -548,7 +574,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await setup(fakeZaak, [
         fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
           ...fakeEditableDocument,
-          rechten: { lezen: true, wijzigen: false },
+          rechten: { canLezen: true, canWijzigen: false },
         }),
       ]);
 
@@ -563,7 +589,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await setup(fakeZaak, [
         fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
           ...fakeDocument,
-          rechten: { lezen: true, wijzigen: true },
+          rechten: { canLezen: true, canWijzigen: true },
         }),
       ]);
 

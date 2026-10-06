@@ -7,9 +7,10 @@ import { CommonModule } from "@angular/common";
 import {
   Component,
   EventEmitter,
-  Input,
   Output,
   ViewChild,
+  inject,
+  input,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -28,8 +29,11 @@ import {
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
+import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 
@@ -39,6 +43,7 @@ import { BAGService } from "../bag.service";
   styleUrls: ["./bag-zoek.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CommonModule,
     EmptyPipe,
     MatButtonModule,
@@ -56,10 +61,11 @@ import { BAGService } from "../bag.service";
 })
 export class BagZoekComponent {
   @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();
-  @Input() gekoppeldeBagObjecten:
+  readonly gekoppeldeBagObjecten = input<
     | GeneratedType<"RESTBAGObject">[]
-    | FormControl<GeneratedType<"RESTBAGObject">[] | null> = [];
-  @Input({ required: true }) sideNav!: MatSidenav | MatDrawer;
+    | FormControl<GeneratedType<"RESTBAGObject">[] | null>
+  >([]);
+  readonly sideNav = input.required<MatSidenav | MatDrawer>();
   @ViewChild(MatTable) private table!: MatTable<GeneratedType<"RESTBAGObject">>;
   protected trefwoorden = new FormControl("", [Validators.maxLength(255)]);
   protected bagObjecten = new MatTableDataSource<
@@ -74,6 +80,8 @@ export class BagZoekComponent {
     "acties",
   ];
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private bagService: BAGService,
     private utilService: UtilService,
@@ -85,27 +93,28 @@ export class BagZoekComponent {
     if (this.trefwoorden.value) {
       this.loading = true;
       this.utilService.setLoading(true);
-      this.bagService
-        .listAdressen({
+      runQuery(
+        this.queryClient,
+        this.bagService.listAdressen({
           trefwoorden: this.trefwoorden.value,
-        })
-
-        .subscribe((adressen) => {
-          this.bagObjecten.data = adressen.resultaten ?? [];
-          this.loading = false;
-          this.utilService.setLoading(false);
-        });
+        }),
+      ).subscribe((adressen) => {
+        this.bagObjecten.data = adressen.resultaten ?? [];
+        this.loading = false;
+        this.utilService.setLoading(false);
+      });
     }
   }
 
   protected selectBagObject(bagObject: GeneratedType<"RESTBAGObject">) {
-    if (this.gekoppeldeBagObjecten instanceof FormControl) {
-      this.gekoppeldeBagObjecten.setValue([
-        ...(this.gekoppeldeBagObjecten.value ?? []),
+    const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
+    if (gekoppeldeBagObjecten instanceof FormControl) {
+      gekoppeldeBagObjecten.setValue([
+        ...(gekoppeldeBagObjecten.value ?? []),
         bagObject,
       ]);
     } else {
-      this.gekoppeldeBagObjecten.push(bagObject);
+      gekoppeldeBagObjecten.push(bagObject);
     }
     this.bagObject.emit(bagObject);
   }
@@ -171,10 +180,11 @@ export class BagZoekComponent {
   }
 
   protected reedsGekoppeld(row: GeneratedType<"RESTBAGObject">): boolean {
+    const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
     const objects =
-      this.gekoppeldeBagObjecten instanceof FormControl
-        ? (this.gekoppeldeBagObjecten.value ?? [])
-        : this.gekoppeldeBagObjecten;
+      gekoppeldeBagObjecten instanceof FormControl
+        ? (gekoppeldeBagObjecten.value ?? [])
+        : gekoppeldeBagObjecten;
     return objects.some(
       (b) =>
         b.identificatie === row.identificatie &&
@@ -183,7 +193,7 @@ export class BagZoekComponent {
   }
 
   protected openBagTonenPagina(bagObject: GeneratedType<"RESTBAGObject">) {
-    this.sideNav?.close();
+    this.sideNav().close();
     this.router.navigate([
       "/bag-objecten",
       bagObject.bagObjectType?.toLowerCase(),

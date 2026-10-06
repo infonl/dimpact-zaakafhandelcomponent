@@ -52,7 +52,7 @@ describe(MultiFacetFilterComponent.name, () => {
       await setup({ label: "ZAAK_ARCHIEF_NOMINATIE" });
 
       expect(
-        screen.getByText("zoeken.filter.zaak_archief_nominatie"),
+        screen.getByText("zoeken.filter.zaak-archief-nominatie"),
       ).toBeVisible();
     });
 
@@ -60,19 +60,19 @@ describe(MultiFacetFilterComponent.name, () => {
       await setup();
 
       expect(screen.getAllByRole("checkbox")).toHaveLength(2);
-      expect(checkbox("type.ZAAK")).toBeInTheDocument();
+      expect(checkbox("type.zaak")).toBeInTheDocument();
       expect(screen.getByText("10")).toBeVisible();
-      expect(checkbox("type.TAAK")).toBeInTheDocument();
+      expect(checkbox("type.taak")).toBeInTheDocument();
       expect(screen.getByText("5")).toBeVisible();
     });
 
     it.each([
-      ["TAAK_STATUS", "taak.status.ZAAK"],
-      ["TOEGEKEND", "zoeken.filter.jaNee.ZAAK"],
-      ["ZAAK_INDICATIES", "indicatie.ZAAK"],
-      ["DOCUMENT_INDICATIES", "indicatie.ZAAK"],
-      ["DOCUMENT_STATUS", "informatieobject.status.ZAAK"],
-      ["ZAAK_ARCHIEF_NOMINATIE", "archiefNominatie.ZAAK"],
+      ["TAAK_STATUS", "taak.status.zaak"],
+      ["TOEGEKEND", "zoeken.filter.ja-nee.zaak"],
+      ["ZAAK_INDICATIES", "indicatie.zaak"],
+      ["DOCUMENT_INDICATIES", "indicatie.zaak"],
+      ["DOCUMENT_STATUS", "informatieobject.status.zaak"],
+      ["ZAAK_ARCHIEF_NOMINATIE", "archief-nominatie.zaak"],
     ])(
       "translates the optie names of the %s facet",
       async (label, optieName) => {
@@ -92,8 +92,8 @@ describe(MultiFacetFilterComponent.name, () => {
     it("checks the opties that are in the values of the filter", async () => {
       await setup({ filter: { values: ["ZAAK"] } });
 
-      expect(checkbox("type.ZAAK")).toBeChecked();
-      expect(checkbox("type.TAAK")).not.toBeChecked();
+      expect(checkbox("type.zaak")).toBeChecked();
+      expect(checkbox("type.taak")).not.toBeChecked();
     });
 
     it.each([
@@ -125,7 +125,7 @@ describe(MultiFacetFilterComponent.name, () => {
 
       expect(screen.getByText("3")).toBeVisible();
       expect(screen.getByText("1")).toBeVisible();
-      expect(checkbox("type.TAAK")).toBeChecked();
+      expect(checkbox("type.taak")).toBeChecked();
     });
 
     it("keeps the checked opties it started with when the filter input changes afterwards", async () => {
@@ -137,8 +137,8 @@ describe(MultiFacetFilterComponent.name, () => {
       });
       fixture.detectChanges();
 
-      expect(checkbox("type.ZAAK")).not.toBeChecked();
-      expect(checkbox("type.TAAK")).toBeChecked();
+      expect(checkbox("type.zaak")).not.toBeChecked();
+      expect(checkbox("type.taak")).toBeChecked();
       expect(screen.getByText("toggle_off")).toBeVisible();
     });
   });
@@ -147,7 +147,7 @@ describe(MultiFacetFilterComponent.name, () => {
     it("emits the checked opties when an optie is checked", async () => {
       await setup();
 
-      await user.click(checkbox("type.ZAAK"));
+      await user.click(checkbox("type.zaak"));
 
       expect(changed).toHaveBeenCalledTimes(1);
       expect(changed).toHaveBeenCalledWith({
@@ -159,7 +159,7 @@ describe(MultiFacetFilterComponent.name, () => {
     it("emits the checked opties in the order of the opties", async () => {
       await setup({ filter: { values: ["TAAK"] } });
 
-      await user.click(checkbox("type.ZAAK"));
+      await user.click(checkbox("type.zaak"));
 
       expect(changed).toHaveBeenCalledWith({
         values: ["ZAAK", "TAAK"],
@@ -170,7 +170,7 @@ describe(MultiFacetFilterComponent.name, () => {
     it("emits no values when the last checked optie is unchecked", async () => {
       await setup({ filter: { values: ["ZAAK"] } });
 
-      await user.click(checkbox("type.ZAAK"));
+      await user.click(checkbox("type.zaak"));
 
       expect(changed).toHaveBeenCalledWith({ values: [], inverse: false });
     });
@@ -178,7 +178,7 @@ describe(MultiFacetFilterComponent.name, () => {
     it("emits the inverse of the filter along with the checked opties", async () => {
       await setup({ filter: { values: [], inverse: true } });
 
-      await user.click(checkbox("type.TAAK"));
+      await user.click(checkbox("type.taak"));
 
       expect(changed).toHaveBeenCalledWith({ values: ["TAAK"], inverse: true });
     });
@@ -187,7 +187,7 @@ describe(MultiFacetFilterComponent.name, () => {
       const filter: FilterParameters = { values: ["TAAK"] };
       await setup({ filter });
 
-      await user.click(checkbox("type.ZAAK"));
+      await user.click(checkbox("type.zaak"));
       await user.click(screen.getByText("toggle_off"));
 
       expect(filter).toEqual({ values: ["TAAK"] });

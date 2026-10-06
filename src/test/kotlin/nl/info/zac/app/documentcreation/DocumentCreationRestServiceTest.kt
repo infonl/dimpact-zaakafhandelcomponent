@@ -18,11 +18,10 @@ import jakarta.servlet.http.HttpSession
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.smartdocuments.model.createFile
+import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
@@ -34,7 +33,6 @@ import nl.info.zac.documentcreation.DocumentCreationUserStore
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
-import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -44,19 +42,17 @@ import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputForma
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
-import java.util.logging.Logger
-import java.util.logging.LogRecord
-import java.util.logging.Level
 import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
     val documentCreationService = mockk<DocumentCreationService>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val bpmnService = mockk<BpmnService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val documentCreationUserStore = mockk<DocumentCreationUserStore>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
@@ -92,15 +88,6 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
-            createInformatieObjectType(omschrijving = "bijlage")
-        )
-        every {
-            documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
-        } returns documentCreationResponse
-        every {
-            bpmnService.isZaakProcessDriven(any())
-        } returns false
         every { loggedInUserInstance.get() } returns loggedInUser
 
         `when`("createDocument is called by a role that is allowed to change the zaak") {
@@ -108,8 +95,11 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creerenDocument } returns true
+            every { policyService.readTaakRechten(task).canCreerenDocument } returns true
             every { zaaktypeConfigurationService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
+            every {
+                documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
+            } returns documentCreationResponse
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
                 restDocumentCreationAttendedData
@@ -132,7 +122,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creerenDocument } returns false
+            every { policyService.readTaakRechten(task).canCreerenDocument } returns false
 
             val exception = shouldThrow<PolicyException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
@@ -175,7 +165,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { policyService.readTaakRechten(task).creerenDocument } returns true
+            every { policyService.readTaakRechten(task).canCreerenDocument } returns true
             every { zaaktypeConfigurationService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
 
             val exception = shouldThrow<SmartDocumentsDisabledException> {
@@ -198,7 +188,6 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
         var userWhileStoringDocument: LoggedInUser? = null
 
-        every { httpSessionInstance.get() } returns null
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { documentCreationUserStore.consumeUser(documentCreationToken, any()) } returns loggedInUser
         every { smartDocumentsService.downloadDocument("fakeFileId") } returns createFile()
@@ -206,13 +195,22 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
         } returns informatieobjecttypeUuid
         every {
-            documentCreationService.storeDownloadedDocument(any(), any(), any(), any(), any(), any(), any(), any())
+            documentCreationService.storeDownloadedDocument(
+                zaak = any(),
+                taskId = any(),
+                file = any(),
+                title = any(),
+                description = any(),
+                informatieobjecttypeUuid = any(),
+                creationDate = any(),
+                userName = any()
+            )
         } answers {
             userWhileStoringDocument = loggedInUserProvider.getLoggedInUser()
             mockk<ZaakInformatieObject>()
         }
         every {
-            documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), any())
+            documentCreationService.documentCreationFinishPageUrl(zaakId = any(), taskId = any(), documentName = any(), result = any())
         } returns URI("https://example.com/finish")
 
         `when`("the callback is called") {
@@ -238,17 +236,11 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val expiredDocumentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
-        val httpSession = mockk<HttpSession>()
         val httpSessionInstance = mockk<Instance<HttpSession>>()
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
         var userWhileStoringDocument: LoggedInUser? = null
         var userWhileReadingZaak: LoggedInUser? = null
 
-        // the browser posting the callback still carries a ZAC session cookie
-        every { httpSessionInstance.get() } returns httpSession
-        every {
-            httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE)
-        } returns createLoggedInUser(id = "fakeSessionUserId")
         every { zrcClientService.readZaak(zaak.uuid) } answers {
             userWhileReadingZaak = loggedInUserProvider.getLoggedInUser()
             zaak
@@ -259,13 +251,22 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
         } returns informatieobjecttypeUuid
         every {
-            documentCreationService.storeDownloadedDocument(any(), any(), any(), any(), any(), any(), any(), any())
+            documentCreationService.storeDownloadedDocument(
+                zaak = any(),
+                taskId = any(),
+                file = any(),
+                title = any(),
+                description = any(),
+                informatieobjecttypeUuid = any(),
+                creationDate = any(),
+                userName = any()
+            )
         } answers {
             userWhileStoringDocument = loggedInUserProvider.getLoggedInUser()
             mockk<ZaakInformatieObject>()
         }
         every {
-            documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), any())
+            documentCreationService.documentCreationFinishPageUrl(zaakId = any(), taskId = any(), documentName = any(), result = any())
         } returns URI("https://example.com/finish")
 
         `when`("the callback is called") {
@@ -300,19 +301,13 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     given("a SmartDocuments callback whose session belongs to a different user than its token") {
         val zaak = createZaak()
         val documentCreationUser = createLoggedInUser(id = "fakeDocumentCreationUserId")
-        val sessionUser = createLoggedInUser(id = "fakeSessionUserId")
         val documentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
-        val httpSession = mockk<HttpSession>()
         val httpSessionInstance = mockk<Instance<HttpSession>>()
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
         var userWhileStoringDocument: LoggedInUser? = null
         var userWhileReadingZaak: LoggedInUser? = null
 
-        every { httpSessionInstance.get() } returns httpSession
-        every {
-            httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE)
-        } returns sessionUser
         every { zrcClientService.readZaak(zaak.uuid) } answers {
             userWhileReadingZaak = loggedInUserProvider.getLoggedInUser()
             zaak
@@ -323,13 +318,22 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
         } returns informatieobjecttypeUuid
         every {
-            documentCreationService.storeDownloadedDocument(any(), any(), any(), any(), any(), any(), any(), any())
+            documentCreationService.storeDownloadedDocument(
+                zaak = any(),
+                taskId = any(),
+                file = any(),
+                title = any(),
+                description = any(),
+                informatieobjecttypeUuid = any(),
+                creationDate = any(),
+                userName = any()
+            )
         } answers {
             userWhileStoringDocument = loggedInUserProvider.getLoggedInUser()
             mockk<ZaakInformatieObject>()
         }
         every {
-            documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), any())
+            documentCreationService.documentCreationFinishPageUrl(zaakId = any(), taskId = any(), documentName = any(), result = any())
         } returns URI("https://example.com/finish")
 
         `when`("the callback is called") {
@@ -358,12 +362,11 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     given("a SmartDocuments callback for a wizard that was cancelled") {
         val zaak = createZaak()
         val documentCreationToken = UUID.randomUUID()
-        val httpSessionInstance = mockk<Instance<HttpSession>>()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { documentCreationUserStore.consumeUser(documentCreationToken, any()) } returns createLoggedInUser()
         every {
-            documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), any())
+            documentCreationService.documentCreationFinishPageUrl(zaakId = any(), taskId = any(), documentName = any(), result = any())
         } returns URI("https://example.com/finish")
 
         `when`("the callback is called without a document") {
@@ -397,10 +400,19 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
         } returns informatieobjecttypeUuid
         every {
-            documentCreationService.storeDownloadedDocument(any(), any(), any(), any(), any(), any(), any(), any())
-        } throws IllegalStateException("fakeStoreFailure")
+            documentCreationService.storeDownloadedDocument(
+                zaak = any(),
+                taskId = any(),
+                file = any(),
+                title = any(),
+                description = any(),
+                informatieobjecttypeUuid = any(),
+                creationDate = any(),
+                userName = any()
+            )
+        } throws DrcRuntimeException("fakeStoreFailure")
         every {
-            documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), any())
+            documentCreationService.documentCreationFinishPageUrl(zaakId = any(), taskId = any(), documentName = any(), result = any())
         } returns URI("https://example.com/finish")
 
         `when`("the callback is called") {
@@ -418,7 +430,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
             then("the wizard is sent to the failure page instead of the error reaching SmartDocuments") {
                 verify(exactly = 1) {
-                    documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), "failure")
+                    documentCreationService.documentCreationFinishPageUrl(
+                        zaakId = any(),
+                        taskId = any(),
+                        documentName = any(),
+                        result = "failure"
+                    )
                 }
             }
 
@@ -438,7 +455,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             smartDocumentsService.downloadDocument("fakeFileId")
         } throws SmartDocumentsUnsupportedOutputFormatException("fakeUnsupportedFormat")
         every {
-            documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), any())
+            documentCreationService.documentCreationFinishPageUrl(zaakId = any(), taskId = any(), documentName = any(), result = any())
         } returns URI("https://example.com/finish")
 
         `when`("the callback is called") {
@@ -456,7 +473,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
             then("the wizard is sent to the unsupported-output-format page") {
                 verify(exactly = 1) {
-                    documentCreationService.documentCreationFinishPageUrl(any(), any(), any(), "unsupported-output-format")
+                    documentCreationService.documentCreationFinishPageUrl(
+                        zaakId = any(),
+                        taskId = any(),
+                        documentName = any(),
+                        result = "unsupported-output-format"
+                    )
                 }
             }
 

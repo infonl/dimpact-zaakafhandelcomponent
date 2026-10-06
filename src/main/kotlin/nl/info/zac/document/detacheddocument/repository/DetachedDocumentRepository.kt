@@ -110,19 +110,19 @@ class DetachedDocumentRepository @Inject constructor(
             predicates.add(
                 builder.like(
                     root.get(ZAAK_ID_PROPERTY_NAME),
-                    LIKE.format(listParameters.zaakID)
+                    LIKE.format(Locale.ROOT, listParameters.zaakID)
                 )
             )
         }
         listParameters.titel?.let {
             if (it.isNotBlank()) {
-                val titel = LIKE.format(it.lowercase(Locale.getDefault()).replace(" ", "%"))
+                val titel = LIKE.format(Locale.ROOT, it.lowercase(Locale.getDefault()).replace(" ", "%"))
                 predicates.add(builder.like(builder.lower(root.get(TITEL_PROPERTY_NAME)), titel))
             }
         }
         listParameters.reden?.let {
             if (it.isNotBlank()) {
-                val reden = LIKE.format(it.lowercase(Locale.getDefault()).replace(" ", "%"))
+                val reden = LIKE.format(Locale.ROOT, it.lowercase(Locale.getDefault()).replace(" ", "%"))
                 predicates.add(builder.like(builder.lower(root.get(REDEN_PROPERTY_NAME)), reden))
             }
         }
@@ -138,20 +138,20 @@ class DetachedDocumentRepository @Inject constructor(
         }
         listParameters.creatiedatum?.let {
             addDatumRangePredicates(
-                it,
-                DetachedDocument.CREATIEDATUM_PROPERTY_NAME,
-                predicates,
-                root,
-                builder
+                dateRange = it,
+                veld = DetachedDocument.CREATIEDATUM_PROPERTY_NAME,
+                predicates = predicates,
+                root = root,
+                builder = builder
             )
         }
         listParameters.ontkoppeldOp?.let {
             addDatumRangePredicates(
-                it,
-                DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME,
-                predicates,
-                root,
-                builder
+                dateRange = it,
+                veld = DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME,
+                predicates = predicates,
+                root = root,
+                builder = builder
             )
         }
         @Suppress("SpreadOperator")
