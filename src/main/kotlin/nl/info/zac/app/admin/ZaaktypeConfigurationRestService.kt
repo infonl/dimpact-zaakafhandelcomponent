@@ -37,7 +37,7 @@ import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
-import nl.info.zac.app.admin.model.RESTReplyTo
+import nl.info.zac.app.admin.model.RestReplyTo
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.toRestReplyTos
 import nl.info.zac.app.zaak.model.RestResultaattype
@@ -281,7 +281,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
      */
     @GET
     @Path("replyTo")
-    fun listReplyTos(): List<RESTReplyTo> =
+    fun listReplyTos(): List<RestReplyTo> =
         referenceTableService.readSystemReferenceTable(AFZENDER).let { referenceTable ->
             referenceTableService.listReferenceTableValuesSorted(referenceTable).toRestReplyTos()
         }

@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 
-class RESTReplyToTest : BehaviorSpec({
+class RestReplyToTest : BehaviorSpec({
     context("toRestReplyTo") {
         given("a ReferenceTableValue with a name") {
             val waarde = ReferenceTableValue().apply {
@@ -19,9 +19,9 @@ class RESTReplyToTest : BehaviorSpec({
             `when`("it is converted to a reply-to") {
                 val result = waarde.toRestReplyTo()
 
-                then("it returns a RESTReplyTo with the correct mail and speciaal=false") {
+                then("it returns a RestReplyTo with the correct mail and isSpeciaal=false") {
                     result.mail shouldBe "fakeMail@example.com"
-                    result.speciaal shouldBe false
+                    result.isSpeciaal shouldBe false
                 }
             }
         }
@@ -38,18 +38,18 @@ class RESTReplyToTest : BehaviorSpec({
                 val result = waarden.toRestReplyTos()
 
                 then("it includes SpecialMail entries sorted before regular entries") {
-                    val specialEntries = result.filter { it.speciaal }
-                    val regularEntries = result.filter { !it.speciaal }
+                    val specialEntries = result.filter { it.isSpeciaal }
+                    val regularEntries = result.filter { !it.isSpeciaal }
                     specialEntries.size shouldBe ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries.size
                     regularEntries.size shouldBe 2
                 }
 
                 then("special entries appear before regular entries in the result") {
-                    result.first().speciaal shouldBe true
+                    result.first().isSpeciaal shouldBe true
                 }
 
                 then("regular entries are sorted alphabetically by mail") {
-                    val regularEntries = result.filter { !it.speciaal }
+                    val regularEntries = result.filter { !it.isSpeciaal }
                     regularEntries[0].mail shouldBe "fakeMail1@example.com"
                     regularEntries[1].mail shouldBe "fakeMail2@example.com"
                 }
