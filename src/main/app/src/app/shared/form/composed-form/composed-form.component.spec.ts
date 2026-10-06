@@ -101,8 +101,9 @@ describe(ZacComposedForm.name, () => {
       ).toBeTruthy();
     });
 
-    it("should render zac-html-editor for type html-editor", () => {
+    it("should render zac-html-editor for type html-editor", async () => {
       createComponent(createTestForm(), [{ type: "html-editor", key: "name" }]);
+      await fixture.whenStable();
 
       expect(
         fixture.debugElement.query(By.directive(ZacHtmlEditor)),

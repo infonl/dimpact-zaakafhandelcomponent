@@ -88,6 +88,17 @@ describe(ZoekComponent.name, () => {
 
       expect(list).not.toHaveBeenCalled();
     });
+
+    it("renders without errors when the sidenav is open and there are no trefwoorden", async () => {
+      await TestBed.compileComponents();
+      const fixture = TestBed.createComponent(ZoekComponent);
+      fixture.componentRef.setInput("zoekenSideNav", {
+        opened: true,
+        openedStart: new EventEmitter<void>(),
+      });
+
+      expect(() => fixture.detectChanges()).not.toThrow();
+    });
   });
 
   describe("component logic", () => {

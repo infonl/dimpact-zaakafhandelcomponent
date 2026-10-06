@@ -22,7 +22,7 @@ import {
 import { MatIconRegistry } from "@angular/material/icon";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from "@angular/material/snack-bar";
-import { provideAnimations } from "@angular/platform-browser/animations";
+import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 import { provideRouter, RouteReuseStrategy } from "@angular/router";
 import {
   provideTranslateService,
@@ -50,7 +50,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     // Keeps zone.js when v21 defaults zoneless
     provideZoneChangeDetection(),
-    provideAnimations(),
+    provideAnimationsAsync(),
     provideHttpClient(),
     provideRouter(APP_ROUTES),
     provideTranslateService({
