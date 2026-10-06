@@ -156,6 +156,7 @@ describe("Koppelingen form step", () => {
             addTemplateMappings: () => [],
             flattenGroups: () => [],
             getTemplateMappings: () => [],
+            storeTemplatesMapping: () => createMutationOptions(null) as never,
           }),
         },
         {

@@ -346,7 +346,8 @@ describe(SmartDocumentsFormComponent.name, () => {
       await toggleGroup("fakeGroupName1");
       await chooseInformatieobjecttype("fakeTemplateName2", "Type B");
 
-      fixture.componentInstance.saveSmartDocumentsMapping().subscribe();
+      fixture.componentInstance.saveSmartDocumentsMapping();
+      await sleep();
 
       const request = httpTestingController.expectOne(TEMPLATES_MAPPING_URL);
       expect(request.request.method).toBe("POST");

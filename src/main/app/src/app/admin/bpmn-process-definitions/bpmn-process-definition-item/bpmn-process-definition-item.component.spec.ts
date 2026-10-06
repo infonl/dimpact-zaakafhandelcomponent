@@ -102,6 +102,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   >;
   let foutAfhandelingService: Pick<FoutAfhandelingService, "foutAfhandelen">;
   let bpmnFormListChanged: jest.Mock;
+  let uploadProcessDefinitionFormMutation: ReturnType<
+    typeof createMutationOptions<object, { filename: string; content: string }>
+  >;
   let deleteProcessDefinitionFormMutation: ReturnType<
     typeof createMutationOptions<
       object,
@@ -163,12 +166,18 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
       );
     bpmnFormListChanged = jest.fn();
+    uploadProcessDefinitionFormMutation = createMutationOptions<
+      object,
+      { filename: string; content: string }
+    >({});
     deleteProcessDefinitionFormMutation = createMutationOptions<
       object,
       { processDefinitionKey: string; name: string }
     >({});
     bpmnService = {
-      uploadProcessDefinitionForm: jest.fn().mockReturnValue(of(null)),
+      uploadProcessDefinitionForm: jest
+        .fn()
+        .mockReturnValue(uploadProcessDefinitionFormMutation),
       deleteProcessDefinitionForm: jest
         .fn()
         .mockReturnValue(deleteProcessDefinitionFormMutation),
@@ -461,13 +470,14 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     await setup();
 
     await user.upload(fileInput(), new File([fileContent], "test-form.json"));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await jest.advanceTimersByTimeAsync(0);
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
+    );
+    expect(uploadProcessDefinitionFormMutation.mutationFn).toHaveBeenCalledWith(
       { filename: "test-form.json", content: fileContent },
+      expect.anything(),
     );
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.bpmn.task-forms.upload.success",
@@ -476,6 +486,20 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     jest.runAllTimers();
     expect(bpmnFormListChanged).toHaveBeenCalled();
+  });
+
+  it("announces nothing and leaves the task form list as it is when the upload fails", async () => {
+    (readFileContent as jest.Mock).mockResolvedValue("{}");
+    uploadProcessDefinitionFormMutation.mutationFn.mockRejectedValue(
+      new Error("fakeUploadFailure"),
+    );
+    await setup();
+
+    await user.upload(fileInput(), new File(["{}"], "test-form.json"));
+    await sleep(450);
+
+    expect(utilService.openSnackbar).not.toHaveBeenCalled();
+    expect(bpmnFormListChanged).not.toHaveBeenCalled();
   });
 
   it("lets the same task form be chosen again after uploading it", async () => {
@@ -505,13 +529,14 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     await setup();
 
     dropFiles(new File([fileContent], "dropped-form.json"));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await jest.advanceTimersByTimeAsync(0);
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
+    );
+    expect(uploadProcessDefinitionFormMutation.mutationFn).toHaveBeenCalledWith(
       { filename: "dropped-form.json", content: fileContent },
+      expect.anything(),
     );
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.bpmn.task-forms.upload.success",
@@ -532,7 +557,10 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
+    );
+    expect(uploadProcessDefinitionFormMutation.mutationFn).toHaveBeenCalledWith(
       { filename: "form.JSON", content: fileContent },
+      expect.anything(),
     );
   });
 
@@ -542,7 +570,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     dropFiles(new File(["<bpmn/>"], "process.bpmn"));
     await sleep();
 
-    expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
+    expect(
+      uploadProcessDefinitionFormMutation.mutationFn,
+    ).not.toHaveBeenCalled();
   });
 
   it("reports a dropped task form that cannot be read", async () => {

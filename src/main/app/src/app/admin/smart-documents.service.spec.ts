@@ -16,8 +16,9 @@ import { TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../setupJest";
+import { sleep, testQueryClient } from "../../../setupJest";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { runMutation } from "../shared/http/run-mutation";
 import { GeneratedType } from "../shared/utils/generated-types";
 import {
   SmartDocumentsService,
@@ -323,15 +324,18 @@ describe(SmartDocumentsService.name, () => {
     ]);
 
     const request = firstValueFrom(
-      smartDocumentsService.storeTemplatesMapping(
-        "test-zaaktype-uuid",
+      runMutation(
+        testQueryClient,
+        smartDocumentsService.storeTemplatesMapping("test-zaaktype-uuid"),
         templateGroups,
       ),
     );
+    await sleep();
 
     const postedRequest = httpTestingController.expectOne(
       "/rest/zaakafhandelparameters/test-zaaktype-uuid/smartdocuments-templates-mapping",
     );
+    expect(postedRequest.request.method).toBe("POST");
     expect(postedRequest.request.body).toEqual([
       {
         id: "group-1",

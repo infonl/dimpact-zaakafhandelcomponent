@@ -8,8 +8,8 @@ import {
   QueryClient,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
-import { tap } from "rxjs/operators";
 import { PostBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -54,18 +54,26 @@ export class SmartDocumentsService {
     }));
   }
 
-  storeTemplatesMapping(
-    zaakafhandelUUID: string,
-    templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
-  ) {
-    const body = this.convertToApiFormat(templateGroups);
-    return this.zacHttpClient
-      .POST(
-        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
-        body,
-        { path: { zaakafhandelUUID } },
-      )
-      .pipe(tap(() => this.invalidateTemplatesMappingQuery(zaakafhandelUUID)));
+  storeTemplatesMapping(zaakafhandelUUID: string) {
+    const store = this.zacQueryClient.POST(
+      "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
+      { path: { zaakafhandelUUID } },
+    );
+
+    return mergeMutationOptions(
+      {
+        ...store,
+        mutationFn: (
+          templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+          context,
+        ) =>
+          store.mutationFn!(this.convertToApiFormat(templateGroups), context),
+      },
+      {
+        onSuccess: () =>
+          void this.invalidateTemplatesMappingQuery(zaakafhandelUUID),
+      },
+    );
   }
 
   private invalidateTemplatesMappingQuery(zaakafhandelUUID: string) {

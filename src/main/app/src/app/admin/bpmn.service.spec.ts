@@ -15,9 +15,10 @@ import {
   type MutationFunctionContext,
   provideQueryClient,
 } from "@tanstack/angular-query-experimental";
-import { testQueryClient } from "../../../setupJest";
+import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
+import { runMutation } from "../shared/http/run-mutation";
 import { BpmnService } from "./bpmn.service";
 
 describe(BpmnService.name, () => {
@@ -127,6 +128,26 @@ describe(BpmnService.name, () => {
         "msg.bpmn.process-definition.deleted",
         { naam: "fakeProcessDefinitionName" },
       );
+    });
+  });
+
+  describe("uploadProcessDefinitionForm", () => {
+    it("posts the form to the process definition it belongs to", async () => {
+      const form = { filename: "fakeFormName.json", content: '{"form": true}' };
+
+      runMutation(
+        testQueryClient,
+        service.uploadProcessDefinitionForm("fakeProcessDefinitionKey"),
+        form,
+      ).subscribe();
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/forms",
+      );
+      expect(request.request.method).toBe("POST");
+      expect(request.request.body).toEqual(form);
+      request.flush(null);
     });
   });
 
