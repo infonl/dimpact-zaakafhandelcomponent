@@ -353,11 +353,11 @@ class TaskRestService @Inject constructor(
                                 uploadedFile as RestFileUpload
                             )
                             val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
-                                zaak,
-                                enkelvoudigInformatieObjectCreateLockRequest,
-                                enkelvoudigInformatieObjectCreateLockRequest.titel,
-                                ConfigurationService.OMSCHRIJVING_TAAK_DOCUMENT,
-                                ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                                zaak = zaak,
+                                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                                titel = enkelvoudigInformatieObjectCreateLockRequest.titel,
+                                beschrijving = ConfigurationService.OMSCHRIJVING_TAAK_DOCUMENT,
+                                omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
                             )
                             taakdata.replace(
                                 key,

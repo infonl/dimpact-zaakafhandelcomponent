@@ -164,10 +164,10 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         if (!isAlreadyGeautoriseerd) {
             zrcClientService.createRol(
                 RolMedewerker(
-                    zaak.url,
-                    roltype,
-                    ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
-                    MedewerkerIdentificatie().apply {
+                    zaak = zaak.url,
+                    roltype = roltype,
+                    roltoelichting = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                    medewerkerIdentificatie = MedewerkerIdentificatie().apply {
                         identificatie = medewerkerId
                         voorletters = medewerker.voorletters
                         voorvoegselAchternaam = medewerker.voorvoegselAchternaam

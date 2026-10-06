@@ -143,10 +143,10 @@ fun createRolMedewerker(
     roltoelichting: String = "fakeToelichting",
     medewerkerIdentificatie: MedewerkerIdentificatie? = createMedewerkerIdentificatie()
 ) = RolMedewerker(
-    zaakURI,
-    rolType,
-    roltoelichting,
-    medewerkerIdentificatie
+    zaak = zaakURI,
+    roltype = rolType,
+    roltoelichting = roltoelichting,
+    medewerkerIdentificatie = medewerkerIdentificatie
 )
 
 fun createRolMedewerkerForReads(
@@ -155,10 +155,10 @@ fun createRolMedewerkerForReads(
     roltoelichting: String = "fakeToelichting",
     medewerkerIdentificatie: MedewerkerIdentificatie? = createMedewerkerIdentificatie()
 ) = RolMedewerker(
-    uuid,
-    rolType,
-    roltoelichting,
-    medewerkerIdentificatie
+    uuid = uuid,
+    roltype = rolType,
+    roltoelichting = roltoelichting,
+    betrokkeneIdentificatie = medewerkerIdentificatie
 )
 
 fun createRolNatuurlijkPersoon(
@@ -167,10 +167,10 @@ fun createRolNatuurlijkPersoon(
     toelichting: String = "fakeToelichting",
     natuurlijkPersoonIdentificatie: NatuurlijkPersoonIdentificatie? = createNatuurlijkPersoonIdentificatie()
 ) = RolNatuurlijkPersoon(
-    zaakURI,
-    rolType,
-    toelichting,
-    natuurlijkPersoonIdentificatie
+    zaak = zaakURI,
+    roltype = rolType,
+    roltoelichting = toelichting,
+    betrokkeneIdentificatie = natuurlijkPersoonIdentificatie
 )
 
 fun createRolNatuurlijkPersoonForReads(
@@ -179,10 +179,10 @@ fun createRolNatuurlijkPersoonForReads(
     toelichting: String = "fakeToelichting",
     natuurlijkPersoonIdentificatie: NatuurlijkPersoonIdentificatie? = createNatuurlijkPersoonIdentificatie()
 ) = RolNatuurlijkPersoon(
-    uuid,
-    rolType,
-    toelichting,
-    natuurlijkPersoonIdentificatie
+    uuid = uuid,
+    roltype = rolType,
+    roltoelichting = toelichting,
+    betrokkeneIdentificatie = natuurlijkPersoonIdentificatie
 )
 
 fun createRolNietNatuurlijkPersoon(
@@ -191,10 +191,10 @@ fun createRolNietNatuurlijkPersoon(
     toelichting: String = "fakeToelichting",
     nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie? = createNietNatuurlijkPersoonIdentificatie()
 ) = RolNietNatuurlijkPersoon(
-    zaakURI,
-    rolType,
-    toelichting,
-    nietNatuurlijkPersoonIdentificatie
+    zaak = zaakURI,
+    roltype = rolType,
+    roltoelichting = toelichting,
+    betrokkeneIdentificatie = nietNatuurlijkPersoonIdentificatie
 )
 
 fun createRolNietNatuurlijkPersoonForReads(
@@ -203,10 +203,10 @@ fun createRolNietNatuurlijkPersoonForReads(
     toelichting: String = "fakeToelichting",
     nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie? = createNietNatuurlijkPersoonIdentificatie()
 ) = RolNietNatuurlijkPersoon(
-    uuid,
-    rolType,
-    toelichting,
-    nietNatuurlijkPersoonIdentificatie
+    uuid = uuid,
+    roltype = rolType,
+    roltoelichting = toelichting,
+    betrokkeneIdentificatie = nietNatuurlijkPersoonIdentificatie
 )
 
 fun createRolOrganisatorischeEenheid(
@@ -215,10 +215,10 @@ fun createRolOrganisatorischeEenheid(
     toelichting: String = "fakeToelichting",
     organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie? = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
-    zaakURI,
-    rolType,
-    toelichting,
-    organisatorischeEenheidIdentificatie
+    zaak = zaakURI,
+    roltype = rolType,
+    roltoelichting = toelichting,
+    organisatorischeEenheid = organisatorischeEenheidIdentificatie
 )
 
 fun createRolOrganisatorischeEenheidForReads(
@@ -228,10 +228,10 @@ fun createRolOrganisatorischeEenheidForReads(
     organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie? =
         createOrganisatorischeEenheidIdentificatie()
 ) = RolOrganisatorischeEenheid(
-    uuid,
-    rolType,
-    roltoelichting,
-    organisatorischeEenheidIdentificatie
+    uuid = uuid,
+    roltype = rolType,
+    roltoelichting = roltoelichting,
+    betrokkeneIdentificatie = organisatorischeEenheidIdentificatie
 )
 
 fun createRolVestiging(
@@ -240,10 +240,10 @@ fun createRolVestiging(
     toelichting: String = "fakeToelichting",
     vestigingIdentificatie: VestigingIdentificatie? = createVestigingIdentificatie()
 ) = RolVestiging(
-    zaakURI,
-    rolType,
-    toelichting,
-    vestigingIdentificatie
+    zaak = zaakURI,
+    roltype = rolType,
+    roltoelichting = toelichting,
+    betrokkeneIdentificatie = vestigingIdentificatie
 )
 
 @Suppress("LongParameterList")
@@ -341,11 +341,11 @@ fun createZaakobjectOpenbareRuimte(
     url: URI = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
 ) = ZaakobjectOpenbareRuimte(
-    zaakURI,
-    bagobjectURI,
-    objectOpenbareRuimte,
-    url,
-    uuid
+    zaak = zaakURI,
+    bagobjectURI = bagobjectURI,
+    objectOpenbareRuimte = objectOpenbareRuimte,
+    url = url,
+    uuid = uuid
 )
 
 fun createZaakInformatieobjectForCreatesAndUpdates(
@@ -383,10 +383,10 @@ fun createZaakobjectProductaanvraag(
     uuid: UUID = UUID.randomUUID()
 ) =
     ZaakobjectProductaanvraag(
-        zaakURI,
-        productaanvraagURI,
-        url,
-        uuid
+        zaak = zaakURI,
+        productaanvraag = productaanvraagURI,
+        url = url,
+        uuid = uuid
     )
 
 fun createZaakobjectPand(
@@ -397,11 +397,11 @@ fun createZaakobjectPand(
     uuid: UUID = UUID.randomUUID()
 ) =
     ZaakobjectPand(
-        zaakURI,
-        bagobjectURI,
-        objectPand,
-        url,
-        uuid
+        zaak = zaakURI,
+        bagobjectUri = bagobjectURI,
+        pand = objectPand,
+        url = url,
+        uuid = uuid
     )
 
 fun createZaakStatus(

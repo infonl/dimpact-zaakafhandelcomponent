@@ -171,10 +171,10 @@ class BrpConfiguration @Inject constructor(
 
     override fun getOriginOIN() =
         BrpConfigurationValueImpl(
-            ENV_VAR_BRP_ORIGIN_OIN_HEADER,
-            MAX_HEADER_SIZE,
-            headerNameOriginOin,
-            originOIN::getOrNull
+            envVariable = ENV_VAR_BRP_ORIGIN_OIN_HEADER,
+            maxSize = MAX_HEADER_SIZE,
+            headerName = headerNameOriginOin,
+            valueSupplier = originOIN::getOrNull
         )
 
     override fun getDoelbindingZoekMetDefault() =
@@ -185,18 +185,18 @@ class BrpConfiguration @Inject constructor(
 
     override fun buildDoelbinding(doelbindingSupplier: () -> String?) =
         BrpConfigurationValueImpl(
-            ENV_VAR_BRP_DOELBINDING_HEADER,
-            MAX_HEADER_SIZE,
-            headerNameDoelbinding,
-            doelbindingSupplier
+            envVariable = ENV_VAR_BRP_DOELBINDING_HEADER,
+            maxSize = MAX_HEADER_SIZE,
+            headerName = headerNameDoelbinding,
+            valueSupplier = doelbindingSupplier
         )
 
     private fun buildDoelbindingConfig(envVariable: String, doelbindingSupplier: () -> String?) =
         BrpConfigurationValueImpl(
-            envVariable,
-            MAX_HEADER_SIZE,
-            headerNameDoelbinding,
-            doelbindingSupplier
+            envVariable = envVariable,
+            maxSize = MAX_HEADER_SIZE,
+            headerName = headerNameDoelbinding,
+            valueSupplier = doelbindingSupplier
         )
 
     override fun getVerwerkingRegisterDefault() =
@@ -207,36 +207,36 @@ class BrpConfiguration @Inject constructor(
 
     private fun buildVerwerkingRegisterConfig(envVariable: String, verwerkingSupplier: () -> String?) =
         BrpConfigurationValueImpl(
-            envVariable,
-            MAX_HEADER_SIZE,
-            headerNameVerwerking,
-            verwerkingSupplier,
-            verwerkingregister::getOrNull
+            envVariable = envVariable,
+            maxSize = MAX_HEADER_SIZE,
+            headerName = headerNameVerwerking,
+            valueSupplier = verwerkingSupplier,
+            defaultValueSupplier = verwerkingregister::getOrNull
         )
 
     override fun getToepassing() =
         BrpConfigurationValueImpl(
-            ENV_VAR_BRP_TOEPASSING_HEADER,
-            MAX_HEADER_SIZE,
-            headerNameToepassing,
-            toepassingValue::getOrNull
+            envVariable = ENV_VAR_BRP_TOEPASSING_HEADER,
+            maxSize = MAX_HEADER_SIZE,
+            headerName = headerNameToepassing,
+            valueSupplier = toepassingValue::getOrNull
         )
 
     override fun getApiKey() =
         BrpConfigurationValueImpl(
-            ENV_VAR_BRP_API_KEY_HEADER,
-            Int.MAX_VALUE,
-            headerNameApiKey,
-            apiKey::getOrNull
+            envVariable = ENV_VAR_BRP_API_KEY_HEADER,
+            maxSize = Int.MAX_VALUE,
+            headerName = headerNameApiKey,
+            valueSupplier = apiKey::getOrNull
         )
 
     override fun buildUser(userSupplier: () -> String?) =
         BrpConfigurationValueImpl(
-            ENV_VAR_BRP_GEBRUIKER_HEADER,
-            MAX_USER_HEADER_SIZE,
-            headerNameGebruiker,
-            userSupplier,
-            systemUser::getOrNull
+            envVariable = ENV_VAR_BRP_GEBRUIKER_HEADER,
+            maxSize = MAX_USER_HEADER_SIZE,
+            headerName = headerNameGebruiker,
+            valueSupplier = userSupplier,
+            defaultValueSupplier = systemUser::getOrNull
         )
 
     override fun toString() = """

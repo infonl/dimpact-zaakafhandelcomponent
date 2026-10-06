@@ -65,14 +65,14 @@ class MailServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val mailService = MailService(
-        configurationService,
-        zgwApiService,
-        ztcClientService,
-        drcClientService,
-        mailTemplateHelper,
-        officeConverterClientService,
-        loggedInUserInstance,
-        FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
+        configurationService = configurationService,
+        zgwApiService = zgwApiService,
+        ztcClientService = ztcClientService,
+        drcClientService = drcClientService,
+        mailTemplateHelper = mailTemplateHelper,
+        officeConverterClientService = officeConverterClientService,
+        loggedInUserInstance = loggedInUserInstance,
+        fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
     )
 
     afterEach {
@@ -126,7 +126,11 @@ class MailServiceTest : BehaviorSpec({
         val createdDocument = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
         every {
             zgwApiService.createZaakInformatieobjectForZaak(
-                zaak, capture(createdDocument), resolvedSubject, resolvedSubject, "geen"
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = capture(createdDocument),
+                titel = resolvedSubject,
+                beschrijving = resolvedSubject,
+                omschrijvingVoorwaardenGebruiksrechten = "geen"
             )
         } returns zaakInformatieobject
         mockkObject(MailService.Companion)
@@ -165,11 +169,11 @@ class MailServiceTest : BehaviorSpec({
             and("PDF document is created from the e-mail data and is attached to the zaak using the ZGW APIs") {
                 verify(exactly = 1) {
                     zgwApiService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        any(),
-                        resolvedSubject,
-                        resolvedSubject,
-                        "geen"
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = any(),
+                        titel = resolvedSubject,
+                        beschrijving = resolvedSubject,
+                        omschrijvingVoorwaardenGebruiksrechten = "geen"
                     )
                 }
             }
@@ -242,7 +246,13 @@ class MailServiceTest : BehaviorSpec({
             ByteArrayInputStream("fakeAttachmentContent".toByteArray())
         }
         every {
-            zgwApiService.createZaakInformatieobjectForZaak(zaak, any(), resolvedSubject, resolvedSubject, "geen")
+            zgwApiService.createZaakInformatieobjectForZaak(
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = any(),
+                titel = resolvedSubject,
+                beschrijving = resolvedSubject,
+                omschrijvingVoorwaardenGebruiksrechten = "geen"
+            )
         } returns zaakInformatieobject
         mockkObject(MailService.Companion)
         every { MailService.mailSession.properties } returns Properties()
@@ -321,7 +331,13 @@ class MailServiceTest : BehaviorSpec({
                         Transport.send(any())
                     }
                     verify(exactly = 0) {
-                        zgwApiService.createZaakInformatieobjectForZaak(any(), any(), any(), any(), any())
+                        zgwApiService.createZaakInformatieobjectForZaak(
+                            zaak = any(),
+                            enkelvoudigInformatieObjectCreateLockRequest = any(),
+                            titel = any(),
+                            beschrijving = any(),
+                            omschrijvingVoorwaardenGebruiksrechten = any()
+                        )
                     }
                 }
             }
@@ -376,7 +392,11 @@ class MailServiceTest : BehaviorSpec({
         every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
         every {
             zgwApiService.createZaakInformatieobjectForZaak(
-                zaak, capture(enkelvoudigInformatieobjectSlot), resolvedSubject, resolvedSubject, "geen"
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = capture(enkelvoudigInformatieobjectSlot),
+                titel = resolvedSubject,
+                beschrijving = resolvedSubject,
+                omschrijvingVoorwaardenGebruiksrechten = "geen"
             )
         } returns zaakInformatieobject
         mockkObject(MailService.Companion)
@@ -490,14 +510,14 @@ class MailServiceTest : BehaviorSpec({
 
     given("an attachment whose documents registry entry reports no file size") {
         val mailServiceWithSmallInMemoryLimit = MailService(
-            configurationService,
-            zgwApiService,
-            ztcClientService,
-            drcClientService,
-            mailTemplateHelper,
-            officeConverterClientService,
-            loggedInUserInstance,
-            FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 1L)
+            configurationService = configurationService,
+            zgwApiService = zgwApiService,
+            ztcClientService = ztcClientService,
+            drcClientService = drcClientService,
+            mailTemplateHelper = mailTemplateHelper,
+            officeConverterClientService = officeConverterClientService,
+            loggedInUserInstance = loggedInUserInstance,
+            fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 1L)
         )
         val task = mockk<Task>()
         val attachmentUuid = UUID.randomUUID()

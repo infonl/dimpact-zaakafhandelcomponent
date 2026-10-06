@@ -83,10 +83,10 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.canToekennen)
         zaakService.assignZaak(
-            zaak,
-            restZaakAssignmentData.groupId,
-            restZaakAssignmentData.assigneeUserName,
-            restZaakAssignmentData.reason
+            zaak = zaak,
+            groupId = restZaakAssignmentData.groupId,
+            userName = restZaakAssignmentData.assigneeUserName,
+            reason = restZaakAssignmentData.reason
         )
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
     }
@@ -101,10 +101,10 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.canToekennen)
         zaakService.assignZaak(
-            zaak,
-            restZaakAssignmentToLoggedInUserData.groupId,
-            loggedInUser.id,
-            restZaakAssignmentToLoggedInUserData.reason
+            zaak = zaak,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId,
+            userName = loggedInUser.id,
+            reason = restZaakAssignmentToLoggedInUserData.reason
         )
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
     }

@@ -80,12 +80,12 @@ class PolicyServiceTest : BehaviorSpec({
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val loggedInUser = createLoggedInUser()
     val policyService = PolicyService(
-        loggedInUserInstance,
-        opaEvaluationClient,
-        ztcClientService,
-        enkelvoudigInformatieObjectLockService,
-        zrcClientService,
-        zaakspecifiekeAutorisatieService
+        loggedInUserInstance = loggedInUserInstance,
+        evaluationClient = opaEvaluationClient,
+        ztcClientService = ztcClientService,
+        lockService = enkelvoudigInformatieObjectLockService,
+        zrcClientService = zrcClientService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
 
     afterEach {

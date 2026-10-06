@@ -82,7 +82,12 @@ class HealthCheckRestService @Inject constructor(
     @Path("build-informatie")
     fun readBuildInformatie() =
         healthCheckService.readBuildInformatie().let {
-            RestBuildInformation(it.commit, it.buildId, it.buildDateTime, it.versionNumber)
+            RestBuildInformation(
+                commit = it.commit,
+                buildId = it.buildId,
+                buildDatumTijd = it.buildDateTime,
+                versienummer = it.versionNumber
+            )
         }
 
     private fun listZaaktypes() =

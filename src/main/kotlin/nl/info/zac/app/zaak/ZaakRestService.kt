@@ -208,7 +208,12 @@ class ZaakRestService @Inject constructor(
         )
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (closedZaak, closedZaakType) ->
             val closedZaakRechten = policyService.readZaakRechten(closedZaak, closedZaakType, loggedInUser)
-            restZaakConverter.toRestZaak(closedZaak, closedZaakType, closedZaakRechten, loggedInUser)
+            restZaakConverter.toRestZaak(
+                zaak = closedZaak,
+                zaakType = closedZaakType,
+                zaakRechten = closedZaakRechten,
+                loggedInUser = loggedInUser
+            )
         }
     }
 
@@ -509,7 +514,12 @@ class ZaakRestService @Inject constructor(
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (reopenedZaak, reopenedZaakType) ->
             val reopenedZaakRechten = policyService.readZaakRechten(reopenedZaak, reopenedZaakType, loggedInUser)
-            restZaakConverter.toRestZaak(reopenedZaak, reopenedZaakType, reopenedZaakRechten, loggedInUser)
+            restZaakConverter.toRestZaak(
+                zaak = reopenedZaak,
+                zaakType = reopenedZaakType,
+                zaakRechten = reopenedZaakRechten,
+                loggedInUser = loggedInUser
+            )
         }
     }
 
@@ -559,7 +569,12 @@ class ZaakRestService @Inject constructor(
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
             val terminatedZaakRechten = policyService.readZaakRechten(terminatedZaak, terminatedZaakType, loggedInUser)
-            restZaakConverter.toRestZaak(terminatedZaak, terminatedZaakType, terminatedZaakRechten, loggedInUser)
+            restZaakConverter.toRestZaak(
+                zaak = terminatedZaak,
+                zaakType = terminatedZaakType,
+                zaakRechten = terminatedZaakRechten,
+                loggedInUser = loggedInUser
+            )
         }
     }
 
@@ -577,11 +592,11 @@ class ZaakRestService @Inject constructor(
             restZaakInitiatorGegevens.betrokkeneIdentificatie
         )
         updateInitiator(
-            identificationType,
-            identification,
-            zaak,
-            zaakRechten,
-            restZaakInitiatorGegevens.toelichting
+            identificationType = identificationType,
+            identification = identification,
+            zaak = zaak,
+            zaakRechten = zaakRechten,
+            explanation = restZaakInitiatorGegevens.toelichting
         )
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
     }
@@ -633,8 +648,18 @@ class ZaakRestService @Inject constructor(
         zaakAssignment?.let {
             zaakService.assignZaak(zaak = zaak, zaakAssignment = it, reason = restZaakEditMetRedenGegevens.reden)
         }
-        applyZaakUpdateSideEffects(zaak, zaakType, updatedZaak, restZaakEditMetRedenGegevens.zaak)
-        return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
+        applyZaakUpdateSideEffects(
+            zaak = zaak,
+            zaakType = zaakType,
+            updatedZaak = updatedZaak,
+            restZaak = restZaakEditMetRedenGegevens.zaak
+        )
+        return restZaakConverter.toRestZaak(
+            zaak = updatedZaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser
+        )
     }
 
     @PATCH
@@ -656,7 +681,12 @@ class ZaakRestService @Inject constructor(
             zaak = zaakPatch,
             explanation = restZaakLocatieGegevens.reden
         )
-        return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
+        return restZaakConverter.toRestZaak(
+            zaak = updatedZaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser
+        )
     }
 
     @PATCH
@@ -683,7 +713,12 @@ class ZaakRestService @Inject constructor(
                 .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
         }
 
-        return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser)
+        return restZaakConverter.toRestZaak(
+            zaak = updatedZaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser
+        )
     }
 
     private fun addBetrokkeneToZaak(
