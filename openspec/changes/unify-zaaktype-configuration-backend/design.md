@@ -284,24 +284,39 @@ treat a missing configuration as before, when the CMMN read service returned an 
 
 ```kotlin
 interface ProcessBinding {
-    val engine: ProcessEngine
-    fun start(zaak: Zaak, zaaktype: ZaakType, configuration: ZaaktypeConfiguration, zaakData: Map<String, Any>?)
+    val processEngine: ProcessEngine
+    fun start(zaak: Zaak, zaaktype: ZaakType, definitionKey: String, processStartData: ProcessStartData)
+    fun isZaaktypeReady(zaaktypeUri: URI): Boolean
     fun terminate(zaakUuid: UUID)
     fun delete(zaakUuid: UUID)
 }
+
+data class ProcessStartData(
+    val caseData: Map<String, Any> = emptyMap(),
+    val groupId: String? = null,
+    val behandelaarId: String? = null,
+    val communicatiekanaal: String? = null
+)
 ```
 
 `CmmnProcessBinding` wraps `CMMNService`, and `BpmnProcessBinding` wraps `BpmnService`. A
 `ProcessBindings` dispatcher injects `Instance<ProcessBinding>` and selects by
-`configuration.processBinding.engine`. It has no `when`, so a third engine is one new class.
+`configuration.processBinding.processEngine`. It has no `when`, so a third engine is one new class.
 
-The adapter takes the configuration, not only the zaaktype UUID. The RFC lets the adapter look the
+The dispatcher takes the configuration, not only the zaaktype UUID. The RFC lets the adapter look the
 configuration up itself, but the caller already holds the configuration (`startZaak`, productaanvraag), and a
-second lookup would be a second source of truth.
+second lookup would be a second source of truth. The adapter gets only the definition key of the binding.
 
-`zaakData` stays a parameter. Each caller still builds its own map: aanvraaggegevens for a CMMN productaanvraag,
-and groep/behandelaar/communicatiekanaal for BPMN. Unifying those maps changes process variables that deployed
-process definitions read, so it is out of scope.
+The callers pass the same `ProcessStartData`, and each adapter takes what its engine reads. CMMN gets the case
+data (the aanvraaggegevens of a productaanvraag). BPMN gets the case data plus the groep, behandelaar and
+communicatiekanaal as the zaak variables that the deployed process definitions read. The process variables
+themselves do not change.
+
+`isZaaktypeReady` moves the CMMN zaaktype health check out of `ZaakRestService`: the CMMN binding asks
+`HealthCheckService`, and BPMN has no such check. Without a binding, a zaaktype is not ready.
+
+`ProductaanvraagService` keeps its choice between the CMMN and the BPMN flow. The two flows differ in their order and
+in the confirmation email, which B4 changes; only the process start inside each flow goes through the dispatcher.
 
 `delete` serves `NotificationReceiver` on zaak delete. The zaak no longer exists in Open Zaak, so ZAC cannot
 resolve its zaaktype. The receiver therefore calls `delete` on every binding. Each binding is a no-op when it

@@ -10,10 +10,6 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
-import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.util.JsonbUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.or.`object`.ObjectsClientService
@@ -37,7 +33,8 @@ import nl.info.zac.authentication.LoggedInUserProvider.Companion.PRODUCTAANVRAAG
 import nl.info.zac.authentication.runAsLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.ProcessBindings
+import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
@@ -72,8 +69,7 @@ class ProductaanvraagService @Inject constructor(
     private val inboxDocumentService: InboxDocumentService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val productaanvraagEmailService: ProductaanvraagEmailService,
-    private val cmmnService: CmmnService,
-    private val bpmnService: BpmnService,
+    private val processBindings: ProcessBindings,
     private val configurationService: ConfigurationService,
     private val klantClientService: KlantClientService,
     private val productaanvraagBetrokkeneService: ProductaanvraagBetrokkeneService,
@@ -349,12 +345,6 @@ class ProductaanvraagService @Inject constructor(
             defaultBehandelaarId = zaaktypeConfiguration.defaultBehandelaarId,
             zaak = zaak
         )
-        val baseBpmnVariablesMap = getAanvraaggegevens(productaanvraagObject)
-        val zaakDataVariablesMap = baseBpmnVariablesMap + buildMap {
-            zaaktypeConfiguration.groepID?.let { put(VAR_ZAAK_GROUP, it) }
-            behandelaarId?.let { put(VAR_ZAAK_USER, it) }
-            zaak.communicatiekanaalNaam?.let { put(VAR_ZAAK_COMMUNICATIEKANAAL, it) }
-        }
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         productaanvraagDocumentService.pairProductaanvraagWithZaak(
@@ -378,11 +368,16 @@ class ProductaanvraagService @Inject constructor(
         )?.let {
             klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
         }
-        bpmnService.startProcess(
+        processBindings.start(
+            zaaktypeConfiguration = zaaktypeConfiguration,
             zaak = zaak,
             zaaktype = zaaktype,
-            processDefinitionKey = checkNotNull(zaaktypeConfiguration.processBinding).definitionKey,
-            zaakData = zaakDataVariablesMap
+            processStartData = ProcessStartData(
+                caseData = getAanvraaggegevens(productaanvraagObject),
+                groupId = zaaktypeConfiguration.groepID,
+                behandelaarId = behandelaarId,
+                communicatiekanaal = zaak.communicatiekanaalNaam
+            )
         )
         productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
     }
@@ -392,19 +387,19 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
-        val caseDefinitionKey = checkNotNull(zaaktypeConfiguration.processBinding) {
+        checkNotNull(zaaktypeConfiguration.processBinding) {
             "Zaaktype configuration for zaaktype '${zaaktypeConfiguration.zaaktypeUuid}' is not bound to a case definition"
-        }.definitionKey
+        }
         val zaaktype = ztcClientService.readZaaktype(zaaktypeConfiguration.zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
         // First, start the CMMN process for the zaak and only then perform other actions related to the zaak,
         // so that should things fail, at least the CMMN process has been started.
         // Note that the error handling here still has room for improvement.
-        cmmnService.startCase(
+        processBindings.start(
+            zaaktypeConfiguration = zaaktypeConfiguration,
             zaak = zaak,
             zaaktype = zaaktype,
-            caseDefinitionKey = caseDefinitionKey,
-            zaakData = getAanvraaggegevens(productaanvraagObject)
+            processStartData = ProcessStartData(caseData = getAanvraaggegevens(productaanvraagObject))
         )
         productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
         // First, pair the productaanvraag and assign the zaak to the group and/or user,

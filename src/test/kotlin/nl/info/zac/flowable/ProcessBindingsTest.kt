@@ -1,0 +1,141 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.flowable
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.verify
+import jakarta.enterprise.inject.Instance
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
+import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
+import java.net.URI
+import java.util.UUID
+
+class ProcessBindingsTest : BehaviorSpec({
+    val cmmnProcessBinding = mockk<ProcessBinding>()
+    val bpmnProcessBinding = mockk<ProcessBinding>()
+    fun createProcessBindings(): ProcessBindings {
+        every { cmmnProcessBinding.processEngine } returns ProcessEngine.CMMN
+        every { bpmnProcessBinding.processEngine } returns ProcessEngine.BPMN
+        val processBindingInstances = mockk<Instance<ProcessBinding>>()
+        every { processBindingInstances.iterator() } answers {
+            mutableListOf(cmmnProcessBinding, bpmnProcessBinding).iterator()
+        }
+        return ProcessBindings(processBindingInstances)
+    }
+    val processBindingsByEngine = mapOf(ProcessEngine.CMMN to cmmnProcessBinding, ProcessEngine.BPMN to bpmnProcessBinding)
+
+    afterEach {
+        checkUnnecessaryStub()
+        clearMocks(cmmnProcessBinding, bpmnProcessBinding)
+    }
+
+    createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
+        given("a zaaktype configuration bound to $configurationType") {
+            val processBindings = createProcessBindings()
+            val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID())
+            val definitionKey = checkNotNull(zaaktypeConfiguration.processBinding).definitionKey
+            val zaak = createZaak()
+            val zaaktype = createZaakType()
+            val processStartData = ProcessStartData(groupId = "fakeGroupId")
+            val zaaktypeUri = URI("https://example.com/zaaktypes/${UUID.randomUUID()}")
+            val boundProcessBinding = processBindingsByEngine.getValue(configurationType)
+            val otherProcessBinding = processBindingsByEngine.values.single { it != boundProcessBinding }
+            every { boundProcessBinding.start(zaak, zaaktype, definitionKey, processStartData) } just runs
+            every { boundProcessBinding.terminate(zaak.uuid) } just runs
+            every { boundProcessBinding.isZaaktypeReady(zaaktypeUri) } returns true
+
+            `when`("the process of a zaak is started, the zaaktype is checked, and the process is terminated") {
+                processBindings.start(zaaktypeConfiguration, zaak, zaaktype, processStartData)
+                val isZaaktypeReady = processBindings.isZaaktypeReady(zaaktypeConfiguration, zaaktypeUri)
+                processBindings.terminate(zaaktypeConfiguration, zaak.uuid)
+
+                then("each operation runs in the $configurationType engine with the bound definition, and none in the other") {
+                    isZaaktypeReady shouldBe true
+                    verify(exactly = 1) {
+                        boundProcessBinding.start(zaak, zaaktype, definitionKey, processStartData)
+                        boundProcessBinding.terminate(zaak.uuid)
+                    }
+                    verify(exactly = 0) {
+                        otherProcessBinding.start(
+                            zaak = any(),
+                            zaaktype = any(),
+                            definitionKey = any(),
+                            processStartData = any()
+                        )
+                        otherProcessBinding.terminate(any())
+                    }
+                }
+            }
+        }
+    }
+
+    given("a zaaktype configuration without a process binding") {
+        val processBindings = ProcessBindings(mockk())
+        val zaaktypeConfiguration = ZaaktypeConfiguration().apply { zaaktypeUuid = UUID.randomUUID() }
+        val zaak = createZaak()
+
+        `when`("the process of a zaak is started") {
+            val exception = shouldThrow<ZaaktypeConfigurationNotFoundException> {
+                processBindings.start(
+                    zaaktypeConfiguration = zaaktypeConfiguration,
+                    zaak = zaak,
+                    zaaktype = createZaakType(),
+                    processStartData = ProcessStartData()
+                )
+            }
+
+            then("the start is refused") {
+                exception.message shouldContain "is not bound to a process"
+            }
+        }
+
+        `when`("the process of a zaak is terminated and the zaaktype is checked") {
+            processBindings.terminate(zaaktypeConfiguration, zaak.uuid)
+            val isZaaktypeReady = processBindings.isZaaktypeReady(
+                zaaktypeConfiguration,
+                URI("https://example.com/zaaktypes/${UUID.randomUUID()}")
+            )
+
+            then("no engine is called, because such a zaaktype has no zaken with a process, and the zaaktype is not ready") {
+                isZaaktypeReady shouldBe false
+                verify(exactly = 0) {
+                    cmmnProcessBinding.terminate(any())
+                    bpmnProcessBinding.terminate(any())
+                }
+            }
+        }
+    }
+
+    given("a deleted zaak") {
+        val processBindings = createProcessBindings()
+        val zaakUuid = UUID.randomUUID()
+        every { cmmnProcessBinding.delete(zaakUuid) } just runs
+        every { bpmnProcessBinding.delete(zaakUuid) } just runs
+
+        `when`("its process is deleted in all engines") {
+            processBindings.deleteInAllEngines(zaakUuid)
+
+            then("every engine deletes the process of the zaak") {
+                verify(exactly = 1) {
+                    cmmnProcessBinding.delete(zaakUuid)
+                    bpmnProcessBinding.delete(zaakUuid)
+                }
+            }
+        }
+    }
+})

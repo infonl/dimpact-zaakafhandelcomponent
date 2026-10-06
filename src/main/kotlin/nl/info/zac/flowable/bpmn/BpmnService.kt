@@ -241,6 +241,17 @@ class BpmnService @Inject constructor(
         }
 
     /**
+     * Deletes the process instance of the zaak and the history of every process instance of the zaak.
+     */
+    fun deleteProcessInstance(zaakUUID: UUID) {
+        findProcessInstance(zaakUUID)?.let { runtimeService.deleteProcessInstance(it.id, "Zaak deleted") }
+        historyService.createHistoricProcessInstanceQuery()
+            .processInstanceBusinessKey(zaakUUID.toString())
+            .list()
+            .forEach { historyService.deleteHistoricProcessInstance(it.id) }
+    }
+
+    /**
      * Returns a list of unique BPMN process definition keys used in process instances
      */
     fun findUniqueBpmnProcessDefinitionKeysFromProcessInstances() =

@@ -20,8 +20,6 @@ import jakarta.ws.rs.ServiceUnavailableException
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
@@ -31,6 +29,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
+import nl.info.zac.flowable.ProcessBindings
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
@@ -52,8 +51,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
-    val cmmnService = mockk<CmmnService>()
-    val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val processBindings = mockk<ProcessBindings>()
     val taskService = mockk<TaskService>()
     val zrcClientService = mockk<ZrcClientService>()
     val httpHeaders = mockk<HttpHeaders>()
@@ -66,8 +64,7 @@ class NotificationReceiverTest : BehaviorSpec({
         inboxDocumentService = inboxDocumentService,
         detachedDocumentService = detachedDocumentService,
         zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
-        cmmnService = cmmnService,
-        zaakVariabelenService = zaakVariabelenService,
+        processBindings = processBindings,
         signaleringService = signaleringService,
         taskService = taskService,
         zrcClientService = zrcClientService,
@@ -209,8 +206,7 @@ class NotificationReceiverTest : BehaviorSpec({
         val signaleringVerzondenZoekParameters = mutableListOf<SignaleringVerzondenZoekParameters>()
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { cmmnService.deleteCase(zaakUUID) } returns Unit
-        every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
+        every { processBindings.deleteInAllEngines(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
         every { indexingService.removeTaak(taskId) } just Runs
         every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } returns 2
@@ -229,8 +225,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    cmmnService.deleteCase(zaakUUID)
-                    zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
+                    processBindings.deleteInAllEngines(zaakUUID)
                     indexingService.removeZaak(zaakUUID)
                     indexingService.removeTaak(taskId)
                     eventingService.send(any<ScreenEvent>())
@@ -715,8 +710,7 @@ class NotificationReceiverTest : BehaviorSpec({
                 verify(exactly = 0) {
                     indexingService.removeInformatieobject(any())
                     eventingService.send(any<ScreenEvent>())
-                    cmmnService.deleteCase(any())
-                    zaakVariabelenService.deleteAllCaseVariables(any())
+                    processBindings.deleteInAllEngines(any())
                     indexingService.removeZaak(any())
                     indexingService.removeTaak(any())
                     eventingService.send(any<ScreenEvent>())
