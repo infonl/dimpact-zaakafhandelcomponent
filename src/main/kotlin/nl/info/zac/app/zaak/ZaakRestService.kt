@@ -43,6 +43,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_REASON
 import nl.info.zac.admin.ZaaktypeConfigurationService
@@ -140,6 +141,7 @@ class ZaakRestService @Inject constructor(
     private val zaakService: ZaakService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
+    private val resultaattypeReferenceService: ResultaattypeReferenceService,
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
@@ -534,14 +536,18 @@ class ZaakRestService @Inject constructor(
             // Abort the case in OpenZaak
             if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
                 // Use the hardcoded "niet ontvankelijk" reden that we don't manage via the zaaktype configuration
-                it.nietOntvankelijkResultaattype?.let { resultaattype ->
-                    terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(it)?.let { resultaattype ->
+                    terminateZaak(zaak, resultaattype.url.extractUuid(), INADMISSIBLE_TERMINATION_REASON)
                 }
             } else {
                 afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
                     it.readZaakbeeindigParameter(zaakbeeindigRedenId).let { param ->
                         param.zaakbeeindigReden.naam?.let { naam ->
-                            terminateZaak(zaak, param.resultaattype, naam)
+                            terminateZaak(
+                                zaak,
+                                resultaattypeReferenceService.readResultaattype(param).url.extractUuid(),
+                                naam
+                            )
                         }
                     }
                 }

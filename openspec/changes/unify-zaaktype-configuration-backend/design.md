@@ -342,14 +342,16 @@ has already ended. Each binding is a no-op when it has neither. `BpmnService` ge
 V103 adds `niet_ontvankelijk_resultaattype_omschrijving` to `zaaktype_configuration` and
 `resultaattype_omschrijving` to `zaaktype_completion_parameters`. Both columns are nullable.
 
-- **Write path.** It writes both columns. The REST payload carries the UUID, and the converter resolves the
-  omschrijving through `ZtcClientService.readResultaattype(uuid)`.
-- **Read path.** The UUID that the REST API and the callers see is resolved per zaaktype version: list
-  `readResultaattypen(zaaktypeUri)` and match the omschrijving, with the stored UUID as fallback while the
-  omschrijving is null. Open Zaak guarantees that the omschrijving is unique within a zaaktype version, so no
+- **Write path.** It writes both columns. The REST payload carries the UUID. `ZaaktypeConfigurationBeheerService`
+  fills the omschrijving through `ZtcClientService.readResultaattype(uuid)` on every store, so the REST resources and
+  the copy for a new zaaktype version share one write path.
+- **Read path.** `ResultaattypeReferenceService` resolves the resultaattype that the REST API and the callers see
+  per zaaktype version: list `readResultaattypen(zaaktypeUri)` and match the omschrijving. The stored UUID is the
+  fallback while the omschrijving is null, and when the zaaktype version has no resultaattype with the omschrijving;
+  the latter logs a warning. Open Zaak guarantees that the omschrijving is unique within a zaaktype version, so no
   ambiguity check exists.
 - **Backfill.** `ResultaattypeOmschrijvingBackfill` observes `@Initialized(ApplicationScoped.class)`, as
-  `SolrDeployerService` does. It fills every null omschrijving through ZTC, row by row. It is idempotent and
+  `SolrDeployerService` does, with a `@Priority` after the default one of the Flyway observer that adds the columns. It fills every null omschrijving through ZTC, row by row. It is idempotent and
   logs one summary line with the number of rows filled and the number left unresolved. A row stays null when
   ZTC fails or the resultaattype is gone, and the next start retries it. A Flyway Java migration is rejected,
   because it has no CDI access to the ZTC client and its credentials.

@@ -14,8 +14,8 @@ import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
-import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_RESULTAATTYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
@@ -251,7 +251,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                       } ],
                       "zaakNietOntvankelijkResultaattype" : {
                         "archiefNominatie" : "VERNIETIGEN",
-                        "archiefTermijn" : "5 jaren",
+                        "archiefTermijn" : "1 jaar",
                         "isBesluitVerplicht" : false,
                         "bronArchiefprocedure": {
                           "afleidingswijze": "afgehandeld",
@@ -261,10 +261,10 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                           "registratie": ""
                         },
                         "isDatumKenmerkVerplicht": false,
-                        "id" : "$RESULTAAT_TYPE_GEWEIGERD_UUID",
+                        "id" : "$ZAAKTYPE_CMMN_TEST_2_RESULTAATTYPE_GEWEIGERD_UUID",
                         "naam" : "Geweigerd",
                         "naamGeneriek" : "Geweigerd",
-                        "toelichting" : "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
+                        "toelichting" : "Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling",
                         "isVervaldatumBesluitVerplicht" : false
                       },
                       "zaakbeeindigParameters" : [ ],

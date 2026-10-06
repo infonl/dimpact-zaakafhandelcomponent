@@ -47,6 +47,9 @@ class ZaaktypeCompletionParameters : UserModifiableZaaktypeConfigurationData<Zaa
     @NotNull
     lateinit var resultaattype: UUID
 
+    @Column(name = "resultaattype_omschrijving")
+    var resultaattypeOmschrijving: String? = null
+
     override fun equals(other: Any?): Boolean {
         if (other !is ZaaktypeCompletionParameters) return false
         return zaakbeeindigReden.id == other.zaakbeeindigReden.id &&
@@ -60,6 +63,7 @@ class ZaaktypeCompletionParameters : UserModifiableZaaktypeConfigurationData<Zaa
 
     override fun applyChanges(changes: ZaaktypeCompletionParameters) {
         resultaattype = changes.resultaattype
+        resultaattypeOmschrijving = changes.resultaattypeOmschrijving
     }
 
     override fun resetId(): ZaaktypeCompletionParameters {

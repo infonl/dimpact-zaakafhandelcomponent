@@ -9,15 +9,15 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import java.util.UUID
 
 class RestZaakbeeindigParameterConverterTest : BehaviorSpec({
-    val ztcClientService = mockk<ZtcClientService>()
-    val restZaakbeeindigParameterConverter = RestZaakbeeindigParameterConverter(ztcClientService)
+    val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
+    val restZaakbeeindigParameterConverter = RestZaakbeeindigParameterConverter(resultaattypeReferenceService)
 
     afterEach {
         checkUnnecessaryStub()
@@ -36,7 +36,7 @@ class RestZaakbeeindigParameterConverterTest : BehaviorSpec({
                 resultaattype = resultaattypeUUID
             }
             val resultaattype = createResultaatType(omschrijving = "fakeResultaattypeOmschrijving")
-            every { ztcClientService.readResultaattype(resultaattypeUUID) } returns resultaattype
+            every { resultaattypeReferenceService.readResultaattype(completionParams) } returns resultaattype
 
             `when`("convertZaakbeeindigParameters is called") {
                 val result = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(setOf(completionParams))

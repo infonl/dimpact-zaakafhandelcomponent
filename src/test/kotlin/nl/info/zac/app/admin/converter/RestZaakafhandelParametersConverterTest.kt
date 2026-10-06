@@ -25,6 +25,7 @@ import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ProcessEngine
@@ -61,11 +62,13 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         taskHistoryService = mockk()
     )
 
+    val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
     val restZaaktypeConfigurationConverter = RestZaaktypeConfigurationConverter(
         caseDefinitionConverter = caseDefinitionConverter,
         zaakbeeindigParameterConverter = zaakbeeindigParameterConverter,
         humanTaskParametersConverter = restHumanTaskParametersConverter,
         ztcClientService = ztcClientService,
+        resultaattypeReferenceService = resultaattypeReferenceService,
         zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
         smartDocumentsService = smartDocumentsService,
         zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
@@ -91,7 +94,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
-            ztcClientService.readResultaattype(zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!)
+            resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
         } returns resultaatType
         every {
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
@@ -211,7 +214,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         every { ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
-            ztcClientService.readResultaattype(zaaktypeBpmnConfiguration.nietOntvankelijkResultaattype!!)
+            resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeBpmnConfiguration)
         } returns resultaatType
         every {
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeBpmnConfiguration.getZaakbeeindigParameters())
@@ -262,7 +265,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
-            ztcClientService.readResultaattype(zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!)
+            resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
         } returns resultaatType
         every {
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
@@ -301,7 +304,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
-            ztcClientService.readResultaattype(zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!)
+            resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
         } returns resultaatType
         every {
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())

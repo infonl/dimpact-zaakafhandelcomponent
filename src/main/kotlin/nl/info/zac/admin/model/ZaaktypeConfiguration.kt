@@ -75,6 +75,9 @@ class ZaaktypeConfiguration {
     @Column(name = "niet_ontvankelijk_resultaattype_uuid")
     var nietOntvankelijkResultaattype: UUID? = null
 
+    @Column(name = "niet_ontvankelijk_resultaattype_omschrijving")
+    var nietOntvankelijkResultaattypeOmschrijving: String? = null
+
     @Column(name = "einddatum_gepland_waarschuwing")
     var einddatumGeplandWaarschuwing: Int? = null
 

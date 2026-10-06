@@ -16,7 +16,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
@@ -50,7 +50,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
     private val policyService: PolicyService,
-    private val ztcClientService: ZtcClientService,
+    private val resultaattypeReferenceService: ResultaattypeReferenceService,
     private val restZaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
     private val smartDocumentsService: SmartDocumentsService
 ) {
@@ -132,9 +132,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         defaultBehandelaarId = this.defaultBehandelaarId,
         productaanvraagtype = this.productaanvraagtype,
         creatiedatum = this.creatiedatum,
-        zaakNietOntvankelijkResultaattype = this.nietOntvankelijkResultaattype?.let {
-            ztcClientService.readResultaattype(it).toRestResultaatType()
-        },
+        zaakNietOntvankelijkResultaattype = resultaattypeReferenceService.readNietOntvankelijkResultaattype(this)
+            ?.toRestResultaatType(),
         zaakbeeindigParameters = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(
             this.getZaakbeeindigParameters()
         ),

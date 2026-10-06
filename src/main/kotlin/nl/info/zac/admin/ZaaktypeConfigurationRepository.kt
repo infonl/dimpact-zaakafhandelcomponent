@@ -122,6 +122,49 @@ class ZaaktypeConfigurationRepository @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
+    /**
+     * Returns the distinct resultaattype UUIDs of the resultaattype references that have no omschrijving yet.
+     */
+    fun listResultaattypenWithoutOmschrijving(): List<UUID> =
+        (
+            entityManager.createQuery(
+                "SELECT DISTINCT c.nietOntvankelijkResultaattype FROM ZaaktypeConfiguration c " +
+                    "WHERE c.nietOntvankelijkResultaattype IS NOT NULL AND c.nietOntvankelijkResultaattypeOmschrijving IS NULL",
+                UUID::class.java
+            ).resultList + entityManager.createQuery(
+                "SELECT DISTINCT p.resultaattype FROM ZaaktypeCompletionParameters p WHERE p.resultaattypeOmschrijving IS NULL",
+                UUID::class.java
+            ).resultList
+            ).distinct()
+
+    fun countResultaattypeReferencesWithoutOmschrijving(): Long =
+        entityManager.createQuery(
+            "SELECT COUNT(c) FROM ZaaktypeConfiguration c " +
+                "WHERE c.nietOntvankelijkResultaattype IS NOT NULL AND c.nietOntvankelijkResultaattypeOmschrijving IS NULL",
+            Long::class.javaObjectType
+        ).singleResult + entityManager.createQuery(
+            "SELECT COUNT(p) FROM ZaaktypeCompletionParameters p WHERE p.resultaattypeOmschrijving IS NULL",
+            Long::class.javaObjectType
+        ).singleResult
+
+    /**
+     * Fills the omschrijving of every resultaattype reference to the resultaattype that has none yet, and returns the
+     * number of references filled.
+     */
+    @Transactional(REQUIRED)
+    fun fillResultaattypeOmschrijving(resultaattypeUuid: UUID, resultaattypeOmschrijving: String): Int =
+        entityManager.createQuery(
+            "UPDATE ZaaktypeConfiguration c SET c.nietOntvankelijkResultaattypeOmschrijving = :omschrijving " +
+                "WHERE c.nietOntvankelijkResultaattype = :uuid AND c.nietOntvankelijkResultaattypeOmschrijving IS NULL"
+        ).setParameter("omschrijving", resultaattypeOmschrijving)
+            .setParameter("uuid", resultaattypeUuid)
+            .executeUpdate() + entityManager.createQuery(
+            "UPDATE ZaaktypeCompletionParameters p SET p.resultaattypeOmschrijving = :omschrijving " +
+                "WHERE p.resultaattype = :uuid AND p.resultaattypeOmschrijving IS NULL"
+        ).setParameter("omschrijving", resultaattypeOmschrijving)
+            .setParameter("uuid", resultaattypeUuid)
+            .executeUpdate()
+
     @Transactional(REQUIRED)
     fun store(zaaktypeConfiguration: ZaaktypeConfiguration): ZaaktypeConfiguration =
         if (zaaktypeConfiguration.id == null) {

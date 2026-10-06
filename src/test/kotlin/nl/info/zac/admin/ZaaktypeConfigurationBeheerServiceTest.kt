@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyOrder
 import jakarta.validation.ConstraintViolationException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -34,12 +35,14 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val zaaktypeHelperService = mockk<ZaaktypeHelperService>()
+    val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
     val zaaktypeConfigurationBeheerService = ZaaktypeConfigurationBeheerService(
         zaaktypeConfigurationRepository = zaaktypeConfigurationRepository,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         ztcClientService = ztcClientService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeHelperService = zaaktypeHelperService
+        zaaktypeHelperService = zaaktypeHelperService,
+        resultaattypeReferenceService = resultaattypeReferenceService
     )
 
     afterEach {
@@ -65,15 +68,20 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
                 } returns storedZaaktypeConfiguration
+                every { resultaattypeReferenceService.fillOmschrijvingen(zaaktypeConfiguration) } just runs
                 every { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) } returns zaaktypeConfiguration
                 every { zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid) } just runs
 
                 `when`("it is stored with an id that does not exist") {
                     zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
 
-                    then("the existing configuration of the zaaktype version is updated and the cache is evicted") {
+                    then(
+                        """the existing configuration of the zaaktype version is updated with the omschrijvingen of its
+                            resultaattypen, and the cache is evicted"""
+                    ) {
                         zaaktypeConfiguration.id shouldBe 42L
-                        verify(exactly = 1) {
+                        verifyOrder {
+                            resultaattypeReferenceService.fillOmschrijvingen(zaaktypeConfiguration)
                             zaaktypeConfigurationRepository.store(zaaktypeConfiguration)
                             zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid)
                         }
@@ -119,6 +127,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                         creatiedatum = ZonedDateTime.now()
                     }
                 }
+                every { resultaattypeReferenceService.fillOmschrijvingen(any()) } just runs
                 every { zaaktypeConfigurationRepository.store(capture(newZaaktypeConfiguration)) } answers { firstArg() }
                 every { zaaktypeConfigurationService.evict(newZaaktypeUuid) } just runs
                 every {
@@ -167,6 +176,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 every {
                     zaaktypeHelperService.updateZaakbeeindigGegevens(existingZaaktypeConfiguration, zaaktype)
                 } just runs
+                every { resultaattypeReferenceService.fillOmschrijvingen(existingZaaktypeConfiguration) } just runs
                 every {
                     zaaktypeConfigurationRepository.store(existingZaaktypeConfiguration)
                 } returns existingZaaktypeConfiguration
@@ -325,6 +335,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             )
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns existingConfig
             every { zaaktypeHelperService.updateZaakbeeindigGegevens(existingConfig, updatedZaaktype) } just runs
+            every { resultaattypeReferenceService.fillOmschrijvingen(existingConfig) } just runs
             every { zaaktypeConfigurationRepository.store(existingConfig) } returns existingConfig
             every { zaaktypeConfigurationService.evict(zaaktypeUuid) } just runs
 
