@@ -29,7 +29,7 @@ import java.time.ZonedDateTime
 import java.util.*
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
@@ -55,7 +55,7 @@ import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZA
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
-import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.DeleteGeoJsonGeometry
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
@@ -145,7 +145,7 @@ import org.flowable.task.api.Task
 class ZaakRestServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
     val configurationService = mockk<ConfigurationService>()
-    val cmmnService = mockk<CMMNService>()
+    val cmmnService = mockk<CmmnService>()
     val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
     val healthCheckService = mockk<HealthCheckService>()
@@ -3063,7 +3063,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                     restZaak shouldBe updatedRestZaak
                     with(patchZaakSlot.captured) {
-                        zaakgeometrie.shouldBeInstanceOf<DeleteGeoJSONGeometry>()
+                        zaakgeometrie.shouldBeInstanceOf<DeleteGeoJsonGeometry>()
                     }
                 }
             }

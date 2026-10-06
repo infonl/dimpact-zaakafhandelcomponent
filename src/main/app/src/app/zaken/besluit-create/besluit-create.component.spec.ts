@@ -4,17 +4,16 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { screen } from "@testing-library/angular";
+import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -22,6 +21,11 @@ import { BesluitCreateComponent } from "./besluit-create.component";
 
 const fakeZaak = fromPartial<GeneratedType<"RestZaak">>({
   uuid: "zaak-uuid-1",
+  zaaktype: { uuid: "zaaktype-uuid-1" },
+});
+
+const otherZaak = fromPartial<GeneratedType<"RestZaak">>({
+  uuid: "zaak-uuid-2",
   zaaktype: { uuid: "zaaktype-uuid-1" },
 });
 
@@ -44,202 +48,180 @@ const fakeBesluittypeWithPublication = fromPartial<
 });
 
 describe(BesluitCreateComponent.name, () => {
-  let fixture: ComponentFixture<BesluitCreateComponent>;
-  let component: BesluitCreateComponent;
-  let zakenService: ZakenService;
-  let informatieObjectenService: InformatieObjectenService;
-  let sideNav: MatDrawer;
-  // The create mutation stays pending so onSuccess/onError never fire; we only
-  // assert that submit() forwards the built payload to the mutation.
-  let createBesluitMutationFn: jest.Mock;
-
   const user = userEvent.setup();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        BesluitCreateComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+  const setup = async (
+    besluittypes: GeneratedType<"RestBesluitType">[] = [fakeBesluittype],
+  ) => {
+    const listResultaattypes = jest
+      .spyOn(ZakenService.prototype, "listResultaattypes")
+      .mockReturnValue(of([]) as never);
+    jest
+      .spyOn(ZakenService.prototype, "listBesluittypes")
+      .mockReturnValue(of(besluittypes) as never);
+    const listEnkelvoudigInformatieobjecten = jest
+      .spyOn(
+        InformatieObjectenService.prototype,
+        "listEnkelvoudigInformatieobjecten",
+      )
+      .mockReturnValue(createQueryOptions([]) as never);
+
+    // the mutation stays pending, so only the payload it is handed is asserted on
+    const createBesluit = jest.fn<Promise<void>, [unknown]>(
+      () => new Promise<void>(() => {}),
+    );
+    jest.spyOn(ZakenService.prototype, "createBesluit").mockReturnValue(
+      fromPartial({
+        mutationKey: ["/rest/zaken/besluit"],
+        mutationFn: createBesluit,
+      }),
+    );
+
+    const sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
+
+    const { rerender } = await render(BesluitCreateComponent, {
+      inputs: { zaak: fakeZaak, sideNav },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideHttpClient(),
         provideQueryClient(testQueryClient),
         provideRouter([]),
       ],
-    }).compileComponents();
+    });
 
-    zakenService = TestBed.inject(ZakenService);
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
+    const showZaak = (zaak: GeneratedType<"RestZaak">) =>
+      rerender({ inputs: { zaak, sideNav }, partialUpdate: true });
 
-    jest
-      .spyOn(zakenService, "listResultaattypes")
-      .mockReturnValue(of([]) as never);
-    jest
-      .spyOn(zakenService, "listBesluittypes")
-      .mockReturnValue(of([fakeBesluittype]) as never);
-    jest
-      .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of([]) as never);
+    return {
+      sideNav,
+      createBesluit,
+      listResultaattypes,
+      listEnkelvoudigInformatieobjecten,
+      showZaak,
+    };
+  };
 
-    createBesluitMutationFn = jest.fn(() => new Promise<void>(() => {}));
-    jest.spyOn(zakenService, "createBesluit").mockReturnValue(
-      fromPartial({
-        mutationKey: ["/rest/zaken/besluit"],
-        mutationFn: createBesluitMutationFn,
-      }),
+  const selectBesluittype = async (naam: string) => {
+    await user.click(screen.getByLabelText("Besluit"));
+    await user.click(screen.getByRole("option", { name: naam }));
+  };
+
+  it("offers the besluittypes of the zaak's zaaktype", async () => {
+    await setup([fakeBesluittype, fakeBesluittypeWithPublication]);
+
+    await user.click(screen.getByLabelText("Besluit"));
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
+    ).toEqual(["Besluittype 1", "Besluittype 2"]);
+  });
+
+  it("loads the resultaattypes of the zaak's zaaktype", async () => {
+    const { listResultaattypes } = await setup();
+
+    expect(listResultaattypes).toHaveBeenCalledWith("zaaktype-uuid-1");
+  });
+
+  it("closes the side panel when the close button is used", async () => {
+    const { sideNav } = await setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.paneel.sluiten" }),
     );
 
-    fixture = TestBed.createComponent(BesluitCreateComponent);
-    component = fixture.componentInstance;
-
-    sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
-    fixture.componentRef.setInput("zaak", fakeZaak);
-    fixture.componentRef.setInput("sideNav", sideNav);
-
-    fixture.detectChanges();
+    expect(sideNav.close).toHaveBeenCalled();
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
+  it("closes the side panel when the cancel button is used", async () => {
+    const { sideNav } = await setup();
+
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+    expect(sideNav.close).toHaveBeenCalled();
   });
 
-  const submitButton = () =>
-    screen.getByRole("button", { name: "actie.aanmaken" });
+  it("cannot be submitted without a besluittype", async () => {
+    await setup();
 
-  describe("initialisation", () => {
-    it("loads resultaattypes and besluittypes for the zaak's zaaktype", () => {
-      expect(zakenService.listResultaattypes).toHaveBeenCalledWith(
-        "zaaktype-uuid-1",
-      );
-      expect(zakenService.listBesluittypes).toHaveBeenCalledWith(
-        "zaaktype-uuid-1",
-      );
-    });
+    expect(
+      screen.getByRole("button", { name: "actie.aanmaken" }),
+    ).toBeDisabled();
   });
 
-  describe("close button", () => {
-    it("closes the side nav when the close button is clicked", async () => {
-      await user.click(
-        screen.getByRole("button", { name: "actie.paneel.sluiten" }),
-      );
+  it("can be submitted once a besluittype is chosen", async () => {
+    await setup();
 
-      expect(sideNav.close).toHaveBeenCalled();
-    });
+    await selectBesluittype("Besluittype 1");
+
+    expect(
+      screen.getByRole("button", { name: "actie.aanmaken" }),
+    ).toBeEnabled();
   });
 
-  describe("submit button", () => {
-    it("is disabled when no besluit is selected", () => {
-      expect(submitButton()).toBeDisabled();
-    });
+  it("hides the publication dates for a besluittype without publication", async () => {
+    await setup();
 
-    it("is enabled when required fields are set", () => {
-      component["form"].controls.besluit.setValue(fakeBesluittype);
-      component["form"].markAsDirty();
-      fixture.detectChanges();
+    await selectBesluittype("Besluittype 1");
 
-      expect(submitButton()).toBeEnabled();
-    });
+    expect(screen.queryByLabelText("Publicatiedatum")).toBeNull();
+    expect(screen.queryByLabelText("Uiterlijkereactiedatum")).toBeNull();
   });
 
-  describe("publication section", () => {
-    it("is hidden when selected besluittype has publication disabled", () => {
-      component["form"].controls.besluit.setValue(fakeBesluittype);
-      fixture.detectChanges();
+  it("shows the publication dates for a besluittype that requires publication", async () => {
+    await setup([fakeBesluittypeWithPublication]);
 
-      expect(screen.getByLabelText(/Ingangsdatum/)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Vervaldatum/)).toBeInTheDocument();
-      expect(screen.queryByLabelText(/Publicatiedatum/)).toBeNull();
-      expect(screen.queryByLabelText(/Uiterlijkereactiedatum/)).toBeNull();
-    });
+    await selectBesluittype("Besluittype 2");
 
-    it("is shown when selected besluittype has publication enabled", () => {
-      component["form"].controls.besluit.setValue(
-        fakeBesluittypeWithPublication,
-      );
-      fixture.detectChanges();
+    expect(screen.getByLabelText("Publicatiedatum")).toBeVisible();
+    expect(screen.getByLabelText("Uiterlijkereactiedatum")).toBeVisible();
+  });
 
-      expect(screen.getByLabelText(/Publicatiedatum/)).toBeInTheDocument();
-      expect(
-        screen.getByLabelText(/Uiterlijkereactiedatum/),
-      ).toBeInTheDocument();
+  it("looks up the documents of the zaak that fit the chosen besluittype", async () => {
+    const { listEnkelvoudigInformatieobjecten } = await setup();
+
+    await selectBesluittype("Besluittype 1");
+
+    expect(listEnkelvoudigInformatieobjecten).toHaveBeenCalledWith({
+      zaakUUID: "zaak-uuid-1",
+      besluittypeUUID: "besluittype-id-1",
     });
   });
 
-  describe("documents", () => {
-    it("looks up the documents of the zaak that fit the chosen besluittype", () => {
-      component["form"].controls.besluit.setValue(fakeBesluittype);
+  it("looks up the documents of the zaak it currently shows", async () => {
+    const { listEnkelvoudigInformatieobjecten, showZaak } = await setup();
+    await showZaak(otherZaak);
 
-      expect(
-        informatieObjectenService.listEnkelvoudigInformatieobjecten,
-      ).toHaveBeenCalledWith({
-        zaakUUID: "zaak-uuid-1",
-        besluittypeUUID: "besluittype-id-1",
-      });
-    });
+    await selectBesluittype("Besluittype 1");
 
-    it("looks up the documents of the zaak it currently shows", () => {
-      fixture.componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "zaak-uuid-2",
-          zaaktype: { uuid: "zaaktype-uuid-1" },
-        }),
-      );
-      fixture.detectChanges();
-
-      component["form"].controls.besluit.setValue(fakeBesluittype);
-
-      expect(
-        informatieObjectenService.listEnkelvoudigInformatieobjecten,
-      ).toHaveBeenCalledWith({
-        zaakUUID: "zaak-uuid-2",
-        besluittypeUUID: "besluittype-id-1",
-      });
+    expect(listEnkelvoudigInformatieobjecten).toHaveBeenCalledWith({
+      zaakUUID: "zaak-uuid-2",
+      besluittypeUUID: "besluittype-id-1",
     });
   });
 
-  describe("cancel button", () => {
-    it("closes the side nav when the cancel button is clicked", async () => {
-      await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+  it("creates the besluit for the zaak it currently shows", async () => {
+    const { createBesluit, showZaak } = await setup();
+    await showZaak(otherZaak);
+    await selectBesluittype("Besluittype 1");
 
-      expect(sideNav.close).toHaveBeenCalled();
-    });
+    await user.click(screen.getByRole("button", { name: "actie.aanmaken" }));
+
+    expect(createBesluit.mock.calls[0][0]).toEqual(
+      expect.objectContaining({ zaakUuid: "zaak-uuid-2" }),
+    );
   });
 
-  describe("submit()", () => {
-    it("triggers the create-besluit mutation with the form payload", async () => {
-      component["form"].controls.besluit.setValue(fakeBesluittype);
+  it("creates the besluit for the chosen besluittype", async () => {
+    const { createBesluit } = await setup();
+    await selectBesluittype("Besluittype 1");
 
-      component.submit();
-      await sleep();
+    await user.click(screen.getByRole("button", { name: "actie.aanmaken" }));
 
-      expect(createBesluitMutationFn.mock.calls[0][0]).toEqual(
-        expect.objectContaining({
-          zaakUuid: "zaak-uuid-1",
-          besluittypeUuid: "besluittype-id-1",
-        }),
-      );
-    });
-
-    it("creates the besluit for the zaak it currently shows", async () => {
-      fixture.componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "zaak-uuid-2",
-          zaaktype: { uuid: "zaaktype-uuid-1" },
-        }),
-      );
-      fixture.detectChanges();
-      component["form"].controls.besluit.setValue(fakeBesluittype);
-
-      component.submit();
-      await sleep();
-
-      expect(createBesluitMutationFn.mock.calls[0][0]).toEqual(
-        expect.objectContaining({ zaakUuid: "zaak-uuid-2" }),
-      );
-    });
+    expect(createBesluit.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        zaakUuid: "zaak-uuid-1",
+        besluittypeUuid: "besluittype-id-1",
+      }),
+    );
   });
 });

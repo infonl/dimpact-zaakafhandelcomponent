@@ -7,7 +7,6 @@ import { inject, Injectable } from "@angular/core";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { lastValueFrom } from "rxjs";
 import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
 import { SmartDocumentsService } from "../../../admin/smart-documents.service";
 import { UtilService } from "../../../core/service/util.service";
@@ -615,20 +614,12 @@ export class FormioSetupService {
     taak: GeneratedType<"RestTask">,
     informatieobjectUUIDs?: string[],
   ) {
-    // The uuids belong in the key, or a filtered fetch collides with the full list of the same zaak.
     return this.queryClient.query({
-      queryKey: [
-        "availableDocumentsQuery",
-        taak.zaakUuid,
-        informatieobjectUUIDs && [...informatieobjectUUIDs].sort(),
-      ],
-      queryFn: () =>
-        lastValueFrom(
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-            zaakUUID: taak.zaakUuid,
-            informatieobjectUUIDs,
-          }),
-        ),
+      ...this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: taak.zaakUuid,
+        informatieobjectUUIDs:
+          informatieobjectUUIDs && [...informatieobjectUUIDs].sort(),
+      }),
       staleTime: 0,
     });
   }

@@ -26,6 +26,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
@@ -34,6 +35,7 @@ import { ZacFormActions } from "../../shared/form/form-actions/form-actions.comp
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -105,6 +107,8 @@ export class BesluitCreateComponent implements OnInit {
     },
   );
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor() {
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
@@ -132,14 +136,15 @@ export class BesluitCreateComponent implements OnInit {
       .subscribe((value) => {
         if (!value) return;
 
-        this.informatieObjectenService
-          .listEnkelvoudigInformatieobjecten({
+        runQuery(
+          this.queryClient,
+          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
             zaakUUID: this.zaak().uuid,
             besluittypeUUID: value.id,
-          })
-          .subscribe((documents) => {
-            this.documents = documents;
-          });
+          }),
+        ).subscribe((documents) => {
+          this.documents = documents;
+        });
 
         this.form.controls.publicationEnabled.setValue(
           value.publication.enabled ?? null,

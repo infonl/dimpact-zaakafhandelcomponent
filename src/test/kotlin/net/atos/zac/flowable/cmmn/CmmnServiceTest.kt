@@ -26,12 +26,12 @@ import org.flowable.cmmn.api.runtime.CaseInstanceBuilder
 import java.net.URI
 import java.util.UUID
 
-class CMMNServiceTest : BehaviorSpec({
+class CmmnServiceTest : BehaviorSpec({
     val cmmnRuntimeService = mockk<CmmnRuntimeService>()
     val cmmnRepositoryService = mockk<CmmnRepositoryService>()
     val cmmnHistoryService = mockk<CmmnHistoryService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val cmmnService = CMMNService(
+    val cmmnService = CmmnService(
         cmmnRuntimeService,
         cmmnHistoryService,
         cmmnRepositoryService,

@@ -25,7 +25,7 @@ import { ZakenService } from "../../zaken.service";
 import { ZaakSideActionService } from "./zaak-side-action.service";
 
 type Zaak = GeneratedType<"RestZaak">;
-type PlanItem = GeneratedType<"RESTPlanItem">;
+type PlanItem = GeneratedType<"RestPlanItem">;
 
 /**
  * Opens the dialogs that act on the zaak as a whole and applies their outcome:
@@ -48,7 +48,7 @@ export class ZaakActionDialogsService {
    * separately. Kept here because the hervatten dialog is their only writer.
    */
   readonly opschorting = signal<
-    GeneratedType<"RESTZaakOpschorting"> | undefined
+    GeneratedType<"RestZaakOpschorting"> | undefined
   >(undefined);
 
   loadOpschorting(zaak: Zaak) {

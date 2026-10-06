@@ -14,7 +14,7 @@ import net.atos.zac.app.admin.model.createRESTPlanItemDefinition
 import nl.info.zac.admin.model.createZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.model.PlanItemType
 
-class RESTHumanTaskParametersConverterTest : BehaviorSpec({
+class RestHumanTaskParametersConverterTest : BehaviorSpec({
     val restHumanTaskReferenceTableConverter = mockk<RestHumanTaskReferenceTableConverter>()
     val converter = RESTHumanTaskParametersConverter(restHumanTaskReferenceTableConverter)
 

@@ -68,11 +68,52 @@ Coding conventions that a linter can check are enforced there rather than only d
 | No Jira ticket references (`PZ-…`, `DRT-…`) in code comments  | detekt `ForbiddenComment`, ESLint `no-warning-comments`          |
 | Single-expression Kotlin functions use an expression body     | detekt `ExpressionBodySyntax`                                    |
 | Kotlin files start with an SPDX header                        | detekt `AbsentOrWrongFileLicense`                                |
+| Kotlin class names: `RestZaak`, not `RESTZaak`                | detekt `ClassNaming` (`classPattern`)                            |
 | No `catch (exception: Exception)` in main code                | detekt `TooGenericExceptionCaught` (default)                     |
+| No `requireNotNull` or `runCatching`                          | detekt `ForbiddenMethodCall`                                     |
 | No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |
 | No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
 | Component inputs use `input()`, not the `@Input()` decorator  | ESLint `@angular-eslint/prefer-signals`                          |
 | No `ngOnChanges`, also in specs; react to inputs with `computed()`/`effect()` | ESLint `no-restricted-imports` (`OnChanges`, `SimpleChange(s)`), `no-restricted-properties` (calls), `@typescript-eslint/naming-convention` (members named `ngOnChanges`) |
+
+### Fixing exception findings
+
+`TooGenericExceptionCaught` reports a `catch` clause that is broader than the code in the `try`
+block needs. `ForbiddenMethodCall` reports `runCatching`, which catches every exception, and
+`requireNotNull`. Replacing `runCatching` with `catch (exception: Exception)` only swaps one finding
+for the other. A generic catch swallows bugs: a `NullPointerException` from a
+mistake in the `try` block gets handled like an expected failure. Catch the specific exception
+types that the block can throw, and let everything else propagate:
+
+```kotlin
+try {
+    drcClient.enkelvoudigInformatieobjectDelete(uuid)
+} catch (drcRuntimeException: DrcRuntimeException) {
+    LOG.warning { "Failed to delete document: ${drcRuntimeException.message}" }
+} catch (processingException: ProcessingException) {
+    LOG.warning { "Failed to delete document: ${processingException.message}" }
+}
+```
+
+When the goal is cleanup on any failure rather than handling the failure, use `finally`. It
+needs no catch at all:
+
+```kotlin
+var isWritten = false
+try {
+    return writeTo(path).also { isWritten = true }
+} finally {
+    if (!isWritten) Files.deleteIfExists(path)
+}
+```
+
+`@Suppress("TooGenericExceptionCaught")` is a sign that the catch is too broad, not a way to
+silence the finding. Keep it only for a deliberate boundary that must survive any failure,
+such as a notification handler.
+
+Instead of `requireNotNull`, make the value non-nullable where it is declared, or handle the
+null case: `?: throw` a specific exception, or `checkNotNull` with a message when null can only
+mean a programming error.
 
 ## Using Visual Studio Code
 

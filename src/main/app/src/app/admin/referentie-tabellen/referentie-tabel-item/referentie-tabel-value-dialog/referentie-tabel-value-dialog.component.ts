@@ -20,7 +20,6 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { UtilService } from "../../../../core/service/util.service";
 import { ZacFormActions } from "../../../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../../../shared/form/input/input";
 import { injectMutation } from "../../../../shared/http/inject-mutation";
@@ -56,7 +55,6 @@ export class ReferentieTabelValueDialogComponent {
       MatDialogRef,
     );
   private readonly service = inject(ReferentieTabelService);
-  private readonly utilService = inject(UtilService);
 
   protected readonly isEdit = this.data.value != null;
   protected readonly titel = this.isEdit
@@ -71,50 +69,31 @@ export class ReferentieTabelValueDialogComponent {
     }),
   });
 
-  protected readonly mutation = injectMutation(() => ({
-    mutationFn: () =>
-      this.service.updateReferentieTabelAsync(
-        this.data.tabel.id!,
-        this.buildBody(),
-      ),
-    onMutate: () => {
-      this.dialogRef.disableClose = true;
+  private readonly intent = this.data.value
+    ? this.service.updateReferentieTabelValue(this.data.tabel, this.data.value)
+    : this.service.addReferentieTabelValue(this.data.tabel);
+
+  protected readonly mutation = injectMutation(
+    () => this.intent.mutationOptions,
+    {
+      onMutate: () => {
+        this.dialogRef.disableClose = true;
+      },
+      onSettled: () => {
+        this.dialogRef.disableClose = false;
+      },
+      onSuccess: () => this.dialogRef.close(true),
     },
-    onSettled: () => {
-      this.dialogRef.disableClose = false;
-    },
-    onSuccess: () => {
-      this.utilService.openSnackbar(
-        this.isEdit
-          ? "msg.referentietabel.waarde-gewijzigd"
-          : "msg.referentietabel.waarde-toegevoegd",
-        { value: this.form.getRawValue().name },
-      );
-      this.dialogRef.close(true);
-    },
-  }));
+  );
 
   protected submit() {
     if (this.form.invalid) {
       return;
     }
-    this.mutation.mutate();
+    this.mutation.mutate(this.intent.body(this.form.getRawValue().name));
   }
 
   protected close() {
     this.dialogRef.close(false);
-  }
-
-  private buildBody(): GeneratedType<"RestReferenceTableUpdate"> {
-    const { tabel, value } = this.data;
-    const name = this.form.getRawValue().name;
-    const existing: GeneratedType<"RestReferenceTableValue">[] =
-      tabel.values ?? [];
-    const values = value
-      ? existing.map((current) =>
-          current.id === value.id ? { ...current, name } : current,
-        )
-      : [...existing, { name }];
-    return { code: tabel.code, name: tabel.name, values };
   }
 }

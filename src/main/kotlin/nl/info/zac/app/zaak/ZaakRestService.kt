@@ -28,7 +28,7 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.drc.DrcClientService
@@ -37,7 +37,7 @@ import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BE
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.DeleteGeoJsonGeometry
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import nl.info.client.zgw.zrc.model.ZaakListParameters
@@ -127,7 +127,7 @@ import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 @AllOpen
 class ZaakRestService @Inject constructor(
     private val bpmnService: BpmnService,
-    private val cmmnService: CMMNService,
+    private val cmmnService: CmmnService,
     private val configurationService: ConfigurationService,
     private val drcClientService: DrcClientService,
     private val eventingService: EventingService,
@@ -570,7 +570,7 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
-            requireNotNull(restZaakInitiatorGegevens.toelichting) { throw ExplanationRequiredException() }
+            restZaakInitiatorGegevens.toelichting ?: throw ExplanationRequiredException()
             removeInitiator(zaakRechten, it, ROL_VERWIJDER_REDEN)
         }
         val (identificationType, identification) = composeBetrokkeneIdentification(
@@ -649,7 +649,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(zaakRechten.wijzigenLocatie)
         val zaakPatch = Zaak().apply {
             zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeoJSONGeometry()
-                ?: DeleteGeoJSONGeometry()
+                ?: DeleteGeoJsonGeometry()
         }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID = zaakUUID,

@@ -16,7 +16,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.zac.app.zaak.converter.RestZaakConverter
-import nl.info.zac.app.zaak.model.RESTZaakOpschorting
+import nl.info.zac.app.zaak.model.RestZaakOpschorting
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakResumeData
 import nl.info.zac.app.zaak.model.RestZaakSuspendData
@@ -46,12 +46,12 @@ class ZaakSuspendRestService @Inject constructor(
 ) {
     @GET
     @Path("zaak/{uuid}/opschorting")
-    fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakOpschorting {
+    fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID): RestZaakOpschorting {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.lezen)
-        return RESTZaakOpschorting().apply {
+        return RestZaakOpschorting().apply {
             vanafDatumTijd = zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
             duurDagen = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID) ?: 0
         }

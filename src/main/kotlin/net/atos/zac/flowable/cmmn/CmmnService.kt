@@ -36,14 +36,14 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 @Suppress("TooManyFunctions")
-class CMMNService @Inject constructor(
+class CmmnService @Inject constructor(
     private val cmmnRuntimeService: CmmnRuntimeService,
     private val cmmnHistoryService: CmmnHistoryService,
     private val cmmnRepositoryService: CmmnRepositoryService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
-        private val LOG = Logger.getLogger(CMMNService::class.java.getName())
+        private val LOG = Logger.getLogger(CmmnService::class.java.getName())
     }
 
     fun deleteCase(zaakUUID: UUID) =

@@ -26,7 +26,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { IntakeAfrondenDialogComponent } from "./intake-afronden-dialog.component";
 
-const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
   id: "fakePlanItemId",
   userEventListenerActie: "INTAKE_AFRONDEN",
 });

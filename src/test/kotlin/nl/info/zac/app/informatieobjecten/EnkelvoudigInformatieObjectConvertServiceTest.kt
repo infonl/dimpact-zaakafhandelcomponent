@@ -4,9 +4,9 @@
  */
 package nl.info.zac.app.informatieobjecten
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -19,6 +19,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_ENKELVOUDIGINFORMATIEOBJECT_CONVERSION_FAILED
 import nl.info.zac.util.toBase64String
 import java.io.ByteArrayInputStream
 import java.util.UUID
@@ -94,12 +95,14 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
         }
 
         `when`("convertEnkelvoudigInformatieObjectToPDF is called") {
-            val thrownException = runCatching {
-                service.convertEnkelvoudigInformatieObjectToPDF(document, uuid)
-            }.exceptionOrNull()
+            val enkelvoudigInformatieObjectConversionException =
+                shouldThrow<EnkelvoudigInformatieObjectConversionException> {
+                    service.convertEnkelvoudigInformatieObjectToPDF(document, uuid)
+                }
 
-            then("an EnkelvoudigInformatieObjectConversionException is thrown") {
-                thrownException.shouldBeInstanceOf<EnkelvoudigInformatieObjectConversionException>()
+            then("an EnkelvoudigInformatieObjectConversionException with the conversion-failed error code is thrown") {
+                enkelvoudigInformatieObjectConversionException.errorCode shouldBe
+                    ERROR_CODE_ENKELVOUDIGINFORMATIEOBJECT_CONVERSION_FAILED
             }
         }
     }

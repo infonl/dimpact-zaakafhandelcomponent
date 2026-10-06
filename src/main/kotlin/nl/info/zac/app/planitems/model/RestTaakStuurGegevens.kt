@@ -7,7 +7,7 @@ package nl.info.zac.app.planitems.model
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
-data class RESTTaakStuurGegevens(
+data class RestTaakStuurGegevens(
     var sendMail: Boolean = false,
 
     var mail: String? = null

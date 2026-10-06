@@ -44,6 +44,7 @@ import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-obje
 import { detailExpand } from "../../shared/animations/animations";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
+import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
@@ -147,7 +148,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   );
 
   private readonly documentenQuery = injectQuery(() =>
-    this.informatieObjectenService.listEnkelvoudigInformatieobjectenQuery({
+    this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaakUuid(),
       gekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
     }),
@@ -249,7 +250,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   private reloadDocumenten() {
     return this.queryClient.invalidateQueries({
-      queryKey: [LIST_QUERY_KEY, this.zaakUuid()],
+      queryKey: [LIST_QUERY_KEY, { zaakUUID: this.zaakUuid() }],
     });
   }
 
@@ -318,20 +319,20 @@ export class ZaakDocumentenComponent implements AfterViewInit {
         }
         this.documentDialogService
           .openOntkoppelDocument(melding, (reden) =>
-            this.zakenService.ontkoppelInformatieObject({
-              zaakUUID: this.zaak().uuid,
-              documentUUID: informatieobject.uuid!,
-              reden: reden,
-            }),
+            runMutation(
+              this.queryClient,
+              this.zakenService.ontkoppelInformatieObject(informatieobject),
+              {
+                zaakUUID: this.zaak().uuid,
+                documentUUID: informatieobject.uuid!,
+                reden,
+              },
+            ),
           )
           .afterClosed()
           .subscribe((result) => {
             if (result) {
               this.reloadDocumenten();
-              this.utilService.openSnackbar(
-                "msg.document.ontkoppelen.uitgevoerd",
-                { document: informatieobject.titel },
-              );
             }
           });
       });

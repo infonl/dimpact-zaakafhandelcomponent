@@ -16,7 +16,7 @@ import nl.info.client.bag.model.generated.StatusVerblijfsobject
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 import nl.info.zac.app.zaak.model.RestGeometryType
 
-class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
+class RestAdresseerbaarObjectConverterTest : BehaviorSpec({
     afterEach {
         checkUnnecessaryStub()
     }
