@@ -7,6 +7,7 @@ package nl.info.zac.app.admin
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -17,11 +18,16 @@ import io.mockk.slot
 import io.mockk.verify
 import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.flowable.cmmn.CmmnService
+import nl.info.client.zgw.util.extractUuid
+import net.atos.zac.app.admin.model.RESTCaseDefinition
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createResultaatType
+import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
+import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
@@ -40,6 +46,7 @@ import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import java.net.URI
 import java.util.UUID
 
 class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
@@ -272,6 +279,87 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             then("the configured address is combined with the two special mail options, sorted") {
                 replyTos.map { it.mail } shouldBe listOf("GEMEENTE", "MEDEWERKER", "fakeReplyToAddress")
                 replyTos.map { it.isSpeciaal } shouldBe listOf(true, true, false)
+            }
+        }
+    }
+
+    context("reading case definition and listing endpoints") {
+        given("a case definition key") {
+            val caseDefinition = RESTCaseDefinition().apply {
+                key = "fakeCaseDefinitionKey"
+                naam = "fakeCaseDefinitionName"
+            }
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every { caseDefinitionConverter.convertToRestCaseDefinition("fakeCaseDefinitionKey", true) } returns caseDefinition
+
+            `when`("reading case definition") {
+                val returnedCaseDef = zaaktypeConfigurationRestService.readCaseDefinition("fakeCaseDefinitionKey")
+
+                then("case definition is returned from converter") {
+                    returnedCaseDef shouldBe caseDefinition
+                }
+            }
+        }
+
+        given("catalogus and zaaktype configurations") {
+            val catalogusUri = URI("https://example.com/catalogi/1")
+            val zaakType = createZaakType()
+            val config = ZaaktypeConfiguration().apply {
+                zaaktypeUuid = zaakType.url.extractUuid()
+            }
+            val restConfig = createRestZaaktypeConfiguration(
+                restZaaktypeOverzicht = createRestZaaktypeOverzicht(uuid = zaakType.url.extractUuid())
+            )
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
+            every { ztcClientService.listZaaktypen(catalogusUri) } returns listOf(zaakType)
+            every { zaaktypeConfigurationService.findConfiguration(zaakType.url.extractUuid()) } returns config
+            every { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(config, false) } returns restConfig
+
+            `when`("listing zaaktype configurations") {
+                val list = zaaktypeConfigurationRestService.listZaaktypeConfigurations()
+
+                then("the converted configuration list is returned") {
+                    list shouldHaveSize 1
+                    list.first() shouldBe restConfig
+                }
+            }
+        }
+
+        given("zaakbeeindig redenen in configuration service") {
+            val reden = ZaakbeeindigReden().apply {
+                id = 1L
+                naam = "fakeReden"
+            }
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every { zaaktypeConfigurationService.listZaakbeeindigRedenen() } returns listOf(reden)
+
+            `when`("listing all zaakbeeindig redenen") {
+                val reasons = zaaktypeConfigurationRestService.listZaakbeeindigRedenen()
+
+                then("reasons are converted and returned") {
+                    reasons shouldHaveSize 1
+                    reasons.first().naam shouldBe "fakeReden"
+                }
+            }
+        }
+
+        given("resultaattypes for a zaaktype") {
+            val zaakType = createZaakType()
+            val resultaatType = createResultaatType()
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every { ztcClientService.readZaaktype(zaakType.url.extractUuid()) } returns zaakType
+            every { ztcClientService.readResultaattypen(zaakType.url) } returns listOf(resultaatType)
+
+            `when`("listing resultaattypes for zaaktype for admins") {
+                val resultaatTypes = zaaktypeConfigurationRestService.listResultaattypesForZaaktypeForAdmins(
+                    zaakType.url.extractUuid()
+                )
+
+                then("resultaattypes are returned") {
+                    resultaatTypes shouldHaveSize 1
+                    resultaatTypes.first().naam shouldBe resultaatType.omschrijving
+                }
             }
         }
     }

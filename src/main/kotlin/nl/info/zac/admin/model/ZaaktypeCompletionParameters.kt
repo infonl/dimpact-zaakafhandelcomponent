@@ -28,7 +28,7 @@ import java.util.UUID
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCompletionParameters : UserModifiable<ZaaktypeCompletionParameters> {
+class ZaaktypeCompletionParameters : UserModifiableZaaktypeConfigurationData<ZaaktypeCompletionParameters> {
     @Id
     @GeneratedValue(generator = "sq_zaaktype_completion_parameters", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")

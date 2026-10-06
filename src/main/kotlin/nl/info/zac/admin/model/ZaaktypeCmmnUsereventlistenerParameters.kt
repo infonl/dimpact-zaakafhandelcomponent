@@ -27,7 +27,7 @@ import java.util.Objects
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCmmnUsereventlistenerParameters : UserModifiable<ZaaktypeCmmnUsereventlistenerParameters> {
+class ZaaktypeCmmnUsereventlistenerParameters : UserModifiableZaaktypeConfigurationData<ZaaktypeCmmnUsereventlistenerParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_cmmn_usereventlistener_parameters", strategy = GenerationType.SEQUENCE)

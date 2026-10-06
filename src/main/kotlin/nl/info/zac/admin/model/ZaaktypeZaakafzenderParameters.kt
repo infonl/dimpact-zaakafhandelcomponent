@@ -28,7 +28,7 @@ import java.util.Objects
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeZaakafzenderParameters : UserModifiable<ZaaktypeZaakafzenderParameters> {
+class ZaaktypeZaakafzenderParameters : UserModifiableZaaktypeConfigurationData<ZaaktypeZaakafzenderParameters> {
 
     enum class SpecialMail {
         GEMEENTE,

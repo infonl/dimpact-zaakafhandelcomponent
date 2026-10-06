@@ -29,7 +29,7 @@ import java.util.Objects
 )
 @AllOpen
 class ZaaktypeMailtemplateParameters :
-    UserModifiable<ZaaktypeMailtemplateParameters> {
+    UserModifiableZaaktypeConfigurationData<ZaaktypeMailtemplateParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_mailtemplate_parameters", strategy = GenerationType.SEQUENCE)

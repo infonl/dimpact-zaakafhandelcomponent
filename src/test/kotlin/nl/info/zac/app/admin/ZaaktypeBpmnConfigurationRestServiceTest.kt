@@ -356,4 +356,28 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    context("Listing BPMN configurations") {
+        given("BPMN configurations bound in the system") {
+            val bpmnConfig = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            )
+            every { policyService.readOverigeRechten().canStartenZaak } returns true
+            every {
+                zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
+            } returns listOf(bpmnConfig)
+            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
+            every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
+            every { smartDocumentsService.isEnabled() } returns true
+
+            `when`("listing BPMN configurations") {
+                val list = zaaktypeBpmnConfigurationRestService.listZaaktypeBpmnConfigurations()
+
+                then("it returns the mapped REST BPMN configurations") {
+                    list.size shouldBe 1
+                    list.first().bpmnProcessDefinitionKey shouldBe "fakeBpmnProcessDefinitionKey"
+                }
+            }
+        }
+    }
 })

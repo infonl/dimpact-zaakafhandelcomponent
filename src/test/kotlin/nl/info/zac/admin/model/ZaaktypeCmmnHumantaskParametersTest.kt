@@ -7,6 +7,7 @@ package nl.info.zac.admin.model
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 
@@ -114,6 +115,165 @@ class ZaaktypeCmmnHumantaskParametersTest : BehaviorSpec({
                     humanTaskParameters.getReferentieTabellen()
                         .single() shouldNotBeSameInstanceAs changedReferentieTabel
                     changedReferentieTabel.humantask shouldBeSameInstanceAs changes
+                }
+            }
+        }
+    }
+
+    context("isModifiedFrom") {
+        given("parameters with same planItemDefinitionID and different field values") {
+            val original = createHumanTaskParameters(
+                planItemDefinitionID = "fakePlanItem",
+                isActief = true,
+                groupId = "fakeGroup",
+                formulierDefinitieID = "fakeForm",
+                leadTime = 5
+            )
+
+            `when`("active changes") {
+                val candidate = createHumanTaskParameters(
+                    planItemDefinitionID = "fakePlanItem",
+                    isActief = false,
+                    groupId = "fakeGroup",
+                    formulierDefinitieID = "fakeForm",
+                    leadTime = 5
+                )
+
+                then("isModifiedFrom returns true") {
+                    candidate.isModifiedFrom(original) shouldBe true
+                }
+            }
+
+            `when`("group changes") {
+                val candidate = createHumanTaskParameters(
+                    planItemDefinitionID = "fakePlanItem",
+                    isActief = true,
+                    groupId = "fakeOtherGroup",
+                    formulierDefinitieID = "fakeForm",
+                    leadTime = 5
+                )
+
+                then("isModifiedFrom returns true") {
+                    candidate.isModifiedFrom(original) shouldBe true
+                }
+            }
+
+            `when`("formulierDefinitieId changes") {
+                val candidate = createHumanTaskParameters(
+                    planItemDefinitionID = "fakePlanItem",
+                    isActief = true,
+                    groupId = "fakeGroup",
+                    formulierDefinitieID = "fakeOtherForm",
+                    leadTime = 5
+                )
+
+                then("isModifiedFrom returns true") {
+                    candidate.isModifiedFrom(original) shouldBe true
+                }
+            }
+
+            `when`("doorlooptijd changes") {
+                val candidate = createHumanTaskParameters(
+                    planItemDefinitionID = "fakePlanItem",
+                    isActief = true,
+                    groupId = "fakeGroup",
+                    formulierDefinitieID = "fakeForm",
+                    leadTime = 10
+                )
+
+                then("isModifiedFrom returns true") {
+                    candidate.isModifiedFrom(original) shouldBe true
+                }
+            }
+
+            `when`("nothing changes") {
+                val candidate = createHumanTaskParameters(
+                    planItemDefinitionID = "fakePlanItem",
+                    isActief = true,
+                    groupId = "fakeGroup",
+                    formulierDefinitieID = "fakeForm",
+                    leadTime = 5
+                )
+
+                then("isModifiedFrom returns false") {
+                    candidate.isModifiedFrom(original) shouldBe false
+                }
+            }
+
+            `when`("planItemDefinitionId is different") {
+                val candidate = createHumanTaskParameters(
+                    planItemDefinitionID = "fakeOtherPlanItem",
+                    isActief = false,
+                    groupId = "fakeOtherGroup"
+                )
+
+                then("isModifiedFrom returns false") {
+                    candidate.isModifiedFrom(original) shouldBe false
+                }
+            }
+        }
+    }
+
+    context("formulierDefinitieID fallback and explicit") {
+        given("a human task parameters instance without explicit formulierDefinitieID") {
+            val params = createHumanTaskParameters(
+                id = 999L,
+                planItemDefinitionID = "GOEDKEUREN",
+                formulierDefinitieID = null
+            )
+
+            `when`("formulierDefinitieID is read without explicit value") {
+                val formId = params.getFormulierDefinitieID()
+
+                then("it falls back to the planItemDefinitionID converted to form definition name") {
+                    formId shouldBe "GOEDKEUREN"
+                }
+            }
+
+            `when`("formulierDefinitieID is set explicitly") {
+                params.setFormulierDefinitieID("CUSTOM_FORM")
+
+                then("it returns the explicit value") {
+                    params.getFormulierDefinitieID() shouldBe "CUSTOM_FORM"
+                }
+            }
+        }
+    }
+
+    context("equals, hashCode, and resetId") {
+        given("a human task parameters instance") {
+            val params = createHumanTaskParameters(
+                id = 999L,
+                planItemDefinitionID = "GOEDKEUREN",
+                formulierDefinitieID = "CUSTOM_FORM"
+            )
+
+            `when`("resetId is called") {
+                val returned = params.resetId()
+
+                then("id becomes null and same instance is returned") {
+                    params.id.shouldBeNull()
+                    returned shouldBe params
+                }
+            }
+
+            `when`("equals and hashCode are evaluated") {
+                val otherEqual = createHumanTaskParameters(
+                    id = 111L,
+                    planItemDefinitionID = "GOEDKEUREN",
+                    formulierDefinitieID = "CUSTOM_FORM"
+                )
+                val otherDifferent = createHumanTaskParameters(
+                    id = 111L,
+                    planItemDefinitionID = "OTHER_TASK",
+                    formulierDefinitieID = "CUSTOM_FORM"
+                )
+
+                then("equality behaves as expected") {
+                    params shouldBe otherEqual
+                    params.hashCode() shouldBe otherEqual.hashCode()
+                    params shouldNotBe otherDifferent
+                    params shouldNotBe "differentType"
                 }
             }
         }

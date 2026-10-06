@@ -35,7 +35,7 @@ import java.util.Objects
 )
 @AllOpen
 class ZaaktypeCmmnHumantaskParameters :
-    UserModifiable<ZaaktypeCmmnHumantaskParameters> {
+    UserModifiableZaaktypeConfigurationData<ZaaktypeCmmnHumantaskParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_cmmn_humantask_parameters", strategy = GenerationType.SEQUENCE)

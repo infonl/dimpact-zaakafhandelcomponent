@@ -12,7 +12,7 @@ package nl.info.zac.admin.model
  *
  * @param <T> The implementing type, used for method chaining and type safety.
  */
-interface UserModifiable<T : UserModifiable<T>> {
+interface UserModifiableZaaktypeConfigurationData<T : UserModifiableZaaktypeConfigurationData<T>> {
 
     /**
      * Checks whether the passed original is the same as the current object and if it was changed by the user.
@@ -57,7 +57,7 @@ fun <T> isElementNotInCollection(targetCollection: Collection<T>, candidate: T):
  * Applies the user changes of the candidate to the element of the collection that it modifies, or adds the candidate
  * as a new element when the collection holds no such element and no equal one.
  */
-fun <T : UserModifiable<T>> setComponent(targetCollection: MutableCollection<T>, candidate: T) {
+fun <T : UserModifiableZaaktypeConfigurationData<T>> setComponent(targetCollection: MutableCollection<T>, candidate: T) {
     targetCollection.firstOrNull { it.isModifiedFrom(candidate) }?.applyChanges(candidate)
         ?: run {
             if (isElementNotInCollection(targetCollection, candidate)) {

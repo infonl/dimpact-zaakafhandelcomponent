@@ -278,4 +278,77 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
         }
     }
+
+    context("fetching and finding stored configuration") {
+        given("a stored configuration") {
+            val zaaktypeUuid = UUID.randomUUID()
+            val stored = ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
+            every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
+            every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns stored
+
+            `when`("fetching the configuration") {
+                val fetched = zaaktypeConfigurationBeheerService.fetchConfiguration(zaaktypeUuid)
+
+                then("it returns the stored configuration and resets the cache time") {
+                    fetched shouldBe stored
+                    verify(exactly = 1) { ztcClientService.resetCacheTimeToNow() }
+                }
+            }
+
+            `when`("finding stored configuration directly") {
+                val found = zaaktypeConfigurationBeheerService.findStoredConfiguration(zaaktypeUuid)
+
+                then("it returns the stored configuration without resetting cache time") {
+                    found shouldBe stored
+                }
+            }
+        }
+
+        given("no stored configuration") {
+            val zaaktypeUuid = UUID.randomUUID()
+            every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
+            every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns null
+
+            `when`("fetching configuration") {
+                val fetched = zaaktypeConfigurationBeheerService.fetchConfiguration(zaaktypeUuid)
+
+                then("a new configuration with the given UUID is returned") {
+                    fetched.zaaktypeUuid shouldBe zaaktypeUuid
+                    fetched.id shouldBe null
+                }
+            }
+        }
+    }
+
+    context("upserting existing configuration without servicenorm") {
+        given("an existing configuration with deadline warning and updated zaaktype without servicenorm") {
+            val zaaktypeUuid = UUID.randomUUID()
+            val existingConfig = ZaaktypeConfiguration().apply {
+                this.zaaktypeUuid = zaaktypeUuid
+                zaaktypeOmschrijving = "fakeOriginalOmschrijving"
+                groepID = "fakeGroup"
+                einddatumGeplandWaarschuwing = 5
+                creatiedatum = ZonedDateTime.now()
+            }
+            val updatedZaaktype = createZaakType(
+                uri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
+                omschrijving = "fakeUpdatedOmschrijving",
+                servicenorm = null
+            )
+            every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns existingConfig
+            every { zaaktypeHelperService.updateZaakbeeindigGegevens(existingConfig, updatedZaaktype) } just runs
+            every { zaaktypeConfigurationRepository.store(existingConfig) } returns existingConfig
+            every { zaaktypeConfigurationService.evict(zaaktypeUuid) } just runs
+
+            `when`("upsertConfiguration is called") {
+                zaaktypeConfigurationBeheerService.upsertConfiguration(updatedZaaktype)
+
+                then("einddatumGeplandWaarschuwing is cleared and omschrijving updated") {
+                    existingConfig.zaaktypeOmschrijving shouldBe "fakeUpdatedOmschrijving"
+                    existingConfig.einddatumGeplandWaarschuwing shouldBe null
+                    verify(exactly = 1) { zaaktypeConfigurationRepository.store(existingConfig) }
+                }
+            }
+        }
+    }
 })
