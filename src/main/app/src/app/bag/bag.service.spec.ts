@@ -3,17 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial } from "../../test-helpers";
@@ -38,19 +30,12 @@ describe(BAGService.name, () => {
       providers: [
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: TranslateService, useValue: {} },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
       ],
     });
 
     service = TestBed.inject(BAGService);
     zakenService = TestBed.inject(ZakenService);
     httpTestingController = TestBed.inject(HttpTestingController);
-  });
-
-  afterEach(() => {
-    httpTestingController.verify();
   });
 
   describe("create", () => {

@@ -12,10 +12,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  queryOptions,
-} from "@tanstack/angular-query-experimental";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
@@ -127,7 +124,6 @@ describe(ZaakViewComponent.name, () => {
         EmptyPipe,
       ],
       providers: [
-        provideQueryClient(testQueryClient),
         PlanItemsService,
         {
           provide: ActivatedRoute,
