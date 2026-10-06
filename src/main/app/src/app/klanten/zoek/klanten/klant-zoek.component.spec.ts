@@ -11,7 +11,7 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
@@ -32,7 +32,7 @@ import { KlantZoekComponent } from "./klant-zoek.component";
   standalone: true,
 })
 class PersoonZoekStubComponent {
-  @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
+  readonly persoon = output<GeneratedType<"RestPersoon">>();
 }
 
 @Component({
@@ -41,7 +41,7 @@ class PersoonZoekStubComponent {
   standalone: true,
 })
 class BedrijfZoekStubComponent {
-  @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
+  readonly bedrijf = output<GeneratedType<"RestBedrijf">>();
 }
 
 const makePersoon = (

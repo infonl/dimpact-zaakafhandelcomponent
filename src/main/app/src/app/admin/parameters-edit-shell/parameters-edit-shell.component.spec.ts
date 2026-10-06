@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -24,8 +24,7 @@ import { ParametersEditShellComponent } from "./parameters-edit-shell.component"
   standalone: true,
 })
 class StubSelectMethodComponent {
-  @Output() switchModellingMethod =
-    new EventEmitter<ProcessModelMethodSelection>();
+  readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 }
 
 @Component({
@@ -36,8 +35,7 @@ class StubSelectMethodComponent {
 })
 class StubCmmnComponent {
   readonly selectedIndexStart = input(0);
-  @Output() switchModellingMethod =
-    new EventEmitter<ProcessModelMethodSelection>();
+  readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 }
 
 @Component({
@@ -48,8 +46,7 @@ class StubCmmnComponent {
 })
 class StubBpmnComponent {
   readonly selectedIndexStart = input(0);
-  @Output() switchModellingMethod =
-    new EventEmitter<ProcessModelMethodSelection>();
+  readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 }
 
 describe(ParametersEditShellComponent.name, () => {
