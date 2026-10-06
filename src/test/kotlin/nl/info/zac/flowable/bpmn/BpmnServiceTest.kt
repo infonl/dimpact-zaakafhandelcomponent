@@ -617,6 +617,37 @@ class BpmnServiceTest : BehaviorSpec({
             }
         }
 
+        given("A process definition with a modificationDate extension element that is not a date") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+
+            val extensionElement = mockk<ExtensionElement>()
+            every { extensionElement.elementText } returns "not a date"
+
+            val process = mockk<Process>()
+            every { process.documentation } returns "Some documentation"
+            every { process.extensionElements } returns mapOf("modificationdate" to listOf(extensionElement))
+            every { process.flowElements } returns emptyList()
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns listOf(process)
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
+
+            `when`("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                then("the modification date is null and the rest of the metadata is still returned") {
+                    result.modificationDate shouldBe null
+                    result.documentation shouldBe "Some documentation"
+                }
+            }
+        }
+
         given("A process definition with user tasks where some have no form key") {
             val deploymentId = "fakeDeploymentId"
             val processDefinition = createProcessDefinition(deploymentId = deploymentId)
