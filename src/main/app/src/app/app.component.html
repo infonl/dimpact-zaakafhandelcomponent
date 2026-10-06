@@ -7,6 +7,10 @@
   <mat-sidenav #zoekenSideNav position="end" mode="over">
     @defer (on idle) {
       <zac-zoeken [zoekenSideNav]="zoekenSideNav"></zac-zoeken>
+    } @placeholder {
+      <div class="side-nav-container">
+        <mat-progress-bar mode="query"></mat-progress-bar>
+      </div>
     }
   </mat-sidenav>
   <mat-sidenav-content>
