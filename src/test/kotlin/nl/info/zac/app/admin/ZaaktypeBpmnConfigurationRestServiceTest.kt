@@ -21,6 +21,11 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.createAutomaticEmailConfirmation
+import nl.info.zac.admin.model.createMailTemplate
+import nl.info.zac.admin.model.createMailtemplateKoppelingen
+import nl.info.zac.admin.model.createZaakAfzender
 import nl.info.zac.admin.model.createZaakbeeindigReden
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
@@ -252,6 +257,53 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                         with(zaakbeeindigParameters) {
                             this.size shouldBe 0
                         }
+                    }
+                }
+            }
+        }
+
+        given(
+            """an existing BPMN configuration with deadline warning windows, a confirmation email, a zaakafzender and
+                a mailtemplate koppeling, which the BPMN REST payload does not carry"""
+        ) {
+            val existingZaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            ).apply {
+                einddatumGeplandWaarschuwing = 3
+                uiterlijkeEinddatumAfdoeningWaarschuwing = 2
+                zaaktypeEmailParameters = createAutomaticEmailConfirmation().also { it.zaaktypeConfiguration = this }
+                setZaakAfzenders(setOf(createZaakAfzender(zaaktypeConfiguration = this)))
+                setMailtemplateKoppelingen(
+                    setOf(createMailtemplateKoppelingen(zaaktypeConfiguration = this, mailTemplate = createMailTemplate()))
+                )
+            }
+            val restZaaktypeBpmnConfiguration = createRestZaaktypeBpmnConfiguration(
+                id = existingZaaktypeBpmnConfiguration.id!!,
+                zaaktypeUuid = existingZaaktypeBpmnConfiguration.zaaktypeUuid,
+                groepNaam = "fakeChangedGroup"
+            )
+            val storedZaaktypeBpmnConfiguration = slot<ZaaktypeBpmnConfiguration>()
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
+            } returns existingZaaktypeBpmnConfiguration
+            every {
+                zaaktypeBpmnConfigurationBeheerService.storeConfiguration(capture(storedZaaktypeBpmnConfiguration))
+            } answers { storedZaaktypeBpmnConfiguration.captured }
+            every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
+            every { smartDocumentsService.isEnabled() } returns true
+
+            `when`("a beheerder changes its groep through the BPMN REST resource") {
+                zaaktypeBpmnConfigurationRestService.createOrUpdateZaaktypeBpmnConfiguration(restZaaktypeBpmnConfiguration)
+
+                then("the stored configuration has the new groep and keeps the settings that the payload does not carry") {
+                    with(storedZaaktypeBpmnConfiguration.captured) {
+                        groepID shouldBe "fakeChangedGroup"
+                        einddatumGeplandWaarschuwing shouldBe 3
+                        uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe 2
+                        zaaktypeEmailParameters shouldBe existingZaaktypeBpmnConfiguration.zaaktypeEmailParameters
+                        getZaakAfzenders().size shouldBe 1
+                        getMailtemplateKoppelingen().size shouldBe 1
                     }
                 }
             }

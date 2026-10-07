@@ -641,7 +641,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
     this.filteredMedewerkerMail = this.replyTos.filter(
       (replyTo: GeneratedType<"RestReplyTo">) =>
-        !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"),
+        !(replyTo.isSpeciaal && replyTo.mail === "MEDEWERKER"),
     );
     this.ontvangstBevestigingsMailtemplates = this.getAvailableMailtemplates(
       "TAAK_ONTVANGSTBEVESTIGING",
@@ -1133,7 +1133,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   protected replyToDisplayValue(replyTo: GeneratedType<"RestReplyTo">) {
-    return replyTo.speciaal
+    return replyTo.isSpeciaal
       ? toI18nKey("gegevens.mail.afzender." + replyTo.mail)
       : (replyTo.mail ?? "");
   }

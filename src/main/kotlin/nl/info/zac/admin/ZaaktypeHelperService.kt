@@ -16,11 +16,11 @@ import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
+import nl.info.zac.admin.model.ZaaktypeEmailParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
+import nl.info.zac.admin.model.ZaaktypeMailtemplateParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.util.AllOpen
@@ -45,7 +45,7 @@ class ZaaktypeHelperService @Inject constructor(
         when {
             previousZaaktypeConfiguration is ZaaktypeCmmnConfiguration &&
                 newZaaktypeConfiguration is ZaaktypeCmmnConfiguration ->
-                copyCmmnConfigurationData(previousZaaktypeConfiguration, newZaaktypeConfiguration, newZaaktype)
+                copyCmmnConfigurationData(previousZaaktypeConfiguration, newZaaktypeConfiguration)
             previousZaaktypeConfiguration is ZaaktypeBpmnConfiguration &&
                 newZaaktypeConfiguration is ZaaktypeBpmnConfiguration ->
                 copyBpmnConfigurationData(previousZaaktypeConfiguration, newZaaktypeConfiguration)
@@ -58,24 +58,15 @@ class ZaaktypeHelperService @Inject constructor(
 
     private fun copyCmmnConfigurationData(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktype: ZaakType
+        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
         newZaaktypeCmmnConfiguration.apply {
             caseDefinitionID = previousZaaktypeCmmnConfiguration.caseDefinitionID
-            einddatumGeplandWaarschuwing = previousZaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing.takeIf {
-                newZaaktype.isServicenormAvailable()
-            }
-            uiterlijkeEinddatumAfdoeningWaarschuwing =
-                previousZaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
             intakeMail = previousZaaktypeCmmnConfiguration.intakeMail
             afrondenMail = previousZaaktypeCmmnConfiguration.afrondenMail
         }
         copyHumanTaskParameters(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
         copyUserEventListenerParameters(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
-        copyMailtemplateKoppelingen(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
-        copyZaakAfzenders(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
-        copyAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, newZaaktypeCmmnConfiguration)
     }
 
     private fun copyBpmnConfigurationData(
@@ -111,38 +102,41 @@ class ZaaktypeHelperService @Inject constructor(
     }.toSet().let(newZaaktypeCmmnConfiguration::setUserEventListenerParametersCollection)
 
     private fun copyMailtemplateKoppelingen(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.getMailtemplateKoppelingen().map {
-        ZaaktypeCmmnMailtemplateParameters().apply {
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) = previousZaaktypeConfiguration.getMailtemplateKoppelingen().map {
+        ZaaktypeMailtemplateParameters().apply {
             mailTemplate = it.mailTemplate
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+            zaaktypeConfiguration = newZaaktypeConfiguration
         }
-    }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
+    }.let(newZaaktypeConfiguration::setMailtemplateKoppelingen)
 
     private fun copyZaakAfzenders(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = previousZaaktypeCmmnConfiguration.getZaakAfzenders().map {
-        ZaaktypeCmmnZaakafzenderParameters().apply {
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) = previousZaaktypeConfiguration.getZaakAfzenders().map {
+        ZaaktypeZaakafzenderParameters().apply {
             isDefaultMail = it.isDefaultMail
             mail = it.mail
             replyTo = it.replyTo
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+            zaaktypeConfiguration = newZaaktypeConfiguration
         }
-    }.let(newZaaktypeCmmnConfiguration::setZaakAfzenders)
+    }.let(newZaaktypeConfiguration::setZaakAfzenders)
 
     private fun copyAutomaticEmailConfirmation(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
     ) {
-        newZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters = ZaaktypeCmmnEmailParameters().apply {
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-            isEnabled = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.isEnabled ?: false
-            templateName = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
-            emailSender = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
-            emailReply = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
-        }
+        newZaaktypeConfiguration.zaaktypeEmailParameters =
+            previousZaaktypeConfiguration.zaaktypeEmailParameters?.let { previousZaaktypeEmailParameters ->
+                ZaaktypeEmailParameters().apply {
+                    zaaktypeConfiguration = newZaaktypeConfiguration
+                    isEnabled = previousZaaktypeEmailParameters.isEnabled
+                    templateName = previousZaaktypeEmailParameters.templateName
+                    emailSender = previousZaaktypeEmailParameters.emailSender
+                    emailReply = previousZaaktypeEmailParameters.emailReply
+                }
+            }
     }
 
     private fun copySharedConfigurationData(
@@ -156,8 +150,15 @@ class ZaaktypeHelperService @Inject constructor(
             productaanvraagtype = previousZaaktypeConfiguration.productaanvraagtype
             isSmartDocumentsEnabled = previousZaaktypeConfiguration.isSmartDocumentsEnabled
             creatiedatum = ZonedDateTime.now()
+            einddatumGeplandWaarschuwing = previousZaaktypeConfiguration.einddatumGeplandWaarschuwing.takeIf {
+                newZaaktype.isServicenormAvailable()
+            }
+            uiterlijkeEinddatumAfdoeningWaarschuwing = previousZaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
         }
         copyBetrokkeneKoppelingen(previousZaaktypeConfiguration, newZaaktypeConfiguration)
+        copyMailtemplateKoppelingen(previousZaaktypeConfiguration, newZaaktypeConfiguration)
+        copyZaakAfzenders(previousZaaktypeConfiguration, newZaaktypeConfiguration)
+        copyAutomaticEmailConfirmation(previousZaaktypeConfiguration, newZaaktypeConfiguration)
         copyBrpDoelbindingen(previousZaaktypeConfiguration, newZaaktypeConfiguration)
         mapZaakbeeindigGegevens(previousZaaktypeConfiguration, newZaaktypeConfiguration, newZaaktype)
     }

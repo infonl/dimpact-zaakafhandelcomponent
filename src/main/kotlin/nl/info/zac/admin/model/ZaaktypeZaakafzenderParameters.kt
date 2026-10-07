@@ -20,15 +20,15 @@ import nl.info.zac.util.AllOpen
 import java.util.Objects
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_cmmn_zaakafzender_parameters")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_zaakafzender_parameters")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
-    name = "sq_zaaktype_cmmn_zaakafzender_parameters",
-    sequenceName = "sq_zaaktype_cmmn_zaakafzender_parameters",
+    name = "sq_zaaktype_zaakafzender_parameters",
+    sequenceName = "sq_zaaktype_zaakafzender_parameters",
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzenderParameters> {
+class ZaaktypeZaakafzenderParameters : UserModifiable<ZaaktypeZaakafzenderParameters> {
 
     enum class SpecialMail {
         GEMEENTE,
@@ -38,14 +38,14 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
     }
 
     @Id
-    @GeneratedValue(generator = "sq_zaaktype_cmmn_zaakafzender_parameters", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "sq_zaaktype_zaakafzender_parameters", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     var id: Long? = null
 
     @ManyToOne
     @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
     @field:NotNull
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    lateinit var zaaktypeConfiguration: ZaaktypeConfiguration
 
     @Column(name = "default_mail", nullable = false)
     var isDefaultMail: Boolean = false
@@ -57,25 +57,25 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
     @Column(name = "replyto")
     var replyTo: String? = null
 
-    override fun isModifiedFrom(original: ZaaktypeCmmnZaakafzenderParameters): Boolean {
+    override fun isModifiedFrom(original: ZaaktypeZaakafzenderParameters): Boolean {
         return Objects.equals(mail, original.mail) && (
             !isDefaultMail == original.isDefaultMail ||
                 !Objects.equals(replyTo, original.replyTo)
             )
     }
 
-    override fun applyChanges(changes: ZaaktypeCmmnZaakafzenderParameters) {
+    override fun applyChanges(changes: ZaaktypeZaakafzenderParameters) {
         this.isDefaultMail = changes.isDefaultMail
         this.replyTo = changes.replyTo
     }
 
-    override fun resetId(): ZaaktypeCmmnZaakafzenderParameters {
+    override fun resetId(): ZaaktypeZaakafzenderParameters {
         id = null
         return this
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is ZaaktypeCmmnZaakafzenderParameters) return false
+        if (other !is ZaaktypeZaakafzenderParameters) return false
         return mail == other.mail && isDefaultMail == other.isDefaultMail && Objects.equals(replyTo, other.replyTo)
     }
 

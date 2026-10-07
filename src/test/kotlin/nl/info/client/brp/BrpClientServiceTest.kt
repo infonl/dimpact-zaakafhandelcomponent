@@ -17,10 +17,11 @@ import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.util.BrpProtocolleringContext
 import nl.info.client.brp.util.createBrpConfiguration
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import java.util.Optional
 import java.util.UUID
 
@@ -30,7 +31,7 @@ class BrpClientServiceTest : BehaviorSpec({
     val verwerkingregisterDefault = "fakeVerwerkingregisterDefault"
     val zaaktypeUuid = UUID.randomUUID()
     val personenApi: PersonenApi = mockk<PersonenApi>()
-    val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService = mockk()
+    val zaaktypeConfigurationService: ZaaktypeConfigurationService = mockk()
     val brpConfiguration = createBrpConfiguration(
         doelbindingZoekMetDefault = Optional.of(doelbindingZoekMetDefault),
         doelbindingRaadpleegMetDefault = Optional.of(doelbindingRaadpleegMetDefault),
@@ -39,7 +40,7 @@ class BrpClientServiceTest : BehaviorSpec({
     val configuredBrpClientService = BrpClientService(
         personenApi = personenApi,
         brpConfiguration = brpConfiguration,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService,
         brpProtocolleringContext = BrpProtocolleringContext()
     )
 
@@ -60,7 +61,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -69,7 +70,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = brpConfiguration,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -84,12 +85,10 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
 
-    given("A person for a given BSN and a zaaktype without a CMMN configuration") {
+    given("A person for a given BSN and a zaaktype without a configuration") {
         val bsn = "123456789"
         val person = createPersoon(bsn = bsn)
-        every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
-        } returns ZaaktypeCmmnConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
+        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) } returns null
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
@@ -97,7 +96,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = brpConfiguration,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -114,7 +113,7 @@ class BrpClientServiceTest : BehaviorSpec({
 
     given("No person for a given BSN") {
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = emptyList()
@@ -135,7 +134,7 @@ class BrpClientServiceTest : BehaviorSpec({
             createPersoon(bsn = "123456789")
         )
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = persons
@@ -150,43 +149,45 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
 
-    given("Another person for a given BSN") {
-        val bsn = "123456789"
-        val person = createPersoon(bsn = bsn)
-        val queryPersonenPurpose = "zoekWaarde"
-        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-            zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
-                zoekWaarde = queryPersonenPurpose
-                verwerkingregisterWaarde = "Leerplicht"
+    createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
+        given("Another person for a given BSN and a $configurationType zaaktype configuration with BRP doelbindingen") {
+            val bsn = "123456789"
+            val person = createPersoon(bsn = bsn)
+            val queryPersonenPurpose = "zoekWaarde"
+            val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
+                    zoekWaarde = queryPersonenPurpose
+                    verwerkingregisterWaarde = "Leerplicht"
+                }
             }
-        )
-        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
-            persons = listOf(person)
-        )
-
-        every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
-        } returns zaaktypeCmmnConfiguration
-        every { personenApi.personen(any<PersonenQuery>()) } returns raadpleegMetBurgerservicenummerResponse
-        val localContext = BrpProtocolleringContext()
-        val localService = BrpClientService(
-            personenApi = personenApi,
-            brpConfiguration = brpConfiguration,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            brpProtocolleringContext = localContext
-        )
-
-        `when`("a query is run on personen for this BSN") {
-            val personResponse = localService.queryPersonen(
-                createRaadpleegMetBurgerservicenummer(listOf(bsn)),
-                zaaktypeUuid,
-                "fakeTestUser"
+            val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+                persons = listOf(person)
             )
 
-            then("it should return the person and set doelbinding in context headers") {
-                personResponse shouldBe raadpleegMetBurgerservicenummerResponse
-                localContext.headers["x-doelbinding"] shouldBe queryPersonenPurpose
-                localContext.headers["x-verwerking"] shouldBe "Leerplicht@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}"
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            } returns zaaktypeConfiguration
+            every { personenApi.personen(any<PersonenQuery>()) } returns raadpleegMetBurgerservicenummerResponse
+            val localContext = BrpProtocolleringContext()
+            val localService = BrpClientService(
+                personenApi = personenApi,
+                brpConfiguration = brpConfiguration,
+                zaaktypeConfigurationService = zaaktypeConfigurationService,
+                brpProtocolleringContext = localContext
+            )
+
+            `when`("a query is run on personen for this BSN") {
+                val personResponse = localService.queryPersonen(
+                    createRaadpleegMetBurgerservicenummer(listOf(bsn)),
+                    zaaktypeUuid,
+                    "fakeTestUser"
+                )
+
+                then("it should return the person and set doelbinding in context headers") {
+                    personResponse shouldBe raadpleegMetBurgerservicenummerResponse
+                    localContext.headers["x-doelbinding"] shouldBe queryPersonenPurpose
+                    localContext.headers["x-verwerking"] shouldBe "Leerplicht@${zaaktypeConfiguration.zaaktypeOmschrijving}"
+                }
             }
         }
     }
@@ -204,7 +205,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -213,7 +214,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = createBrpConfiguration(),
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -240,7 +241,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -249,7 +250,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = createBrpConfiguration(),
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -275,7 +276,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -284,7 +285,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = createBrpConfiguration(),
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -304,7 +305,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val person = createPersoon(bsn = bsn)
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -313,7 +314,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = brpConfiguration,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -321,6 +322,32 @@ class BrpClientServiceTest : BehaviorSpec({
             val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
 
             then("retrieving a person should still work with default doelbinding and verwerking in context headers") {
+                personResponse shouldBe person
+                localContext.headers["x-doelbinding"] shouldBe doelbindingRaadpleegMetDefault
+                localContext.headers["x-verwerking"] shouldBe verwerkingregisterDefault
+            }
+        }
+    }
+
+    given("A person exists for a given BSN and the zaaktype has no zaaktype configuration") {
+        val bsn = "123456789"
+        val person = createPersoon(bsn = bsn)
+        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) } returns null
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
+            brpProtocolleringContext = localContext
+        )
+
+        `when`("retrieve persoon is called") {
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
+
+            then("the person is returned with the default doelbinding and verwerking in the context headers") {
                 personResponse shouldBe person
                 localContext.headers["x-doelbinding"] shouldBe doelbindingRaadpleegMetDefault
                 localContext.headers["x-verwerking"] shouldBe verwerkingregisterDefault
@@ -342,7 +369,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val userName = "fakeUserName"
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -352,7 +379,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = brpConfiguration,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -375,7 +402,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(createPersoon(bsn = bsn))
@@ -385,7 +412,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = configWithApiKey,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -405,7 +432,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val configWithSystemUser = createBrpConfiguration(systemUser = Optional.of(systemUser))
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -415,7 +442,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = configWithSystemUser,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -441,7 +468,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val configWithZaaktypeExtension = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = true)
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -451,7 +478,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = configWithZaaktypeExtension,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 
@@ -478,7 +505,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val configWithoutZaaktypeExtension = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = false)
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -488,7 +515,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val localService = BrpClientService(
             personenApi = personenApi,
             brpConfiguration = configWithoutZaaktypeExtension,
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
             brpProtocolleringContext = localContext
         )
 

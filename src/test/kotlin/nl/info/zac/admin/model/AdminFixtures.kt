@@ -123,7 +123,7 @@ fun createZaaktypeCmmnConfiguration(
     smartDocumentsEnabled: Boolean = false,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
-    zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation()
+    zaaktypeEmailParameters: ZaaktypeEmailParameters = createAutomaticEmailConfirmation()
 ) =
     ZaaktypeCmmnConfiguration().apply {
         this.id = id
@@ -140,12 +140,12 @@ fun createZaaktypeCmmnConfiguration(
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
-                    zaaktypeCmmnConfiguration = this,
+                    zaaktypeConfiguration = this,
                     mailTemplate = createMailTemplate()
                 )
             )
         )
-        setZaakAfzenders(setOf(createZaakAfzender(zaaktypeCmmnConfiguration = this)))
+        setZaakAfzenders(setOf(createZaakAfzender(zaaktypeConfiguration = this)))
         setZaakbeeindigParameters(zaaktypeCompletionParameters)
         val parameters = this
         this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
@@ -154,8 +154,8 @@ fun createZaaktypeCmmnConfiguration(
         this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
             this?.zaaktypeConfiguration = parameters
         }
-        this.zaaktypeCmmnEmailParameters = zaaktypeCmmnEmailParameters.apply {
-            this.zaaktypeCmmnConfiguration = parameters
+        this.zaaktypeEmailParameters = zaaktypeEmailParameters.apply {
+            this.zaaktypeConfiguration = parameters
         }
     }
 
@@ -230,11 +230,11 @@ fun createZaaktypeCompletionParameters(
 
 fun createMailtemplateKoppelingen(
     id: Long? = 1234L,
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+    zaaktypeConfiguration: ZaaktypeConfiguration,
     mailTemplate: MailTemplate
-) = ZaaktypeCmmnMailtemplateParameters().apply {
+) = ZaaktypeMailtemplateParameters().apply {
     this.id = id
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeConfiguration = zaaktypeConfiguration
     this.mailTemplate = mailTemplate
 }
 
@@ -246,14 +246,14 @@ fun createAutomaticEmailConfirmation(
     emailSender: String? = "sender@example.com",
     emailReply: String? = "reply@example.com",
     // Do not add default `= createZaakafhandelParameters()` as it will cause an infinite loop
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
-) = ZaaktypeCmmnEmailParameters().apply {
+    zaaktypeConfiguration: ZaaktypeConfiguration? = null,
+) = ZaaktypeEmailParameters().apply {
     this.id = id
     this.isEnabled = enabled
     this.templateName = templateName
     this.emailSender = emailSender
     this.emailReply = emailReply
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    zaaktypeConfiguration?.let { this.zaaktypeConfiguration = it }
 }
 
 fun createMailTemplate(
@@ -268,13 +268,13 @@ fun createMailTemplate(
 
 fun createZaakAfzender(
     id: Long? = 1234L,
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+    zaaktypeConfiguration: ZaaktypeConfiguration,
     defaultMail: Boolean = false,
     mail: String = "mail@example.com",
     replyTo: String = "replyTo@example.com",
-) = ZaaktypeCmmnZaakafzenderParameters().apply {
+) = ZaaktypeZaakafzenderParameters().apply {
     this.id = id
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeConfiguration = zaaktypeConfiguration
     this.isDefaultMail = defaultMail
     this.mail = mail
     this.replyTo = replyTo
