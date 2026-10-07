@@ -6,7 +6,6 @@ package nl.info.zac.flowable
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -22,7 +21,6 @@ import java.util.UUID
 @AllOpen
 class CmmnProcessBinding @Inject constructor(
     private val cmmnService: CmmnService,
-    private val zaakVariabelenService: ZaakVariabelenService,
     private val healthCheckService: HealthCheckService
 ) : ProcessBinding {
     override val processEngine = ProcessEngine.CMMN
@@ -54,8 +52,5 @@ class CmmnProcessBinding @Inject constructor(
 
     override fun updateCommunicatiekanaal(zaakUuid: UUID, communicatiekanaal: String) = Unit
 
-    override fun delete(zaakUuid: UUID) {
-        cmmnService.deleteCase(zaakUuid)
-        zaakVariabelenService.deleteAllCaseVariables(zaakUuid)
-    }
+    override fun delete(zaakUuid: UUID) = cmmnService.deleteCase(zaakUuid)
 }

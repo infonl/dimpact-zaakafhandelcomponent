@@ -30,7 +30,7 @@ class EngineProcessBindingsTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val healthCheckService = mockk<HealthCheckService>()
     val bpmnService = mockk<BpmnService>()
-    val cmmnProcessBinding = CmmnProcessBinding(cmmnService, zaakVariabelenService, healthCheckService)
+    val cmmnProcessBinding = CmmnProcessBinding(cmmnService, healthCheckService)
     val bpmnProcessBinding = BpmnProcessBinding(bpmnService, zaakVariabelenService)
 
     afterEach { checkUnnecessaryStub() }
@@ -157,8 +157,7 @@ class EngineProcessBindingsTest : BehaviorSpec({
         given("a zaak") {
             val zaak = createZaak()
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
-            every { cmmnService.deleteCase(zaak.uuid) } returns Unit
-            every { zaakVariabelenService.deleteAllCaseVariables(zaak.uuid) } just runs
+            every { cmmnService.deleteCase(zaak.uuid) } just runs
             every { bpmnService.deleteProcessInstance(zaak.uuid) } just runs
             every { bpmnService.deleteProcessInstanceAndHistory(zaak.uuid) } just runs
 
@@ -168,15 +167,12 @@ class EngineProcessBindingsTest : BehaviorSpec({
                 cmmnProcessBinding.delete(zaak.uuid)
                 bpmnProcessBinding.delete(zaak.uuid)
 
-                then("each engine terminates and deletes its own process, and CMMN also deletes the case variables") {
+                then("each engine terminates and deletes its own process") {
                     verify(exactly = 1) {
                         cmmnService.terminateCase(zaak.uuid)
                         bpmnService.deleteProcessInstance(zaak.uuid)
-                        bpmnService.deleteProcessInstanceAndHistory(zaak.uuid)
-                    }
-                    verifyOrder {
                         cmmnService.deleteCase(zaak.uuid)
-                        zaakVariabelenService.deleteAllCaseVariables(zaak.uuid)
+                        bpmnService.deleteProcessInstanceAndHistory(zaak.uuid)
                     }
                 }
             }
