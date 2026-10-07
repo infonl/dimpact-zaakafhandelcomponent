@@ -4,7 +4,6 @@
  */
 
 import { Routes } from "@angular/router";
-import { IdentityComponent } from "./identity/identity.component";
 
 export const APP_ROUTES: Routes = [
   {
@@ -14,7 +13,13 @@ export const APP_ROUTES: Routes = [
         (m) => m.DashboardComponent,
       ),
   },
-  { path: "gebruiker", component: IdentityComponent },
+  {
+    path: "gebruiker",
+    loadComponent: () =>
+      import("./identity/identity.component").then(
+        (module) => module.IdentityComponent,
+      ),
+  },
   {
     path: "persoon",
     loadChildren: () =>
