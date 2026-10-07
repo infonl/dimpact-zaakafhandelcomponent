@@ -44,6 +44,7 @@ import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-obje
 import { detailExpand } from "../../shared/animations/animations";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
@@ -127,6 +128,14 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly queryClient = inject(QueryClient);
+
+  private readonly zipDownloadMutation = injectMutation(
+    () => this.informatieObjectenService.getZIPDownload(),
+    {
+      onSuccess: (zip) =>
+        this.utilService.downloadBlobResponse(zip, this.zaak().identificatie),
+    },
+  );
 
   readonly indicatiesLayout = IndicatiesLayout;
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
@@ -356,14 +365,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     this.downloadAlsZipSelection.clear();
     this.selectAll = false;
 
-    return this.informatieObjectenService
-      .getZIPDownload(uuids)
-      .subscribe((response) => {
-        this.utilService.downloadBlobResponse(
-          response,
-          this.zaak().identificatie,
-        );
-      });
+    this.zipDownloadMutation.mutate(uuids);
   }
 
   updateAll($event?: MatCheckboxChange) {
