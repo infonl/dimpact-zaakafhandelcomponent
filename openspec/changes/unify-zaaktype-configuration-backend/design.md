@@ -210,9 +210,9 @@ V102 replaces the inheritance:
   The children rename their foreign key column to `zaaktype_cmmn_extension_id`, because it points at the
   extension.
 - `zaaktype_bpmn_configuration` is dropped.
-- Before it splits the tables, V102 moves the subclass rows of the other engine to the quarantine table (D2a).
-  These are a BPMN row of a CMMN configuration, and a CMMN row of a BPMN configuration with its plan item rows.
-  Hibernate never loaded them, because the discriminator decides the subclass.
+- Before it splits the tables, V102 fails if a configuration has a row in the subclass table of the other engine.
+  Hibernate writes a configuration only to the subclass table of its configuration type, and V85 gave the BPMN
+  rows ids above the CMMN ids, so only a manual edit can create such a row.
 
 `VARCHAR` with a CHECK constraint replaces the ENUM, because JPA maps the engine as `EnumType.STRING`, and
 because a PG ENUM needs a type cast that the project configures nowhere.

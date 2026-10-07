@@ -88,7 +88,7 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
       - add `zaaktype_configuration_id` to it
       - drop `zaaktype_bpmn_configuration`, the `configuration_type` column, and the ENUM type
 
-      Any row that blocks a new constraint goes to quarantine with `migration = 'V102'` (design D2a). Verify on the
+      Fail when a configuration has a row in the subclass table of the other engine (design D4). Verify on the
       itest stack that every seed configuration has the expected engine and key. Also verify with a migration test
       from V101 (as in 1.3), seeded with a CMMN row without a case definition, CMMN rows with humantask and
       usereventlistener children, and BPMN rows, that every row and child survives with the expected binding.
