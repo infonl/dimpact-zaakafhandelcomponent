@@ -462,7 +462,12 @@ class ZaakRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser, zaakAutorisatieGegevens)
+        val zaakRechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
         assertPolicy(zaakRechten.canLezen)
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, zaakAutorisatieGegevens).also {
             signaleringService.deleteSignaleringenForZaak(zaak)
@@ -475,7 +480,12 @@ class ZaakRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakID(zaakIdentification)
         val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser, zaakAutorisatieGegevens)
+        val zaakRechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
         assertPolicy(zaakRechten.canLezen)
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, zaakAutorisatieGegevens).also {
             signaleringService.deleteSignaleringenForZaak(zaak)
@@ -595,7 +605,12 @@ class ZaakRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser, zaakAutorisatieGegevens)
+        val zaakRechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
         checkZaakUpdatePermissions(zaakRechten, restZaakEditMetRedenGegevens, zaak)
         assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
         assertZaakUpdateDataIsValid(zaakType, restZaakEditMetRedenGegevens.zaak)

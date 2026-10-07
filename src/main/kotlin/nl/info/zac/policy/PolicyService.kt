@@ -99,7 +99,12 @@ class PolicyService @Inject constructor(
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): ZaakRechten {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        return readZaakRechten(zaak, zaakType, loggedInUser, zaakAutorisatieGegevens)
+        return readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
     }
 
     /**
