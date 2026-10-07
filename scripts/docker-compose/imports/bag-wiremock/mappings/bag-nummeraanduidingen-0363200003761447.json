@@ -1,0 +1,13 @@
+{
+  "request": {
+    "urlPath": "/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "bag-nummeraanduidingen-0363200003761447-body.json",
+    "headers": {
+      "Content-Type": "application/hal+json"
+    }
+  }
+}

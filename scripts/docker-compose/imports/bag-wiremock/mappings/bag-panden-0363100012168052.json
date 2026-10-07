@@ -1,0 +1,13 @@
+{
+  "request": {
+    "urlPath": "/lvbag/individuelebevragingen/v2/panden/0363100012168052",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "bag-panden-0363100012168052-body.json",
+    "headers": {
+      "Content-Type": "application/hal+json"
+    }
+  }
+}
