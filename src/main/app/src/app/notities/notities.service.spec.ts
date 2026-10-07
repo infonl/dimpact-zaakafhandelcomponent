@@ -49,4 +49,33 @@ describe(NotitieService.name, () => {
       expect(onCreated).toHaveBeenCalledWith(createdNotitie);
     });
   });
+
+  describe("updateNotitie", () => {
+    it("patches the notitie and returns the one that was updated", async () => {
+      const notitie: GeneratedType<"RestNote"> = {
+        id: 1,
+        zaakUUID: "fakeZaakUuid",
+        tekst: "fakeTekst",
+        gebruikersnaamMedewerker: "fakeGebruikersnaam",
+      };
+      const updatedNotitie: GeneratedType<"RestNote"> = {
+        ...notitie,
+        tijdstipLaatsteWijziging: "2026-10-07T12:00:00Z",
+      };
+      const onUpdated = jest.fn();
+
+      runMutation(testQueryClient, service.updateNotitie(), notitie).subscribe(
+        onUpdated,
+      );
+      await sleep();
+
+      const request = httpTestingController.expectOne("/rest/notities");
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body).toEqual(notitie);
+      request.flush(updatedNotitie);
+      await sleep();
+
+      expect(onUpdated).toHaveBeenCalledWith(updatedNotitie);
+    });
+  });
 });

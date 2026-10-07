@@ -80,6 +80,9 @@ export class NotitiesComponent implements OnInit, OnDestroy {
       },
     },
   );
+  private readonly updateNotitieMutation = injectMutation(() =>
+    this.notitieService.updateNotitie(),
+  );
   private readonly deleteNotitieMutation = injectMutation(
     () => this.notitieService.deleteNotitie(),
     {
@@ -156,16 +159,15 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
 
-    this.notitieService
-      .updateNotitie({
-        ...notitie,
-        tekst,
-        gebruikersnaamMedewerker: loggedInUser.id,
-      })
-      .subscribe((updatedNotitie) => {
-        Object.assign(notitie, updatedNotitie);
-        this.geselecteerdeNotitieId = null;
-      });
+    this.updateNotitieMutation.mutate(
+      { ...notitie, tekst, gebruikersnaamMedewerker: loggedInUser.id },
+      {
+        onSuccess: (updatedNotitie) => {
+          Object.assign(notitie, updatedNotitie);
+          this.geselecteerdeNotitieId = null;
+        },
+      },
+    );
   }
 
   protected annuleerUpdateNotitie() {

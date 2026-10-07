@@ -33,6 +33,12 @@ describe(NotitiesComponent.name, () => {
   let deleteNotitieMutation: ReturnType<
     typeof createMutationOptions<undefined, number>
   >;
+  let updateNotitieMutation: ReturnType<
+    typeof createMutationOptions<
+      GeneratedType<"RestNote">,
+      GeneratedType<"RestNote">
+    >
+  >;
   let createNotitieMutation: ReturnType<
     typeof createMutationOptions<
       GeneratedType<"RestNote">,
@@ -81,9 +87,16 @@ describe(NotitiesComponent.name, () => {
 
     notitieService = TestBed.inject(NotitieService);
     jest.spyOn(notitieService, "listNotities").mockReturnValue(of([]));
+    updateNotitieMutation = createMutationOptions<
+      GeneratedType<"RestNote">,
+      GeneratedType<"RestNote">
+    >(fromPartial<GeneratedType<"RestNote">>({}));
+    updateNotitieMutation.mutationFn.mockImplementation(
+      async (notitie) => notitie,
+    );
     jest
       .spyOn(notitieService, "updateNotitie")
-      .mockImplementation((notitie) => of(notitie));
+      .mockReturnValue(updateNotitieMutation as never);
     createNotitieMutation = createMutationOptions<
       GeneratedType<"RestNote">,
       GeneratedType<"RestNote">
@@ -204,25 +217,52 @@ describe(NotitiesComponent.name, () => {
       });
     });
 
-    it("should set new text and current username on notitie edit", () => {
-      const notitie: GeneratedType<"RestNote"> = {
-        zaakUUID: "some-uuid",
-        tekst: "some text",
-        gebruikersnaamMedewerker: "some other user",
-      };
-      component["updateNotitie"](notitie, "some other text");
-      expect(notitie.gebruikersnaamMedewerker).toEqual(currentUser.id);
-      expect(notitie.tekst).toEqual("some other text");
-    });
+    describe("editing a notitie", () => {
+      async function editNotitie(tekst: string) {
+        const user = userEvent.setup();
+        jest
+          .mocked(notitieService.listNotities)
+          .mockReturnValue(of([{ ...editableNotitie }]));
+        notitiesChangedCallback();
+        await openNotities();
 
-    it("should not call updateNotitie service when tekst is empty", () => {
-      const notitie: GeneratedType<"RestNote"> = {
-        zaakUUID: "some-uuid",
-        tekst: "some text",
-        gebruikersnaamMedewerker: "some user",
-      };
-      component["updateNotitie"](notitie, "");
-      expect(notitieService.updateNotitie).not.toHaveBeenCalled();
+        await user.click(
+          screen.getByRole("button", { name: "actie.bewerken" }),
+        );
+        fixture.detectChanges();
+        const textbox = screen.getByRole("textbox", {
+          name: "actie.notitie.wijzigen",
+        });
+        await user.clear(textbox);
+        if (tekst) await user.type(textbox, tekst);
+        fixture.detectChanges();
+        const [opslaanButton] = screen.getAllByRole("button", {
+          name: "actie.opslaan",
+        });
+        await user.click(opslaanButton);
+        await sleep();
+        fixture.detectChanges();
+      }
+
+      it("should save the new text in the name of the current user and show it", async () => {
+        await editNotitie("fakeGewijzigdeTekst");
+
+        expect(updateNotitieMutation.mutationFn).toHaveBeenCalledWith(
+          {
+            ...editableNotitie,
+            tekst: "fakeGewijzigdeTekst",
+            gebruikersnaamMedewerker: currentUser.id,
+          },
+          expect.anything(),
+        );
+        expect(screen.getByText("fakeGewijzigdeTekst")).toBeInTheDocument();
+      });
+
+      it("should not save an empty text", async () => {
+        await editNotitie("");
+
+        expect(updateNotitieMutation.mutationFn).not.toHaveBeenCalled();
+      });
     });
 
     it("should delete the selected notitie and remove it from the list", async () => {
