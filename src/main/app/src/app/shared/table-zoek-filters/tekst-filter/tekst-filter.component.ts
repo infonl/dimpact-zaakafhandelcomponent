@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  input,
-  linkedSignal,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, input, linkedSignal, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
@@ -32,7 +25,7 @@ export class TekstFilterComponent implements OnInit {
   protected formControl = new FormControl<string | undefined>(undefined);
   readonly value = input<string | null>();
   private readonly currentValue = linkedSignal(() => this.value());
-  @Output() changed = new EventEmitter<string>();
+  readonly changed = output<string>();
 
   ngOnInit(): void {
     this.formControl.setValue(this.value() ?? "");

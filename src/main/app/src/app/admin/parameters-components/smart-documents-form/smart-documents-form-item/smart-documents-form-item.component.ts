@@ -5,7 +5,7 @@
  */
 
 import { NgFor } from "@angular/common";
-import { Component, EventEmitter, input, OnInit, Output } from "@angular/core";
+import { Component, input, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -37,9 +37,8 @@ export class SmartDocumentsFormItemComponent implements OnInit {
     input.required<GeneratedType<"RestMappedSmartDocumentsTemplate">>();
   readonly informationObjectTypes =
     input.required<GeneratedType<"RestInformatieobjecttype">[]>();
-  @Output() selectionChange = new EventEmitter<
-    GeneratedType<"RestMappedSmartDocumentsTemplate">
-  >();
+  readonly selectionChange =
+    output<GeneratedType<"RestMappedSmartDocumentsTemplate">>();
 
   protected confidentiality = new FormControl({ value: "", disabled: true });
   protected checkbox = new FormControl({ value: false, disabled: false });

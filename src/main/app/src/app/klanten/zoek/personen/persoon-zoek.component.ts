@@ -5,15 +5,15 @@
 
 import { NgIf } from "@angular/common";
 import {
+  booleanAttribute,
   Component,
   computed,
   effect,
-  EventEmitter,
   inject,
   input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -72,7 +72,8 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   ],
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
-  @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
+  readonly persoon = output<GeneratedType<"RestPersoon">>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly zaaktypeUUID = input<string | null | undefined>(null);
   readonly sideNav = input<MatSidenav>();
   readonly syncEnabled = input(false);

@@ -16,7 +16,7 @@ import {
   inject,
   input,
   OnInit,
-  Output,
+  output,
   untracked,
   ViewChild,
   ViewEncapsulation,
@@ -65,11 +65,13 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
     transform: booleanAttribute,
   });
   readonly submitFailed = input(false, { transform: booleanAttribute });
-  @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
-  @Output() formChange = new EventEmitter<FormioChangeEvent>();
-  @Output() createDocument = new EventEmitter<FormioCustomEvent>();
-  @Output() submissionDone = new EventEmitter<object>();
-  @Output() submissionError = new EventEmitter<FormioSubmitError>();
+  readonly formSubmit = output<FormioSubmitEvent>();
+  readonly formChange = output<FormioChangeEvent>();
+  readonly createDocument = output<FormioCustomEvent>();
+
+  // Form.io's `submitDone` and `error` inputs subscribe to an EventEmitter, so these cannot be outputs.
+  readonly submissionDone = new EventEmitter<object>();
+  readonly submissionError = new EventEmitter<FormioSubmitError>();
 
   @HostListener("click", ["$event"])
   onClickInside(event: MouseEvent) {

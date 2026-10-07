@@ -7,11 +7,10 @@ import { NgIf } from "@angular/common";
 import {
   Component,
   DestroyRef,
-  EventEmitter,
   OnInit,
-  Output,
   inject,
   input,
+  output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -65,7 +64,7 @@ export class HumanTaskDoComponent implements OnInit {
   );
   readonly sideNav = input.required<MatDrawer>();
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
-  @Output() done = new EventEmitter<void>();
+  readonly done = output<void>();
 
   protected readonly doHumanTaskPlanItemMutation = injectMutation(
     () => this.planItemsService.doHumanTaskPlanItem(this.zaak().uuid),

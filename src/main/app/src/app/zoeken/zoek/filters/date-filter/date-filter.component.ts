@@ -4,14 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  input,
-  linkedSignal,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, input, linkedSignal, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -40,12 +33,12 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
 export class DateFilterComponent implements OnInit {
   readonly range = input<GeneratedType<"RestDatumRange"> | undefined>({});
   readonly label = input.required<string>();
-  @Output() changed = new EventEmitter<GeneratedType<"RestDatumRange">>();
+  readonly changed = output<GeneratedType<"RestDatumRange">>();
 
   protected dateVan = new FormControl<Date | null>(null);
   protected dateTM = new FormControl<Date | null>(null);
 
-  private readonly currentRange = linkedSignal(() => this.range());
+  private readonly currentRange = linkedSignal(() => this.range() ?? {});
 
   ngOnInit() {
     const range = this.currentRange();

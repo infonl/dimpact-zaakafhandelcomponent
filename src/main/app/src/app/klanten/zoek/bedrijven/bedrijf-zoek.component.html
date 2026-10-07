@@ -92,7 +92,7 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
         <button
-          *ngIf="bedrijf?.observed"
+          *ngIf="isSelectable()"
           mat-icon-button
           color="primary"
           (click)="selectBedrijf(row)"
@@ -101,7 +101,7 @@
           <mat-icon>business</mat-icon>
         </button>
         <button
-          *ngIf="!bedrijf?.observed"
+          *ngIf="!isSelectable()"
           mat-icon-button
           (click)="openBedrijfPagina(row)"
           [id]="

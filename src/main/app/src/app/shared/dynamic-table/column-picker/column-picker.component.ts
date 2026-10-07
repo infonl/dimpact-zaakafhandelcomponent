@@ -4,14 +4,7 @@
  */
 
 import { KeyValuePipe, NgFor } from "@angular/common";
-import {
-  Component,
-  computed,
-  EventEmitter,
-  inject,
-  input,
-  Output,
-} from "@angular/core";
+import { Component, computed, inject, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import {
@@ -49,9 +42,7 @@ export class ColumnPickerComponent {
 
   readonly columnSrc = input(new Map<ZoekenColumn, ColumnPickerValue>());
 
-  @Output() columnsChanged = new EventEmitter<
-    Map<ZoekenColumn, ColumnPickerValue>
-  >();
+  readonly columnsChanged = output<Map<ZoekenColumn, ColumnPickerValue>>();
 
   protected readonly columns = computed(() => {
     const columns = this.columnSrc();

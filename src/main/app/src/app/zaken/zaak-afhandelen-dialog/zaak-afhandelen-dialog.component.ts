@@ -33,12 +33,12 @@ import moment, { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -83,7 +83,7 @@ export class ZaakAfhandelenDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly zakenService = inject(ZakenService);
   private readonly mailtemplateService = inject(MailtemplateService);
-  private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly planItemsService = inject(PlanItemsService);
   private readonly translateService = inject(TranslateService);
 
   private sendMailDefault: boolean;
@@ -143,8 +143,7 @@ export class ZaakAfhandelenDialogComponent {
   );
 
   protected readonly planItemAfhandelenMutation = injectMutation(
-    () =>
-      this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
+    () => this.planItemsService.doUserEventListenerPlanItem(),
     {
       onSuccess: () => this.dialogRef.close(true),
       onError: () => this.dialogRef.close(false),

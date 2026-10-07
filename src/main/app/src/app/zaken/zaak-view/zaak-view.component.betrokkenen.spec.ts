@@ -12,10 +12,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  queryOptions,
-} from "@tanstack/angular-query-experimental";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
@@ -127,7 +124,6 @@ describe(ZaakViewComponent.name, () => {
         EmptyPipe,
       ],
       providers: [
-        provideQueryClient(testQueryClient),
         PlanItemsService,
         {
           provide: ActivatedRoute,
@@ -531,14 +527,13 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
-    it("reloads the BAG-objecten after coupling an adres", () => {
+    it("reloads the BAG-objecten after coupling an adres", async () => {
       const bagObject = fromPartial<GeneratedType<"RestBagObject">>({
         omschrijving: "fakeBagObjectOmschrijving",
       });
-      const create = jest
-        .spyOn(bagService, "create")
-        .mockReturnValue(of(undefined) as never);
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      httpTestingController.match(() => true);
       // the view already listed them while initialising, so ignore that call
       const list = jest
         .spyOn(bagService, "list")
@@ -546,8 +541,15 @@ describe(ZaakViewComponent.name, () => {
         .mockReturnValue(of([]));
 
       fixture.componentInstance["adresGeselecteerd"](bagObject);
+      await new Promise(requestAnimationFrame);
+      const request = httpTestingController.expectOne((httpRequest) =>
+        httpRequest.url.endsWith("/rest/bag"),
+      );
+      request.flush(null);
+      await new Promise(requestAnimationFrame);
 
-      expect(create).toHaveBeenCalledWith({
+      expect(request.request.method).toBe("POST");
+      expect(request.request.body).toEqual({
         zaakUuid: zaak.uuid,
         zaakobject: bagObject,
       });

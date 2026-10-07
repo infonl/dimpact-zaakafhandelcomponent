@@ -9,11 +9,10 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   inject,
   input,
   OnDestroy,
-  Output,
+  output,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -107,8 +106,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
 })
 export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   readonly selectedIndexStart = input<number>(0);
-  @Output() switchModellingMethod =
-    new EventEmitter<ProcessModelMethodSelection>();
+  readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocumentsFormComponent!: SmartDocumentsFormComponent;

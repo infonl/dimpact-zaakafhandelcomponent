@@ -3,15 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -39,6 +33,12 @@ describe(NotitiesComponent.name, () => {
   let deleteNotitieMutation: ReturnType<
     typeof createMutationOptions<undefined, number>
   >;
+  let createNotitieMutation: ReturnType<
+    typeof createMutationOptions<
+      GeneratedType<"RestNote">,
+      GeneratedType<"RestNote">
+    >
+  >;
   let notitiesChangedCallback: () => void;
 
   const editableNotitie = fromPartial<GeneratedType<"RestNote">>({
@@ -61,11 +61,7 @@ describe(NotitiesComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [],
     }).compileComponents();
 
     const identityService = TestBed.inject(IdentityService);
@@ -88,6 +84,17 @@ describe(NotitiesComponent.name, () => {
     jest
       .spyOn(notitieService, "updateNotitie")
       .mockImplementation((notitie) => of(notitie));
+    createNotitieMutation = createMutationOptions<
+      GeneratedType<"RestNote">,
+      GeneratedType<"RestNote">
+    >(fromPartial<GeneratedType<"RestNote">>({}));
+    createNotitieMutation.mutationFn.mockImplementation(async (notitie) => ({
+      ...notitie,
+      id: 2,
+    }));
+    jest
+      .spyOn(notitieService, "createNotitie")
+      .mockReturnValue(createNotitieMutation as never);
     deleteNotitieMutation = createMutationOptions<undefined, number>(undefined);
     jest
       .spyOn(notitieService, "deleteNotitie")
@@ -165,11 +172,6 @@ describe(NotitiesComponent.name, () => {
       beforeEach(() => {
         scrollIntoView = Element.prototype.scrollIntoView;
         Element.prototype.scrollIntoView = jest.fn();
-        jest
-          .spyOn(notitieService, "createNotitie")
-          .mockImplementation((notitie) =>
-            of(fromPartial<GeneratedType<"RestNote">>({ ...notitie, id: 2 })),
-          );
       });
 
       afterEach(() => {
@@ -187,13 +189,17 @@ describe(NotitiesComponent.name, () => {
         );
         fixture.detectChanges();
         await user.click(screen.getByRole("button", { name: "actie.opslaan" }));
+        await sleep();
         fixture.detectChanges();
 
-        expect(notitieService.createNotitie).toHaveBeenCalledWith({
-          zaakUUID: "fakeZaakUuid",
-          tekst: "fakeNieuweTekst",
-          gebruikersnaamMedewerker: "currentUser",
-        });
+        expect(createNotitieMutation.mutationFn).toHaveBeenCalledWith(
+          {
+            zaakUUID: "fakeZaakUuid",
+            tekst: "fakeNieuweTekst",
+            gebruikersnaamMedewerker: "currentUser",
+          },
+          expect.anything(),
+        );
         expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
       });
     });

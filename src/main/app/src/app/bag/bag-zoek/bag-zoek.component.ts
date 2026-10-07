@@ -5,12 +5,12 @@
 
 import { CommonModule } from "@angular/common";
 import {
+  booleanAttribute,
   Component,
-  EventEmitter,
-  Output,
-  ViewChild,
   inject,
   input,
+  output,
+  ViewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -60,7 +60,8 @@ import { BAGService } from "../bag.service";
   ],
 })
 export class BagZoekComponent {
-  @Output() bagObject = new EventEmitter<GeneratedType<"RestBagObject">>();
+  readonly bagObject = output<GeneratedType<"RestBagObject">>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly gekoppeldeBagObjecten = input<
     | GeneratedType<"RestBagObject">[]
     | FormControl<GeneratedType<"RestBagObject">[] | null>

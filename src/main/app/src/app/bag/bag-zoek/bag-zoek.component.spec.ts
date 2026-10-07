@@ -54,6 +54,7 @@ describe(BagZoekComponent.name, () => {
       inputs: {
         sideNav,
         ...(gekoppeldeBagObjecten ? { gekoppeldeBagObjecten } : {}),
+        isSelectable: !!onBagObject,
       },
       on: onBagObject ? { bagObject: onBagObject } : {},
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],

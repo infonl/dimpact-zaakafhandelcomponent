@@ -8,10 +8,9 @@ import {
   Component,
   computed,
   effect,
-  EventEmitter,
   inject,
   input,
-  Output,
+  output,
   untracked,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -69,7 +68,7 @@ export class InformatieObjectLinkComponent {
   readonly sideNav = input.required<MatDrawer>();
   readonly source = input.required<string>();
   readonly actionLabel = input.required<DocumentAction>();
-  @Output() informationObjectLinked = new EventEmitter<void>();
+  readonly informationObjectLinked = output<void>();
 
   protected loading = false;
 
