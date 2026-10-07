@@ -101,4 +101,4 @@ nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeVervaldatumBesluitArchi
 nl.info.zac.itest.ZaakRestServiceHistoryTest
 nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest
 nl.info.zac.itest.ZaaktypeConfigurationRestServiceTest
-nl.info.zac.itest.bpmn.ZaaktypeConfigurationProductaanvraagtypeTest
+nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationRestServiceProductaanvraagtypeTest

@@ -22,7 +22,7 @@ import nl.info.zac.itest.util.queryZacDatabase
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 
-class ZaaktypeConfigurationProductaanvraagtypeTest : BehaviorSpec({
+class ZaaktypeBpmnConfigurationRestServiceProductaanvraagtypeTest : BehaviorSpec({
     val zacClient = ZacClient(ItestHttpClient())
 
     fun storeBpmnTest5Configuration(productaanvraagType: String) = zacClient.createZaaktypeBpmnConfiguration(
