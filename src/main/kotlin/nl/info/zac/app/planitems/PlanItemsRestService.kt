@@ -153,8 +153,8 @@ class PlanItemsRestService @Inject constructor(
             }
         }
 
-        val shouldSendMail = TaakVariabelenService.isSendDataSendMail(taakdata) || humanTaskData.taakStuurGegevens?.shouldSendMail ?: false
-        val sendDataMail = TaakVariabelenService.readSendDataMail(taakdata).getOrNull() ?: humanTaskData.taakStuurGegevens?.mail
+        val shouldSendMail = TaakVariabelenService.isSendDataSendMail(taakdata)
+        val sendDataMail = TaakVariabelenService.readSendDataMail(taakdata).getOrNull()
         if (shouldSendMail && sendDataMail != null) {
             val mail = Mail.valueOf(sendDataMail)
 

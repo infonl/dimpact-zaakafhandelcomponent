@@ -149,7 +149,7 @@ code has two kinds of boolean that none of the default prefixes describes:
 - `can` for a permission: the `RestXxxRechten` models and the OPA policy outputs hold some forty permissions
   each named after a Dutch verb, such as `canLezen` and `canToevoegenInitiatorPersoon`. `isLezen` or
   `hasLezen` would say something else.
-- `should` for an instruction in a request, such as `shouldSendMail` on `RESTTaakStuurGegevens` and
+- `should` for an instruction in a request, such as `shouldIncludeGekoppeldeZaakDocumenten` on `RestInformatieobjectZoekParameters` and
   `shouldTakenVerlengen` on `RestZaakVerlengGegevens`: the client asks ZAC to do something, it does not
   describe a state.
 

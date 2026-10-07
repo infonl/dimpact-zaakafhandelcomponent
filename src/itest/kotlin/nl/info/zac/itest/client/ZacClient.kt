@@ -479,25 +479,22 @@ class ZacClient(
         )
     }
 
-    @Suppress("LongParameterList")
     fun startHumanTaskPlanItem(
         planItemInstanceId: String,
         fatalDate: LocalDate,
         groupId: String,
         groupName: String,
-        sendMail: Boolean = false,
         testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Starting human task plan item with plan item instance id: $planItemInstanceId, " +
-                "fatal date: $fatalDate, group id: $groupId, group name: $groupName, send mail: $sendMail"
+                "fatal date: $fatalDate, group id: $groupId, group name: $groupName"
         }
         return itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
             requestBodyAsString = """{
                     "planItemInstanceId": "$planItemInstanceId",
                     "fataledatum": "${fatalDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
-                    "taakStuurGegevens": { "shouldSendMail": $sendMail },
                     "groep": { "id": "$groupId", "naam": "$groupName" },
                     "taakdata":{}
                 }
@@ -513,7 +510,6 @@ class ZacClient(
         zaakUUID: UUID,
         fatalDate: LocalDate,
         group: TestGroup,
-        sendMail: Boolean = false,
         testUser: TestUser
     ): ResponseContent {
         val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(
@@ -534,7 +530,6 @@ class ZacClient(
             fatalDate = fatalDate,
             groupId = group.name,
             groupName = group.description,
-            sendMail = sendMail,
             testUser = testUser
         )
     }
