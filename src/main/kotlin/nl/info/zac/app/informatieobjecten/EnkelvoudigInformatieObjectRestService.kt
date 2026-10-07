@@ -65,9 +65,12 @@ import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.webdav.WebdavHelper
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.readZaakAutorisatieGegevens
 import nl.info.client.zgw.zrc.model.zaakUUID
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
@@ -102,6 +105,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val enkelvoudigInformatieObjectConvertService: EnkelvoudigInformatieObjectConvertService,
     private val documentContentReader: DocumentContentReader,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
 ) {
     companion object {
         private val LOG = Logger.getLogger(EnkelvoudigInformatieObjectRestService::class.java.name)
@@ -171,8 +175,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
         } ?: run {
             checkNotNull(zaak) { "Zoekparameters hebben geen waarde" }
-            assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canLezen)
-            val enkelvoudigInformatieobjectenVoorZaak = listEnkelvoudigInformatieobjectenVoorZaak(zaak) +
+            val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
+            assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get(), zaakAutorisatieGegevens).canLezen)
+            val enkelvoudigInformatieobjectenVoorZaak = listEnkelvoudigInformatieobjectenVoorZaak(zaak, zaakAutorisatieGegevens) +
                 if (zoekParameters.shouldIncludeGekoppeldeZaakDocumenten) {
                     listGekoppeldeZaakInformatieObjectenVoorZaak(zaak)
                 } else {
@@ -575,9 +580,12 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 informatieobject.formaat == MediaTypes.Application.PDF.mediaType
         }
 
-    private fun listEnkelvoudigInformatieobjectenVoorZaak(zaak: Zaak): List<RestEnkelvoudigInformatieobject> =
+    private fun listEnkelvoudigInformatieobjectenVoorZaak(
+        zaak: Zaak,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens
+    ): List<RestEnkelvoudigInformatieobject> =
         zaak.let(zrcClientService::listZaakinformatieobjecten)
-            .map(restInformatieobjectConverter::convertToREST)
+            .map { restInformatieobjectConverter.convertToREST(it, zaak, zaakAutorisatieGegevens) }
 
     private fun listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
         zaakURI: URI,

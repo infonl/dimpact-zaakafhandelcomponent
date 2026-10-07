@@ -72,6 +72,8 @@ import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.readZaakAutorisatieGegevens
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
@@ -112,6 +114,7 @@ class TaskRestService @Inject constructor(
     private val bpmnTaskFormRuntimeService: BpmnTaskFormRuntimeService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val fileSizeConfiguration: FileSizeConfiguration,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
 
     /**
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
@@ -128,10 +131,11 @@ class TaskRestService @Inject constructor(
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUUID)
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         assertPolicy(
-            policyService.readZaakRechten(zaak, loggedInUser).canLezen
+            policyService.readZaakRechten(zaak, loggedInUser, zaakAutorisatieGegevens).canLezen
         )
-        return taskService.listTasksForZaak(zaakUUID).let(restTaskConverter::convert)
+        return restTaskConverter.convert(taskService.listTasksForZaak(zaakUUID), zaakAutorisatieGegevens)
     }
 
     @GET
@@ -229,7 +233,7 @@ class TaskRestService @Inject constructor(
     @PATCH
     @Path("toekennen/mij")
     fun assignTaskToLoggedInUser(restTaskAssignData: RestTaskAssignData) =
-        assignLoggedInUserToTask(restTaskAssignData).let(restTaskConverter::convert)
+        assignLoggedInUserToTask(restTaskAssignData).let { restTaskConverter.convert(it) }
 
     @PATCH
     @Path("complete")
@@ -255,7 +259,7 @@ class TaskRestService @Inject constructor(
             indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
-        }.let(restTaskConverter::convert)
+        }.let { restTaskConverter.convert(it) }
     }
 
     private fun addZaakdata(restTask: RestTask) = restTask.taakdata?.apply {

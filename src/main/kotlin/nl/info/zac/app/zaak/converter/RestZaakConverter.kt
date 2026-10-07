@@ -41,6 +41,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.ZaakRechten
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
 import nl.info.zac.search.model.ZaakIndicatie.HEROPEND
@@ -70,17 +71,34 @@ class RestZaakConverter @Inject constructor(
     private val klantClientService: KlantClientService,
     private val zaakService: ZaakService
 ) {
+    /**
+     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of [zaak], for a caller that already read
+     * it in this request. When omitted, it is read here.
+     */
     fun toRestZaak(
         zaak: Zaak,
         zaakType: ZaakType,
         zaakRechten: ZaakRechten,
-        loggedInUser: LoggedInUser
+        loggedInUser: LoggedInUser,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): RestZaak {
         val status = zaak.status?.let { zrcClientService.readStatus(it) }
         val statustype = status?.let { ztcClientService.readStatustype(it.statustype) }
-        return toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statustype)
+        return toRestZaak(
+            zaak = zaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser,
+            status = status,
+            statustype = statustype,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
     }
 
+    /**
+     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of [zaak], for a caller that already read
+     * it in this request. When omitted, it is read here.
+     */
     @Suppress("LongMethod", "CyclomaticComplexMethod")
     fun toRestZaak(
         zaak: Zaak,
@@ -88,7 +106,8 @@ class RestZaakConverter @Inject constructor(
         zaakRechten: ZaakRechten,
         loggedInUser: LoggedInUser,
         status: Status?,
-        statustype: StatusType?
+        statustype: StatusType?,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): RestZaak {
         val roles = zrcClientService.listRollen(zaak)
         val groep = zgwApiService.findGroepForZaak(zaak, roles)?.let { rolOrganisatorischeEenheid ->
@@ -110,7 +129,8 @@ class RestZaakConverter @Inject constructor(
         val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
         val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
-        val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
+        val isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens?.isZaakspecifiekGeautoriseerd
+            ?: zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
         return RestZaak(
             archiefActiedatum = zaak.archiefactiedatum,
             archiefNominatie = zaak.archiefnominatie?.name,

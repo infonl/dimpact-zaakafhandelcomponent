@@ -24,6 +24,7 @@ import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.RestTask
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -37,12 +38,29 @@ class RestTaskConverter @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
 ) {
-    fun convert(tasks: List<TaskInfo>) = tasks.map(::convert)
+    fun convert(tasks: List<TaskInfo>) = tasks.map { convert(it) }
 
+    /**
+     * Converts [tasks] that all belong to the zaak of [zaakAutorisatieGegevens].
+     */
+    fun convert(tasks: List<TaskInfo>, zaakAutorisatieGegevens: ZaakAutorisatieGegevens) =
+        tasks.map { convert(it, zaakAutorisatieGegevens) }
+
+    /**
+     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of the zaak of [taskInfo], for a caller that
+     * already read it in this request. When omitted, it is read here.
+     */
     @Suppress("LongMethod", "ComplexMethod")
-    fun convert(taskInfo: TaskInfo): RestTask {
+    fun convert(
+        taskInfo: TaskInfo,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
+    ): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
-        val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).toRestTaakRechten()
+        val restTaakRechten = policyService.readTaakRechten(
+            taskInfo = taskInfo,
+            zaaktypeOmschrijving = zaaktypeOmschrijving,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        ).toRestTaakRechten()
         val restTask = RestTask(
             id = taskInfo.id,
             naam = taskInfo.name,

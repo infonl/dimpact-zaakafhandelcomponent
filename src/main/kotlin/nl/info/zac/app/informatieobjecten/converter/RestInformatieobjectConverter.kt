@@ -40,6 +40,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.DocumentRechten
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.util.toBase64String
 import org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
@@ -73,17 +74,33 @@ class RestInformatieobjectConverter @Inject constructor(
         return convertToREST(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = zaak)
     }
 
+    /**
+     * Converts a [zaakInformatieObject] of [zaak], reusing the [zaak] and its [zaakAutorisatieGegevens] that the
+     * caller already read.
+     */
+    fun convertToREST(
+        zaakInformatieObject: ZaakInformatieObject,
+        zaak: Zaak,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens
+    ) = convertToREST(
+        enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(zaakInformatieObject.informatieobject),
+        zaak = zaak,
+        zaakAutorisatieGegevens = zaakAutorisatieGegevens
+    )
+
     fun convertToREST(enkelvoudigInformatieObject: EnkelvoudigInformatieObject): RestEnkelvoudigInformatieobject =
         convertToREST(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = null)
 
     /**
      * [documentRechten] can be passed in by callers that already evaluated them, so that reading a
-     * document does not evaluate the same policy twice.
+     * document does not evaluate the same policy twice. Likewise, [zaakAutorisatieGegevens] can be passed in by
+     * callers that already read the zaakspecifieke autorisatie data of [zaak].
      */
     fun convertToREST(
         enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
         zaak: Zaak?,
-        documentRechten: DocumentRechten? = null
+        documentRechten: DocumentRechten? = null,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): RestEnkelvoudigInformatieobject {
         val enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid()
         val lock = if (enkelvoudigInformatieObject.locked) {
@@ -91,8 +108,12 @@ class RestInformatieobjectConverter @Inject constructor(
         } else {
             null
         }
-        val rechten = documentRechten
-            ?: policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak)
+        val rechten = documentRechten ?: policyService.readDocumentRechten(
+            enkelvoudigInformatieobject = enkelvoudigInformatieObject,
+            lock = lock,
+            zaak = zaak,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
         val isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
             enkelvoudigInformatieObject.url
         )
