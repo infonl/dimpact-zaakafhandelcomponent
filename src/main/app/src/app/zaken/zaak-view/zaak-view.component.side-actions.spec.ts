@@ -505,9 +505,9 @@ describe(ZaakViewComponent.name, () => {
         );
 
       detailsCard().bagObjectVerwijderen.emit(
-        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+        fromPartial<GeneratedType<"RestBagObjectGegevens">>({
           uuid: "fakeBagObjectGegevensUuid",
-          zaakobject: fromPartial<GeneratedType<"RESTBAGObject">>({
+          zaakobject: fromPartial<GeneratedType<"RestBagObject">>({
             omschrijving: "fakeBagObjectOmschrijving",
           }),
         }),

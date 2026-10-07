@@ -8,7 +8,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **keycloak**: 26.7.5
 - **postgis**: 17-3.4
 - **redis**: 8.6.7
-- **solr**: 9.10.1-slim
+- **solr**: 9.11.0-slim
 - **openpolicyagent/opa**: 1.21.1-static
 - **brp-api/personen-mock**: 2.7.0-202610011328
 - **gotenberg**: 8.37.0

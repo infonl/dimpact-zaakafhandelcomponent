@@ -42,7 +42,7 @@ export class BAGService {
     });
   }
 
-  read(type: GeneratedType<"BAGObjectType">, id: string) {
+  read(type: GeneratedType<"BagObjectType">, id: string) {
     return this.zacHttpClient.GET("/rest/bag/{type}/{id}", {
       path: { type, id },
     });

@@ -8,13 +8,8 @@ import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable } from "rxjs";
 import { UtilService } from "../core/service/util.service";
-import {
-  HttpClient,
-  PathParameters,
-  PostBody,
-} from "../shared/http/http-client";
+import { HttpClient, PathParameters } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 const PROCESS_DEFINITIONS_PATH = "/rest/bpmn-process-definitions";
@@ -23,7 +18,6 @@ const PROCESS_DEFINITIONS_PATH = "/rest/bpmn-process-definitions";
   providedIn: "root",
 })
 export class BpmnService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly httpClient = inject(HttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
@@ -87,13 +81,9 @@ export class BpmnService {
     );
   }
 
-  uploadProcessDefinitionForm(
-    key: string,
-    body: PostBody<"/rest/bpmn-process-definitions/{key}/forms">,
-  ) {
-    return this.zacHttpClient.POST(
+  uploadProcessDefinitionForm(key: string) {
+    return this.zacQueryClient.POST(
       "/rest/bpmn-process-definitions/{key}/forms",
-      body,
       { path: { key } },
     );
   }

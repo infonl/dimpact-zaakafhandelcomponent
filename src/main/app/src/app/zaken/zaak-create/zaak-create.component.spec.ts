@@ -460,7 +460,7 @@ describe(ZaakCreateComponent.name, () => {
 
     it("hasBagObject() returns true when BAG objects are linked", () => {
       fixture.componentInstance["form"].controls.bagObjecten.setValue([
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: "Teststraat 1",
         }),
       ]);
@@ -469,7 +469,7 @@ describe(ZaakCreateComponent.name, () => {
 
     it("clears BAG objects when clearBagObjecten() is called", () => {
       fixture.componentInstance["form"].controls.bagObjecten.setValue([
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: "Teststraat 1",
         }),
       ]);
@@ -481,10 +481,10 @@ describe(ZaakCreateComponent.name, () => {
 
     it("bagDisplayValue() joins omschrijving values when total length ≤ 100", () => {
       const result = fixture.componentInstance["bagDisplayValue"]([
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: "Straat 1",
         }),
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: "Straat 2",
         }),
       ]);
@@ -494,10 +494,10 @@ describe(ZaakCreateComponent.name, () => {
     it("bagDisplayValue() returns translated count label when total length > 100", () => {
       const longOmschrijving = "A".repeat(60);
       const result = fixture.componentInstance["bagDisplayValue"]([
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: longOmschrijving,
         }),
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: longOmschrijving,
         }),
       ]);
@@ -548,7 +548,7 @@ describe(ZaakCreateComponent.name, () => {
     afterEach(() => notifyManager.setScheduler((fn) => setTimeout(fn, 0)));
 
     it("includes selected BAG objects in the submit payload", () => {
-      const bagObject = fromPartial<GeneratedType<"RESTBAGObject">>({
+      const bagObject = fromPartial<GeneratedType<"RestBagObject">>({
         omschrijving: "Teststraat 1",
       });
 

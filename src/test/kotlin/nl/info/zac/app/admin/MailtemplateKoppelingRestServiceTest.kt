@@ -18,6 +18,7 @@ import net.atos.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.converter.toRestMailtemplateKoppeling
@@ -58,7 +59,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
         given("Policy permits and koppeling exists") {
             val fakeKoppeling = createMailtemplateKoppelingen(
                 id = 42L,
-                zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+                zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
             )
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
@@ -94,7 +95,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             val fakeKoppeling = createMailtemplateKoppelingen(
                 id = 7L,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                 mailTemplate = createMailTemplate()
             )
             val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
@@ -113,12 +114,36 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        given("Policy permits and a koppeling of a BPMN zaaktype configuration exists") {
+            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
+            val fakeKoppeling = createMailtemplateKoppelingen(
+                id = 8L,
+                zaaktypeConfiguration = zaaktypeBpmnConfiguration,
+                mailTemplate = createMailTemplate()
+            )
+            val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
+            every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
+            every { mailTemplateKoppelingenService.listMailtemplateKoppelingen() } returns listOf(fakeKoppeling)
+            every {
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
+            } returns restZaaktypeConfiguration
+
+            `when`("listMailtemplateKoppelingen is called") {
+                val result = service.listMailtemplateKoppelingen()
+
+                then("the koppeling is returned with the converted BPMN configuration of its zaaktype") {
+                    result.single().id shouldBe 8L
+                    result.single().zaakafhandelParameters shouldBe restZaaktypeConfiguration
+                }
+            }
+        }
     }
 
     context("storeMailtemplateKoppeling") {
         given("Policy permits and a REST koppeling is provided") {
             val fakeKoppeling = createMailtemplateKoppelingen(
-                zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+                zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
             )
             val restKoppeling = RESTMailtemplateKoppeling().apply {

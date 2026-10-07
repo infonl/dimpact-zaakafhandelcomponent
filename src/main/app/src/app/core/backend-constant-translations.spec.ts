@@ -130,7 +130,7 @@ const adresseerbaarObjectTypes = valuesOf<
   GeneratedType<"TypeAdresseerbaarObject">
 >({ VERBLIJFSOBJECT: true, STANDPLAATS: true, LIGPLAATS: true });
 
-const bagObjectTypes = valuesOf<GeneratedType<"BAGObjectType">>({
+const bagObjectTypes = valuesOf<GeneratedType<"BagObjectType">>({
   ADRES: true,
   WOONPLAATS: true,
   PAND: true,

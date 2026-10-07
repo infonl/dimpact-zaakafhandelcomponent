@@ -47,7 +47,7 @@ describe(ZaakDetailsCardComponent.name, () => {
     inputs: Partial<{
       zaak: GeneratedType<"RestZaak">;
       zaakOpschorting: GeneratedType<"RestZaakOpschorting">;
-      bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[];
+      bagObjecten: GeneratedType<"RestBagObjectGegevens">[];
       showBetrokkeneKoppelingen: boolean;
     }> = {},
   ) => {
@@ -200,8 +200,8 @@ describe(ZaakDetailsCardComponent.name, () => {
     it("adds the bagObjecten tab when bag objecten are linked", async () => {
       renderCard({
         bagObjecten: [
-          fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
-            bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
+          fromPartial<GeneratedType<"RestBagObjectGegevens">>({
+            bagObject: fromPartial<GeneratedType<"RestBagObject">>({
               identificatie: "fakeBagIdentificatie",
               bagObjectType: "ADRES",
               omschrijving: "fakeBagOmschrijving",
@@ -309,9 +309,9 @@ describe(ZaakDetailsCardComponent.name, () => {
     it("re-emits bagObjectVerwijderen from the bag objecten tab", async () => {
       const bagObjectVerwijderen = jest.fn();
       const gekoppeldBagObject = fromPartial<
-        GeneratedType<"RESTBAGObjectGegevens">
+        GeneratedType<"RestBagObjectGegevens">
       >({
-        bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
+        bagObject: fromPartial<GeneratedType<"RestBagObject">>({
           identificatie: "fakeBagIdentificatie",
           bagObjectType: "ADRES",
           omschrijving: "fakeBagOmschrijving",
@@ -334,8 +334,8 @@ describe(ZaakDetailsCardComponent.name, () => {
       renderCard({
         zaak: { ...zaak, rechten: { ...zaak.rechten, canBehandelen: false } },
         bagObjecten: [
-          fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
-            bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
+          fromPartial<GeneratedType<"RestBagObjectGegevens">>({
+            bagObject: fromPartial<GeneratedType<"RestBagObject">>({
               identificatie: "fakeBagIdentificatie",
               bagObjectType: "ADRES",
               omschrijving: "fakeBagOmschrijving",

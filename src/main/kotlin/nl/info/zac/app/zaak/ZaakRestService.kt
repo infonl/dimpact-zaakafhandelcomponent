@@ -22,7 +22,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import java.time.LocalDate
 import java.util.UUID
-import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
@@ -55,11 +54,12 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
+import nl.info.zac.app.bag.model.toZaakobjectRequest
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
 import nl.info.zac.app.zaak.converter.RestZaakConverter
@@ -253,7 +253,7 @@ class ZaakRestService @Inject constructor(
 
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
         restZaakAanmaakGegevens.bagObjecten?.forEach {
-            zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
+            zrcClientService.createZaakobject(it.toZaakobjectRequest(zaak))
         }
         return CreateZaakResponse(zaak.identificatie)
     }
@@ -348,8 +348,9 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canLezen)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
-                    .getZaakAfzenders()
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaak.zaaktype.extractUuid())
+                    ?.getZaakAfzenders()
+                    .orEmpty()
                     .toRestZaakAfzenders()
             )
         )
@@ -410,19 +411,13 @@ class ZaakRestService @Inject constructor(
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val loggedInUser = loggedInUserInstance.get()
-        // Retrieve all CMMN zaaktype configurations to determine the warning dates for the zaaktypes.
-        // Note that this can take a considerable time if there are many zaaktypes,
-        // especially if the zaaktype configuration cache is empty.
-        zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
-            zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->
-                zaaktypeCmmnConfiguration.zaaktypeUuid.let { uuid ->
-                    einddatumGeplandWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
-                }
+        zaaktypeConfigurationService.listDeadlineWarningWindows().forEach { deadlineWarningWindows ->
+            deadlineWarningWindows.einddatumGeplandWaarschuwing?.let { days ->
+                einddatumGeplandWaarschuwing[deadlineWarningWindows.zaaktypeUuid] = datumWaarschuwing(vandaag, days)
             }
-            zaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { days ->
-                zaaktypeCmmnConfiguration.zaaktypeUuid.let { uuid ->
-                    uiterlijkeEinddatumAfdoeningWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
-                }
+            deadlineWarningWindows.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { days ->
+                uiterlijkeEinddatumAfdoeningWaarschuwing[deadlineWarningWindows.zaaktypeUuid] =
+                    datumWaarschuwing(vandaag, days)
             }
         }
         val zaakListParameters = ZaakListParameters().apply {
@@ -973,10 +968,10 @@ class ZaakRestService @Inject constructor(
         zrcClientService.deleteRol(initiator, reden)
     }
 
-    private fun resolveSpecialMail(specialMail: ZaaktypeCmmnZaakafzenderParameters.SpecialMail) =
+    private fun resolveSpecialMail(specialMail: ZaaktypeZaakafzenderParameters.SpecialMail) =
         when (specialMail) {
-            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE -> configurationService.readGemeenteMail()
-            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
+            ZaaktypeZaakafzenderParameters.SpecialMail.GEMEENTE -> configurationService.readGemeenteMail()
+            ZaaktypeZaakafzenderParameters.SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
     private fun resolveZaakAfzenderMail(
@@ -1007,9 +1002,9 @@ class ZaakRestService @Inject constructor(
             )
             .distinctBy { it.mail }
 
-    private fun speciaalMail(mail: String): ZaaktypeCmmnZaakafzenderParameters.SpecialMail? =
+    private fun speciaalMail(mail: String): ZaaktypeZaakafzenderParameters.SpecialMail? =
         if (!mail.contains("@")) {
-            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.valueOf(mail)
+            ZaaktypeZaakafzenderParameters.SpecialMail.valueOf(mail)
         } else {
             null
         }
