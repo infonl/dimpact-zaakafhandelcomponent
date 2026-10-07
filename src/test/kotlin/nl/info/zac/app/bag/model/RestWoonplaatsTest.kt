@@ -2,15 +2,15 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.bag.converter
+package nl.info.zac.app.bag.model
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
-import net.atos.zac.app.bag.model.RESTWoonplaats
 import nl.info.client.bag.model.generated.HalLink
 import nl.info.client.bag.model.generated.Indicatie
 import nl.info.client.bag.model.generated.StatusWoonplaats
@@ -21,24 +21,12 @@ import nl.info.client.zgw.model.createZaak
 import java.net.URI
 import java.util.UUID
 
-class RestWoonplaatsConverterTest : BehaviorSpec({
+class RestWoonplaatsTest : BehaviorSpec({
     afterEach {
         checkUnnecessaryStub()
     }
 
-    context("convertToREST(ZaakobjectWoonplaats)") {
-        given("a null ZaakobjectWoonplaats") {
-            val zaakobjectWoonplaats: ZaakobjectWoonplaats? = null
-
-            `when`("convertToREST is called") {
-                val result = RestWoonplaatsConverter.convertToREST(zaakobjectWoonplaats)
-
-                then("it should return null") {
-                    result.shouldBeNull()
-                }
-            }
-        }
-
+    context("Converting a ZaakobjectWoonplaats") {
         given("a valid ZaakobjectWoonplaats with identificatie and naam") {
             val fakeObjectUri = URI("https://example.com/bag/woonplaats/fakeObjectUri")
             val fakeZaakUri = URI("https://example.com/zaken/fakeZaakUri")
@@ -51,11 +39,11 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                 uuid = UUID.randomUUID()
             )
 
-            `when`("convertToREST is called") {
-                val result = RestWoonplaatsConverter.convertToREST(zaakobjectWoonplaats)
+            `when`("it is converted") {
+                val result = zaakobjectWoonplaats.toRestWoonplaats().shouldNotBeNull()
 
                 then("it should map the url from the object URI") {
-                    result!!.url shouldBe fakeObjectUri
+                    result.url shouldBe fakeObjectUri
                 }
 
                 and("it should map the identificatie from the object identificatie") {
@@ -69,18 +57,18 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
         }
     }
 
-    context("convertToZaakobject(RESTWoonplaats, Zaak)") {
-        given("a RESTWoonplaats and a Zaak") {
+    context("Converting a RestWoonplaats to a zaakobject request") {
+        given("a RestWoonplaats and a Zaak") {
             val fakeWoonplaatsUrl = URI("https://example.com/bag/woonplaats/fakeWoonplaatsUrl")
-            val restWoonplaats = RESTWoonplaats().apply {
+            val restWoonplaats = RestWoonplaats().apply {
                 url = fakeWoonplaatsUrl
                 identificatie = "fakeIdentificatie"
                 naam = "fakeWoonplaatsNaam"
             }
             val zaak = createZaak()
 
-            `when`("convertToZaakobject is called") {
-                val result = RestWoonplaatsConverter.convertToZaakobject(restWoonplaats, zaak)
+            `when`("it is converted to a zaakobject request") {
+                val result = restWoonplaats.toZaakobjectWoonplaatsRequest(zaak)
 
                 then("it should set the zaak URL from the provided zaak") {
                     result.zaak shouldBe zaak.url
@@ -98,19 +86,7 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
         }
     }
 
-    context("convertToREST(WoonplaatsIOHalBasis)") {
-        given("a null WoonplaatsIOHalBasis") {
-            val woonplaatsIOHalBasis: WoonplaatsIOHalBasis? = null
-
-            `when`("convertToREST is called") {
-                val result = RestWoonplaatsConverter.convertToREST(woonplaatsIOHalBasis)
-
-                then("it should return null") {
-                    result.shouldBeNull()
-                }
-            }
-        }
-
+    context("Converting a WoonplaatsIOHalBasis") {
         given("a valid WoonplaatsIOHalBasis with all Woonplaats fields and a self link") {
             val fakeSelfHref = "https://example.com/bag/woonplaats/fakeSelfHref"
             val woonplaats = Woonplaats().apply {
@@ -126,11 +102,11 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                 setLinks(woonplaatsLinks)
             }
 
-            `when`("convertToREST is called") {
-                val result = RestWoonplaatsConverter.convertToREST(woonplaatsIOHalBasis)
+            `when`("it is converted") {
+                val result = woonplaatsIOHalBasis.toRestWoonplaats().shouldNotBeNull()
 
                 then("it should set the url from the self link href") {
-                    result!!.url shouldBe URI.create(fakeSelfHref)
+                    result.url shouldBe URI.create(fakeSelfHref)
                 }
 
                 and("it should map the identificatie from the woonplaats") {
@@ -146,7 +122,7 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                 }
 
                 and("it should map geconstateerd as true when Indicatie is J") {
-                    result.geconstateerd shouldBe true
+                    result.isGeconstateerd shouldBe true
                 }
             }
         }
@@ -166,11 +142,11 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                 setLinks(woonplaatsLinks)
             }
 
-            `when`("convertToREST is called") {
-                val result = RestWoonplaatsConverter.convertToREST(woonplaatsIOHalBasis)
+            `when`("it is converted") {
+                val result = woonplaatsIOHalBasis.toRestWoonplaats().shouldNotBeNull()
 
                 then("it should map geconstateerd as false when Indicatie is N") {
-                    result!!.geconstateerd shouldBe false
+                    result.isGeconstateerd shouldBe false
                 }
 
                 and("it should map the status from the woonplaats") {

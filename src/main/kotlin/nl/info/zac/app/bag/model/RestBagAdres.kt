@@ -1,76 +1,112 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.bag.model
 
-package net.atos.zac.app.bag.model;
+import nl.info.client.bag.model.generated.AdresIOHal
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectAdres
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdresRequest
+import nl.info.zac.app.zaak.model.RestGeometry
+import nl.info.zac.app.zaak.model.RestGeometryType
+import java.net.URI
 
-import java.util.ArrayList;
-import java.util.List;
+class RestBagAdres : RestBagObject() {
+    var postcode: String? = null
 
-import nl.info.zac.app.zaak.model.RestGeometry;
-import nl.info.zac.app.zaak.model.RestGeometryType;
+    var huisnummerWeergave: String? = null
 
-public class RESTBAGAdres extends RESTBAGObject {
+    var huisnummer: Int = 0
 
-    public String postcode;
+    var huisletter: String? = null
 
-    public String huisnummerWeergave;
+    var huisnummertoevoeging: String? = null
 
-    public int huisnummer;
+    var openbareRuimteNaam: String? = null
 
-    public String huisletter;
+    var woonplaatsNaam: String? = null
 
-    public String huisnummertoevoeging;
+    var openbareRuimte: RestOpenbareRuimte? = null
 
-    public String openbareRuimteNaam;
+    var nummeraanduiding: RestNummeraanduiding? = null
 
-    public String woonplaatsNaam;
+    var woonplaats: RestWoonplaats? = null
 
-    public RESTOpenbareRuimte openbareRuimte;
+    var adresseerbaarObject: RestAdresseerbaarObject? = null
 
-    public RESTNummeraanduiding nummeraanduiding;
+    var panden: List<RestPand> = emptyList()
 
-    public RESTWoonplaats woonplaats;
+    override val bagObjectType
+        get() = BagObjectType.ADRES
 
-    public RESTAdresseerbaarObject adresseerbaarObject;
+    override val omschrijving
+        get() = "$openbareRuimteNaam $huisnummerWeergave, $postcode $woonplaatsNaam"
 
-    public List<RESTPand> panden = new ArrayList<>();
-
-    public RESTBAGAdres() {
-    }
-
-    @Override
-    public BAGObjectType getBagObjectType() {
-        return BAGObjectType.ADRES;
-    }
-
-    @Override
-    public String getOmschrijving() {
-        return "%s %s, %s %s".formatted(openbareRuimteNaam, huisnummerWeergave, postcode, woonplaatsNaam);
-    }
-
-    public RestGeometry getGeometry() {
-        List<RestGeometry> restGeometries = new ArrayList<>();
-        if (adresseerbaarObject != null && adresseerbaarObject.geometry != null) {
-            restGeometries.add(adresseerbaarObject.geometry);
+    val geometry: RestGeometry?
+        get() {
+            val restGeometries = listOfNotNull(adresseerbaarObject?.geometry, panden.firstOrNull()?.geometry)
+            return when (restGeometries.size) {
+                1 -> restGeometries.first()
+                2 -> RestGeometry(type = RestGeometryType.GEOMETRY_COLLECTION, geometrycollection = restGeometries)
+                else -> null
+            }
         }
-        if (panden != null && !panden.isEmpty() && panden.getFirst().geometry != null) {
-            restGeometries.add(panden.getFirst().geometry);
-        }
-        RestGeometry restGeometry = new RestGeometry(
-                RestGeometryType.GEOMETRY_COLLECTION,
-                null,
-                null,
-                restGeometries
-        );
+}
 
-        if (restGeometries.size() == 1) {
-            return restGeometries.getFirst();
-        }
-        if (restGeometries.size() == 2) {
-            return restGeometry;
-        }
-        return null;
+fun AdresIOHal.toRestBagAdres() = RestBagAdres().apply {
+    url = URI.create(this@toRestBagAdres.links.self.href)
+    identificatie = this@toRestBagAdres.nummeraanduidingIdentificatie
+    postcode = this@toRestBagAdres.postcode
+    huisnummer = this@toRestBagAdres.huisnummer
+    huisletter = this@toRestBagAdres.huisletter
+    huisnummertoevoeging = this@toRestBagAdres.huisnummertoevoeging
+    huisnummerWeergave = createHuisnummerWeergave(
+        this@toRestBagAdres.huisnummer,
+        this@toRestBagAdres.huisletter,
+        this@toRestBagAdres.huisnummertoevoeging
+    )
+    openbareRuimteNaam = this@toRestBagAdres.openbareRuimteNaam
+    woonplaatsNaam = this@toRestBagAdres.woonplaatsNaam
+    isGeconstateerd = this@toRestBagAdres.geconstateerd?.let {
+        it.nummeraanduiding == true && it.woonplaats == true && it.openbareRuimte == true
+    } == true
+    this@toRestBagAdres.embedded?.let { adresIOEmbedded ->
+        openbareRuimte = adresIOEmbedded.openbareRuimte?.toRestOpenbareRuimte(this@toRestBagAdres)
+        nummeraanduiding = adresIOEmbedded.nummeraanduiding?.toRestNummeraanduiding()
+        woonplaats = adresIOEmbedded.woonplaats?.toRestWoonplaats()
+        panden = adresIOEmbedded.panden.orEmpty().map { it.toRestPand() }
+        adresseerbaarObject = adresIOEmbedded.adresseerbaarObject?.toRestAdresseerbaarObject()
     }
 }
+
+fun ZaakobjectAdres.toRestBagAdres() = objectIdentificatie?.let { objectAdres ->
+    RestBagAdres().apply {
+        url = this@toRestBagAdres.`object`
+        identificatie = objectAdres.identificatie
+        postcode = objectAdres.postcode
+        huisnummerWeergave = createHuisnummerWeergave(
+            objectAdres.huisnummer,
+            objectAdres.huisletter,
+            objectAdres.huisnummertoevoeging
+        )
+        openbareRuimteNaam = objectAdres.gorOpenbareRuimteNaam
+        woonplaatsNaam = objectAdres.wplWoonplaatsNaam
+    }
+}
+
+fun RestBagAdres.toZaakobjectAdresRequest(zaak: Zaak) =
+    ZaakobjectAdresRequest(
+        zaak.url,
+        url,
+        ObjectAdres(
+            identificatie = identificatie,
+            wplWoonplaatsNaam = woonplaatsNaam,
+            gorOpenbareRuimteNaam = openbareRuimteNaam,
+            huisnummer = huisnummer,
+            huisletter = huisletter,
+            huisnummertoevoeging = huisnummertoevoeging,
+            postcode = postcode
+        )
+    )

@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.bag
+package nl.info.zac.app.bag
 
-import net.atos.zac.app.bag.model.BAGObjectType
-import net.atos.zac.app.bag.model.RESTBAGAdres
-import net.atos.zac.app.bag.model.RESTListAdressenParameters
-import net.atos.zac.app.bag.model.RESTWoonplaats
+import nl.info.zac.app.bag.model.BagObjectType
+import nl.info.zac.app.bag.model.RestBagAdres
+import nl.info.zac.app.bag.model.RestListAdressenParameters
+import nl.info.zac.app.bag.model.RestWoonplaats
 import nl.info.client.bag.model.generated.AdresseerbaarObjectIOHal
 import nl.info.client.bag.model.generated.Ligplaats
 import nl.info.client.bag.model.generated.LigplaatsIOHal
@@ -33,25 +33,25 @@ fun createLigplaatsAdresseerbaarObject(status: StatusPlaats) =
         }
     }
 
-fun createRESTBAGAdres() = RESTBAGAdres().apply {
+fun createRestBagAdres() = RestBagAdres().apply {
     huisnummer = 1
     postcode = "1234AB"
-    woonplaats = createRESTWoonplaats()
+    woonplaats = createRestWoonplaats()
 }
 
-fun createRESTListAdressenParameters(
-    bagObjectType: BAGObjectType = BAGObjectType.ADRES,
+fun createRestListAdressenParameters(
+    bagObjectType: BagObjectType = BagObjectType.ADRES,
     trefwoorden: String = "fakeText",
     postcode: String = "1234AB",
     huisnummer: Int = 1,
-) = RESTListAdressenParameters().apply {
+) = RestListAdressenParameters().apply {
     this.type = bagObjectType
     this.trefwoorden = trefwoorden
     this.postcode = postcode
     this.huisnummer = huisnummer
 }
 
-fun createRESTWoonplaats() = RESTWoonplaats().apply {
+fun createRestWoonplaats() = RestWoonplaats().apply {
     naam = "Amsterdam"
 }
 

@@ -1,42 +1,37 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.util
 
-package net.atos.zac.util;
+import jakarta.json.bind.serializer.DeserializationContext
+import jakarta.json.bind.serializer.JsonbDeserializer
+import jakarta.json.stream.JsonParser
+import net.atos.zac.util.JsonbUtil.JSONB
+import nl.info.zac.app.bag.model.BagObjectType
+import nl.info.zac.app.bag.model.RestAdresseerbaarObject
+import nl.info.zac.app.bag.model.RestBagAdres
+import nl.info.zac.app.bag.model.RestBagObject
+import nl.info.zac.app.bag.model.RestNummeraanduiding
+import nl.info.zac.app.bag.model.RestOpenbareRuimte
+import nl.info.zac.app.bag.model.RestPand
+import nl.info.zac.app.bag.model.RestWoonplaats
+import java.lang.reflect.Type
 
-import static net.atos.zac.util.JsonbUtil.JSONB;
-
-import java.lang.reflect.Type;
-
-import jakarta.json.JsonObject;
-import jakarta.json.bind.serializer.DeserializationContext;
-import jakarta.json.bind.serializer.JsonbDeserializer;
-import jakarta.json.stream.JsonParser;
-
-import net.atos.zac.app.bag.model.BAGObjectType;
-import net.atos.zac.app.bag.model.RESTAdresseerbaarObject;
-import net.atos.zac.app.bag.model.RESTBAGAdres;
-import net.atos.zac.app.bag.model.RESTBAGObject;
-import net.atos.zac.app.bag.model.RESTNummeraanduiding;
-import net.atos.zac.app.bag.model.RESTOpenbareRuimte;
-import net.atos.zac.app.bag.model.RESTPand;
-import net.atos.zac.app.bag.model.RESTWoonplaats;
-
-public class RESTBAGObjectJsonbDeserializer implements JsonbDeserializer<RESTBAGObject> {
-
-    @Override
-    public RESTBAGObject deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
-        final JsonObject jsonObject = parser.getObject();
-        final BAGObjectType type = BAGObjectType.valueOf(jsonObject.getJsonString("bagObjectType").getString());
-
-        return switch (type) {
-            case ADRES -> JSONB.fromJson(jsonObject.toString(), RESTBAGAdres.class);
-            case NUMMERAANDUIDING -> JSONB.fromJson(jsonObject.toString(), RESTNummeraanduiding.class);
-            case WOONPLAATS -> JSONB.fromJson(jsonObject.toString(), RESTWoonplaats.class);
-            case PAND -> JSONB.fromJson(jsonObject.toString(), RESTPand.class);
-            case OPENBARE_RUIMTE -> JSONB.fromJson(jsonObject.toString(), RESTOpenbareRuimte.class);
-            case ADRESSEERBAAR_OBJECT -> JSONB.fromJson(jsonObject.toString(), RESTAdresseerbaarObject.class);
-        };
+class RestBagObjectJsonbDeserializer : JsonbDeserializer<RestBagObject> {
+    override fun deserialize(
+        parser: JsonParser,
+        deserializationContext: DeserializationContext,
+        runtimeType: Type
+    ): RestBagObject {
+        val json = parser.`object`
+        return when (BagObjectType.valueOf(json.getString("bagObjectType"))) {
+            BagObjectType.ADRES -> JSONB.fromJson(json.toString(), RestBagAdres::class.java)
+            BagObjectType.NUMMERAANDUIDING -> JSONB.fromJson(json.toString(), RestNummeraanduiding::class.java)
+            BagObjectType.WOONPLAATS -> JSONB.fromJson(json.toString(), RestWoonplaats::class.java)
+            BagObjectType.PAND -> JSONB.fromJson(json.toString(), RestPand::class.java)
+            BagObjectType.OPENBARE_RUIMTE -> JSONB.fromJson(json.toString(), RestOpenbareRuimte::class.java)
+            BagObjectType.ADRESSEERBAAR_OBJECT -> JSONB.fromJson(json.toString(), RestAdresseerbaarObject::class.java)
+        }
     }
 }

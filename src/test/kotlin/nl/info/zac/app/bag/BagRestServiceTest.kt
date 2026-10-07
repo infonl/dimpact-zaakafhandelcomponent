@@ -2,8 +2,9 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.bag
+package nl.info.zac.app.bag
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -17,12 +18,12 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.bag.model.BAGObjectType
-import net.atos.zac.app.bag.model.RESTBAGObjectGegevens
-import net.atos.zac.app.bag.model.RESTNummeraanduiding
-import net.atos.zac.app.bag.model.RESTOpenbareRuimte
-import net.atos.zac.app.bag.model.RESTPand
-import net.atos.zac.app.bag.model.RESTWoonplaats
+import nl.info.zac.app.bag.model.BagObjectType
+import nl.info.zac.app.bag.model.RestBagObjectGegevens
+import nl.info.zac.app.bag.model.RestNummeraanduiding
+import nl.info.zac.app.bag.model.RestOpenbareRuimte
+import nl.info.zac.app.bag.model.RestPand
+import nl.info.zac.app.bag.model.RestWoonplaats
 import nl.info.client.bag.BagClientService
 import nl.info.client.bag.model.BevraagAdressenParameters
 import nl.info.client.bag.model.createAdresIOHal
@@ -73,8 +74,8 @@ class BagRestServiceTest : BehaviorSpec({
     }
 
     given("Two addresses") {
-        val listAdressenParameters = createRESTListAdressenParameters(
-            bagObjectType = BAGObjectType.ADRES,
+        val listAdressenParameters = createRestListAdressenParameters(
+            bagObjectType = BagObjectType.ADRES,
             trefwoorden = "fakeText1, fakeText2",
             postcode = "fakePostcode",
             huisnummer = 123
@@ -127,7 +128,7 @@ class BagRestServiceTest : BehaviorSpec({
         every { bagClientService.readAdres(bagObjectId) } returns bagAddress
 
         `when`("the BAG object is read") {
-            val restBagObject = bagRestService.read(BAGObjectType.ADRES, bagObjectId)
+            val restBagObject = bagRestService.read(BagObjectType.ADRES, bagObjectId)
 
             then(
                 "the expected BAG object should be returned"
@@ -135,7 +136,7 @@ class BagRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     bagClientService.readAdres(bagObjectId)
                 }
-                with(restBagObject) {
+                with(restBagObject.shouldNotBeNull()) {
                     url.toString() shouldBe bagAddress.links.self.href
                     identificatie shouldBe bagAddress.nummeraanduidingIdentificatie
                 }
@@ -151,10 +152,10 @@ class BagRestServiceTest : BehaviorSpec({
         every { bagClientService.readWoonplaats(bagObjectId) } returns woonplaatsIOHal
 
         `when`("the BAG object is read") {
-            val restBagObject = bagRestService.read(BAGObjectType.WOONPLAATS, bagObjectId)
+            val restBagObject = bagRestService.read(BagObjectType.WOONPLAATS, bagObjectId)
 
             then("the woonplaats is returned") {
-                restBagObject.shouldBeInstanceOf<RESTWoonplaats>()
+                restBagObject.shouldBeInstanceOf<RestWoonplaats>()
                 restBagObject.naam shouldBe woonplaatsIOHal.woonplaats.naam
                 restBagObject.url shouldBe URI("https://example.com/woonplaats/1")
             }
@@ -171,10 +172,10 @@ class BagRestServiceTest : BehaviorSpec({
         every { bagClientService.readPand(bagObjectId) } returns pandIOHal
 
         `when`("the BAG object is read") {
-            val restBagObject = bagRestService.read(BAGObjectType.PAND, bagObjectId)
+            val restBagObject = bagRestService.read(BagObjectType.PAND, bagObjectId)
 
             then("the pand is returned") {
-                restBagObject.shouldBeInstanceOf<RESTPand>()
+                restBagObject.shouldBeInstanceOf<RestPand>()
                 restBagObject.oorspronkelijkBouwjaar shouldBe pandIOHal.pand.oorspronkelijkBouwjaar
                 restBagObject.url shouldBe URI("https://example.com/pand/1")
             }
@@ -189,10 +190,10 @@ class BagRestServiceTest : BehaviorSpec({
         every { bagClientService.readOpenbareRuimte(bagObjectId) } returns openbareRuimteIOHal
 
         `when`("the BAG object is read") {
-            val restBagObject = bagRestService.read(BAGObjectType.OPENBARE_RUIMTE, bagObjectId)
+            val restBagObject = bagRestService.read(BagObjectType.OPENBARE_RUIMTE, bagObjectId)
 
             then("the openbare ruimte is returned") {
-                restBagObject.shouldBeInstanceOf<RESTOpenbareRuimte>()
+                restBagObject.shouldBeInstanceOf<RestOpenbareRuimte>()
                 restBagObject.naam shouldBe openbareRuimteIOHal.openbareRuimte.naam
                 restBagObject.url shouldBe URI("https://example.com/openbareruimte/1")
             }
@@ -209,10 +210,10 @@ class BagRestServiceTest : BehaviorSpec({
         every { bagClientService.readNummeraanduiding(bagObjectId) } returns nummeraanduidingIOHal
 
         `when`("the BAG object is read") {
-            val restBagObject = bagRestService.read(BAGObjectType.NUMMERAANDUIDING, bagObjectId)
+            val restBagObject = bagRestService.read(BagObjectType.NUMMERAANDUIDING, bagObjectId)
 
             then("the nummeraanduiding is returned") {
-                restBagObject.shouldBeInstanceOf<RESTNummeraanduiding>()
+                restBagObject.shouldBeInstanceOf<RestNummeraanduiding>()
                 restBagObject.identificatie shouldBe nummeraanduidingIOHal.nummeraanduiding.identificatie
                 restBagObject.url shouldBe URI("https://example.com/nummeraanduiding/1")
             }
@@ -221,7 +222,7 @@ class BagRestServiceTest : BehaviorSpec({
 
     given("A BAG object of type adresseerbaar object") {
         `when`("the BAG object is read") {
-            val restBagObject = bagRestService.read(BAGObjectType.ADRESSEERBAAR_OBJECT, "fakeId")
+            val restBagObject = bagRestService.read(BagObjectType.ADRESSEERBAAR_OBJECT, "fakeId")
 
             then("nothing is returned because an adresseerbaar object is not a standalone entity") {
                 restBagObject.shouldBeNull()
@@ -236,11 +237,11 @@ class BagRestServiceTest : BehaviorSpec({
         given("A BAG address that is not yet linked to the zaak and a user that may add BAG objects") {
             val zaak = createZaak()
             val loggedInUser = createLoggedInUser()
-            val restBagAdres = createRESTBAGAdres().apply {
+            val restBagAdres = createRestBagAdres().apply {
                 url = URI("https://example.com/adres/1")
                 identificatie = "fakeIdentificatie"
             }
-            val restBagObjectGegevens = RESTBAGObjectGegevens().apply {
+            val restBagObjectGegevens = RestBagObjectGegevens().apply {
                 zaakUuid = zaak.uuid
                 zaakobject = restBagAdres
             }
@@ -278,9 +279,9 @@ class BagRestServiceTest : BehaviorSpec({
         given("A BAG object that is already linked to the zaak") {
             val zaak = createZaak()
             val loggedInUser = createLoggedInUser()
-            val restBagObjectGegevens = RESTBAGObjectGegevens().apply {
+            val restBagObjectGegevens = RestBagObjectGegevens().apply {
                 zaakUuid = zaak.uuid
-                zaakobject = RESTWoonplaats().apply {
+                zaakobject = RestWoonplaats().apply {
                     url = URI("https://example.com/woonplaats/1")
                 }
             }
@@ -317,9 +318,9 @@ class BagRestServiceTest : BehaviorSpec({
             every { zrcClientService.createZaakobject(any()) } returns mockk()
 
             `when`("the BAG objects are added") {
-                listOf(RESTNummeraanduiding(), RESTPand(), RESTOpenbareRuimte()).forEach {
+                listOf(RestNummeraanduiding(), RestPand(), RestOpenbareRuimte()).forEach {
                     bagRestService.create(
-                        RESTBAGObjectGegevens().apply {
+                        RestBagObjectGegevens().apply {
                             zaakUuid = zaak.uuid
                             zaakobject = it
                         }
@@ -342,9 +343,9 @@ class BagRestServiceTest : BehaviorSpec({
         given("A user that may not add BAG objects to the zaak") {
             val zaak = createZaak()
             val loggedInUser = createLoggedInUser()
-            val restBagObjectGegevens = RESTBAGObjectGegevens().apply {
+            val restBagObjectGegevens = RestBagObjectGegevens().apply {
                 zaakUuid = zaak.uuid
-                zaakobject = createRESTBAGAdres()
+                zaakobject = createRestBagAdres()
             }
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -371,7 +372,7 @@ class BagRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val loggedInUser = createLoggedInUser()
             val zaakobject = createZaakobjectPand()
-            val restBagObjectGegevens = RESTBAGObjectGegevens().apply {
+            val restBagObjectGegevens = RestBagObjectGegevens().apply {
                 uuid = zaakobject.uuid
                 zaakUuid = zaak.uuid
                 redenWijzigen = "fakeRedenWijzigen"
@@ -396,7 +397,7 @@ class BagRestServiceTest : BehaviorSpec({
         given("A user that may not handle the zaak") {
             val zaak = createZaak()
             val loggedInUser = createLoggedInUser()
-            val restBagObjectGegevens = RESTBAGObjectGegevens().apply {
+            val restBagObjectGegevens = RestBagObjectGegevens().apply {
                 uuid = UUID.randomUUID()
                 zaakUuid = zaak.uuid
             }
@@ -451,12 +452,11 @@ class BagRestServiceTest : BehaviorSpec({
                     with(restBagObjectGegevensList[0]) {
                         uuid shouldBe zaakobjectPand.uuid
                         zaakUuid shouldBe zaak.uuid
-                        zaakobject.shouldBeInstanceOf<RESTPand>()
-                        zaakobject.identificatie shouldBe "fakePandIdentificatie"
+                        zaakobject.shouldBeInstanceOf<RestPand>().identificatie shouldBe "fakePandIdentificatie"
                     }
                     with(restBagObjectGegevensList[1]) {
                         uuid shouldBe zaakobjectOpenbareRuimte.uuid
-                        zaakobject.shouldBeInstanceOf<RESTOpenbareRuimte>()
+                        zaakobject.shouldBeInstanceOf<RestOpenbareRuimte>()
                     }
                 }
             }

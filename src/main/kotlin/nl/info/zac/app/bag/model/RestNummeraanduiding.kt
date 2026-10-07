@@ -1,44 +1,105 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.bag.model
 
-package net.atos.zac.app.bag.model;
+import nl.info.client.bag.model.generated.Indicatie
+import nl.info.client.bag.model.generated.Nummeraanduiding
+import nl.info.client.bag.model.generated.NummeraanduidingIOHal
+import nl.info.client.bag.model.generated.NummeraanduidingIOHalBasis
+import nl.info.client.bag.model.generated.StatusNaamgeving
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduidingRequest
+import java.net.URI
 
-import nl.info.client.bag.model.generated.StatusNaamgeving;
-import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
+class RestNummeraanduiding : RestBagObject() {
+    var huisnummerWeergave: String? = null
 
-public class RESTNummeraanduiding extends RESTBAGObject {
+    var huisnummer: Int = 0
 
-    public String huisnummerWeergave;
+    var huisletter: String? = null
 
-    public int huisnummer;
+    var huisnummertoevoeging: String? = null
 
-    public String huisletter;
+    var postcode: String? = null
 
-    public String huisnummertoevoeging;
+    var typeAdresseerbaarObject: TypeAdresseerbaarObject? = null
 
-    public String postcode;
+    var status: StatusNaamgeving? = null
 
-    public TypeAdresseerbaarObject typeAdresseerbaarObject;
+    var woonplaats: RestWoonplaats? = null
 
-    public StatusNaamgeving status;
+    var openbareRuimte: RestOpenbareRuimte? = null
 
-    public RESTWoonplaats woonplaats;
+    override val bagObjectType
+        get() = BagObjectType.NUMMERAANDUIDING
 
-    public RESTOpenbareRuimte openbareRuimte;
+    override val omschrijving
+        get() = "$huisnummerWeergave $postcode"
+}
 
-    public RESTNummeraanduiding() {
+fun NummeraanduidingIOHalBasis.toRestNummeraanduiding() = nummeraanduiding.toRestNummeraanduiding().apply {
+    url = URI.create(this@toRestNummeraanduiding.links.self.href)
+}
+
+fun NummeraanduidingIOHal.toRestNummeraanduiding() = nummeraanduiding.toRestNummeraanduiding().apply {
+    url = URI.create(this@toRestNummeraanduiding.links.self.href)
+    this@toRestNummeraanduiding.embedded?.let { nummeraanduidingEmbedded ->
+        woonplaats = nummeraanduidingEmbedded.ligtInWoonplaats?.toRestWoonplaats()
+        openbareRuimte = nummeraanduidingEmbedded.ligtAanOpenbareRuimte?.toRestOpenbareRuimte()
+    }
+}
+
+fun ZaakobjectNummeraanduiding.toRestNummeraanduiding() =
+    objectIdentificatie?.overigeData?.let { objectNummeraanduiding ->
+        RestNummeraanduiding().apply {
+            url = this@toRestNummeraanduiding.`object`
+            identificatie = objectNummeraanduiding.identificatie
+            postcode = objectNummeraanduiding.postcode
+            huisnummer = objectNummeraanduiding.huisnummer
+            huisletter = objectNummeraanduiding.huisletter
+            huisnummertoevoeging = objectNummeraanduiding.huisnummertoevoeging
+            huisnummerWeergave = createHuisnummerWeergave(
+                objectNummeraanduiding.huisnummer,
+                objectNummeraanduiding.huisletter,
+                objectNummeraanduiding.huisnummertoevoeging
+            )
+            status = StatusNaamgeving.fromValue(objectNummeraanduiding.status)
+            typeAdresseerbaarObject = TypeAdresseerbaarObject.fromValue(objectNummeraanduiding.typeAdresseerbaarObject)
+        }
     }
 
-    @Override
-    public BAGObjectType getBagObjectType() {
-        return BAGObjectType.NUMMERAANDUIDING;
-    }
+fun RestNummeraanduiding.toZaakobjectNummeraanduidingRequest(zaak: Zaak) =
+    ZaakobjectNummeraanduidingRequest(
+        zaak.url,
+        url,
+        ObjectNummeraanduiding(
+            identificatie = identificatie,
+            huisnummer = huisnummer,
+            huisletter = huisletter,
+            huisnummertoevoeging = huisnummertoevoeging,
+            postcode = postcode,
+            typeAdresseerbaarObject = typeAdresseerbaarObject?.toString(),
+            status = status?.toString()
+        )
+    )
 
-    @Override
-    public String getOmschrijving() {
-        return "%s %s".formatted(huisnummerWeergave, postcode);
-    }
-
+fun Nummeraanduiding.toRestNummeraanduiding() = RestNummeraanduiding().apply {
+    identificatie = this@toRestNummeraanduiding.identificatie
+    postcode = this@toRestNummeraanduiding.postcode
+    huisnummer = this@toRestNummeraanduiding.huisnummer
+    huisletter = this@toRestNummeraanduiding.huisletter
+    huisnummertoevoeging = this@toRestNummeraanduiding.huisnummertoevoeging
+    huisnummerWeergave = createHuisnummerWeergave(
+        this@toRestNummeraanduiding.huisnummer,
+        this@toRestNummeraanduiding.huisletter,
+        this@toRestNummeraanduiding.huisnummertoevoeging
+    )
+    status = this@toRestNummeraanduiding.status
+    typeAdresseerbaarObject = this@toRestNummeraanduiding.typeAdresseerbaarObject
+    isGeconstateerd = this@toRestNummeraanduiding.geconstateerd == Indicatie.J
 }

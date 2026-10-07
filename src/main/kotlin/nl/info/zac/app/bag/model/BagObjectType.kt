@@ -1,25 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.bag.model
 
-package net.atos.zac.app.bag.model;
-
-public enum BAGObjectType {
+enum class BagObjectType(val expand: String) {
     ADRES("adressen"),
     WOONPLAATS("woonplaats"),
     PAND("panden"),
     OPENBARE_RUIMTE("openbareRuimte"),
     NUMMERAANDUIDING("nummeraanduiding"),
-    ADRESSEERBAAR_OBJECT("adreseerbaarObject");
-
-    public final String expand;
-
-    BAGObjectType(final String expand) {
-        this.expand = expand;
-    }
-
-    public String getExpand() {
-        return expand;
-    }
+    ADRESSEERBAAR_OBJECT("adreseerbaarObject")
 }

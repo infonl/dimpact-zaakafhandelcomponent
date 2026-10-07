@@ -1,28 +1,54 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.bag.model
 
-package net.atos.zac.app.bag.model;
+import nl.info.client.bag.model.generated.Indicatie
+import nl.info.client.bag.model.generated.StatusWoonplaats
+import nl.info.client.bag.model.generated.Woonplaats
+import nl.info.client.bag.model.generated.WoonplaatsIOHal
+import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaatsRequest
+import java.net.URI
 
-import nl.info.client.bag.model.generated.StatusWoonplaats;
+class RestWoonplaats : RestBagObject() {
+    var naam: String? = null
 
-public class RESTWoonplaats extends RESTBAGObject {
+    var status: StatusWoonplaats? = null
 
-    public String naam;
+    override val bagObjectType
+        get() = BagObjectType.WOONPLAATS
 
-    public StatusWoonplaats status;
+    override val omschrijving
+        get() = naam
+}
 
-    public RESTWoonplaats() {
+fun WoonplaatsIOHalBasis.toRestWoonplaats() = woonplaats.toRestWoonplaats().apply {
+    url = URI.create(this@toRestWoonplaats.links.self.href)
+}
+
+fun WoonplaatsIOHal.toRestWoonplaats() = woonplaats.toRestWoonplaats().apply {
+    url = URI.create(this@toRestWoonplaats.links.self.href)
+}
+
+fun ZaakobjectWoonplaats.toRestWoonplaats() = objectIdentificatie?.let { objectWoonplaats ->
+    RestWoonplaats().apply {
+        url = this@toRestWoonplaats.`object`
+        identificatie = objectWoonplaats.identificatie
+        naam = objectWoonplaats.woonplaatsNaam
     }
+}
 
-    @Override
-    public BAGObjectType getBagObjectType() {
-        return BAGObjectType.WOONPLAATS;
-    }
+fun RestWoonplaats.toZaakobjectWoonplaatsRequest(zaak: Zaak) =
+    ZaakobjectWoonplaatsRequest(zaak.url, url, ObjectWoonplaats(identificatie, naam))
 
-    @Override
-    public String getOmschrijving() {
-        return naam;
-    }
+private fun Woonplaats.toRestWoonplaats() = RestWoonplaats().apply {
+    identificatie = this@toRestWoonplaats.identificatie
+    naam = this@toRestWoonplaats.naam
+    status = this@toRestWoonplaats.status
+    isGeconstateerd = this@toRestWoonplaats.geconstateerd == Indicatie.J
 }

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.bag.converter
+package nl.info.zac.app.bag.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -28,49 +28,16 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakobjectOpenbareRuimte
 import java.net.URI
 
-class RestOpenbareRuimteConverterTest : BehaviorSpec({
+class RestOpenbareRuimteTest : BehaviorSpec({
 
-    context("convertToREST") {
-        given("A null openbareRuimteIO") {
-            `when`("convertToREST is called") {
-                val result = RestOpenbareRuimteConverter.convertToREST(
-                    null as OpenbareRuimteIOHalBasis?,
-                    createAdresIOHal()
-                )
-
-                then("null is returned") {
-                    result.shouldBeNull()
-                }
-            }
-        }
-
-        given("A null OpenbareRuimteIOHalBasis") {
-            `when`("convertToREST is called") {
-                val result = RestOpenbareRuimteConverter.convertToREST(null as OpenbareRuimteIOHalBasis?)
-
-                then("null is returned") {
-                    result.shouldBeNull()
-                }
-            }
-        }
-
-        given("A null OpenbareRuimteIOHal") {
-            `when`("convertToREST is called") {
-                val result = RestOpenbareRuimteConverter.convertToREST(null as OpenbareRuimteIOHal?)
-
-                then("null is returned") {
-                    result.shouldBeNull()
-                }
-            }
-        }
-
+    context("Converting an openbare ruimte") {
         given("A ZaakobjectOpenbareRuimte with null objectIdentificatie") {
             val zaakobject = mockk<ZaakobjectOpenbareRuimte> {
                 every { objectIdentificatie } returns null
             }
 
-            `when`("convertToREST is called") {
-                val result = RestOpenbareRuimteConverter.convertToREST(zaakobject)
+            `when`("it is converted") {
+                val result = zaakobject.toRestOpenbareRuimte()
 
                 then("null is returned") {
                     result.shouldBeNull()
@@ -78,15 +45,15 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
             }
         }
 
-        given("A RESTOpenbareRuimte and a Zaak") {
+        given("A RestOpenbareRuimte and a Zaak") {
             val fakeOpenbareRuimteUrl = URI("https://example.com/openbareruimte/fakeId")
             val zaak = createZaak()
-            val restOpenbareRuimte = RestOpenbareRuimteConverter.convertToREST(
-                createZaakobjectOpenbareRuimte(bagobjectURI = fakeOpenbareRuimteUrl)
-            )!!
+            val restOpenbareRuimte = createZaakobjectOpenbareRuimte(
+                bagobjectURI = fakeOpenbareRuimteUrl
+            ).toRestOpenbareRuimte()!!
 
-            `when`("convertToZaakobject is called") {
-                val result = RestOpenbareRuimteConverter.convertToZaakobject(restOpenbareRuimte, zaak)
+            `when`("it is converted to a zaakobject request") {
+                val result = restOpenbareRuimte.toZaakobjectOpenbareRuimteRequest(zaak)
 
                 then("the result is a ZaakobjectOpenbareRuimte with the openbareRuimte URL set") {
                     result.`object` shouldBe fakeOpenbareRuimteUrl
@@ -118,7 +85,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
             }
 
             `when`("it is converted") {
-                val restOpenbareRuimte = RestOpenbareRuimteConverter.convertToREST(openbareRuimteIOHal)
+                val restOpenbareRuimte = openbareRuimteIOHal.toRestOpenbareRuimte()
 
                 then("the openbare ruimte fields and the woonplaats are set") {
                     with(restOpenbareRuimte) {
@@ -129,8 +96,8 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
                         type shouldBe TypeOpenbareRuimte.WEG
                         typeWeergave shouldBe TypeOpenbareRuimte.WEG.toString()
                         status shouldBe StatusNaamgeving.NAAMGEVING_UITGEGEVEN
-                        geconstateerd shouldBe true
-                        woonplaats.naam shouldBe "fakeWoonplaatsNaam"
+                        isGeconstateerd shouldBe true
+                        woonplaats?.naam shouldBe "fakeWoonplaatsNaam"
                     }
                 }
             }
@@ -145,14 +112,14 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
             }
 
             `when`("it is converted") {
-                val restOpenbareRuimte = RestOpenbareRuimteConverter.convertToREST(openbareRuimteIOHal)
+                val restOpenbareRuimte = openbareRuimteIOHal.toRestOpenbareRuimte()
 
                 then("no type and no woonplaats are set") {
                     with(restOpenbareRuimte) {
                         type.shouldBeNull()
                         typeWeergave.shouldBeNull()
                         woonplaats.shouldBeNull()
-                        geconstateerd shouldBe false
+                        isGeconstateerd shouldBe false
                     }
                 }
             }
@@ -167,8 +134,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
             }
 
             `when`("it is converted with the address") {
-                val restOpenbareRuimte = RestOpenbareRuimteConverter.convertToREST(
-                    openbareRuimteIOHalBasis,
+                val restOpenbareRuimte = openbareRuimteIOHalBasis.toRestOpenbareRuimte(
                     createAdresIOHal(woonplaatsNaam = "fakeAdresWoonplaatsNaam")
                 )
 
@@ -178,7 +144,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
             }
 
             `when`("it is converted without an address") {
-                val restOpenbareRuimte = RestOpenbareRuimteConverter.convertToREST(openbareRuimteIOHalBasis, null)
+                val restOpenbareRuimte = openbareRuimteIOHalBasis.toRestOpenbareRuimte()
 
                 then("the woonplaats the openbare ruimte lies in is used") {
                     restOpenbareRuimte.woonplaatsNaam shouldBe "fakeLigtIn"
@@ -200,7 +166,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
             )
 
             `when`("it is converted") {
-                val restOpenbareRuimte = RestOpenbareRuimteConverter.convertToREST(zaakobjectOpenbareRuimte)
+                val restOpenbareRuimte = zaakobjectOpenbareRuimte.toRestOpenbareRuimte()
 
                 then("the openbare ruimte fields stored in the zaakobject are set") {
                     with(restOpenbareRuimte!!) {

@@ -1,36 +1,66 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.bag.model
 
-package net.atos.zac.app.bag.model;
+import nl.info.client.bag.model.generated.AdresseerbaarObjectIOHal
+import nl.info.client.bag.model.generated.Indicatie
+import nl.info.client.bag.model.generated.Ligplaats
+import nl.info.client.bag.model.generated.Standplaats
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
+import nl.info.client.bag.model.generated.Verblijfsobject
+import nl.info.zac.app.zaak.model.RestGeometry
+import nl.info.zac.app.zaak.model.toRestGeometry
 
-import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
-import nl.info.zac.app.zaak.model.RestGeometry;
+class RestAdresseerbaarObject : RestBagObject() {
+    var typeAdresseerbaarObject: TypeAdresseerbaarObject? = null
 
-public class RESTAdresseerbaarObject extends RESTBAGObject {
+    var status: String? = null
 
-    public TypeAdresseerbaarObject typeAdresseerbaarObject;
+    var vboDoel: String? = null
 
-    public String status;
+    var vboOppervlakte: Int = 0
 
-    public String vboDoel;
+    var geometry: RestGeometry? = null
 
-    public int vboOppervlakte;
+    override val bagObjectType
+        get() = BagObjectType.ADRESSEERBAAR_OBJECT
 
-    public RestGeometry geometry;
+    override val omschrijving
+        get() = "$typeAdresseerbaarObject $identificatie"
+}
 
-    public RESTAdresseerbaarObject() {
+fun AdresseerbaarObjectIOHal.toRestAdresseerbaarObject() =
+    when {
+        ligplaats != null -> ligplaats.ligplaats.toRestAdresseerbaarObject()
+        standplaats != null -> standplaats.standplaats.toRestAdresseerbaarObject()
+        verblijfsobject != null -> verblijfsobject.verblijfsobject.toRestAdresseerbaarObject()
+        else -> error("adresseerbaarObject is leeg")
     }
 
-    @Override
-    public BAGObjectType getBagObjectType() {
-        return BAGObjectType.ADRESSEERBAAR_OBJECT;
-    }
+private fun Ligplaats.toRestAdresseerbaarObject() = RestAdresseerbaarObject().apply {
+    typeAdresseerbaarObject = TypeAdresseerbaarObject.LIGPLAATS
+    identificatie = this@toRestAdresseerbaarObject.identificatie
+    status = this@toRestAdresseerbaarObject.status.toString()
+    isGeconstateerd = this@toRestAdresseerbaarObject.geconstateerd == Indicatie.J
+    geometry = this@toRestAdresseerbaarObject.geometrie.toRestGeometry()
+}
 
-    @Override
-    public String getOmschrijving() {
-        return "%s %s".formatted(typeAdresseerbaarObject.toString(), identificatie);
-    }
+private fun Standplaats.toRestAdresseerbaarObject() = RestAdresseerbaarObject().apply {
+    typeAdresseerbaarObject = TypeAdresseerbaarObject.STANDPLAATS
+    identificatie = this@toRestAdresseerbaarObject.identificatie
+    status = this@toRestAdresseerbaarObject.status.toString()
+    isGeconstateerd = this@toRestAdresseerbaarObject.geconstateerd == Indicatie.J
+    geometry = this@toRestAdresseerbaarObject.geometrie.toRestGeometry()
+}
 
+private fun Verblijfsobject.toRestAdresseerbaarObject() = RestAdresseerbaarObject().apply {
+    typeAdresseerbaarObject = TypeAdresseerbaarObject.VERBLIJFSOBJECT
+    identificatie = this@toRestAdresseerbaarObject.identificatie
+    status = this@toRestAdresseerbaarObject.status.toString()
+    isGeconstateerd = this@toRestAdresseerbaarObject.geconstateerd == Indicatie.J
+    vboDoel = this@toRestAdresseerbaarObject.gebruiksdoelen.orEmpty().joinToString(", ")
+    vboOppervlakte = this@toRestAdresseerbaarObject.oppervlakte ?: 0
+    geometry = this@toRestAdresseerbaarObject.geometrie.toRestGeometry()
 }

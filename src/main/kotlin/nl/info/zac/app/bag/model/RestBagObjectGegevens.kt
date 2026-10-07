@@ -1,18 +1,28 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.bag.model
 
-package net.atos.zac.app.bag.model;
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import java.util.UUID
 
-import net.atos.zac.app.shared.RESTZaakobject;
+class RestBagObjectGegevens {
+    var uuid: UUID? = null
 
-public class RESTBAGObjectGegevens extends RESTZaakobject<RESTBAGObject> {
+    lateinit var zaakUuid: UUID
 
-    public String redenWijzigen;
+    var zaakobject: RestBagObject? = null
 
-    public RESTBAGObject getBagObject() {
-        return zaakobject;
-    }
+    var redenWijzigen: String? = null
 
+    val bagObject: RestBagObject?
+        get() = zaakobject
+}
+
+fun Zaakobject.toRestBagObjectGegevens() = RestBagObjectGegevens().apply {
+    zaakobject = this@toRestBagObjectGegevens.toRestBagObject()
+    uuid = this@toRestBagObjectGegevens.uuid
+    zaakUuid = this@toRestBagObjectGegevens.zaak.extractUuid()
 }

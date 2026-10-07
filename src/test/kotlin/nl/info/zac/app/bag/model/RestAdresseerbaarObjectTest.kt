@@ -3,20 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.bag.converter
+package nl.info.zac.app.bag.model
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import net.atos.zac.app.bag.createLigplaatsAdresseerbaarObject
-import net.atos.zac.app.bag.createStandplaatsAdresseerbaarObject
-import net.atos.zac.app.bag.createVerblijfsAdresseerbaarObject
+import nl.info.zac.app.bag.createLigplaatsAdresseerbaarObject
+import nl.info.zac.app.bag.createStandplaatsAdresseerbaarObject
+import nl.info.zac.app.bag.createVerblijfsAdresseerbaarObject
 import nl.info.client.bag.model.generated.StatusPlaats
 import nl.info.client.bag.model.generated.StatusVerblijfsobject
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 import nl.info.zac.app.zaak.model.RestGeometryType
 
-class RestAdresseerbaarObjectConverterTest : BehaviorSpec({
+class RestAdresseerbaarObjectTest : BehaviorSpec({
     afterEach {
         checkUnnecessaryStub()
     }
@@ -25,7 +26,7 @@ class RestAdresseerbaarObjectConverterTest : BehaviorSpec({
         val adresseerbaarObjectIOHal = createLigplaatsAdresseerbaarObject(StatusPlaats.PLAATS_AANGEWEZEN)
 
         `when`("converted to rest representation") {
-            val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = adresseerbaarObjectIOHal.toRestAdresseerbaarObject()
 
             then("it should return the correct data") {
                 with(result) {
@@ -33,7 +34,7 @@ class RestAdresseerbaarObjectConverterTest : BehaviorSpec({
                     status shouldBe "Plaats aangewezen"
                     vboDoel shouldBe null
                     vboOppervlakte shouldBe 0
-                    with(geometry) {
+                    with(geometry.shouldNotBeNull()) {
                         type shouldBe RestGeometryType.POLYGON
                         point shouldBe null
                         with(polygon!!) {
@@ -52,7 +53,7 @@ class RestAdresseerbaarObjectConverterTest : BehaviorSpec({
         val adresseerbaarObjectIOHal = createStandplaatsAdresseerbaarObject(StatusPlaats.PLAATS_AANGEWEZEN)
 
         `when`("converted to rest representation") {
-            val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = adresseerbaarObjectIOHal.toRestAdresseerbaarObject()
 
             then("it should return the correct data") {
                 with(result) {
@@ -60,7 +61,7 @@ class RestAdresseerbaarObjectConverterTest : BehaviorSpec({
                     status shouldBe "Plaats aangewezen"
                     vboDoel shouldBe null
                     vboOppervlakte shouldBe 0
-                    with(geometry) {
+                    with(geometry.shouldNotBeNull()) {
                         type shouldBe RestGeometryType.POLYGON
                         point shouldBe null
                         with(polygon!!) {
@@ -79,7 +80,7 @@ class RestAdresseerbaarObjectConverterTest : BehaviorSpec({
         val adresseerbaarObjectIOHal = createVerblijfsAdresseerbaarObject(StatusVerblijfsobject.VERBLIJFSOBJECT_GEVORMD)
 
         `when`("converted to rest representation") {
-            val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = adresseerbaarObjectIOHal.toRestAdresseerbaarObject()
 
             then("it should return the correct data") {
                 with(result) {
@@ -87,7 +88,7 @@ class RestAdresseerbaarObjectConverterTest : BehaviorSpec({
                     status shouldBe "Verblijfsobject gevormd"
                     vboDoel shouldBe ""
                     vboOppervlakte shouldBe 0
-                    with(geometry) {
+                    with(geometry.shouldNotBeNull()) {
                         type shouldBe RestGeometryType.POINT
                         polygon shouldBe null
                         point!!.latitude shouldBe 0.0
