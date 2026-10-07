@@ -12,7 +12,6 @@ import type {
   DeleteBody,
   IsRequired,
   Methods,
-  PatchBody,
   PathParameters,
   Paths,
 } from "./http-client";
@@ -58,23 +57,6 @@ export class ZacHttpClient {
   ) {
     return this.httpClient
       .DELETE<Path, Method>(url, ...args)
-      .pipe(
-        catchError((error) =>
-          this.foutAfhandelingService.foutAfhandelen(error),
-        ),
-      );
-  }
-
-  public PATCH<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "patch",
-  >(
-    url: Path,
-    body: PatchBody<Path, Method>,
-    ...args: ArgsTuple<PathParameters<Path, Method>>
-  ) {
-    return this.httpClient
-      .PATCH<Path, Method>(url, body, ...args)
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),
