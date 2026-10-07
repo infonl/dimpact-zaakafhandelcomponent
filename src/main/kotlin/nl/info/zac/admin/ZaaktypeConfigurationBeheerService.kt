@@ -14,12 +14,12 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.validate
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.validateObject
 import java.net.URI
 import java.util.UUID
 import java.util.logging.Logger
@@ -51,7 +51,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun storeConfiguration(zaaktypeConfiguration: ZaaktypeConfiguration): ZaaktypeConfiguration {
-        validate(zaaktypeConfiguration)
+        zaaktypeConfiguration.validate()
         zaaktypeConfiguration.id = zaaktypeConfigurationRepository.findByZaaktypeUuid(
             zaaktypeConfiguration.zaaktypeUuid
         )?.id
@@ -120,15 +120,5 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
             zaaktypeHelperService.copyConfigurationData(previousConfiguration, this, zaaktype)
         }.let(::storeConfiguration)
         smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(previousConfiguration.zaaktypeUuid, zaaktypeUuid)
-    }
-
-    private fun validate(zaaktypeConfiguration: ZaaktypeConfiguration) {
-        validateObject(zaaktypeConfiguration)
-        zaaktypeConfiguration.apply {
-            processBinding?.let { validateObject(it) }
-            getMailtemplateKoppelingen().forEach { validateObject(it) }
-            cmmnExtension?.getHumanTaskParametersCollection()?.forEach { validateObject(it) }
-            cmmnExtension?.getUserEventListenerParametersCollection()?.forEach { validateObject(it) }
-        }
     }
 }
