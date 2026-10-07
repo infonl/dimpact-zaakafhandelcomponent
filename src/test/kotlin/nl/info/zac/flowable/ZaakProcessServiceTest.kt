@@ -138,4 +138,57 @@ class ZaakProcessServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("a zaak with an active process in the BPMN engine only") {
+        val zaakProcessService = createZaakProcessService()
+        val zaakUuid = UUID.randomUUID()
+        every { cmmnProcessBinding.hasActiveProcess(zaakUuid) } returns false
+        every { bpmnProcessBinding.hasActiveProcess(zaakUuid) } returns true
+
+        `when`("asked whether the zaak has an active process") {
+            val hasActiveProcess = zaakProcessService.hasActiveProcess(zaakUuid)
+
+            then("the zaak has an active process") {
+                hasActiveProcess shouldBe true
+            }
+        }
+    }
+
+    given("a zaak without an active process in any engine") {
+        val zaakProcessService = createZaakProcessService()
+        val zaakUuid = UUID.randomUUID()
+        every { cmmnProcessBinding.hasActiveProcess(zaakUuid) } returns false
+        every { bpmnProcessBinding.hasActiveProcess(zaakUuid) } returns false
+
+        `when`("asked whether the zaak has an active process") {
+            val hasActiveProcess = zaakProcessService.hasActiveProcess(zaakUuid)
+
+            then("the zaak has no active process") {
+                hasActiveProcess shouldBe false
+            }
+        }
+    }
+
+    given("a zaak whose assignment and communicatiekanaal change") {
+        val zaakProcessService = createZaakProcessService()
+        val zaakUuid = UUID.randomUUID()
+        every { cmmnProcessBinding.updateAssignment(zaakUuid, "fakeGroupId", null) } just runs
+        every { bpmnProcessBinding.updateAssignment(zaakUuid, "fakeGroupId", null) } just runs
+        every { cmmnProcessBinding.updateCommunicatiekanaal(zaakUuid, "fakeCommunicatiekanaal") } just runs
+        every { bpmnProcessBinding.updateCommunicatiekanaal(zaakUuid, "fakeCommunicatiekanaal") } just runs
+
+        `when`("the process of the zaak is updated") {
+            zaakProcessService.updateAssignment(zaakUuid, "fakeGroupId", null)
+            zaakProcessService.updateCommunicatiekanaal(zaakUuid, "fakeCommunicatiekanaal")
+
+            then("every engine is updated, because the engine of a zaaktype configuration can change after its zaken started") {
+                verify(exactly = 1) {
+                    cmmnProcessBinding.updateAssignment(zaakUuid, "fakeGroupId", null)
+                    bpmnProcessBinding.updateAssignment(zaakUuid, "fakeGroupId", null)
+                    cmmnProcessBinding.updateCommunicatiekanaal(zaakUuid, "fakeCommunicatiekanaal")
+                    bpmnProcessBinding.updateCommunicatiekanaal(zaakUuid, "fakeCommunicatiekanaal")
+                }
+            }
+        }
+    }
 })

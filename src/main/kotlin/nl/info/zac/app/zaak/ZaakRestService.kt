@@ -800,11 +800,7 @@ class ZaakRestService @Inject constructor(
         updatedZaak: Zaak,
         restZaak: RestZaakCreateData
     ) {
-        restZaak.communicatiekanaal?.let {
-            if (bpmnService.isZaakProcessDriven(zaak.uuid)) {
-                updateCommunicationChannelZaakVariabele(zaak, it)
-            }
-        }
+        restZaak.communicatiekanaal?.let { zaakProcessService.updateCommunicatiekanaal(zaak.uuid, it) }
         restZaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
             if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
                 suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newFinalDate)
@@ -1019,25 +1015,6 @@ class ZaakRestService @Inject constructor(
             resultaatTypeUUID = resultaattypeUUID,
             description = zaakbeeindigRedenNaam
         )
-    }
-
-    /**
-     * Updates the communication channel process variable for the given BPMN zaak, unless the zaak is reopened.
-     * A reopened zaak does not have an associated BPMN process, so there is no need to update the communication channel in that case.
-     */
-    private fun updateCommunicationChannelZaakVariabele(
-        zaak: Zaak,
-        communicationChannel: String
-    ) {
-        val statustype = zaak.status?.let {
-            ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
-        }
-        if (!statustype.isHeropend()) {
-            zaakVariabelenService.setCommunicationChannel(
-                zaakUuid = zaak.uuid,
-                communicationChannel = communicationChannel
-            )
-        }
     }
 
     private fun updateInitiator(

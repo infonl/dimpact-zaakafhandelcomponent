@@ -65,6 +65,18 @@ class ZaakProcessService @Inject constructor(
      */
     fun deleteInAllEngines(zaakUuid: UUID) = processBindingsByEngine.values.forEach { it.delete(zaakUuid) }
 
+    fun hasActiveProcess(zaakUuid: UUID) = processBindingsByEngine.values.any { it.hasActiveProcess(zaakUuid) }
+
+    /**
+     * Updates the process of the zaak in every engine, because the engine of a zaaktype configuration can change
+     * after its zaken have started.
+     */
+    fun updateAssignment(zaakUuid: UUID, groupId: String?, behandelaarId: String?) =
+        processBindingsByEngine.values.forEach { it.updateAssignment(zaakUuid, groupId, behandelaarId) }
+
+    fun updateCommunicatiekanaal(zaakUuid: UUID, communicatiekanaal: String) =
+        processBindingsByEngine.values.forEach { it.updateCommunicatiekanaal(zaakUuid, communicatiekanaal) }
+
     private fun bindingFor(processEngine: ProcessEngine) = processBindingsByEngine.getValue(processEngine)
 
     private fun readProcessBinding(zaaktypeConfiguration: ZaaktypeConfiguration): ZaaktypeProcessBinding =

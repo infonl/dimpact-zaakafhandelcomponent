@@ -18,6 +18,7 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICAT
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CmmnService
+import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -30,7 +31,7 @@ class EngineProcessBindingsTest : BehaviorSpec({
     val healthCheckService = mockk<HealthCheckService>()
     val bpmnService = mockk<BpmnService>()
     val cmmnProcessBinding = CmmnProcessBinding(cmmnService, zaakVariabelenService, healthCheckService)
-    val bpmnProcessBinding = BpmnProcessBinding(bpmnService)
+    val bpmnProcessBinding = BpmnProcessBinding(bpmnService, zaakVariabelenService)
 
     afterEach { checkUnnecessaryStub() }
 
@@ -177,6 +178,98 @@ class EngineProcessBindingsTest : BehaviorSpec({
                         cmmnService.deleteCase(zaak.uuid)
                         zaakVariabelenService.deleteAllCaseVariables(zaak.uuid)
                     }
+                }
+            }
+        }
+    }
+
+    context("checking whether a zaak has an active process") {
+        given("a zaak with a running CMMN case and no running BPMN process") {
+            val zaak = createZaak()
+            every { cmmnService.isZaakCaseDriven(zaak.uuid) } returns true
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+
+            `when`("each engine is asked for an active process") {
+                val hasActiveCmmnProcess = cmmnProcessBinding.hasActiveProcess(zaak.uuid)
+                val hasActiveBpmnProcess = bpmnProcessBinding.hasActiveProcess(zaak.uuid)
+
+                then("only CMMN reports an active process") {
+                    hasActiveCmmnProcess shouldBe true
+                    hasActiveBpmnProcess shouldBe false
+                }
+            }
+        }
+    }
+
+    context("updating the zaak data in the process of a zaak") {
+        given("a zaak with a running BPMN process") {
+            val zaak = createZaak()
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
+            every { zaakVariabelenService.setGroup(zaak.uuid, "fakeGroupId") } just runs
+            every { zaakVariabelenService.setUser(zaak.uuid, "fakeBehandelaarId") } just runs
+            every { zaakVariabelenService.setCommunicationChannel(zaak.uuid, "fakeCommunicatiekanaal") } just runs
+
+            `when`("the assignment and the communicatiekanaal are updated in each engine") {
+                cmmnProcessBinding.updateAssignment(zaak.uuid, "fakeGroupId", "fakeBehandelaarId")
+                bpmnProcessBinding.updateAssignment(zaak.uuid, "fakeGroupId", "fakeBehandelaarId")
+                cmmnProcessBinding.updateCommunicatiekanaal(zaak.uuid, "fakeCommunicatiekanaal")
+                bpmnProcessBinding.updateCommunicatiekanaal(zaak.uuid, "fakeCommunicatiekanaal")
+
+                then("only the BPMN process gets them as zaak variables, because a CMMN case reads the rollen") {
+                    verify(exactly = 1) {
+                        zaakVariabelenService.setGroup(zaak.uuid, "fakeGroupId")
+                        zaakVariabelenService.setUser(zaak.uuid, "fakeBehandelaarId")
+                        zaakVariabelenService.setCommunicationChannel(zaak.uuid, "fakeCommunicatiekanaal")
+                    }
+                }
+            }
+        }
+
+        given("a zaak with a running BPMN process and a behandelaar") {
+            val zaak = createZaak()
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
+            every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
+
+            `when`("the assignment is updated without a groep and without a behandelaar") {
+                bpmnProcessBinding.updateAssignment(zaak.uuid, null, null)
+
+                then("the behandelaar is removed from the process and the groep is left untouched") {
+                    verify(exactly = 1) { zaakVariabelenService.removeUser(zaak.uuid) }
+                    verify(exactly = 0) { zaakVariabelenService.setGroup(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaak without a running BPMN process, for example because the zaak was closed and reopened") {
+            val zaak = createZaak()
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+
+            `when`("the assignment and the communicatiekanaal are updated") {
+                bpmnProcessBinding.updateAssignment(zaak.uuid, "fakeGroupId", "fakeBehandelaarId")
+                bpmnProcessBinding.updateCommunicatiekanaal(zaak.uuid, "fakeCommunicatiekanaal")
+
+                then("no zaak variable is set, because there is no process to set it in") {
+                    verify(exactly = 0) {
+                        zaakVariabelenService.setGroup(any(), any())
+                        zaakVariabelenService.setUser(any(), any())
+                        zaakVariabelenService.setCommunicationChannel(any(), any())
+                    }
+                }
+            }
+        }
+
+        given("a zaak whose BPMN process ends while its assignment is updated") {
+            val zaak = createZaak()
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
+            every {
+                zaakVariabelenService.setGroup(zaak.uuid, "fakeGroupId")
+            } throws CaseOrProcessNotFoundException("fakeCaseOrProcessNotFoundMessage")
+
+            `when`("the assignment is updated") {
+                bpmnProcessBinding.updateAssignment(zaak.uuid, "fakeGroupId", "fakeBehandelaarId")
+
+                then("the update is skipped without an error") {
+                    verify(exactly = 0) { zaakVariabelenService.setUser(any(), any()) }
                 }
             }
         }

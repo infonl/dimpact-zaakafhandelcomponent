@@ -6,9 +6,11 @@ package nl.info.zac.flowable
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
+import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ProcessEngine
@@ -17,13 +19,19 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
 class BpmnProcessBinding @Inject constructor(
-    private val bpmnService: BpmnService
+    private val bpmnService: BpmnService,
+    private val zaakVariabelenService: ZaakVariabelenService
 ) : ProcessBinding {
+    companion object {
+        private val LOG = Logger.getLogger(BpmnProcessBinding::class.java.name)
+    }
+
     override val processEngine = ProcessEngine.BPMN
 
     override fun start(zaak: Zaak, zaaktype: ZaakType, definitionKey: String, processStartData: ProcessStartData) =
@@ -48,4 +56,22 @@ class BpmnProcessBinding @Inject constructor(
     }
 
     override fun delete(zaakUuid: UUID) = bpmnService.deleteProcessInstance(zaakUuid)
+
+    override fun hasActiveProcess(zaakUuid: UUID) = bpmnService.isZaakProcessDriven(zaakUuid)
+
+    override fun updateAssignment(zaakUuid: UUID, groupId: String?, behandelaarId: String?) {
+        if (!hasActiveProcess(zaakUuid)) return
+        try {
+            groupId?.let { zaakVariabelenService.setGroup(zaakUuid, it) }
+            behandelaarId?.let {
+                zaakVariabelenService.setUser(zaakUuid, it)
+            } ?: zaakVariabelenService.removeUser(zaakUuid)
+        } catch (caseOrProcessNotFoundException: CaseOrProcessNotFoundException) {
+            LOG.warning { caseOrProcessNotFoundException.message }
+        }
+    }
+
+    override fun updateCommunicatiekanaal(zaakUuid: UUID, communicatiekanaal: String) {
+        if (hasActiveProcess(zaakUuid)) zaakVariabelenService.setCommunicationChannel(zaakUuid, communicatiekanaal)
+    }
 }

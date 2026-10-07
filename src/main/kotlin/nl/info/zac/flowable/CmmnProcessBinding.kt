@@ -45,6 +45,15 @@ class CmmnProcessBinding @Inject constructor(
         cmmnService.terminateCase(zaakUuid)
     }
 
+    override fun hasActiveProcess(zaakUuid: UUID) = cmmnService.isZaakCaseDriven(zaakUuid)
+
+    /**
+     * A CMMN case reads the groep and behandelaar from the rollen of the zaak in Open Zaak.
+     */
+    override fun updateAssignment(zaakUuid: UUID, groupId: String?, behandelaarId: String?) = Unit
+
+    override fun updateCommunicatiekanaal(zaakUuid: UUID, communicatiekanaal: String) = Unit
+
     override fun delete(zaakUuid: UUID) {
         cmmnService.deleteCase(zaakUuid)
         zaakVariabelenService.deleteAllCaseVariables(zaakUuid)

@@ -26,6 +26,16 @@ interface ProcessBinding {
 
     fun terminate(zaakUuid: UUID)
 
+    fun hasActiveProcess(zaakUuid: UUID): Boolean
+
+    /**
+     * Updates the groep and behandelaar in the running process of the zaak, for engines whose process holds them.
+     * A `null` behandelaar removes the behandelaar from the process.
+     */
+    fun updateAssignment(zaakUuid: UUID, groupId: String?, behandelaarId: String?)
+
+    fun updateCommunicatiekanaal(zaakUuid: UUID, communicatiekanaal: String)
+
     /**
      * Deletes the process of the zaak and its history. Does nothing when the zaak has no process in this engine.
      */

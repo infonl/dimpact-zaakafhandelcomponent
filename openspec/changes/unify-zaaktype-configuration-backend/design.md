@@ -289,6 +289,9 @@ interface ProcessBinding {
     fun isZaaktypeReady(zaaktypeUri: URI): Boolean
     fun terminate(zaakUuid: UUID)
     fun delete(zaakUuid: UUID)
+    fun hasActiveProcess(zaakUuid: UUID): Boolean
+    fun updateAssignment(zaakUuid: UUID, groupId: String?, behandelaarId: String?)
+    fun updateCommunicatiekanaal(zaakUuid: UUID, communicatiekanaal: String)
 }
 
 data class ProcessStartData(
@@ -314,6 +317,13 @@ themselves do not change.
 
 `isZaaktypeReady` moves the CMMN zaaktype health check out of `ZaakRestService`: the CMMN binding asks
 `HealthCheckService`, and BPMN has no such check. Without a binding, a zaaktype is not ready.
+
+`hasActiveProcess`, `updateAssignment` and `updateCommunicatiekanaal` replace the checks on
+`BpmnService.isZaakProcessDriven` and `CmmnService.isZaakCaseDriven` in `ZaakService` and `ZaakRestService`.
+The dispatcher calls them on every binding, like `delete`, and does not select by the configuration: the running
+process decides, and the engine of a configuration can change after its zaken have started. The BPMN binding sets
+the groep, behandelaar and communicatiekanaal zaak variables only while the process runs; the CMMN binding does
+nothing, because a CMMN case reads the rollen of the zaak.
 
 `ProductaanvraagService` keeps its choice between the CMMN and the BPMN flow. The two flows differ in their order and
 in the confirmation email, which B4 changes; only the process start inside each flow goes through the dispatcher.

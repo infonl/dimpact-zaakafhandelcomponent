@@ -2209,7 +2209,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns patchedRestZaak
             every {
-                zaakVariabelenService.setCommunicationChannel(
+                zaakProcessService.updateCommunicatiekanaal(
                     zaak.uuid,
                     restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
                 )
@@ -2217,7 +2217,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns zaaktypeBpmnConfiguration
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("zaak final date is set to a later date") {
@@ -2231,9 +2230,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     updatedRestZaak shouldBe patchedRestZaak
                 }
 
-                and("the communication channel is exposed to zaak data") {
+                and("the communication channel is passed on to the process of the zaak") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setCommunicationChannel(
+                        zaakProcessService.updateCommunicatiekanaal(
                             zaak.uuid,
                             restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
                         )
@@ -2243,83 +2242,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 and("screen event signals are sent") {
                     verify(exactly = 3) {
                         eventingService.send(any<ScreenEvent>())
-                    }
-                }
-            }
-        }
-
-        given("a BPMN zaak whose process has already ended, with a new communication channel") {
-            val changeDescription = "change description"
-            val zaak = createZaak()
-            val zaakType = createZaakType(servicenorm = "P10D")
-            val zaakRechten = createZaakRechten()
-            val restZaakCreateData = createRestZaakCreateData()
-            val restZaakEditMetRedenGegevens =
-                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
-            val patchedZaak = createZaak()
-            val patchedRestZaak = createRestZaak()
-            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
-            val loggedInUser = createLoggedInUser()
-            val zaakAssignment = createZaakAssignment()
-
-            every {
-                zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
-            } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
-            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(zaak) } returns false
-            every {
-                zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
-                    zaakType = zaakType,
-                    requestedMarking = any(),
-                    isAlreadyZaakspecifiekGeautoriseerd = false,
-                    currentAndRequestedBehandelaarIds = any(),
-                    loggedInUser = loggedInUser
-                )
-            } returns false
-            every { zgwApiService.findGroepForZaak(zaak) } returns createRolOrganisatorischeEenheid(
-                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(identificatie = "fakeId")
-            )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-            every {
-                zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
-                    zaak = any(),
-                    isZaakspecifiekGeautoriseerd = any(),
-                    currentBehandelaarId = any(),
-                    requestedBehandelaarId = any()
-                )
-            } just runs
-            every {
-                zaakService.readZaakAssignment(
-                    groupId = restZaakCreateData.groep!!.id,
-                    userName = restZaakCreateData.behandelaar!!.id
-                )
-            } returns zaakAssignment
-            every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
-            every { eventingService.send(any<ScreenEvent>()) } just runs
-            every {
-                restZaakConverter.toRestZaak(
-                    zaak = patchedZaak,
-                    zaakType = zaakType,
-                    zaakRechten = zaakRechten,
-                    loggedInUser = loggedInUser
-                )
-            } returns patchedRestZaak
-            every {
-                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, any())
-            } returns emptyList()
-            every {
-                zaaktypeConfigurationService.findConfiguration(any<UUID>())
-            } returns zaaktypeBpmnConfiguration
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-            every { loggedInUserInstance.get() } returns loggedInUser
-
-            `when`("the zaak is updated") {
-                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
-
-                then("the communication channel is not synced to the process, because there is no live process to sync to") {
-                    verify(exactly = 0) {
-                        zaakVariabelenService.setCommunicationChannel(any(), any())
                     }
                 }
             }
@@ -2386,7 +2308,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
-            every { bpmnService.isZaakProcessDriven(any()) } returns false
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2529,7 +2451,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
-            every { bpmnService.isZaakProcessDriven(any()) } returns false
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2621,7 +2543,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
-            every { bpmnService.isZaakProcessDriven(any()) } returns false
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2732,7 +2654,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
-            every { bpmnService.isZaakProcessDriven(any()) } returns false
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2917,7 +2839,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
-            every { bpmnService.isZaakProcessDriven(any()) } returns false
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the zaak is marked as zaakspecifiek geautoriseerd again") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2954,7 +2876,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
-            every { bpmnService.isZaakProcessDriven(any()) } returns false
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
             )
@@ -3113,7 +3035,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
-            every { bpmnService.isZaakProcessDriven(any()) } returns false
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
             every {
                 restZaakConverter.toRestZaak(
@@ -3245,7 +3167,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeCmmnConfiguration()
-                every { bpmnService.isZaakProcessDriven(any()) } returns false
+                every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
@@ -3324,7 +3246,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeCmmnConfiguration()
-                every { bpmnService.isZaakProcessDriven(any()) } returns false
+                every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 

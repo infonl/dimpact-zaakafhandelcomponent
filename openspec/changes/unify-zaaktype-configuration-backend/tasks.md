@@ -143,7 +143,10 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
       are now parameterised by engine.
 - [x] 4.4 Make the zaak-delete handler in `NotificationReceiver` call `delete` on every binding. Verify with a unit
       test and an itest that deletes a BPMN zaak and asserts that the process instance is gone.
-- [x] 4.5 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and that
+- [x] 4.5 Replace the `isZaakProcessDriven` and `isZaakCaseDriven` checks in `ZaakService` (assignment, archived
+      zaakdata) and `ZaakRestService` (communicatiekanaal) with `hasActiveProcess`, `updateAssignment` and
+      `updateCommunicatiekanaal` on every binding. Verify with unit tests of both adapters and the dispatcher.
+- [x] 4.6 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and that
       `grep -rn "ProcessEngine\.\(CMMN\|BPMN\)" src/main` shows hits only in the adapters, the entity, the BPMN admin
       REST service and the configuration converter (REST contract, PZ-12754), `BpmnService`, and the flow choice in
       `ProductaanvraagService` (B4). Then open the PR
