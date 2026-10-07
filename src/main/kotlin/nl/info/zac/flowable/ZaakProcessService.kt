@@ -28,7 +28,14 @@ class ZaakProcessService @Inject constructor(
     private val processBindingInstances: Instance<ProcessBinding>
 ) {
     private val processBindingsByEngine: Map<ProcessEngine, ProcessBinding> by lazy {
-        processBindingInstances.associateBy { it.processEngine }
+        processBindingInstances.groupBy { it.processEngine }.let { bindingsByEngine ->
+            ProcessEngine.entries.associateWith { processEngine ->
+                bindingsByEngine[processEngine]?.singleOrNull() ?: error(
+                    "Expected one process binding for engine '$processEngine', " +
+                        "found ${bindingsByEngine[processEngine].orEmpty().size}"
+                )
+            }
+        }
     }
 
     fun start(

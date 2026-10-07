@@ -191,4 +191,43 @@ class ZaakProcessServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("only a CMMN process binding") {
+        every { cmmnProcessBinding.processEngine } returns ProcessEngine.CMMN
+        val processBindingInstances = mockk<Instance<ProcessBinding>>()
+        every { processBindingInstances.iterator() } answers { mutableListOf(cmmnProcessBinding).iterator() }
+        val zaakProcessService = ZaakProcessService(processBindingInstances)
+
+        `when`("a process operation is run") {
+            val illegalStateException = shouldThrow<IllegalStateException> {
+                zaakProcessService.hasActiveProcess(UUID.randomUUID())
+            }
+
+            then("it fails and names the engine without a binding") {
+                illegalStateException.message shouldBe "Expected one process binding for engine 'BPMN', found 0"
+            }
+        }
+    }
+
+    given("two process bindings for the CMMN engine") {
+        val otherCmmnProcessBinding = mockk<ProcessBinding>()
+        every { cmmnProcessBinding.processEngine } returns ProcessEngine.CMMN
+        every { otherCmmnProcessBinding.processEngine } returns ProcessEngine.CMMN
+        every { bpmnProcessBinding.processEngine } returns ProcessEngine.BPMN
+        val processBindingInstances = mockk<Instance<ProcessBinding>>()
+        every { processBindingInstances.iterator() } answers {
+            mutableListOf(cmmnProcessBinding, otherCmmnProcessBinding, bpmnProcessBinding).iterator()
+        }
+        val zaakProcessService = ZaakProcessService(processBindingInstances)
+
+        `when`("a process operation is run") {
+            val illegalStateException = shouldThrow<IllegalStateException> {
+                zaakProcessService.hasActiveProcess(UUID.randomUUID())
+            }
+
+            then("it fails and names the engine with more than one binding") {
+                illegalStateException.message shouldBe "Expected one process binding for engine 'CMMN', found 2"
+            }
+        }
+    }
 })
