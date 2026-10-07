@@ -24,26 +24,47 @@ import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeRel
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
 import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
+import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.search.IndexingService
+import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.ZaakToewijzing
+import java.util.UUID
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class ZaakspecifiekeAutorisatieService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val zgwApiService: ZgwApiService,
-    private val indexingService: IndexingService
+    private val indexingService: IndexingService,
+    private val identityService: IdentityService,
+    private val flowableTaskService: FlowableTaskService,
+    private val taskHistoryService: TaskHistoryService
 ) {
     companion object {
         private const val ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER =
             "Zaakspecifiek geautoriseerde medewerker van de zaak"
+
+        private val zaakAssignmentLocks = Array(64) { ReentrantLock() }
+
+        fun taakbehandelaarToelichting(zaak: Zaak) =
+            "Zaakspecifiek geautoriseerd medewerker van zaak ${zaak.identificatie}"
     }
+
+    /**
+     * The lock that serialises every change to the behandelaar and zaakspecifiek geautoriseerde medewerker
+     * rollen of a zaak, whether it comes from assigning the zaak or one of its taken.
+     */
+    fun lockForZaak(zaakUuid: UUID) =
+        zaakAssignmentLocks[Math.floorMod(zaakUuid.hashCode(), zaakAssignmentLocks.size)]
 
     fun isZaakspecifiekGeautoriseerd(zaak: Zaak) = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
 
@@ -180,8 +201,50 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         return !isAlreadyGeautoriseerd
     }
 
+    /**
+     * Grants a taakbehandelaar individual access to the zaakspecifiek geautoriseerde [zaak] of their taak. The
+     * zaakbehandelaar and a medewerker who already holds a zaakspecifiek geautoriseerde medewerker rol get
+     * nothing, since they already have access.
+     *
+     * @return true when a rol was added
+     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaaktype does not define
+     * the roltype
+     */
+    fun grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak: Zaak, medewerkerId: String): Boolean {
+        if (!isZaakspecifiekGeautoriseerd(zaak)) return false
+        val isGranted = lockForZaak(zaak.uuid).withLock {
+            val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            zaakToewijzing.behandelaarRollen.none { it.identificatienummer == medewerkerId } &&
+                grantZaakspecifiekeAutorisatie(
+                    zaak = zaak,
+                    medewerker = identityService.readUser(medewerkerId).let { user ->
+                        MedewerkerIdentificatie().apply {
+                            identificatie = user.id
+                            voorletters = user.firstName
+                            achternaam = user.lastName
+                        }
+                    },
+                    reason = taakbehandelaarToelichting(zaak),
+                    zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
+                )
+        }
+        if (isGranted) {
+            indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
+            reindexDependents(zaak)
+        }
+        return isGranted
+    }
+
     fun markZaakspecifiekGeautoriseerd(zaak: Zaak) {
         zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService)
+        flowableTaskService.listOpenTasksForZaak(zaak.uuid)
+            .filter { it.assignee != null }
+            .distinctBy { it.assignee }
+            .forEach {
+                if (grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, it.assignee)) {
+                    taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(it, zaak, it.assignee)
+                }
+            }
         indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
         reindexDependents(zaak)
     }

@@ -55,7 +55,10 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         zrcClientService = mockk(),
         ztcClientService = ztcClientService,
         zgwApiService = zgwApiService,
-        indexingService = mockk()
+        indexingService = mockk(),
+        identityService = mockk(),
+        flowableTaskService = mockk(),
+        taskHistoryService = mockk()
     )
 
     val restZaaktypeConfigurationConverter = RestZaaktypeConfigurationConverter(

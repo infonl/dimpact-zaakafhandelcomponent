@@ -10,6 +10,7 @@ import {
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
+import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Data, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -17,7 +18,11 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
+import { UtilService } from "../../core/service/util.service";
+import { Opcode } from "../../core/websocket/model/opcode";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { IdentityService } from "../../identity/identity.service";
+import { BatchProcessService } from "../../shared/batch-progress/batch-process.service";
 import { TabelGegevens } from "../../shared/dynamic-table/model/tabel-gegevens";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -245,6 +250,79 @@ describe(TakenWerkvoorraadComponent.name, () => {
     it("should include SELECT column when user has zakenTakenVerdelen rights", () => {
       const columns = component["defaultColumns"]();
       expect(columns.has(ZoekenColumn.SELECT)).toBe(true);
+    });
+  });
+
+  describe("verdelen", () => {
+    const taak1 = fromPartial<TaakZoekObject>({ id: "taak1" });
+    const taak2 = fromPartial<TaakZoekObject>({ id: "taak2" });
+    const taak3 = fromPartial<TaakZoekObject>({ id: "taak3" });
+
+    let openSnackbar: jest.SpyInstance;
+    let batchProcessOptions: Parameters<BatchProcessService["subscribe"]>[0];
+
+    beforeEach(() => {
+      openSnackbar = jest
+        .spyOn(TestBed.inject(UtilService), "openSnackbar")
+        .mockImplementation(() => undefined);
+      jest
+        .spyOn(component["batchProcessService"], "subscribe")
+        .mockImplementation((options) => {
+          batchProcessOptions = options;
+        });
+      jest
+        .spyOn(component["batchProcessService"], "showProgress")
+        .mockImplementation(() => undefined);
+      jest
+        .spyOn(component["batchProcessService"], "stop")
+        .mockImplementation(() => undefined);
+      jest
+        .spyOn(component["dataSource"], "load")
+        .mockImplementation(() => undefined);
+      jest.spyOn(component["dialog"], "open").mockReturnValue(
+        fromPartial<MatDialogRef<unknown>>({
+          beforeClosed: () =>
+            of({ groep: { id: "groupA" }, medewerker: { id: "user3" } }),
+        }),
+      );
+    });
+
+    function finishVerdelen(skippedTaken: TaakZoekObject[]) {
+      component["selection"].select(taak1, taak2, taak3);
+      component["openVerdelenScherm"]();
+      skippedTaken.forEach(({ id }) =>
+        batchProcessOptions.progressSubscription.onNotification?.(
+          id,
+          fromPartial<ScreenEvent>({ opcode: Opcode.SKIPPED }),
+        ),
+      );
+      batchProcessOptions.finally();
+    }
+
+    it("shows the singular message when the backend skipped one taak", () => {
+      finishVerdelen([taak1]);
+
+      expect(openSnackbar).toHaveBeenCalledWith(
+        "msg.taken.verdelen.overgeslagen.enkelvoud",
+        { aantal: 1 },
+        8,
+      );
+    });
+
+    it("shows the plural message when the backend skipped more than one taak", () => {
+      finishVerdelen([taak1, taak2]);
+
+      expect(openSnackbar).toHaveBeenCalledWith(
+        "msg.taken.verdelen.overgeslagen.meervoud",
+        { aantal: 2 },
+        8,
+      );
+    });
+
+    it("shows no skipped message when the backend skipped no taak", () => {
+      finishVerdelen([]);
+
+      expect(openSnackbar).not.toHaveBeenCalled();
     });
   });
 });

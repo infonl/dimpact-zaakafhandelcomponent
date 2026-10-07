@@ -58,7 +58,6 @@ import java.net.URI
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Level
-import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Logger
 import kotlin.concurrent.withLock
 
@@ -79,13 +78,6 @@ class ZaakService @Inject constructor(
     private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
     private val cmmnService: CmmnService
 ) {
-    companion object {
-        private val zaakAssignmentLocks = Array(64) { ReentrantLock() }
-
-        private fun lockForZaak(uuid: UUID) =
-            zaakAssignmentLocks[Math.floorMod(uuid.hashCode(), zaakAssignmentLocks.size)]
-    }
-
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
         identificationType: IdentificatieType,
@@ -208,7 +200,7 @@ class ZaakService @Inject constructor(
     fun assignZaak(zaak: Zaak, zaakAssignment: ZaakAssignment, reason: String?) {
         val (group, user) = zaakAssignment
         // lock for the given zaak so that it is impossible to assign the zaak to multiple users on quick subsequent calls
-        lockForZaak(zaak.uuid).withLock {
+        zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak)
             zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user?.id)
 
