@@ -55,6 +55,7 @@ import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werkli
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -139,6 +140,9 @@ export class TakenWerkvoorraadComponent
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
+  private readonly assignToMeMutation = injectMutation(() =>
+    this.takenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+  );
 
   constructor(
     public override route: ActivatedRoute,
@@ -180,21 +184,21 @@ export class TakenWerkvoorraadComponent
 
   protected assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
     event.stopPropagation();
-    this.takenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst({
+    this.assignToMeMutation.mutate(
+      {
         taakId: taakZoekObject.id,
         zaakUuid: taakZoekObject.zaakUuid,
         groepId: null as unknown as string,
-      })
-      .subscribe(({ behandelaar }) => {
-        if (!behandelaar) return;
+      },
+      {
+        onSuccess: ({ behandelaar }) => {
+          if (!behandelaar) return;
 
-        taakZoekObject.behandelaarNaam = behandelaar.naam;
-        taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
-        this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: behandelaar.naam,
-        });
-      });
+          taakZoekObject.behandelaarNaam = behandelaar.naam;
+          taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
+        },
+      },
+    );
   }
 
   protected isAllSelected(): boolean {

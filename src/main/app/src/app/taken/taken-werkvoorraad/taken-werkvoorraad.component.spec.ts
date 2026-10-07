@@ -7,7 +7,10 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatDialogRef } from "@angular/material/dialog";
@@ -15,9 +18,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Data, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
@@ -33,6 +38,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
   let component: TakenWerkvoorraadComponent;
   let fixture: ComponentFixture<TakenWerkvoorraadComponent>;
   let identityService: IdentityService;
+  let httpTestingController: HttpTestingController;
 
   const mockTabelGegevens: TabelGegevens = {
     aantalPerPagina: 10,
@@ -75,6 +81,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
     component = fixture.componentInstance;
 
     identityService = TestBed.inject(IdentityService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
       id: "user1",
@@ -137,6 +144,99 @@ describe(TakenWerkvoorraadComponent.name, () => {
         behandelaarGebruikersnaam: "user2",
       });
       expect(component["showAssignToMe"](taakZoekObject)).toBe(false);
+    });
+  });
+
+  describe("assigning a taak to yourself", () => {
+    let openSnackbar: jest.SpyInstance;
+
+    const taakZoekObject = () =>
+      fromPartial<TaakZoekObject>({
+        id: "fakeTaakId",
+        identificatie: "TAAK-1",
+        zaakUuid: "fakeZaakUuid",
+        groepID: "groupA",
+        behandelaarNaam: "",
+        behandelaarGebruikersnaam: "",
+        rechten: { canToekennen: true },
+      });
+
+    beforeEach(() => {
+      openSnackbar = jest
+        .spyOn(TestBed.inject(UtilService), "openSnackbar")
+        .mockImplementation();
+    });
+
+    async function showTaak(taak: TaakZoekObject) {
+      await sleep();
+      httpTestingController
+        .match("/rest/zoeken/list")
+        .forEach((request) =>
+          request.flush({ totaal: 1, resultaten: [taak], filters: {} }),
+        );
+      await sleep();
+      // the table creates the row views in one pass and binds their cells in the next
+      fixture.detectChanges();
+      fixture.detectChanges();
+    }
+
+    function assignToMeButton() {
+      return screen.queryByRole("button", { name: "actie.mij.toekennen" });
+    }
+
+    async function clickAssignToMe() {
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "actie.mij.toekennen" }));
+      await sleep();
+    }
+
+    it("assigns the taak of the row it was clicked on", async () => {
+      await showTaak(taakZoekObject());
+
+      await clickAssignToMe();
+
+      const request = httpTestingController.expectOne(
+        "/rest/taken/lijst/toekennen/mij",
+      );
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body).toEqual({
+        taakId: "fakeTaakId",
+        zaakUuid: "fakeZaakUuid",
+        groepId: null,
+      });
+    });
+
+    it("shows the assigned behandelaar on the row it was clicked on", async () => {
+      await showTaak(taakZoekObject());
+
+      await clickAssignToMe();
+      httpTestingController.expectOne("/rest/taken/lijst/toekennen/mij").flush(
+        fromPartial<GeneratedType<"RestTask">>({
+          behandelaar: { id: "user1", naam: "testuser-1" },
+        }),
+      );
+      await sleep();
+      fixture.detectChanges();
+
+      expect(screen.getByText("testuser-1")).toBeVisible();
+      expect(openSnackbar).toHaveBeenCalledWith("msg.taak.toegekend", {
+        behandelaar: "testuser-1",
+      });
+      expect(assignToMeButton()).toBeNull();
+    });
+
+    it("leaves the row alone when the response names no behandelaar", async () => {
+      await showTaak(taakZoekObject());
+
+      await clickAssignToMe();
+      httpTestingController
+        .expectOne("/rest/taken/lijst/toekennen/mij")
+        .flush(fromPartial<GeneratedType<"RestTask">>({}));
+      await sleep();
+      fixture.detectChanges();
+
+      expect(assignToMeButton()).toBeVisible();
     });
   });
 

@@ -31,9 +31,7 @@ import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { lastValueFrom } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -85,7 +83,6 @@ import { TakenService } from "../../taken/taken.service";
 export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly takenService = inject(TakenService);
   private readonly websocketService = inject(WebsocketService);
-  private readonly utilService = inject(UtilService);
   private readonly identityService = inject(IdentityService);
 
   protected readonly loggedInUser = injectQuery(() =>
@@ -207,31 +204,19 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     this.allTakenExpanded = filter.length === 0;
   }
 
-  protected readonly assignToMeMutation = injectMutation(() => ({
-    mutationFn: (taak: GeneratedType<"RestTask">) =>
-      lastValueFrom(
-        this.takenService.toekennenAanIngelogdeMedewerker({
-          taakId: taak.id!,
-          zaakUuid: taak.zaakUuid,
-          groepId: taak.groep!.id!,
-        }),
-      ),
-    onMutate: () => {
-      this.websocketService.suspendListener(this.zaakTakenListener);
+  protected readonly assignToMeMutation = injectMutation(
+    () => this.takenService.toekennenAanIngelogdeMedewerker(),
+    {
+      onMutate: () => {
+        this.websocketService.suspendListener(this.zaakTakenListener);
+      },
     },
-    onSuccess: (returnTaak, taak) => {
-      taak.behandelaar = returnTaak.behandelaar;
-      taak.status = returnTaak.status;
-      this.utilService.openSnackbar("msg.taak.toegekend", {
-        behandelaar: taak.behandelaar?.naam,
-      });
-    },
-  }));
+  );
 
   protected isAssigningTaakToMe(taak: GeneratedType<"RestTask">) {
     return (
       this.assignToMeMutation.isPending() &&
-      this.assignToMeMutation.variables()?.id === taak.id
+      this.assignToMeMutation.variables()?.taakId === taak.id
     );
   }
 
@@ -252,7 +237,15 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     $event.stopPropagation();
     if (!taak.id || this.isAssigningTaakToMe(taak)) return;
 
-    this.assignToMeMutation.mutate(taak);
+    this.assignToMeMutation.mutate(
+      { taakId: taak.id, zaakUuid: taak.zaakUuid, groepId: taak.groep!.id! },
+      {
+        onSuccess: ({ behandelaar, status }) => {
+          taak.behandelaar = behandelaar;
+          taak.status = status;
+        },
+      },
+    );
   }
 
   protected filterTakenOpStatus() {
