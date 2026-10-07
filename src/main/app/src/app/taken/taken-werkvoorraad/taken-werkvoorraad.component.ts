@@ -295,6 +295,7 @@ export class TakenWerkvoorraadComponent
       ({ behandelaarGebruikersnaam }) =>
         !release || !!behandelaarGebruikersnaam,
     );
+    let skippedTakenCount = 0;
 
     this.batchProcessService.subscribe({
       ids: tasks.map(({ id }) => id),
@@ -302,6 +303,7 @@ export class TakenWerkvoorraadComponent
         opcode: Opcode.ANY,
         objectType: ObjectType.TAAK,
         onNotification: (id, event) => {
+          if (event.opcode === Opcode.SKIPPED) skippedTakenCount++;
           if (event.opcode !== Opcode.UPDATED) return;
 
           const taak = this.dataSource.data.find((task) => task.id === id);
@@ -324,6 +326,7 @@ export class TakenWerkvoorraadComponent
         this.dataSource.load(5_000); // We need to give the indexing service some time to finish
         this.takenLoading.set(false);
         this.batchProcessService.stop();
+        this.showSkippedTakenMessage(skippedTakenCount);
       },
     });
 
@@ -364,5 +367,14 @@ export class TakenWerkvoorraadComponent
   ngOnDestroy() {
     // Make sure when returning to this component, the very first page is loaded
     this.dataSource.zoekopdrachtResetToFirstPage();
+  }
+
+  private showSkippedTakenMessage(aantal: number) {
+    if (!aantal) return;
+    this.utilService.openSnackbar(
+      `msg.taken.verdelen.overgeslagen.${aantal === 1 ? "enkelvoud" : "meervoud"}`,
+      { aantal },
+      8,
+    );
   }
 }

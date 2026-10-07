@@ -402,6 +402,8 @@
   "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.meervoud": "{{aantal}} zaken were not distributed because they are zaakspecifiek geautoriseerd.",
   "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud": "One zaak was not released because it is zaakspecifiek geautoriseerd.",
   "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.meervoud": "{{aantal}} zaken were not released because they are zaakspecifiek geautoriseerd.",
+  "msg.taken.verdelen.overgeslagen.enkelvoud": "One taak was not distributed because the medewerker cannot get access to the zaakspecifiek geautoriseerde zaak. Please contact the administrator.",
+  "msg.taken.verdelen.overgeslagen.meervoud": "{{aantal}} taken were not distributed because the medewerker cannot get access to the zaakspecifiek geautoriseerde zaken. Please contact the administrator.",
   "zaak.locatie.adres": "Nearest address",
   "zaak-identificatie": "Belongs to case",
   "zaak-informatieobject": "Document",

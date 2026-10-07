@@ -49,6 +49,13 @@
       same text the zaakhistorie shows for this rol. Add no i18n key: the taakhistorie component's `translate` pipe
       shows an unknown key as-is.
 
+## 4a. Frontend: message for skipped taken
+
+- [x] 4a.1 In `taken-werkvoorraad.component.ts`, count the `SKIPPED` screen events on `TAAK` while verdelen runs.
+      When the batch is finished and the count is not zero, show a snackbar in the style of
+      `showSkippedZakenMessage` in the zakenwerkvoorraad: singular and plural text, `{{aantal}}`, 8 seconds.
+- [x] 4a.2 Add the `msg.taken.verdelen.overgeslagen.enkelvoud` and `.meervoud` texts to `nl.json` and `en.json`.
+
 ## 5. Tests (separate phase: start only after the developer's explicit OK)
 
 - [x] 5.1 `ZaakspecifiekeAutorisatieServiceTest`: unit tests for 1.2, covering:
@@ -96,6 +103,8 @@
 - [x] 5.11 Integration test: distribute the taken of three zaken from the takenwerkvoorraad (`PUT taken/lijst/verdelen`, as
       COORDINATOR_1) to one behandelaar. Only the third zaak is marked. Check that all three taken are assigned, and that
       only the marked zaak gets a *Zaakspecifiek geautoriseerde medewerker* rol for that behandelaar.
+- [x] 5.12 Frontend spec `taken-werkvoorraad.component.spec.ts`: after verdelen, one `SKIPPED` taak shows the
+      singular message, two show the plural message, and none shows no message.
 
 ## 6. Wrap-up
 

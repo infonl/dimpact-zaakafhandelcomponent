@@ -206,7 +206,8 @@ assignment SHALL be refused and nothing of the taak SHALL change.
 - A single request SHALL fail with the existing
   `ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND` error code.
 - Bulk verdelen SHALL skip such a taak, send a `SKIPPED` screen event for it, and continue with the rest of
-  the selection.
+  the selection. When the verdelen is finished, the takenwerkvoorraad SHALL show a message with the number of
+  taken that were not distributed, in the same way as the zakenwerkvoorraad shows skipped zaken.
 - Starting a human task plan item with a medewerker SHALL be refused before the taak is created.
 
 #### Scenario: Assigning a single taak on a zaaktype without the roltype
@@ -221,3 +222,4 @@ assignment SHALL be refused and nothing of the taak SHALL change.
   zaakspecifiek geautoriseerde zaak whose zaaktype lacks the roltype
 - **THEN** that taak is skipped and left unchanged
 - **AND** every other taak in the selection is assigned
+- **AND** the employee sees a message that one taak was not distributed
