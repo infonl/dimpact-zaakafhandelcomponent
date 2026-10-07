@@ -83,7 +83,6 @@ class TaskServiceTest : BehaviorSpec({
                 restTaakToekennenGegevens.reden
             )
         } returns updatedTaskAfterAssigningGroup
-        every { flowableTaskService.readOpenTask(taskId) } returns task
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, any()) } returns Unit
 
@@ -144,7 +143,6 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, any()) } returns Unit
-        every { flowableTaskService.readOpenTask(taskId) } returns task
         every {
             flowableTaskService.assignTaskToGroup(
                 task,
@@ -850,6 +848,45 @@ class TaskServiceTest : BehaviorSpec({
                 and("the other task is still assigned") {
                     verify(exactly = 1) {
                         flowableTaskService.assignTaskToUser("fakeTaskId2", "fakeNewAssignee", any())
+                    }
+                }
+            }
+        }
+
+        given("a single task of a zaak whose zaaktype lacks the zaakspecifiek geautoriseerde medewerker roltype") {
+            val zaakWithoutRoltype = createZaak()
+            val task = createTestTask(id = "fakeTaskId", caseVariables = mapOf(VAR_ZAAK_UUID to zaakWithoutRoltype.uuid))
+            val restTaskAssignData = createRestTaskAssignData(
+                taakId = "fakeTaskId",
+                zaakUuid = zaakWithoutRoltype.uuid,
+                behandelaarId = "fakeNewAssignee"
+            )
+            every { flowableTaskService.readOpenTask("fakeTaskId") } returns task
+            every { zrcClientService.readZaak(zaakWithoutRoltype.uuid) } returns zaakWithoutRoltype
+            every {
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaakWithoutRoltype,
+                    "fakeNewAssignee"
+                )
+            } throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException("fakeMessage")
+
+            `when`("the task is assigned to a medewerker on its own") {
+                val roltypeNotFoundException = shouldThrow<ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException> {
+                    taskService.assignOrReleaseTask(restTaskAssignData, task, loggedInUser)
+                }
+
+                then("the missing roltype is reported to the caller instead of being skipped") {
+                    roltypeNotFoundException.message shouldBe "fakeMessage"
+                    verify(exactly = 0) {
+                        eventingService.send(any<ScreenEvent>())
+                    }
+                }
+
+                and("the task is left completely unchanged") {
+                    verify(exactly = 0) {
+                        flowableTaskService.assignTaskToUser(any(), any(), any())
+                        flowableTaskService.assignTaskToGroup(any(), any(), any())
+                        indexingService.indexeerDirect(any<String>(), any(), any())
                     }
                 }
             }

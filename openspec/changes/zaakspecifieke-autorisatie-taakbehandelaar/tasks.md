@@ -23,6 +23,8 @@
 - [x] 2.4 In bulk `TaskService.assignTasks`, catch `ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException`
       per taak: log a warning, send `ScreenEventType.TAAK.skipped(task)`, and continue. Single-taak paths let
       it propagate.
+- [x] 2.4a Let `TaskService.assignOrReleaseTask` (single `PATCH /taken/toekennen`) assign the taak directly instead
+      of through the bulk loop, so that the bulk catch of 2.4 does not swallow the missing roltype there.
 - [x] 2.5 Add a short list of the entry points to the `TaskService` KDoc.
 
 ## 3. Taak creation and marking
@@ -105,6 +107,8 @@
       only the marked zaak gets a *Zaakspecifiek geautoriseerde medewerker* rol for that behandelaar.
 - [x] 5.12 Frontend spec `taken-werkvoorraad.component.spec.ts`: after verdelen, one `SKIPPED` taak shows the
       singular message, two show the plural message, and none shows no message.
+- [x] 5.13 `TaskServiceTest`: `assignOrReleaseTask` on a zaak without the roltype throws the roltype exception,
+      sends no `SKIPPED` event and leaves the taak unchanged.
 
 ## 6. Wrap-up
 

@@ -49,8 +49,9 @@ class TaskService @Inject constructor(
         task: Task,
         loggedInUser: LoggedInUser
     ) {
-        assignTasks(
-            RestTaskDistributeData(
+        assignTaskAndOptionallyReleaseFromAssignee(
+            task = task,
+            restTaskDistributeData = RestTaskDistributeData(
                 taken = listOf(
                     RestTaskDistributeTask(
                         taakId = task.id,
@@ -61,9 +62,10 @@ class TaskService @Inject constructor(
                 reden = restTaskAssignData.reden,
                 behandelaarGebruikersnaam = restTaskAssignData.behandelaarId
             ),
-            loggedInUser,
-            mutableListOf<String>()
+            loggedInUser = loggedInUser
         )
+        sendScreenEventsOnTaskChange(task, restTaskAssignData.zaakUuid)
+        indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
     }
 
     /**
