@@ -222,10 +222,12 @@ class TaskRestService @Inject constructor(
     fun assignTask(restTaskAssignData: RestTaskAssignData) {
         val task = flowableTaskService.readOpenTask(restTaskAssignData.taakId)
         assertPolicy(task.isOpen() && policyService.readTaakRechten(task).canToekennen)
-        taskService.assignOrReleaseTask(
-            restTaskAssignData,
-            task,
-            loggedInUserInstance.get()
+        taskService.assignTask(
+            task = task,
+            groupId = restTaskAssignData.groepId,
+            userId = restTaskAssignData.behandelaarId,
+            reason = restTaskAssignData.reden,
+            loggedInUser = loggedInUserInstance.get()
         )
     }
 
@@ -330,12 +332,10 @@ class TaskRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         return taskService.assignTask(
             task = task,
-            zaakUuid = restTaskAssignData.zaakUuid,
             groupId = null,
             userId = loggedInUser.id,
             reason = restTaskAssignData.reden,
-            loggedInUser = loggedInUser,
-            performCommit = true
+            loggedInUser = loggedInUser
         )
     }
 

@@ -76,6 +76,8 @@ class TaskServiceTest : BehaviorSpec({
 
         every { task.id } returns taskId
         every { task.assignee } returns null
+        every { task.scopeType } returns ScopeTypes.CMMN
+        every { task.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakToekennenGegevens.zaakUuid)
         every {
             flowableTaskService.assignTaskToGroup(
                 task,
@@ -87,10 +89,12 @@ class TaskServiceTest : BehaviorSpec({
         every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, any()) } returns Unit
 
         `when`("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
-            taskService.assignOrReleaseTask(
-                restTaakToekennenGegevens,
-                task,
-                loggedInUser
+            taskService.assignTask(
+                task = task,
+                groupId = restTaakToekennenGegevens.groepId,
+                userId = restTaakToekennenGegevens.behandelaarId,
+                reason = restTaakToekennenGegevens.reden,
+                loggedInUser = loggedInUser
             )
 
             then("the task is assigned to the group") {
@@ -133,6 +137,8 @@ class TaskServiceTest : BehaviorSpec({
         every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task.assignee } returns "fakeCurrentAssignee"
         every { task.id } returns taskId
+        every { task.scopeType } returns ScopeTypes.CMMN
+        every { task.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakToekennenGegevens.zaakUuid)
         every { updatedTaskAfterAssigningUser.id } returns taskId
         every {
             flowableTaskService.releaseTask(
@@ -152,7 +158,13 @@ class TaskServiceTest : BehaviorSpec({
         } returns task
 
         `when`("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
-            taskService.assignOrReleaseTask(restTaakToekennenGegevens, task, loggedInUser)
+            taskService.assignTask(
+                task = task,
+                groupId = restTaakToekennenGegevens.groepId,
+                userId = restTaakToekennenGegevens.behandelaarId,
+                reason = restTaakToekennenGegevens.reden,
+                loggedInUser = loggedInUser
+            )
 
             then("the task is released") {
                 verify(exactly = 1) {
@@ -276,6 +288,12 @@ class TaskServiceTest : BehaviorSpec({
         every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
+        every { task1.assignee } returns "fakeAssignee1"
+        every { task2.assignee } returns "fakeAssignee2"
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { updatedTaskAfterRelease1.id } returns restTaakVerdelenTaken[0].taakId
         every { updatedTaskAfterRelease2.id } returns restTaakVerdelenTaken[1].taakId
         every { flowableTaskService.readOpenTask(taskId1) } returns task1
@@ -346,6 +364,10 @@ class TaskServiceTest : BehaviorSpec({
         every { task2.id } returns taskId2
         every { task1.assignee } returns null
         every { task2.assignee } returns null
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
         every {
@@ -404,6 +426,8 @@ class TaskServiceTest : BehaviorSpec({
 
         every { task2.id } returns taskId2
         every { task2.assignee } returns null
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
         } throws TaskNotFoundException("task not found!")
@@ -463,6 +487,10 @@ class TaskServiceTest : BehaviorSpec({
         every { releasedTask2.id } returns taskId1
         every { task1.assignee } returns "fakeAssignee1"
         every { task2.assignee } returns "fakeAssignee2"
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
         every {
@@ -526,6 +554,8 @@ class TaskServiceTest : BehaviorSpec({
         every { task1.id } returns taskId1
         every { releasedTask1.id } returns taskId1
         every { task1.assignee } returns "fakeAssignee1"
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("fakeError")
         every {
@@ -595,6 +625,9 @@ class TaskServiceTest : BehaviorSpec({
 
         every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task2.id } returns taskId2
+        every { task2.assignee } returns "fakeAssignee2"
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
         } throws TaskNotFoundException("task not found!")
@@ -653,6 +686,9 @@ class TaskServiceTest : BehaviorSpec({
 
         every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
+        every { task1.assignee } returns "fakeAssignee1"
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { releasedTask1.id } returns taskId1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("fakeError")
@@ -707,7 +743,6 @@ class TaskServiceTest : BehaviorSpec({
                 caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid)
             )
             every { loggedInUser.id } returns "fakeLoggedInUserId"
-            every { flowableTaskService.readOpenTask("fakeTaskId") } returns task
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
@@ -717,13 +752,16 @@ class TaskServiceTest : BehaviorSpec({
             } just runs
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
 
             `when`("the task is assigned to a new medewerker") {
-                taskService.assignTaskToUser(
-                    taskId = "fakeTaskId",
-                    assignee = "fakeNewAssignee",
-                    loggedInUser = loggedInUser,
-                    explanation = "fakeReason"
+                taskService.assignTask(
+                    task = task,
+                    groupId = null,
+                    userId = "fakeNewAssignee",
+                    reason = "fakeReason",
+                    loggedInUser = loggedInUser
                 )
 
                 then("the new assignee is granted access and the grant is recorded before the task is assigned") {
@@ -743,20 +781,22 @@ class TaskServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val task = createTestTask(id = "fakeTaskId", caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid))
             every { loggedInUser.id } returns "fakeLoggedInUserId"
-            every { flowableTaskService.readOpenTask("fakeTaskId") } returns task
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
             } returns false
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
 
             `when`("the task is assigned to the new assignee") {
-                taskService.assignTaskToUser(
-                    taskId = "fakeTaskId",
-                    assignee = "fakeNewAssignee",
-                    loggedInUser = loggedInUser,
-                    explanation = "fakeReason"
+                taskService.assignTask(
+                    task = task,
+                    groupId = null,
+                    userId = "fakeNewAssignee",
+                    reason = "fakeReason",
+                    loggedInUser = loggedInUser
                 )
 
                 then("the task is assigned, but nothing is recorded in its history") {
@@ -771,18 +811,24 @@ class TaskServiceTest : BehaviorSpec({
         }
 
         given("a task that is already assigned to the medewerker") {
-            val task = createTestTask(id = "fakeTaskId", assignee = "fakeAssignee")
+            val task = createTestTask(
+                id = "fakeTaskId",
+                assignee = "fakeAssignee",
+                caseVariables = mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
+            )
             every { loggedInUser.id } returns "fakeLoggedInUserId"
-            every { flowableTaskService.readOpenTask("fakeTaskId") } returns task
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
 
             `when`("the task is assigned to that same medewerker again") {
-                taskService.assignTaskToUser(
-                    taskId = "fakeTaskId",
-                    assignee = "fakeAssignee",
-                    loggedInUser = loggedInUser,
-                    explanation = "fakeReason"
+                taskService.assignTask(
+                    task = task,
+                    groupId = null,
+                    userId = "fakeAssignee",
+                    reason = "fakeReason",
+                    loggedInUser = loggedInUser
                 )
 
                 then("the zaak is not read and no access is granted") {
@@ -861,7 +907,6 @@ class TaskServiceTest : BehaviorSpec({
                 zaakUuid = zaakWithoutRoltype.uuid,
                 behandelaarId = "fakeNewAssignee"
             )
-            every { flowableTaskService.readOpenTask("fakeTaskId") } returns task
             every { zrcClientService.readZaak(zaakWithoutRoltype.uuid) } returns zaakWithoutRoltype
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
@@ -872,7 +917,13 @@ class TaskServiceTest : BehaviorSpec({
 
             `when`("the task is assigned to a medewerker on its own") {
                 val roltypeNotFoundException = shouldThrow<ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException> {
-                    taskService.assignOrReleaseTask(restTaskAssignData, task, loggedInUser)
+                    taskService.assignTask(
+                        task = task,
+                        groupId = restTaskAssignData.groepId,
+                        userId = restTaskAssignData.behandelaarId,
+                        reason = restTaskAssignData.reden,
+                        loggedInUser = loggedInUser
+                    )
                 }
 
                 then("the missing roltype is reported to the caller instead of being skipped") {
