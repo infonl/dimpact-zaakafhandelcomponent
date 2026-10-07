@@ -20,6 +20,7 @@ import io.mockk.verifyOrder
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
+import java.util.concurrent.locks.ReentrantLock
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -181,6 +182,7 @@ class ZaakServiceTest : BehaviorSpec({
             val createdRollen = mutableListOf<Rol<*>>()
             val updatedRollen = mutableListOf<Rol<*>>()
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user.id) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
@@ -277,6 +279,7 @@ class ZaakServiceTest : BehaviorSpec({
                 behandelaarRollen = listOf(currentBehandelaarRol)
             )
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, newBehandelaar.id)
@@ -351,6 +354,7 @@ class ZaakServiceTest : BehaviorSpec({
                 )
             )
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user.id) } just runs
             every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
@@ -387,6 +391,7 @@ class ZaakServiceTest : BehaviorSpec({
             )
             val updatedRollen = mutableListOf<Rol<*>>()
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, null) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
@@ -442,6 +447,7 @@ class ZaakServiceTest : BehaviorSpec({
                 zaakspecifiekGeautoriseerdeMedewerkers = listOf(geautoriseerdeMedewerkerRol)
             )
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, null) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
@@ -471,6 +477,7 @@ class ZaakServiceTest : BehaviorSpec({
             val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
             val zaakToewijzing = createZaakToewijzing()
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user.id) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
@@ -518,6 +525,7 @@ class ZaakServiceTest : BehaviorSpec({
                 behandelaarRollen = listOf(firstBehandelaarRol, secondBehandelaarRol)
             )
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user.id) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
@@ -566,6 +574,7 @@ class ZaakServiceTest : BehaviorSpec({
                 isZaakspecifiekGeautoriseerd = true
             )
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, newBehandelaar.id)
@@ -643,6 +652,7 @@ class ZaakServiceTest : BehaviorSpec({
             )
             val createdRollen = mutableListOf<Rol<*>>()
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, returningBehandelaar.id)
@@ -710,6 +720,7 @@ class ZaakServiceTest : BehaviorSpec({
             val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
             val zaakToewijzing = createZaakToewijzing(isZaakspecifiekGeautoriseerd = true)
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, newBehandelaar.id)
@@ -756,6 +767,7 @@ class ZaakServiceTest : BehaviorSpec({
                 isZaakspecifiekGeautoriseerd = true
             )
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, null)
@@ -788,6 +800,7 @@ class ZaakServiceTest : BehaviorSpec({
             val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
             val zaakToewijzing = createZaakToewijzing()
             val reason = "fakeReason"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, any()) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
@@ -841,6 +854,7 @@ class ZaakServiceTest : BehaviorSpec({
             val screenEventSlot = slot<ScreenEvent>()
             zaken.forEach { zaak ->
                 every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
                 every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns createZaakToewijzing()
                 every {
                     zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak)
@@ -903,10 +917,12 @@ class ZaakServiceTest : BehaviorSpec({
             listOf(markedZaak, ordinaryZaak).forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zaakspecifiekeAutorisatieService.lockForZaak(markedZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(markedZaak) } returns createZaakToewijzing(
                 behandelaarRollen = listOf(createRolMedewerker()),
                 isZaakspecifiekGeautoriseerd = true
             )
+            every { zaakspecifiekeAutorisatieService.lockForZaak(ordinaryZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak) } returns createZaakToewijzing()
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(any(), user.id) } just runs
             every {
@@ -976,9 +992,11 @@ class ZaakServiceTest : BehaviorSpec({
             listOf(zaakWithTwoGroepRollen, ordinaryZaak).forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaakWithTwoGroepRollen.uuid) } returns ReentrantLock()
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaakWithTwoGroepRollen)
             } throws MultipleBehandelaarRolesException("fakeMessage")
+            every { zaakspecifiekeAutorisatieService.lockForZaak(ordinaryZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak) } returns createZaakToewijzing()
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(any(), user.id) } just runs
             every { zrcClientService.createRol(any(), explanation) } returns createRolMedewerker()
@@ -1040,6 +1058,7 @@ class ZaakServiceTest : BehaviorSpec({
             listOf(openZaak, closedZaak).forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zaakspecifiekeAutorisatieService.lockForZaak(openZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(openZaak) } returns createZaakToewijzing()
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(any(), user.id) } just runs
             every {
@@ -1146,6 +1165,7 @@ class ZaakServiceTest : BehaviorSpec({
             val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaaktype.url)
             zaken.forEach { zaak ->
                 every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
                 every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns createZaakToewijzing(
                     behandelaarRollen = listOf(
                         createRolMedewerker(zaakURI = zaak.url, rolType = behandelaarRolType)
@@ -1242,6 +1262,7 @@ class ZaakServiceTest : BehaviorSpec({
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 } just runs
             }
+            every { zaakspecifiekeAutorisatieService.lockForZaak(markedZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(markedZaak) } returns createZaakToewijzing(
                 behandelaarRollen = listOf(
                     createRolMedewerker(
@@ -1252,6 +1273,7 @@ class ZaakServiceTest : BehaviorSpec({
                 ),
                 isZaakspecifiekGeautoriseerd = true
             )
+            every { zaakspecifiekeAutorisatieService.lockForZaak(ordinaryZaak.uuid) } returns ReentrantLock()
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak)
             } returns createZaakToewijzing()
@@ -1321,7 +1343,9 @@ class ZaakServiceTest : BehaviorSpec({
             listOf(markedZaak, ordinaryZaak).forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zaakspecifiekeAutorisatieService.lockForZaak(markedZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(markedZaak) } returns markedZaakToewijzing
+            every { zaakspecifiekeAutorisatieService.lockForZaak(ordinaryZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak) } returns ordinaryZaakToewijzing
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(markedZaakToewijzing, null)
@@ -1376,6 +1400,7 @@ class ZaakServiceTest : BehaviorSpec({
             val screenEventSlot = slot<ScreenEvent>()
             zaken.forEach { zaak ->
                 every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
                 every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns createZaakToewijzing(
                     behandelaarRollen = listOf(behandelaarRolPerZaak.getValue(zaak))
                 )
@@ -1429,6 +1454,7 @@ class ZaakServiceTest : BehaviorSpec({
             listOf(openZaak, closedZaak).forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zaakspecifiekeAutorisatieService.lockForZaak(openZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(openZaak) } returns createZaakToewijzing(
                 behandelaarRollen = listOf(behandelaarRol)
             )
@@ -1481,7 +1507,9 @@ class ZaakServiceTest : BehaviorSpec({
             listOf(markedZaak, ordinaryZaak).forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zaakspecifiekeAutorisatieService.lockForZaak(markedZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(markedZaak) } returns markedZaakToewijzing
+            every { zaakspecifiekeAutorisatieService.lockForZaak(ordinaryZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak) } returns ordinaryZaakToewijzing
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(markedZaakToewijzing, null)
@@ -1528,9 +1556,11 @@ class ZaakServiceTest : BehaviorSpec({
             listOf(zaakWithTwoGroepRollen, ordinaryZaak).forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaakWithTwoGroepRollen.uuid) } returns ReentrantLock()
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaakWithTwoGroepRollen)
             } throws MultipleBehandelaarRolesException("fakeMessage")
+            every { zaakspecifiekeAutorisatieService.lockForZaak(ordinaryZaak.uuid) } returns ReentrantLock()
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(ordinaryZaak) } returns ordinaryZaakToewijzing
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(ordinaryZaakToewijzing, null)

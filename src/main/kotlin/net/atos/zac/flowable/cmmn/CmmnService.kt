@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
 import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -20,12 +21,14 @@ import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
+import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.cmmn.api.repository.CaseDefinition
 import org.flowable.cmmn.api.runtime.PlanItemDefinitionType
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.cmmn.model.HumanTask
 import org.flowable.cmmn.model.UserEventListener
 import org.flowable.common.engine.api.FlowableObjectNotFoundException
+import org.flowable.task.api.Task
 import java.util.Date
 import java.util.UUID
 import java.util.logging.Logger
@@ -39,6 +42,7 @@ class CmmnService @Inject constructor(
     private val cmmnRuntimeService: CmmnRuntimeService,
     private val cmmnHistoryService: CmmnHistoryService,
     private val cmmnRepositoryService: CmmnRepositoryService,
+    private val cmmnTaskService: CmmnTaskService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
@@ -132,6 +136,13 @@ class CmmnService @Inject constructor(
 
     fun startUserEventListenerPlanItem(planItemInstanceId: String) =
         cmmnRuntimeService.triggerPlanItemInstance(planItemInstanceId)
+
+    fun readOpenTaskForPlanItem(planItemInstanceId: String): Task =
+        cmmnTaskService.createTaskQuery()
+            .planItemInstanceId(planItemInstanceId)
+            .singleResult() ?: throw TaskNotFoundException(
+            "No open task found for plan item instance id '$planItemInstanceId'"
+        )
 
     fun readOpenPlanItem(planItemInstanceId: String): PlanItemInstance {
         return cmmnRuntimeService.createPlanItemInstanceQuery()

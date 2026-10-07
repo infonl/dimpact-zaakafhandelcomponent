@@ -402,6 +402,8 @@
   "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.meervoud": "{{aantal}} zaken zijn niet verdeeld omdat deze zaakspecifiek geautoriseerd zijn.",
   "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud": "Eén zaak is niet vrijgegeven omdat deze zaakspecifiek geautoriseerd is.",
   "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.meervoud": "{{aantal}} zaken zijn niet vrijgegeven omdat deze zaakspecifiek geautoriseerd zijn.",
+  "msg.taken.verdelen.overgeslagen.enkelvoud": "Eén taak is niet verdeeld omdat de medewerker geen toegang tot de zaakspecifiek geautoriseerde zaak kan krijgen. Neem contact op met de beheerder.",
+  "msg.taken.verdelen.overgeslagen.meervoud": "{{aantal}} taken zijn niet verdeeld omdat de medewerker geen toegang tot de zaakspecifiek geautoriseerde zaken kan krijgen. Neem contact op met de beheerder.",
   "zaak.locatie.adres": "Dichtsbijzijnde adres",
   "zaak-identificatie": "Hoort bij zaak",
   "zaak-informatieobject": "Document",
