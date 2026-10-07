@@ -6,7 +6,6 @@ package nl.info.zac.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import jakarta.validation.Validation
 
 class ZaaktypeZaakafzenderParametersTest : BehaviorSpec({
@@ -56,15 +55,9 @@ class ZaaktypeZaakafzenderParametersTest : BehaviorSpec({
 
             `when`("they are compared") {
                 val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
-                val hashCode1 = zaakafzenderParameters1.hashCode()
-                val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be different") {
                     isEqual shouldBe false
-                }
-
-                and("they should have different hashcodes") {
-                    hashCode1 shouldNotBe hashCode2
                 }
             }
         }
@@ -81,15 +74,9 @@ class ZaaktypeZaakafzenderParametersTest : BehaviorSpec({
 
             `when`("they are compared") {
                 val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
-                val hashCode1 = zaakafzenderParameters1.hashCode()
-                val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be different") {
                     isEqual shouldBe false
-                }
-
-                and("they should have different hashcodes") {
-                    hashCode1 shouldNotBe hashCode2
                 }
             }
         }
@@ -106,15 +93,9 @@ class ZaaktypeZaakafzenderParametersTest : BehaviorSpec({
 
             `when`("they are compared") {
                 val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
-                val hashCode1 = zaakafzenderParameters1.hashCode()
-                val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be different") {
                     isEqual shouldBe false
-                }
-
-                and("they should have different hashcodes") {
-                    hashCode1 shouldNotBe hashCode2
                 }
             }
         }
@@ -133,15 +114,9 @@ class ZaaktypeZaakafzenderParametersTest : BehaviorSpec({
 
             `when`("they are compared") {
                 val isEqual = zaakafzenderParameters1.equals(zaakafzenderParameters2)
-                val hashCode1 = zaakafzenderParameters1.hashCode()
-                val hashCode2 = zaakafzenderParameters2.hashCode()
 
                 then("they should be different") {
                     isEqual shouldBe false
-                }
-
-                and("they should have different hashcodes") {
-                    hashCode1 shouldNotBe hashCode2
                 }
             }
         }

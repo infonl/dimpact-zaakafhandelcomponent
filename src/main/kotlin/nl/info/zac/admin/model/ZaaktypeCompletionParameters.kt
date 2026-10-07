@@ -16,7 +16,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
-import java.util.Objects
 import java.util.UUID
 
 @Entity
@@ -54,10 +53,10 @@ class ZaaktypeCompletionParameters : UserModifiableZaaktypeConfigurationData<Zaa
             resultaattype == other.resultaattype
     }
 
-    override fun hashCode(): Int {
-        checkNotNull(zaakbeeindigReden) { "zaakbeeindigReden is null" }
-        return Objects.hash(zaakbeeindigReden.id, resultaattype)
-    }
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 
     override fun isModifiedFrom(original: ZaaktypeCompletionParameters): Boolean =
         zaakbeeindigReden == original.zaakbeeindigReden && resultaattype != original.resultaattype

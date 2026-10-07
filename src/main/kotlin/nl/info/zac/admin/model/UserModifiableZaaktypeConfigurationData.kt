@@ -45,15 +45,6 @@ interface UserModifiableZaaktypeConfigurationData<T : UserModifiableZaaktypeConf
 }
 
 /**
- * This function replaces Hibernate's PersistentSet#contains, which does not use the overridden `equals` and
- * `hashCode`.
- *
- * @see <a href=https://hibernate.atlassian.net/browse/HHH-3799>Hibernate issue</a>
- */
-fun <T> isElementNotInCollection(targetCollection: Collection<T>, candidate: T): Boolean =
-    targetCollection.none { it == candidate }
-
-/**
  * Applies the user changes of the candidate to the element of the collection that it modifies, or adds the candidate
  * as a new element when the collection holds no such element and no equal one.
  */
@@ -61,7 +52,7 @@ fun <T : UserModifiableZaaktypeConfigurationData<T>> setComponent(targetCollecti
     val modifiedElement = targetCollection.firstOrNull { it.isModifiedFrom(candidate) }
     if (modifiedElement != null) {
         modifiedElement.applyChanges(candidate)
-    } else if (isElementNotInCollection(targetCollection, candidate)) {
+    } else if (candidate !in targetCollection) {
         targetCollection.add(candidate.resetId())
     }
 }

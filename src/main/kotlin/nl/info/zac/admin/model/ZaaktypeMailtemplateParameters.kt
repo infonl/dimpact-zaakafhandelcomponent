@@ -60,7 +60,10 @@ class ZaaktypeMailtemplateParameters :
         return checkNotNull(isSameMailTemplate) { "mailTemplate is null" }
     }
 
-    override fun hashCode(): Int = mailTemplate?.let { Objects.hash(it.id) } ?: 0
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 
     @Suppress("UseCheckOrError")
     override fun isModifiedFrom(original: ZaaktypeMailtemplateParameters): Boolean {

@@ -79,5 +79,8 @@ class ZaaktypeZaakafzenderParameters : UserModifiableZaaktypeConfigurationData<Z
         return mail == other.mail && isDefaultMail == other.isDefaultMail && Objects.equals(replyTo, other.replyTo)
     }
 
-    override fun hashCode(): Int = Objects.hash(mail, isDefaultMail, replyTo)
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 }

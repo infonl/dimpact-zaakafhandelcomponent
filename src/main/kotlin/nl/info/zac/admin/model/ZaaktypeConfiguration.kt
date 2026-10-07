@@ -222,7 +222,7 @@ class ZaaktypeConfiguration {
             it.zaaktypeConfiguration = this
             setComponent(mailtemplateKoppelingen, it)
         }
-        mailtemplateKoppelingen.removeIf { existing -> isElementNotInCollection(desired, existing) }
+        mailtemplateKoppelingen.removeIf { existing -> existing !in desired }
     }
 
     fun getAutomaticEmailConfirmation(): ZaaktypeEmailParameters? = zaaktypeEmailParameters
@@ -236,7 +236,7 @@ class ZaaktypeConfiguration {
             it.zaaktypeConfiguration = this
             setComponent(zaakAfzenders, it)
         }
-        zaakAfzenders.removeIf { existing -> isElementNotInCollection(desired, existing) }
+        zaakAfzenders.removeIf { existing -> existing !in desired }
     }
 
     private fun setZaakbeeindigParameter(param: ZaaktypeCompletionParameters) {

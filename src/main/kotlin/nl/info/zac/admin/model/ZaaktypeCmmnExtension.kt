@@ -83,7 +83,7 @@ class ZaaktypeCmmnExtension {
             it.zaaktypeCmmnExtension = this
             setComponent(humanTaskParameters, it)
         }
-        humanTaskParameters.removeIf { existing -> isElementNotInCollection(desired, existing) }
+        humanTaskParameters.removeIf { existing -> existing !in desired }
     }
 
     fun getUserEventListenerParametersCollection(): Set<ZaaktypeCmmnUsereventlistenerParameters> =
@@ -98,9 +98,7 @@ class ZaaktypeCmmnExtension {
             it.zaaktypeCmmnExtension = this
             setComponent(userEventListenerParameters, it)
         }
-        userEventListenerParameters.removeIf { existing ->
-            isElementNotInCollection(desired, existing)
-        }
+        userEventListenerParameters.removeIf { existing -> existing !in desired }
     }
 
     @Suppress("TooGenericExceptionThrown")

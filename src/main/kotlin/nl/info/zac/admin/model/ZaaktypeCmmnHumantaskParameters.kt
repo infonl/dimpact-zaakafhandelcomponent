@@ -105,8 +105,10 @@ class ZaaktypeCmmnHumantaskParameters :
             Objects.deepEquals(referentieTabellen.toTypedArray(), other.referentieTabellen.toTypedArray())
     }
 
-    override fun hashCode(): Int =
-        Objects.hash(isActief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd, referentieTabellen)
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 
     override fun isModifiedFrom(original: ZaaktypeCmmnHumantaskParameters): Boolean {
         return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
