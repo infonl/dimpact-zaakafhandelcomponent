@@ -42,7 +42,11 @@ class RestBagAdres : RestBagObject() {
         get() = BagObjectType.ADRES
 
     override val omschrijving
-        get() = "$openbareRuimteNaam $huisnummerWeergave, $postcode $woonplaatsNaam"
+        get() = joinNonBlank(
+            ", ",
+            joinNonBlank(" ", openbareRuimteNaam, huisnummerWeergave),
+            joinNonBlank(" ", postcode, woonplaatsNaam)
+        )
 
     val geometry: RestGeometry?
         get() {

@@ -211,4 +211,33 @@ class RestNummeraanduidingTest : BehaviorSpec({
             }
         }
     }
+
+    context("The description of a REST nummeraanduiding") {
+        given("A nummeraanduiding with a huisnummer and a postcode") {
+            val restNummeraanduiding = RestNummeraanduiding().apply {
+                huisnummerWeergave = "12A"
+                postcode = "1234AB"
+            }
+
+            `when`("the description is requested") {
+                val omschrijving = restNummeraanduiding.omschrijving
+
+                then("it contains the huisnummer and the postcode") {
+                    omschrijving shouldBe "12A 1234AB"
+                }
+            }
+        }
+
+        given("A nummeraanduiding without a postcode") {
+            val restNummeraanduiding = RestNummeraanduiding().apply { huisnummerWeergave = "12A" }
+
+            `when`("the description is requested") {
+                val omschrijving = restNummeraanduiding.omschrijving
+
+                then("it contains only the huisnummer, without 'null'") {
+                    omschrijving shouldBe "12A"
+                }
+            }
+        }
+    }
 })

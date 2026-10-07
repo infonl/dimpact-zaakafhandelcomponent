@@ -99,4 +99,33 @@ class RestAdresseerbaarObjectTest : BehaviorSpec({
             }
         }
     }
+
+    context("The description of a REST adresseerbaar object") {
+        given("An adresseerbaar object with a type and an identificatie") {
+            val restAdresseerbaarObject = RestAdresseerbaarObject().apply {
+                typeAdresseerbaarObject = TypeAdresseerbaarObject.LIGPLAATS
+                identificatie = "fakeIdentificatie"
+            }
+
+            `when`("the description is requested") {
+                val omschrijving = restAdresseerbaarObject.omschrijving
+
+                then("it contains the type and the identificatie") {
+                    omschrijving shouldBe "${TypeAdresseerbaarObject.LIGPLAATS} fakeIdentificatie"
+                }
+            }
+        }
+
+        given("An adresseerbaar object without a type") {
+            val restAdresseerbaarObject = RestAdresseerbaarObject().apply { identificatie = "fakeIdentificatie" }
+
+            `when`("the description is requested") {
+                val omschrijving = restAdresseerbaarObject.omschrijving
+
+                then("it contains only the identificatie, without 'null'") {
+                    omschrijving shouldBe "fakeIdentificatie"
+                }
+            }
+        }
+    }
 })

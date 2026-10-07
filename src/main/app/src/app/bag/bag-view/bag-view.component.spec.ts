@@ -149,4 +149,91 @@ describe(BAGViewComponent.name, () => {
     expect(screen.queryByText("Verblijfsobject")).toBeNull();
     expect(zaakSearchedFor()).toBe("0363010000721374");
   });
+
+  describe("empty values", () => {
+    it("shows the address line of an adres with only the parts that are present", async () => {
+      await setup(
+        fromPartial<GeneratedType<"RestBagAdres">>({
+          bagObjectType: "ADRES",
+          identificatie: "0568200000304496",
+          openbareRuimteNaam: null,
+          huisnummerWeergave: "12",
+          postcode: undefined,
+          woonplaatsNaam: "Testplaats",
+        }),
+      );
+
+      expect(screen.getByText("12 Testplaats")).toBeVisible();
+      expect(screen.queryByText(/undefined|null/)).toBeNull();
+    });
+
+    it("does not show the sections of an adres whose related bag objects are missing", async () => {
+      await setup(
+        fromPartial<GeneratedType<"RestBagAdres">>({
+          bagObjectType: "ADRES",
+          identificatie: "0568200000304496",
+          panden: [],
+          adresseerbaarObject: null,
+          nummeraanduiding: null,
+          openbareRuimte: null,
+          woonplaats: null,
+        }),
+      );
+
+      expect(screen.getByText("objecttype.adres")).toBeVisible();
+      expect(screen.queryByText("objecttype.pand")).toBeNull();
+      expect(screen.queryByText("objecttype.nummeraanduiding")).toBeNull();
+      expect(screen.queryByText("objecttype.openbare-ruimte")).toBeNull();
+      expect(screen.queryByText("objecttype.woonplaats")).toBeNull();
+      expect(screen.queryByText("bouwjaar")).toBeNull();
+      expect(screen.queryByText("status")).toBeNull();
+      expect(screen.queryByText(/undefined|null/)).toBeNull();
+    });
+
+    it("does not show the empty fields of the related bag objects of an adres", async () => {
+      await setup(
+        fromPartial<GeneratedType<"RestBagAdres">>({
+          bagObjectType: "ADRES",
+          identificatie: "0568200000304496",
+          panden: [{ identificatie: "0568100000012345" }],
+          adresseerbaarObject: {
+            typeAdresseerbaarObject: "VERBLIJFSOBJECT",
+            identificatie: "0568010000012345",
+            vboOppervlakte: 0,
+            vboDoel: "",
+          },
+        }),
+      );
+
+      expect(screen.getByText("objecttype.pand")).toBeVisible();
+      expect(screen.getByText("0568100000012345")).toBeVisible();
+      expect(screen.getByText("0568010000012345")).toBeVisible();
+      expect(screen.queryByText("bouwjaar")).toBeNull();
+      expect(screen.queryByText("oppervlakte")).toBeNull();
+      expect(screen.queryByText("gebruiksdoel")).toBeNull();
+      expect(screen.queryByText(/m2/)).toBeNull();
+      expect(screen.queryByText(/undefined|null/)).toBeNull();
+    });
+
+    it("does not show the empty fields of a nummeraanduiding", async () => {
+      await setup(
+        fromPartial<GeneratedType<"RestNummeraanduiding">>({
+          bagObjectType: "NUMMERAANDUIDING",
+          identificatie: "0568200000304496",
+          huisnummer: 12,
+          huisletter: null,
+          huisnummertoevoeging: null,
+          openbareRuimte: null,
+          woonplaats: null,
+        }),
+      );
+
+      expect(screen.getByText("huisnummer")).toBeVisible();
+      expect(screen.queryByText("huisletter")).toBeNull();
+      expect(screen.queryByText("huisnummertoevoeging")).toBeNull();
+      expect(screen.queryByText("straat")).toBeNull();
+      expect(screen.queryByText("objecttype.openbare-ruimte")).toBeNull();
+      expect(screen.queryByText(/undefined|null/)).toBeNull();
+    });
+  });
 });
