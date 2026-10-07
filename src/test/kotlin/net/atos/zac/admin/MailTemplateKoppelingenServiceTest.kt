@@ -19,6 +19,7 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.MailTemplateKoppelingenService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeMailtemplateParameters
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
@@ -30,7 +31,8 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
     val criteriaQuery = mockk<CriteriaQuery<ZaaktypeMailtemplateParameters>>()
     val root = mockk<Root<ZaaktypeMailtemplateParameters>>()
     val typedQuery = mockk<TypedQuery<ZaaktypeMailtemplateParameters>>()
-    val service = MailTemplateKoppelingenService(entityManager)
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+    val service = MailTemplateKoppelingenService(entityManager, zaaktypeConfigurationService)
 
     afterEach {
         checkUnnecessaryStub()
@@ -55,11 +57,20 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
 
         `when`("delete is called with the id") {
             every { entityManager.remove(any<ZaaktypeMailtemplateParameters>()) } just runs
+            every { zaaktypeConfigurationService.evict(koppeling.zaaktypeConfiguration.zaaktypeUuid) } just runs
 
             service.delete(id)
 
-            then("entityManager.remove is called with the entity") {
-                verify { entityManager.remove(any<ZaaktypeMailtemplateParameters>()) }
+            then(
+                """
+                the koppeling is removed and its zaaktype configuration is evicted from the cache,
+                so that a cached configuration does not keep serving the deleted koppeling
+                """
+            ) {
+                verify {
+                    entityManager.remove(koppeling)
+                    zaaktypeConfigurationService.evict(koppeling.zaaktypeConfiguration.zaaktypeUuid)
+                }
             }
         }
     }
@@ -97,12 +108,21 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
             mailTemplate = createMailTemplate()
         )
         every { entityManager.persist(any<ZaaktypeMailtemplateParameters>()) } just runs
+        every { zaaktypeConfigurationService.evict(koppeling.zaaktypeConfiguration.zaaktypeUuid) } just runs
 
         `when`("storeMailtemplateKoppeling is called") {
             val result = service.storeMailtemplateKoppeling(koppeling)
 
-            then("entityManager.persist is called and the same entity instance is returned") {
-                verify { entityManager.persist(any<ZaaktypeMailtemplateParameters>()) }
+            then(
+                """
+                entityManager.persist is called, the same entity instance is returned
+                and its zaaktype configuration is evicted from the cache
+                """
+            ) {
+                verify {
+                    entityManager.persist(any<ZaaktypeMailtemplateParameters>())
+                    zaaktypeConfigurationService.evict(koppeling.zaaktypeConfiguration.zaaktypeUuid)
+                }
                 (result === koppeling) shouldBe true
             }
         }
@@ -122,12 +142,21 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         )
         every { entityManager.find(ZaaktypeMailtemplateParameters::class.java, id) } returns koppeling
         every { entityManager.merge(any<ZaaktypeMailtemplateParameters>()) } returns merged
+        every { zaaktypeConfigurationService.evict(merged.zaaktypeConfiguration.zaaktypeUuid) } just runs
 
         `when`("storeMailtemplateKoppeling is called") {
             val result = service.storeMailtemplateKoppeling(koppeling)
 
-            then("entityManager.merge is called and the merged entity instance is returned") {
-                verify { entityManager.merge(any<ZaaktypeMailtemplateParameters>()) }
+            then(
+                """
+                entityManager.merge is called, the merged entity instance is returned
+                and its zaaktype configuration is evicted from the cache
+                """
+            ) {
+                verify {
+                    entityManager.merge(any<ZaaktypeMailtemplateParameters>())
+                    zaaktypeConfigurationService.evict(merged.zaaktypeConfiguration.zaaktypeUuid)
+                }
                 (result === merged) shouldBe true
             }
         }

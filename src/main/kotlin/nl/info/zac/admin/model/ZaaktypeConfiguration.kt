@@ -6,15 +6,11 @@ package nl.info.zac.admin.model
 
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
-import jakarta.persistence.DiscriminatorColumn
-import jakarta.persistence.DiscriminatorType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.Inheritance
-import jakarta.persistence.InheritanceType
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.SequenceGenerator
@@ -22,7 +18,9 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.validateObject
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -34,14 +32,10 @@ import java.util.UUID
     sequenceName = "sq_zaaktype_configuration",
     allocationSize = 1
 )
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "configuration_type", discriminatorType = DiscriminatorType.STRING)
 @AllOpen
 @Suppress("TooManyFunctions")
-abstract class ZaaktypeConfiguration {
+class ZaaktypeConfiguration {
     companion object {
-        enum class ZaaktypeConfigurationType { CMMN, BPMN }
-
         val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = ZaaktypeConfiguration::productaanvraagtype.name
         val ZAAKTYPE_UUID_VARIABLE_NAME = ZaaktypeConfiguration::zaaktypeUuid.name
         val ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME = ZaaktypeConfiguration::zaaktypeOmschrijving.name
@@ -138,7 +132,61 @@ abstract class ZaaktypeConfiguration {
     )
     private var zaaktypeZaakafzenderParameters: MutableSet<ZaaktypeZaakafzenderParameters>? = null
 
-    abstract fun getConfigurationType(): ZaaktypeConfigurationType
+    @OneToOne(
+        mappedBy = "zaaktypeConfiguration",
+        cascade = [CascadeType.ALL],
+        fetch = FetchType.EAGER,
+        orphanRemoval = true
+    )
+    var processBinding: ZaaktypeProcessBinding? = null
+
+    @OneToOne(
+        mappedBy = "zaaktypeConfiguration",
+        cascade = [CascadeType.ALL],
+        fetch = FetchType.EAGER,
+        orphanRemoval = true
+    )
+    var cmmnExtension: ZaaktypeCmmnExtension? = null
+
+    fun getProcessEngine(): ProcessEngine? = processBinding?.processEngine
+
+    /**
+     * Binds this configuration to the given engine and definition, replacing the definition of a previous binding.
+     * A configuration never changes engine, and a BPMN-bound configuration has no CMMN extension.
+     */
+    fun bindTo(processEngine: ProcessEngine, definitionKey: String) {
+        getProcessEngine()?.takeIf { it != processEngine }?.let {
+            throw InputValidationFailedException(
+                message = "Zaaktype configuration for zaaktype '$zaaktypeUuid' is bound to $it and cannot be " +
+                    "bound to $processEngine"
+            )
+        }
+        if (processEngine == ProcessEngine.BPMN) {
+            cmmnExtension = null
+        }
+        val binding = processBinding ?: ZaaktypeProcessBinding().also { processBinding = it }
+        binding.zaaktypeConfiguration = this
+        binding.processEngine = processEngine
+        binding.definitionKey = definitionKey
+    }
+
+    /**
+     * Returns the CMMN extension, after creating it when this configuration has none yet.
+     */
+    fun getOrCreateCmmnExtension(): ZaaktypeCmmnExtension =
+        cmmnExtension ?: ZaaktypeCmmnExtension().also {
+            it.zaaktypeConfiguration = this
+            cmmnExtension = it
+        }
+
+    /**
+     * Indicates whether this zaaktype configuration is valid to be used to create a zaak of this zaaktype or not.
+     * A CMMN zaaktype also needs the niet-ontvankelijk resultaattype, because its intake can end the zaak as niet-ontvankelijk.
+     */
+    fun isValidForZaakCreation(): Boolean =
+        !groepID.isNullOrBlank() &&
+            processBinding?.definitionKey?.isNotBlank() == true &&
+            (getProcessEngine() != ProcessEngine.CMMN || nietOntvankelijkResultaattype != null)
 
     fun getBetrokkeneParameters(): ZaaktypeBetrokkeneParameters =
         zaaktypeBetrokkeneParameters ?: ZaaktypeBetrokkeneParameters()
@@ -157,13 +205,12 @@ abstract class ZaaktypeConfiguration {
     fun getZaakbeeindigParameters(): Set<ZaaktypeCompletionParameters> =
         zaaktypeCompletionParameters.orEmpty()
 
-    fun setZaakbeeindigParameters(newZaaktypeCompletionParameters: Collection<ZaaktypeCompletionParameters>) {
+    fun setZaakbeeindigParameters(desired: Collection<ZaaktypeCompletionParameters>) {
         val completionParameters = zaaktypeCompletionParameters ?: mutableSetOf<ZaaktypeCompletionParameters>().also {
             zaaktypeCompletionParameters = it
         }
-        val desiredParameters = newZaaktypeCompletionParameters.toHashSet()
-        newZaaktypeCompletionParameters.forEach { setZaakbeeindigParameter(it) }
-        completionParameters.removeIf { it !in desiredParameters }
+        desired.forEach { it.zaaktypeConfiguration = this }
+        completionParameters.mergeWith(desired) { it.zaakbeeindigReden.id }
     }
 
     fun getMailtemplateKoppelingen(): Set<ZaaktypeMailtemplateParameters> = zaaktypeMailtemplateKoppelingen.orEmpty()
@@ -171,11 +218,8 @@ abstract class ZaaktypeConfiguration {
     fun setMailtemplateKoppelingen(desired: Collection<ZaaktypeMailtemplateParameters>) {
         val mailtemplateKoppelingen = zaaktypeMailtemplateKoppelingen
             ?: mutableSetOf<ZaaktypeMailtemplateParameters>().also { zaaktypeMailtemplateKoppelingen = it }
-        desired.forEach {
-            it.zaaktypeConfiguration = this
-            setComponent(mailtemplateKoppelingen, it)
-        }
-        mailtemplateKoppelingen.removeIf { existing -> isElementNotInCollection(desired, existing) }
+        desired.forEach { it.zaaktypeConfiguration = this }
+        mailtemplateKoppelingen.mergeWith(desired) { it.mailTemplate?.mail }
     }
 
     fun getAutomaticEmailConfirmation(): ZaaktypeEmailParameters? = zaaktypeEmailParameters
@@ -185,48 +229,15 @@ abstract class ZaaktypeConfiguration {
     fun setZaakAfzenders(desired: Collection<ZaaktypeZaakafzenderParameters>) {
         val zaakAfzenders = zaaktypeZaakafzenderParameters
             ?: mutableSetOf<ZaaktypeZaakafzenderParameters>().also { zaaktypeZaakafzenderParameters = it }
-        desired.forEach {
-            it.zaaktypeConfiguration = this
-            setComponent(zaakAfzenders, it)
-        }
-        zaakAfzenders.removeIf { existing -> isElementNotInCollection(desired, existing) }
+        desired.forEach { it.zaaktypeConfiguration = this }
+        zaakAfzenders.mergeWith(desired) { it.mail }
     }
+}
 
-    private fun setZaakbeeindigParameter(param: ZaaktypeCompletionParameters) {
-        param.zaaktypeConfiguration = this
-        zaaktypeCompletionParameters?.let { setComponent(it, param) }
-    }
-
-    /**
-     * This method replaces the Hibernate's PersistentSet#contains that does not use overridden <code>equals</code>
-     * and <code>hashCode</code>.
-     *
-     * @param targetCollection Collection that should be checked for the existence of the candidate element.
-     * @param candidate        Candidate element to be added to the collection.
-     * @return <code>true</code> if the element is not in the collection, <code>false</code> otherwise.
-     *
-     * @see <a href=https://hibernate.atlassian.net/browse/HHH-3799>Hibernate issue</a>
-     *
-     */
-    fun <T> isElementNotInCollection(targetCollection: Collection<T>, candidate: T): Boolean =
-        targetCollection.none { it == candidate }
-
-    fun <T : UserModifiable<T>> elementToChange(
-        persistentCollection: Collection<T>,
-        changeCandidate: T
-    ): T? = persistentCollection.firstOrNull { it.isModifiedFrom(changeCandidate) }
-
-    fun <T : UserModifiable<T>> setComponent(
-        targetCollection: MutableCollection<T>,
-        candidate: T
-    ) {
-        val existingElement = elementToChange(targetCollection, candidate)
-        if (existingElement != null) {
-            existingElement.applyChanges(candidate)
-        } else {
-            if (isElementNotInCollection(targetCollection, candidate)) {
-                targetCollection.add(candidate.resetId())
-            }
-        }
-    }
+fun ZaaktypeConfiguration.validate() {
+    validateObject(this)
+    processBinding?.let { validateObject(it) }
+    getMailtemplateKoppelingen().forEach { validateObject(it) }
+    cmmnExtension?.getHumanTaskParametersCollection()?.forEach { validateObject(it) }
+    cmmnExtension?.getUserEventListenerParametersCollection()?.forEach { validateObject(it) }
 }

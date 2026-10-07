@@ -100,10 +100,10 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogusURI
             every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns zaakTypen
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID1)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID1)
             } returns zaaktypeConfiguration1
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID2)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID2)
             } returns zaaktypeConfiguration2
             every { flowableTaskService.listOpenTasksDueNow() } returns emptyList()
             every {
@@ -148,7 +148,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaakTypeUUID"))
         every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogusURI
         every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns listOf(zaakType)
-        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns null
+        every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns null
         every { flowableTaskService.listOpenTasksDueNow() } returns emptyList()
         every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
 
@@ -200,10 +200,10 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogusURI
         every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns zaakTypen
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID1)
+            zaaktypeConfigurationService.findConfiguration(zaakTypeUUID1)
         } returns zaaktypeCmmnConfiguration1
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID2)
+            zaaktypeConfigurationService.findConfiguration(zaakTypeUUID2)
         } returns zaaktypeCmmnConfiguration2
         every { flowableTaskService.listOpenTasksDueNow() } returns listOf(openTask)
         every {

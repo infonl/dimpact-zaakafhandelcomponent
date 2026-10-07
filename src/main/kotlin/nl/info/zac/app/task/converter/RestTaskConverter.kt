@@ -16,7 +16,7 @@ import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.util.time.convertToZonedDateTime
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
@@ -34,7 +34,7 @@ class RestTaskConverter @Inject constructor(
     private val groepConverter: RestGroupConverter,
     private val medewerkerConverter: RestUserConverter,
     private val policyService: PolicyService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
 ) {
     fun convert(tasks: List<TaskInfo>) = tasks.map(::convert)
@@ -116,8 +116,10 @@ class RestTaskConverter @Inject constructor(
         zaaktypeUUID: UUID,
         taskDefinitionKey: String
     ) {
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
-            .getHumanTaskParametersCollection()
+        zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
+            ?.cmmnExtension
+            ?.getHumanTaskParametersCollection()
+            .orEmpty()
             .first { taskDefinitionKey == it.planItemDefinitionID }.let {
                 verwerkZaakafhandelParameters(restTask, it)
             }

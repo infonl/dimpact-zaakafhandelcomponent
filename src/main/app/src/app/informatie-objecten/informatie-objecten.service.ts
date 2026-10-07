@@ -2,8 +2,9 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+import { HttpErrorResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { map, Observable } from "rxjs";
+import type { CreateMutationOptions } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -181,9 +182,8 @@ export class InformatieObjectenService {
   }
 
   lockInformatieObject(uuid: string, zaakUuid: string) {
-    return this.zacHttpClient.POST(
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/lock",
-      undefined as never,
       {
         path: { uuid },
         query: { zaak: zaakUuid },
@@ -192,9 +192,8 @@ export class InformatieObjectenService {
   }
 
   unlockInformatieObject(uuid: string, zaakUuid?: string) {
-    return this.zacHttpClient.POST(
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/unlock",
-      undefined as never,
       {
         path: { uuid },
         query: { zaak: zaakUuid ?? null },
@@ -203,9 +202,8 @@ export class InformatieObjectenService {
   }
 
   ondertekenInformatieObject(uuid: string, zaakUuid: string) {
-    return this.zacHttpClient.POST(
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/onderteken",
-      undefined as never,
       {
         path: { uuid },
         query: { zaak: zaakUuid },
@@ -220,16 +218,20 @@ export class InformatieObjectenService {
     return `${this.basepath}/informatieobject/${uuid}/download`;
   }
 
-  getZIPDownload(
-    body: PostBody<"/rest/informatieobjecten/download/zip">,
-  ): Observable<Blob> {
-    return this.zacHttpClient.POST(
-      "/rest/informatieobjecten/download/zip",
-      body,
-      {
-        responseType: "blob",
-      } as Record<string, unknown>,
-    ) as unknown as Observable<Blob>;
+  /**
+   * The zip is a file rather than JSON, so `responseType` rides along with the
+   * parameters to reach the Angular `HttpClient`, and the response is typed as
+   * the `Blob` it is at runtime.
+   */
+  getZIPDownload() {
+    return this.zacQueryClient.POST("/rest/informatieobjecten/download/zip", {
+      responseType: "blob",
+    } as Record<string, unknown>) as unknown as CreateMutationOptions<
+      Blob,
+      HttpErrorResponse,
+      PostBody<"/rest/informatieobjecten/download/zip">,
+      void
+    >;
   }
 
   getPreviewUrl(uuid: string, versie?: number | null): string {
@@ -279,19 +281,13 @@ export class InformatieObjectenService {
     );
   }
 
-  convertInformatieObjectToPDF(
-    uuid: string,
-    zaakUuid: string,
-  ): Observable<void> {
-    return this.zacHttpClient
-      .POST(
-        "/rest/informatieobjecten/informatieobject/{uuid}/convert",
-        undefined as never,
-        {
-          path: { uuid },
-          query: { zaak: zaakUuid },
-        },
-      )
-      .pipe(map(() => void 0));
+  convertInformatieObjectToPDF(uuid: string, zaakUuid: string) {
+    return this.zacQueryClient.POST(
+      "/rest/informatieobjecten/informatieobject/{uuid}/convert",
+      {
+        path: { uuid },
+        query: { zaak: zaakUuid },
+      },
+    );
   }
 }

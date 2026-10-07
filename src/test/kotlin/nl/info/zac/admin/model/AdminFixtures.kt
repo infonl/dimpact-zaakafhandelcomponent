@@ -4,7 +4,6 @@
  */
 package nl.info.zac.admin.model
 
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -51,7 +50,7 @@ fun createZaaktypeCmmnHumantaskParameters(
 @Suppress("LongParameterList")
 fun createHumanTaskParameters(
     id: Long = 1234L,
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+    zaaktypeCmmnExtension: ZaaktypeCmmnExtension = createZaaktypeCmmnConfiguration().getOrCreateCmmnExtension(),
     isActief: Boolean = true,
     formulierDefinitieID: String? = "fakeFormulierDefinitieID",
     planItemDefinitionID: String = "fakePlanItemDefinitionID",
@@ -60,7 +59,7 @@ fun createHumanTaskParameters(
     referenceTables: List<HumanTaskReferentieTabel>? = emptyList()
 ) = ZaaktypeCmmnHumantaskParameters().apply {
     this.id = id
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeCmmnExtension = zaaktypeCmmnExtension
     this.isActief = isActief
     this.setFormulierDefinitieID(formulierDefinitieID)
     this.planItemDefinitionID = planItemDefinitionID
@@ -125,7 +124,7 @@ fun createZaaktypeCmmnConfiguration(
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
     zaaktypeEmailParameters: ZaaktypeEmailParameters = createAutomaticEmailConfirmation()
 ) =
-    ZaaktypeCmmnConfiguration().apply {
+    ZaaktypeConfiguration().apply {
         this.id = id
         this.creatiedatum = creationDate
         this.zaaktypeUuid = zaaktypeUUID
@@ -134,7 +133,8 @@ fun createZaaktypeCmmnConfiguration(
         this.productaanvraagtype = productaanvraagtype
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.groepID = groupId
-        this.caseDefinitionID = caseDefinitionId
+        bindTo(ProcessEngine.CMMN, caseDefinitionId)
+        getOrCreateCmmnExtension()
         this.defaultBehandelaarId = defaultBehandelaarId
         this.isSmartDocumentsEnabled = smartDocumentsEnabled
         setMailtemplateKoppelingen(
@@ -173,9 +173,9 @@ fun createZaaktypeBpmnConfiguration(
     smartDocumentsEnabled: Boolean = false,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
-    bpmnProcessDefinitionKey: String? = null,
+    bpmnProcessDefinitionKey: String = "fakeBpmnProcessDefinitionKey",
 ) =
-    ZaaktypeBpmnConfiguration().apply {
+    ZaaktypeConfiguration().apply {
         this.id = id
         this.creatiedatum = creationDate
         this.zaaktypeUuid = zaaktypeUUID
@@ -193,13 +193,11 @@ fun createZaaktypeBpmnConfiguration(
         this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
             this?.zaaktypeConfiguration = parameters
         }
-        bpmnProcessDefinitionKey?.let {
-            this.bpmnProcessDefinitionKey = it
-        }
+        bindTo(ProcessEngine.BPMN, bpmnProcessDefinitionKey)
     }
 
 data class ZaaktypeConfigurationUnderTest(
-    val configurationType: ZaaktypeConfigurationType,
+    val configurationType: ProcessEngine,
     val create: (nietOntvankelijkResultaattype: UUID) -> ZaaktypeConfiguration
 )
 
@@ -207,14 +205,11 @@ data class ZaaktypeConfigurationUnderTest(
  * One factory per configuration type, so that a test of behaviour that both engines share runs for each of them.
  */
 fun createZaaktypeConfigurationsUnderTest() = listOf(
-    ZaaktypeConfigurationUnderTest(ZaaktypeConfigurationType.CMMN) {
+    ZaaktypeConfigurationUnderTest(ProcessEngine.CMMN) {
         createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattype = it)
     },
-    ZaaktypeConfigurationUnderTest(ZaaktypeConfigurationType.BPMN) {
-        createZaaktypeBpmnConfiguration(
-            nietOntvankelijkResultaattype = it,
-            bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
-        )
+    ZaaktypeConfigurationUnderTest(ProcessEngine.BPMN) {
+        createZaaktypeBpmnConfiguration(nietOntvankelijkResultaattype = it)
     }
 )
 

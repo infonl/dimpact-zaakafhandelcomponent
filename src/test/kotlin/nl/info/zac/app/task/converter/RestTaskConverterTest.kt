@@ -15,8 +15,8 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import jakarta.json.JsonObject
 import net.atos.zac.flowable.task.TaakVariabelenService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createHumanTaskReferentieTabel
 import nl.info.zac.admin.model.createReferenceTable
@@ -40,14 +40,14 @@ class RestTaskConverterTest : BehaviorSpec({
     val groepConverter = mockk<RestGroupConverter>()
     val medewerkerConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
 
     val restTaskConverter = RestTaskConverter(
         groepConverter = groepConverter,
         medewerkerConverter = medewerkerConverter,
         policyService = policyService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService,
         bpmnProcessDefinitionTaskFormService = bpmnProcessDefinitionTaskFormService
     )
 
@@ -68,7 +68,7 @@ class RestTaskConverterTest : BehaviorSpec({
         given("a CMMN task with full read access, assigned to a behandelaar") {
             val taskInfo = mockk<Task>()
             val taakRechten = createTaakRechten()
-            val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+            val zaaktypeCmmnConfiguration = mockk<ZaaktypeConfiguration>()
             val humanTaskParameters = createHumanTaskParameters(
                 planItemDefinitionID = taskDefinitionKey,
                 formulierDefinitieID = "AANVULLENDE_INFORMATIE",
@@ -96,9 +96,9 @@ class RestTaskConverterTest : BehaviorSpec({
 
             every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
+            every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
             every { medewerkerConverter.convertUserId("fakeAssigneeId") } returns createRestUser(id = "fakeAssigneeId")
 
             `when`("convert is called") {
@@ -168,7 +168,7 @@ class RestTaskConverterTest : BehaviorSpec({
 
         given("a CMMN advies task whose human task is coupled to the ADVIES reference table") {
             val taskInfo = mockk<Task>()
-            val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+            val zaaktypeCmmnConfiguration = mockk<ZaaktypeConfiguration>()
             val humanTaskParameters = createHumanTaskParameters(
                 planItemDefinitionID = taskDefinitionKey,
                 formulierDefinitieID = "ADVIES",
@@ -207,9 +207,9 @@ class RestTaskConverterTest : BehaviorSpec({
 
             every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns createTaakRechten()
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
+            every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
 
             `when`("convert is called") {
                 val restTask = restTaskConverter.convert(taskInfo)
@@ -261,7 +261,7 @@ class RestTaskConverterTest : BehaviorSpec({
             val taskInfo1 = mockk<TaskInfo>()
             val taskInfo2 = mockk<TaskInfo>()
             val taakRechten = createTaakRechten()
-            val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+            val zaaktypeCmmnConfiguration = mockk<ZaaktypeConfiguration>()
             val humanTaskParameters = createHumanTaskParameters(
                 planItemDefinitionID = taskDefinitionKey,
                 formulierDefinitieID = "AANVULLENDE_INFORMATIE",
@@ -288,10 +288,10 @@ class RestTaskConverterTest : BehaviorSpec({
                 every { taskInfo.identityLinks } returns emptyList()
                 every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
                 every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
+                    zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
                 } returns zaaktypeCmmnConfiguration
             }
-            every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
+            every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
 
             `when`("convert is called with the list") {
                 val restTasks = restTaskConverter.convert(listOf(taskInfo1, taskInfo2))

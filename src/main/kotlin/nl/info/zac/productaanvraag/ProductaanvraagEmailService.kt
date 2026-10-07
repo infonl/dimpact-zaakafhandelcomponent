@@ -11,7 +11,7 @@ import nl.info.client.klant.KlantClientService
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeEmailParameters
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.app.klant.model.contactdetails.getPreferredDigitaalAdres
@@ -47,13 +47,13 @@ class ProductaanvraagEmailService @Inject constructor(
         zaak: Zaak,
         betrokkene: Betrokkene?,
         productaanvraagSpecificEmailAddress: String?,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+        zaaktypeConfiguration: ZaaktypeConfiguration
     ) {
         LOG.fine {
             "Attempting to send automatic confirmation of receipt email for zaak with identification '${zaak.identificatie}' " +
                 "and zaaktype '${zaak.zaaktype}'."
         }
-        zaaktypeCmmnConfiguration.zaaktypeEmailParameters?.takeIf { it.isEnabled }?.let { zaaktypeEmailParameters ->
+        zaaktypeConfiguration.zaaktypeEmailParameters?.takeIf { it.isEnabled }?.let { zaaktypeEmailParameters ->
             productaanvraagSpecificEmailAddress?.let { to ->
                 sendConfirmationOfReceiptMail(zaaktypeEmailParameters, to, zaak)
             } ?: betrokkene?.let {

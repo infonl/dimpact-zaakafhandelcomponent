@@ -6,24 +6,22 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, provideRouter } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep } from "../../../../setupJest";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { ConfirmDialogData } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -45,6 +43,8 @@ class InformatieObjectEditStubComponent {
 }
 
 describe(InformatieObjectViewComponent.name, () => {
+  const user = userEvent.setup();
+
   let component: InformatieObjectViewComponent;
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
@@ -96,10 +96,6 @@ describe(InformatieObjectViewComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-        provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
@@ -271,6 +267,36 @@ describe(InformatieObjectViewComponent.name, () => {
 
       expect(button).toBeNull();
     });
+
+    it("converts the document within its zaak to PDF", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
+              canConverteren: true,
+            }),
+          }),
+        );
+      mockActivatedRoute.data.next({
+        informatieObject: enkelvoudigInformatieobject,
+      });
+
+      await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.converteren" }),
+      );
+      await user.click(
+        screen.getByRole("button", { name: "actie.converteren" }),
+      );
+      await sleep();
+
+      const request = TestBed.inject(HttpTestingController).expectOne(
+        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/convert?zaak=${zaak.uuid}`,
+      );
+      expect(request.request.method).toBe("POST");
+      request.flush(null);
+    });
   });
 
   describe("actie.unlock", () => {
@@ -320,7 +346,7 @@ describe(InformatieObjectViewComponent.name, () => {
       expect(button).toBeNull();
     });
 
-    it("should call unlockInformatieObject with zaakUuid when clicked and a zaak is present", async () => {
+    it("unlocks the document within its zaak when clicked and a zaak is present", async () => {
       jest
         .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
         .mockReturnValue(
@@ -332,25 +358,24 @@ describe(InformatieObjectViewComponent.name, () => {
             }),
           }),
         );
-      const unlockSpy = jest
-        .spyOn(informatieObjectenService, "unlockInformatieObject")
-        .mockReturnValue(of({}));
       mockActivatedRoute.data.next({
         informatieObject: enkelvoudigInformatieobject,
       });
 
-      const button = await loader.getHarness(
+      await loader.getHarness(
         MatNavListItemHarness.with({ title: "actie.unlock" }),
       );
-      await button.click();
+      await user.click(screen.getByRole("button", { name: "actie.unlock" }));
+      await sleep();
 
-      expect(unlockSpy).toHaveBeenCalledWith(
-        enkelvoudigInformatieobject.uuid,
-        zaak.uuid,
+      const request = TestBed.inject(HttpTestingController).expectOne(
+        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/unlock?zaak=${zaak.uuid}`,
       );
+      expect(request.request.method).toBe("POST");
+      request.flush(null);
     });
 
-    it("should call unlockInformatieObject without zaakUuid when clicked and no zaak is present", async () => {
+    it("unlocks the document without a zaak when clicked and no zaak is present", async () => {
       jest
         .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
         .mockReturnValue(
@@ -362,9 +387,6 @@ describe(InformatieObjectViewComponent.name, () => {
             }),
           }),
         );
-      const unlockSpy = jest
-        .spyOn(informatieObjectenService, "unlockInformatieObject")
-        .mockReturnValue(of({}));
       jest
         .spyOn(informatieObjectenService, "listZaakInformatieobjecten")
         .mockReturnValue(of([]));
@@ -372,15 +394,137 @@ describe(InformatieObjectViewComponent.name, () => {
         informatieObject: enkelvoudigInformatieobject,
       });
 
-      const button = await loader.getHarness(
+      await loader.getHarness(
         MatNavListItemHarness.with({ title: "actie.unlock" }),
       );
-      await button.click();
+      await user.click(screen.getByRole("button", { name: "actie.unlock" }));
+      await sleep();
 
-      expect(unlockSpy).toHaveBeenCalledWith(
-        enkelvoudigInformatieobject.uuid,
-        undefined,
+      const request = TestBed.inject(HttpTestingController).expectOne(
+        ({ url }) =>
+          url.startsWith(
+            `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/unlock`,
+          ),
       );
+      expect(request.request.url).not.toContain("zaak=");
+      request.flush(null);
+    });
+  });
+
+  describe("actie.lock", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            gelockedDoor: undefined,
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
+              canVergrendelen: true,
+            }),
+          }),
+        );
+      mockActivatedRoute.data.next({
+        informatieObject: enkelvoudigInformatieobject,
+      });
+    });
+
+    it("locks the document within its zaak and keeps the button disabled until the updated document replaces it", async () => {
+      await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.lock" }),
+      );
+      await user.click(screen.getByRole("button", { name: "actie.lock" }));
+      await sleep();
+
+      const request = TestBed.inject(HttpTestingController).expectOne(
+        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/lock?zaak=${zaak.uuid}`,
+      );
+      expect(request.request.method).toBe("POST");
+      request.flush(null);
+
+      fixture.detectChanges();
+
+      expect(screen.getByRole("button", { name: "actie.lock" })).toBeDisabled();
+    });
+
+    it("enables the button again when locking fails", async () => {
+      jest
+        .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+        .mockReturnValue(of());
+      await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.lock" }),
+      );
+      await user.click(screen.getByRole("button", { name: "actie.lock" }));
+      await sleep();
+
+      TestBed.inject(HttpTestingController)
+        .expectOne(
+          `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/lock?zaak=${zaak.uuid}`,
+        )
+        .flush(null, { status: 500, statusText: "Server Error" });
+
+      await sleep();
+      fixture.detectChanges();
+
+      expect(screen.getByRole("button", { name: "actie.lock" })).toBeEnabled();
+    });
+  });
+
+  describe("actie.ondertekenen", () => {
+    let dialog: MatDialog;
+
+    beforeEach(() => {
+      dialog = TestBed.inject(MatDialog);
+      jest
+        .spyOn(dialog, "open")
+        .mockReturnValue(fromPartial<MatDialogRef<unknown>>({}));
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
+              canOndertekenen: true,
+            }),
+          }),
+        );
+      mockActivatedRoute.data.next({
+        informatieObject: enkelvoudigInformatieobject,
+      });
+    });
+
+    it("does not sign the document while the confirmation dialog is still open", async () => {
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.ondertekenen" }),
+      );
+      await button.click();
+      await sleep();
+
+      expect(dialog.open).toHaveBeenCalled();
+      TestBed.inject(HttpTestingController).expectNone(
+        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/onderteken?zaak=${zaak.uuid}`,
+      );
+    });
+
+    it("signs the document within its zaak once confirmed, so that the dialog can close", async () => {
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.ondertekenen" }),
+      );
+      await button.click();
+      const { observable } = jest.mocked(dialog.open).mock.calls.at(-1)![1]!
+        .data as ConfirmDialogData;
+      const onSigned = jest.fn();
+      observable!.subscribe(onSigned);
+      await sleep();
+
+      const request = TestBed.inject(HttpTestingController).expectOne(
+        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/onderteken?zaak=${zaak.uuid}`,
+      );
+      expect(request.request.method).toBe("POST");
+      request.flush(null);
+      await sleep();
+
+      expect(onSigned).toHaveBeenCalled();
     });
   });
 
