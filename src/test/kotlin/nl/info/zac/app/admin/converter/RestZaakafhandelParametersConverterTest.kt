@@ -166,7 +166,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         every {
-            zaaktypeConfigurationBeheerService.fetchConfiguration(restZaakafhandelParameters.zaaktype.uuid)
+            zaaktypeConfigurationBeheerService.findConfiguration(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaaktypeCmmnConfiguration
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 
@@ -347,7 +347,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             }
 
             every {
-                zaaktypeConfigurationBeheerService.fetchConfiguration(restZaaktypeConfig.zaaktype.uuid)
+                zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeConfig.zaaktype.uuid)
             } returns baseConfig
             every {
                 restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any())

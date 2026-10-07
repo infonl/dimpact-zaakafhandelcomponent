@@ -102,7 +102,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 zaaktypeOmschrijving = restZaaktypeBpmnConfiguration.zaaktypeOmschrijving
             )
         }
-        val zaaktypeConfiguration = zaaktypeConfigurationBeheerService.findStoredConfiguration(
+        val zaaktypeConfiguration = zaaktypeConfigurationBeheerService.findConfiguration(
             restZaaktypeBpmnConfiguration.zaaktypeUuid
         )?.apply {
             // update the existing configuration with the values of the REST object, and keep the settings that it

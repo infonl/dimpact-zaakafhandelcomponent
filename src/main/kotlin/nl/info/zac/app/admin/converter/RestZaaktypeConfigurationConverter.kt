@@ -86,8 +86,11 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     }
 
     @Suppress("ThrowsCount")
-    fun toZaaktypeConfiguration(restZaaktypeConfiguration: RestZaaktypeConfiguration): ZaaktypeConfiguration =
-        zaaktypeConfigurationBeheerService.fetchConfiguration(restZaaktypeConfiguration.zaaktype.uuid).apply {
+    fun toZaaktypeConfiguration(restZaaktypeConfiguration: RestZaaktypeConfiguration): ZaaktypeConfiguration {
+        val zaaktypeConfiguration =
+            zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeConfiguration.zaaktype.uuid)
+                ?: ZaaktypeConfiguration()
+        return zaaktypeConfiguration.apply {
             id = restZaaktypeConfiguration.id
             zaaktypeUuid = restZaaktypeConfiguration.zaaktype.uuid
             zaaktypeOmschrijving = restZaaktypeConfiguration.zaaktype.omschrijving
@@ -137,6 +140,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             it.zaaktypeEmailParameters =
                 restZaaktypeConfiguration.automaticEmailConfirmation.toAutomaticEmailConfirmation(it)
         }
+    }
 
     private fun RestZaaktypeConfiguration.addRelatedData(
         zaaktypeConfiguration: ZaaktypeConfiguration,

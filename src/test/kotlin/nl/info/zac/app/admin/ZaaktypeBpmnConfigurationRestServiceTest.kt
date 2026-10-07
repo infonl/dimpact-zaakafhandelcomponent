@@ -156,7 +156,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(any(), any())
             } just runs
             every {
-                zaaktypeConfigurationBeheerService.findStoredConfiguration(any<UUID>())
+                zaaktypeConfigurationBeheerService.findConfiguration(any<UUID>())
             } returns null
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(any())
@@ -216,7 +216,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(any(), any())
             } just runs
             every {
-                zaaktypeConfigurationBeheerService.findStoredConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
+                zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
             } returns existingZaaktypeBpmnConfiguration
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(any())
@@ -279,7 +279,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             val storedZaaktypeBpmnConfiguration = slot<ZaaktypeConfiguration>()
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
-                zaaktypeConfigurationBeheerService.findStoredConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
+                zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
             } returns existingZaaktypeBpmnConfiguration
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(capture(storedZaaktypeBpmnConfiguration))
@@ -317,7 +317,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             val capturedConfiguration = slot<nl.info.zac.admin.model.ZaaktypeConfiguration>()
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
-                zaaktypeConfigurationBeheerService.findStoredConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
+                zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
             } returns existingConfiguration
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(capture(capturedConfiguration))

@@ -42,20 +42,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         private val LOG = Logger.getLogger(ZaaktypeConfigurationBeheerService::class.java.name)
     }
 
-    /**
-     * Returns the stored configuration of the zaaktype version, read from the database and not from a cache, or a
-     * new configuration for that zaaktype version when none is stored yet.
-     */
-    fun fetchConfiguration(zaaktypeUuid: UUID): ZaaktypeConfiguration {
-        ztcClientService.resetCacheTimeToNow()
-        return zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)
-            ?: ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
-    }
-
-    /**
-     * Returns the stored configuration of the zaaktype version, read from the database and not from a cache.
-     */
-    fun findStoredConfiguration(zaaktypeUuid: UUID): ZaaktypeConfiguration? =
+    fun findConfiguration(zaaktypeUuid: UUID): ZaaktypeConfiguration? =
         zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)
 
     /**

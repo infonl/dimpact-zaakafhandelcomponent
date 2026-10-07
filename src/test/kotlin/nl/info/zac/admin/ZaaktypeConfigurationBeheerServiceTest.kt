@@ -279,42 +279,30 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
         }
     }
 
-    context("fetching and finding stored configuration") {
+    context("finding a configuration") {
         given("a stored configuration") {
             val zaaktypeUuid = UUID.randomUUID()
-            val stored = ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
-            every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
-            every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns stored
+            val zaaktypeConfiguration = ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
+            every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns zaaktypeConfiguration
 
-            `when`("fetching the configuration") {
-                val fetched = zaaktypeConfigurationBeheerService.fetchConfiguration(zaaktypeUuid)
+            `when`("the configuration is looked up") {
+                val foundConfiguration = zaaktypeConfigurationBeheerService.findConfiguration(zaaktypeUuid)
 
-                then("it returns the stored configuration and resets the cache time") {
-                    fetched shouldBe stored
-                    verify(exactly = 1) { ztcClientService.resetCacheTimeToNow() }
-                }
-            }
-
-            `when`("finding stored configuration directly") {
-                val found = zaaktypeConfigurationBeheerService.findStoredConfiguration(zaaktypeUuid)
-
-                then("it returns the stored configuration without resetting cache time") {
-                    found shouldBe stored
+                then("the stored configuration is returned") {
+                    foundConfiguration shouldBe zaaktypeConfiguration
                 }
             }
         }
 
         given("no stored configuration") {
             val zaaktypeUuid = UUID.randomUUID()
-            every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns null
 
-            `when`("fetching configuration") {
-                val fetched = zaaktypeConfigurationBeheerService.fetchConfiguration(zaaktypeUuid)
+            `when`("the configuration is looked up") {
+                val foundConfiguration = zaaktypeConfigurationBeheerService.findConfiguration(zaaktypeUuid)
 
-                then("a new configuration with the given UUID is returned") {
-                    fetched.zaaktypeUuid shouldBe zaaktypeUuid
-                    fetched.id shouldBe null
+                then("null is returned") {
+                    foundConfiguration shouldBe null
                 }
             }
         }
