@@ -224,7 +224,6 @@ export class ZaakViewComponent
     {
       onSuccess: () => {
         this.utilService.openSnackbar("msg.bag-object.gekoppeld");
-        this.invalidateZaakHistorie();
         this.loadBagObjecten();
       },
     },
