@@ -34,10 +34,15 @@
       mat-raised-button
       color="primary"
       id="zaakOpschorten_button"
-      [disabled]="loading || !form.valid"
+      [disabled]="
+        loading ||
+        !form.valid ||
+        suspendZaakMutation.isPending() ||
+        suspendZaakMutation.isSuccess()
+      "
       type="submit"
     >
-      <mat-icon *ngIf="loading">
+      <mat-icon *ngIf="suspendZaakMutation.isPending()">
         <mat-spinner diameter="18"></mat-spinner>
       </mat-icon>
       {{ "actie.zaak.opschorten" | translate }}
@@ -45,7 +50,7 @@
     <button
       autofocus
       mat-raised-button
-      [disabled]="loading"
+      [disabled]="loading || suspendZaakMutation.isPending()"
       (click)="close()"
       type="button"
     >

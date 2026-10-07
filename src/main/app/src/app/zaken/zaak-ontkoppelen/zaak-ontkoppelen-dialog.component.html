@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -8,7 +8,11 @@
   <span class="flex-grow-1">
     {{ "title.zaak.ontkoppelen" | translate }}
   </span>
-  <button mat-icon-button (click)="dialogRef.close()">
+  <button
+    mat-icon-button
+    title="{{ 'actie.sluiten' | translate }}"
+    (click)="dialogRef.close()"
+  >
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
@@ -20,18 +24,22 @@
   </mat-dialog-content>
   <mat-dialog-actions>
     <button
-      [disabled]="form.invalid || loading"
+      [disabled]="
+        form.invalid ||
+        ontkoppelZaakMutation.isPending() ||
+        ontkoppelZaakMutation.isSuccess()
+      "
       mat-raised-button
       color="primary"
       type="submit"
     >
-      <mat-icon *ngIf="loading">
+      <mat-icon *ngIf="ontkoppelZaakMutation.isPending()">
         <mat-spinner diameter="18"></mat-spinner>
       </mat-icon>
       {{ "actie.ontkoppelen" | translate }}
     </button>
     <button
-      [disabled]="loading"
+      [disabled]="ontkoppelZaakMutation.isPending()"
       mat-raised-button
       (click)="dialogRef.close()"
       type="button"

@@ -24,6 +24,7 @@ import moment, { Moment } from "moment";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -169,27 +170,27 @@ export class ZaakOpschortenDialogComponent {
     this.form.updateValueAndValidity({ emitEvent: false });
   }
 
+  protected readonly suspendZaakMutation = injectMutation(
+    () => this.zakenService.suspendZaak(this.data.zaak.uuid),
+    {
+      onSuccess: (result) => {
+        this.dialogRef.close(result);
+      },
+      onError: () => {
+        this.dialogRef.disableClose = false;
+      },
+    },
+  );
+
   protected opschorten() {
     this.dialogRef.disableClose = true;
-    this.loading = true;
 
     const value = this.form.getRawValue();
 
-    this.zakenService
-      .suspendZaak(this.data.zaak.uuid, {
-        reason: value.reason!,
-        numberOfDays: value.numberOfDays,
-      })
-      .subscribe({
-        next: (result) => {
-          this.loading = false;
-          this.dialogRef.close(result);
-        },
-        error: () => {
-          this.loading = false;
-          this.dialogRef.disableClose = false;
-        },
-      });
+    this.suspendZaakMutation.mutate({
+      reason: value.reason!,
+      numberOfDays: value.numberOfDays,
+    });
   }
 
   protected close() {
