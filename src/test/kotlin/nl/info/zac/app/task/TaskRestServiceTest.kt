@@ -138,12 +138,14 @@ class TaskRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
             every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
             every {
-                taskService.assignOrReleaseTask(
-                    restTaakToekennenGegevens,
-                    task,
-                    loggedInUser
+                taskService.assignTask(
+                    task = task,
+                    groupId = restTaakToekennenGegevens.groepId,
+                    userId = restTaakToekennenGegevens.behandelaarId,
+                    reason = restTaakToekennenGegevens.reden,
+                    loggedInUser = loggedInUser
                 )
-            } just runs
+            } returns task
 
             `when`("the task is assigned with a user who has permission") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
@@ -154,10 +156,12 @@ class TaskRestServiceTest : BehaviorSpec({
                     "the task is correctly assigned"
                 ) {
                     verify(exactly = 1) {
-                        taskService.assignOrReleaseTask(
-                            restTaakToekennenGegevens,
-                            task,
-                            loggedInUser
+                        taskService.assignTask(
+                            task = task,
+                            groupId = restTaakToekennenGegevens.groepId,
+                            userId = restTaakToekennenGegevens.behandelaarId,
+                            reason = restTaakToekennenGegevens.reden,
+                            loggedInUser = loggedInUser
                         )
                     }
                 }
@@ -183,13 +187,10 @@ class TaskRestServiceTest : BehaviorSpec({
             every {
                 taskService.assignTask(
                     task = task,
-                    zaakUuid = restTaakToekennenGegevens.zaakUuid,
                     groupId = null,
                     userId = loggedInUser.id,
                     reason = restTaakToekennenGegevens.reden,
-                    loggedInUser = loggedInUser,
-                    releaseWithoutAssignee = false,
-                    performCommit = true
+                    loggedInUser = loggedInUser
                 )
             } returns task
             every { restTaskConverter.toRestTask(task) } returns restTask
@@ -204,13 +205,10 @@ class TaskRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         taskService.assignTask(
                             task = task,
-                            zaakUuid = restTaakToekennenGegevens.zaakUuid,
                             groupId = null,
                             userId = loggedInUser.id,
                             reason = restTaakToekennenGegevens.reden,
-                            loggedInUser = loggedInUser,
-                            releaseWithoutAssignee = false,
-                            performCommit = true
+                            loggedInUser = loggedInUser
                         )
                     }
                 }
