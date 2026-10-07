@@ -7,7 +7,8 @@ package nl.info.zac.policy
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.flowable.util.isOpen
 import nl.info.client.opa.model.OpaRuleResult
 import nl.info.client.opa.model.RuleQuery
@@ -205,7 +206,7 @@ class PolicyService @Inject constructor(
     }
 
     fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
-        val zaaktypeOmschrijving = TaakVariabelenService.readZaaktypeOmschrijving(taskInfo)
+        val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         return readTaakRechten(taskInfo, zaaktypeOmschrijving)
     }
 
@@ -213,7 +214,7 @@ class PolicyService @Inject constructor(
         taskInfo: TaskInfo,
         zaaktypeOmschrijving: String
     ): TaakRechten {
-        val zaakUUID = TaakVariabelenService.readZaakUUID(taskInfo)
+        val zaakUUID = readZaakUUID(taskInfo)
         val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
         val taakData = TaakData(
             isOpen = taskInfo.isOpen(),

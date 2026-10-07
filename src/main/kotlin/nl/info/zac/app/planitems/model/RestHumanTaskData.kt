@@ -29,7 +29,7 @@ data class RestHumanTaskData(
 
     var toelichting: String? = null,
 
-    var taakdata: Map<String, String>? = null,
+    var taakdata: MutableMap<String, String>? = null,
 
     var taakStuurGegevens: RestTaakStuurGegevens?
 )

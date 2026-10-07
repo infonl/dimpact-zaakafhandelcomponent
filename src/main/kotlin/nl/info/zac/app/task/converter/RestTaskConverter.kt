@@ -5,13 +5,13 @@
 package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
+import nl.info.zac.flowable.task.readTaskData
+import nl.info.zac.flowable.task.readTaskDocuments
+import nl.info.zac.flowable.task.readTaskInformation
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.flowable.task.readZaaktypeOmschrijving
+import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.util.time.convertToLocalDate

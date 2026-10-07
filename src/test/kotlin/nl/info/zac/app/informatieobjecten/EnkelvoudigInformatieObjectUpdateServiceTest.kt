@@ -16,7 +16,7 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject

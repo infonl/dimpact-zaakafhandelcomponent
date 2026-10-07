@@ -15,7 +15,11 @@ import io.mockk.unmockkStatic
 import io.mockk.verify
 import java.util.UUID
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.readTaskData
+import nl.info.zac.flowable.task.readTaskInformation
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -48,10 +52,10 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
         reindexSupportService = reindexSupportService
     )
 
-    mockkStatic(TaakVariabelenService::class)
+    mockkStatic("nl.info.zac.flowable.task.TaakVariabelenServiceKt")
 
     afterSpec {
-        unmockkStatic(TaakVariabelenService::class)
+        unmockkStatic("nl.info.zac.flowable.task.TaakVariabelenServiceKt")
     }
 
     afterEach { checkUnnecessaryStub() }
@@ -93,11 +97,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             val candidateIdentityLink = mockk<IdentityLinkInfo>()
 
             every { flowableTaskService.readTask(fakeTaskId) } returns taskInfo
-            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
-            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
+            every { readZaakUUID(taskInfo) } returns zaakUUID
+            every { readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
+            every { readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
+            every { readTaskData(taskInfo) } returns mapOf()
+            every { readTaskInformation(taskInfo) } returns mapOf()
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
             every { reindexSupportService.zaakAutorisatieGegevens(zaakUUID) } returns createZaakAutorisatieGegevens(
@@ -167,11 +171,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             val zaakType = createZaakType(uri = zaak.zaaktype)
 
             every { flowableTaskService.readTask(fakeTaskId) } returns taskInfo
-            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
-            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
+            every { readZaakUUID(taskInfo) } returns zaakUUID
+            every { readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
+            every { readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
+            every { readTaskData(taskInfo) } returns mapOf()
+            every { readTaskInformation(taskInfo) } returns mapOf()
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
             every { reindexSupportService.zaakAutorisatieGegevens(zaakUUID) } returns ZaakAutorisatieGegevens(
@@ -216,11 +220,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             val zaakType = createZaakType(uri = zaak.zaaktype)
 
             every { flowableTaskService.readTask(fakeTaskId) } returns taskInfo
-            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaak.uuid
-            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
+            every { readZaakUUID(taskInfo) } returns zaak.uuid
+            every { readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
+            every { readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
+            every { readTaskData(taskInfo) } returns mapOf()
+            every { readTaskInformation(taskInfo) } returns mapOf()
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
             every { taskInfo.name } returns "fakeTaskName"
             every { taskInfo.description } returns null

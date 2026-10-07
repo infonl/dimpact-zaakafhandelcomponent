@@ -17,7 +17,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
+import nl.info.zac.flowable.task.readZaakUUID
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters

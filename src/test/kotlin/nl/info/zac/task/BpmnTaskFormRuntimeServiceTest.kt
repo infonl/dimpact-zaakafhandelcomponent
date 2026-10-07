@@ -15,7 +15,7 @@ import io.mockk.verify
 import jakarta.json.Json
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
