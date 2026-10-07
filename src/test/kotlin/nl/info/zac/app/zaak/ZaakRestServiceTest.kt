@@ -115,7 +115,7 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
-import nl.info.zac.flowable.ProcessBindings
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
@@ -150,7 +150,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
     val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
-    val processBindings = mockk<ProcessBindings>()
+    val zaakProcessService = mockk<ZaakProcessService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -178,7 +178,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         configurationService = configurationService,
         drcClientService = drcClientService,
         eventingService = eventingService,
-        processBindings = processBindings,
+        zaakProcessService = zaakProcessService,
         inboxProductaanvraagService = inboxProductaanvraagService,
         indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
@@ -430,7 +430,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { configurationService.readBronOrganisatie() } returns bronOrganisatie
                 every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
                 every {
-                    processBindings.start(
+                    zaakProcessService.start(
                         zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                         zaak = zaak,
                         zaaktype = zaakType,
@@ -511,7 +511,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         restZaakReturned shouldBe CreateZaakResponse(zaak.identificatie)
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
-                            processBindings.start(
+                            zaakProcessService.start(
                                 zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                                 zaak = zaak,
                                 zaaktype = zaakType,
@@ -583,7 +583,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { configurationService.readBronOrganisatie() } returns bronOrganisatie
                 every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
                 every {
-                    processBindings.start(
+                    zaakProcessService.start(
                         zaaktypeConfiguration = zaaktypeBpmnConfiguration,
                         zaak = zaak,
                         zaaktype = zaakType,
@@ -661,7 +661,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         restZaakReturned shouldBe CreateZaakResponse(zaak.identificatie)
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
-                            processBindings.start(
+                            zaakProcessService.start(
                                 zaaktypeConfiguration = zaaktypeBpmnConfiguration,
                                 zaak = zaak,
                                 zaaktype = zaakType,
@@ -1468,7 +1468,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
             zaaktypes.forEach {
-                every { processBindings.isZaaktypeReady(any(), it.url) } returns zaaktypeInrichtingscheck.isValide
+                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns zaaktypeInrichtingscheck.isValide
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
                 every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
                 every {
@@ -1523,14 +1523,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
             zaaktypes.slice(0..1).forEach {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
-                every { processBindings.isZaaktypeReady(any(), it.url) } returns zaaktypeInrichtingscheck.isValide
+                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns zaaktypeInrichtingscheck.isValide
                 every {
                     zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
             }
             zaaktypes.last().let {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
-                every { processBindings.isZaaktypeReady(any(), it.url) } returns true
+                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns true
                 every {
                     zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
                 } returns createZaaktypeBpmnConfiguration(groupId = "fakeGroupId")
@@ -1626,7 +1626,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
-                every { processBindings.isZaaktypeReady(any(), zaaktype.url) } returns createZaaktypeInrichtingscheck().isValide
+                every { zaakProcessService.isZaaktypeReady(any(), zaaktype.url) } returns createZaaktypeInrichtingscheck().isValide
                 every { restZaaktypeConverter.convert(zaaktype) } returns restZaaktypes[index]
             }
 
@@ -1671,8 +1671,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("no zaaktypes are returned and the inrichtingscheck is not run for them") {
                     returnedRestZaaktypes shouldBe emptyList()
                     verify(exactly = 0) {
-                        processBindings.isZaaktypeReady(any(), unconfiguredZaaktype.url)
-                        processBindings.isZaaktypeReady(any(), invalidlyConfiguredZaaktype.url)
+                        zaakProcessService.isZaaktypeReady(any(), unconfiguredZaaktype.url)
+                        zaakProcessService.isZaaktypeReady(any(), invalidlyConfiguredZaaktype.url)
                     }
                 }
             }
@@ -1731,7 +1731,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
-            every { processBindings.terminate(any(), zaak.uuid) } returns Unit
+            every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
@@ -1748,7 +1748,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
-                        processBindings.terminate(any(), zaak.uuid)
+                        zaakProcessService.terminate(any(), zaak.uuid)
                     }
                 }
             }
@@ -1782,7 +1782,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
-            every { processBindings.terminate(any(), zaak.uuid) } returns Unit
+            every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
             every {
                 restZaakConverter.toRestZaak(
@@ -1832,7 +1832,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 ) {
                     verify(exactly = 0) {
                         zgwApiService.closeZaak(any<Zaak>(), any<UUID>(), any())
-                        processBindings.terminate(any(), any())
+                        zaakProcessService.terminate(any(), any())
                     }
                 }
             }
@@ -1865,7 +1865,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
                 } returns zaaktypeCmmnConfiguration
                 every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
-                every { processBindings.terminate(any(), zaak.uuid) } returns Unit
+                every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
                 every { loggedInUserInstance.get() } returns loggedInUser
                 every {
                     restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -1875,7 +1875,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("it is ended with result") {
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name")
-                        processBindings.terminate(any(), zaak.uuid)
+                        zaakProcessService.terminate(any(), zaak.uuid)
                     }
                 }
             }
@@ -1916,7 +1916,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
-            every { processBindings.terminate(any(), zaak.uuid) } returns Unit
+            every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
@@ -1933,7 +1933,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
-                        processBindings.terminate(any(), zaak.uuid)
+                        zaakProcessService.terminate(any(), zaak.uuid)
                     }
                 }
             }

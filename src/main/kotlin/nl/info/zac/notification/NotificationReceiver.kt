@@ -27,7 +27,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
-import nl.info.zac.flowable.ProcessBindings
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
@@ -61,7 +61,7 @@ class NotificationReceiver @Inject constructor(
     private val inboxDocumentService: InboxDocumentService,
     private val detachedDocumentService: DetachedDocumentService,
     private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
-    private val processBindings: ProcessBindings,
+    private val zaakProcessService: ZaakProcessService,
     private val signaleringService: SignaleringService,
     private val taskService: TaskService,
     private val zrcClientService: ZrcClientService,
@@ -155,7 +155,7 @@ class NotificationReceiver @Inject constructor(
             if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
                 notification.resourceUrl.extractUuid().let { zaakUUID ->
                     LOG.info { "Deleting Flowable process data for zaak with UUID '$zaakUUID'" }
-                    processBindings.deleteInAllEngines(zaakUUID)
+                    zaakProcessService.deleteInAllEngines(zaakUUID)
                     LOG.info { "Successfully deleted Flowable process data for zaak with UUID '$zaakUUID'" }
                 }
             }

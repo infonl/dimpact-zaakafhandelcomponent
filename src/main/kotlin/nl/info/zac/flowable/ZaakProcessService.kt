@@ -24,7 +24,7 @@ import java.util.UUID
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
-class ProcessBindings @Inject constructor(
+class ZaakProcessService @Inject constructor(
     private val processBindingInstances: Instance<ProcessBinding>
 ) {
     private val processBindingsByEngine: Map<ProcessEngine, ProcessBinding> by lazy {

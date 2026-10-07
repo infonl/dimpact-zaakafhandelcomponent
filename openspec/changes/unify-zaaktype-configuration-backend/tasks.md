@@ -133,7 +133,7 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 
 ## 4. PR B1: process binding interface (branch `feature/PZ-12669-b1-process-binding`, base A3)
 
-- [x] 4.1 Add the `ProcessBinding` interface, `CmmnProcessBinding`, `BpmnProcessBinding`, and the `ProcessBindings`
+- [x] 4.1 Add the `ProcessBinding` interface, `CmmnProcessBinding`, `BpmnProcessBinding`, and the `ZaakProcessService`
       dispatcher over `Instance<ProcessBinding>` (design D6). Verify with unit tests that the dispatcher selects
       each adapter and fails for a configuration without a binding.
 - [x] 4.2 Add `BpmnService.deleteProcessInstance(zaakUuid)`, which also deletes the history and is a no-op without an instance.

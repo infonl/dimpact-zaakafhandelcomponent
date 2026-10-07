@@ -300,7 +300,7 @@ data class ProcessStartData(
 ```
 
 `CmmnProcessBinding` wraps `CMMNService`, and `BpmnProcessBinding` wraps `BpmnService`. A
-`ProcessBindings` dispatcher injects `Instance<ProcessBinding>` and selects by
+`ZaakProcessService` dispatcher injects `Instance<ProcessBinding>` and selects by
 `configuration.processBinding.processEngine`. It has no `when`, so a third engine is one new class.
 
 The dispatcher takes the configuration, not only the zaaktype UUID. The RFC lets the adapter look the

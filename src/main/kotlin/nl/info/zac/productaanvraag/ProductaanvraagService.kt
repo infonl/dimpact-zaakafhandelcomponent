@@ -33,7 +33,7 @@ import nl.info.zac.authentication.LoggedInUserProvider.Companion.PRODUCTAANVRAAG
 import nl.info.zac.authentication.runAsLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.flowable.ProcessBindings
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag
@@ -69,7 +69,7 @@ class ProductaanvraagService @Inject constructor(
     private val inboxDocumentService: InboxDocumentService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val productaanvraagEmailService: ProductaanvraagEmailService,
-    private val processBindings: ProcessBindings,
+    private val zaakProcessService: ZaakProcessService,
     private val configurationService: ConfigurationService,
     private val klantClientService: KlantClientService,
     private val productaanvraagBetrokkeneService: ProductaanvraagBetrokkeneService,
@@ -368,7 +368,7 @@ class ProductaanvraagService @Inject constructor(
         )?.let {
             klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
         }
-        processBindings.start(
+        zaakProcessService.start(
             zaaktypeConfiguration = zaaktypeConfiguration,
             zaak = zaak,
             zaaktype = zaaktype,
@@ -395,7 +395,7 @@ class ProductaanvraagService @Inject constructor(
         // First, start the CMMN process for the zaak and only then perform other actions related to the zaak,
         // so that should things fail, at least the CMMN process has been started.
         // Note that the error handling here still has room for improvement.
-        processBindings.start(
+        zaakProcessService.start(
             zaaktypeConfiguration = zaaktypeConfiguration,
             zaak = zaak,
             zaaktype = zaaktype,

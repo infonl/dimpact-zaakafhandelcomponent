@@ -12,7 +12,7 @@ import java.util.UUID
 
 /**
  * The operations on the process of a zaak in one process engine. Each engine has one implementation, which
- * [ProcessBindings] selects by the engine of the zaaktype configuration.
+ * [ZaakProcessService] selects by the engine of the zaaktype configuration.
  */
 interface ProcessBinding {
     val processEngine: ProcessEngine

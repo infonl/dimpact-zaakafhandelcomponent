@@ -88,7 +88,7 @@ import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
-import nl.info.zac.flowable.ProcessBindings
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.history.ZaakHistoryService
@@ -119,7 +119,7 @@ import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 @AllOpen
 class ZaakRestService @Inject constructor(
     private val bpmnService: BpmnService,
-    private val processBindings: ProcessBindings,
+    private val zaakProcessService: ZaakProcessService,
     private val configurationService: ConfigurationService,
     private val drcClientService: DrcClientService,
     private val eventingService: EventingService,
@@ -547,7 +547,7 @@ class ZaakRestService @Inject constructor(
                 }
             }
             // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
-            processBindings.terminate(it, zaakUUID)
+            zaakProcessService.terminate(it, zaakUUID)
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
             val terminatedZaakRechten = policyService.readZaakRechten(terminatedZaak, terminatedZaakType, loggedInUser)
@@ -875,7 +875,7 @@ class ZaakRestService @Inject constructor(
      */
     private fun ZaakType.isValidForZaakCreation() =
         zaaktypeConfigurationService.findConfiguration(url.extractUuid())?.let {
-            it.isValidForZaakCreation() && processBindings.isZaaktypeReady(it, url)
+            it.isValidForZaakCreation() && zaakProcessService.isZaaktypeReady(it, url)
         } ?: false
 
     private fun isWarning(
@@ -997,7 +997,7 @@ class ZaakRestService @Inject constructor(
             ?: throw ZaaktypeConfigurationNotFoundException(
                 "No zaaktype configuration found for zaaktype UUID $zaaktypeUUID"
             )
-        processBindings.start(
+        zaakProcessService.start(
             zaaktypeConfiguration = zaaktypeConfiguration,
             zaak = zaak,
             zaaktype = zaakType,
