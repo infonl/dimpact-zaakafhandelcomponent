@@ -36,7 +36,7 @@ class ZaaktypeBpmnConfigurationRestServiceProductaanvraagtypeTest : BehaviorSpec
         testUser = BEHEERDER_1
     )
 
-    given("a CMMN zaaktype whose current configuration uses a productaanvraagtype") {
+    given("a zaaktype whose current configuration uses a productaanvraagtype") {
         `when`("a beheerder stores a BPMN configuration of another zaaktype with that productaanvraagtype") {
             val response = storeBpmnTest5Configuration(productaanvraagType = PRODUCTAANVRAAG_TYPE_3)
 
