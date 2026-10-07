@@ -38,6 +38,12 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * These tests cover a very hypothetical case: they send a 'zaak destroy' notification for a zaak that still
+ * exists in the zaakregister. In normal operation, a 'zaak destroy' notification is only ever sent after the zaak
+ * has been deleted from the zaakregister. If such a notification is sent for an existing zaak, something is very
+ * wrong in the platform.
+ */
 @Isolate
 class NotificationZaakDestroyTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
