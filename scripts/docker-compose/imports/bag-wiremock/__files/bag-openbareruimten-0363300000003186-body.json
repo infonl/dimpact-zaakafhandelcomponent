@@ -1,0 +1,28 @@
+{
+  "openbareRuimte": {
+    "identificatie": "0363300000003186",
+    "domein": "NL.IMBAG.Openbareruimte",
+    "naam": "Dam",
+    "type": "Weg",
+    "status": "Naamgeving uitgegeven",
+    "korteNaam": "Dam",
+    "geconstateerd": "N",
+    "documentdatum": "2014-01-10",
+    "documentnummer": "GV00001729_AC00AC",
+    "voorkomen": {
+      "tijdstipRegistratie": "2014-01-10T20:43:29",
+      "versie": 2,
+      "beginGeldigheid": "2014-01-10",
+      "tijdstipRegistratieLV": "2014-01-10T21:05:38.267"
+    },
+    "ligtIn": "3594"
+  },
+  "_links": {
+    "self": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+    },
+    "ligtInWoonplaats": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+    }
+  }
+}
