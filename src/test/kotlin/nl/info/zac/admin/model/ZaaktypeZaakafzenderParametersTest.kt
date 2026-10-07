@@ -12,6 +12,26 @@ class ZaaktypeZaakafzenderParametersTest : BehaviorSpec({
     val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
     context("equals") {
+        given("a set with a zaakafzender whose replyTo changed after it was added to the set") {
+            val zaakafzenderParameters = createZaakAfzender(
+                replyTo = "old@example.com",
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
+            )
+            val zaakafzenders = setOf(zaakafzenderParameters)
+            zaakafzenderParameters.replyTo = "new@example.com"
+
+            `when`("the set is checked for an equal zaakafzender") {
+                val isFound = createZaakAfzender(
+                    replyTo = "new@example.com",
+                    zaaktypeConfiguration = zaaktypeCmmnConfiguration
+                ) in zaakafzenders
+
+                then("the set finds it, because the hash code does not depend on the changed field") {
+                    isFound shouldBe true
+                }
+            }
+        }
+
         given("Two equal objects") {
             val zaakafzenderParameters1 = createZaakAfzender(zaaktypeConfiguration = zaaktypeCmmnConfiguration)
             val zaakafzenderParameters2 = createZaakAfzender(zaaktypeConfiguration = zaaktypeCmmnConfiguration)
@@ -117,77 +137,6 @@ class ZaaktypeZaakafzenderParametersTest : BehaviorSpec({
 
                 then("they should be different") {
                     isEqual shouldBe false
-                }
-            }
-        }
-    }
-
-    context("isModifiedFrom") {
-        given("an original zaakafzender and a zaakafzender with the same mail, defaultMail and replyTo") {
-            val original = createZaakAfzender(zaaktypeConfiguration = zaaktypeCmmnConfiguration)
-            val zaakafzenderParameters = createZaakAfzender(zaaktypeConfiguration = zaaktypeCmmnConfiguration)
-
-            `when`("checking whether it is modified from the original") {
-                val isModified = zaakafzenderParameters.isModifiedFrom(original)
-
-                then("it is not modified") {
-                    isModified shouldBe false
-                }
-            }
-        }
-
-        given("an original zaakafzender and a zaakafzender with the same mail but a different defaultMail") {
-            val original = createZaakAfzender(defaultMail = false, zaaktypeConfiguration = zaaktypeCmmnConfiguration)
-            val zaakafzenderParameters = createZaakAfzender(
-                defaultMail = true,
-                zaaktypeConfiguration = zaaktypeCmmnConfiguration
-            )
-
-            `when`("checking whether it is modified from the original") {
-                val isModified = zaakafzenderParameters.isModifiedFrom(original)
-
-                then("it is modified") {
-                    isModified shouldBe true
-                }
-            }
-        }
-
-        given("an original zaakafzender and a zaakafzender with the same mail but a different replyTo") {
-            val original = createZaakAfzender(
-                replyTo = "fakeReplyTo1@example.com",
-                zaaktypeConfiguration = zaaktypeCmmnConfiguration
-            )
-            val zaakafzenderParameters = createZaakAfzender(
-                replyTo = "fakeReplyTo2@example.com",
-                zaaktypeConfiguration = zaaktypeCmmnConfiguration
-            )
-
-            `when`("checking whether it is modified from the original") {
-                val isModified = zaakafzenderParameters.isModifiedFrom(original)
-
-                then("it is modified") {
-                    isModified shouldBe true
-                }
-            }
-        }
-
-        given("an original zaakafzender and a zaakafzender with a different mail and a different defaultMail") {
-            val original = createZaakAfzender(
-                mail = "fakeMail1@example.com",
-                defaultMail = false,
-                zaaktypeConfiguration = zaaktypeCmmnConfiguration
-            )
-            val zaakafzenderParameters = createZaakAfzender(
-                mail = "fakeMail2@example.com",
-                defaultMail = true,
-                zaaktypeConfiguration = zaaktypeCmmnConfiguration
-            )
-
-            `when`("checking whether it is modified from the original") {
-                val isModified = zaakafzenderParameters.isModifiedFrom(original)
-
-                then("it is not a modification of the original, because the mail identifies another zaakafzender") {
-                    isModified shouldBe false
                 }
             }
         }

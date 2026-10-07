@@ -16,7 +16,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
-import java.util.Objects
 
 @Entity
 @Table(schema = SCHEMA, name = "zaaktype_cmmn_usereventlistener_parameters")
@@ -44,11 +43,6 @@ class ZaaktypeCmmnUsereventlistenerParameters : UserModifiableZaaktypeConfigurat
 
     @Column(name = "toelichting")
     var toelichting: String? = null
-
-    override fun isModifiedFrom(original: ZaaktypeCmmnUsereventlistenerParameters): Boolean {
-        return Objects.equals(planItemDefinitionID, original.planItemDefinitionID) &&
-            !Objects.equals(this.toelichting, original.toelichting)
-    }
 
     override fun applyChanges(changes: ZaaktypeCmmnUsereventlistenerParameters) {
         this.toelichting = changes.toelichting

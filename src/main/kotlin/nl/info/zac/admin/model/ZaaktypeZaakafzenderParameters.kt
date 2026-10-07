@@ -57,13 +57,6 @@ class ZaaktypeZaakafzenderParameters : UserModifiableZaaktypeConfigurationData<Z
     @Column(name = "replyto")
     var replyTo: String? = null
 
-    override fun isModifiedFrom(original: ZaaktypeZaakafzenderParameters): Boolean {
-        return Objects.equals(mail, original.mail) && (
-            !isDefaultMail == original.isDefaultMail ||
-                !Objects.equals(replyTo, original.replyTo)
-            )
-    }
-
     override fun applyChanges(changes: ZaaktypeZaakafzenderParameters) {
         this.isDefaultMail = changes.isDefaultMail
         this.replyTo = changes.replyTo

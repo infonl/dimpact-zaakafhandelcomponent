@@ -11,65 +11,6 @@ import io.kotest.matchers.shouldNotBe
 
 class ZaaktypeCmmnUsereventlistenerParametersTest : BehaviorSpec({
 
-    context("isModifiedFrom") {
-        given("two parameters with the same planItemDefinitionID and different toelichting") {
-            val original = ZaaktypeCmmnUsereventlistenerParameters().apply {
-                planItemDefinitionID = "fakePlanItemDefinitionId"
-                toelichting = "fakeOriginalToelichting"
-            }
-            val candidate = ZaaktypeCmmnUsereventlistenerParameters().apply {
-                planItemDefinitionID = "fakePlanItemDefinitionId"
-                toelichting = "fakeNewToelichting"
-            }
-
-            `when`("isModifiedFrom is checked") {
-                val isModified = candidate.isModifiedFrom(original)
-
-                then("it returns true") {
-                    isModified shouldBe true
-                }
-            }
-        }
-
-        given("two parameters with the same planItemDefinitionID and same toelichting") {
-            val original = ZaaktypeCmmnUsereventlistenerParameters().apply {
-                planItemDefinitionID = "fakePlanItemDefinitionId"
-                toelichting = "fakeToelichting"
-            }
-            val candidate = ZaaktypeCmmnUsereventlistenerParameters().apply {
-                planItemDefinitionID = "fakePlanItemDefinitionId"
-                toelichting = "fakeToelichting"
-            }
-
-            `when`("isModifiedFrom is checked") {
-                val isModified = candidate.isModifiedFrom(original)
-
-                then("it returns false") {
-                    isModified shouldBe false
-                }
-            }
-        }
-
-        given("two parameters with different planItemDefinitionID") {
-            val original = ZaaktypeCmmnUsereventlistenerParameters().apply {
-                planItemDefinitionID = "fakePlanItemDefinitionId1"
-                toelichting = "fakeToelichting"
-            }
-            val candidate = ZaaktypeCmmnUsereventlistenerParameters().apply {
-                planItemDefinitionID = "fakePlanItemDefinitionId2"
-                toelichting = "fakeNewToelichting"
-            }
-
-            `when`("isModifiedFrom is checked") {
-                val isModified = candidate.isModifiedFrom(original)
-
-                then("it returns false") {
-                    isModified shouldBe false
-                }
-            }
-        }
-    }
-
     context("applyChanges and resetId") {
         given("a parameter and new changes") {
             val parameter = ZaaktypeCmmnUsereventlistenerParameters().apply {

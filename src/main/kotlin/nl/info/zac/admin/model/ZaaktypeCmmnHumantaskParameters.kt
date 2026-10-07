@@ -110,17 +110,6 @@ class ZaaktypeCmmnHumantaskParameters :
     // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
     override fun hashCode() = javaClass.hashCode()
 
-    override fun isModifiedFrom(original: ZaaktypeCmmnHumantaskParameters): Boolean {
-        return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
-            (
-                isActief != original.isActief ||
-                    !Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
-                    !Objects.equals(original.groepID, groepID) ||
-                    !Objects.equals(original.doorlooptijd, doorlooptijd) ||
-                    !Objects.deepEquals(referentieTabellen.toTypedArray(), original.referentieTabellen.toTypedArray())
-                )
-    }
-
     override fun applyChanges(changes: ZaaktypeCmmnHumantaskParameters) {
         isActief = changes.isActief
         formulierDefinitieID = changes.formulierDefinitieID

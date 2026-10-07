@@ -65,17 +65,6 @@ class ZaaktypeMailtemplateParameters :
     // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
     override fun hashCode() = javaClass.hashCode()
 
-    @Suppress("UseCheckOrError")
-    override fun isModifiedFrom(original: ZaaktypeMailtemplateParameters): Boolean {
-        val isModified = mailTemplate?.let { mailTemplate ->
-            original.mailTemplate?.let { otherMailTemplate ->
-                Objects.equals(mailTemplate.mail, otherMailTemplate.mail) &&
-                    !Objects.equals(mailTemplate.id, otherMailTemplate.id)
-            }
-        }
-        return isModified ?: throw IllegalStateException("mailTemplate is null")
-    }
-
     override fun applyChanges(changes: ZaaktypeMailtemplateParameters) {
         mailTemplate = changes.mailTemplate
     }

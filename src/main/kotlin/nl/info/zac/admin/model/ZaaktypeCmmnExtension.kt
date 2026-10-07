@@ -79,11 +79,8 @@ class ZaaktypeCmmnExtension {
     fun setHumanTaskParametersCollection(desired: Collection<ZaaktypeCmmnHumantaskParameters>) {
         val humanTaskParameters = zaaktypeCmmnHumantaskParametersCollection
             ?: mutableSetOf<ZaaktypeCmmnHumantaskParameters>().also { zaaktypeCmmnHumantaskParametersCollection = it }
-        desired.forEach {
-            it.zaaktypeCmmnExtension = this
-            setComponent(humanTaskParameters, it)
-        }
-        humanTaskParameters.removeIf { existing -> existing !in desired }
+        desired.forEach { it.zaaktypeCmmnExtension = this }
+        humanTaskParameters.mergeWith(desired) { it.planItemDefinitionID }
     }
 
     fun getUserEventListenerParametersCollection(): Set<ZaaktypeCmmnUsereventlistenerParameters> =
@@ -94,11 +91,8 @@ class ZaaktypeCmmnExtension {
             ?: mutableSetOf<ZaaktypeCmmnUsereventlistenerParameters>().also {
                 zaaktypeCmmnUsereventlistenerParametersCollection = it
             }
-        desired.forEach {
-            it.zaaktypeCmmnExtension = this
-            setComponent(userEventListenerParameters, it)
-        }
-        userEventListenerParameters.removeIf { existing -> existing !in desired }
+        desired.forEach { it.zaaktypeCmmnExtension = this }
+        userEventListenerParameters.mergeWith(desired) { it.planItemDefinitionID }
     }
 
     @Suppress("TooGenericExceptionThrown")

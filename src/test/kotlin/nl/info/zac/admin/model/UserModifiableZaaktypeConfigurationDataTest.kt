@@ -4,74 +4,93 @@
  */
 package nl.info.zac.admin.model
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 
 class UserModifiableZaaktypeConfigurationDataTest : BehaviorSpec({
     val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
 
-    given("a set with a zaakafzender whose replyTo changed after it was added to the set") {
+    given("a set with a zaakafzender and a desired zaakafzender with the same mail but another replyTo") {
         val zaakafzender = createZaakAfzender(
+            id = 1L,
             zaaktypeConfiguration = zaaktypeConfiguration,
             replyTo = "old@example.com"
         )
         val zaakafzenders = mutableSetOf(zaakafzender)
-        zaakafzender.replyTo = "new@example.com"
-        val candidate = createZaakAfzender(
+        val desiredZaakafzender = createZaakAfzender(
             id = null,
             zaaktypeConfiguration = zaaktypeConfiguration,
             replyTo = "new@example.com"
         )
 
-        `when`("an equal zaakafzender is set as component") {
-            setComponent(zaakafzenders, candidate)
+        `when`("the set is merged with the desired zaakafzender") {
+            zaakafzenders.mergeWith(listOf(desiredZaakafzender)) { it.mail }
 
-            then("the set still finds the existing zaakafzender, so that no duplicate is added") {
-                zaakafzenders shouldContainExactly setOf(zaakafzender)
-                (candidate in zaakafzenders) shouldBe true
-            }
-        }
-    }
-
-    given("a set with a zaakafzender") {
-        val zaakafzender = createZaakAfzender(
-            zaaktypeConfiguration = zaaktypeConfiguration,
-            replyTo = "old@example.com"
-        )
-        val zaakafzenders = mutableSetOf(zaakafzender)
-        val candidate = createZaakAfzender(
-            id = null,
-            zaaktypeConfiguration = zaaktypeConfiguration,
-            replyTo = "new@example.com"
-        )
-
-        `when`("a zaakafzender with the same mail but another replyTo is set as component") {
-            setComponent(zaakafzenders, candidate)
-
-            then("the changes are applied to the existing zaakafzender, which the set still finds") {
-                zaakafzenders shouldContainExactly setOf(zaakafzender)
+            then("the changes are applied to the existing zaakafzender, so that it keeps its id") {
+                zaakafzenders.single() shouldBeSameInstanceAs zaakafzender
+                zaakafzender.id shouldBe 1L
                 zaakafzender.replyTo shouldBe "new@example.com"
-                (candidate in zaakafzenders) shouldBe true
             }
         }
     }
 
-    given("a set with a zaakafzender and a candidate with another mail") {
+    given("a set with a zaakafzender and a desired zaakafzender with another mail") {
         val zaakafzender = createZaakAfzender(zaaktypeConfiguration = zaaktypeConfiguration)
         val zaakafzenders = mutableSetOf(zaakafzender)
-        val candidate = createZaakAfzender(
+        val desiredZaakafzender = createZaakAfzender(
             id = 5678L,
             zaaktypeConfiguration = zaaktypeConfiguration,
             mail = "other@example.com"
         )
 
-        `when`("the candidate is set as component") {
-            setComponent(zaakafzenders, candidate)
+        `when`("the set is merged with the existing and the desired zaakafzender") {
+            zaakafzenders.mergeWith(listOf(zaakafzender, desiredZaakafzender)) { it.mail }
 
-            then("the candidate is added as a new element without an id") {
-                zaakafzenders shouldContainExactly setOf(zaakafzender, candidate)
-                candidate.id shouldBe null
+            then("the desired zaakafzender is added without an id, so that JPA inserts it as a new row") {
+                zaakafzenders shouldContainExactlyInAnyOrder listOf(zaakafzender, desiredZaakafzender)
+                desiredZaakafzender.id shouldBe null
+            }
+        }
+    }
+
+    given("a set with two zaakafzenders") {
+        val keptZaakafzender = createZaakAfzender(zaaktypeConfiguration = zaaktypeConfiguration, mail = "kept@example.com")
+        val removedZaakafzender = createZaakAfzender(
+            zaaktypeConfiguration = zaaktypeConfiguration,
+            mail = "removed@example.com"
+        )
+        val zaakafzenders = mutableSetOf(keptZaakafzender, removedZaakafzender)
+
+        `when`("the set is merged with only one of them") {
+            zaakafzenders.mergeWith(listOf(keptZaakafzender)) { it.mail }
+
+            then("the zaakafzender that is not desired is removed") {
+                zaakafzenders shouldContainExactly setOf(keptZaakafzender)
+            }
+        }
+    }
+
+    given("a set with a zaakafzender and two desired zaakafzenders with the same mail") {
+        val zaakafzender = createZaakAfzender(zaaktypeConfiguration = zaaktypeConfiguration)
+        val zaakafzenders = mutableSetOf(zaakafzender)
+        val desiredZaakafzenders = listOf(
+            createZaakAfzender(zaaktypeConfiguration = zaaktypeConfiguration, replyTo = "first@example.com"),
+            createZaakAfzender(zaaktypeConfiguration = zaaktypeConfiguration, replyTo = "second@example.com")
+        )
+
+        `when`("the set is merged with the desired zaakafzenders") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                zaakafzenders.mergeWith(desiredZaakafzenders) { it.mail }
+            }
+
+            then("the merge fails and leaves the set unchanged, so that no desired zaakafzender is silently dropped") {
+                exception.message shouldBe "Desired elements have duplicate keys"
+                zaakafzenders shouldContainExactly setOf(zaakafzender)
+                zaakafzender.replyTo shouldBe "replyTo@example.com"
             }
         }
     }

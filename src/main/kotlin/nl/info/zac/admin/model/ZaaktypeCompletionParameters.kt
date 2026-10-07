@@ -58,9 +58,6 @@ class ZaaktypeCompletionParameters : UserModifiableZaaktypeConfigurationData<Zaa
     // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
     override fun hashCode() = javaClass.hashCode()
 
-    override fun isModifiedFrom(original: ZaaktypeCompletionParameters): Boolean =
-        zaakbeeindigReden == original.zaakbeeindigReden && resultaattype != original.resultaattype
-
     override fun applyChanges(changes: ZaaktypeCompletionParameters) {
         resultaattype = changes.resultaattype
     }

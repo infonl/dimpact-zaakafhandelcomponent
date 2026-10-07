@@ -204,13 +204,12 @@ class ZaaktypeConfiguration {
     fun getZaakbeeindigParameters(): Set<ZaaktypeCompletionParameters> =
         zaaktypeCompletionParameters.orEmpty()
 
-    fun setZaakbeeindigParameters(newZaaktypeCompletionParameters: Collection<ZaaktypeCompletionParameters>) {
+    fun setZaakbeeindigParameters(desired: Collection<ZaaktypeCompletionParameters>) {
         val completionParameters = zaaktypeCompletionParameters ?: mutableSetOf<ZaaktypeCompletionParameters>().also {
             zaaktypeCompletionParameters = it
         }
-        val desiredParameters = newZaaktypeCompletionParameters.toHashSet()
-        newZaaktypeCompletionParameters.forEach { setZaakbeeindigParameter(it) }
-        completionParameters.removeIf { it !in desiredParameters }
+        desired.forEach { it.zaaktypeConfiguration = this }
+        completionParameters.mergeWith(desired) { it.zaakbeeindigReden.id }
     }
 
     fun getMailtemplateKoppelingen(): Set<ZaaktypeMailtemplateParameters> = zaaktypeMailtemplateKoppelingen.orEmpty()
@@ -218,11 +217,8 @@ class ZaaktypeConfiguration {
     fun setMailtemplateKoppelingen(desired: Collection<ZaaktypeMailtemplateParameters>) {
         val mailtemplateKoppelingen = zaaktypeMailtemplateKoppelingen
             ?: mutableSetOf<ZaaktypeMailtemplateParameters>().also { zaaktypeMailtemplateKoppelingen = it }
-        desired.forEach {
-            it.zaaktypeConfiguration = this
-            setComponent(mailtemplateKoppelingen, it)
-        }
-        mailtemplateKoppelingen.removeIf { existing -> existing !in desired }
+        desired.forEach { it.zaaktypeConfiguration = this }
+        mailtemplateKoppelingen.mergeWith(desired) { it.mailTemplate?.mail }
     }
 
     fun getAutomaticEmailConfirmation(): ZaaktypeEmailParameters? = zaaktypeEmailParameters
@@ -232,15 +228,7 @@ class ZaaktypeConfiguration {
     fun setZaakAfzenders(desired: Collection<ZaaktypeZaakafzenderParameters>) {
         val zaakAfzenders = zaaktypeZaakafzenderParameters
             ?: mutableSetOf<ZaaktypeZaakafzenderParameters>().also { zaaktypeZaakafzenderParameters = it }
-        desired.forEach {
-            it.zaaktypeConfiguration = this
-            setComponent(zaakAfzenders, it)
-        }
-        zaakAfzenders.removeIf { existing -> existing !in desired }
-    }
-
-    private fun setZaakbeeindigParameter(param: ZaaktypeCompletionParameters) {
-        param.zaaktypeConfiguration = this
-        zaaktypeCompletionParameters?.let { setComponent(it, param) }
+        desired.forEach { it.zaaktypeConfiguration = this }
+        zaakAfzenders.mergeWith(desired) { it.mail }
     }
 }

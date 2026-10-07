@@ -5,54 +5,30 @@
 package nl.info.zac.admin.model
 
 /**
- * Represents zaaktype configuration data that can be modified by a user.
- * <p>
- * This interface provides a contract for applying changes and comparing states,
- * commonly used in DTOs or entities that are updated from user input.
- *
- * @param <T> The implementing type, used for method chaining and type safety.
+ * Zaaktype configuration data that a user can modify.
  */
 interface UserModifiableZaaktypeConfigurationData<T : UserModifiableZaaktypeConfigurationData<T>> {
-
     /**
-     * Checks whether the passed original is the same as the current object and if it was changed by the user.
-     *
-     * The result is based on two checks:
-     *  - one pivotal field that should be the same
-     *  - one or more fields that should be different
-     *
-     * @param original Original object (part of a [ZaaktypeConfiguration]) to compare to.
-     * @return `true` if the object is different from the original, `false` otherwise.
-     */
-    fun isModifiedFrom(original: T): Boolean
-
-    /**
-     * Applies the modifiable fields from a given source object to this object.
-     * This should only update fields that are intended to be changed by a user.
-     *
-     * @param changes An object containing the new values to apply.
+     * Copies the fields that a user can modify from [changes] to this object.
      */
     fun applyChanges(changes: T)
 
     /**
-     * Resets the persistent identity of the object.
-     * Used to treat the object as a new entity, allowing the persistence layer (e.g., JPA)
-     * to generate a new ID upon saving.
-     *
-     * @return This instance, for method chaining.
+     * Clears the id, so that JPA persists this object as a new row.
      */
     fun resetId(): T
 }
 
 /**
- * Applies the user changes of the candidate to the element of the collection that it modifies, or adds the candidate
- * as a new element when the collection holds no such element and no equal one.
+ * Makes this set match [desired], where [key] identifies an element: removes the elements whose key is not desired,
+ * applies the changes of the desired element to each element with the same key, and adds the desired elements whose
+ * key is new. Existing elements keep their id, so that JPA updates their rows instead of deleting and inserting them.
  */
-fun <T : UserModifiableZaaktypeConfigurationData<T>> setComponent(targetCollection: MutableCollection<T>, candidate: T) {
-    val modifiedElement = targetCollection.firstOrNull { it.isModifiedFrom(candidate) }
-    if (modifiedElement != null) {
-        modifiedElement.applyChanges(candidate)
-    } else if (candidate !in targetCollection) {
-        targetCollection.add(candidate.resetId())
-    }
+fun <T : UserModifiableZaaktypeConfigurationData<T>, K> MutableSet<T>.mergeWith(desired: Collection<T>, key: (T) -> K) {
+    val desiredByKey = desired.associateBy(key)
+    require(desiredByKey.size == desired.size) { "Desired elements have duplicate keys" }
+    removeIf { key(it) !in desiredByKey }
+    forEach { desiredByKey.getValue(key(it)).let(it::applyChanges) }
+    val existingKeys = map(key).toSet()
+    desiredByKey.filterKeys { it !in existingKeys }.values.forEach { add(it.resetId()) }
 }
