@@ -65,7 +65,6 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
-import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.BpmnTaskFormRuntimeService
@@ -328,16 +327,16 @@ class TaskRestService @Inject constructor(
     private fun assignLoggedInUserToTask(restTaskAssignData: RestTaskAssignData): Task {
         val task = flowableTaskService.readOpenTask(restTaskAssignData.taakId)
         assertPolicy(task.isOpen() && policyService.readTaakRechten(task).canToekennen)
-        taskService.assignTaskToUser(
-            taskId = task.id,
-            assignee = loggedInUserInstance.get().id,
-            loggedInUser = loggedInUserInstance.get(),
-            explanation = restTaskAssignData.reden
-        ).let {
-            taskService.sendScreenEventsOnTaskChange(it, restTaskAssignData.zaakUuid)
-            indexingService.indexeerDirect(restTaskAssignData.taakId, ZoekObjectType.TAAK, true)
-            return it
-        }
+        val loggedInUser = loggedInUserInstance.get()
+        return taskService.assignTask(
+            task = task,
+            zaakUuid = restTaskAssignData.zaakUuid,
+            groupId = null,
+            userId = loggedInUser.id,
+            reason = restTaskAssignData.reden,
+            loggedInUser = loggedInUser,
+            performCommit = true
+        )
     }
 
     @Suppress("NestedBlockDepth")
