@@ -202,11 +202,15 @@ class TaskRestServiceTest : BehaviorSpec({
                 then("the task is assigned to the logged-in user") {
                     result shouldBe restTask
                     verify(exactly = 1) {
-                        taskService.assignTaskToUser(
-                            taskId = task.id,
-                            assignee = loggedInUser.id,
+                        taskService.assignTask(
+                            task = task,
+                            zaakUuid = restTaakToekennenGegevens.zaakUuid,
+                            groupId = null,
+                            userId = loggedInUser.id,
+                            reason = restTaakToekennenGegevens.reden,
                             loggedInUser = loggedInUser,
-                            explanation = restTaakToekennenGegevens.reden
+                            releaseWithoutAssignee = false,
+                            performCommit = true
                         )
                     }
                 }
