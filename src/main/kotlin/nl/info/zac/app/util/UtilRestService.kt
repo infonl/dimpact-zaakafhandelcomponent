@@ -12,7 +12,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.shared.cache.Caching
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.sensitive.SensitiveDataService
@@ -32,7 +32,7 @@ import kotlin.time.toDuration
 @Suppress("TooManyFunctions")
 class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val sensitiveDataService: SensitiveDataService,
     private val policyService: PolicyService
 ) {
@@ -168,14 +168,14 @@ class UtilRestService @Inject constructor(
     private fun clearAllZhpsCaches() =
         ZHPS + ul(
             listOf(
-                zaaktypeCmmnConfigurationService.clearManagedCache(),
-                zaaktypeCmmnConfigurationService.clearListCache()
+                zaaktypeConfigurationService.clearManagedCache(),
+                zaaktypeConfigurationService.clearListCache()
             )
         )
 
     private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
 
-    private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeCmmnConfigurationService)
+    private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeConfigurationService)
 
     private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
         val cacheStatistics = caching.cacheStatistics()

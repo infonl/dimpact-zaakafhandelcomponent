@@ -85,7 +85,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the correct address") {
@@ -150,7 +150,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent") {
@@ -213,7 +213,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the correct address") {
@@ -252,7 +252,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no action is taken") {}
@@ -281,7 +281,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent") {
@@ -304,7 +304,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent") {}
@@ -326,7 +326,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent") {}
@@ -355,7 +355,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = specificEmail,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the application-specific email address without consulting betrokkene") {
@@ -395,7 +395,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = null,
                 productaanvraagSpecificEmailAddress = specificEmail,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the application-specific email address") {
@@ -422,7 +422,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = null,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent") {}
@@ -465,7 +465,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = betrokkene,
                 productaanvraagSpecificEmailAddress = null,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("email is sent to the first address as fallback") {
@@ -488,7 +488,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = null,
                 productaanvraagSpecificEmailAddress = "fakeSpecific@example.com",
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail template is looked up and no mail is sent") {
@@ -511,7 +511,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = null,
                 productaanvraagSpecificEmailAddress = "fakeSpecific@example.com",
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail template is looked up and no mail is sent") {
@@ -538,7 +538,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = null,
                 productaanvraagSpecificEmailAddress = "fakeSpecific@example.com",
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("no mail is sent and the zaak is not marked as having its confirmation sent") {
@@ -569,7 +569,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaak = zaak,
                 betrokkene = null,
                 productaanvraagSpecificEmailAddress = "fakeSpecific@example.com",
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+                zaaktypeConfiguration = zaaktypeCmmnConfiguration
             )
 
             then("the email is sent from the configured sender without a reply-to address") {

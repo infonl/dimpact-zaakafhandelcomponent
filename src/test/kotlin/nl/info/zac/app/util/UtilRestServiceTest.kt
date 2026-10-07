@@ -17,19 +17,19 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.sensitive.SensitiveDataService
 
 class UtilRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val policyService = mockk<PolicyService>()
     val sensitiveDataService = mockk<SensitiveDataService>()
     val utilRESTService = UtilRestService(
         ztcClientService = ztcClientService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService,
         sensitiveDataService = sensitiveDataService,
         policyService = policyService
     )
@@ -46,10 +46,10 @@ class UtilRestServiceTest : BehaviorSpec({
         every { ztcClientService.estimatedCacheSizes() } returns mapOf(
             "ztc-cache1" to 0
         )
-        every { zaaktypeCmmnConfigurationService.cacheStatistics() } returns mapOf(
+        every { zaaktypeConfigurationService.cacheStatistics() } returns mapOf(
             "zafhPS-cache1" to CacheStats.empty()
         )
-        every { zaaktypeCmmnConfigurationService.estimatedCacheSizes() } returns mapOf(
+        every { zaaktypeConfigurationService.estimatedCacheSizes() } returns mapOf(
             "zafhPS-cache1" to 0
         )
 
@@ -90,8 +90,8 @@ class UtilRestServiceTest : BehaviorSpec({
             every { ztcClientService.clearRoltypeCache() } returns "roltype-cache cleared"
             every { ztcClientService.clearEigenschapCache() } returns "eigenschap-cache cleared"
             every { ztcClientService.clearCacheTime() } returns "cachetime cleared"
-            every { zaaktypeCmmnConfigurationService.clearListCache() } returns "zaaktype-cmmn-cache cleared"
-            every { zaaktypeCmmnConfigurationService.clearManagedCache() } returns "zaaktype-cmmn-managed-cache cleared"
+            every { zaaktypeConfigurationService.clearListCache() } returns "zaaktype-cmmn-cache cleared"
+            every { zaaktypeConfigurationService.clearManagedCache() } returns "zaaktype-cmmn-managed-cache cleared"
 
             val clearResponse = utilRESTService.clearCaches()
 
@@ -106,8 +106,8 @@ class UtilRestServiceTest : BehaviorSpec({
                     ztcClientService.clearRoltypeCache()
                     ztcClientService.clearEigenschapCache()
                     ztcClientService.clearCacheTime()
-                    zaaktypeCmmnConfigurationService.clearListCache()
-                    zaaktypeCmmnConfigurationService.clearManagedCache()
+                    zaaktypeConfigurationService.clearListCache()
+                    zaaktypeConfigurationService.clearManagedCache()
                 }
             }
             and("sensitive data should not be cleared") {

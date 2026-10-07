@@ -69,8 +69,7 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPandRequest
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
+import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
@@ -167,7 +166,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService = mockk<ZaakService>()
     val zgwApiService = mockk<ZgwApiService>()
@@ -200,7 +198,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         zaakService = zaakService,
         zaakVariabelenService = zaakVariabelenService,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
@@ -438,7 +435,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     cmmnService.startCase(
                         zaak = zaak,
                         zaaktype = zaakType,
-                        zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                        caseDefinitionKey = "fakeCaseDefinitionId",
                         zaakData = null
                     )
                 } just runs
@@ -463,9 +460,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zaak.url
                     )
                 } just runs
-                every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+                every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
                 every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+                    zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
                 } returns zaaktypeCmmnConfiguration
                 every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
                 every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
@@ -519,7 +516,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             cmmnService.startCase(
                                 zaak = zaak,
                                 zaaktype = zaakType,
-                                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                                caseDefinitionKey = "fakeCaseDefinitionId",
                                 zaakData = null
                             )
                         }
@@ -591,7 +588,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     bpmnService.startProcess(
                         zaak = zaak,
                         zaaktype = zaakType,
-                        processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
+                        processDefinitionKey = "fakeBpmnProcessDefinitionKey",
                         zaakData = zaakData
                     )
                 } just runs
@@ -616,7 +613,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zaak.url
                     )
                 } just runs
-                every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
+                every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
                 every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
                 every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
                 val zaakAssignment = ZaakAssignment(
@@ -643,7 +640,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                         explanation = "Aanmaken zaak"
                     )
                 } just runs
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
                 every { loggedInUserInstance.get() } returns loggedInUser
 
                 `when`(
@@ -670,7 +666,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             bpmnService.startProcess(
                                 zaak = zaak,
                                 zaaktype = zaakType,
-                                processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
+                                processDefinitionKey = "fakeBpmnProcessDefinitionKey",
                                 zaakData = zaakData
                             )
                         }
@@ -701,7 +697,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
                 every { zaakService.readZaakTypeByUUID(any()) } returns zaakType
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                    zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeBpmnConfiguration()
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
 
@@ -725,7 +721,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
                 every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                    zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeBpmnConfiguration()
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
 
@@ -749,7 +745,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
                 every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                    zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeBpmnConfiguration()
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
 
@@ -781,7 +777,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 every { zaakService.readZaakTypeByUUID(zaakTypeUUID) } returns zaakType
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                    zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
                 } returns createZaaktypeCmmnConfiguration()
                 every {
                     policyService.readOverigeRechten(zaakType.omschrijving)
@@ -821,7 +817,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                     every { zaakService.readZaakTypeByUUID(restZaakCreateData.zaaktype.uuid) } returns zaakType
                     every {
-                        zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                        zaaktypeConfigurationService.findConfiguration(any<UUID>())
                     } returns zaaktypeCmmnConfiguration
 
                     val exception = shouldThrow<BetrokkeneNotAllowedException> {
@@ -1186,7 +1182,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     context("Listing afzenders for zaak and reading the default afzender for a zaak") {
-        given("ZaaktypeCmmnConfiguration object with zaakafzenders, one of which uses 'special mails'") {
+        given("ZaaktypeConfiguration object with zaakafzenders, one of which uses 'special mails'") {
             val zaakUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
@@ -1209,7 +1205,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1276,7 +1272,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeBpmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1294,7 +1290,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("ZaaktypeCmmnConfiguration without any zaakafzenders") {
+        given("ZaaktypeConfiguration without any zaakafzenders") {
             val zaakUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
@@ -1308,7 +1304,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1358,7 +1354,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val loggedInUser = createLoggedInUser(email = "fake-medewerker@example.com")
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
-            every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns null
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns null
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -1478,7 +1474,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
                 every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(it.url.extractUuid())
+                    zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
             }
             every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
@@ -1531,14 +1527,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
                 every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(it.url.extractUuid())
+                    zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
             }
             zaaktypes.last().let {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(it.url.extractUuid())
-                } returns createZaaktypeBpmnConfiguration()
+                    zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
+                } returns createZaaktypeBpmnConfiguration(groupId = "fakeGroupId")
             }
 
             and("all zaaktypes are authorised") {
@@ -1557,7 +1553,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
                         verify(exactly = 3) {
-                            zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                            zaaktypeConfigurationService.findConfiguration(any<UUID>())
                         }
                         returnedRestZaaktypes shouldHaveSize 3
                         returnedRestZaaktypes shouldBe restZaaktypes
@@ -1580,7 +1576,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
                         verify(exactly = 2) {
-                            zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                            zaaktypeConfigurationService.findConfiguration(any<UUID>())
                         }
                         returnedRestZaaktypes shouldHaveSize 2
                         returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
@@ -1629,7 +1625,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { policyService.readOverigeRechten("fakeVersionedZaaktype") } returns createOverigeRechten()
             zaaktypes.forEachIndexed { index, zaaktype ->
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktype.url.extractUuid())
+                    zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
                 every { healthCheckService.controleerZaaktype(zaaktype.url) } returns createZaaktypeInrichtingscheck()
                 every { restZaaktypeConverter.convert(zaaktype) } returns restZaaktypes[index]
@@ -1664,10 +1660,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
             }
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(unconfiguredZaaktype.url.extractUuid())
+                zaaktypeConfigurationService.findConfiguration(unconfiguredZaaktype.url.extractUuid())
             } returns null
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(invalidlyConfiguredZaaktype.url.extractUuid())
+                zaaktypeConfigurationService.findConfiguration(invalidlyConfiguredZaaktype.url.extractUuid())
             } returns createZaaktypeCmmnConfiguration(groupId = null)
 
             `when`("the zaaktypes are listed") {
@@ -1731,7 +1727,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
@@ -1782,7 +1778,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 policyService.readZaakRechten(terminatedZaak, zaakType, loggedInUser)
             } returns terminatedZaakRechten
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
@@ -1867,7 +1863,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                    zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
                 } returns zaaktypeCmmnConfiguration
                 every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
                 every { cmmnService.terminateCase(zaak.uuid) } returns Unit
@@ -1889,7 +1885,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                    zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
                 } returns zaaktypeCmmnConfiguration
                 every { loggedInUserInstance.get() } returns loggedInUser
                 val exception = shouldThrow<IllegalArgumentException> {
@@ -1916,7 +1912,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
@@ -2220,7 +2216,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns zaaktypeBpmnConfiguration
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -2314,7 +2310,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, any())
             } returns emptyList()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns zaaktypeBpmnConfiguration
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -2389,7 +2385,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns createRestZaak()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the update is requested") {
@@ -2447,7 +2443,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAssignment(groupId = restGroup.id, userName = "fakeCurrentBehandelaarId")
             } throws UserNotInGroupException()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the update is requested") {
@@ -2531,7 +2527,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns createRestZaak()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the update is requested") {
@@ -2622,7 +2618,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns createRestZaak()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the update is requested") {
@@ -2663,7 +2659,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zgwApiService.findGroepForZaak(zaak) } returns null
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the update is requested") {
@@ -2732,7 +2728,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns createRestZaak()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
@@ -2798,7 +2794,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zrcClientService.patchZaak(zaak.uuid, any(), changeDescription)
             } throws ZrcRuntimeException("fakeMessage")
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the update is requested") {
@@ -2853,7 +2849,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } throws ZaaktypeNotZaakspecifiekAutoriseerbaarException()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the update is requested") {
@@ -2916,7 +2912,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns createRestZaak()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
 
             `when`("the zaak is marked as zaakspecifiek geautoriseerd again") {
@@ -2952,7 +2948,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(identificatie = "fakeId")
             )
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
@@ -3035,7 +3031,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
             )
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
@@ -3110,7 +3106,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns zaakAssignment
             every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
             every {
@@ -3160,7 +3156,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } just runs
             every { zaakService.readZaakAssignment(any(), any()) } throws UserNotInGroupException()
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -3241,7 +3237,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { zaakService.assignZaak(any(), any<ZaakAssignment>(), any()) } just runs
                 every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                    zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeCmmnConfiguration()
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
@@ -3319,7 +3315,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 } returns emptyList()
                 every { eventingService.send(any<ScreenEvent>()) } just runs
                 every {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                    zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeCmmnConfiguration()
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
@@ -3345,7 +3341,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
             every { loggedInUserInstance.get() } returns loggedInUser
 

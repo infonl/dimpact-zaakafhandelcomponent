@@ -24,7 +24,8 @@ import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createHistoricProcessInstance
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ProcessEngine.BPMN
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import org.flowable.bpmn.model.BpmnModel
@@ -49,14 +50,14 @@ class BpmnServiceTest : BehaviorSpec({
     val runtimeService = mockk<RuntimeService>()
     val historyService = mockk<HistoryService>()
     val processEngine = mockk<ProcessEngine>()
-    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         historyService,
         processEngine,
-        zaaktypeBpmnConfigurationBeheerService,
+        zaaktypeConfigurationService,
         bpmnProcessDefinitionTaskFormService
     )
 
@@ -139,37 +140,6 @@ class BpmnServiceTest : BehaviorSpec({
             }
         }
     }
-    given("A valid zaaktype UUID with a process definition") {
-        val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
-        every {
-            zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
-        } returns zaaktypeBpmnProcessDefinition
-
-        `when`("finding the process definition for the zaaktype") {
-            val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
-
-            then("the correct process definition is returned") {
-                result shouldBe zaaktypeBpmnProcessDefinition
-            }
-        }
-    }
-
-    given("A valid zaaktype UUID without a process definition") {
-        val zaaktypeUUID = UUID.randomUUID()
-        every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID) } returns null
-
-        `when`("finding the process definition for the zaaktype") {
-            val exception = shouldThrow<BpmnProcessDefinitionNotFoundException> {
-                bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
-            }
-
-            then("null is returned") {
-                exception.message shouldContain "$zaaktypeUUID"
-            }
-        }
-    }
-
     given("A valid process definition key with an existing process definition") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val processDefinition = createProcessDefinition()
@@ -315,7 +285,7 @@ class BpmnServiceTest : BehaviorSpec({
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
         } returns linkedProcessDefinitionKeys
 
         `when`("checking it has linked configurations by process definition key") {
@@ -331,7 +301,7 @@ class BpmnServiceTest : BehaviorSpec({
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
         } returns linkedProcessDefinitionKeys
 
         `when`("checking it has linked configurations by process definition key") {
@@ -357,7 +327,7 @@ class BpmnServiceTest : BehaviorSpec({
             then("true is returned") {
                 isProcessDefinitionInUse shouldBe true
                 verify(exactly = 0) {
-                    zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+                    zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
                 }
             }
         }
@@ -372,7 +342,7 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 0
         val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
         } returns linkedProcessDefinitionKeys
 
         `when`("checking the process definition is in use by process definition key") {
@@ -393,7 +363,7 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 0
         val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
         } returns linkedProcessDefinitionKeys
 
         `when`("checking the process definition is in use by process definition key") {

@@ -48,7 +48,7 @@ class MailtemplateRestServiceTest : BehaviorSpec({
             }
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
             } returns zaaktypeCmmnConfiguration
 
             `when`("the mail template for that mail is requested") {
@@ -69,7 +69,7 @@ class MailtemplateRestServiceTest : BehaviorSpec({
             }
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
             } returns zaaktypeCmmnConfiguration
             every { mailTemplateService.findDefaultMailtemplate(Mail.ZAAK_ALGEMEEN) } returns defaultMailTemplate
 
@@ -87,7 +87,7 @@ class MailtemplateRestServiceTest : BehaviorSpec({
                 mailTemplateNaam = "fakeDefaultMailTemplate"
             }
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) } returns null
+            every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns null
             every { mailTemplateService.findDefaultMailtemplate(Mail.ZAAK_ALGEMEEN) } returns defaultMailTemplate
 
             `when`("the mail template for that mail is requested") {
@@ -105,7 +105,7 @@ class MailtemplateRestServiceTest : BehaviorSpec({
             }
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
             } returns zaaktypeCmmnConfiguration
             every { mailTemplateService.findDefaultMailtemplate(Mail.ZAAK_ALGEMEEN) } returns null
 

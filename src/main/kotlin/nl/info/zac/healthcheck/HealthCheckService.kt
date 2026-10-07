@@ -24,8 +24,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORD
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
@@ -64,8 +63,7 @@ class HealthCheckService @Inject constructor(
     private val versionNumber: Optional<String?>,
 
     private val referenceTableService: ReferenceTableService,
-    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val ztcClientService: ZtcClientService
 ) {
     companion object {
@@ -90,10 +88,9 @@ class HealthCheckService @Inject constructor(
     }
 
     private fun inrichtingscheck(zaaktypeUuid: UUID, zaaktype: ZaakType): ZaaktypeInrichtingscheck =
-        zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { zaakafhandelParams ->
+        zaaktypeConfigurationService.findConfiguration(zaaktypeUuid).let { zaaktypeConfiguration ->
             return ZaaktypeInrichtingscheck(zaaktype).apply {
-                isZaakafhandelParametersValide = zaakafhandelParams?.isValide()
-                    ?: (zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) != null)
+                isZaakafhandelParametersValide = zaaktypeConfiguration?.isValidForZaakCreation() ?: false
             }.also {
                 controleerZaaktypeStatustypeInrichting(it)
                 controleerZaaktypeResultaattypeInrichting(it)

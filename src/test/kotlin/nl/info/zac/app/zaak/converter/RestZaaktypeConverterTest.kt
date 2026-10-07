@@ -12,8 +12,7 @@ import io.mockk.mockk
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
@@ -22,13 +21,11 @@ import java.time.LocalDate
 
 class RestZaaktypeConverterTest : BehaviorSpec({
     val zaakafhandelParametersConverter = mockk<RestZaaktypeConfigurationConverter>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
 
     val restZaaktypeConverter = RestZaaktypeConverter(
         zaakafhandelParametersConverter,
-        zaaktypeCmmnConfigurationService,
-        zaaktypeBpmnConfigurationBeheerService
+        zaaktypeConfigurationService
     )
 
     given("CMMN zaaktype") {
@@ -38,8 +35,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         val now = LocalDate.now()
         val restZaakafhandelParameters = createRestZaaktypeConfiguration()
 
-        every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns null
-        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid) } returns zaaktypeCmmnConfiguration
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns zaaktypeCmmnConfiguration
         every {
             zaakafhandelParametersConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
         } returns restZaakafhandelParameters
@@ -78,9 +74,9 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         val now = LocalDate.now()
         val restZaakafhandelParameters = createRestZaaktypeConfiguration()
 
-        every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns zaaktypeBpmnConfiguration
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns zaaktypeBpmnConfiguration
         every {
-            zaakafhandelParametersConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
+            zaakafhandelParametersConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration, true)
         } returns restZaakafhandelParameters
 
         `when`("converted to REST") {

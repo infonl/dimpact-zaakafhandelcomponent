@@ -27,9 +27,10 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.FormulierDefinitie
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
@@ -65,7 +66,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CmmnService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val planItemConverter = mockk<RestPlanItemConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val indexingService = mockk<IndexingService>()
@@ -80,7 +81,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         zaakVariabelenService,
         cmmnService,
         zrcClientService,
-        zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationService,
         planItemConverter,
         zgwApiService,
         indexingService,
@@ -120,7 +121,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every {
@@ -192,7 +193,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every {
@@ -249,7 +250,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -286,7 +287,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID")
             )
-            val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
+            val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeConfiguration>()
             val loggedInUser = createLoggedInUser()
 
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -294,11 +295,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfigurationMock
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every {
-                zaaktypeCmmnConfigurationMock.findHumanTaskParameter(planItemInstanceId)
+                zaaktypeCmmnConfigurationMock.cmmnExtension?.findHumanTaskParameter(planItemInstanceId)
             } returns
                 createHumanTaskParameters().apply {
                     doorlooptijd = 10
@@ -355,7 +356,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
             )
-            val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
+            val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeConfiguration>()
             val loggedInUser = createLoggedInUser()
 
             every { cmmnService.readOpenPlanItem(additionalInfoPlanItemInstanceId) } returns planItemInstance
@@ -363,11 +364,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfigurationMock
             every { planItemInstance.planItemDefinitionId } returns additionalInfoPlanItemInstanceId
             every {
-                zaaktypeCmmnConfigurationMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
+                zaaktypeCmmnConfigurationMock.cmmnExtension?.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
             } returns
                 createHumanTaskParameters().apply {
                     doorlooptijd = 10
@@ -437,7 +438,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every { mailTemplateService.readDefaultMailTemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
             every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
@@ -520,7 +521,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every { mailTemplateService.readDefaultMailTemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
             every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
@@ -821,7 +822,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+                zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns intakeAfrondenZaaktypeCmmnConfiguration
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every {
@@ -904,7 +905,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+                zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns geenResultaattypeZaaktypeCmmnConfiguration
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
@@ -918,6 +919,41 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("closeZaak should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.closeZaak(any(), any(), any())
+                    }
+                }
+            }
+        }
+
+        given("Zaak that is not ontvankelijk and whose zaaktype has no configuration") {
+            val zaak = createZaak(resultaat = null)
+            val restUserEventListenerData = createRestUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.INTAKE_AFRONDEN,
+                restMailGegevens = null
+            ).apply {
+                this.isZaakOntvankelijk = false
+                this.planItemInstanceId = planItemInstanceId
+            }
+            val loggedInUser = createLoggedInUser()
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every {
+                zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
+            } throws ZaaktypeConfigurationNotFoundException("fakeMessage")
+            every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk") {
+                shouldThrow<ZaaktypeConfigurationNotFoundException> {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                }
+
+                then("the zaak is not closed and the user event listener is not started, so the failure is visible") {
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any())
+                        cmmnService.startUserEventListenerPlanItem(any())
                     }
                 }
             }

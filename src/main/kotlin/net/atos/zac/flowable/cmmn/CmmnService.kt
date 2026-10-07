@@ -14,7 +14,6 @@ import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -73,10 +72,9 @@ class CmmnService @Inject constructor(
     fun startCase(
         zaak: Zaak,
         zaaktype: ZaakType,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        caseDefinitionKey: String,
         zaakData: Map<String, Any>? = null
     ) {
-        val caseDefinitionKey = zaaktypeCmmnConfiguration.caseDefinitionID
         LOG.info("Starting zaak '${zaak.uuid}' using CMMN model '$caseDefinitionKey'")
         try {
             val caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()

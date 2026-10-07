@@ -62,7 +62,7 @@ class CmmnServiceTest : BehaviorSpec({
         every { cmmnRuntimeService.createCaseInstanceBuilder() } returns caseInstanceBuilder
         every {
             caseInstanceBuilder
-                .caseDefinitionKey(zaaktypeCmmnConfiguration.caseDefinitionID)
+                .caseDefinitionKey(checkNotNull(zaaktypeCmmnConfiguration.processBinding).definitionKey)
                 .businessKey(zaakUUID.toString())
                 .variable("zaakUUID", zaak.uuid)
                 .variable("zaakIdentificatie", zaak.identificatie)
@@ -76,7 +76,7 @@ class CmmnServiceTest : BehaviorSpec({
             cmmnService.startCase(
                 zaak = zaak,
                 zaaktype = zaakType,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                caseDefinitionKey = checkNotNull(zaaktypeCmmnConfiguration.processBinding).definitionKey,
                 zaakData = zaakData
             )
 

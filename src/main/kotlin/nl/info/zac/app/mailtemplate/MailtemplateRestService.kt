@@ -39,7 +39,7 @@ class MailtemplateRestService @Inject constructor(
         @PathParam("zaakUUID") zaakUUID: UUID
     ): RestMailtemplate? {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        return zaaktypeConfigurationService.readZaaktypeConfiguration(zaak.zaaktype.extractUuid())
+        return zaaktypeConfigurationService.findConfiguration(zaak.zaaktype.extractUuid())
             ?.getMailtemplateKoppelingen()
             .orEmpty()
             .mapNotNull { it.mailTemplate }
