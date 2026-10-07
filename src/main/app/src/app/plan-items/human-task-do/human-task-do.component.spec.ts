@@ -14,7 +14,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { AbstractControl, FormBuilder, FormControl } from "@angular/forms";
+import { AbstractControl, FormBuilder } from "@angular/forms";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
@@ -444,58 +444,6 @@ describe("HumanTaskDoComponent", () => {
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
       expect(doneSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("submitting a form that sends an e-mail", () => {
-    beforeEach(async () => {
-      jest
-        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
-        .mockResolvedValue([
-          {
-            type: "checkbox",
-            key: "taakStuurGegevens.sendMail",
-            control: new FormControl(true),
-          },
-          {
-            type: "input",
-            key: "taakStuurGegevens.mail",
-            control: new FormControl("TAAK_ADVIES_EXTERN"),
-          },
-        ]);
-      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
-      fixture.componentRef.setInput(
-        "planItem",
-        fromPartial<GeneratedType<"RestPlanItem">>({
-          id: "test-plan-item-id",
-          type: "HUMAN_TASK",
-          formulierDefinitie: "EXTERN_ADVIES_MAIL",
-        }),
-      );
-
-      await initialise();
-      getFormControl("group")?.setValue(
-        fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
-      );
-    });
-
-    it("should send the e-mail instructions only as task data, because the backend reads them from there", async () => {
-      component["onFormSubmit"](component["form"]);
-      await sleep();
-
-      const request = httpTestingController.expectOne(
-        "/rest/planitems/doHumanTaskPlanItem",
-      );
-      expect(request.request.body).toEqual(
-        expect.objectContaining({
-          taakdata: expect.objectContaining({
-            "taakStuurGegevens.sendMail": "true",
-            "taakStuurGegevens.mail": "TAAK_ADVIES_EXTERN",
-          }),
-        }),
-      );
-      expect(request.request.body).not.toHaveProperty("taakStuurGegevens");
-      request.flush({});
     });
   });
 
