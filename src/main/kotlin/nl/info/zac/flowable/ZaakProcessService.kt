@@ -72,11 +72,15 @@ class ZaakProcessService @Inject constructor(
      */
     fun deleteInAllEngines(zaakUuid: UUID) = processBindingsByEngine.values.forEach { it.delete(zaakUuid) }
 
+    /**
+     * Asks every engine, because only the runtime of an engine knows whether the process of a zaak still runs: a
+     * closed or reopened zaak keeps its zaaktype configuration but has no running process.
+     */
     fun hasActiveProcess(zaakUuid: UUID) = processBindingsByEngine.values.any { it.hasActiveProcess(zaakUuid) }
 
     /**
-     * Updates the process of the zaak in every engine, because the engine of a zaaktype configuration can change
-     * after its zaken have started.
+     * Updates the process of the zaak in every engine, each of which updates only a process that still runs, so the
+     * caller needs only the zaak UUID and not its zaaktype configuration.
      */
     fun updateAssignment(zaakUuid: UUID, groupId: String?, behandelaarId: String?) =
         processBindingsByEngine.values.forEach { it.updateAssignment(zaakUuid, groupId, behandelaarId) }

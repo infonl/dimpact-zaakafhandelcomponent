@@ -320,8 +320,11 @@ themselves do not change.
 
 `hasActiveProcess`, `updateAssignment` and `updateCommunicatiekanaal` replace the checks on
 `BpmnService.isZaakProcessDriven` and `CmmnService.isZaakCaseDriven` in `ZaakService` and `ZaakRestService`.
-The dispatcher calls them on every binding, like `delete`, and does not select by the configuration: the running
-process decides, and the engine of a configuration can change after its zaken have started. The BPMN binding sets
+The dispatcher calls them on every binding, like `delete`, and does not select by the configuration. Only the
+runtime of an engine knows whether the process of a zaak still runs: a closed or reopened zaak keeps its
+configuration but has no running process. The callers often have only the zaak UUID, so selecting by the
+configuration would need extra reads of the zaak and its configuration. Before B1, these checks also queried the
+runtime of both engines. The BPMN binding sets
 the groep, behandelaar and communicatiekanaal zaak variables only while the process runs; the CMMN binding does
 nothing, because a CMMN case reads the rollen of the zaak.
 

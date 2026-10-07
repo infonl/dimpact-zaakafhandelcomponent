@@ -181,7 +181,7 @@ class ZaakProcessServiceTest : BehaviorSpec({
             zaakProcessService.updateAssignment(zaakUuid, "fakeGroupId", null)
             zaakProcessService.updateCommunicatiekanaal(zaakUuid, "fakeCommunicatiekanaal")
 
-            then("every engine is updated, because the engine of a zaaktype configuration can change after its zaken started") {
+            then("every engine is updated, without a lookup of the zaaktype configuration of the zaak") {
                 verify(exactly = 1) {
                     cmmnProcessBinding.updateAssignment(zaakUuid, "fakeGroupId", null)
                     bpmnProcessBinding.updateAssignment(zaakUuid, "fakeGroupId", null)
