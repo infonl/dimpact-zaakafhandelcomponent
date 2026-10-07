@@ -77,7 +77,8 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     }
 
     /**
-     * Handles a notification that a zaaktype version was created or updated.
+     * Clears the ZTC caches for zaaktypen, roltypen, resultaattypen, statustypen and eigenschappen, and then
+     * creates or updates the configuration of the given zaaktype version, unless it is still a concept.
      */
     @Transactional(REQUIRED)
     fun updateZaaktypeConfiguration(zaaktypeUri: URI) {
