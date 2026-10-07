@@ -16,7 +16,6 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.RestTaskAssignData
 import nl.info.zac.app.task.model.RestTaskDistributeData
-import nl.info.zac.app.task.model.RestTaskDistributeTask
 import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.authentication.LoggedInUser
@@ -49,23 +48,58 @@ class TaskService @Inject constructor(
         task: Task,
         loggedInUser: LoggedInUser
     ) {
-        assignTaskAndOptionallyReleaseFromAssignee(
+        assignTask(
             task = task,
-            restTaskDistributeData = RestTaskDistributeData(
-                taken = listOf(
-                    RestTaskDistributeTask(
-                        taakId = task.id,
-                        zaakUuid = restTaskAssignData.zaakUuid
-                    )
-                ),
-                groepId = restTaskAssignData.groepId,
-                reden = restTaskAssignData.reden,
-                behandelaarGebruikersnaam = restTaskAssignData.behandelaarId
-            ),
+            zaakUuid = restTaskAssignData.zaakUuid,
+            groupId = restTaskAssignData.groepId,
+            userId = restTaskAssignData.behandelaarId,
+            reason = restTaskAssignData.reden,
             loggedInUser = loggedInUser
         )
-        sendScreenEventsOnTaskChange(task, restTaskAssignData.zaakUuid)
-        indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
+    }
+
+    /**
+     * Assigns a single task to a group and/or a user. This is the only place where the group and the assignee
+     * of an existing task are written.
+     *
+     * @param groupId the group to assign; when null, the group of the task is left as it is
+     * @param userId the user to assign; when null, the task is released from its current assignee, if it has one
+     * @param releaseWithoutAssignee when true and no [userId] is given, the task is released even when it has no
+     * assignee
+     * @param performCommit whether the search index is committed right away; batch operations commit once at the end
+     * @return the task as returned by the assignment to or release from a user, or the given task if neither happened
+     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaak is zaakspecifiek
+     * geautoriseerd but its zaaktype does not define the roltype; the task is then left unchanged
+     */
+    @Suppress("LongParameterList")
+    fun assignTask(
+        task: Task,
+        zaakUuid: UUID,
+        groupId: String?,
+        userId: String?,
+        reason: String?,
+        loggedInUser: LoggedInUser,
+        releaseWithoutAssignee: Boolean = false,
+        performCommit: Boolean = false
+    ): Task {
+        val updatedTask = when {
+            userId != null -> assignTaskToUser(
+                taskId = task.id,
+                assignee = userId,
+                loggedInUser = loggedInUser,
+                explanation = reason
+            )
+            releaseWithoutAssignee || task.assignee != null -> releaseTask(
+                task = task,
+                loggedInUser = loggedInUser,
+                reden = reason
+            )
+            else -> task
+        }
+        groupId?.let { flowableTaskService.assignTaskToGroup(task, it, reason) }
+        sendScreenEventsOnTaskChange(updatedTask, zaakUuid)
+        indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, performCommit)
+        return updatedTask
     }
 
     /**
@@ -111,7 +145,7 @@ class TaskService @Inject constructor(
      * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaak is zaakspecifiek
      * geautoriseerd but its zaaktype does not define the roltype; the task is then left unchanged
      */
-    fun assignTaskToUser(
+    internal fun assignTaskToUser(
         taskId: String,
         assignee: String,
         loggedInUser: LoggedInUser,
@@ -166,7 +200,7 @@ class TaskService @Inject constructor(
         }
     }
 
-    fun sendScreenEventsOnTaskChange(task: Task, zaakUuid: UUID) {
+    private fun sendScreenEventsOnTaskChange(task: Task, zaakUuid: UUID) {
         eventingService.send(ScreenEventType.TAAK.updated(task))
         eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(zaakUuid))
     }
@@ -178,11 +212,14 @@ class TaskService @Inject constructor(
     ) {
         restTaskDistributeData.taken.forEach { restTask ->
             try {
-                flowableTaskService.readOpenTask(restTask.taakId).let {
-                    assignTaskAndOptionallyReleaseFromAssignee(it, restTaskDistributeData, loggedInUser)
-                    sendScreenEventsOnTaskChange(it, restTask.zaakUuid)
-                }
-                indexingService.indexeerDirect(restTask.taakId, ZoekObjectType.TAAK, false)
+                assignTask(
+                    task = flowableTaskService.readOpenTask(restTask.taakId),
+                    zaakUuid = restTask.zaakUuid,
+                    groupId = restTaskDistributeData.groepId,
+                    userId = restTaskDistributeData.behandelaarGebruikersnaam,
+                    reason = restTaskDistributeData.reden,
+                    loggedInUser = loggedInUser
+                )
                 successfullyAssignedTaskIds.add(restTask.taakId)
             } catch (taskNotFoundException: TaskNotFoundException) {
                 // continue assigning remaining tasks if a particular open task could not be found
@@ -203,33 +240,6 @@ class TaskService @Inject constructor(
         }
     }
 
-    private fun assignTaskAndOptionallyReleaseFromAssignee(
-        task: Task,
-        restTaskDistributeData: RestTaskDistributeData,
-        loggedInUser: LoggedInUser
-    ) {
-        restTaskDistributeData.behandelaarGebruikersnaam?.let {
-            assignTaskToUser(
-                taskId = task.id,
-                assignee = it,
-                loggedInUser = loggedInUser,
-                explanation = restTaskDistributeData.reden
-            )
-        } ?: task.assignee?.let {
-            // if no assignee was specified _and_ the task currently has an assignee, only then release it
-            releaseTask(
-                task = task,
-                loggedInUser = loggedInUser,
-                reden = restTaskDistributeData.reden
-            )
-        }
-        flowableTaskService.assignTaskToGroup(
-            task,
-            restTaskDistributeData.groepId,
-            restTaskDistributeData.reden
-        )
-    }
-
     private fun releaseTasks(
         restTaskReleaseData: RestTaskReleaseData,
         loggedInUser: LoggedInUser,
@@ -238,13 +248,15 @@ class TaskService @Inject constructor(
         restTaskReleaseData.taken.forEach {
             try {
                 flowableTaskService.readOpenTask(it.taakId).let { task ->
-                    val updatedTask = releaseTask(
+                    assignTask(
                         task = task,
+                        zaakUuid = it.zaakUuid,
+                        groupId = null,
+                        userId = null,
+                        reason = restTaskReleaseData.reden,
                         loggedInUser = loggedInUser,
-                        reden = restTaskReleaseData.reden
+                        releaseWithoutAssignee = true
                     )
-                    indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
-                    sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
                     taskIds.add(task.id)
                 }
             } catch (taskNotFoundException: TaskNotFoundException) {

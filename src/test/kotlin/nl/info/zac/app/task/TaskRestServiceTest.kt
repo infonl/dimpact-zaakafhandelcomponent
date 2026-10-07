@@ -62,7 +62,6 @@ import nl.info.zac.policy.output.createTaakRechtenAllDeny
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.search.IndexingService
-import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.BpmnTaskFormRuntimeService
@@ -182,17 +181,17 @@ class TaskRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
             every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
             every {
-                taskService.assignTaskToUser(
-                    taskId = task.id,
-                    assignee = loggedInUser.id,
+                taskService.assignTask(
+                    task = task,
+                    zaakUuid = restTaakToekennenGegevens.zaakUuid,
+                    groupId = null,
+                    userId = loggedInUser.id,
+                    reason = restTaakToekennenGegevens.reden,
                     loggedInUser = loggedInUser,
-                    explanation = restTaakToekennenGegevens.reden
+                    releaseWithoutAssignee = false,
+                    performCommit = true
                 )
             } returns task
-            every { taskService.sendScreenEventsOnTaskChange(task, restTaakToekennenGegevens.zaakUuid) } just runs
-            every {
-                indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
-            } just runs
             every { restTaskConverter.toRestTask(task) } returns restTask
 
             `when`("the task is open and the user has permission") {
