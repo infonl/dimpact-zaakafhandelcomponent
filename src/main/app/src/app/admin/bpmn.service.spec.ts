@@ -3,21 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpResponse, provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpResponse } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  type MutationFunctionContext,
-  provideQueryClient,
-} from "@tanstack/angular-query-experimental";
-import { testQueryClient } from "../../../setupJest";
+import { type MutationFunctionContext } from "@tanstack/angular-query-experimental";
+import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
+import { runMutation } from "../shared/http/run-mutation";
 import { BpmnService } from "./bpmn.service";
 
 describe(BpmnService.name, () => {
@@ -29,11 +24,7 @@ describe(BpmnService.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [],
     });
 
     service = TestBed.inject(BpmnService);
@@ -127,6 +118,26 @@ describe(BpmnService.name, () => {
         "msg.bpmn.process-definition.deleted",
         { naam: "fakeProcessDefinitionName" },
       );
+    });
+  });
+
+  describe("uploadProcessDefinitionForm", () => {
+    it("posts the form to the process definition it belongs to", async () => {
+      const form = { filename: "fakeFormName.json", content: '{"form": true}' };
+
+      runMutation(
+        testQueryClient,
+        service.uploadProcessDefinitionForm("fakeProcessDefinitionKey"),
+        form,
+      ).subscribe();
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/forms",
+      );
+      expect(request.request.method).toBe("POST");
+      expect(request.request.body).toEqual(form);
+      request.flush(null);
     });
   });
 

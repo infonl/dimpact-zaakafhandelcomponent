@@ -5,7 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 import { UtilService } from "../core/service/util.service";
-import { PostBody, PutBody } from "../shared/http/http-client";
+import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -77,10 +77,16 @@ export class ZaakafhandelParametersService {
     return this.zacHttpClient.GET("/rest/zaaktype-bpmn-configuration");
   }
 
-  createOrUpdateBpmnZaakafhandelparameters(
-    body: PostBody<"/rest/zaaktype-bpmn-configuration">,
-  ) {
-    return this.zacHttpClient.POST("/rest/zaaktype-bpmn-configuration", body);
+  createOrUpdateBpmnZaakafhandelparameters() {
+    return mergeMutationOptions(
+      this.zacQueryClient.POST("/rest/zaaktype-bpmn-configuration"),
+      {
+        onSuccess: () =>
+          this.utilService.openSnackbar(
+            "msg.zaakafhandelparameters.opgeslagen",
+          ),
+      },
+    );
   }
 
   listFormulierDefinities() {
