@@ -136,7 +136,7 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 - [x] 4.1 Add the `ProcessBinding` interface, `CmmnProcessBinding`, `BpmnProcessBinding`, and the `ZaakProcessService`
       dispatcher over `Instance<ProcessBinding>` (design D6). Verify with unit tests that the dispatcher selects
       each adapter and fails for a configuration without a binding.
-- [x] 4.2 Add `BpmnService.deleteProcessInstance(zaakUuid)`, which also deletes the history and is a no-op without an instance.
+- [x] 4.2 Add `BpmnService.deleteProcessInstanceAndHistory(zaakUuid)`, which also deletes the history and is a no-op without an instance.
       Verify with a unit test.
 - [x] 4.3 Replace the engine `when` in `ZaakRestService.startZaak`, `terminateZaak`, and `applyZaakUpdateSideEffects`, and the
       two start paths in `ProductaanvraagService`, with the dispatcher. Verify with the existing unit tests, which

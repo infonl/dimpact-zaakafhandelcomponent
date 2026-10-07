@@ -159,8 +159,8 @@ class EngineProcessBindingsTest : BehaviorSpec({
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
             every { cmmnService.deleteCase(zaak.uuid) } returns Unit
             every { zaakVariabelenService.deleteAllCaseVariables(zaak.uuid) } just runs
-            every { bpmnService.terminateCase(zaak.uuid) } returns Unit
             every { bpmnService.deleteProcessInstance(zaak.uuid) } just runs
+            every { bpmnService.deleteProcessInstanceAndHistory(zaak.uuid) } just runs
 
             `when`("its process is terminated and deleted in each engine") {
                 cmmnProcessBinding.terminate(zaak.uuid)
@@ -171,8 +171,8 @@ class EngineProcessBindingsTest : BehaviorSpec({
                 then("each engine terminates and deletes its own process, and CMMN also deletes the case variables") {
                     verify(exactly = 1) {
                         cmmnService.terminateCase(zaak.uuid)
-                        bpmnService.terminateCase(zaak.uuid)
                         bpmnService.deleteProcessInstance(zaak.uuid)
+                        bpmnService.deleteProcessInstanceAndHistory(zaak.uuid)
                     }
                     verifyOrder {
                         cmmnService.deleteCase(zaak.uuid)

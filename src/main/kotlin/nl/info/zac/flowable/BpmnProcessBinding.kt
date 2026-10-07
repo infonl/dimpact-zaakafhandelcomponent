@@ -52,10 +52,10 @@ class BpmnProcessBinding @Inject constructor(
     override fun isZaaktypeReady(zaaktypeUri: URI) = true
 
     override fun terminate(zaakUuid: UUID) {
-        bpmnService.terminateCase(zaakUuid)
+        bpmnService.deleteProcessInstance(zaakUuid)
     }
 
-    override fun delete(zaakUuid: UUID) = bpmnService.deleteProcessInstance(zaakUuid)
+    override fun delete(zaakUuid: UUID) = bpmnService.deleteProcessInstanceAndHistory(zaakUuid)
 
     override fun hasActiveProcess(zaakUuid: UUID) = bpmnService.isZaakProcessDriven(zaakUuid)
 

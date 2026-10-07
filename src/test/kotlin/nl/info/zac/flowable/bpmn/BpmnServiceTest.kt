@@ -188,8 +188,8 @@ class BpmnServiceTest : BehaviorSpec({
             runtimeService.deleteProcessInstance(processInstanceId, null)
         } returns Unit
 
-        `when`("Terminating the process instance by zaak UUID") {
-            bpmnService.terminateCase(zaaktypeUUID)
+        `when`("the process instance of the zaak is deleted") {
+            bpmnService.deleteProcessInstance(zaaktypeUUID)
 
             then("the process instance is terminated") {
                 verify(exactly = 1) {
@@ -207,8 +207,8 @@ class BpmnServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        `when`("Terminating the process instance by zaak UUID") {
-            bpmnService.terminateCase(zaaktypeUUID)
+        `when`("the process instance of the zaak is deleted") {
+            bpmnService.deleteProcessInstance(zaaktypeUUID)
 
             then("the process instance is not found") {
                 verify(exactly = 0) {
@@ -656,7 +656,7 @@ class BpmnServiceTest : BehaviorSpec({
         }
     }
 
-    context("deleting the process instance of a zaak") {
+    context("deleting the process instance and the history of a zaak") {
         given("a zaak with a running process instance and the history of two process instances") {
             val zaakUuid = UUID.randomUUID()
             val processInstance = mockk<ProcessInstance>()
@@ -674,8 +674,8 @@ class BpmnServiceTest : BehaviorSpec({
             } returns listOf(historicProcessInstance1, historicProcessInstance2)
             every { historyService.deleteHistoricProcessInstance(any()) } just runs
 
-            `when`("the process instance of the zaak is deleted") {
-                bpmnService.deleteProcessInstance(zaakUuid)
+            `when`("the process instance and the history of the zaak are deleted") {
+                bpmnService.deleteProcessInstanceAndHistory(zaakUuid)
 
                 then("the running process instance and the history of every process instance of the zaak are deleted") {
                     verify(exactly = 1) {
@@ -696,8 +696,8 @@ class BpmnServiceTest : BehaviorSpec({
                 historyService.createHistoricProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).list()
             } returns emptyList()
 
-            `when`("the process instance of the zaak is deleted") {
-                bpmnService.deleteProcessInstance(zaakUuid)
+            `when`("the process instance and the history of the zaak are deleted") {
+                bpmnService.deleteProcessInstanceAndHistory(zaakUuid)
 
                 then("nothing is deleted") {
                     verify(exactly = 0) {

@@ -330,7 +330,7 @@ in the confirmation email, which B4 changes; only the process start inside each 
 
 `delete` serves `NotificationReceiver` on zaak delete. The zaak no longer exists in Open Zaak, so ZAC cannot
 resolve its zaaktype. The receiver therefore calls `delete` on every binding. Each binding is a no-op when it
-has no instance for the zaak. `BpmnService` gets a `deleteProcessInstance` that also removes the history,
+has no instance for the zaak. `BpmnService` gets a `deleteProcessInstanceAndHistory` that also removes the history,
 mirroring `CMMNService.deleteCase`.
 
 ### D7. B2: resultaattype by omschrijving, expand only
