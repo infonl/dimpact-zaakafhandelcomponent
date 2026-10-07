@@ -180,8 +180,8 @@ class ZaaktypeConfiguration {
         }
 
     /**
-     * Whether enough is configured to create a zaak of this zaaktype. A CMMN case also needs the
-     * niet-ontvankelijk resultaattype, because its intake can end the zaak as niet-ontvankelijk.
+     * Indicates whether this zaaktype configuration is valid to be used to create a zaak of this zaaktype or not.
+     * A CMMN zaaktype also needs the niet-ontvankelijk resultaattype, because its intake can end the zaak as niet-ontvankelijk.
      */
     fun isValidForZaakCreation(): Boolean =
         !groepID.isNullOrBlank() &&
