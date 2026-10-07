@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, output } from "@angular/core";
+import { booleanAttribute, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -36,6 +36,7 @@ const fakeRoltype = fromPartial<GeneratedType<"RestRoltype">>({
   template: `
     <p>persoon-zoek zaaktypeUUID: {{ zaaktypeUUID() }}</p>
     <p>persoon-zoek syncEnabled: {{ syncEnabled() }}</p>
+    <p>persoon-zoek isSelectable: {{ isSelectable() }}</p>
     <p>persoon-zoek blockSearch: {{ blockSearch() }}</p>
     <button type="button" (click)="persoon.emit(fakePersoon)">
       select fake persoon
@@ -45,6 +46,7 @@ const fakeRoltype = fromPartial<GeneratedType<"RestRoltype">>({
 })
 class PersoonZoekStubComponent {
   readonly syncEnabled = input<boolean>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly blockSearch = input<boolean>();
   readonly zaaktypeUUID = input<string | null>();
   readonly persoon = output<GeneratedType<"RestPersoon">>();
@@ -55,6 +57,7 @@ class PersoonZoekStubComponent {
   selector: "zac-bedrijf-zoek",
   template: `
     <p>bedrijf-zoek syncEnabled: {{ syncEnabled() }}</p>
+    <p>bedrijf-zoek isSelectable: {{ isSelectable() }}</p>
     <p>bedrijf-zoek blockSearch: {{ blockSearch() }}</p>
     <button type="button" (click)="bedrijf.emit(fakeBedrijf)">
       select fake bedrijf
@@ -64,6 +67,7 @@ class PersoonZoekStubComponent {
 })
 class BedrijfZoekStubComponent {
   readonly syncEnabled = input<boolean>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly blockSearch = input<boolean>();
   readonly bedrijf = output<GeneratedType<"RestBedrijf">>();
   protected readonly fakeBedrijf = fakeBedrijf;
@@ -164,11 +168,27 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
       ).toBeInTheDocument();
     });
 
+    it("makes the persoon search selectable", () => {
+      initialiseWith({ type: "persoon" });
+
+      expect(
+        screen.getByText("persoon-zoek isSelectable: true"),
+      ).toBeInTheDocument();
+    });
+
     it("enables the synchronisation of the bedrijf search", () => {
       initialiseWith({ type: "bedrijf" });
 
       expect(
         screen.getByText("bedrijf-zoek syncEnabled: true"),
+      ).toBeInTheDocument();
+    });
+
+    it("makes the bedrijf search selectable", () => {
+      initialiseWith({ type: "bedrijf" });
+
+      expect(
+        screen.getByText("bedrijf-zoek isSelectable: true"),
       ).toBeInTheDocument();
     });
 

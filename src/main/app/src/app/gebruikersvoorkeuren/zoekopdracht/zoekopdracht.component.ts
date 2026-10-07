@@ -11,7 +11,7 @@ import {
   input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -48,9 +48,7 @@ import { ZoekFilters } from "./zoekfilters.model";
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   readonly werklijst = input.required<GeneratedType<"Werklijst">>();
   readonly zoekFilters = input.required<ZoekFilters>();
-  @Output() zoekopdracht = new EventEmitter<
-    GeneratedType<"RESTZoekopdracht">
-  >();
+  readonly zoekopdracht = output<GeneratedType<"RESTZoekopdracht">>();
   readonly filtersChanged = input.required<EventEmitter<void>>();
 
   protected zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [];

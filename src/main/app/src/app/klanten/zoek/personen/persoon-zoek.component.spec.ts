@@ -124,7 +124,10 @@ describe(PersoonZoekComponent.name, () => {
     Object.entries(inputs).forEach(([name, value]) =>
       fixture.componentRef.setInput(name, value),
     );
-    if (onPersoon) component.persoon.subscribe(onPersoon);
+    if (onPersoon) {
+      fixture.componentRef.setInput("isSelectable", true);
+      component.persoon.subscribe(onPersoon);
+    }
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
   }
@@ -282,7 +285,7 @@ describe(PersoonZoekComponent.name, () => {
     });
   });
 
-  describe("when a parent listens to the selected persoon", () => {
+  describe("when the persoon can be selected", () => {
     const onPersoon = jest.fn();
 
     beforeEach(() => {
@@ -381,7 +384,7 @@ describe(PersoonZoekComponent.name, () => {
     });
   });
 
-  describe("when no parent listens to the selected persoon", () => {
+  describe("when the persoon cannot be selected", () => {
     let navigate: jest.SpyInstance;
 
     beforeEach(() => {

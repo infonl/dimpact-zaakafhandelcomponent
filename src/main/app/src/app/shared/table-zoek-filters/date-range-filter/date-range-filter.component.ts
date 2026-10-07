@@ -8,9 +8,8 @@ import {
   Component,
   computed,
   effect,
-  EventEmitter,
   input,
-  Output,
+  output,
   untracked,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -59,7 +58,7 @@ export class DateRangeFilterComponent {
   >();
   readonly label = input.required<string>();
   readonly showLabel = input<boolean>();
-  @Output() changed = new EventEmitter<GeneratedType<"RestDatumRange">>();
+  readonly changed = output<GeneratedType<"RestDatumRange">>();
 
   protected dateVan = new FormControl<Date | null>(null);
   protected dateTM = new FormControl<Date | null>(null);

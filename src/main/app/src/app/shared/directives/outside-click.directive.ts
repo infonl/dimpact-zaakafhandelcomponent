@@ -8,12 +8,11 @@ import {
   Directive,
   DOCUMENT,
   ElementRef,
-  EventEmitter,
   Inject,
   OnDestroy,
   OnInit,
   Optional,
-  Output,
+  output,
   PLATFORM_ID,
 } from "@angular/core";
 import { fromEvent, Subscription } from "rxjs";
@@ -30,7 +29,7 @@ export class OutsideClickDirective implements OnInit, OnDestroy {
     "mdc-list-item__primary-text",
   ];
 
-  @Output("zacOutsideClick") outsideClick = new EventEmitter<MouseEvent>();
+  readonly outsideClick = output<MouseEvent>({ alias: "zacOutsideClick" });
 
   private subscription: Subscription | null = null;
 

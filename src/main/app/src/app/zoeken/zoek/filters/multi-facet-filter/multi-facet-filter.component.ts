@@ -4,14 +4,7 @@
  */
 
 import { LowerCasePipe, NgFor, NgIf } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  inject,
-  input,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -45,7 +38,7 @@ export class MultiFacetFilterComponent implements OnInit {
   readonly filter = input.required<GeneratedType<"FilterParameters">>();
   readonly opties = input.required<GeneratedType<"FilterResultaat">[]>();
   readonly label = input.required<string>();
-  @Output() changed = new EventEmitter<GeneratedType<"FilterParameters">>();
+  readonly changed = output<GeneratedType<"FilterParameters">>();
 
   private readonly formBuilder = inject(FormBuilder);
 
