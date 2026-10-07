@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, output } from "@angular/core";
+import { booleanAttribute, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -27,6 +27,7 @@ const fakeBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
   template: `
     <p>persoon-zoek zaaktypeUUID: {{ zaaktypeUUID() }}</p>
     <p>persoon-zoek syncEnabled: {{ syncEnabled() }}</p>
+    <p>persoon-zoek isSelectable: {{ isSelectable() }}</p>
     <button type="button" (click)="persoon.emit(fakePersoon)">
       select fake persoon
     </button>
@@ -35,6 +36,7 @@ const fakeBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
 })
 class PersoonZoekStubComponent {
   readonly syncEnabled = input<boolean>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly zaaktypeUUID = input<string | null>();
   readonly persoon = output<GeneratedType<"RestPersoon">>();
   protected readonly fakePersoon = fakePersoon;
@@ -44,6 +46,7 @@ class PersoonZoekStubComponent {
   selector: "zac-bedrijf-zoek",
   template: `
     <p>bedrijf-zoek syncEnabled: {{ syncEnabled() }}</p>
+    <p>bedrijf-zoek isSelectable: {{ isSelectable() }}</p>
     <button type="button" (click)="bedrijf.emit(fakeBedrijf)">
       select fake bedrijf
     </button>
@@ -52,6 +55,7 @@ class PersoonZoekStubComponent {
 })
 class BedrijfZoekStubComponent {
   readonly syncEnabled = input<boolean>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly bedrijf = output<GeneratedType<"RestBedrijf">>();
   protected readonly fakeBedrijf = fakeBedrijf;
 }
@@ -127,6 +131,14 @@ describe(KlantKoppelInitiator.name, () => {
       ).toBeInTheDocument();
     });
 
+    it("makes the persoon search selectable", () => {
+      initialiseWith({ type: "persoon" });
+
+      expect(
+        screen.getByText("persoon-zoek isSelectable: true"),
+      ).toBeInTheDocument();
+    });
+
     it("passes the zaaktypeUUID to the persoon search", () => {
       initialiseWith({ type: "persoon", zaaktypeUUID: "fakeZaaktypeUuid" });
 
@@ -181,6 +193,14 @@ describe(KlantKoppelInitiator.name, () => {
 
       expect(
         screen.getByText("bedrijf-zoek syncEnabled: true"),
+      ).toBeInTheDocument();
+    });
+
+    it("makes the bedrijf search selectable", () => {
+      initialiseWith({ type: "bedrijf" });
+
+      expect(
+        screen.getByText("bedrijf-zoek isSelectable: true"),
       ).toBeInTheDocument();
     });
 
