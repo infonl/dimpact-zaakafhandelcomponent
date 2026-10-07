@@ -4,6 +4,7 @@
  */
 
 import { Component, inject } from "@angular/core";
+import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { Title } from "@angular/platform-browser";
 import { RouterOutlet } from "@angular/router";
@@ -19,6 +20,7 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.less"],
   imports: [
+    MatProgressBar,
     MatSidenavModule,
     ToolbarComponent,
     ZoekComponent,

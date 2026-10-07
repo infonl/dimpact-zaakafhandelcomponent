@@ -89,12 +89,14 @@
             />
           }
           @case ("html-editor") {
-            <zac-html-editor
-              [form]="form()"
-              [key]="field.key"
-              [label]="field.label"
-              [variables]="field.variables ?? []"
-            />
+            @defer (on immediate) {
+              <zac-html-editor
+                [form]="form()"
+                [key]="field.key"
+                [label]="field.label"
+                [variables]="field.variables ?? []"
+              />
+            }
           }
         }
       }

@@ -30,7 +30,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute } from "@angular/router";
-import { FormioForm } from "@formio/angular";
+import type { FormioForm } from "@formio/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
@@ -40,11 +40,11 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
-import {
+import type {
   FormioChangeEvent,
   FormioCustomEvent,
-  FormioWrapperComponent,
 } from "../../formulieren/formio-wrapper/formio-wrapper.component";
+import { FormioWrapperComponent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import {
   mapFormGroupToTaskData,

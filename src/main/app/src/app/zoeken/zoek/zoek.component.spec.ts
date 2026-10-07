@@ -12,6 +12,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
+import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
@@ -45,6 +46,58 @@ describe(ZoekComponent.name, () => {
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
       ],
+    });
+  });
+
+  describe("when it loads", () => {
+    let list: jest.SpyInstance;
+
+    async function load(sidenav: Pick<MatSidenav, "opened" | "openedStart">) {
+      await TestBed.overrideComponent(ZoekComponent, {
+        set: { template: "", imports: [] },
+      }).compileComponents();
+      list = jest.spyOn(TestBed.inject(ZoekenService), "list");
+      list.mockReturnValue(
+        createQueryOptions(
+          fromPartial<
+            ZoekResultaat<
+              GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+            >
+          >({ resultaten: [], totaal: 0, filters: {} }),
+        ),
+      );
+
+      const fixture = TestBed.createComponent(ZoekComponent);
+      Object.defineProperty(fixture.componentInstance, "paginator", {
+        get: () => () => mockPaginator,
+      });
+      fixture.componentRef.setInput("zoekenSideNav", sidenav);
+      fixture.componentInstance["trefwoordenControl"].setValue("fakeTrefwoord");
+      fixture.detectChanges();
+      await sleep();
+    }
+
+    it("searches when the sidenav was opened before it loaded", async () => {
+      await load({ opened: true, openedStart: new EventEmitter<void>() });
+
+      expect(list).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not search while the sidenav is closed", async () => {
+      await load({ opened: false, openedStart: new EventEmitter<void>() });
+
+      expect(list).not.toHaveBeenCalled();
+    });
+
+    it("renders without errors when the sidenav is open and there are no trefwoorden", async () => {
+      await TestBed.compileComponents();
+      const fixture = TestBed.createComponent(ZoekComponent);
+      fixture.componentRef.setInput("zoekenSideNav", {
+        opened: true,
+        openedStart: new EventEmitter<void>(),
+      });
+
+      expect(() => fixture.detectChanges()).not.toThrow();
     });
   });
 

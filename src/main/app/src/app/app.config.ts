@@ -3,11 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  APP_BASE_HREF,
-  LocationStrategy,
-  PathLocationStrategy,
-} from "@angular/common";
 import { HttpClient, provideHttpClient } from "@angular/common/http";
 import {
   ApplicationConfig,
@@ -17,6 +12,7 @@ import {
   LOCALE_ID,
   provideAppInitializer,
   provideEnvironmentInitializer,
+  provideZoneChangeDetection,
 } from "@angular/core";
 import { MAT_DATE_LOCALE } from "@angular/material/core";
 import {
@@ -26,7 +22,7 @@ import {
 import { MatIconRegistry } from "@angular/material/icon";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from "@angular/material/snack-bar";
-import { provideAnimations } from "@angular/platform-browser/animations";
+import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 import { provideRouter, RouteReuseStrategy } from "@angular/router";
 import {
   provideTranslateService,
@@ -41,7 +37,6 @@ import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { persistQueryClient } from "@tanstack/query-persist-client-core";
 import { APP_ROUTES } from "./app.routes";
-import { UtilService } from "./core/service/util.service";
 import { provideStartupPrefetch } from "./core/startup-prefetch";
 import { createCacheBustingTranslateLoader } from "./core/translate-loader.service";
 import { RouteReuseStrategyService } from "./informatie-objecten/route-reuse-strategy.service";
@@ -53,7 +48,9 @@ import { PaginatorTranslator } from "./shared/paginator/paginator-translator";
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideAnimations(),
+    // Keeps zone.js when v21 defaults zoneless
+    provideZoneChangeDetection(),
+    provideAnimationsAsync(),
     provideHttpClient(),
     provideRouter(APP_ROUTES),
     provideTranslateService({
@@ -64,10 +61,7 @@ export const appConfig: ApplicationConfig = {
         deps: [HttpClient],
       },
     }),
-    { provide: APP_BASE_HREF, useValue: "/" },
-    { provide: LocationStrategy, useClass: PathLocationStrategy },
     { provide: RouteReuseStrategy, useClass: RouteReuseStrategyService },
-    UtilService,
     { provide: LOCALE_ID, useValue: "nl-NL" },
     { provide: MAT_DATE_LOCALE, useValue: "nl-NL" },
     provideZacDateAdapter(),
@@ -85,9 +79,10 @@ export const appConfig: ApplicationConfig = {
     },
     {
       provide: MatPaginatorIntl,
-      deps: [TranslateService],
-      useFactory: (translateService: TranslateService) =>
-        new PaginatorTranslator(translateService).getTranslatedPaginator(),
+      useFactory: () =>
+        new PaginatorTranslator(
+          inject(TranslateService),
+        ).getTranslatedPaginator(),
     },
     provideAppInitializer(() => {
       const initializerFn = paginatorLanguageInitializerFactory(

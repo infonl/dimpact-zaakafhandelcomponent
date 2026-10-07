@@ -17,6 +17,8 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { ZacHtmlEditor } from "../html-editor/html-editor";
 import { ZacInput } from "../input/input";
 import { ZacSelect } from "../select/select";
@@ -30,6 +32,7 @@ interface TestForm extends Record<string, AbstractControl> {
 }
 
 describe(ZacComposedForm.name, () => {
+  const user = userEvent.setup();
   let fixture: ComponentFixture<ZacComposedForm<TestForm>>;
   let componentRef: ComponentRef<ZacComposedForm<TestForm>>;
 
@@ -101,8 +104,9 @@ describe(ZacComposedForm.name, () => {
       ).toBeTruthy();
     });
 
-    it("should render zac-html-editor for type html-editor", () => {
+    it("should render zac-html-editor for type html-editor", async () => {
       createComponent(createTestForm(), [{ type: "html-editor", key: "name" }]);
+      await fixture.whenStable();
 
       expect(
         fixture.debugElement.query(By.directive(ZacHtmlEditor)),
@@ -149,14 +153,13 @@ describe(ZacComposedForm.name, () => {
       expect(form.controls.description.enabled).toBe(true);
     });
 
-    it("should hide buttons fieldset when readonly is true", () => {
+    it("should hide the form buttons when readonly is true", () => {
       createComponent(createTestForm(), [{ type: "input", key: "name" }]);
 
       componentRef.setInput("readonly", true);
       fixture.detectChanges();
 
-      const fieldsets = fixture.nativeElement.querySelectorAll("fieldset");
-      expect(fieldsets.length).toBe(1);
+      expect(screen.queryByRole("button")).toBeNull();
     });
   });
 
@@ -167,10 +170,10 @@ describe(ZacComposedForm.name, () => {
       form.controls.name.updateValueAndValidity();
       createComponent(form, [{ type: "input", key: "name" }]);
 
-      const submitButton = fixture.nativeElement.querySelector(
-        "button[type=submit]",
-      );
-      expect(submitButton.disabled).toBe(true);
+      const submitButton = screen.getByRole("button", {
+        name: "actie.verstuur",
+      });
+      expect(submitButton).toBeDisabled();
     });
 
     it("should be disabled when loading is true", () => {
@@ -180,10 +183,10 @@ describe(ZacComposedForm.name, () => {
       componentRef.setInput("loading", true);
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector(
-        "button[type=submit]",
-      );
-      expect(submitButton.disabled).toBe(true);
+      const submitButton = screen.getByRole("button", {
+        name: "actie.verstuur",
+      });
+      expect(submitButton).toBeDisabled();
     });
 
     it("should stay enabled on success by default", () => {
@@ -193,10 +196,10 @@ describe(ZacComposedForm.name, () => {
       componentRef.setInput("success", true);
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector(
-        "button[type=submit]",
-      );
-      expect(submitButton.disabled).toBe(false);
+      const submitButton = screen.getByRole("button", {
+        name: "actie.verstuur",
+      });
+      expect(submitButton).toBeEnabled();
     });
 
     it("should be disabled on success when disableAfterSuccess is set", () => {
@@ -207,15 +210,15 @@ describe(ZacComposedForm.name, () => {
       componentRef.setInput("success", true);
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector(
-        "button[type=submit]",
-      );
-      expect(submitButton.disabled).toBe(true);
+      const submitButton = screen.getByRole("button", {
+        name: "actie.verstuur",
+      });
+      expect(submitButton).toBeDisabled();
     });
   });
 
   describe("outputs", () => {
-    it("should emit formSubmitted with form group when submitted", () => {
+    it("should emit formSubmitted with form group when submitted", async () => {
       const form = createTestForm();
       createComponent(form, [{ type: "input", key: "name" }]);
 
@@ -224,15 +227,12 @@ describe(ZacComposedForm.name, () => {
         (value: FormGroup<TestForm>) => (emitted = value),
       );
 
-      fixture.nativeElement
-        .querySelector("form")
-        .dispatchEvent(new Event("submit"));
-      fixture.detectChanges();
+      await user.click(screen.getByRole("button", { name: "actie.verstuur" }));
 
       expect(emitted).toBe(form);
     });
 
-    it("should emit formCancelled and reset form when cancel is clicked", () => {
+    it("should emit formCancelled and reset form when cancel is clicked", async () => {
       const form = createTestForm();
       form.controls.name.setValue("test");
       createComponent(form, [{ type: "input", key: "name" }]);
@@ -240,16 +240,13 @@ describe(ZacComposedForm.name, () => {
       let emitted = false;
       componentRef.instance["formCancelled"].subscribe(() => (emitted = true));
 
-      const cancelButton =
-        fixture.nativeElement.querySelector("button[type=reset]");
-      cancelButton.click();
-      fixture.detectChanges();
+      await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
 
       expect(emitted).toBe(true);
       expect(form.controls.name.value).toBeNull();
     });
 
-    it("should emit formPartiallySubmitted when partial submit is clicked", () => {
+    it("should emit formPartiallySubmitted when partial submit is clicked", async () => {
       const form = createTestForm();
       createComponent(form, [{ type: "input", key: "name" }], {
         partialSubmitLabel: "save",
@@ -261,8 +258,7 @@ describe(ZacComposedForm.name, () => {
         (value: FormGroup<TestForm>) => (emitted = value),
       );
 
-      fixture.nativeElement.querySelector("button[type=button]").click();
-      fixture.detectChanges();
+      await user.click(screen.getByRole("button", { name: "save" }));
 
       expect(emitted).toBe(form);
     });
@@ -272,9 +268,9 @@ describe(ZacComposedForm.name, () => {
     it("should show cancel button by default", () => {
       createComponent(createTestForm(), [{ type: "input", key: "name" }]);
 
-      const cancelButton =
-        fixture.nativeElement.querySelector("button[type=reset]");
-      expect(cancelButton).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: "actie.annuleren" }),
+      ).toBeInTheDocument();
     });
 
     it("should hide cancel button when hideCancelButton is true", () => {
@@ -283,9 +279,9 @@ describe(ZacComposedForm.name, () => {
         hideCancelButton: true,
       });
 
-      const cancelButton =
-        fixture.nativeElement.querySelector("button[type=reset]");
-      expect(cancelButton).toBeNull();
+      expect(
+        screen.queryByRole("button", { name: "actie.annuleren" }),
+      ).not.toBeInTheDocument();
     });
 
     it("should show partial submit button when hideCancelButton is true", () => {
@@ -294,10 +290,7 @@ describe(ZacComposedForm.name, () => {
         hideCancelButton: true,
       });
 
-      const partialButton = fixture.nativeElement.querySelector(
-        "button[type=button]",
-      );
-      expect(partialButton).toBeTruthy();
+      expect(screen.getByRole("button", { name: "save" })).toBeInTheDocument();
     });
   });
 });

@@ -220,6 +220,10 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
         >;
         this.bepaalContext();
       });
+
+    queueMicrotask(() => {
+      if (this.zoekenSideNav()?.opened) this.zoek.emit();
+    });
   }
 
   private bepaalContext() {
