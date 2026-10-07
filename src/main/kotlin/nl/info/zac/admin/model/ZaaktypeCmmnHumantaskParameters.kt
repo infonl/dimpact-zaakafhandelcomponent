@@ -82,12 +82,18 @@ class ZaaktypeCmmnHumantaskParameters :
     fun getReferentieTabellen(): List<HumanTaskReferentieTabel> =
         Collections.unmodifiableList(referentieTabellen)
 
-    // humantask_referentie_tabel has one non-nullable FK to its human task, so adopting a coupling that
-    // still belongs to another human task moves it there instead of duplicating it
+    // Hibernate flushes inserts before orphan deletes, so replacing a coupling instead of updating it would violate
+    // the unique constraint on (human task, veld). A coupling that still belongs to another human task is copied,
+    // because adopting it would move its row away from that human task.
     fun setReferentieTabellen(value: List<HumanTaskReferentieTabel>) {
-        val copies = value.map { it.copyForNewHumantask() }
-        referentieTabellen.clear()
-        copies.forEach { addReferentieTabel(it) }
+        val desiredByVeld = value.associateBy { it.veld }
+        require(desiredByVeld.size == value.size) { "Reference table couplings have duplicate velden" }
+        referentieTabellen.removeIf { it.veld !in desiredByVeld }
+        referentieTabellen.forEach { it.tabel = desiredByVeld.getValue(it.veld).tabel }
+        val existingVelden = referentieTabellen.map { it.veld }.toSet()
+        desiredByVeld.filterKeys { it !in existingVelden }.values.forEach {
+            addReferentieTabel(it.copyForNewHumantask())
+        }
     }
 
     private fun addReferentieTabel(referentieTabel: HumanTaskReferentieTabel): Boolean {
@@ -115,10 +121,7 @@ class ZaaktypeCmmnHumantaskParameters :
         formulierDefinitieID = changes.formulierDefinitieID
         groepID = changes.groepID
         doorlooptijd = changes.doorlooptijd
-        // assigning the collection itself would detach the one Hibernate manages for this entity
-        if (referentieTabellen != changes.referentieTabellen) {
-            setReferentieTabellen(changes.getReferentieTabellen())
-        }
+        setReferentieTabellen(changes.getReferentieTabellen())
     }
 
     override fun resetId(): ZaaktypeCmmnHumantaskParameters {

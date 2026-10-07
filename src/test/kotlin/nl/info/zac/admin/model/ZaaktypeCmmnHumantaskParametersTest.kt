@@ -5,6 +5,7 @@
 package nl.info.zac.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -93,6 +94,7 @@ class ZaaktypeCmmnHumantaskParametersTest : BehaviorSpec({
             val humanTaskParameters = createHumanTaskParameters(
                 referenceTables = listOf(createHumanTaskReferentieTabel(field = "ADVIES"))
             )
+            val existingReferentieTabel = humanTaskParameters.getReferentieTabellen().single()
             val newReferenceTable = createReferenceTable(id = 5678L, code = "ANDERE_TABEL")
             val changes = createHumanTaskParameters(
                 referenceTables = listOf(
@@ -115,6 +117,50 @@ class ZaaktypeCmmnHumantaskParametersTest : BehaviorSpec({
                     humanTaskParameters.getReferentieTabellen()
                         .single() shouldNotBeSameInstanceAs changedReferentieTabel
                     changedReferentieTabel.humantask shouldBeSameInstanceAs changes
+                }
+
+                and(
+                    """the existing coupling of that veld is updated instead of replaced, so that its row is not
+                        inserted again while the old row still exists"""
+                ) {
+                    humanTaskParameters.getReferentieTabellen().single() shouldBeSameInstanceAs existingReferentieTabel
+                }
+            }
+        }
+
+        given("changes that replace the coupling of one veld by a coupling of another veld") {
+            val humanTaskParameters = createHumanTaskParameters(
+                referenceTables = listOf(
+                    createHumanTaskReferentieTabel(field = "ADVIES"),
+                    createHumanTaskReferentieTabel(field = "COMMUNICATIEKANAAL")
+                )
+            )
+            val keptReferentieTabel = humanTaskParameters.getReferentieTabellen().first { it.veld == "ADVIES" }
+            val changes = createHumanTaskParameters(
+                referenceTables = listOf(
+                    createHumanTaskReferentieTabel(field = "AFZENDER"),
+                    createHumanTaskReferentieTabel(field = "ADVIES")
+                )
+            )
+
+            `when`("the changes are applied") {
+                humanTaskParameters.applyChanges(changes)
+
+                then("the human task is coupled to exactly the velden of the changes") {
+                    humanTaskParameters.getReferentieTabellen().map { it.veld } shouldContainExactlyInAnyOrder
+                        listOf("ADVIES", "AFZENDER")
+                }
+
+                and("the coupling of the veld that is kept is left in place") {
+                    humanTaskParameters.getReferentieTabellen()
+                        .first { it.veld == "ADVIES" } shouldBeSameInstanceAs keptReferentieTabel
+                }
+
+                and("the coupling of the new veld is unsaved and belongs to the human task") {
+                    with(humanTaskParameters.getReferentieTabellen().first { it.veld == "AFZENDER" }) {
+                        id.shouldBeNull()
+                        humantask shouldBeSameInstanceAs humanTaskParameters
+                    }
                 }
             }
         }
