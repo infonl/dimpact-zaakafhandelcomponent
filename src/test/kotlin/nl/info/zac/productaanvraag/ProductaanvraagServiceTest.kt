@@ -2075,7 +2075,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         )
                     }
                     with(processStartDataSlot.captured) {
-                        caseData["fakeSubKey"] shouldBe "fakeValue"
+                        zaakData["fakeSubKey"] shouldBe "fakeValue"
                         groupId shouldBe groupName
                         behandelaarId shouldBe defaultBehandelaarId
                         communicatiekanaal shouldBe communicatiekanaalNaam

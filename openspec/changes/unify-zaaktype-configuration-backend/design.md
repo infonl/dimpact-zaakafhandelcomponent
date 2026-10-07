@@ -295,7 +295,7 @@ interface ProcessBinding {
 }
 
 data class ProcessStartData(
-    val caseData: Map<String, Any> = emptyMap(),
+    val zaakData: Map<String, Any> = emptyMap(),
     val groupId: String? = null,
     val behandelaarId: String? = null,
     val communicatiekanaal: String? = null
@@ -310,8 +310,8 @@ The dispatcher takes the configuration, not only the zaaktype UUID. The RFC lets
 configuration up itself, but the caller already holds the configuration (`startZaak`, productaanvraag), and a
 second lookup would be a second source of truth. The adapter gets only the definition key of the binding.
 
-The callers pass the same `ProcessStartData`, and each adapter takes what its engine reads. CMMN gets the case
-data (the aanvraaggegevens of a productaanvraag). BPMN gets the case data plus the groep, behandelaar and
+The callers pass the same `ProcessStartData`, and each adapter takes what its engine reads. CMMN gets the
+zaakdata (the aanvraaggegevens of a productaanvraag). BPMN gets the zaakdata plus the groep, behandelaar and
 communicatiekanaal as the zaak variables that the deployed process definitions read. The process variables
 themselves do not change.
 

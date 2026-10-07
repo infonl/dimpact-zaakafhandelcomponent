@@ -373,7 +373,7 @@ class ProductaanvraagService @Inject constructor(
             zaak = zaak,
             zaaktype = zaaktype,
             processStartData = ProcessStartData(
-                caseData = getAanvraaggegevens(productaanvraagObject),
+                zaakData = getAanvraaggegevens(productaanvraagObject),
                 groupId = zaaktypeConfiguration.groepID,
                 behandelaarId = behandelaarId,
                 communicatiekanaal = zaak.communicatiekanaalNaam
@@ -399,7 +399,7 @@ class ProductaanvraagService @Inject constructor(
             zaaktypeConfiguration = zaaktypeConfiguration,
             zaak = zaak,
             zaaktype = zaaktype,
-            processStartData = ProcessStartData(caseData = getAanvraaggegevens(productaanvraagObject))
+            processStartData = ProcessStartData(zaakData = getAanvraaggegevens(productaanvraagObject))
         )
         productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
         // First, pair the productaanvraag and assign the zaak to the group and/or user,

@@ -39,7 +39,7 @@ class BpmnProcessBinding @Inject constructor(
             zaak = zaak,
             zaaktype = zaaktype,
             processDefinitionKey = definitionKey,
-            zaakData = processStartData.caseData + buildMap {
+            zaakData = processStartData.zaakData + buildMap {
                 processStartData.groupId?.let { put(VAR_ZAAK_GROUP, it) }
                 processStartData.behandelaarId?.let { put(VAR_ZAAK_USER, it) }
                 processStartData.communicatiekanaal?.let { put(VAR_ZAAK_COMMUNICATIEKANAAL, it) }

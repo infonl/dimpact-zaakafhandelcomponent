@@ -30,7 +30,7 @@ class CmmnProcessBinding @Inject constructor(
             zaak = zaak,
             zaaktype = zaaktype,
             caseDefinitionKey = definitionKey,
-            zaakData = processStartData.caseData.takeIf { it.isNotEmpty() }
+            zaakData = processStartData.zaakData.takeIf { it.isNotEmpty() }
         )
 
     /**

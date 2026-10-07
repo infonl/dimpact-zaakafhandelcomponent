@@ -36,11 +36,11 @@ class EngineProcessBindingsTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
 
     context("starting the process of a zaak") {
-        given("start data with case data and an assignment") {
+        given("start data with zaakdata and an assignment") {
             val zaak = createZaak()
             val zaaktype = createZaakType()
             val processStartData = ProcessStartData(
-                caseData = mapOf("fakeKey" to "fakeValue"),
+                zaakData = mapOf("fakeKey" to "fakeValue"),
                 groupId = "fakeGroupId",
                 behandelaarId = "fakeBehandelaarId",
                 communicatiekanaal = "fakeCommunicatiekanaal"
@@ -81,7 +81,7 @@ class EngineProcessBindingsTest : BehaviorSpec({
                     processStartData = processStartData
                 )
 
-                then("the CMMN case gets the case data only, and the BPMN process also gets the assignment") {
+                then("the CMMN case gets the zaakdata only, and the BPMN process also gets the assignment") {
                     verify(exactly = 1) {
                         cmmnService.startCase(
                             zaak = zaak,
@@ -100,7 +100,7 @@ class EngineProcessBindingsTest : BehaviorSpec({
             }
         }
 
-        given("start data without case data") {
+        given("start data without zaakdata") {
             val zaak = createZaak()
             val zaaktype = createZaakType()
             every {
@@ -120,7 +120,7 @@ class EngineProcessBindingsTest : BehaviorSpec({
                     processStartData = ProcessStartData()
                 )
 
-                then("the case starts without case data") {
+                then("the case starts without zaakdata") {
                     verify(exactly = 1) {
                         cmmnService.startCase(
                             zaak = zaak,

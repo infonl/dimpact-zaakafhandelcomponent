@@ -9,7 +9,7 @@ package nl.info.zac.flowable
  * process variables, because only BPMN process definitions read it.
  */
 data class ProcessStartData(
-    val caseData: Map<String, Any> = emptyMap(),
+    val zaakData: Map<String, Any> = emptyMap(),
     val groupId: String? = null,
     val behandelaarId: String? = null,
     val communicatiekanaal: String? = null
