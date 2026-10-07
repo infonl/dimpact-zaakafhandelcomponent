@@ -126,7 +126,48 @@ class RestBagAdresTest : BehaviorSpec({
                 }
             }
         }
+
+        given("An address without a street and without a postcode") {
+            val restBagAdres = RestBagAdres().apply {
+                huisnummerWeergave = "12A"
+                woonplaatsNaam = "fakeWoonplaats"
+            }
+
+            `when`("the description is requested") {
+                val omschrijving = restBagAdres.omschrijving
+
+                then("it contains only the parts that are present, without 'null'") {
+                    omschrijving shouldBe "12A, fakeWoonplaats"
+                }
+            }
+        }
+
+        given("An address with only a street") {
+            val restBagAdres = RestBagAdres().apply {
+                openbareRuimteNaam = "fakeStraat"
+                postcode = " "
+            }
+
+            `when`("the description is requested") {
+                val omschrijving = restBagAdres.omschrijving
+
+                then("it contains only the street, without a separator for the missing postcode and woonplaats") {
+                    omschrijving shouldBe "fakeStraat"
+                }
+            }
+        }
+
+        given("An address without any description parts") {
+            `when`("the description is requested") {
+                val omschrijving = RestBagAdres().omschrijving
+
+                then("there is no description") {
+                    omschrijving.shouldBeNull()
+                }
+            }
+        }
     }
+
     context("Converting a BAG address") {
         given("A BAG address without embedded objects and without geconstateerd indication") {
             val adresIOHal = createAdresIOHal(

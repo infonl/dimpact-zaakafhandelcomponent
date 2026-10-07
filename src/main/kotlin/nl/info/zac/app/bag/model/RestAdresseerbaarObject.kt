@@ -28,7 +28,7 @@ class RestAdresseerbaarObject : RestBagObject() {
         get() = BagObjectType.ADRESSEERBAAR_OBJECT
 
     override val omschrijving
-        get() = "$typeAdresseerbaarObject $identificatie"
+        get() = joinNonBlank(" ", typeAdresseerbaarObject?.toString(), identificatie)
 }
 
 fun AdresseerbaarObjectIOHal.toRestAdresseerbaarObject() =
