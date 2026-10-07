@@ -4,7 +4,6 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -25,13 +24,8 @@ export class GebruikersvoorkeurenService {
     );
   }
 
-  createOrUpdateZoekOpdrachten(
-    body: PostBody<"/rest/gebruikersvoorkeuren/zoekopdracht">,
-  ) {
-    return this.zacHttpClient.POST(
-      "/rest/gebruikersvoorkeuren/zoekopdracht",
-      body,
-    );
+  createOrUpdateZoekOpdrachten() {
+    return this.zacQueryClient.POST("/rest/gebruikersvoorkeuren/zoekopdracht");
   }
 
   deleteZoekOpdrachten() {
