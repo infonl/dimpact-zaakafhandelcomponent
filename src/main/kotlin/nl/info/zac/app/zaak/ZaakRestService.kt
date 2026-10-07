@@ -614,7 +614,6 @@ class ZaakRestService @Inject constructor(
         checkZaakUpdatePermissions(zaakRechten, restZaakEditMetRedenGegevens, zaak)
         assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
         assertZaakUpdateDataIsValid(zaakType, restZaakEditMetRedenGegevens.zaak)
-        val isAlreadyZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd
         val currentBehandelaarId = currentBehandelaarId(zaak)
         val requestedAssignment = resolveRequestedAssignment(
             zaak = zaak,
@@ -625,7 +624,7 @@ class ZaakRestService @Inject constructor(
             assertPolicy(zaakRechten.canToekennen)
             zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                 zaak = zaak,
-                isZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
+                isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
                 currentBehandelaarId = currentBehandelaarId,
                 requestedBehandelaarId = it.behandelaarId
             )
@@ -634,7 +633,7 @@ class ZaakRestService @Inject constructor(
         val shouldBeMarkedZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
             zaakType = zaakType,
             requestedMarking = restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd,
-            isAlreadyZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
+            isAlreadyZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
             currentAndRequestedBehandelaarIds = setOfNotNull(currentBehandelaarId, requestedAssignment?.behandelaarId),
             loggedInUser = loggedInUser
         )
