@@ -94,6 +94,7 @@ nl.info.zac.itest.PlanItemsRestServiceTest
 nl.info.zac.itest.SearchRestServiceTest
 nl.info.zac.itest.TaskRestServiceCompleteTest
 nl.info.zac.itest.TaskRestServiceGoedkeurenTest
+nl.info.zac.itest.TaskRestServiceTaakbehandelaarZaakspecifiekAutorisatieTest
 nl.info.zac.itest.TaskRestServiceZaakspecifiekAutorisatieTest
 nl.info.zac.itest.ZaakKoppelenRestServiceTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest

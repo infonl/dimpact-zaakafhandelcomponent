@@ -28,6 +28,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
+import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -66,6 +67,7 @@ export class ZaakBrondatumZettenDialogComponent {
   };
   private readonly formBuilder = inject(FormBuilder);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly planItemsService = inject(PlanItemsService);
   private readonly translateService = inject(TranslateService);
 
   protected brondatumLabel?: string | null;
@@ -94,8 +96,7 @@ export class ZaakBrondatumZettenDialogComponent {
   );
 
   protected readonly planItemAfhandelenMutation = injectMutation(
-    () =>
-      this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
+    () => this.planItemsService.doUserEventListenerPlanItem(),
     {
       onSuccess: () => this.dialogRef.close(true),
       onError: () => this.dialogRef.close(false),

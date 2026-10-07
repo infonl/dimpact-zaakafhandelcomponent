@@ -7,10 +7,9 @@ import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
   computed,
-  EventEmitter,
   input,
   numberAttribute,
-  Output,
+  output,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
@@ -44,7 +43,7 @@ export class StaticTextComponent<
   readonly maxLength = input<number | undefined, unknown>(undefined, {
     transform: numberAttribute,
   });
-  @Output() iconClicked = new EventEmitter<void>();
+  readonly iconClicked = output<void>();
 
   protected readonly showIcon = computed(() =>
     Boolean(this.icon()?.showIcon?.(new FormControl(this.value()))),

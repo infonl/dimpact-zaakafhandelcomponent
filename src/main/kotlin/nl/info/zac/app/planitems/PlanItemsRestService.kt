@@ -49,8 +49,10 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -83,7 +85,9 @@ class PlanItemsRestService @Inject constructor(
     private val mailTemplateService: MailTemplateService,
     private val policyService: PolicyService,
     private val suspensionZaakHelper: SuspensionZaakHelper,
-    private val loggedInUserInstance: Instance<LoggedInUser>
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
+    private val taskHistoryService: TaskHistoryService
 ) {
     companion object {
         private const val REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd"
@@ -136,6 +140,10 @@ class PlanItemsRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canStartenTaak)
+        val assignee = humanTaskData.medewerker?.id?.takeIf { it.isNotBlank() }
+        val zaakspecifiekGeautoriseerdeTaakbehandelaar = assignee?.takeIf {
+            zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, it)
+        }
         val zaaktypeConfiguration = zaaktypeConfigurationService.findConfiguration(zaak.zaaktype.extractUuid())
 
         val fatalDate = calculateFatalDate(
@@ -191,12 +199,19 @@ class PlanItemsRestService @Inject constructor(
         cmmnService.startHumanTaskPlanItem(
             planItemInstanceId = humanTaskData.planItemInstanceId,
             groupId = humanTaskData.groep.id,
-            assignee = humanTaskData.medewerker?.id.takeIf { !it.isNullOrBlank() },
+            assignee = assignee,
             dueDate = fatalDate?.let(::convertToDate),
             description = humanTaskData.toelichting,
             taakdata = taakdata,
             zaakUUID = zaakUUID
         )
+        zaakspecifiekGeautoriseerdeTaakbehandelaar?.let {
+            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(
+                task = cmmnService.readOpenTaskForPlanItem(humanTaskData.planItemInstanceId),
+                zaak = zaak,
+                medewerkerId = it
+            )
+        }
         indexingService.addOrUpdateZaakOrThrow(zaakUUID, false)
     }
 

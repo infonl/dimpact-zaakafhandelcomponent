@@ -3,19 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { inject, Injectable } from "@angular/core";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class IndexingService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   commitPendingChangesToSearchIndex() {
-    return this.zacHttpClient.POST(
+    return this.zacQueryClient.POST(
       "/rest/indexeren/commit-pending-changes-to-search-index",
-      undefined as never,
     );
   }
 }

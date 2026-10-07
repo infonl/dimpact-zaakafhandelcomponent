@@ -9,18 +9,22 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.RestTaskAssignData
 import nl.info.zac.app.task.model.RestTaskDistributeData
 import nl.info.zac.app.task.model.RestTaskDistributeTask
 import nl.info.zac.app.task.model.RestTaskReleaseData
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
@@ -32,6 +36,9 @@ class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val indexingService: IndexingService,
     private val eventingService: EventingService,
+    private val zrcClientService: ZrcClientService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
+    private val taskHistoryService: TaskHistoryService
 ) {
     companion object {
         private val LOG = Logger.getLogger(TaskService::class.java.name)
@@ -42,8 +49,9 @@ class TaskService @Inject constructor(
         task: Task,
         loggedInUser: LoggedInUser
     ) {
-        assignTasks(
-            RestTaskDistributeData(
+        assignTaskAndOptionallyReleaseFromAssignee(
+            task = task,
+            restTaskDistributeData = RestTaskDistributeData(
                 taken = listOf(
                     RestTaskDistributeTask(
                         taakId = task.id,
@@ -54,9 +62,10 @@ class TaskService @Inject constructor(
                 reden = restTaskAssignData.reden,
                 behandelaarGebruikersnaam = restTaskAssignData.behandelaarId
             ),
-            loggedInUser,
-            mutableListOf<String>()
+            loggedInUser = loggedInUser
         )
+        sendScreenEventsOnTaskChange(task, restTaskAssignData.zaakUuid)
+        indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
     }
 
     /**
@@ -96,21 +105,28 @@ class TaskService @Inject constructor(
 
     /**
      * Assigns a task to a user and sends the 'taak op naam' signalering event.
+     * When the task belongs to a zaakspecifiek geautoriseerde zaak, the user is granted access to that zaak
+     * before the assignment is written, so that they can open the task as soon as it is theirs.
+     *
+     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaak is zaakspecifiek
+     * geautoriseerd but its zaaktype does not define the roltype; the task is then left unchanged
      */
     fun assignTaskToUser(
         taskId: String,
         assignee: String,
         loggedInUser: LoggedInUser,
         explanation: String?
-    ): Task = flowableTaskService.assignTaskToUser(taskId, assignee, explanation).let { updatedTask ->
-        eventingService.send(
-            SignaleringEventUtil.event(
-                SignaleringType.Type.TAAK_OP_NAAM,
-                updatedTask,
-                loggedInUser
+    ): Task {
+        grantZaakspecifiekeAutorisatieToNewAssignee(flowableTaskService.readOpenTask(taskId), assignee)
+        return flowableTaskService.assignTaskToUser(taskId, assignee, explanation).also {
+            eventingService.send(
+                SignaleringEventUtil.event(
+                    SignaleringType.Type.TAAK_OP_NAAM,
+                    it,
+                    loggedInUser
+                )
             )
-        )
-        updatedTask
+        }
     }
 
     /**
@@ -175,6 +191,14 @@ class TaskService @Inject constructor(
                     "No open task with ID '${restTask.taakId}' found while assigning tasks. Skipping task.",
                     taskNotFoundException
                 )
+            } catch (
+                zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException: ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+            ) {
+                LOG.log(Level.WARNING, zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException) {
+                    "Task with ID '${restTask.taakId}' belongs to a zaakspecifiek geautoriseerde zaak whose zaaktype " +
+                        "cannot authorise its taakbehandelaar. Therefore it is skipped and not assigned."
+                }
+                eventingService.send(ScreenEventType.TAAK.skipped(restTask.taakId))
             }
         }
     }
@@ -184,29 +208,26 @@ class TaskService @Inject constructor(
         restTaskDistributeData: RestTaskDistributeData,
         loggedInUser: LoggedInUser
     ) {
+        restTaskDistributeData.behandelaarGebruikersnaam?.let {
+            assignTaskToUser(
+                taskId = task.id,
+                assignee = it,
+                loggedInUser = loggedInUser,
+                explanation = restTaskDistributeData.reden
+            )
+        } ?: task.assignee?.let {
+            // if no assignee was specified _and_ the task currently has an assignee, only then release it
+            releaseTask(
+                task = task,
+                loggedInUser = loggedInUser,
+                reden = restTaskDistributeData.reden
+            )
+        }
         flowableTaskService.assignTaskToGroup(
             task,
             restTaskDistributeData.groepId,
             restTaskDistributeData.reden
         )
-        restTaskDistributeData.behandelaarGebruikersnaam?.run {
-            assignTaskToUser(
-                taskId = task.id,
-                assignee = this,
-                loggedInUser = loggedInUser,
-                explanation = restTaskDistributeData.reden
-            )
-        } ?: run {
-            // if no assignee was specified _and_ the task currently has an assignee,
-            // only then release it
-            task.assignee?.run {
-                releaseTask(
-                    task = task,
-                    loggedInUser = loggedInUser,
-                    reden = restTaskDistributeData.reden
-                )
-            }
-        }
     }
 
     private fun releaseTasks(
@@ -233,6 +254,14 @@ class TaskService @Inject constructor(
                     taskNotFoundException
                 )
             }
+        }
+    }
+
+    private fun grantZaakspecifiekeAutorisatieToNewAssignee(task: Task, assignee: String) {
+        if (task.assignee == assignee) return
+        val zaak = zrcClientService.readZaak(TaakVariabelenService.readZaakUUID(task))
+        if (zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, assignee)) {
+            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, assignee)
         }
     }
 

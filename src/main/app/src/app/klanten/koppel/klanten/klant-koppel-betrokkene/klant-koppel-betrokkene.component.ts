@@ -4,14 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  input,
-  OnInit,
-  Output,
-  ViewChild,
-} from "@angular/core";
+import { Component, input, OnInit, output, ViewChild } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { ZacInput } from "src/app/shared/form/input/input";
@@ -54,6 +47,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
         #zoek
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
+        isSelectable
         (persoon)="klantGeselecteerd($event)"
         [zaaktypeUUID]="zaaktypeUUID()"
       ></zac-persoon-zoek>
@@ -62,6 +56,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
         #zoek
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
+        isSelectable
         (bedrijf)="klantGeselecteerd($event)"
       ></zac-bedrijf-zoek>
     </div>
@@ -70,7 +65,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
 export class KlantKoppelBetrokkeneComponent implements OnInit {
   readonly type = input.required<"persoon" | "bedrijf">();
   readonly zaaktypeUUID = input<string | null | undefined>(null);
-  @Output() klantGegevens = new EventEmitter<KlantGegevens>();
+  readonly klantGegevens = output<KlantGegevens>();
   @ViewChild("zoek") zoek!: PersoonZoekComponent | BedrijfZoekComponent;
 
   protected readonly form = this.formBuilder.group({

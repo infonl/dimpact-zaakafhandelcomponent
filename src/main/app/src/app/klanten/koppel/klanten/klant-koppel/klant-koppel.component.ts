@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -115,5 +115,5 @@ export class KlantKoppelComponent {
   readonly sideNav = input.required<MatDrawer>();
   readonly allowPersoon = input<boolean>();
   readonly allowBedrijf = input<boolean>();
-  @Output() klantGegevens = new EventEmitter<KlantGegevens>();
+  readonly klantGegevens = output<KlantGegevens>();
 }

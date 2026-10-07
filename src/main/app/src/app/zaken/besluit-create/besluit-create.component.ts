@@ -4,14 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  inject,
-  input,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -63,7 +56,7 @@ import { ZakenService } from "../zaken.service";
 export class BesluitCreateComponent implements OnInit {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly sideNav = input.required<MatDrawer>();
-  @Output() besluitVastgelegd = new EventEmitter<boolean>();
+  readonly besluitVastgelegd = output<boolean>();
 
   private readonly zakenService = inject(ZakenService);
   private readonly informatieObjectenService = inject(

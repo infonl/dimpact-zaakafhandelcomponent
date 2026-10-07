@@ -97,6 +97,7 @@ Coding conventions that a linter can check are enforced there rather than only d
 | No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |
 | No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
 | Component inputs use `input()`, not the `@Input()` decorator  | ESLint `@angular-eslint/prefer-signals`                          |
+| Component outputs use `output()`, not the `@Output()` decorator | ESLint `@angular-eslint/prefer-output-emitter-ref`            |
 | No `ngOnChanges`, also in specs; react to inputs with `computed()`/`effect()` | ESLint `no-restricted-imports` (`OnChanges`, `SimpleChange(s)`), `no-restricted-properties` (calls), `@typescript-eslint/naming-convention` (members named `ngOnChanges`) |
 | Every segment of an i18n key is lowercase kebab-case          | `src/main/app/src/app/core/translations.spec.ts` (`npm test`)    |
 | `nl.json` and `en.json` hold the same i18n keys               | `src/main/app/src/app/core/translations.spec.ts` (`npm test`)    |

@@ -4,7 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { PostBody, PutBody } from "../shared/http/http-client";
+import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -23,8 +23,13 @@ export class BAGService {
     return this.zacQueryClient.PUT_QUERY("/rest/bag/adres", body);
   }
 
-  create(body: PostBody<"/rest/bag">) {
-    return this.zacHttpClient.POST("/rest/bag", body);
+  create() {
+    return mergeMutationOptions(this.zacQueryClient.POST("/rest/bag"), {
+      onSuccess: (_data, { zaakUuid }) => {
+        if (!zaakUuid) return;
+        this.zakenService.invalidateHistorie(zaakUuid);
+      },
+    });
   }
 
   list(zaakUuid: string) {

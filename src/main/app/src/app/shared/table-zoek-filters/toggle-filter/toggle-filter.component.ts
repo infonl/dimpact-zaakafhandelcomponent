@@ -4,13 +4,7 @@
  */
 
 import { NgSwitch, NgSwitchCase } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  input,
-  linkedSignal,
-  Output,
-} from "@angular/core";
+import { Component, input, linkedSignal, output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { ToggleSwitchOptions } from "./toggle-switch-options";
@@ -30,7 +24,7 @@ export class ToggleFilterComponent {
   protected readonly checkedIcon = input("check_circle");
   protected readonly unCheckedIcon = input("cancel");
   protected readonly indeterminateIcon = input("radio_button_unchecked");
-  @Output() public changed = new EventEmitter<ToggleSwitchOptions>();
+  readonly changed = output<ToggleSwitchOptions>();
 
   protected readonly toggleSwitchOptions = ToggleSwitchOptions;
 

@@ -18,7 +18,6 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { lastValueFrom } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -73,31 +72,16 @@ export class ZoekopdrachtSaveDialogComponent {
     this.findExisting(this.naamValue()) ? "actie.wijzigen" : "actie.toevoegen",
   );
 
-  protected readonly mutation = injectMutation(() => ({
-    mutationFn: () => {
-      const existing = this.findExisting(this.form.value.naam);
-      const zoekopdracht = existing
-        ? {
-            ...existing,
-            json: JSON.stringify(this.data.zoekopdracht),
-          }
-        : {
-            naam: this.form.value.naam,
-            json: JSON.stringify(this.data.zoekopdracht),
-            lijstID: this.data.lijstID,
-          };
-      return lastValueFrom(
-        this.gebruikersvoorkeurenService.createOrUpdateZoekOpdrachten(
-          zoekopdracht as GeneratedType<"RESTZoekopdracht">,
-        ),
-      );
+  protected readonly mutation = injectMutation(
+    () => this.gebruikersvoorkeurenService.createOrUpdateZoekOpdrachten(),
+    {
+      onSuccess: () => {
+        this.utilService.openSnackbar("msg.zoekopdracht.opgeslagen");
+        this.dialogRef.close(true);
+      },
+      onError: () => this.dialogRef.close(),
     },
-    onSuccess: () => {
-      this.utilService.openSnackbar("msg.zoekopdracht.opgeslagen");
-      this.dialogRef.close(true);
-    },
-    onError: () => this.dialogRef.close(),
-  }));
+  );
 
   protected close() {
     this.dialogRef.close();
@@ -105,7 +89,22 @@ export class ZoekopdrachtSaveDialogComponent {
 
   protected opslaan() {
     this.dialogRef.disableClose = true;
-    this.mutation.mutate();
+    this.mutation.mutate(this.zoekopdrachtToSave());
+  }
+
+  private zoekopdrachtToSave() {
+    const existing = this.findExisting(this.form.value.naam);
+    const zoekopdracht = existing
+      ? {
+          ...existing,
+          json: JSON.stringify(this.data.zoekopdracht),
+        }
+      : {
+          naam: this.form.value.naam,
+          json: JSON.stringify(this.data.zoekopdracht),
+          lijstID: this.data.lijstID,
+        };
+    return zoekopdracht as GeneratedType<"RESTZoekopdracht">;
   }
 
   private findExisting(naam: string | null | undefined) {
