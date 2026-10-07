@@ -27,6 +27,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
+import { injectMutation } from "src/app/shared/http/inject-mutation";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   SmartDocumentsService,
@@ -249,9 +250,12 @@ export class SmartDocumentsFormComponent {
     }
   }
 
+  private readonly storeTemplatesMappingMutation = injectMutation(() =>
+    this.smartDocumentsService.storeTemplatesMapping(this.zaakTypeUuid()),
+  );
+
   public saveSmartDocumentsMapping() {
-    return this.smartDocumentsService.storeTemplatesMapping(
-      this.zaakTypeUuid(),
+    this.storeTemplatesMappingMutation.mutate(
       this.smartDocumentsService.getOnlyMappedTemplates(
         this.newTemplateMappings,
       ),

@@ -156,7 +156,9 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       deleteProcessDefinition: jest
         .fn()
         .mockReturnValue(deleteProcessDefinitionMutation),
-      uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
+      uploadProcessDefinitionForm: jest
+        .fn()
+        .mockReturnValue(createMutationOptions({})),
       deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
     };
     utilService = {

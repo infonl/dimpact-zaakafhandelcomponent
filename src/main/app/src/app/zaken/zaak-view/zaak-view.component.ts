@@ -186,8 +186,8 @@ export class ZaakViewComponent
     );
   });
 
-  bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[] = [];
-  gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
+  bagObjecten: GeneratedType<"RestBagObjectGegevens">[] = [];
+  gekoppeldeBagObjecten: GeneratedType<"RestBagObject">[] = [];
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
@@ -475,7 +475,7 @@ export class ZaakViewComponent
     });
   }
 
-  protected adresGeselecteerd(bagObject: GeneratedType<"RESTBAGObject">) {
+  protected adresGeselecteerd(bagObject: GeneratedType<"RestBagObject">) {
     this.bagService
       .create({ zaakUuid: this.zaak.uuid, zaakobject: bagObject })
       .subscribe(() => {
@@ -554,7 +554,7 @@ export class ZaakViewComponent
   }
 
   protected bagObjectVerwijderen(
-    bagObjectGegevens: GeneratedType<"RESTBAGObjectGegevens">,
+    bagObjectGegevens: GeneratedType<"RestBagObjectGegevens">,
   ) {
     const bagObject = bagObjectGegevens.zaakobject;
     this.zaakDialogService

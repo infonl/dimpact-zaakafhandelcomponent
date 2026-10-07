@@ -6,8 +6,8 @@
 package nl.info.zac.app.admin.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
+import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.ZaaktypeEmailParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -25,7 +25,7 @@ data class RestAutomaticEmailConfirmation(
     var emailReply: String? = null,
 )
 
-fun ZaaktypeCmmnEmailParameters.toRestAutomaticEmailConfirmation(): RestAutomaticEmailConfirmation =
+fun ZaaktypeEmailParameters.toRestAutomaticEmailConfirmation(): RestAutomaticEmailConfirmation =
     RestAutomaticEmailConfirmation().apply {
         id = this@toRestAutomaticEmailConfirmation.id
         isEnabled = this@toRestAutomaticEmailConfirmation.isEnabled
@@ -35,13 +35,13 @@ fun ZaaktypeCmmnEmailParameters.toRestAutomaticEmailConfirmation(): RestAutomati
     }
 
 fun RestAutomaticEmailConfirmation.toAutomaticEmailConfirmation(
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-): ZaaktypeCmmnEmailParameters =
-    ZaaktypeCmmnEmailParameters().apply {
+    zaaktypeConfiguration: ZaaktypeConfiguration
+): ZaaktypeEmailParameters =
+    ZaaktypeEmailParameters().apply {
         id = this@toAutomaticEmailConfirmation.id
         isEnabled = this@toAutomaticEmailConfirmation.isEnabled
         templateName = this@toAutomaticEmailConfirmation.templateName
         emailSender = this@toAutomaticEmailConfirmation.emailSender
         emailReply = this@toAutomaticEmailConfirmation.emailReply
-        this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+        this.zaaktypeConfiguration = zaaktypeConfiguration
     }

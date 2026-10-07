@@ -5,7 +5,7 @@
 package nl.info.zac.app.zaak.model
 
 import jakarta.validation.Valid
-import net.atos.zac.app.bag.model.RESTBAGObject
+import nl.info.zac.app.bag.model.RestBagObject
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -18,5 +18,5 @@ data class RestZaakAanmaakGegevens(
 
     var inboxProductaanvraag: RestInboxProductaanvraag? = null,
 
-    var bagObjecten: List<RESTBAGObject>? = null
+    var bagObjecten: List<RestBagObject>? = null
 )

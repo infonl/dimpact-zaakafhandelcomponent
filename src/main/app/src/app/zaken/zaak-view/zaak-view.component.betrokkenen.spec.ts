@@ -384,7 +384,7 @@ describe(ZaakViewComponent.name, () => {
 
     it("reports a failing BAG-object ontkoppelen through the error handler", async () => {
       fixture.componentInstance["bagObjectVerwijderen"](
-        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+        fromPartial<GeneratedType<"RestBagObjectGegevens">>({
           uuid: "fake-bag-object-uuid",
           zaakobject: { omschrijving: "fake bag object" },
         }),
@@ -532,7 +532,7 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("reloads the BAG-objecten after coupling an adres", () => {
-      const bagObject = fromPartial<GeneratedType<"RESTBAGObject">>({
+      const bagObject = fromPartial<GeneratedType<"RestBagObject">>({
         omschrijving: "fakeBagObjectOmschrijving",
       });
       const create = jest

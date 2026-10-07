@@ -24,11 +24,15 @@ import nl.info.zac.admin.ZaaktypeHelperService
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createHumanTaskReferentieTabel
+import nl.info.zac.admin.model.createMailTemplate
+import nl.info.zac.admin.model.createMailtemplateKoppelingen
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
+import nl.info.zac.admin.model.createZaakAfzender
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -397,6 +401,110 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                     and("the new configuration is dated at the moment it was copied") {
                         newZaaktypeConfiguration.creatiedatum!! shouldNotBeBefore
                             previousZaaktypeConfiguration.creatiedatum!!
+                    }
+                }
+            }
+
+            given("a previous configuration with deadline warning windows, mail settings and a confirmation email") {
+                val newZaaktype = createZaakType(resultTypes = emptyList(), servicenorm = "P30D")
+                val zaakAlgemeenMailTemplate = createMailTemplate()
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    nietOntvankelijkResultaattype = null
+                    einddatumGeplandWaarschuwing = 3
+                    uiterlijkeEinddatumAfdoeningWaarschuwing = 2
+                    setMailtemplateKoppelingen(emptyList())
+                    setMailtemplateKoppelingen(
+                        setOf(
+                            createMailtemplateKoppelingen(
+                                zaaktypeConfiguration = this,
+                                mailTemplate = zaakAlgemeenMailTemplate
+                            )
+                        )
+                    )
+                    setZaakAfzenders(
+                        setOf(
+                            createZaakAfzender(
+                                zaaktypeConfiguration = this,
+                                defaultMail = true,
+                                mail = "afzender@example.com",
+                                replyTo = "antwoord@example.com"
+                            )
+                        )
+                    )
+                    zaaktypeEmailParameters = createAutomaticEmailConfirmation(zaaktypeConfiguration = this)
+                }
+                val newZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    setMailtemplateKoppelingen(emptyList())
+                    setZaakAfzenders(emptyList())
+                    zaaktypeEmailParameters = null
+                }
+
+                `when`("the configuration data is copied onto the configuration of a new zaaktype with a servicenorm") {
+                    zaaktypeHelperService.copyConfigurationData(
+                        previousZaaktypeConfiguration,
+                        newZaaktypeConfiguration,
+                        newZaaktype
+                    )
+
+                    then("both deadline warning windows are copied") {
+                        newZaaktypeConfiguration.einddatumGeplandWaarschuwing shouldBe 3
+                        newZaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe 2
+                    }
+
+                    and("the mailtemplate koppelingen and zaakafzenders are copied onto the new configuration") {
+                        with(newZaaktypeConfiguration.getMailtemplateKoppelingen().single()) {
+                            mailTemplate shouldBeSameInstanceAs zaakAlgemeenMailTemplate
+                            zaaktypeConfiguration shouldBeSameInstanceAs newZaaktypeConfiguration
+                        }
+                        with(newZaaktypeConfiguration.getZaakAfzenders().single()) {
+                            isDefaultMail shouldBe true
+                            mail shouldBe "afzender@example.com"
+                            replyTo shouldBe "antwoord@example.com"
+                            zaaktypeConfiguration shouldBeSameInstanceAs newZaaktypeConfiguration
+                        }
+                    }
+
+                    and("the confirmation email is copied onto the new configuration") {
+                        with(newZaaktypeConfiguration.zaaktypeEmailParameters.shouldNotBeNull()) {
+                            isEnabled shouldBe true
+                            templateName shouldBe "fakeTemplateName"
+                            emailSender shouldBe "sender@example.com"
+                            emailReply shouldBe "reply@example.com"
+                            zaaktypeConfiguration shouldBeSameInstanceAs newZaaktypeConfiguration
+                        }
+                    }
+                }
+            }
+
+            given("a previous configuration with deadline warning windows and without a confirmation email") {
+                val newZaaktype = createZaakType(resultTypes = emptyList(), servicenorm = null)
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    nietOntvankelijkResultaattype = null
+                    einddatumGeplandWaarschuwing = 3
+                    uiterlijkeEinddatumAfdoeningWaarschuwing = 2
+                    zaaktypeEmailParameters = null
+                }
+                val newZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    zaaktypeEmailParameters = null
+                }
+
+                `when`("the configuration data is copied onto the configuration of a new zaaktype without a servicenorm") {
+                    zaaktypeHelperService.copyConfigurationData(
+                        previousZaaktypeConfiguration,
+                        newZaaktypeConfiguration,
+                        newZaaktype
+                    )
+
+                    then("the einddatum gepland warning window is cleared, because the zaak has no einddatum gepland") {
+                        newZaaktypeConfiguration.einddatumGeplandWaarschuwing.shouldBeNull()
+                    }
+
+                    and("the uiterlijke einddatum afdoening warning window is copied") {
+                        newZaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe 2
+                    }
+
+                    and("no confirmation email is created for the new configuration") {
+                        newZaaktypeConfiguration.zaaktypeEmailParameters.shouldBeNull()
                     }
                 }
             }

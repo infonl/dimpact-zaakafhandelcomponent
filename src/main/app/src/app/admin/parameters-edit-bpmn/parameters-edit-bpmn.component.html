@@ -48,7 +48,10 @@
       <button
         mat-raised-button
         color="primary"
-        [disabled]="!isValid() || isLoading"
+        [disabled]="
+          !isValid() ||
+          createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+        "
         (click)="opslaan()"
       >
         {{ "actie.opslaan" | translate }}
@@ -163,7 +166,10 @@
           mat-raised-button
           color="primary"
           (click)="opslaan()"
-          [disabled]="!isValid() || isLoading"
+          [disabled]="
+            !isValid() ||
+            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+          "
         >
           {{ "actie.opslaan" | translate }}
         </button>
@@ -255,7 +261,10 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!isValid() || isLoading"
+          [disabled]="
+            !isValid() ||
+            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+          "
           (click)="opslaan()"
         >
           {{ "actie.opslaan" | translate }}
@@ -394,7 +403,10 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!isValid() || isLoading"
+          [disabled]="
+            !isValid() ||
+            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+          "
           (click)="opslaan()"
         >
           {{ "actie.opslaan" | translate }}

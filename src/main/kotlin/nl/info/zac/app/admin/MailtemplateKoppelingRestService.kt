@@ -16,9 +16,11 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
 import nl.info.zac.admin.MailTemplateKoppelingenService
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.converter.toRestMailtemplateKoppeling
-import nl.info.zac.app.admin.converter.toZaaktypeCmmnMailtemplateParameters
+import nl.info.zac.app.admin.converter.toZaaktypeMailtemplateParameters
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
@@ -50,12 +52,15 @@ class MailtemplateKoppelingRestService @Inject constructor(
     @GET
     fun listMailtemplateKoppelingen(): List<RESTMailtemplateKoppeling> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return mailTemplateKoppelingenService.listMailtemplateKoppelingen().map { zaaktypeCmmnMailtemplateParameters ->
-            zaaktypeCmmnMailtemplateParameters.toRestMailtemplateKoppeling().apply {
-                zaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
-                    checkNotNull(zaaktypeCmmnMailtemplateParameters.zaaktypeCmmnConfiguration),
-                    false
-                )
+        return mailTemplateKoppelingenService.listMailtemplateKoppelingen().map { zaaktypeMailtemplateParameters ->
+            zaaktypeMailtemplateParameters.toRestMailtemplateKoppeling().apply {
+                zaakafhandelParameters = when (val configuration = zaaktypeMailtemplateParameters.zaaktypeConfiguration) {
+                    is ZaaktypeCmmnConfiguration ->
+                        restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(configuration, false)
+                    is ZaaktypeBpmnConfiguration ->
+                        restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(configuration)
+                    else -> error("Unknown zaaktype configuration type: ${configuration::class.simpleName}")
+                }
             }
         }
     }
@@ -65,7 +70,7 @@ class MailtemplateKoppelingRestService @Inject constructor(
     fun storeMailtemplateKoppeling(mailtemplateKoppeling: RESTMailtemplateKoppeling): RESTMailtemplateKoppeling {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return mailTemplateKoppelingenService.storeMailtemplateKoppeling(
-            mailtemplateKoppeling.toZaaktypeCmmnMailtemplateParameters()
+            mailtemplateKoppeling.toZaaktypeMailtemplateParameters()
         ).toRestMailtemplateKoppeling()
     }
 }

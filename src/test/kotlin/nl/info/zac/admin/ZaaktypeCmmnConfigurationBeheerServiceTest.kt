@@ -367,8 +367,8 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     it zip originalZaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
                 }.forEach { (new, original) ->
                     new.id shouldBe null
-                    new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
-                    new.zaaktypeCmmnConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
+                    new.zaaktypeConfiguration shouldNotBe original.zaaktypeConfiguration
+                    new.zaaktypeConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
                     new.mailTemplate shouldBe original.mailTemplate
                 }
             }
@@ -379,8 +379,8 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     it zip originalZaaktypeCmmnConfiguration.getZaakAfzenders()
                 }.forEach { (new, original) ->
                     new.id shouldBe null
-                    new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
-                    new.zaaktypeCmmnConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
+                    new.zaaktypeConfiguration shouldNotBe original.zaaktypeConfiguration
+                    new.zaaktypeConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
                     new.isDefaultMail shouldBe original.isDefaultMail
                     new.mail shouldBe original.mail
                     new.replyTo shouldBe original.replyTo
@@ -424,11 +424,11 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             and("The automatic email confirmation should be copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.zaaktypeCmmnEmailParameters.let {
-                    it?.isEnabled shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.isEnabled
-                    it?.templateName shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
-                    it?.emailSender shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
-                    it?.emailReply shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
+                slotPersistZaaktypeCmmnConfiguration.captured.zaaktypeEmailParameters.let {
+                    it?.isEnabled shouldBe originalZaaktypeCmmnConfiguration.zaaktypeEmailParameters?.isEnabled
+                    it?.templateName shouldBe originalZaaktypeCmmnConfiguration.zaaktypeEmailParameters?.templateName
+                    it?.emailSender shouldBe originalZaaktypeCmmnConfiguration.zaaktypeEmailParameters?.emailSender
+                    it?.emailReply shouldBe originalZaaktypeCmmnConfiguration.zaaktypeEmailParameters?.emailReply
                 }
             }
         }

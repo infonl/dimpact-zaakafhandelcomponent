@@ -16,10 +16,10 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
   let fixture: ComponentFixture<ZaakDetailsBagObjectenTabComponent>;
 
   const bagObjectGegevens = (
-    overrides: Partial<GeneratedType<"RESTBAGObject">> = {},
+    overrides: Partial<GeneratedType<"RestBagObject">> = {},
   ) =>
-    fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
-      bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
+    fromPartial<GeneratedType<"RestBagObjectGegevens">>({
+      bagObject: fromPartial<GeneratedType<"RestBagObject">>({
         identificatie: "fakeBagIdentificatie",
         bagObjectType: "ADRES",
         omschrijving: "fakeBagOmschrijving",
@@ -30,7 +30,7 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
   const screen = () => within(fixture.nativeElement as HTMLElement);
 
   const renderBagObjecten = (
-    bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[],
+    bagObjecten: GeneratedType<"RestBagObjectGegevens">[],
     isOntkoppelenToegestaan = true,
   ) => {
     fixture.componentRef.setInput("bagObjecten", bagObjecten);

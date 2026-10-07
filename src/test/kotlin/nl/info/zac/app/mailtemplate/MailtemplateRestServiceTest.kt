@@ -12,7 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -23,11 +23,11 @@ import java.util.UUID
 
 class MailtemplateRestServiceTest : BehaviorSpec({
     val mailTemplateService = mockk<MailTemplateService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val zrcClientService = mockk<ZrcClientService>()
     val mailtemplateRestService = MailtemplateRestService(
         mailTemplateService = mailTemplateService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService,
         zrcClientService = zrcClientService
     )
     val zaaktypeUuid = UUID.randomUUID()
@@ -43,12 +43,12 @@ class MailtemplateRestServiceTest : BehaviorSpec({
             }
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration().apply {
                 setMailtemplateKoppelingen(
-                    setOf(createMailtemplateKoppelingen(zaaktypeCmmnConfiguration = this, mailTemplate = linkedMailTemplate))
+                    setOf(createMailtemplateKoppelingen(zaaktypeConfiguration = this, mailTemplate = linkedMailTemplate))
                 )
             }
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
             } returns zaaktypeCmmnConfiguration
 
             `when`("the mail template for that mail is requested") {
@@ -69,8 +69,25 @@ class MailtemplateRestServiceTest : BehaviorSpec({
             }
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
             } returns zaaktypeCmmnConfiguration
+            every { mailTemplateService.findDefaultMailtemplate(Mail.ZAAK_ALGEMEEN) } returns defaultMailTemplate
+
+            `when`("the mail template for that mail is requested") {
+                val restMailtemplate = mailtemplateRestService.findMailtemplate(Mail.ZAAK_ALGEMEEN, zaak.uuid)
+
+                then("the default mail template of that mail is returned") {
+                    restMailtemplate?.mailTemplateNaam shouldBe "fakeDefaultMailTemplate"
+                }
+            }
+        }
+
+        given("a zaak whose zaaktype has no zaaktype configuration") {
+            val defaultMailTemplate = createMailTemplate(mail = Mail.ZAAK_ALGEMEEN).apply {
+                mailTemplateNaam = "fakeDefaultMailTemplate"
+            }
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) } returns null
             every { mailTemplateService.findDefaultMailtemplate(Mail.ZAAK_ALGEMEEN) } returns defaultMailTemplate
 
             `when`("the mail template for that mail is requested") {
@@ -88,7 +105,7 @@ class MailtemplateRestServiceTest : BehaviorSpec({
             }
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
             } returns zaaktypeCmmnConfiguration
             every { mailTemplateService.findDefaultMailtemplate(Mail.ZAAK_ALGEMEEN) } returns null
 

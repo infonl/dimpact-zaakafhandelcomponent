@@ -3,19 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../../setupJest";
+import { sleep } from "../../../../../setupJest";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { SmartDocumentsFormComponent } from "./smart-documents-form.component";
 
@@ -82,11 +77,7 @@ describe(SmartDocumentsFormComponent.name, () => {
   }: { enabledGlobally?: boolean; enabledForZaaktype?: boolean } = {}) {
     const rendered = await render(SmartDocumentsFormComponent, {
       imports: [TranslateModule.forRoot(), NoopAnimationsModule],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [],
       inputs: {
         zaakTypeUuid: "fakeZaaktypeUuid",
         enabledGlobally,
@@ -346,7 +337,8 @@ describe(SmartDocumentsFormComponent.name, () => {
       await toggleGroup("fakeGroupName1");
       await chooseInformatieobjecttype("fakeTemplateName2", "Type B");
 
-      fixture.componentInstance.saveSmartDocumentsMapping().subscribe();
+      fixture.componentInstance.saveSmartDocumentsMapping();
+      await sleep();
 
       const request = httpTestingController.expectOne(TEMPLATES_MAPPING_URL);
       expect(request.request.method).toBe("POST");

@@ -14,7 +14,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.app.admin.model.RestMailtemplate
 import nl.info.zac.app.admin.model.toRestMailtemplate
 import nl.info.zac.mailtemplates.MailTemplateService
@@ -29,7 +29,7 @@ import java.util.UUID
 @NoArgConstructor
 class MailtemplateRestService @Inject constructor(
     private val mailTemplateService: MailTemplateService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val zrcClientService: ZrcClientService
 ) {
     @GET
@@ -39,8 +39,9 @@ class MailtemplateRestService @Inject constructor(
         @PathParam("zaakUUID") zaakUUID: UUID
     ): RestMailtemplate? {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        return zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
-            .getMailtemplateKoppelingen()
+        return zaaktypeConfigurationService.readZaaktypeConfiguration(zaak.zaaktype.extractUuid())
+            ?.getMailtemplateKoppelingen()
+            .orEmpty()
             .mapNotNull { it.mailTemplate }
             .firstOrNull { it.mail == mail }
             ?.toRestMailtemplate()

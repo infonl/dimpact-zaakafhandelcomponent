@@ -114,7 +114,7 @@ export class ZaakCreateComponent {
       GeneratedType<"BetrokkeneIdentificatie"> | null | undefined
     >(null),
     startdatum: this.formBuilder.control(moment(), [Validators.required]),
-    bagObjecten: this.formBuilder.control<GeneratedType<"RESTBAGObject">[]>([]),
+    bagObjecten: this.formBuilder.control<GeneratedType<"RestBagObject">[]>([]),
     groep: this.formBuilder.control<
       GeneratedType<"RestGroup"> | null | undefined
     >(null, [Validators.required]),
@@ -316,7 +316,7 @@ export class ZaakCreateComponent {
     }
   }
 
-  protected bagDisplayValue(bagObjects: GeneratedType<"RESTBAGObject">[]) {
+  protected bagDisplayValue(bagObjects: GeneratedType<"RestBagObject">[]) {
     const value = bagObjects
       .map(({ omschrijving }) => omschrijving)
       .join(" | ");
