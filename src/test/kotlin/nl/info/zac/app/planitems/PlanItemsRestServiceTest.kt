@@ -272,11 +272,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             } throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException("fakeMessage")
 
             `when`("the human task plan item is started") {
-                shouldThrow<ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException> {
+                val roltypeNotFoundException = shouldThrow<ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException> {
                     planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
                 }
 
                 then("no taak is created and the zaak is neither suspended nor mailed about") {
+                    roltypeNotFoundException.message shouldBe "fakeMessage"
                     verify(exactly = 0) {
                         cmmnService.startHumanTaskPlanItem(
                             planItemInstanceId = any(),
