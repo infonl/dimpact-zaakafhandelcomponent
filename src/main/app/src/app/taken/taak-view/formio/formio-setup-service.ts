@@ -4,13 +4,13 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
+import type { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
 import { SmartDocumentsService } from "../../../admin/smart-documents.service";
 import { UtilService } from "../../../core/service/util.service";
-import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
+import type { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { ZacQueryClient } from "../../../shared/http/zac-query-client";
 import { OrderUtil } from "../../../shared/order/order-util";

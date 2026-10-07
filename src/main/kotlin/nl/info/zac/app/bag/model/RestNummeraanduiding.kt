@@ -39,7 +39,7 @@ class RestNummeraanduiding : RestBagObject() {
         get() = BagObjectType.NUMMERAANDUIDING
 
     override val omschrijving
-        get() = "$huisnummerWeergave $postcode"
+        get() = joinNonBlank(" ", huisnummerWeergave, postcode)
 }
 
 fun NummeraanduidingIOHalBasis.toRestNummeraanduiding() = nummeraanduiding.toRestNummeraanduiding().apply {

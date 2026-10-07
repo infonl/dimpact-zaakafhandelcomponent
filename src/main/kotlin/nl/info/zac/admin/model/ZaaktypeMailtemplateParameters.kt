@@ -29,7 +29,7 @@ import java.util.Objects
 )
 @AllOpen
 class ZaaktypeMailtemplateParameters :
-    UserModifiable<ZaaktypeMailtemplateParameters> {
+    UserModifiableZaaktypeConfigurationData<ZaaktypeMailtemplateParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_mailtemplate_parameters", strategy = GenerationType.SEQUENCE)
@@ -60,18 +60,10 @@ class ZaaktypeMailtemplateParameters :
         return checkNotNull(isSameMailTemplate) { "mailTemplate is null" }
     }
 
-    override fun hashCode(): Int = mailTemplate?.let { Objects.hash(it.id) } ?: 0
-
-    @Suppress("UseCheckOrError")
-    override fun isModifiedFrom(original: ZaaktypeMailtemplateParameters): Boolean {
-        val isModified = mailTemplate?.let { mailTemplate ->
-            original.mailTemplate?.let { otherMailTemplate ->
-                Objects.equals(mailTemplate.mail, otherMailTemplate.mail) &&
-                    !Objects.equals(mailTemplate.id, otherMailTemplate.id)
-            }
-        }
-        return isModified ?: throw IllegalStateException("mailTemplate is null")
-    }
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 
     override fun applyChanges(changes: ZaaktypeMailtemplateParameters) {
         mailTemplate = changes.mailTemplate

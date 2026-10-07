@@ -19,24 +19,14 @@ fun createRestHumanTaskData(
     medewerker: RestUser? = null,
     fataledatum: LocalDate? = null,
     toelichting: String? = null,
-    taakdata: Map<String, String>? = null,
-    taakStuurGegevens: RestTaakStuurGegevens? = createRestTaakStuurGegevens()
+    taakdata: Map<String, String>? = null
 ) = RestHumanTaskData(
     planItemInstanceId = planItemInstanceId,
     groep = groep,
     medewerker = medewerker,
     fataledatum = fataledatum,
     toelichting = toelichting,
-    taakdata = taakdata,
-    taakStuurGegevens = taakStuurGegevens
-)
-
-fun createRestTaakStuurGegevens(
-    sendMail: Boolean = false,
-    mail: String? = null
-) = RestTaakStuurGegevens(
-    shouldSendMail = sendMail,
-    mail = mail
+    taakdata = taakdata
 )
 
 fun createRestUserEventListenerData(

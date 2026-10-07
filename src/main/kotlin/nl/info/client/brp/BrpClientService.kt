@@ -322,7 +322,7 @@ class BrpClientService @Inject constructor(
         resolveFunction: (ZaaktypeConfiguration) -> String?,
         buildFunction: (String?, ZaaktypeConfiguration) -> String?
     ): String? =
-        zaaktypeConfigurationService.readZaaktypeConfiguration(this)?.let { zaaktypeConfiguration ->
+        zaaktypeConfigurationService.findConfiguration(this)?.let { zaaktypeConfiguration ->
             resolveFunction(zaaktypeConfiguration)?.let { resolvedValue ->
                 if (StandardCharsets.US_ASCII.newEncoder().canEncode(resolvedValue)) {
                     resolvedValue.trim().takeIf { it.isNotBlank() }

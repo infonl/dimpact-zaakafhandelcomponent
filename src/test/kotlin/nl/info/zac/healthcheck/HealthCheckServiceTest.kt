@@ -23,8 +23,7 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
@@ -51,8 +50,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
 
         val referenceTableService = mockk<ReferenceTableService>()
-        val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
-        val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -60,15 +58,14 @@ class HealthCheckServiceTest : BehaviorSpec({
             commitHash,
             versionNumber,
             referenceTableService,
-            zaaktypeCmmnConfigurationBeheerService,
-            zaaktypeBpmnConfigurationBeheerService,
+            zaaktypeConfigurationService,
             ztcClientService
         )
 
         every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
-            zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
@@ -161,8 +158,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
 
         val referenceTableService = mockk<ReferenceTableService>()
-        val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
-        val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -170,19 +166,15 @@ class HealthCheckServiceTest : BehaviorSpec({
             commitHash,
             versionNumber,
             referenceTableService,
-            zaaktypeCmmnConfigurationBeheerService,
-            zaaktypeBpmnConfigurationBeheerService,
+            zaaktypeConfigurationService,
             ztcClientService
         )
 
         every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
-            zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
-        } returns null
-        every {
-            zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid)
-        } returns createZaaktypeBpmnConfiguration()
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
+        } returns createZaaktypeBpmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
@@ -271,8 +263,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
 
         val referenceTableService = mockk<ReferenceTableService>()
-        val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
-        val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -280,15 +271,14 @@ class HealthCheckServiceTest : BehaviorSpec({
             commitHash,
             versionNumber,
             referenceTableService,
-            zaaktypeCmmnConfigurationBeheerService,
-            zaaktypeBpmnConfigurationBeheerService,
+            zaaktypeConfigurationService,
             ztcClientService
         )
 
         every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
-            zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
@@ -370,8 +360,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
 
         val referenceTableService = mockk<ReferenceTableService>()
-        val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
-        val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -379,15 +368,14 @@ class HealthCheckServiceTest : BehaviorSpec({
             commitHash,
             versionNumber,
             referenceTableService,
-            zaaktypeCmmnConfigurationBeheerService,
-            zaaktypeBpmnConfigurationBeheerService,
+            zaaktypeConfigurationService,
             ztcClientService
         )
 
         every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
-            zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)

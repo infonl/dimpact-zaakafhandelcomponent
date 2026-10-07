@@ -3,18 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, RenderResult, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
@@ -106,13 +100,7 @@ describe(ZaakDocumentenComponent.name, () => {
       inputs: { zaak },
       on: { documentMoveToCase },
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [provideZonelessChangeDetection()],
     });
 
     fixture = rendered.fixture;
@@ -531,18 +519,23 @@ describe(ZaakDocumentenComponent.name, () => {
 
     it("downloads the selected documents as a zip and clears the selection", async () => {
       const { utilService } = await setup();
-      const getZIPDownload = jest
-        .spyOn(InformatieObjectenService.prototype, "getZIPDownload")
-        .mockReturnValue(of({}) as never);
+      const zip = new Blob(["zip"], { type: "application/zip" });
 
       await user.click(
         within(documentRow("Test document")).getByRole("checkbox"),
       );
       await user.click(zipButton());
+      await sleep();
 
-      expect(getZIPDownload).toHaveBeenCalledWith(["doc-uuid-1"]);
+      const request = httpTestingController.expectOne(
+        "/rest/informatieobjecten/download/zip",
+      );
+      expect(request.request.body).toEqual(["doc-uuid-1"]);
+      request.flush(zip);
+      await sleep();
+
       expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
-        {},
+        zip,
         "ZAAK-2024-001",
       );
       expect(zipButton()).toBeDisabled();

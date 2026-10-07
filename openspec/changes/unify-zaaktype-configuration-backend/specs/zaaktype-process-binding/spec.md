@@ -8,14 +8,25 @@ zaaktype configuration is bound to, so that the callers of these operations beha
 ### Requirement: A zaaktype configuration is bound to at most one engine
 
 The system SHALL bind each zaaktype configuration to at most one process engine, together with the definition
-key in that engine: the case definition for CMMN, the process definition key for BPMN. Both REST resources
-SHALL keep exposing the definition key in their existing fields.
+key in that engine: the case definition for CMMN, the process definition key for BPMN. Once bound, a
+configuration SHALL keep its engine, and a BPMN-bound configuration SHALL have no CMMN extension. Both REST
+resources SHALL keep exposing the definition key in their existing fields.
 
 #### Scenario: Existing configurations keep their engine
 - **GIVEN** a CMMN configuration with case definition `C` and a BPMN configuration with process definition key
   `K`, both stored before this change
 - **WHEN** the database migrations of this change have run
 - **THEN** the first configuration is bound to CMMN with key `C`, and the second is bound to BPMN with key `K`
+
+#### Scenario: A bound configuration never changes engine
+- **GIVEN** a configuration bound to one engine
+- **WHEN** a beheerder saves it through the REST resource of the other engine
+- **THEN** the save is rejected with a validation error, and the configuration keeps its binding
+
+#### Scenario: A BPMN binding has no CMMN extension
+- **GIVEN** an unbound configuration with a CMMN extension
+- **WHEN** a beheerder binds it to BPMN
+- **THEN** the CMMN extension and its plan item settings are removed
 
 ### Requirement: A zaak starts in the engine its zaaktype is bound to
 
@@ -64,10 +75,11 @@ zaak has no process in one or both engines.
 ### Requirement: Productaanvraag intake selects one configuration
 
 When ZAC handles a productaanvraag, the system SHALL select the current configuration of the zaaktype whose
-productaanvraagtype matches, whatever engine it is bound to, and SHALL create the zaak in that engine. When no
-configuration matches, the system SHALL register the productaanvraag in the inbox. When more than one
-configuration matches (data stored before the uniqueness check), the system SHALL use the most recently
-created one and SHALL log a warning.
+productaanvraagtype matches, whatever engine it is bound to, and SHALL create the zaak in that engine. The
+system SHALL ignore a matching configuration that is not bound to an engine, and SHALL log a warning for it.
+When no bound configuration matches, the system SHALL register the productaanvraag in the inbox. When more
+than one bound configuration matches (data stored before the uniqueness check), the system SHALL use the most
+recently created one and SHALL log a warning.
 
 #### Scenario: Productaanvraag for a BPMN zaaktype
 - **GIVEN** a BPMN zaaktype configuration with productaanvraagtype `P`
@@ -77,6 +89,11 @@ created one and SHALL log a warning.
 #### Scenario: No configuration for the productaanvraagtype
 - **WHEN** ZAC receives a productaanvraag whose type matches no configuration
 - **THEN** no zaak is created and the productaanvraag is registered in the inbox
+
+#### Scenario: Only an unbound configuration for the productaanvraagtype
+- **GIVEN** a CMMN zaaktype configuration with productaanvraagtype `P` and no case definition
+- **WHEN** ZAC receives a productaanvraag of type `P`
+- **THEN** no zaak is created, the productaanvraag is registered in the inbox, and a warning is logged
 
 ### Requirement: BPMN confirmation email falls back to the configuration
 

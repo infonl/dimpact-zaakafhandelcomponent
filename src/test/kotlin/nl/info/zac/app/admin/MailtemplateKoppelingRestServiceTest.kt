@@ -126,13 +126,13 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
             every { mailTemplateKoppelingenService.listMailtemplateKoppelingen() } returns listOf(fakeKoppeling)
             every {
-                restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration, false)
             } returns restZaaktypeConfiguration
 
             `when`("listMailtemplateKoppelingen is called") {
                 val result = service.listMailtemplateKoppelingen()
 
-                then("the koppeling is returned with the converted BPMN configuration of its zaaktype") {
+                then("the koppeling is returned with the converted configuration of its BPMN zaaktype") {
                     result.single().id shouldBe 8L
                     result.single().zaakafhandelParameters shouldBe restZaaktypeConfiguration
                 }

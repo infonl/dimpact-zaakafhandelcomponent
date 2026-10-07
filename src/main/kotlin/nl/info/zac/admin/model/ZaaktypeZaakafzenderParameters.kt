@@ -28,7 +28,7 @@ import java.util.Objects
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeZaakafzenderParameters : UserModifiable<ZaaktypeZaakafzenderParameters> {
+class ZaaktypeZaakafzenderParameters : UserModifiableZaaktypeConfigurationData<ZaaktypeZaakafzenderParameters> {
 
     enum class SpecialMail {
         GEMEENTE,
@@ -57,13 +57,6 @@ class ZaaktypeZaakafzenderParameters : UserModifiable<ZaaktypeZaakafzenderParame
     @Column(name = "replyto")
     var replyTo: String? = null
 
-    override fun isModifiedFrom(original: ZaaktypeZaakafzenderParameters): Boolean {
-        return Objects.equals(mail, original.mail) && (
-            !isDefaultMail == original.isDefaultMail ||
-                !Objects.equals(replyTo, original.replyTo)
-            )
-    }
-
     override fun applyChanges(changes: ZaaktypeZaakafzenderParameters) {
         this.isDefaultMail = changes.isDefaultMail
         this.replyTo = changes.replyTo
@@ -79,5 +72,8 @@ class ZaaktypeZaakafzenderParameters : UserModifiable<ZaaktypeZaakafzenderParame
         return mail == other.mail && isDefaultMail == other.isDefaultMail && Objects.equals(replyTo, other.replyTo)
     }
 
-    override fun hashCode(): Int = Objects.hash(mail, isDefaultMail, replyTo)
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 }

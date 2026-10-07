@@ -6,7 +6,8 @@ package nl.info.zac.app.admin.model
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -49,22 +50,22 @@ data class RestZaaktypeBpmnConfiguration(
     var smartDocuments: RestSmartDocuments? = null
 )
 
-fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
-    id = this@toZaaktypeBpmnConfiguration.id
-    zaaktypeUuid = this@toZaaktypeBpmnConfiguration.zaaktypeUuid
-    bpmnProcessDefinitionKey = this@toZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
-    zaaktypeOmschrijving = this@toZaaktypeBpmnConfiguration.zaaktypeOmschrijving
-    productaanvraagtype = this@toZaaktypeBpmnConfiguration.productaanvraagtype
-    defaultBehandelaarId = this@toZaaktypeBpmnConfiguration.defaultBehandelaarId
-    groepID = this@toZaaktypeBpmnConfiguration.groepNaam
-    creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
-    isSmartDocumentsEnabled = this@toZaaktypeBpmnConfiguration.smartDocuments?.isEnabledForZaaktype ?: false
+fun RestZaaktypeBpmnConfiguration.toZaaktypeConfiguration() = ZaaktypeConfiguration().apply {
+    id = this@toZaaktypeConfiguration.id
+    zaaktypeUuid = this@toZaaktypeConfiguration.zaaktypeUuid
+    bindTo(ProcessEngine.BPMN, this@toZaaktypeConfiguration.bpmnProcessDefinitionKey)
+    zaaktypeOmschrijving = this@toZaaktypeConfiguration.zaaktypeOmschrijving
+    productaanvraagtype = this@toZaaktypeConfiguration.productaanvraagtype
+    defaultBehandelaarId = this@toZaaktypeConfiguration.defaultBehandelaarId
+    groepID = this@toZaaktypeConfiguration.groepNaam
+    creatiedatum = this@toZaaktypeConfiguration.creatiedatum ?: ZonedDateTime.now()
+    isSmartDocumentsEnabled = this@toZaaktypeConfiguration.smartDocuments?.isEnabledForZaaktype ?: false
     zaaktypeBetrokkeneParameters =
-        this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
+        this@toZaaktypeConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
     zaaktypeBrpParameters =
-        this@toZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
-    nietOntvankelijkResultaattype = this@toZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
+        this@toZaaktypeConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
+    nietOntvankelijkResultaattype = this@toZaaktypeConfiguration.zaakNietOntvankelijkResultaattype?.id
     setZaakbeeindigParameters(
-        this@toZaaktypeBpmnConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList()
+        this@toZaaktypeConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList()
     )
 }

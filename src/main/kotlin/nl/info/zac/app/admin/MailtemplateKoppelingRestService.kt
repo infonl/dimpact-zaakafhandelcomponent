@@ -16,8 +16,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
 import nl.info.zac.admin.MailTemplateKoppelingenService
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.converter.toRestMailtemplateKoppeling
 import nl.info.zac.app.admin.converter.toZaaktypeMailtemplateParameters
@@ -54,13 +52,10 @@ class MailtemplateKoppelingRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return mailTemplateKoppelingenService.listMailtemplateKoppelingen().map { zaaktypeMailtemplateParameters ->
             zaaktypeMailtemplateParameters.toRestMailtemplateKoppeling().apply {
-                zaakafhandelParameters = when (val configuration = zaaktypeMailtemplateParameters.zaaktypeConfiguration) {
-                    is ZaaktypeCmmnConfiguration ->
-                        restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(configuration, false)
-                    is ZaaktypeBpmnConfiguration ->
-                        restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(configuration)
-                    else -> error("Unknown zaaktype configuration type: ${configuration::class.simpleName}")
-                }
+                zaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
+                    zaaktypeMailtemplateParameters.zaaktypeConfiguration,
+                    false
+                )
             }
         }
     }

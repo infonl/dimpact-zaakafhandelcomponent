@@ -12,16 +12,18 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.just
 import io.mockk.slot
 import jakarta.ws.rs.NotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
@@ -46,18 +48,16 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(
         bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
     )
-    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
-    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
+    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val policyService = mockk<PolicyService>()
-    val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val zaaktypeBpmnConfigurationRestService =
         ZaaktypeBpmnConfigurationRestService(
-            zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
-            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
-            zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
+            zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
             policyService = policyService,
             ztcClientService = ztcClientService,
             restZaakbeeindigParameterConverter = zaakbeeindigParameterConverter,
@@ -75,7 +75,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             val restZaakbeeindigParameter = createRestZaakbeeindigParameter(resultaattype = restResultType)
             every { policyService.readOverigeRechten().canStartenZaak } returns true
             every {
-                zaaktypeBpmnConfigurationBeheerService.listConfigurations()
+                zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
             } returns listOf(zaaktypeBpmnProcessDefinition)
             every {
                 zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any())
@@ -85,7 +85,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
             `when`("reading BPMN zaaktypes") {
                 val result = zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(
-                    zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
+                    "fakeBpmnProcessDefinitionKey"
                 )
 
                 then("it should return a list of BPMN zaaktypes") {
@@ -93,7 +93,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                         id shouldBe zaaktypeBpmnProcessDefinition.id
                         zaaktypeUuid shouldBe zaaktypeBpmnProcessDefinition.zaaktypeUuid
                         zaaktypeOmschrijving shouldBe zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
-                        bpmnProcessDefinitionKey shouldBe zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
+                        bpmnProcessDefinitionKey shouldBe "fakeBpmnProcessDefinitionKey"
                         productaanvraagtype shouldBe zaaktypeBpmnProcessDefinition.productaanvraagtype
                         groepNaam shouldBe zaaktypeBpmnProcessDefinition.groepID
                         smartDocuments?.isEnabledGlobally shouldBe true
@@ -106,18 +106,18 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         given("No BPMN zaaktype process definition is set-up") {
             every { policyService.readOverigeRechten().canStartenZaak } returns true
             every {
-                zaaktypeBpmnConfigurationBeheerService.listConfigurations()
+                zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
             } returns emptyList()
 
             `when`("reading BPMN zaaktypes") {
                 val exception = shouldThrow<NotFoundException> {
                     zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(
-                        zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
+                        "fakeBpmnProcessDefinitionKey"
                     )
                 }
 
                 then("it should return a list of BPMN zaaktypes") {
-                    exception.message shouldContain zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
+                    exception.message shouldContain "fakeBpmnProcessDefinitionKey"
                 }
             }
         }
@@ -125,18 +125,18 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         given("Multiple zaaktypes mapped to one process definition") {
             every { policyService.readOverigeRechten().canStartenZaak } returns true
             every {
-                zaaktypeBpmnConfigurationBeheerService.listConfigurations()
+                zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
             } returns listOf(zaaktypeBpmnProcessDefinition, zaaktypeBpmnProcessDefinition)
 
             `when`("reading BPMN zaaktypes") {
                 val exception = shouldThrow<MultipleZaaktypeConfigurationsFoundException> {
                     zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(
-                        zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
+                        "fakeBpmnProcessDefinitionKey"
                     )
                 }
 
                 then("it should return a list of BPMN zaaktypes") {
-                    exception.message shouldContain zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
+                    exception.message shouldContain "fakeBpmnProcessDefinitionKey"
                 }
             }
         }
@@ -153,16 +153,13 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             )
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
-                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(any(), any())
-            } returns Unit
+                zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(any(), any())
+            } just runs
             every {
-                zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(any(), any())
-            } returns Unit
-            every {
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(any<UUID>())
+                zaaktypeConfigurationBeheerService.findConfiguration(any<UUID>())
             } returns null
             every {
-                zaaktypeBpmnConfigurationBeheerService.storeConfiguration(any())
+                zaaktypeConfigurationBeheerService.storeConfiguration(any())
             } returns savedConfiguration
             every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
@@ -175,7 +172,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
                 then("it should return the created configuration") {
                     result.zaaktypeUuid shouldBe savedConfiguration.zaaktypeUuid
-                    result.bpmnProcessDefinitionKey shouldBe savedConfiguration.bpmnProcessDefinitionKey
+                    result.bpmnProcessDefinitionKey shouldBe savedConfiguration.processBinding?.definitionKey
                 }
             }
         }
@@ -216,16 +213,13 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             )
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
-                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(any(), any())
-            } returns Unit
+                zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(any(), any())
+            } just runs
             every {
-                zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(any(), any())
-            } returns Unit
-            every {
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
+                zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
             } returns existingZaaktypeBpmnConfiguration
             every {
-                zaaktypeBpmnConfigurationBeheerService.storeConfiguration(any())
+                zaaktypeConfigurationBeheerService.storeConfiguration(any())
             } returns updatedZaaktypeBpmnConfiguration
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
             every { ztcClientService.readResultaattype(any<UUID>()) } returns resultaatType
@@ -240,7 +234,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                     with(updatedRestZaaktypeBpmnConfiguration) {
                         id shouldBe updatedZaaktypeBpmnConfiguration.id
                         zaaktypeUuid shouldBe updatedZaaktypeBpmnConfiguration.zaaktypeUuid
-                        bpmnProcessDefinitionKey shouldBe updatedZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
+                        bpmnProcessDefinitionKey shouldBe updatedZaaktypeBpmnConfiguration.processBinding?.definitionKey
                         groepNaam shouldBe updatedZaaktypeBpmnConfiguration.groepID
                         productaanvraagtype shouldBe updatedZaaktypeBpmnConfiguration.productaanvraagtype
                         with(zaakNietOntvankelijkResultaattype!!) {
@@ -282,13 +276,13 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeUuid = existingZaaktypeBpmnConfiguration.zaaktypeUuid,
                 groepNaam = "fakeChangedGroup"
             )
-            val storedZaaktypeBpmnConfiguration = slot<ZaaktypeBpmnConfiguration>()
+            val storedZaaktypeBpmnConfiguration = slot<ZaaktypeConfiguration>()
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
+                zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
             } returns existingZaaktypeBpmnConfiguration
             every {
-                zaaktypeBpmnConfigurationBeheerService.storeConfiguration(capture(storedZaaktypeBpmnConfiguration))
+                zaaktypeConfigurationBeheerService.storeConfiguration(capture(storedZaaktypeBpmnConfiguration))
             } answers { storedZaaktypeBpmnConfiguration.captured }
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
             every { smartDocumentsService.isEnabled() } returns true
@@ -320,13 +314,13 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeUuid = existingConfiguration.zaaktypeUuid,
                 smartDocuments = RestSmartDocuments(isEnabledGlobally = true, isEnabledForZaaktype = true)
             )
-            val capturedConfiguration = slot<nl.info.zac.admin.model.ZaaktypeBpmnConfiguration>()
+            val capturedConfiguration = slot<nl.info.zac.admin.model.ZaaktypeConfiguration>()
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
+                zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
             } returns existingConfiguration
             every {
-                zaaktypeBpmnConfigurationBeheerService.storeConfiguration(capture(capturedConfiguration))
+                zaaktypeConfigurationBeheerService.storeConfiguration(capture(capturedConfiguration))
             } returns savedConfiguration
             every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
@@ -358,6 +352,30 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
                 then("it should throw an exception") {
                     exception.message shouldContain "groepNaam must not be null"
+                }
+            }
+        }
+    }
+
+    context("Listing BPMN configurations") {
+        given("BPMN configurations bound in the system") {
+            val bpmnConfig = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            )
+            every { policyService.readOverigeRechten().canStartenZaak } returns true
+            every {
+                zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
+            } returns listOf(bpmnConfig)
+            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
+            every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
+            every { smartDocumentsService.isEnabled() } returns true
+
+            `when`("listing BPMN configurations") {
+                val list = zaaktypeBpmnConfigurationRestService.listZaaktypeBpmnConfigurations()
+
+                then("it returns the mapped REST BPMN configurations") {
+                    list.size shouldBe 1
+                    list.first().bpmnProcessDefinitionKey shouldBe "fakeBpmnProcessDefinitionKey"
                 }
             }
         }

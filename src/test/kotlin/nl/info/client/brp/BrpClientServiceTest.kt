@@ -19,7 +19,6 @@ import nl.info.client.brp.util.BrpProtocolleringContext
 import nl.info.client.brp.util.createBrpConfiguration
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeBrpParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import java.util.Optional
@@ -61,7 +60,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -88,7 +87,7 @@ class BrpClientServiceTest : BehaviorSpec({
     given("A person for a given BSN and a zaaktype without a configuration") {
         val bsn = "123456789"
         val person = createPersoon(bsn = bsn)
-        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) } returns null
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns null
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
@@ -113,7 +112,7 @@ class BrpClientServiceTest : BehaviorSpec({
 
     given("No person for a given BSN") {
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = emptyList()
@@ -134,7 +133,7 @@ class BrpClientServiceTest : BehaviorSpec({
             createPersoon(bsn = "123456789")
         )
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = persons
@@ -165,7 +164,7 @@ class BrpClientServiceTest : BehaviorSpec({
             )
 
             every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
             } returns zaaktypeConfiguration
             every { personenApi.personen(any<PersonenQuery>()) } returns raadpleegMetBurgerservicenummerResponse
             val localContext = BrpProtocolleringContext()
@@ -205,7 +204,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -241,7 +240,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -276,7 +275,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -305,7 +304,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val person = createPersoon(bsn = bsn)
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -332,7 +331,7 @@ class BrpClientServiceTest : BehaviorSpec({
     given("A person exists for a given BSN and the zaaktype has no zaaktype configuration") {
         val bsn = "123456789"
         val person = createPersoon(bsn = bsn)
-        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) } returns null
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns null
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
@@ -369,7 +368,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val userName = "fakeUserName"
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -402,7 +401,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(createPersoon(bsn = bsn))
@@ -432,7 +431,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val configWithSystemUser = createBrpConfiguration(systemUser = Optional.of(systemUser))
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } throws NotFoundException("Zaak not found")
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -468,7 +467,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val configWithZaaktypeExtension = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = true)
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
@@ -505,7 +504,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val configWithoutZaaktypeExtension = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = false)
 
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)

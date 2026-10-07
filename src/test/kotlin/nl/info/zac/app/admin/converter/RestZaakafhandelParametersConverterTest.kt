@@ -25,13 +25,18 @@ import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
+import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakAfzender
+import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.createRestResultaattype
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.createRestZaakbeeindigParameter
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
@@ -43,7 +48,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
+    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val zgwApiService = mockk<ZgwApiService>()
     val zaakspecifiekeAutorisatieService = ZaakspecifiekeAutorisatieService(
@@ -61,7 +66,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         zaakbeeindigParameterConverter = zaakbeeindigParameterConverter,
         humanTaskParametersConverter = restHumanTaskParametersConverter,
         ztcClientService = ztcClientService,
-        zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
         smartDocumentsService = smartDocumentsService,
         zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
@@ -94,7 +99,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every { smartDocumentsService.isEnabled() } returns true
         every {
             caseDefinitionConverter.convertToRestCaseDefinition(
-                checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID),
+                "fakeCaseDefinitionId",
                 true
             )
         } returns restCaseDefinition
@@ -159,17 +164,17 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     given("RestZaakafhandelParameters CMMN with minimal content") {
         val restResultType = createResultaatType().toRestResultaatType()
         val restZaakafhandelParameters = createRestZaaktypeConfiguration().apply {
-            caseDefinition = RESTCaseDefinition()
+            caseDefinition = RESTCaseDefinition().apply { key = "fakeCaseDefinitionKey" }
             zaakNietOntvankelijkResultaattype = restResultType
         }
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         every {
-            zaaktypeCmmnConfigurationService.fetchZaaktypeCmmnConfiguration(restZaakafhandelParameters.zaaktype.uuid)
+            zaaktypeConfigurationBeheerService.findConfiguration(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaaktypeCmmnConfiguration
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 
         `when`("converted to DB model representation") {
-            val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeCmmnConfiguration(
+            val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
                 restZaakafhandelParameters
             )
 
@@ -178,15 +183,16 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     id shouldBe restZaakafhandelParameters.id
                     zaaktypeUuid shouldBe restZaakafhandelParameters.zaaktype.uuid
                     zaaktypeOmschrijving shouldBe "fakeOmschrijving"
-                    caseDefinitionID shouldBe null
+                    processBinding?.processEngine shouldBe ProcessEngine.CMMN
+                    processBinding?.definitionKey shouldBe "fakeCaseDefinitionKey"
                     groepID shouldBe "fakeGroupId"
                     defaultBehandelaarId shouldBe null
                     einddatumGeplandWaarschuwing shouldBe null
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe null
                     nietOntvankelijkResultaattype shouldBe restResultType.id
                     creatiedatum shouldNotBe null
-                    intakeMail shouldBe null
-                    afrondenMail shouldBe null
+                    cmmnExtension?.intakeMail shouldBe null
+                    cmmnExtension?.afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
                     isSmartDocumentsEnabled shouldBe false
                 }
@@ -215,7 +221,8 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
-                zaaktypeBpmnConfiguration
+                zaaktypeBpmnConfiguration,
+                true
             )
 
             then("the created object is correct") {
@@ -262,7 +269,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRestCaseDefinition(checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID), true)
+            caseDefinitionConverter.convertToRestCaseDefinition("fakeCaseDefinitionId", true)
         } returns restCaseDefinition
         every {
             restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
@@ -301,7 +308,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { smartDocumentsService.isEnabled() } returns true
         every {
-            caseDefinitionConverter.convertToRestCaseDefinition(checkNotNull(zaaktypeCmmnConfiguration.caseDefinitionID), true)
+            caseDefinitionConverter.convertToRestCaseDefinition("fakeCaseDefinitionId", true)
         } returns restCaseDefinition
         every {
             restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
@@ -318,6 +325,54 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
             then("the zaaktype configuration is not marked as 'zaakspecifiek autoriseerbaar'") {
                 restZaakafhandelParameters.isZaakspecifiekAutoriseerbaar shouldBe false
+            }
+        }
+    }
+
+    context("toZaaktypeConfiguration conversion") {
+        given("a complete REST zaaktype configuration") {
+            val restZaaktypeConfig = RestZaaktypeConfiguration(
+                id = 456L,
+                zaaktype = createRestZaaktypeOverzicht(),
+                caseDefinition = RESTCaseDefinition().apply { key = "fakeCaseDefinitionKey" },
+                defaultGroepId = "fakeDefaultGroup",
+                defaultBehandelaarId = "fakeBehandelaar",
+                productaanvraagtype = "  fakeProductaanvraag  ",
+                einddatumGeplandWaarschuwing = 4,
+                uiterlijkeEinddatumAfdoeningWaarschuwing = 8,
+                zaakNietOntvankelijkResultaattype = createRestResultaattype(),
+                intakeMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_AAN,
+                afrondenMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT,
+                smartDocuments = RestSmartDocuments(isEnabledGlobally = true, isEnabledForZaaktype = true)
+            )
+            val baseConfig = ZaaktypeConfiguration().apply {
+                zaaktypeUuid = restZaaktypeConfig.zaaktype.uuid
+            }
+
+            every {
+                zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeConfig.zaaktype.uuid)
+            } returns baseConfig
+            every {
+                restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any())
+            } returns emptyList()
+
+            `when`("converting REST configuration to ZaaktypeConfiguration entity") {
+                val entity = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfig)
+
+                then("all properties and CMMN extension parameters are mapped") {
+                    entity.id shouldBe 456L
+                    entity.zaaktypeUuid shouldBe restZaaktypeConfig.zaaktype.uuid
+                    entity.zaaktypeOmschrijving shouldBe restZaaktypeConfig.zaaktype.omschrijving
+                    entity.getProcessEngine() shouldBe ProcessEngine.CMMN
+                    entity.processBinding?.definitionKey shouldBe restZaaktypeConfig.caseDefinition?.key
+                    entity.groepID shouldBe "fakeDefaultGroup"
+                    entity.defaultBehandelaarId shouldBe "fakeBehandelaar"
+                    entity.productaanvraagtype shouldBe "fakeProductaanvraag"
+                    entity.einddatumGeplandWaarschuwing shouldBe 4
+                    entity.uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe 8
+                    entity.cmmnExtension?.intakeMail shouldBe "BESCHIKBAAR_AAN"
+                    entity.cmmnExtension?.afrondenMail shouldBe "BESCHIKBAAR_UIT"
+                }
             }
         }
     }

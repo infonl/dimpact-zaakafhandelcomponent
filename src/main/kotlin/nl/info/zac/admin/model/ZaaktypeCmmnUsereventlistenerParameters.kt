@@ -16,7 +16,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
-import java.util.Objects
 
 @Entity
 @Table(schema = SCHEMA, name = "zaaktype_cmmn_usereventlistener_parameters")
@@ -27,7 +26,7 @@ import java.util.Objects
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCmmnUsereventlistenerParameters : UserModifiable<ZaaktypeCmmnUsereventlistenerParameters> {
+class ZaaktypeCmmnUsereventlistenerParameters : UserModifiableZaaktypeConfigurationData<ZaaktypeCmmnUsereventlistenerParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_cmmn_usereventlistener_parameters", strategy = GenerationType.SEQUENCE)
@@ -38,17 +37,12 @@ class ZaaktypeCmmnUsereventlistenerParameters : UserModifiable<ZaaktypeCmmnUsere
     var planItemDefinitionID: String? = null
 
     @ManyToOne
-    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    @JoinColumn(name = "zaaktype_cmmn_extension_id", referencedColumnName = "id")
     @NotNull
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    lateinit var zaaktypeCmmnExtension: ZaaktypeCmmnExtension
 
     @Column(name = "toelichting")
     var toelichting: String? = null
-
-    override fun isModifiedFrom(original: ZaaktypeCmmnUsereventlistenerParameters): Boolean {
-        return Objects.equals(planItemDefinitionID, original.planItemDefinitionID) &&
-            !Objects.equals(this.toelichting, original.toelichting)
-    }
 
     override fun applyChanges(changes: ZaaktypeCmmnUsereventlistenerParameters) {
         this.toelichting = changes.toelichting
@@ -69,9 +63,8 @@ class ZaaktypeCmmnUsereventlistenerParameters : UserModifiable<ZaaktypeCmmnUsere
         return true
     }
 
-    override fun hashCode(): Int {
-        var result = planItemDefinitionID?.hashCode() ?: 0
-        result = 31 * result + (toelichting?.hashCode() ?: 0)
-        return result
-    }
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 }
