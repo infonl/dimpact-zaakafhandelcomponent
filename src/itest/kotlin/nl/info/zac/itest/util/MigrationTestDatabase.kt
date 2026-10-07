@@ -8,6 +8,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_DATABASE_CONTAINER_SERVIC
 import nl.info.zac.itest.config.dockerComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.output.ToStringConsumer
 import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
 import org.testcontainers.utility.MountableFile
@@ -53,6 +54,7 @@ class MigrationTestDatabase : AutoCloseable {
         val flywayVersion = checkNotNull(System.getProperty("flywayVersion")) {
             "System property 'flywayVersion' is not set"
         }
+        val flywayOutput = ToStringConsumer()
         val flywayContainer = GenericContainer<Nothing>(DockerImageName.parse("$FLYWAY_IMAGE:$flywayVersion")).apply {
             // shares the network namespace of the database container, so that Flyway reaches it on localhost
             withNetworkMode("container:${zacDatabaseContainer.containerId}")
@@ -68,17 +70,18 @@ class MigrationTestDatabase : AutoCloseable {
                 "migrate"
             )
             withStartupCheckStrategy(OneShotStartupCheckStrategy().withTimeout(FLYWAY_TIMEOUT))
+            withLogConsumer(flywayOutput)
         }
         return flywayContainer.use {
             try {
                 it.start()
             } catch (containerLaunchException: ContainerLaunchException) {
                 throw IllegalStateException(
-                    "Flyway failed to migrate to version $version: ${it.logs}",
+                    "Flyway failed to migrate to version $version: ${flywayOutput.toUtf8String()}",
                     containerLaunchException
                 )
             }
-            it.logs
+            flywayOutput.toUtf8String()
         }
     }
 
