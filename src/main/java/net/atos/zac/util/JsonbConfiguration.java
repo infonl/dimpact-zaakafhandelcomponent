@@ -11,6 +11,7 @@ import jakarta.json.bind.JsonbConfig;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
 
+import nl.info.zac.util.RestBagObjectJsonbDeserializer;
 import nl.info.zac.util.time.LocalDateAdapter;
 import nl.info.zac.util.time.ZonedDateTimeAdapter;
 
@@ -25,7 +26,7 @@ public class JsonbConfiguration implements ContextResolver<Jsonb> {
                         new ZonedDateTimeAdapter(),
                         new LocalDateAdapter()
                 ).withDeserializers(
-                        new RESTBAGObjectJsonbDeserializer()
+                        new RestBagObjectJsonbDeserializer()
                 );
         jsonb = JsonbBuilder.create(jsonbConfig);
     }

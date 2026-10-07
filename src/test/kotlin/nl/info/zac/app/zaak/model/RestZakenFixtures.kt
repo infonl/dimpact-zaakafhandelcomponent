@@ -5,9 +5,9 @@
 
 package nl.info.zac.app.zaak.model
 
-import net.atos.zac.app.bag.model.RESTBAGObject
-import net.atos.zac.app.bag.model.RESTOpenbareRuimte
-import net.atos.zac.app.bag.model.RESTPand
+import nl.info.zac.app.bag.model.RestBagObject
+import nl.info.zac.app.bag.model.RestOpenbareRuimte
+import nl.info.zac.app.bag.model.RestPand
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.identity.model.RestGroup
@@ -128,9 +128,9 @@ fun createRestInboxProductaanvraag(
     initiatorID = null
 )
 
-fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
+fun createRestOpenbareRuimte() = RestOpenbareRuimte()
 
-fun createRESTPand() = RESTPand()
+fun createRestPand() = RestPand()
 
 fun createRestUser(
     id: String = "fakeId",
@@ -252,7 +252,7 @@ fun createRESTZaakAanmaakGegevens(
         )
     ),
     inboxProductaanvraag: RestInboxProductaanvraag = createRestInboxProductaanvraag(),
-    bagObjecten: List<RESTBAGObject> = listOf(createRESTPand(), createRESTOpenbareRuimte())
+    bagObjecten: List<RestBagObject> = listOf(createRestPand(), createRestOpenbareRuimte())
 ) = RestZaakAanmaakGegevens(
     zaak = restZaakCreateData,
     inboxProductaanvraag = inboxProductaanvraag,

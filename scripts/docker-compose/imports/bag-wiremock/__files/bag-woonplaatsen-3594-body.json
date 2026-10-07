@@ -1,0 +1,27 @@
+{
+  "woonplaats": {
+    "identificatie": "3594",
+    "domein": "NL.IMBAG.Woonplaats",
+    "naam": "Amsterdam",
+    "status": "Woonplaats aangewezen",
+    "geconstateerd": "N",
+    "documentdatum": "2014-01-10",
+    "documentnummer": "GV00001729_AC00AC",
+    "voorkomen": {
+      "tijdstipRegistratie": "2014-01-10T16:17:08",
+      "versie": 1,
+      "beginGeldigheid": "2014-01-10",
+      "tijdstipRegistratieLV": "2014-01-10T16:34:01.612"
+    }
+  },
+  "_links": {
+    "self": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+    },
+    "bronhouders": [
+      {
+        "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/bronhouders/0363"
+      }
+    ]
+  }
+}

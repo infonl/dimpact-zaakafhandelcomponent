@@ -12,7 +12,10 @@ import {
 import "@angular/compiler";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
 import { provideZacDateAdapter } from "./src/app/shared/form/date/provide-zac-date-adapter";
 
@@ -164,6 +167,7 @@ beforeEach(() => {
       provideHttpClientTesting(),
       provideRouter([]),
       provideZacDateAdapter(),
+      provideQueryClient(testQueryClient),
     ],
   });
 });

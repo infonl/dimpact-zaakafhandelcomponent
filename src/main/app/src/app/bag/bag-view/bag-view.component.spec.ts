@@ -34,7 +34,7 @@ describe(BAGViewComponent.name, () => {
       .textContent?.replace("zaken of: ", "");
   }
 
-  async function setup(bagObject: GeneratedType<"RESTBAGObject">) {
+  async function setup(bagObject: GeneratedType<"RestBagObject">) {
     TestBed.overrideComponent(BAGViewComponent, {
       remove: { imports: [BagZakenTabelComponent] },
       add: { imports: [BagZakenTabelStubComponent] },
@@ -57,7 +57,7 @@ describe(BAGViewComponent.name, () => {
 
   it("titles the page after the bag object it shows", async () => {
     await setup(
-      fromPartial<GeneratedType<"RESTBAGObject">>({
+      fromPartial<GeneratedType<"RestBagObject">>({
         bagObjectType: "WOONPLAATS",
         identificatie: "3594",
       }),
@@ -68,7 +68,7 @@ describe(BAGViewComponent.name, () => {
 
   it("shows an adres and the zaken it is linked to", async () => {
     await setup(
-      fromPartial<GeneratedType<"RESTBAGAdres">>({
+      fromPartial<GeneratedType<"RestBagAdres">>({
         bagObjectType: "ADRES",
         identificatie: "0363200000218908",
         omschrijving: "Teststraat 1, Amsterdam",
@@ -82,7 +82,7 @@ describe(BAGViewComponent.name, () => {
 
   it("shows a woonplaats and the zaken it is linked to", async () => {
     await setup(
-      fromPartial<GeneratedType<"RESTWoonplaats">>({
+      fromPartial<GeneratedType<"RestWoonplaats">>({
         bagObjectType: "WOONPLAATS",
         identificatie: "3594",
         omschrijving: "Amsterdam",
@@ -96,7 +96,7 @@ describe(BAGViewComponent.name, () => {
 
   it("shows a pand and the zaken it is linked to", async () => {
     await setup(
-      fromPartial<GeneratedType<"RESTPand">>({
+      fromPartial<GeneratedType<"RestPand">>({
         bagObjectType: "PAND",
         identificatie: "0363100012165490",
         omschrijving: "Pand aan de Teststraat",
@@ -110,7 +110,7 @@ describe(BAGViewComponent.name, () => {
 
   it("shows an openbare ruimte and the zaken it is linked to", async () => {
     await setup(
-      fromPartial<GeneratedType<"RESTOpenbareRuimte">>({
+      fromPartial<GeneratedType<"RestOpenbareRuimte">>({
         bagObjectType: "OPENBARE_RUIMTE",
         identificatie: "0363300000002244",
         omschrijving: "Teststraat, Amsterdam",
@@ -124,7 +124,7 @@ describe(BAGViewComponent.name, () => {
 
   it("shows a nummeraanduiding and the zaken it is linked to", async () => {
     await setup(
-      fromPartial<GeneratedType<"RESTNummeraanduiding">>({
+      fromPartial<GeneratedType<"RestNummeraanduiding">>({
         bagObjectType: "NUMMERAANDUIDING",
         identificatie: "0363200000218908",
         omschrijving: "Teststraat 1",
@@ -139,7 +139,7 @@ describe(BAGViewComponent.name, () => {
 
   it("shows the zaken of an adresseerbaar object, which has no details of its own", async () => {
     await setup(
-      fromPartial<GeneratedType<"RESTBAGObject">>({
+      fromPartial<GeneratedType<"RestBagObject">>({
         bagObjectType: "ADRESSEERBAAR_OBJECT",
         identificatie: "0363010000721374",
         omschrijving: "Verblijfsobject",

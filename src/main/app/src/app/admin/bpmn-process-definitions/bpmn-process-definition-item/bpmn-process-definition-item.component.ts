@@ -24,7 +24,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
-import { forkJoin, lastValueFrom } from "rxjs";
+import { lastValueFrom } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import {
@@ -104,6 +104,9 @@ export class BpmnProcessDefinitionItemComponent {
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly uploadProcessDefinitionFormMutation = injectMutation(() =>
+    this.bpmnService.uploadProcessDefinitionForm(this.processDefinition().key),
+  );
   private readonly deleteProcessDefinitionFormMutation = injectMutation(() =>
     this.bpmnService.deleteProcessDefinitionForm(),
   );
@@ -172,30 +175,35 @@ export class BpmnProcessDefinitionItemComponent {
       files.map((file) =>
         readFileContent(file).then((content) => ({ file, content })),
       ),
-    )
-      .then((fileContents) => {
-        forkJoin(
+    ).then(
+      (fileContents) =>
+        Promise.all(
           fileContents.map(({ file, content }) =>
-            this.bpmnService.uploadProcessDefinitionForm(
-              this.processDefinition().key,
-              { filename: file.name, content },
-            ),
+            this.uploadProcessDefinitionFormMutation.mutateAsync({
+              filename: file.name,
+              content,
+            }),
           ),
-        ).subscribe(() => {
-          this.utilService.openSnackbar("msg.bpmn.task-forms.upload.success", {
-            namen: files.map((f) => f.name).join(", "),
-          });
-          if (files.length >= this.missingForms().length) {
-            this.forceHideWarning.set(true);
-            setTimeout(() => this.bpmnFormListChanged.emit(), 450);
-          } else {
-            this.bpmnFormListChanged.emit();
-          }
-        });
-      })
-      .catch((error) => {
+        )
+          .then(() => this.announceUploadedForms(files))
+          // the query client already reported the failure to the user
+          .catch(() => undefined),
+      (error) => {
         this.foutAfhandelingService.foutAfhandelen(error);
-      });
+      },
+    );
+  }
+
+  private announceUploadedForms(files: File[]) {
+    this.utilService.openSnackbar("msg.bpmn.task-forms.upload.success", {
+      namen: files.map((file) => file.name).join(", "),
+    });
+    if (files.length >= this.missingForms().length) {
+      this.forceHideWarning.set(true);
+      setTimeout(() => this.bpmnFormListChanged.emit(), 450);
+    } else {
+      this.bpmnFormListChanged.emit();
+    }
   }
 
   protected deleteBpmnForm(bpmnFormName: string) {

@@ -392,9 +392,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.cdr.detectChanges();
-    if (this.smartDocumentsFormComponent) {
-      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
-    }
   }
 
   private async readHumanTaskParameters(
@@ -1088,7 +1085,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     });
 
     if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
-      this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();
+      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
     }
   }
 
