@@ -11,6 +11,11 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
+import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
+import nl.info.zac.itest.config.RECORDMANAGER_1
+import nl.info.zac.itest.config.TestUser
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
@@ -49,6 +54,82 @@ class NotificationZaakDestroyTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
+
+    fun createZaak(zaaktypeUuid: UUID, testUser: TestUser): UUID =
+        zacClient.createZaakAndRetrieve(
+            zaakTypeUUID = zaaktypeUuid,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            startDate = DATE_TIME_2024_01_31,
+            testUser = testUser
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HTTP_OK
+            JSONObject(responseBody).getString("uuid").run(UUID::fromString)
+        }
+
+    fun readZaak(zaakUuid: UUID, testUser: TestUser): String =
+        zacClient.retrieveZaak(zaakUuid, testUser).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HTTP_OK
+            responseBody
+        }
+
+    fun countTaken(zaakUuid: UUID, testUser: TestUser): Int =
+        itestHttpClient.performGetRequest(url = "$ZAC_API_URI/taken/zaak/$zaakUuid", testUser = testUser).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HTTP_OK
+            JSONArray(responseBody).length()
+        }
+
+    fun doUserEventListenerPlanItem(zaakUuid: UUID, actionJson: String) {
+        val planItemInstanceId = itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUuid/userEventListenerPlanItems",
+            testUser = RECORDMANAGER_1
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            JSONArray(responseBody).getJSONObject(0).getString("id")
+        }
+        sleepForOpenZaakUniqueConstraint(1)
+        itestHttpClient.performJSONPostRequest(
+            "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+            requestBodyAsString = """
+                {
+                    "zaakUuid": "$zaakUuid",
+                    "planItemInstanceId": "$planItemInstanceId",
+                    $actionJson
+                }
+            """.trimIndent(),
+            testUser = RECORDMANAGER_1
+        ).run {
+            code shouldBe HTTP_NO_CONTENT
+        }
+    }
+
+    fun sendZaakDestroyNotification(zaakUuid: UUID) =
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "zaken",
+                    "resource" to "zaak",
+                    "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
+                    "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
+                    "actie" to "destroy",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString()
+        )
 
     given(
         """
@@ -155,25 +236,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
             searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
         }
         `when`("the notificaties endpoint is called with a 'zaak destroy' payload") {
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/notificaties",
-                headers = Headers.headersOf(
-                    "Content-Type",
-                    "application/json",
-                    "Authorization",
-                    OPEN_NOTIFICATIONS_API_SECRET_KEY
-                ),
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "kanaal" to "zaken",
-                        "resource" to "zaak",
-                        "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUUID",
-                        "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUUID",
-                        "actie" to "destroy",
-                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
-                    )
-                ).toString()
-            )
+            val response = sendZaakDestroyNotification(zaakUUID)
             then(
                 """
                     the response should be 'no content', the Flowable CMMN zaak data should be deleted,
@@ -238,6 +301,87 @@ class NotificationZaakDestroyTest : BehaviorSpec({
                     ).bodyAsString
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
+            }
+        }
+    }
+
+    given("an open zaak with a running BPMN process") {
+        val zaakUuid = createZaak(ZAAKTYPE_BPMN_TEST_1_UUID, BEHANDELAAR_1)
+        JSONObject(readZaak(zaakUuid, BEHANDELAAR_1)).getJSONObject("zaakdata").getString("zaakUUID") shouldBe
+            zaakUuid.toString()
+
+        `when`("the zaak destroy notification is received") {
+            val response = sendZaakDestroyNotification(zaakUuid)
+
+            then("the zaak has no zaakdata and no taken left, because its BPMN process and history are deleted") {
+                response.code shouldBe HTTP_NO_CONTENT
+                readZaak(zaakUuid, BEHANDELAAR_1).shouldContainJsonKeyValue("zaakdata", "")
+                countTaken(zaakUuid, BEHANDELAAR_1) shouldBe 0
+            }
+        }
+    }
+
+    given("a terminated zaak whose BPMN process has ended, so that its zaakdata comes from the process history") {
+        val zaakUuid = createZaak(ZAAKTYPE_BPMN_TEST_1_UUID, BEHANDELAAR_1)
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/afbreken",
+            requestBodyAsString = """{ "zaakbeeindigRedenId": "ZAAK_NIET_ONTVANKELIJK" }""",
+            testUser = BEHANDELAAR_1
+        ).run {
+            logger.info { "Response: $bodyAsString" }
+            code shouldBe HTTP_OK
+        }
+        JSONObject(readZaak(zaakUuid, BEHANDELAAR_1)).getJSONObject("zaakdata").getString("zaakUUID") shouldBe
+            zaakUuid.toString()
+
+        `when`("the zaak destroy notification is received") {
+            val response = sendZaakDestroyNotification(zaakUuid)
+
+            then("the zaak has no zaakdata and no taken left, because the history of its BPMN process is deleted") {
+                response.code shouldBe HTTP_NO_CONTENT
+                readZaak(zaakUuid, BEHANDELAAR_1).shouldContainJsonKeyValue("zaakdata", "")
+                countTaken(zaakUuid, BEHANDELAAR_1) shouldBe 0
+            }
+        }
+    }
+
+    given("a completed zaak whose CMMN case has ended, so that its zaakdata comes from the case history") {
+        val zaakUuid = createZaak(ZAAKTYPE_CMMN_TEST_2_UUID, RECORDMANAGER_1)
+        doUserEventListenerPlanItem(
+            zaakUuid,
+            """
+                "actie": "$ACTIE_INTAKE_AFRONDEN",
+                "isZaakOntvankelijk": true
+            """.trimIndent()
+        )
+        val resultaattypeUuid = itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_CMMN_TEST_2_UUID",
+            testUser = RECORDMANAGER_1
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            JSONArray(responseBody).getJSONObject(0).getString("id")
+        }
+        doUserEventListenerPlanItem(
+            zaakUuid,
+            """
+                "actie": "$ACTIE_ZAAK_AFHANDELEN",
+                "resultaattypeUuid": "$resultaattypeUuid",
+                "resultaatToelichting": "fakeResultaatToelichting"
+            """.trimIndent()
+        )
+        JSONObject(readZaak(zaakUuid, RECORDMANAGER_1)).run {
+            getBoolean("isOpen") shouldBe false
+            getJSONObject("zaakdata").getString("zaakUUID") shouldBe zaakUuid.toString()
+        }
+
+        `when`("the zaak destroy notification is received") {
+            val response = sendZaakDestroyNotification(zaakUuid)
+
+            then("the zaak has no zaakdata and no taken left, because the history of its CMMN case is deleted") {
+                response.code shouldBe HTTP_NO_CONTENT
+                readZaak(zaakUuid, RECORDMANAGER_1).shouldContainJsonKeyValue("zaakdata", "")
+                countTaken(zaakUuid, RECORDMANAGER_1) shouldBe 0
             }
         }
     }
