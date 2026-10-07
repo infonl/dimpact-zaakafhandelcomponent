@@ -141,8 +141,11 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 - [x] 4.3 Replace the engine `when` in `ZaakRestService.startZaak`, `terminateZaak`, and `applyZaakUpdateSideEffects`, and the
       two start paths in `ProductaanvraagService`, with the dispatcher. Verify with the existing unit tests, which
       are now parameterised by engine.
-- [x] 4.4 Make the zaak-delete handler in `NotificationReceiver` call `delete` on every binding. Verify with a unit
-      test and an itest that deletes a BPMN zaak and asserts that the process instance is gone.
+- [x] 4.4 Make the zaak-delete handler in `NotificationReceiver` call `delete` on every binding. Make
+      `CmmnService.deleteCase` delete the history of every case instance of the zaak by business key, also when the
+      case has already ended. Verify with unit tests and with the itest `NotificationZaakDestroyProcessDataTest`,
+      which sends the zaak destroy notification for an open BPMN zaak, a terminated BPMN zaak and a completed CMMN
+      zaak, and asserts in the database that the running and the historic process or case instances are gone.
 - [x] 4.5 Replace the `isZaakProcessDriven` and `isZaakCaseDriven` checks in `ZaakService` (assignment, archived
       zaakdata) and `ZaakRestService` (communicatiekanaal) with `hasActiveProcess`, `updateAssignment` and
       `updateCommunicatiekanaal` on every binding. Verify with unit tests of both adapters and the dispatcher.

@@ -329,9 +329,10 @@ nothing, because a CMMN case reads the rollen of the zaak.
 in the confirmation email, which B4 changes; only the process start inside each flow goes through the dispatcher.
 
 `delete` serves `NotificationReceiver` on zaak delete. The zaak no longer exists in Open Zaak, so ZAC cannot
-resolve its zaaktype. The receiver therefore calls `delete` on every binding. Each binding is a no-op when it
-has no instance for the zaak. `BpmnService` gets a `deleteProcessInstanceAndHistory` that also removes the history,
-mirroring `CMMNService.deleteCase`.
+resolve its zaaktype. The receiver therefore calls `delete` on every binding. Each binding deletes the running
+instance of the zaak, if any, and the history of every instance of the zaak by business key, also when the instance
+has already ended. Each binding is a no-op when it has neither. `BpmnService` gets a
+`deleteProcessInstanceAndHistory`, and `CmmnService.deleteCase` no longer finds the case through the runtime only.
 
 ### D7. B2: resultaattype by omschrijving, expand only
 
@@ -399,7 +400,8 @@ a duplicate.
     `identificatie` and a `datum_einde_geldigheid` on the first version. Use the existing
     `zaaktype-version-update-template.sql`.
   - `NotificationZaaktypeCompletionParametersTest` then runs against a real version chain.
-  - Add itests for the productaanvraagtype check across engines and for BPMN cleanup on zaak delete.
+  - Add itests for the productaanvraagtype check across engines and for the CMMN and BPMN cleanup on zaak delete,
+    for an open and for a closed zaak.
 - **Migration tests.** A test runs Flyway with `target` on an empty Testcontainers PostgreSQL up to the
   version before the chunk. Flyway runs as the `flyway/flyway` image of the Flyway version in
   `libs.versions.toml`, and the test reads and writes data with `psql` in the database container, so the
@@ -436,7 +438,7 @@ a duplicate.
   `@ApplicationScoped` and delegate to the existing transactional services. A Weld unit or itest checks that
   both adapters resolve.
 - [BPMN delete now removes process history] → History of a zaak that Open Zaak deleted has no owner. CMMN
-  already removes it.
+  already removed it while the case ran, and now also after the case has ended.
 
 ## Migration Plan
 
