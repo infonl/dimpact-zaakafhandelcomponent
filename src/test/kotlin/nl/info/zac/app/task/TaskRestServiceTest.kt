@@ -67,6 +67,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.task.api.history.HistoricTaskInstance
 import java.net.URI
 import java.time.LocalDate
@@ -93,6 +94,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val taskService = mockk<TaskService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val bpmnTaskFormRuntimeService = mockk<BpmnTaskFormRuntimeService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val testDispatcher = StandardTestDispatcher()
@@ -117,6 +119,7 @@ class TaskRestServiceTest : BehaviorSpec({
         bpmnTaskFormRuntimeService = bpmnTaskFormRuntimeService,
         zaakVariabelenService = zaakVariabelenService,
         fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L),
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
         dispatcher = testDispatcher
     )
     val loggedInUser = createLoggedInUser()
@@ -570,9 +573,10 @@ class TaskRestServiceTest : BehaviorSpec({
             )
             val loggedInUser = createLoggedInUser()
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak, loggedInUser).canLezen } returns true
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { policyService.readZaakRechten(zaak, loggedInUser, any()).canLezen } returns true
             every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
-            every { restTaskConverter.convert(tasks) } returns restTasks
+            every { restTaskConverter.convert(tasks, any()) } returns restTasks
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("the tasks are listed for this zaak") {

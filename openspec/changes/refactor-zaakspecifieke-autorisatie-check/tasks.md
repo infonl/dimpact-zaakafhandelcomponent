@@ -46,7 +46,9 @@
 - [ ] 4.4 `ZaakRestServiceTest`, `TaskRestServiceTest` and `EnkelvoudigInformatieObjectRestServiceTest`: the zsa
       marking is read once per request on the listed paths, and `updateZaak` returns the marking read after the
       write.
-- [ ] 4.5 Adjust existing tests that verify exact Open Zaak calls on these paths.
+- [x] 4.5 Adjust the setup (constructors and stubs, not the assertions) of the existing tests on the changed paths:
+      `ZaakRestServiceTest` (opening and updating a zaak), `TaskRestServiceTest` (listing the taken of a zaak) and
+      `EnkelvoudigInformatieObjectRestServiceTest` (listing the documenten of a zaak).
 
 ## 5. Wrap-up
 

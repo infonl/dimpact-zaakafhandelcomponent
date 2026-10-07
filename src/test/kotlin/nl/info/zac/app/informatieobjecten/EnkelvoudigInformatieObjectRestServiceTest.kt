@@ -80,6 +80,7 @@ import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.webdav.WebdavHelper
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -99,6 +100,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val policyService = mockk<PolicyService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RestInformatieobjecttypeConverter>()
@@ -126,7 +128,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         enkelvoudigInformatieObjectConvertService = enkelvoudigInformatieObjectConvertService,
         documentContentReader = DocumentContentReader(
             FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
-        )
+        ),
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -581,10 +584,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaakUuid) } returns zaak
-        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { policyService.readZaakRechten(zaak, loggedInUser, any()) } returns createZaakRechten()
         every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
         every {
-            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0])
+            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0], zaak, any())
         } returns restEnkelvoudigInformatieobjecten[0]
         every { zrcClientService.readZaak(deelzaak.url) } returns deelzaak
         every { zrcClientService.listZaakinformatieobjecten(deelzaak) } returns emptyList()
@@ -636,10 +640,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaakUuid) } returns zaak
-        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every { policyService.readZaakRechten(zaak, loggedInUser, any()) } returns createZaakRechten()
         every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
         every {
-            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0])
+            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0], zaak, any())
         } returns restEnkelvoudigInformatieobjectVoorZaak
         every { zrcClientService.readZaak(gerelateerdeZaakUri) } returns gerelateerdeZaak
         every { zrcClientService.listZaakinformatieobjecten(gerelateerdeZaak) } returns gerelateerdeZaakInformatieobjecten

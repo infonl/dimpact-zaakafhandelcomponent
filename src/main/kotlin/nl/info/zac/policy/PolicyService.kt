@@ -93,6 +93,8 @@ class PolicyService @Inject constructor(
      * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of [zaak], for a caller that already read
      * it in this request. When omitted, it is read here.
      */
+    // used for the java class BagRestService and will be removed once BagRestService is migrated to kotlin
+    @JvmOverloads
     fun readZaakRechten(
         zaak: Zaak,
         loggedInUser: LoggedInUser,

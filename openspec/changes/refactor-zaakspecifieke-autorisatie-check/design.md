@@ -71,6 +71,24 @@ touches every index converter for no behavioural gain. That can be done later.
 body of today's private `ReindexSupportService.zaakAutorisatieGegevens`. `ReindexSupportService` delegates to them,
 and its memoising lookup for the index stays where it is.
 
+### The derivation is an extension function on `ZaakspecifiekeAutorisatieService`
+
+`readZaakAutorisatieGegevens(zrcClientService, zaak)` and `readZaakAutorisatieGegevens(zrcClientService, zaakUuid)`
+are top-level extension functions, not members. MockK intercepts every member call on a mocked
+`ZaakspecifiekeAutorisatieService`, so a member would hide the derivation from the unit tests of `PolicyService`,
+`ReindexSupportService` and `IndexingService`. Those tests stub `listZaakeigenschappen` and `readZaakToewijzing`
+and assert on the outcome; with an extension function the real derivation keeps running in them, so they keep
+testing the same behaviour without changes.
+
+### The optional parameters default to `null`
+
+The new parameters are `ZaakAutorisatieGegevens? = null`, and the function body reads the data when it is `null`.
+A default expression that uses a field of the class would be evaluated on the mock in tests that mock
+`PolicyService` or `RestZaakConverter`, where that field is `null`. `RestZaakConverter` falls back to the same
+`zrcClientService.isZaakspecifiekGeautoriseerd` call it made before, and `RestTaskConverter` and
+`RestInformatieobjectConverter` only pass the value on to `PolicyService`, so none of the three gets a new
+dependency.
+
 ### Explicit passing, not a request-scoped cache
 
 The live `PolicyService` overloads, `RestZaakConverter.toRestZaak`, `RestTaskConverter.convert` and
