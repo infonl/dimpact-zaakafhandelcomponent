@@ -249,7 +249,7 @@ jobs:
           fi
 
       - name: Upload Gradle build artefacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: gradle-build
           path: |
@@ -257,7 +257,7 @@ jobs:
           retention-days: 1
 
       - name: Upload generated Java clients
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: generated-java-clients
           path: |
@@ -268,14 +268,14 @@ jobs:
         run: tar czf frontend-artefacts.tar.gz src/main/app/node_modules src/main/app/src/generated/types
 
       - name: Upload frontend build artefacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: frontend-artefacts
           path: frontend-artefacts.tar.gz
           retention-days: 1
 
       - name: Upload built ZAC JAR
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: zac-jar
           path: |
@@ -342,7 +342,7 @@ jobs:
       # The test results of both unit test jobs are published together by the 'run-unit-tests' job
       - name: Upload backend unit test results
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: backend-unit-test-results
           path: build/test-results/test/**/*.xml
@@ -415,7 +415,7 @@ jobs:
       # The test results of both unit test jobs are published together by the 'run-unit-tests' job
       - name: Upload frontend unit test results
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: frontend-unit-test-results-shard-${{ matrix.shard }}
           path: src/main/app/reports/*.xml
@@ -580,7 +580,7 @@ jobs:
 
       - name: Upload integration test log
         if: ${{ failure() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: integration-test-log-shard-${{ matrix.shard }}
           path: build/reports/itest/itest.log
@@ -597,7 +597,7 @@ jobs:
       # The test results of all shards are published together by the 'build-docker-image-and-run-itests' job
       - name: Upload integration test results
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: integration-test-results-shard-${{ matrix.shard }}
           path: build/test-results/itest/**/*.xml
