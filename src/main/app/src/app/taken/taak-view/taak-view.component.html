@@ -80,6 +80,7 @@
             (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
           />
           <div class="form">
+            <!-- @defer (when) fires only once; @if removes the old form when route.data emits a new taak -->
             @defer (when formioFormulier) {
               @if (formioFormulier) {
                 <zac-formio-wrapper
