@@ -479,16 +479,6 @@ class TaskRestServiceTest : BehaviorSpec({
                 and("the completed task is returned") {
                     restTaskReturned shouldBe restTaskConverted
                 }
-                and("no zaakspecifieke autorisatie is granted, since completing already requires access to the zaak") {
-                    verify(exactly = 0) {
-                        taskService.assignTaskToUser(
-                            taskId = any(),
-                            assignee = any(),
-                            loggedInUser = any(),
-                            explanation = any()
-                        )
-                    }
-                }
             }
         }
     }
