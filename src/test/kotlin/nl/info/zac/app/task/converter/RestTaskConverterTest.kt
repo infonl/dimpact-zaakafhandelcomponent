@@ -11,16 +11,11 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import jakarta.json.JsonObject
-import nl.info.zac.flowable.task.readTaskData
-import nl.info.zac.flowable.task.readTaskDocuments
-import nl.info.zac.flowable.task.readTaskInformation
-import nl.info.zac.flowable.task.readZaakIdentificatie
-import nl.info.zac.flowable.task.readZaakUUID
-import nl.info.zac.flowable.task.readZaaktypeOmschrijving
-import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
@@ -57,12 +52,6 @@ class RestTaskConverterTest : BehaviorSpec({
         bpmnProcessDefinitionTaskFormService = bpmnProcessDefinitionTaskFormService
     )
 
-    mockkStatic("nl.info.zac.flowable.task.TaakVariabelenServiceKt")
-
-    afterSpec {
-        unmockkStatic("nl.info.zac.flowable.task.TaakVariabelenServiceKt")
-    }
-
     afterEach { checkUnnecessaryStub() }
 
     context("convert") {
@@ -81,13 +70,13 @@ class RestTaskConverterTest : BehaviorSpec({
                 referenceTables = emptyList()
             )
 
-            every { readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-            every { readZaakUUID(taskInfo) } returns zaakUUID
-            every { readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { readTaskInformation(taskInfo) } returns mapOf()
-            every { readTaskData(taskInfo) } returns mapOf()
-            every { readTaskDocuments(taskInfo) } returns emptyList()
+            every { taskInfo.caseVariables } returns mapOf(
+                VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                VAR_ZAAK_UUID to zaakUUID,
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_UUID to zaaktypeUUID
+            )
+            every { taskInfo.taskLocalVariables } returns emptyMap()
             every { taskInfo.scopeType } returns ScopeTypes.CMMN
 
             every { taskInfo.id } returns "fakeTaskId"
@@ -134,13 +123,13 @@ class RestTaskConverterTest : BehaviorSpec({
             val processDefinitionId = "fakeProcessDefinitionId"
             val formKey = "fakeFormKey"
 
-            every { readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-            every { readZaakUUID(taskInfo) } returns zaakUUID
-            every { readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { readTaskInformation(taskInfo) } returns mapOf()
-            every { readTaskData(taskInfo) } returns mapOf()
-            every { readTaskDocuments(taskInfo) } returns emptyList()
+            every { taskInfo.processVariables } returns mapOf(
+                VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                VAR_ZAAK_UUID to zaakUUID,
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_UUID to zaaktypeUUID
+            )
+            every { taskInfo.taskLocalVariables } returns emptyMap()
             every { taskInfo.scopeType } returns null
 
             every { taskInfo.id } returns "fakeBpmnTaskId"
@@ -192,13 +181,13 @@ class RestTaskConverterTest : BehaviorSpec({
                 )
             )
 
-            every { readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-            every { readZaakUUID(taskInfo) } returns zaakUUID
-            every { readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { readTaskInformation(taskInfo) } returns mapOf()
-            every { readTaskData(taskInfo) } returns mapOf()
-            every { readTaskDocuments(taskInfo) } returns emptyList()
+            every { taskInfo.caseVariables } returns mapOf(
+                VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                VAR_ZAAK_UUID to zaakUUID,
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_UUID to zaaktypeUUID
+            )
+            every { taskInfo.taskLocalVariables } returns emptyMap()
             every { taskInfo.scopeType } returns ScopeTypes.CMMN
 
             every { taskInfo.id } returns "fakeAdviesTaskId"
@@ -230,10 +219,12 @@ class RestTaskConverterTest : BehaviorSpec({
             val taskInfo = mockk<TaskInfo>()
             val taakRechten = createTaakRechtenAllDeny()
 
-            every { readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-            every { readZaakUUID(taskInfo) } returns zaakUUID
-            every { readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
+            every { taskInfo.processVariables } returns mapOf(
+                VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                VAR_ZAAK_UUID to zaakUUID,
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_UUID to zaaktypeUUID
+            )
             every { taskInfo.scopeType } returns null
 
             every { taskInfo.id } returns "fakeTaskId"
@@ -275,13 +266,13 @@ class RestTaskConverterTest : BehaviorSpec({
             )
 
             for (taskInfo in listOf(taskInfo1, taskInfo2)) {
-                every { readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-                every { readZaakUUID(taskInfo) } returns zaakUUID
-                every { readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-                every { readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-                every { readTaskInformation(taskInfo) } returns mapOf()
-                every { readTaskData(taskInfo) } returns mapOf()
-                every { readTaskDocuments(taskInfo) } returns emptyList()
+                every { taskInfo.caseVariables } returns mapOf(
+                    VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                    VAR_ZAAK_UUID to zaakUUID,
+                    VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                    VAR_ZAAKTYPE_UUID to zaaktypeUUID
+                )
+                every { taskInfo.taskLocalVariables } returns emptyMap()
                 every { taskInfo.scopeType } returns ScopeTypes.CMMN
                 every { taskInfo.id } returns "fakeId"
                 every { taskInfo.name } returns "fakeName"

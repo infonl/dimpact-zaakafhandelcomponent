@@ -157,7 +157,7 @@ class TaskRestService @Inject constructor(
         flowableTaskService.readOpenTask(restTask.id).let {
             assertPolicy(it.isOpen() && policyService.readTaakRechten(it).canWijzigen)
             taakVariabelenService.setTaskData(it, restTask.taakdata)
-            taakVariabelenService.setTaskinformation(it, restTask.taakinformatie)
+            taakVariabelenService.setTaskInformation(it, restTask.taakinformatie)
             val updatedTask = updateDescriptionAndDueDate(restTask)
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
@@ -291,7 +291,7 @@ class TaskRestService @Inject constructor(
             signEnkelvoudigInformatieobjecten(taakdata, zaak)
         }
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
-        taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
+        taakVariabelenService.setTaskInformation(updatedTask, restTask.taakinformatie)
         return updatedTask
     }
 

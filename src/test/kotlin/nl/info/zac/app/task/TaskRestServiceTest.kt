@@ -242,7 +242,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
-            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { taakVariabelenService.setTaskInformation(task, null) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
@@ -299,7 +299,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 )
             } just Runs
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
-            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { taakVariabelenService.setTaskInformation(task, null) } just runs
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
             every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
             every { historicTaskInstance.id } returns restTaak.id
@@ -360,7 +360,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
-            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { taakVariabelenService.setTaskInformation(task, null) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak

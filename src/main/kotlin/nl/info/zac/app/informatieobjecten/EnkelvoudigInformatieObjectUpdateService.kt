@@ -153,7 +153,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
                 addAll(readTaskDocuments(task))
                 add(zaakInformatieobject.informatieobject.extractUuid())
             }.let {
-                taakVariabelenService.setTaakdocumenten(task, it)
+                taakVariabelenService.setTaskDocuments(task, it)
             }
         } finally {
             lock.unlock()

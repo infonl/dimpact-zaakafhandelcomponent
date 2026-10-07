@@ -79,7 +79,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                 )
             } returns zaakInformatieObject
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
+            every { taakVariabelenService.setTaskDocuments(task, any<List<UUID>>()) } just runs
 
             `when`("creating information object for a task is called") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechten()
@@ -96,7 +96,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
 
                 and("task document is set") {
                     verify(exactly = 1) {
-                        taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>())
+                        taakVariabelenService.setTaskDocuments(task, any<List<UUID>>())
                     }
                 }
             }
@@ -140,7 +140,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                 )
             } returns zaakInformatieObject
             every { flowableTaskService.findOpenTask(taskId) } returns task
-            every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
+            every { taakVariabelenService.setTaskDocuments(task, any<List<UUID>>()) } just runs
 
             `when`("creating information object for a non-open task") {
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(

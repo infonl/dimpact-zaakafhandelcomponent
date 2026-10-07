@@ -60,7 +60,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
 
     fun submit(restTask: RestTask, task: Task, zaak: Zaak): Task {
         var submittedTask = task
-        taakVariabelenService.setTaskinformation(task, restTask.taakinformatie)
+        taakVariabelenService.setTaskInformation(task, restTask.taakinformatie)
         taakVariabelenService.setTaskData(task, restTask.taakdata)
 
         val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata.orEmpty())

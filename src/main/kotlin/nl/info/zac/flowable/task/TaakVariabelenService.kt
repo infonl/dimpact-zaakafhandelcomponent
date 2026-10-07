@@ -52,14 +52,14 @@ class TaakVariabelenService @Inject constructor(
         const val TAAK_DATA_TOELICHTING = "toelichting"
     }
 
-    fun setTaskData(task: Task, taakdata: Map<String, Any>?) =
-        setTaskVariable(task, VAR_TASK_TAAKDATA, taakdata)
+    fun setTaskData(task: Task, taskData: Map<String, Any>?) =
+        setTaskVariable(task, VAR_TASK_TAAKDATA, taskData)
 
-    fun setTaskinformation(task: Task, taakinformatie: Map<String, String>?) =
-        setTaskVariable(task, VAR_TASK_TAAKINFORMATIE, taakinformatie)
+    fun setTaskInformation(task: Task, taskInformation: Map<String, String>?) =
+        setTaskVariable(task, VAR_TASK_TAAKINFORMATIE, taskInformation)
 
-    fun setTaakdocumenten(task: Task, taakdocumenten: List<UUID>) =
-        setTaskVariable(task, VAR_TASK_TAAKDOCUMENTEN, taakdocumenten)
+    fun setTaskDocuments(task: Task, taskDocuments: List<UUID>) =
+        setTaskVariable(task, VAR_TASK_TAAKDOCUMENTEN, taskDocuments)
 
     private fun setTaskVariable(task: Task, variableName: String, value: Any?) =
         taskService.setVariableLocal(task.id, variableName, value)

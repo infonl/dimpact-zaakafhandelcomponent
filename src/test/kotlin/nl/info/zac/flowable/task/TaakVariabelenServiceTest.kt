@@ -283,8 +283,8 @@ class TaakVariabelenServiceTest : BehaviorSpec({
 
         `when`("setting the task data, task information and task documents") {
             taakVariabelenService.setTaskData(task, taakdata)
-            taakVariabelenService.setTaskinformation(task, taakinformatie)
-            taakVariabelenService.setTaakdocumenten(task, taakdocumenten)
+            taakVariabelenService.setTaskInformation(task, taakinformatie)
+            taakVariabelenService.setTaskDocuments(task, taakdocumenten)
 
             then("they are stored as task local variables") {
                 verify(exactly = 1) {
