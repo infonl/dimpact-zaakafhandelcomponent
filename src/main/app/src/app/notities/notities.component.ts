@@ -67,6 +67,19 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
+  private readonly createNotitieMutation = injectMutation(
+    () => this.notitieService.createNotitie(),
+    {
+      onSuccess: (notitie) => {
+        this.notities.splice(0, 0, notitie);
+        this.notitieTekst.nativeElement.value = "";
+        this.scrollTarget.nativeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      },
+    },
+  );
   private readonly deleteNotitieMutation = injectMutation(
     () => this.notitieService.deleteNotitie(),
     {
@@ -129,20 +142,11 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
 
-    this.notitieService
-      .createNotitie({
-        zaakUUID: this.zaakUuid(),
-        tekst: tekst,
-        gebruikersnaamMedewerker: loggedInUser.id,
-      })
-      .subscribe((notitie) => {
-        this.notities.splice(0, 0, notitie);
-        this.notitieTekst.nativeElement.value = "";
-        this.scrollTarget.nativeElement.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      });
+    this.createNotitieMutation.mutate({
+      zaakUUID: this.zaakUuid(),
+      tekst: tekst,
+      gebruikersnaamMedewerker: loggedInUser.id,
+    });
   }
 
   protected updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {

@@ -3,16 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -99,12 +94,9 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       );
     }
 
-    await render(IntakeAfrondenDialogComponent, {
+    const rendered = await render(IntakeAfrondenDialogComponent, {
       imports: [TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
         { provide: MAT_DIALOG_DATA, useValue: { zaak, planItem } },
         { provide: MatDialogRef, useValue: dialogRef },
         {
@@ -132,6 +124,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     });
 
     httpTestingController = TestBed.inject(HttpTestingController);
+    return rendered;
   }
 
   function afrondenButton() {
@@ -393,6 +386,20 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       expect(request.request.body).toEqual(
         expect.objectContaining({ restMailGegevens: null }),
       );
+      request.flush(null);
+    });
+
+    it("disables afronden and annuleren while the intake is being afgerond", async () => {
+      const { fixture } = await setup(createZaak("BESCHIKBAAR_UIT"));
+      await answerOntvankelijk("actie.ja");
+
+      const request = await afronden();
+      fixture.detectChanges();
+
+      expect(afrondenButton()).toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: "actie.annuleren" }),
+      ).toBeDisabled();
       request.flush(null);
     });
 
