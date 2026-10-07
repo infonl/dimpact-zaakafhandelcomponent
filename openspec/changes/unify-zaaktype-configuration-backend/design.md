@@ -59,14 +59,17 @@ Each chunk is a branch based on the branch of the previous chunk:
 | # | Branch | Based on | Flyway |
 |---|---|---|---|
 | A1 | `feature/PZ-12669-unify-zaaktype-configuration-backend` | `main` | V100 |
-| A2 | `feature/PZ-12669-a2-zaak-settings-to-base` | A1 | V101 |
+| A2-java | `feature/PZ-12669-kotlin-migration-mailtemplate-koppeling` | A1 | — |
+| A2 | `feature/PZ-12669-a2-zaak-settings-to-base` | A2-java | V101 |
 | A3 | `feature/PZ-12669-a3-split-configuration` | A2 | V102 |
 | B1 | `feature/PZ-12669-b1-process-binding` | A3 | — |
 | B2 | `feature/PZ-12669-b2-resultaattype-omschrijving` | B1 | V103 |
 | B3 | `feature/PZ-12669-b3-configuration-versioning` | B2 | — |
 | B4 | `feature/PZ-12669-b4-confirmation-email-fallback` | B3 | — |
 
-A1 carries the openspec change directory. Every PR title follows Conventional Commits, for example
+A1 carries the openspec change directory. When a chunk has to change Java code, the conversion of that code to
+Kotlin is a PR of its own, stacked directly below the chunk (A2-java below A2). That PR changes no behaviour, so
+a reviewer can read it as a pure conversion. Every PR title follows Conventional Commits, for example
 `refactor(admin): ...`, and every PR body ends with `Solves PZ-12669`. When a lower PR merges, the next PR
 is rebased onto `main` and retargeted. The flyway versions are fixed per chunk, so a rebase never renumbers a
 migration. If another PR takes V100–V103 on `main` first, the stack renumbers its migrations once, from A1 up.
@@ -130,9 +133,9 @@ The choice follows from how `FlywayIntegrator` runs:
   corrected afterwards, because it has already succeeded elsewhere and Flyway would report a checksum mismatch.
 - **Deleting is rejected.** It loses data without a trace on environments that nobody can inspect beforehand.
 
-V101 and V102 use the same table, with their own `migration` value, for any row that blocks one of their
-constraints. Today's schema shows no such case after V100, so for these two migrations the rule is a
-safeguard. The migration itests prove it either way.
+A later migration uses the same table, with its own `migration` value, for any row that blocks one of its
+constraints. V101 has no such row: it only re-points foreign keys from the CMMN table to the base table, and
+since V100 every CMMN id is a base id. Its migration test asserts that nothing is quarantined.
 
 ZAC never reads the quarantine table. A follow-up ticket covers checking it on every environment and
 dropping it by hand (Migration Plan). Every migration that writes to the table creates it first with
@@ -152,14 +155,20 @@ Deviations from RFC section 3.5:
 ### D3. A2: move the zaak settings to the base
 
 V101 moves `eindatum_gepland_waarschuwing` and `uiterlijke_einddatum_afdoening_waarschuwing` to
-`zaaktype_configuration`. It renames and re-points three child tables to the base: email parameters,
+`zaaktype_configuration`. The first column gets the name `einddatum_gepland_waarschuwing` there, without the
+typo of the CMMN column. It renames and re-points three child tables to the base: email parameters,
 zaakafzender parameters, and mailtemplate parameters. The new names drop the `cmmn_` infix, as V86 and V89
 did. The zaakafzender foreign key keeps `ON DELETE RESTRICT`, as V46 set it. The entity fields move up to
 `ZaaktypeConfiguration`.
 
+The versioning copies these settings for both engines. The einddatum-gepland window keeps its servicenorm
+rule.
+
 In the same PR, the readers of these settings move from the CMMN read service to the generic one:
 
-- `ZaakRestService.listZaakWarnings` and `listAfzendersVoorZaak`
+- `ZaakRestService.listZaakWarnings` reads only the zaaktype UUID and the two windows of every configuration,
+  through a projection query, so it loads no configuration entities.
+- `ZaakRestService.listAfzendersVoorZaak`
 - `ZaakTaskDueDateEmailNotificationService`
 - `MailtemplateRESTService`
 - `BrpClientService`
@@ -169,6 +178,21 @@ BPMN.
 
 The BPMN REST path today assigns fields onto the found entity. It keeps that shape, so the moved fields
 survive a BPMN `POST`.
+
+A2 touches five Java classes. The A2-java PR converts them to Kotlin first, in two commits that keep the Git
+history:
+
+- `MailtemplateKoppelingRestService`
+- `RESTMailtemplateKoppelingConverter`
+- `RESTReplyToConverter`
+- `RESTReplyTo`
+- `MailtemplateRESTService`
+
+`RESTReplyTo` becomes `RestReplyTo`, because detekt rejects all-caps acronyms in Kotlin class names. That renames
+its OpenAPI schema, and the frontend follows the new name. Its boolean becomes `isSpeciaal`, also as JSON name, as in
+`RestZaakAfzender`, and its fields stay non-null with defaults.
+Moving classes changes which use of a shared schema SmallRye writes inline and which as a `$ref`. The contract
+check therefore compares the two specs after it resolves every `$ref`.
 
 ### D4. A3: one entity, a process binding, and a CMMN extension
 

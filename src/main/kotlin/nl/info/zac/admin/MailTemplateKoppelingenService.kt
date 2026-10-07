@@ -10,7 +10,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
+import nl.info.zac.admin.model.ZaaktypeMailtemplateParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
@@ -22,8 +22,8 @@ import nl.info.zac.util.validateObject
 class MailTemplateKoppelingenService @Inject constructor(
     private val entityManager: EntityManager
 ) {
-    fun find(id: Long): ZaaktypeCmmnMailtemplateParameters? =
-        entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id)
+    fun find(id: Long): ZaaktypeMailtemplateParameters? =
+        entityManager.find(ZaaktypeMailtemplateParameters::class.java, id)
 
     @Transactional(REQUIRED)
     fun delete(id: Long) {
@@ -32,8 +32,8 @@ class MailTemplateKoppelingenService @Inject constructor(
 
     @Transactional(REQUIRED)
     fun storeMailtemplateKoppeling(
-        zaaktypeCmmnMailtemplateParameters: ZaaktypeCmmnMailtemplateParameters
-    ): ZaaktypeCmmnMailtemplateParameters {
+        zaaktypeCmmnMailtemplateParameters: ZaaktypeMailtemplateParameters
+    ): ZaaktypeMailtemplateParameters {
         validateObject(zaaktypeCmmnMailtemplateParameters)
         val existingId = zaaktypeCmmnMailtemplateParameters.id
         return if (existingId != null && find(existingId) != null) {
@@ -44,15 +44,15 @@ class MailTemplateKoppelingenService @Inject constructor(
         }
     }
 
-    fun readMailtemplateKoppeling(id: Long): ZaaktypeCmmnMailtemplateParameters =
+    fun readMailtemplateKoppeling(id: Long): ZaaktypeMailtemplateParameters =
         find(id) ?: throw NoSuchElementException(
-            "${ZaaktypeCmmnMailtemplateParameters::class.java.simpleName} with id=$id not found"
+            "${ZaaktypeMailtemplateParameters::class.java.simpleName} with id=$id not found"
         )
 
-    fun listMailtemplateKoppelingen(): List<ZaaktypeCmmnMailtemplateParameters> {
+    fun listMailtemplateKoppelingen(): List<ZaaktypeMailtemplateParameters> {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(ZaaktypeCmmnMailtemplateParameters::class.java)
-        val root = query.from(ZaaktypeCmmnMailtemplateParameters::class.java)
+        val query = builder.createQuery(ZaaktypeMailtemplateParameters::class.java)
+        val root = query.from(ZaaktypeMailtemplateParameters::class.java)
         query.select(root)
         return entityManager.createQuery(query).resultList
     }

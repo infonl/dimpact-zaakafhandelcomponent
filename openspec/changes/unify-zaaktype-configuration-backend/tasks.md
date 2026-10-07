@@ -35,27 +35,35 @@
       Switch `ZaaktypeHelperServiceTest` to it and verify that the test still passes.
 - [x] 1.6 Run `./gradlew spotlessApply detektApply detekt build` and the contract diff against the baseline;
       verify that both are clean.
-- [ ] 1.7 Open the PR. Title: `fix(admin): repair the zaaktype configuration schema constraints`. Include the openspec change directory.
+- [x] 1.7 Open the PR. Title: `fix(admin): repair the zaaktype configuration schema constraints`. Include the openspec change directory.
       The body ends with `Solves PZ-12669`.
 - [ ] 1.8 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
       startup log shows the migration and any quarantine warnings, and that the quarantine table holds only expected rows.
       Verify that the configuration screens of one CMMN and one BPMN zaaktype show unchanged values. Record the result in the PR before the next chunk merges.
 
-## 2. PR A2: zaak settings to the base (branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A1)
+## 2. PR A2-java and PR A2: zaak settings to the base
 
-- [ ] 2.1 Write `V101__move_zaak_settings_to_zaaktype_configuration.sql` (design D3):
+- [x] 2.0 In PR A2-java (branch `feature/PZ-12669-kotlin-migration-mailtemplate-koppeling`, base A1), convert the Java
+      classes that A2 changes to Kotlin, without functional changes (design D3). Verify with
+      `./gradlew test`, the contract check, and the itests of the converted REST resources. Then open the PR
+      `refactor(app): convert the mailtemplate koppeling and reply-to Java classes to Kotlin`, with body footer
+      `Solves PZ-12669`.
+
+PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
+
+- [x] 2.1 Write `V101__move_zaak_settings_to_zaaktype_configuration.sql` (design D3):
       - move both warning-window columns to the base
       - rename the email, zaakafzender, and mailtemplate parameter tables (drop the `cmmn_` infix) and re-point
         their FKs to `zaaktype_configuration(id)`
       - keep RESTRICT on the zaakafzender FK
 
-      Any row that blocks a new constraint goes to quarantine with `migration = 'V101'` (design D2a). Verify on the
-      itest stack that the existing CMMN data is still read, and verify with a migration test from V100 (as in 1.3)
-      that the moved data is unchanged.
-- [ ] 2.2 Move the warning windows, the email parameters, the zaakafzenders, and the mailtemplate koppelingen from
+      No row can block the re-pointed foreign keys after V100 (design D2a). Verify on the itest stack that the existing
+      CMMN data is still read, and verify with a migration test from V100 (as in 1.3) that the moved data is unchanged
+      and nothing is quarantined.
+- [x] 2.2 Move the warning windows, the email parameters, the zaakafzenders, and the mailtemplate koppelingen from
       `ZaaktypeCmmnConfiguration` to `ZaaktypeConfiguration`. Rename the entities `ZaaktypeEmailParameters`,
       `ZaaktypeZaakafzenderParameters`, and `ZaaktypeMailtemplateParameters`. Verify with `./gradlew compileKotlin compileJava`.
-- [ ] 2.3 Switch these readers to the generic `readZaaktypeConfiguration`:
+- [x] 2.3 Switch these readers to the generic `readZaaktypeConfiguration`:
       - `ZaakRestService.listZaakWarnings` and `listAfzendersVoorZaak`
       - `ZaakTaskDueDateEmailNotificationService`
       - `MailtemplateRESTService`
@@ -63,9 +71,9 @@
       - `BrpClientService`
 
       Verify with unit tests, parameterised by engine, for warnings, due-date signalering, afzenders, and BRP doelbinding.
-- [ ] 2.4 Make the BPMN `POST` path preserve the moved settings. Verify with a unit test that a BPMN update keeps a
+- [x] 2.4 Make the BPMN `POST` path preserve the moved settings. Verify with a unit test that a BPMN update keeps a
       stored warning window, and with an itest round trip.
-- [ ] 2.5 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and a lower file count.
+- [x] 2.5 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and a lower file count.
       Then open the PR `refactor(admin): move zaak settings to the engine-agnostic zaaktype configuration`, with body
       footer `Solves PZ-12669`.
 - [ ] 2.6 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the

@@ -136,7 +136,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             )
             it.setMailtemplateKoppelingen(
                 restZaaktypeConfiguration.mailtemplateKoppelingen.map { koppeling ->
-                    koppeling.toZaaktypeCmmnMailtemplateParameters()
+                    koppeling.toZaaktypeMailtemplateParameters()
                 }
             )
             it.setZaakAfzenders(restZaaktypeConfiguration.zaakAfzenders.toZaakAfzenders())
@@ -144,7 +144,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
                 restZaaktypeConfiguration.betrokkeneKoppelingen.toZaaktypeBetrokkenParameters(it)
             it.zaaktypeBrpParameters =
                 restZaaktypeConfiguration.brpDoelbindingen.toZaaktypeBrpParameters(it)
-            it.zaaktypeCmmnEmailParameters =
+            it.zaaktypeEmailParameters =
                 restZaaktypeConfiguration.automaticEmailConfirmation.toAutomaticEmailConfirmation(it)
         }
 

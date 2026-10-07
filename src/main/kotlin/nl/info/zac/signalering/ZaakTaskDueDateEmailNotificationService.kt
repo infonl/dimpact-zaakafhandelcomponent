@@ -19,7 +19,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.SearchService
@@ -46,7 +46,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val configurationService: ConfigurationService,
     private val ztcClientService: ZtcClientService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val searchService: SearchService,
     private val flowableTaskService: FlowableTaskService
 ) {
@@ -88,9 +88,9 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         LOG.info("Sending zaak due date email notifications...")
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .forEach { zaaktype ->
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+                zaaktypeConfigurationService.readZaaktypeConfiguration(
                     zaaktype.url.extractUuid()
-                ).let { parameters ->
+                )?.let { parameters ->
                     parameters.einddatumGeplandWaarschuwing?.let { venster ->
                         signaleringVerzendInfo.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
                             zaaktype,
