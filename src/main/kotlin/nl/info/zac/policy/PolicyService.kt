@@ -89,9 +89,7 @@ class PolicyService @Inject constructor(
         ).requireResult(OpaEvaluationClient.OVERIGE_RECHTEN_PATH)
 
     /**
-     * @param zaaktype The zaaktype of the zaak; read from the ZTC when not given. The default is `null` and not
-     * the ZTC call itself, because a default expression that uses a class member fails with a
-     * NullPointerException when the function is called on a MockK mock.
+     * @param zaaktype The zaaktype of the zaak; read from the ZTC when not given.
      */
     fun readZaakRechten(
         zaak: Zaak,
@@ -156,7 +154,6 @@ class PolicyService @Inject constructor(
 
     /**
      * @param lock The lock of the document; read from the database when not given and the document is locked.
-     * The default is `null` and not the database call itself, for the same reason as in [readZaakRechten].
      */
     fun readDocumentRechten(
         enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
@@ -211,8 +208,7 @@ class PolicyService @Inject constructor(
     }
 
     /**
-     * @param zaaktypeOmschrijving The zaaktype description of the task; read from the task variables when not
-     * given. The default is `null` and not the variable lookup itself, for the same reason as in [readZaakRechten].
+     * @param zaaktypeOmschrijving The zaaktype description of the task; read from the task variables when not given.
      */
     fun readTaakRechten(
         taskInfo: TaskInfo,
