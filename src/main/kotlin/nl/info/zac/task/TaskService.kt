@@ -42,17 +42,6 @@ class TaskService @Inject constructor(
         private val LOG = Logger.getLogger(TaskService::class.java.name)
     }
 
-    /**
-     * Assigns a single task to a group and/or user. This is the only place where the group and the assignee of an
-     * existing task are written.
-     *
-     * @param groupId the group to assign the task to; when null, the group of the task is left as it is
-     * @param userId the user to assign the task to; when null, the task is released from its assignee, if it has one
-     * @return the task as returned by Flowable after the assignment to or release from a user, or the given task when
-     * neither happened
-     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaak is zaakspecifiek
-     * geautoriseerd but its zaaktype does not define the roltype; the task is then left unchanged
-     */
     fun assignTask(task: Task, groupId: String?, userId: String?, reason: String?, loggedInUser: LoggedInUser): Task {
         val taskAssignedToOrReleasedFromUser = when {
             userId != null -> {
@@ -103,15 +92,8 @@ class TaskService @Inject constructor(
         }
     }
 
-    /**
-     * Returns any Flowable tasks that are part of a zaak for a given ZAAK UUID.
-     */
     fun listTasksForZaak(zaakUUID: UUID): List<TaskInfo> = flowableTaskService.listTasksForZaak(zaakUUID)
 
-    /**
-     * Releases a list of tasks from their user and updates the search index. A task that cannot be found is skipped.
-     * This can be a long-running operation.
-     */
     @WithSpan
     fun releaseTasks(
         @SpanAttribute("restTaakVerdelenGegevens") restTaskReleaseData: RestTaskReleaseData,
@@ -184,10 +166,6 @@ class TaskService @Inject constructor(
             false
         }
 
-    /**
-     * Runs before the assignment is written, so that a missing roltype leaves the task unchanged and the new
-     * assignee can open the task as soon as it is theirs.
-     */
     private fun grantZaakspecifiekeAutorisatieToNewAssignee(task: Task, assignee: String) {
         if (task.assignee == assignee) return
         val zaak = zrcClientService.readZaak(readZaakUUID(task))
