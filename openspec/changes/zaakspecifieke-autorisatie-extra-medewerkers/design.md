@@ -12,7 +12,8 @@ Once the rol exists, everything else already works:
 
 The groep picker can reuse `GET /rest/identity/zaaktype/{zaaktype}/behandelaar-groups`. PABC can also list the
 groepen holding `zaakspecifiek_geautoriseerd` for a zaaktype through
-`PabcClientService.getGroupsByApplicationRoleAndZaaktype`.
+`PabcClientService.getGroupsByApplicationRoleAndZaaktype`; a new
+`IdentityService.listUserIdsForApplicationRoleAndZaaktype` turns those into the ids of their members.
 
 ## Goals / Non-Goals
 
@@ -68,7 +69,8 @@ same way.
 ## Risks / Trade-offs
 
 - [The kandidaten call does one PABC call plus one Keycloak call per `zaakspecifiek_geautoriseerd` groep]
-  → Few such groepen are expected; accepted.
+  → Few such groepen are expected; accepted. A groep PABC returns but Keycloak does not know is skipped, and
+  group members are read page by page, so large groepen are complete.
 - [The candidate list can be stale when another employee adds the same medewerker meanwhile] → The POST
   refuses the duplicate.
 - [The per-zaak lock is in memory, so two pods can each add the same medewerker at the same moment] → Same
