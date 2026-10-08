@@ -94,6 +94,44 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                     }
                 }
             }
+
+            given("a $configurationType configuration with a blank definition key") {
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
+                    groepID = "fakeGroup"
+                    processBinding!!.definitionKey = " "
+                }
+
+                `when`("it is stored") {
+                    val constraintViolationException = shouldThrow<ConstraintViolationException> {
+                        zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
+                    }
+
+                    then("it is rejected for its definition key, and nothing is stored") {
+                        constraintViolationException.constraintViolations.map { it.propertyPath.toString() } shouldBe
+                            listOf("definitionKey")
+                        verify(exactly = 0) { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) }
+                    }
+                }
+            }
+
+            given("a $configurationType configuration with a blank zaaktype omschrijving") {
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
+                    groepID = "fakeGroup"
+                    zaaktypeOmschrijving = " "
+                }
+
+                `when`("it is stored") {
+                    val constraintViolationException = shouldThrow<ConstraintViolationException> {
+                        zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
+                    }
+
+                    then("it is rejected for its zaaktype omschrijving, and nothing is stored") {
+                        constraintViolationException.constraintViolations.map { it.propertyPath.toString() } shouldBe
+                            listOf("zaaktypeOmschrijving")
+                        verify(exactly = 0) { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) }
+                    }
+                }
+            }
         }
 
         context("handling a notification for a new version of a $configurationType zaaktype") {
