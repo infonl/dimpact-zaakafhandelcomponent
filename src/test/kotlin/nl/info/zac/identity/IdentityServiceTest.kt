@@ -143,7 +143,7 @@ class IdentityServiceTest : BehaviorSpec({
             val userRepresentations = listOf(userRepresentation1, userRepresentation2)
             val keycloakGroup = createGroupRepresentation(id = groupId)
             every { realmResource.groups().groups(groupId, true, 0, 1, true) } returns listOf(keycloakGroup)
-            every { realmResource.groups().group(groupId).members() } returns userRepresentations
+            every { realmResource.groups().group(groupId).members(0, 100) } returns userRepresentations
 
             `when`("the users in this group are listed, sorted by full name") {
                 val users = identityService.listUsersInGroup(groupId)
@@ -162,6 +162,24 @@ class IdentityServiceTest : BehaviorSpec({
                         lastName shouldBe "fakeLastName2"
                         getFullName() shouldBe "fakeFirstName2 fakeLastName2"
                     }
+                }
+            }
+        }
+    }
+
+    context("Listing users in a group with more members than fit on one Keycloak page") {
+        given("a group in Keycloak with 150 members") {
+            val keycloakGroup = createGroupRepresentation(id = "fakeKeycloakGroupId")
+            val members = (1..150).map { createUserRepresentation(username = "fakeUsername$it") }
+            every { realmResource.groups().groups("fakeGroupId", true, 0, 1, true) } returns listOf(keycloakGroup)
+            every { realmResource.groups().group("fakeKeycloakGroupId").members(0, 100) } returns members.take(100)
+            every { realmResource.groups().group("fakeKeycloakGroupId").members(100, 100) } returns members.drop(100)
+
+            `when`("the users in this group are listed") {
+                val users = identityService.listUsersInGroup("fakeGroupId")
+
+                then("the members of every page are returned") {
+                    users.map { it.id }.toSet() shouldBe members.map { it.username }.toSet()
                 }
             }
         }
@@ -460,11 +478,11 @@ class IdentityServiceTest : BehaviorSpec({
             every {
                 realmResource.groups().groups("fakeGroupId2", true, 0, 1, true)
             } returns listOf(createGroupRepresentation(id = "fakeKeycloakGroupId2"))
-            every { realmResource.groups().group("fakeKeycloakGroupId1").members() } returns listOf(
+            every { realmResource.groups().group("fakeKeycloakGroupId1").members(0, 100) } returns listOf(
                 createUserRepresentation(username = "fakeUsername1"),
                 createUserRepresentation(username = "fakeUsername2")
             )
-            every { realmResource.groups().group("fakeKeycloakGroupId2").members() } returns listOf(
+            every { realmResource.groups().group("fakeKeycloakGroupId2").members(0, 100) } returns listOf(
                 createUserRepresentation(username = "fakeUsername2")
             )
 
@@ -496,7 +514,7 @@ class IdentityServiceTest : BehaviorSpec({
             every {
                 realmResource.groups().groups("fakeGroupId", true, 0, 1, true)
             } returns listOf(createGroupRepresentation(id = "fakeKeycloakGroupId"))
-            every { realmResource.groups().group("fakeKeycloakGroupId").members() } returns listOf(
+            every { realmResource.groups().group("fakeKeycloakGroupId").members(0, 100) } returns listOf(
                 createUserRepresentation(username = "fakeUsername")
             )
 

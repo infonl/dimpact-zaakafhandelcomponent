@@ -106,6 +106,17 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             }
         }
 
+        `when`("the kandidaten are requested without a groep") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the request is refused as invalid") {
+                response.code shouldBe HTTP_BAD_REQUEST
+            }
+        }
+
         `when`("the zaakbehandelaar adds that medewerker") {
             val response = addMedewerker(
                 zaakUuid = zaakUuid,
