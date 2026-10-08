@@ -33,7 +33,6 @@ import java.time.ZonedDateTime
 import java.util.*
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
@@ -116,8 +115,9 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.identification.IdentificationService
@@ -148,10 +148,9 @@ import org.flowable.task.api.Task
 class ZaakRestServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
     val configurationService = mockk<ConfigurationService>()
-    val cmmnService = mockk<CmmnService>()
     val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
-    val healthCheckService = mockk<HealthCheckService>()
+    val zaakProcessService = mockk<ZaakProcessService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -176,11 +175,10 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
-        cmmnService = cmmnService,
         configurationService = configurationService,
         drcClientService = drcClientService,
         eventingService = eventingService,
-        healthCheckService = healthCheckService,
+        zaakProcessService = zaakProcessService,
         inboxProductaanvraagService = inboxProductaanvraagService,
         indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
@@ -432,11 +430,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { configurationService.readBronOrganisatie() } returns bronOrganisatie
                 every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
                 every {
-                    cmmnService.startCase(
+                    zaakProcessService.start(
+                        zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                         zaak = zaak,
                         zaaktype = zaakType,
-                        caseDefinitionKey = "fakeCaseDefinitionId",
-                        zaakData = null
+                        processStartData = any()
                     )
                 } just runs
                 every {
@@ -513,11 +511,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                         restZaakReturned shouldBe CreateZaakResponse(zaak.identificatie)
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
-                            cmmnService.startCase(
+                            zaakProcessService.start(
+                                zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                                 zaak = zaak,
                                 zaaktype = zaakType,
-                                caseDefinitionKey = "fakeCaseDefinitionId",
-                                zaakData = null
+                                processStartData = any()
                             )
                         }
                         verify(exactly = 2) {
@@ -569,10 +567,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(
                     bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
                 )
-                val zaakData = mapOf(
-                    "zaakGroep" to restZaak.groep!!.id,
-                    "zaakBehandelaar" to restZaak.behandelaar!!.id,
-                    "zaakCommunicatiekanaal" to restZaak.communicatiekanaal!!
+                val zaakData = ProcessStartData(
+                    groupId = restZaak.groep!!.id,
+                    behandelaarId = restZaak.behandelaar!!.id,
+                    communicatiekanaal = restZaak.communicatiekanaal!!
                 )
                 val zaakObjectPand = createZaakobjectPand()
                 val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
@@ -585,11 +583,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { configurationService.readBronOrganisatie() } returns bronOrganisatie
                 every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
                 every {
-                    bpmnService.startProcess(
+                    zaakProcessService.start(
+                        zaaktypeConfiguration = zaaktypeBpmnConfiguration,
                         zaak = zaak,
                         zaaktype = zaakType,
-                        processDefinitionKey = "fakeBpmnProcessDefinitionKey",
-                        zaakData = zaakData
+                        processStartData = zaakData
                     )
                 } just runs
                 every {
@@ -663,11 +661,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                         restZaakReturned shouldBe CreateZaakResponse(zaak.identificatie)
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
-                            bpmnService.startProcess(
+                            zaakProcessService.start(
+                                zaaktypeConfiguration = zaaktypeBpmnConfiguration,
                                 zaak = zaak,
                                 zaaktype = zaakType,
-                                processDefinitionKey = "fakeBpmnProcessDefinitionKey",
-                                zaakData = zaakData
+                                processStartData = zaakData
                             )
                         }
                         verify(exactly = 2) {
@@ -1470,7 +1468,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
             zaaktypes.forEach {
-                every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
+                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns zaaktypeInrichtingscheck.isValide
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
                 every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
                 every {
@@ -1525,13 +1523,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
             zaaktypes.slice(0..1).forEach {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
-                every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
+                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns zaaktypeInrichtingscheck.isValide
                 every {
                     zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
             }
             zaaktypes.last().let {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns true
                 every {
                     zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
                 } returns createZaaktypeBpmnConfiguration(groupId = "fakeGroupId")
@@ -1627,7 +1626,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
-                every { healthCheckService.controleerZaaktype(zaaktype.url) } returns createZaaktypeInrichtingscheck()
+                every { zaakProcessService.isZaaktypeReady(any(), zaaktype.url) } returns createZaaktypeInrichtingscheck().isValide
                 every { restZaaktypeConverter.convert(zaaktype) } returns restZaaktypes[index]
             }
 
@@ -1672,8 +1671,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("no zaaktypes are returned and the inrichtingscheck is not run for them") {
                     returnedRestZaaktypes shouldBe emptyList()
                     verify(exactly = 0) {
-                        healthCheckService.controleerZaaktype(unconfiguredZaaktype.url)
-                        healthCheckService.controleerZaaktype(invalidlyConfiguredZaaktype.url)
+                        zaakProcessService.isZaaktypeReady(any(), unconfiguredZaaktype.url)
+                        zaakProcessService.isZaaktypeReady(any(), invalidlyConfiguredZaaktype.url)
                     }
                 }
             }
@@ -1732,7 +1731,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
-            every { cmmnService.terminateCase(zaak.uuid) } returns Unit
+            every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
@@ -1749,7 +1748,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
-                        cmmnService.terminateCase(zaak.uuid)
+                        zaakProcessService.terminate(any(), zaak.uuid)
                     }
                 }
             }
@@ -1783,7 +1782,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
-            every { cmmnService.terminateCase(zaak.uuid) } returns Unit
+            every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
             every {
                 restZaakConverter.toRestZaak(
@@ -1833,7 +1832,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 ) {
                     verify(exactly = 0) {
                         zgwApiService.closeZaak(any<Zaak>(), any<UUID>(), any())
-                        cmmnService.terminateCase(any())
+                        zaakProcessService.terminate(any(), any())
                     }
                 }
             }
@@ -1866,7 +1865,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
                 } returns zaaktypeCmmnConfiguration
                 every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
-                every { cmmnService.terminateCase(zaak.uuid) } returns Unit
+                every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
                 every { loggedInUserInstance.get() } returns loggedInUser
                 every {
                     restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -1876,7 +1875,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("it is ended with result") {
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name")
-                        cmmnService.terminateCase(zaak.uuid)
+                        zaakProcessService.terminate(any(), zaak.uuid)
                     }
                 }
             }
@@ -1917,7 +1916,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
-            every { bpmnService.terminateCase(zaak.uuid) } returns Unit
+            every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
@@ -1934,7 +1933,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
-                        bpmnService.terminateCase(zaak.uuid)
+                        zaakProcessService.terminate(any(), zaak.uuid)
                     }
                 }
             }
@@ -2210,7 +2209,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns patchedRestZaak
             every {
-                zaakVariabelenService.setCommunicationChannel(
+                zaakProcessService.updateCommunicatiekanaal(
                     zaak.uuid,
                     restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
                 )
@@ -2218,7 +2217,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns zaaktypeBpmnConfiguration
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("zaak final date is set to a later date") {
@@ -2232,9 +2230,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     updatedRestZaak shouldBe patchedRestZaak
                 }
 
-                and("the communication channel is exposed to zaak data") {
+                and("the communication channel is passed on to the process of the zaak") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setCommunicationChannel(
+                        zaakProcessService.updateCommunicatiekanaal(
                             zaak.uuid,
                             restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
                         )
@@ -2244,83 +2242,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 and("screen event signals are sent") {
                     verify(exactly = 3) {
                         eventingService.send(any<ScreenEvent>())
-                    }
-                }
-            }
-        }
-
-        given("a BPMN zaak whose process has already ended, with a new communication channel") {
-            val changeDescription = "change description"
-            val zaak = createZaak()
-            val zaakType = createZaakType(servicenorm = "P10D")
-            val zaakRechten = createZaakRechten()
-            val restZaakCreateData = createRestZaakCreateData()
-            val restZaakEditMetRedenGegevens =
-                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
-            val patchedZaak = createZaak()
-            val patchedRestZaak = createRestZaak()
-            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
-            val loggedInUser = createLoggedInUser()
-            val zaakAssignment = createZaakAssignment()
-
-            every {
-                zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
-            } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
-            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(zaak) } returns false
-            every {
-                zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
-                    zaakType = zaakType,
-                    requestedMarking = any(),
-                    isAlreadyZaakspecifiekGeautoriseerd = false,
-                    currentAndRequestedBehandelaarIds = any(),
-                    loggedInUser = loggedInUser
-                )
-            } returns false
-            every { zgwApiService.findGroepForZaak(zaak) } returns createRolOrganisatorischeEenheid(
-                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(identificatie = "fakeId")
-            )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-            every {
-                zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
-                    zaak = any(),
-                    isZaakspecifiekGeautoriseerd = any(),
-                    currentBehandelaarId = any(),
-                    requestedBehandelaarId = any()
-                )
-            } just runs
-            every {
-                zaakService.readZaakAssignment(
-                    groupId = restZaakCreateData.groep!!.id,
-                    userName = restZaakCreateData.behandelaar!!.id
-                )
-            } returns zaakAssignment
-            every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
-            every { eventingService.send(any<ScreenEvent>()) } just runs
-            every {
-                restZaakConverter.toRestZaak(
-                    zaak = patchedZaak,
-                    zaakType = zaakType,
-                    zaakRechten = zaakRechten,
-                    loggedInUser = loggedInUser
-                )
-            } returns patchedRestZaak
-            every {
-                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, any())
-            } returns emptyList()
-            every {
-                zaaktypeConfigurationService.findConfiguration(any<UUID>())
-            } returns zaaktypeBpmnConfiguration
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-            every { loggedInUserInstance.get() } returns loggedInUser
-
-            `when`("the zaak is updated") {
-                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
-
-                then("the communication channel is not synced to the process, because there is no live process to sync to") {
-                    verify(exactly = 0) {
-                        zaakVariabelenService.setCommunicationChannel(any(), any())
                     }
                 }
             }
@@ -2387,6 +2308,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2529,6 +2451,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2620,6 +2543,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2730,6 +2654,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2914,6 +2839,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
             `when`("the zaak is marked as zaakspecifiek geautoriseerd again") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -2950,6 +2876,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
             )
@@ -3108,6 +3035,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
             every {
                 restZaakConverter.toRestZaak(
@@ -3239,6 +3167,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeCmmnConfiguration()
+                every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
@@ -3317,6 +3246,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationService.findConfiguration(any<UUID>())
                 } returns createZaaktypeCmmnConfiguration()
+                every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 

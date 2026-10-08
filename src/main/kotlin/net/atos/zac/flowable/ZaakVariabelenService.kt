@@ -67,14 +67,6 @@ open class ZaakVariabelenService @Inject constructor(
      *
      * @param zaakUuid the zaak UUID
      */
-    fun deleteAllCaseVariables(zaakUuid: UUID) {
-        cmmnRuntimeService.createCaseInstanceQuery()
-            .variableValueEquals(VAR_ZAAK_UUID, zaakUuid)
-            .singleResult()?.let {
-                cmmnRuntimeService.removeVariables(it.id, ALL_ZAAK_VARIABLE_NAMES)
-            }
-    }
-
     fun readZaakUUID(planItemInstance: PlanItemInstance): UUID =
         readCaseVariable(planItemInstance, VAR_ZAAK_UUID) as UUID
 

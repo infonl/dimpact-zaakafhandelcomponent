@@ -24,8 +24,6 @@ import java.util.concurrent.locks.ReentrantLock
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CmmnService
-import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
@@ -65,7 +63,7 @@ import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRolty
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
-import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
@@ -78,7 +76,6 @@ import nl.info.zac.zaak.model.createZaakToewijzing
 
 @Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({
-    val bpmnService = mockk<BpmnService>()
     val eventingService = mockk<EventingService>()
     val identityService = mockk<IdentityService>()
     val indexingService = mockk<IndexingService>()
@@ -88,7 +85,7 @@ class ZaakServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val pabcClientService = mockk<PabcClientService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
-    val cmmnService = mockk<CmmnService>()
+    val zaakProcessService = mockk<ZaakProcessService>()
     val zaakService = ZaakService(
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
@@ -97,10 +94,9 @@ class ZaakServiceTest : BehaviorSpec({
         zaakVariabelenService = zaakVariabelenService,
         identityService = identityService,
         indexingService = indexingService,
-        bpmnService = bpmnService,
+        zaakProcessService = zaakProcessService,
         pabcClientService = pabcClientService,
-        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
-        cmmnService = cmmnService
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
@@ -192,9 +188,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.createRol(capture(createdRollen), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, capture(updatedRollen), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
-            every { zaakVariabelenService.setUser(zaak.uuid, user.id) } just runs
+            every { zaakProcessService.updateAssignment(zaak.uuid, group.name, user.id) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("the zaak is assigned to a group and a user") {
@@ -222,10 +216,9 @@ class ZaakServiceTest : BehaviorSpec({
                     verify(exactly = 0) { zrcClientService.deleteRol(any<Rol<*>>(), reason) }
                 }
 
-                and("the flowable variables and the search index are brought in line") {
+                and("the process of the zaak and the search index are brought in line") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
-                        zaakVariabelenService.setUser(zaak.uuid, user.id)
+                        zaakProcessService.updateAssignment(zaak.uuid, group.name, user.id)
                         indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                     }
                 }
@@ -292,9 +285,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.deleteRol(currentBehandelaarRol, reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, newGroup.name) } just runs
-            every { zaakVariabelenService.setUser(zaak.uuid, newBehandelaar.id) } just runs
+            every { zaakProcessService.updateAssignment(zaak.uuid, newGroup.name, newBehandelaar.id) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("the zaak is assigned to the new behandelaar and the new groep") {
@@ -360,7 +351,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
             every { identityService.readUser(user.id) } returns user
             every { identityService.readGroup(group.name) } returns group
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
 
             `when`("the zaak is assigned to that same behandelaar and groep") {
                 zaakService.assignZaak(zaak = zaak, groupId = group.name, userName = user.id, reason = reason)
@@ -399,9 +390,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.deleteRol(currentBehandelaarRol, reason) } just runs
             every { zrcClientService.updateRol(zaak, capture(updatedRollen), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, newGroup.name) } just runs
-            every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
+            every { zaakProcessService.updateAssignment(zaak.uuid, newGroup.name, null) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("the zaak is assigned to the new groep without naming a user") {
@@ -417,10 +406,9 @@ class ZaakServiceTest : BehaviorSpec({
                     verify(exactly = 0) { zrcClientService.createRol(any(), reason) }
                 }
 
-                and("the flowable user variable is removed") {
+                and("the behandelaar is removed from the process of the zaak") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, newGroup.name)
-                        zaakVariabelenService.removeUser(zaak.uuid)
+                        zaakProcessService.updateAssignment(zaak.uuid, newGroup.name, null)
                     }
                 }
             }
@@ -452,8 +440,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, null) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { zrcClientService.deleteRol(behandelaarRol, reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
+            every { zaakProcessService.updateAssignment(zaak.uuid, null, null) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("the zaak is released") {
@@ -466,42 +453,6 @@ class ZaakServiceTest : BehaviorSpec({
 
                 and("the groep of the zaak is left untouched") {
                     verify(exactly = 0) { zrcClientService.updateRol(zaak, any(), any()) }
-                }
-            }
-        }
-
-        given("a zaak whose flowable case or process instance no longer exists") {
-            val zaak = createZaak()
-            val user = createUser(id = "fakeUserId")
-            val group = createGroup(id = "fakeGroupId")
-            val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
-            val zaakToewijzing = createZaakToewijzing()
-            val reason = "fakeReason"
-            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
-            every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
-            every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user.id) } just runs
-            every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
-            every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
-            every { identityService.readUser(user.id) } returns user
-            every { identityService.readGroup(group.name) } returns group
-            every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
-            every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
-            every { zrcClientService.updateRol(zaak, any(), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every {
-                zaakVariabelenService.setGroup(zaak.uuid, group.name)
-            } throws CaseOrProcessNotFoundException("fakeCaseOrProcessNotFoundMessage")
-            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
-
-            `when`("the zaak is assigned to a group and a user") {
-                zaakService.assignZaak(zaak = zaak, groupId = group.name, userName = user.id, reason = reason)
-
-                then("the rollen are still written and the search index is still refreshed") {
-                    verify(exactly = 1) {
-                        zrcClientService.createRol(any(), reason)
-                        zrcClientService.updateRol(zaak, any(), reason)
-                        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
-                    }
                 }
             }
         }
@@ -536,7 +487,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("the zaak is assigned to a new behandelaar") {
@@ -595,7 +546,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.deleteRol(previousBehandelaarRol, reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("the zaak is handed over to another behandelaar") {
@@ -674,7 +625,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.deleteRol(returningBehandelaarGeautoriseerdeRol, reason) } just runs
             every { zrcClientService.createRol(capture(createdRollen), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("the zaak is handed back to the individually authorised medewerker") {
@@ -732,7 +683,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("a behandelaar is assigned to it") {
@@ -811,7 +762,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
 
             `when`("both requests are processed concurrently") {
@@ -860,7 +811,7 @@ class ZaakServiceTest : BehaviorSpec({
                     zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak)
                 } just runs
                 every { zrcClientService.updateRol(zaak, any(), explanation) } just runs
-                every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+                every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
                 every {
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 } just runs
@@ -938,7 +889,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.readBehandelaarRoltype(zaaktype.url) } returns createBehandelaarRolType(
                 zaakTypeUri = zaaktype.url
             )
-            every { bpmnService.isZaakProcessDriven(ordinaryZaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(ordinaryZaak.uuid, any(), any()) } just runs
             every {
                 indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
@@ -1004,7 +955,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.readBehandelaarRoltype(zaaktype.url) } returns createBehandelaarRolType(
                 zaakTypeUri = zaaktype.url
             )
-            every { bpmnService.isZaakProcessDriven(ordinaryZaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(ordinaryZaak.uuid, any(), any()) } just runs
             every {
                 indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
@@ -1067,7 +1018,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.readBehandelaarRoltype(openZaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.createRol(any(), explanation) } returns createRolMedewerker()
             every { zrcClientService.updateRol(openZaak, any(), explanation) } just runs
-            every { bpmnService.isZaakProcessDriven(openZaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(openZaak.uuid, any(), any()) } just runs
             every {
                 indexingService.indexeerDirect(openZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
@@ -1175,7 +1126,7 @@ class ZaakServiceTest : BehaviorSpec({
                     zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak)
                 } just runs
                 every { zrcClientService.updateRol(zaak, any(), explanation) } just runs
-                every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+                every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
                 every {
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 } just runs
@@ -1257,7 +1208,7 @@ class ZaakServiceTest : BehaviorSpec({
                     zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak)
                 } just runs
                 every { zrcClientService.updateRol(zaak, any(), explanation) } just runs
-                every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+                every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
                 every {
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 } just runs
@@ -1355,7 +1306,7 @@ class ZaakServiceTest : BehaviorSpec({
             } just runs
             every { zgwApiService.readBehandelaarRoltype(ordinaryZaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.updateRol(ordinaryZaak, any(), explanation) } just runs
-            every { bpmnService.isZaakProcessDriven(ordinaryZaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(ordinaryZaak.uuid, any(), any()) } just runs
             every {
                 indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
@@ -1408,8 +1359,7 @@ class ZaakServiceTest : BehaviorSpec({
                     zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak)
                 } just runs
                 every { zrcClientService.deleteRol(behandelaarRolPerZaak.getValue(zaak), explanation) } just runs
-                every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-                every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
+                every { zaakProcessService.updateAssignment(zaak.uuid, null, null) } just runs
                 every {
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 } just runs
@@ -1428,7 +1378,7 @@ class ZaakServiceTest : BehaviorSpec({
                     zaken.forEach {
                         verify(exactly = 1) {
                             zrcClientService.deleteRol(behandelaarRolPerZaak.getValue(it), explanation)
-                            zaakVariabelenService.removeUser(it.uuid)
+                            zaakProcessService.updateAssignment(it.uuid, null, null)
                         }
                         verify(exactly = 0) { zrcClientService.updateRol(it, any(), any()) }
                     }
@@ -1463,7 +1413,7 @@ class ZaakServiceTest : BehaviorSpec({
                 zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(openZaak)
             } just runs
             every { zrcClientService.deleteRol(behandelaarRol, explanation) } just runs
-            every { bpmnService.isZaakProcessDriven(openZaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(openZaak.uuid, any(), any()) } just runs
             every {
                 indexingService.indexeerDirect(openZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
@@ -1521,7 +1471,7 @@ class ZaakServiceTest : BehaviorSpec({
                 zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(ordinaryZaak)
             } just runs
             every { zrcClientService.deleteRol(ordinaryBehandelaarRol, explanation) } just runs
-            every { bpmnService.isZaakProcessDriven(ordinaryZaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(ordinaryZaak.uuid, any(), any()) } just runs
             every {
                 indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
@@ -1569,7 +1519,7 @@ class ZaakServiceTest : BehaviorSpec({
                 zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(ordinaryZaak)
             } just runs
             every { zrcClientService.deleteRol(ordinaryBehandelaarRol, explanation) } just runs
-            every { bpmnService.isZaakProcessDriven(ordinaryZaak.uuid) } returns false
+            every { zaakProcessService.updateAssignment(ordinaryZaak.uuid, any(), any()) } just runs
             every {
                 indexingService.indexeerDirect(ordinaryZaak.uuid.toString(), ZoekObjectType.ZAAK, false)
             } just runs
@@ -2150,10 +2100,9 @@ class ZaakServiceTest : BehaviorSpec({
     }
 
     context("Determining whether zaakdata is archived") {
-        given("a zaak with an active BPMN process and no active CMMN case") {
+        given("a zaak with an active process") {
             val zaak = createZaak()
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { cmmnService.isZaakCaseDriven(zaak.uuid) } returns false
+            every { zaakProcessService.hasActiveProcess(zaak.uuid) } returns true
 
             `when`("setIsZaakdataGearchiveerd is called") {
                 val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
@@ -2164,24 +2113,9 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        given("a zaak with an active CMMN case and no active BPMN process") {
+        given("a zaak without an active process") {
             val zaak = createZaak()
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-            every { cmmnService.isZaakCaseDriven(zaak.uuid) } returns true
-
-            `when`("setIsZaakdataGearchiveerd is called") {
-                val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
-
-                then("the zaakdata is not archived") {
-                    isZaakdataGearchiveerd shouldBe false
-                }
-            }
-        }
-
-        given("a zaak with neither an active BPMN process nor an active CMMN case") {
-            val zaak = createZaak()
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-            every { cmmnService.isZaakCaseDriven(zaak.uuid) } returns false
+            every { zaakProcessService.hasActiveProcess(zaak.uuid) } returns false
 
             `when`("setIsZaakdataGearchiveerd is called") {
                 val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)

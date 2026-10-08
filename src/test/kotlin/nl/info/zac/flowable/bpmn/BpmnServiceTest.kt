@@ -14,6 +14,9 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.just
+import org.flowable.engine.history.HistoricProcessInstance
 import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
@@ -185,8 +188,8 @@ class BpmnServiceTest : BehaviorSpec({
             runtimeService.deleteProcessInstance(processInstanceId, null)
         } returns Unit
 
-        `when`("Terminating the process instance by zaak UUID") {
-            bpmnService.terminateCase(zaaktypeUUID)
+        `when`("the process instance of the zaak is deleted") {
+            bpmnService.deleteProcessInstance(zaaktypeUUID)
 
             then("the process instance is terminated") {
                 verify(exactly = 1) {
@@ -204,8 +207,8 @@ class BpmnServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        `when`("Terminating the process instance by zaak UUID") {
-            bpmnService.terminateCase(zaaktypeUUID)
+        `when`("the process instance of the zaak is deleted") {
+            bpmnService.deleteProcessInstance(zaaktypeUUID)
 
             then("the process instance is not found") {
                 verify(exactly = 0) {
@@ -648,6 +651,58 @@ class BpmnServiceTest : BehaviorSpec({
                 then("only user tasks with form keys are included in the form keys list") {
                     result.formKeys shouldHaveSize 1
                     result.formKeys[0] shouldBe "someForm"
+                }
+            }
+        }
+    }
+
+    context("deleting the process instance and the history of a zaak") {
+        given("a zaak with a running process instance and the history of two process instances") {
+            val zaakUuid = UUID.randomUUID()
+            val processInstance = mockk<ProcessInstance>()
+            val historicProcessInstance1 = mockk<HistoricProcessInstance>()
+            val historicProcessInstance2 = mockk<HistoricProcessInstance>()
+            every { processInstance.id } returns "fakeProcessInstanceId"
+            every { historicProcessInstance1.id } returns "fakeHistoricProcessInstanceId1"
+            every { historicProcessInstance2.id } returns "fakeHistoricProcessInstanceId2"
+            every {
+                runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).singleResult()
+            } returns processInstance
+            every { runtimeService.deleteProcessInstance("fakeProcessInstanceId", "Zaak deleted") } just runs
+            every {
+                historyService.createHistoricProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).list()
+            } returns listOf(historicProcessInstance1, historicProcessInstance2)
+            every { historyService.deleteHistoricProcessInstance(any()) } just runs
+
+            `when`("the process instance and the history of the zaak are deleted") {
+                bpmnService.deleteProcessInstanceAndHistory(zaakUuid)
+
+                then("the running process instance and the history of every process instance of the zaak are deleted") {
+                    verify(exactly = 1) {
+                        runtimeService.deleteProcessInstance("fakeProcessInstanceId", "Zaak deleted")
+                        historyService.deleteHistoricProcessInstance("fakeHistoricProcessInstanceId1")
+                        historyService.deleteHistoricProcessInstance("fakeHistoricProcessInstanceId2")
+                    }
+                }
+            }
+        }
+
+        given("a zaak without a process instance or history") {
+            val zaakUuid = UUID.randomUUID()
+            every {
+                runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).singleResult()
+            } returns null
+            every {
+                historyService.createHistoricProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).list()
+            } returns emptyList()
+
+            `when`("the process instance and the history of the zaak are deleted") {
+                bpmnService.deleteProcessInstanceAndHistory(zaakUuid)
+
+                then("nothing is deleted") {
+                    verify(exactly = 0) {
+                        runtimeService.deleteProcessInstance(any(), "Zaak deleted")
+                    }
                 }
             }
         }

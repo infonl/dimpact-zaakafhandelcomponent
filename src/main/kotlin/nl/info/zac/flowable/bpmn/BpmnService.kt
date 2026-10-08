@@ -230,15 +230,22 @@ class BpmnService @Inject constructor(
             .singleResult()
 
     /**
-     * Terminate a case
-     * This also terminates all open tasks related to the case.
-     *
-     * @param zaakUUID UUID of the zaak, for which the case should be terminated.
+     * Deletes the running process instance of the zaak, together with its open tasks, and keeps its history.
      */
-    fun terminateCase(zaakUUID: UUID) =
-        findProcessInstance(zaakUUID)?.let {
-            runtimeService.deleteProcessInstance(it.id, null)
-        }
+    fun deleteProcessInstance(zaakUUID: UUID, deleteReason: String? = null) {
+        findProcessInstance(zaakUUID)?.let { runtimeService.deleteProcessInstance(it.id, deleteReason) }
+    }
+
+    /**
+     * Deletes the process instance of the zaak and the history of every process instance of the zaak.
+     */
+    fun deleteProcessInstanceAndHistory(zaakUUID: UUID) {
+        deleteProcessInstance(zaakUUID, "Zaak deleted")
+        historyService.createHistoricProcessInstanceQuery()
+            .processInstanceBusinessKey(zaakUUID.toString())
+            .list()
+            .forEach { historyService.deleteHistoricProcessInstance(it.id) }
+    }
 
     /**
      * Returns a list of unique BPMN process definition keys used in process instances

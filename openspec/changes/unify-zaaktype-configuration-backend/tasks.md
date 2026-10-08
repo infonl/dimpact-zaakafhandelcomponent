@@ -133,18 +133,27 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 
 ## 4. PR B1: process binding interface (branch `feature/PZ-12669-b1-process-binding`, base A3)
 
-- [ ] 4.1 Add the `ProcessBinding` interface, `CmmnProcessBinding`, `BpmnProcessBinding`, and the `ProcessBindings`
+- [x] 4.1 Add the `ProcessBinding` interface, `CmmnProcessBinding`, `BpmnProcessBinding`, and the `ZaakProcessService`
       dispatcher over `Instance<ProcessBinding>` (design D6). Verify with unit tests that the dispatcher selects
       each adapter and fails for a configuration without a binding.
-- [ ] 4.2 Add `BpmnService.deleteProcessInstance(zaakUuid)`, which also deletes the history and is a no-op without an instance.
+- [x] 4.2 Add `BpmnService.deleteProcessInstanceAndHistory(zaakUuid)`, which also deletes the history and is a no-op without an instance.
       Verify with a unit test.
-- [ ] 4.3 Replace the engine `when` in `ZaakRestService.startZaak`, `terminateZaak`, and `applyZaakUpdateSideEffects`, and the
+- [x] 4.3 Replace the engine `when` in `ZaakRestService.startZaak`, `terminateZaak`, and `applyZaakUpdateSideEffects`, and the
       two start paths in `ProductaanvraagService`, with the dispatcher. Verify with the existing unit tests, which
       are now parameterised by engine.
-- [ ] 4.4 Make the zaak-delete handler in `NotificationReceiver` call `delete` on every binding. Verify with a unit
-      test and an itest that deletes a BPMN zaak and asserts that the process instance is gone.
-- [ ] 4.5 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and that
-      `grep -rn "ProcessEngine\.\(CMMN\|BPMN\)" src/main` shows hits only in the adapters and the entity. Then open the PR
+- [x] 4.4 Make the zaak-delete handler in `NotificationReceiver` call `delete` on every binding. Make
+      `CmmnService.deleteCase` delete the history of every case instance of the zaak by business key, also when the
+      case has already ended. Verify with unit tests and with the itest `NotificationZaakDestroyTest`, which sends
+      the zaak destroy notification for an open CMMN zaak, an open BPMN zaak, a terminated BPMN zaak and a completed
+      CMMN zaak, and asserts through the REST API that the zaak has no zaakdata and no taken left. The zaakdata of a
+      closed zaak comes from the process history, so it is only empty once the history is deleted.
+- [x] 4.5 Replace the `isZaakProcessDriven` and `isZaakCaseDriven` checks in `ZaakService` (assignment, archived
+      zaakdata) and `ZaakRestService` (communicatiekanaal) with `hasActiveProcess`, `updateAssignment` and
+      `updateCommunicatiekanaal` on every binding. Verify with unit tests of both adapters and the dispatcher.
+- [x] 4.6 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and that
+      `grep -rn "ProcessEngine\.\(CMMN\|BPMN\)" src/main` shows hits only in the adapters, the entity, the BPMN admin
+      REST service and the configuration converter (REST contract, PZ-12754), `BpmnService`, and the flow choice in
+      `ProductaanvraagService` (B4). Then open the PR
       `refactor(flowable): start, terminate and delete zaak processes through one process binding interface`,
       with body footer `Solves PZ-12669`.
 

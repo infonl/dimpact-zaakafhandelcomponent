@@ -24,10 +24,6 @@ import java.time.LocalDate
 import java.util.UUID
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
-import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.drc.DrcClientService
@@ -52,8 +48,6 @@ import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TER
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
-import nl.info.zac.admin.model.ProcessEngine.BPMN
-import nl.info.zac.admin.model.ProcessEngine.CMMN
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.bag.model.toZaakobjectRequest
@@ -94,8 +88,9 @@ import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.identification.IdentificationService
@@ -124,11 +119,10 @@ import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 @AllOpen
 class ZaakRestService @Inject constructor(
     private val bpmnService: BpmnService,
-    private val cmmnService: CmmnService,
+    private val zaakProcessService: ZaakProcessService,
     private val configurationService: ConfigurationService,
     private val drcClientService: DrcClientService,
     private val eventingService: EventingService,
-    private val healthCheckService: HealthCheckService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val indexingService: IndexingService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
@@ -553,11 +547,7 @@ class ZaakRestService @Inject constructor(
                 }
             }
             // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
-            if (it.getProcessEngine() == BPMN) {
-                bpmnService.terminateCase(zaakUUID)
-            } else {
-                cmmnService.terminateCase(zaakUUID)
-            }
+            zaakProcessService.terminate(it, zaakUUID)
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
             val terminatedZaakRechten = policyService.readZaakRechten(terminatedZaak, terminatedZaakType, loggedInUser)
@@ -642,7 +632,6 @@ class ZaakRestService @Inject constructor(
         }
         applyZaakUpdateSideEffects(
             zaak = zaak,
-            zaakType = zaakType,
             updatedZaak = updatedZaak,
             restZaak = restZaakEditMetRedenGegevens.zaak
         )
@@ -808,15 +797,10 @@ class ZaakRestService @Inject constructor(
 
     private fun applyZaakUpdateSideEffects(
         zaak: Zaak,
-        zaakType: ZaakType,
         updatedZaak: Zaak,
         restZaak: RestZaakCreateData
     ) {
-        restZaak.communicatiekanaal?.let {
-            if (zaakType.isConfiguredBPMNZaaktype() && bpmnService.isZaakProcessDriven(zaak.uuid)) {
-                updateCommunicationChannelZaakVariabele(zaak, it)
-            }
-        }
+        restZaak.communicatiekanaal?.let { zaakProcessService.updateCommunicatiekanaal(zaak.uuid, it) }
         restZaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
             if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
                 suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newFinalDate)
@@ -881,18 +865,13 @@ class ZaakRestService @Inject constructor(
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
 
-    private fun ZaakType.isConfiguredBPMNZaaktype() =
-        zaaktypeConfigurationService.findConfiguration(this.url.extractUuid())?.getProcessEngine() == BPMN
-
     /**
-     * BPMN zaaktypes have no zaaktype check yet. For CMMN, the full zaaktype check calls Open Zaak several times and
-     * always fails when the ZAC configuration is not valid. So we check the ZAC configuration first and skip the slow
-     * check when it fails.
+     * The engine check of the zaaktype can call Open Zaak several times, so it only runs when the ZAC configuration
+     * of the zaaktype is valid.
      */
     private fun ZaakType.isValidForZaakCreation() =
         zaaktypeConfigurationService.findConfiguration(url.extractUuid())?.let {
-            it.isValidForZaakCreation() &&
-                (it.getProcessEngine() != CMMN || healthCheckService.controleerZaaktype(url).isValide)
+            it.isValidForZaakCreation() && zaakProcessService.isZaaktypeReady(it, url)
         } ?: false
 
     private fun isWarning(
@@ -1010,29 +989,20 @@ class ZaakRestService @Inject constructor(
         zaakType: ZaakType,
         restZaak: RestZaakCreateData
     ) {
-        val processBinding = zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)?.processBinding
+        val zaaktypeConfiguration = zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             ?: throw ZaaktypeConfigurationNotFoundException(
-                "No zaaktype configuration with a process binding found for zaaktype UUID $zaaktypeUUID"
+                "No zaaktype configuration found for zaaktype UUID $zaaktypeUUID"
             )
-
-        when (processBinding.processEngine) {
-            BPMN -> bpmnService.startProcess(
-                zaak = zaak,
-                zaaktype = zaakType,
-                processDefinitionKey = processBinding.definitionKey,
-                zaakData = buildMap {
-                    restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.id) }
-                    restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.id) }
-                    restZaak.communicatiekanaal?.let { put(VAR_ZAAK_COMMUNICATIEKANAAL, it) }
-                }
+        zaakProcessService.start(
+            zaaktypeConfiguration = zaaktypeConfiguration,
+            zaak = zaak,
+            zaaktype = zaakType,
+            processStartData = ProcessStartData(
+                groupId = restZaak.groep?.id,
+                behandelaarId = restZaak.behandelaar?.id,
+                communicatiekanaal = restZaak.communicatiekanaal
             )
-
-            CMMN -> cmmnService.startCase(
-                zaak = zaak,
-                zaaktype = zaakType,
-                caseDefinitionKey = processBinding.definitionKey
-            )
-        }
+        )
     }
 
     private fun terminateZaak(
@@ -1045,25 +1015,6 @@ class ZaakRestService @Inject constructor(
             resultaatTypeUUID = resultaattypeUUID,
             description = zaakbeeindigRedenNaam
         )
-    }
-
-    /**
-     * Updates the communication channel process variable for the given BPMN zaak, unless the zaak is reopened.
-     * A reopened zaak does not have an associated BPMN process, so there is no need to update the communication channel in that case.
-     */
-    private fun updateCommunicationChannelZaakVariabele(
-        zaak: Zaak,
-        communicationChannel: String
-    ) {
-        val statustype = zaak.status?.let {
-            ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
-        }
-        if (!statustype.isHeropend()) {
-            zaakVariabelenService.setCommunicationChannel(
-                zaakUuid = zaak.uuid,
-                communicationChannel = communicationChannel
-            )
-        }
     }
 
     private fun updateInitiator(

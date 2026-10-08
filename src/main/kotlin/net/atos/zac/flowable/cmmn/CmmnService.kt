@@ -49,15 +49,18 @@ class CmmnService @Inject constructor(
         private val LOG = Logger.getLogger(CmmnService::class.java.getName())
     }
 
-    fun deleteCase(zaakUUID: UUID) =
+    /**
+     * Deletes the running case instance of the zaak and the history of every case instance of the zaak.
+     */
+    fun deleteCase(zaakUUID: UUID) {
         cmmnRuntimeService.createCaseInstanceQuery()
-            .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
-            .singleResult()?.let {
-                // delete the case instance
-                cmmnRuntimeService.deleteCaseInstance(it.id)
-                // delete any historic case instances
-                cmmnHistoryService.deleteHistoricCaseInstance(it.id)
-            }
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .singleResult()?.let { cmmnRuntimeService.deleteCaseInstance(it.id) }
+        cmmnHistoryService.createHistoricCaseInstanceQuery()
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .list()
+            .forEach { cmmnHistoryService.deleteHistoricCaseInstance(it.id) }
+    }
 
     fun listHumanTaskPlanItems(zaakUUID: UUID): List<PlanItemInstance> =
         cmmnRuntimeService.createPlanItemInstanceQuery()

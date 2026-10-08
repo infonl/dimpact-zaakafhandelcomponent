@@ -25,6 +25,7 @@ import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.CmmnTaskService
+import org.flowable.cmmn.api.history.HistoricCaseInstance
 import org.flowable.cmmn.api.runtime.CaseInstance
 import org.flowable.cmmn.api.runtime.CaseInstanceBuilder
 import java.net.URI
@@ -115,27 +116,53 @@ class CmmnServiceTest : BehaviorSpec({
             }
         }
     }
-    given("A CMMN case for a certain zaak UUID") {
+    given("a zaak with a running case instance and the history of two case instances") {
         val zaakUUID = UUID.randomUUID()
-        val caseInstanceID = "fakeCaseInstanceID"
         val caseInstance = mockk<CaseInstance>()
+        val historicCaseInstance1 = mockk<HistoricCaseInstance>()
+        val historicCaseInstance2 = mockk<HistoricCaseInstance>()
+        every { caseInstance.id } returns "fakeCaseInstanceId"
+        every { historicCaseInstance1.id } returns "fakeHistoricCaseInstanceId1"
+        every { historicCaseInstance2.id } returns "fakeHistoricCaseInstanceId2"
         every {
-            cmmnRuntimeService.createCaseInstanceQuery()
-                .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
-                .singleResult()
+            cmmnRuntimeService.createCaseInstanceQuery().caseInstanceBusinessKey(zaakUUID.toString()).singleResult()
         } returns caseInstance
-        every { caseInstance.id } returns caseInstanceID
-        every { cmmnRuntimeService.deleteCaseInstance(caseInstanceID) } just Runs
-        every { cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID) } just Runs
+        every { cmmnRuntimeService.deleteCaseInstance("fakeCaseInstanceId") } just Runs
+        every {
+            cmmnHistoryService.createHistoricCaseInstanceQuery().caseInstanceBusinessKey(zaakUUID.toString()).list()
+        } returns listOf(historicCaseInstance1, historicCaseInstance2)
+        every { cmmnHistoryService.deleteHistoricCaseInstance(any()) } just Runs
 
-        `when`("the case is requested to be deleted") {
+        `when`("the case is deleted") {
             cmmnService.deleteCase(zaakUUID)
 
-            then("the case is successfully deleted") {
+            then("the running case instance and the history of every case instance of the zaak are deleted") {
                 verify(exactly = 1) {
-                    cmmnRuntimeService.deleteCaseInstance(caseInstanceID)
-                    cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID)
+                    cmmnRuntimeService.deleteCaseInstance("fakeCaseInstanceId")
+                    cmmnHistoryService.deleteHistoricCaseInstance("fakeHistoricCaseInstanceId1")
+                    cmmnHistoryService.deleteHistoricCaseInstance("fakeHistoricCaseInstanceId2")
                 }
+            }
+        }
+    }
+    given("a zaak whose case instance has ended, so that only its history is left") {
+        val zaakUUID = UUID.randomUUID()
+        val historicCaseInstance = mockk<HistoricCaseInstance>()
+        every { historicCaseInstance.id } returns "fakeHistoricCaseInstanceId"
+        every {
+            cmmnRuntimeService.createCaseInstanceQuery().caseInstanceBusinessKey(zaakUUID.toString()).singleResult()
+        } returns null
+        every {
+            cmmnHistoryService.createHistoricCaseInstanceQuery().caseInstanceBusinessKey(zaakUUID.toString()).list()
+        } returns listOf(historicCaseInstance)
+        every { cmmnHistoryService.deleteHistoricCaseInstance("fakeHistoricCaseInstanceId") } just Runs
+
+        `when`("the case is deleted") {
+            cmmnService.deleteCase(zaakUUID)
+
+            then("the history of the ended case instance is deleted") {
+                verify(exactly = 1) { cmmnHistoryService.deleteHistoricCaseInstance("fakeHistoricCaseInstanceId") }
+                verify(exactly = 0) { cmmnRuntimeService.deleteCaseInstance(any()) }
             }
         }
     }
