@@ -38,20 +38,14 @@ class RestTaskConverter @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
 ) {
-    fun convert(tasks: List<TaskInfo>) = tasks.map { convert(it) }
+    fun toRestTasks(tasks: List<TaskInfo>) = tasks.map { toRestTask(it) }
 
-    /**
-     * Converts [tasks] that all belong to the zaak of [zaakAutorisatieGegevens].
-     */
-    fun convert(tasks: List<TaskInfo>, zaakAutorisatieGegevens: ZaakAutorisatieGegevens) =
-        tasks.map { convert(it, zaakAutorisatieGegevens) }
 
-    /**
-     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of the zaak of [taskInfo], for a caller that
-     * already read it in this request. When omitted, it is read here.
-     */
+    fun toRestTasks(tasks: List<TaskInfo>, zaakAutorisatieGegevens: ZaakAutorisatieGegevens) =
+        tasks.map { toRestTask(it, zaakAutorisatieGegevens) }
+
     @Suppress("LongMethod", "ComplexMethod")
-    fun convert(
+    fun toRestTask(
         taskInfo: TaskInfo,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): RestTask {

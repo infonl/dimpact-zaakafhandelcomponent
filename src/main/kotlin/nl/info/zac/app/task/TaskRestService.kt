@@ -135,7 +135,7 @@ class TaskRestService @Inject constructor(
         assertPolicy(
             policyService.readZaakRechten(zaak, loggedInUser, zaakAutorisatieGegevens).canLezen
         )
-        return restTaskConverter.convert(taskService.listTasksForZaak(zaakUUID), zaakAutorisatieGegevens)
+        return restTaskConverter.toRestTasks(taskService.listTasksForZaak(zaakUUID), zaakAutorisatieGegevens)
     }
 
     @GET
@@ -144,7 +144,7 @@ class TaskRestService @Inject constructor(
         flowableTaskService.readTask(taskId).let { task ->
             assertPolicy(policyService.readTaakRechten(task).canLezen)
             deleteSignaleringen(task)
-            val restTask = restTaskConverter.convert(task)
+            val restTask = restTaskConverter.toRestTask(task)
             if (task.isOpen()) {
                 restTask.formioFormulier?.let {
                     restTask.formioFormulier = bpmnTaskFormRuntimeService.renderFormioFormulier(restTask)
@@ -215,7 +215,7 @@ class TaskRestService @Inject constructor(
         // Checking the user's authorization for the task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().canZakenTaken)
         val task = assignLoggedInUserToTask(restTaskAssignData)
-        return restTaskConverter.convert(task)
+        return restTaskConverter.toRestTask(task)
     }
 
     @PATCH
@@ -233,7 +233,7 @@ class TaskRestService @Inject constructor(
     @PATCH
     @Path("toekennen/mij")
     fun assignTaskToLoggedInUser(restTaskAssignData: RestTaskAssignData) =
-        assignLoggedInUserToTask(restTaskAssignData).let { restTaskConverter.convert(it) }
+        assignLoggedInUserToTask(restTaskAssignData).let { restTaskConverter.toRestTask(it) }
 
     @PATCH
     @Path("complete")
@@ -259,7 +259,7 @@ class TaskRestService @Inject constructor(
             indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
-        }.let { restTaskConverter.convert(it) }
+        }.let { restTaskConverter.toRestTask(it) }
     }
 
     private fun addZaakdata(restTask: RestTask) = restTask.taakdata?.apply {
