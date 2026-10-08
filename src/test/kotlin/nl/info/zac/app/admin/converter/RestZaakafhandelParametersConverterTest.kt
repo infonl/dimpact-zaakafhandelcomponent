@@ -32,6 +32,7 @@ import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.createZaaktypeCompletionParameters
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
@@ -94,7 +95,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
-            resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
+            resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
         } returns resultaatType
         every {
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
@@ -175,6 +176,8 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             zaaktypeConfigurationBeheerService.findConfiguration(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaaktypeCmmnConfiguration
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
+        every { resultaattypeReferenceService.readOmschrijving(restResultType.id) } returns "fakeNietOntvankelijk"
+        every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
 
         `when`("converted to DB model representation") {
             val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
@@ -192,7 +195,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     defaultBehandelaarId shouldBe null
                     einddatumGeplandWaarschuwing shouldBe null
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe null
-                    nietOntvankelijkResultaattype shouldBe restResultType.id
+                    nietOntvankelijkResultaattypeOmschrijving shouldBe "fakeNietOntvankelijk"
                     creatiedatum shouldNotBe null
                     cmmnExtension?.intakeMail shouldBe null
                     cmmnExtension?.afrondenMail shouldBe null
@@ -214,7 +217,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         every { ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
-            resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeBpmnConfiguration)
+            resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeBpmnConfiguration)
         } returns resultaatType
         every {
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeBpmnConfiguration.getZaakbeeindigParameters())
@@ -265,7 +268,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
-            resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
+            resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
         } returns resultaatType
         every {
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
@@ -304,7 +307,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
         every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
-            resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
+            resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
         } returns resultaatType
         every {
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
@@ -344,6 +347,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 einddatumGeplandWaarschuwing = 4,
                 uiterlijkeEinddatumAfdoeningWaarschuwing = 8,
                 zaakNietOntvankelijkResultaattype = createRestResultaattype(),
+                zaakbeeindigParameters = listOf(createRestZaakbeeindigParameter()),
                 intakeMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_AAN,
                 afrondenMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT,
                 smartDocuments = RestSmartDocuments(isEnabledGlobally = true, isEnabledForZaaktype = true)
@@ -358,6 +362,12 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             every {
                 restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any())
             } returns emptyList()
+            every {
+                resultaattypeReferenceService.readOmschrijving(restZaaktypeConfig.zaakNietOntvankelijkResultaattype!!.id)
+            } returns "fakeNietOntvankelijk"
+            every {
+                zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(restZaaktypeConfig.zaakbeeindigParameters)
+            } returns listOf(createZaaktypeCompletionParameters(resultaattypeOmschrijving = "fakeToegekend"))
 
             `when`("converting REST configuration to ZaaktypeConfiguration entity") {
                 val entity = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfig)
@@ -375,6 +385,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     entity.uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe 8
                     entity.cmmnExtension?.intakeMail shouldBe "BESCHIKBAAR_AAN"
                     entity.cmmnExtension?.afrondenMail shouldBe "BESCHIKBAAR_UIT"
+                }
+
+                and("the resultaattypen are referenced by the omschrijving that ZTC has for their UUID") {
+                    entity.nietOntvankelijkResultaattypeOmschrijving shouldBe "fakeNietOntvankelijk"
+                    entity.getZaakbeeindigParameters().single().resultaattypeOmschrijving shouldBe "fakeToegekend"
                 }
             }
         }

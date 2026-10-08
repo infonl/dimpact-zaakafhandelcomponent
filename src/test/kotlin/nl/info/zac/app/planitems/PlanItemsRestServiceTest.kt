@@ -855,8 +855,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 this.planItemInstanceId = planItemInstanceId
             }
             val intakeAfrondenZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-                zaaktypeUUID = zaak.zaaktype.extractUuid(),
-                nietOntvankelijkResultaattype = nietOntvankelijkResultaattypeUuid
+                zaaktypeUUID = zaak.zaaktype.extractUuid()
             )
             val loggedInUser = createLoggedInUser()
 
@@ -867,7 +866,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns intakeAfrondenZaaktypeCmmnConfiguration
             every {
-                resultaattypeReferenceService.readNietOntvankelijkResultaattype(intakeAfrondenZaaktypeCmmnConfiguration)
+                resultaattypeReferenceService.findNietOntvankelijkResultaattype(intakeAfrondenZaaktypeCmmnConfiguration)
             } returns createResultaatType(url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid"))
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every {
@@ -940,10 +939,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 this.planItemInstanceId = planItemInstanceId
             }
             val geenResultaattypeZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-                zaaktypeUUID = zaak.zaaktype.extractUuid()
-            ).apply {
-                this.nietOntvankelijkResultaattype = null
-            }
+                zaaktypeUUID = zaak.zaaktype.extractUuid(),
+                nietOntvankelijkResultaattypeOmschrijving = null
+            )
             val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -953,7 +951,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns geenResultaattypeZaaktypeCmmnConfiguration
             every {
-                resultaattypeReferenceService.readNietOntvankelijkResultaattype(geenResultaattypeZaaktypeCmmnConfiguration)
+                resultaattypeReferenceService.findNietOntvankelijkResultaattype(geenResultaattypeZaaktypeCmmnConfiguration)
             } returns null
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs

@@ -9,7 +9,6 @@ import jakarta.inject.Inject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
-import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeBrpParameters
@@ -24,7 +23,6 @@ import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @ApplicationScoped
 @NoArgConstructor
@@ -37,7 +35,9 @@ class ZaaktypeConfigurationVersioning @Inject constructor(
      * reference whose omschrijving [newZaaktype] lacks is dropped.
      */
     fun createNextVersion(previous: ZaaktypeConfiguration, newZaaktype: ZaakType): ZaaktypeConfiguration {
-        val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
+        val newResultaattypeOmschrijvingen = newZaaktype.resultaattypen
+            .map { ztcClientService.readResultaattype(it).omschrijving }
+            .toSet()
         return ZaaktypeConfiguration().apply {
             zaaktypeUuid = newZaaktype.url.extractUuid()
             zaaktypeOmschrijving = newZaaktype.omschrijving
@@ -50,13 +50,9 @@ class ZaaktypeConfigurationVersioning @Inject constructor(
                 newZaaktype.isServicenormAvailable()
             }
             uiterlijkeEinddatumAfdoeningWaarschuwing = previous.uiterlijkeEinddatumAfdoeningWaarschuwing
-            previous.nietOntvankelijkResultaattype
-                ?.let { findResultaattype(it, previous.nietOntvankelijkResultaattypeOmschrijving, newResultaattypen) }
-                ?.let {
-                    nietOntvankelijkResultaattype = it.url.extractUuid()
-                    nietOntvankelijkResultaattypeOmschrijving = it.omschrijving
-                }
-            setZaakbeeindigParameters(copyZaakbeeindigParameters(previous, newResultaattypen))
+            nietOntvankelijkResultaattypeOmschrijving = previous.nietOntvankelijkResultaattypeOmschrijving
+                ?.takeIf { it in newResultaattypeOmschrijvingen }
+            setZaakbeeindigParameters(copyZaakbeeindigParameters(previous, newResultaattypeOmschrijvingen))
             zaaktypeBetrokkeneParameters = copyBetrokkeneParameters(previous, this)
             zaaktypeBrpParameters = copyBrpParameters(previous, this)
             zaaktypeEmailParameters = previous.zaaktypeEmailParameters?.let { copyEmailParameters(it, this) }
@@ -67,32 +63,17 @@ class ZaaktypeConfigurationVersioning @Inject constructor(
         }
     }
 
-    private fun findResultaattype(
-        previousResultaattypeUuid: UUID,
-        previousResultaattypeOmschrijving: String?,
-        newResultaattypen: List<ResultaatType>
-    ): ResultaatType? {
-        val omschrijving = previousResultaattypeOmschrijving
-            ?: ztcClientService.readResultaattype(previousResultaattypeUuid).omschrijving
-        return newResultaattypen.firstOrNull { it.omschrijving == omschrijving }
-    }
-
     private fun copyZaakbeeindigParameters(
         previous: ZaaktypeConfiguration,
-        newResultaattypen: List<ResultaatType>
-    ) = previous.getZaakbeeindigParameters().mapNotNull { previousParameter ->
-        findResultaattype(
-            previousParameter.resultaattype,
-            previousParameter.resultaattypeOmschrijving,
-            newResultaattypen
-        )?.let {
+        newResultaattypeOmschrijvingen: Set<String>
+    ) = previous.getZaakbeeindigParameters()
+        .filter { it.resultaattypeOmschrijving in newResultaattypeOmschrijvingen }
+        .map { previousParameter ->
             ZaaktypeCompletionParameters().apply {
                 zaakbeeindigReden = previousParameter.zaakbeeindigReden
-                resultaattype = it.url.extractUuid()
-                resultaattypeOmschrijving = it.omschrijving
+                resultaattypeOmschrijving = previousParameter.resultaattypeOmschrijving
             }
         }
-    }
 
     private fun copyBetrokkeneParameters(previous: ZaaktypeConfiguration, next: ZaaktypeConfiguration) =
         ZaaktypeBetrokkeneParameters().apply {

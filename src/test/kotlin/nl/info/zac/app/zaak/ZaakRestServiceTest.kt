@@ -1098,7 +1098,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     that zaaktype 5 days from it"""
             ) {
                 val zaaktypeUuid = UUID.randomUUID()
-                val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                     this.zaaktypeUuid = zaaktypeUuid
                     uiterlijkeEinddatumAfdoeningWaarschuwing = 2
                 }
@@ -1724,6 +1724,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+            val nietOntvankelijkResultaattypeUuid = UUID.randomUUID()
             val loggedInUser = createLoggedInUser()
             val zaakRechten = createZaakRechten(afbreken = true)
 
@@ -1733,12 +1734,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)
             } returns createResultaatType(
-                url = URI("https://example.com/resultaattypen/${zaaktypeConfiguration.nietOntvankelijkResultaattype}")
+                url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )
             every {
-                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+                zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1754,7 +1755,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(
                             zaak,
-                            zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
+                            nietOntvankelijkResultaattypeUuid,
                             "Zaak is niet ontvankelijk"
                         )
                         zaakProcessService.terminate(any(), zaak.uuid)
@@ -1772,6 +1773,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
             )
             val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+            val nietOntvankelijkResultaattypeUuid = UUID.randomUUID()
             val loggedInUser = createLoggedInUser()
             val zaakRechten = createZaakRechten(afbreken = true)
             val terminatedZaakRechten = createZaakRechten(afbreken = false, wijzigen = false)
@@ -1789,12 +1791,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)
             } returns createResultaatType(
-                url = URI("https://example.com/resultaattypen/${zaaktypeConfiguration.nietOntvankelijkResultaattype}")
+                url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )
             every {
-                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+                zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1861,7 +1863,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeCompletionParameters = setOf(
                     ZaaktypeCompletionParameters().apply {
                         id = 123
-                        resultaattype = resultTypeUUID
+                        resultaattypeOmschrijving = "fakeResultaattype"
                         zaakbeeindigReden = ZaakbeeindigReden().apply {
                             id = -2
                             naam = "-2 name"
@@ -1879,7 +1881,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
                 } returns zaaktypeCmmnConfiguration
                 every {
-                    resultaattypeReferenceService.readResultaattype(zaaktypeCmmnConfiguration.getZaakbeeindigParameters().single())
+                    resultaattypeReferenceService.findResultaattype(zaaktypeCmmnConfiguration.getZaakbeeindigParameters().single())
                 } returns createResultaatType(url = URI("https://example.com/resultaattypen/$resultTypeUUID"))
                 every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
                 every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
@@ -1917,11 +1919,55 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
+        given("A zaak and a managed zaakbeeindigreden whose resultaattype the zaaktype version does not have") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaakTypeUUID = zaakType.url.extractUuid()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeCompletionParameters = setOf(
+                    ZaaktypeCompletionParameters().apply {
+                        id = 123
+                        resultaattypeOmschrijving = "fakeResultaattype"
+                        zaakbeeindigReden = ZaakbeeindigReden().apply {
+                            id = -2
+                            naam = "-2 name"
+                        }
+                    }
+                )
+            )
+            val loggedInUser = createLoggedInUser()
+
+            `when`("aborted with that zaakbeeindigreden") {
+                every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
+                every {
+                    zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
+                } returns zaaktypeCmmnConfiguration
+                every {
+                    resultaattypeReferenceService.findResultaattype(zaaktypeCmmnConfiguration.getZaakbeeindigParameters().single())
+                } returns null
+                every { loggedInUserInstance.get() } returns loggedInUser
+                val illegalStateException = shouldThrow<IllegalStateException> {
+                    zaakRestService.terminateZaak(zaak.uuid, RestZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
+                }
+
+                then("it fails without ending the zaak or its process") {
+                    illegalStateException.message shouldBe "Zaaktype with UUID '$zaakTypeUUID' has no resultaattype with " +
+                        "omschrijving 'fakeResultaattype'"
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(zaak, any<UUID>(), any())
+                        zaakProcessService.terminate(any(), zaak.uuid)
+                    }
+                }
+            }
+        }
+
         given("A BPMN zaak and no managed zaakbeeindigreden") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val zaaktypeConfiguration = createZaaktypeBpmnConfiguration()
+            val nietOntvankelijkResultaattypeUuid = UUID.randomUUID()
             val loggedInUser = createLoggedInUser()
             val zaakRechten = createZaakRechten(afbreken = true)
 
@@ -1931,12 +1977,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)
             } returns createResultaatType(
-                url = URI("https://example.com/resultaattypen/${zaaktypeConfiguration.nietOntvankelijkResultaattype}")
+                url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )
             every {
-                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+                zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1952,7 +1998,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(
                             zaak,
-                            zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
+                            nietOntvankelijkResultaattypeUuid,
                             "Zaak is niet ontvankelijk"
                         )
                         zaakProcessService.terminate(any(), zaak.uuid)

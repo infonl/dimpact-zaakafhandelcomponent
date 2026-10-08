@@ -47,7 +47,7 @@ class ZaakProcessServiceTest : BehaviorSpec({
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         given("a zaaktype configuration bound to $configurationType") {
             val zaakProcessService = createZaakProcessService()
-            val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID())
+            val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
             val definitionKey = checkNotNull(zaaktypeConfiguration.processBinding).definitionKey
             val zaak = createZaak()
             val zaaktype = createZaakType()

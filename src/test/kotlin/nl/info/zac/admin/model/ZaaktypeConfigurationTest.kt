@@ -71,17 +71,17 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
         given("a configuration bound to CMMN") {
             val validCmmnConfig = ZaaktypeConfiguration().apply {
                 groepID = "fakeGroup"
-                nietOntvankelijkResultaattype = UUID.randomUUID()
+                nietOntvankelijkResultaattypeOmschrijving = "fakeNietOntvankelijk"
                 bindTo(ProcessEngine.CMMN, "fakeCaseKey")
             }
             val invalidCmmnBlankKey = ZaaktypeConfiguration().apply {
                 groepID = "fakeGroup"
-                nietOntvankelijkResultaattype = UUID.randomUUID()
+                nietOntvankelijkResultaattypeOmschrijving = "fakeNietOntvankelijk"
                 bindTo(ProcessEngine.CMMN, "")
             }
             val invalidCmmnMissingNietOntvankelijk = ZaaktypeConfiguration().apply {
                 groepID = "fakeGroup"
-                nietOntvankelijkResultaattype = null
+                nietOntvankelijkResultaattypeOmschrijving = null
                 bindTo(ProcessEngine.CMMN, "fakeCaseKey")
             }
 
@@ -168,8 +168,6 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
             val config = ZaaktypeConfiguration().apply {
                 zaaktypeUuid = UUID.randomUUID()
             }
-            val resultaatUuid1 = UUID.randomUUID()
-            val resultaatUuid2 = UUID.randomUUID()
             val reden1 = ZaakbeeindigReden().apply {
                 id = 1L
                 naam = "Reden 1"
@@ -178,8 +176,8 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
                 id = 2L
                 naam = "Reden 2"
             }
-            val param1 = createZaaktypeCompletionParameters(zaakbeeindigReden = reden1, resultaattype = resultaatUuid1)
-            val param2 = createZaaktypeCompletionParameters(zaakbeeindigReden = reden2, resultaattype = resultaatUuid2)
+            val param1 = createZaaktypeCompletionParameters(zaakbeeindigReden = reden1, resultaattypeOmschrijving = "fakeResultaat1")
+            val param2 = createZaaktypeCompletionParameters(zaakbeeindigReden = reden2, resultaattypeOmschrijving = "fakeResultaat2")
 
             `when`("setting parameters collection") {
                 config.setZaakbeeindigParameters(listOf(param1, param2))
@@ -195,12 +193,14 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
             }
 
             `when`("updating parameters collection with modified resultaat") {
-                val updatedResultaat = UUID.randomUUID()
-                val updatedParam1 = createZaaktypeCompletionParameters(zaakbeeindigReden = reden1, resultaattype = updatedResultaat)
+                val updatedParam1 = createZaaktypeCompletionParameters(
+                    zaakbeeindigReden = reden1,
+                    resultaattypeOmschrijving = "fakeUpdatedResultaat"
+                )
                 config.setZaakbeeindigParameters(listOf(updatedParam1, param2))
 
                 then("the parameter is updated") {
-                    config.readZaakbeeindigParameter(1L).resultaattype shouldBe updatedResultaat
+                    config.readZaakbeeindigParameter(1L).resultaattypeOmschrijving shouldBe "fakeUpdatedResultaat"
                 }
             }
         }

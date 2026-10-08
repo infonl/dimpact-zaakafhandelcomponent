@@ -80,7 +80,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any())
             } returns listOf(restZaakbeeindigParameter)
-            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns createResultaatType()
+            every { resultaattypeReferenceService.findNietOntvankelijkResultaattype(any()) } returns createResultaatType()
             every { smartDocumentsService.isEnabled() } returns true
 
             `when`("reading BPMN zaaktypes") {
@@ -161,8 +161,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(any())
             } returns savedConfiguration
-            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns createResultaatType()
+            every { resultaattypeReferenceService.findNietOntvankelijkResultaattype(any()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
+            every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
             every { smartDocumentsService.isEnabled() } returns true
 
             `when`("creating a new zaaktype BPMN configuration") {
@@ -190,7 +191,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                             id = 1234L,
                             name = "fakeZaakbeeindigName1"
                         ),
-                        resultaattype = UUID.randomUUID()
+                        resultaattypeOmschrijving = "fakeResultaattype1"
                     ),
                     createZaaktypeCompletionParameters(
                         id = 2L,
@@ -198,7 +199,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                             id = 1235L,
                             name = "fakeZaakbeeindigName2"
                         ),
-                        resultaattype = UUID.randomUUID()
+                        resultaattypeOmschrijving = "fakeResultaattype2"
                     )
                 )
             )
@@ -222,7 +223,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationBeheerService.storeConfiguration(any())
             } returns updatedZaaktypeBpmnConfiguration
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
-            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns resultaatType
+            every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
+            every { resultaattypeReferenceService.findNietOntvankelijkResultaattype(any()) } returns resultaatType
+            every { resultaattypeReferenceService.readOmschrijving(restResultaattype.id) } returns "fakeNietOntvankelijk"
             every { smartDocumentsService.isEnabled() } returns true
 
             `when`("updating an existing zaaktype BPMN configuration") {
@@ -252,6 +255,11 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                             this.size shouldBe 0
                         }
                     }
+                }
+
+                and("the stored configuration references the niet-ontvankelijk resultaattype by its omschrijving in ZTC") {
+                    existingZaaktypeBpmnConfiguration.nietOntvankelijkResultaattypeOmschrijving shouldBe
+                        "fakeNietOntvankelijk"
                 }
             }
         }
@@ -285,7 +293,8 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationBeheerService.storeConfiguration(capture(storedZaaktypeBpmnConfiguration))
             } answers { storedZaaktypeBpmnConfiguration.captured }
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
-            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns null
+            every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
+            every { resultaattypeReferenceService.findNietOntvankelijkResultaattype(any()) } returns null
             every { smartDocumentsService.isEnabled() } returns true
 
             `when`("a beheerder changes its groep through the BPMN REST resource") {
@@ -323,8 +332,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(capture(capturedConfiguration))
             } returns savedConfiguration
-            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns createResultaatType()
+            every { resultaattypeReferenceService.findNietOntvankelijkResultaattype(any()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
+            every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
             every { smartDocumentsService.isEnabled() } returns true
 
             `when`("updating the configuration") {
@@ -367,7 +377,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
             } returns listOf(bpmnConfig)
-            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns createResultaatType()
+            every { resultaattypeReferenceService.findNietOntvankelijkResultaattype(any()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
             every { smartDocumentsService.isEnabled() } returns true
 
