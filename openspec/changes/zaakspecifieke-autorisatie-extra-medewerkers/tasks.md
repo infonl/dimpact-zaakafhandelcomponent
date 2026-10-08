@@ -19,7 +19,7 @@
       `addZaakspecifiekGeautoriseerdeMedewerker`.
 - [ ] 2.2 *Medewerker toevoegen* menu item under *Koppelingen* in `zaak-view-menu.builder.ts`.
 - [ ] 2.3 Side panel component with groep and medewerker selects; snackbar and close on success.
-- [ ] 2.4 i18n texts in `nl.json` and `en.json`, including the two error codes.
+- [ ] 2.4 i18n texts in `nl.json` and `en.json`, including the three new error codes.
 - [ ] 2.5 Specs for the menu builder and the panel.
 
 ## 3. Wrap-up
