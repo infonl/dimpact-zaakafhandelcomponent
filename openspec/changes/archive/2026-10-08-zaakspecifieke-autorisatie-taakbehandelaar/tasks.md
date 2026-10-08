@@ -5,7 +5,7 @@
 - [x] 1.2 Add `grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, medewerkerId): Boolean`. It returns `false`
       when the zaak is not marked or the medewerker is the zaakbehandelaar. Otherwise, under the lock, it calls the
       existing `grantZaakspecifiekeAutorisatie`, which checks the roltype and skips an existing holder, with the
-      audit toelichting "Zaakspecifiek geautoriseerd medewerker van zaak {zaaknummer}". When a rol was added it
+      audit toelichting "Zaakspecifiek geautoriseerde medewerker van de zaak". When a rol was added it
       reindexes. The callers write the taakhistorie entry (4.1).
 
 ## 2. REST assignment paths
@@ -46,7 +46,7 @@
       - gegeven: *Zaakspecifiek geautoriseerde medewerker*;
       - oude waarde: empty;
       - nieuwe waarde: the medewerker's full name;
-      - toelichting: the fixed, untranslated text "Zaakspecifiek geautoriseerd medewerker van zaak {zaaknummer}".
+      - toelichting: the fixed, untranslated text "Zaakspecifiek geautoriseerde medewerker van de zaak".
 - [x] 4.3 Use `ZgwApiService.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER` as the gegeven label, the
       same text the zaakhistorie shows for this rol. Add no i18n key: the taakhistorie component's `translate` pipe
       shows an unknown key as-is.

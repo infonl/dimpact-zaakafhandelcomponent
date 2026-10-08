@@ -748,7 +748,7 @@ class TaskServiceTest : BehaviorSpec({
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
             } returns true
             every {
-                taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, "fakeNewAssignee")
+                taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, "fakeNewAssignee")
             } just runs
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
@@ -770,7 +770,7 @@ class TaskServiceTest : BehaviorSpec({
                             zaak,
                             "fakeNewAssignee"
                         )
-                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, "fakeNewAssignee")
+                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, "fakeNewAssignee")
                         flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason")
                     }
                 }
@@ -804,7 +804,7 @@ class TaskServiceTest : BehaviorSpec({
                         flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason")
                     }
                     verify(exactly = 0) {
-                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any(), any())
+                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any())
                     }
                 }
             }

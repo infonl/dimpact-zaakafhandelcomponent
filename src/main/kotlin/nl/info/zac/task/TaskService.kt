@@ -192,7 +192,7 @@ class TaskService @Inject constructor(
         if (task.assignee == assignee) return
         val zaak = zrcClientService.readZaak(readZaakUUID(task))
         if (zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, assignee)) {
-            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, assignee)
+            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, assignee)
         }
     }
 }
