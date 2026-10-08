@@ -192,12 +192,43 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 - [x] 6.4 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
       `refactor(admin): make zaaktype configuration versioning a pure function`, with body footer `Solves PZ-12669`.
 
-## 7. Wrap-up
+## 7. PR B4: drop the resultaattype UUID columns (contract step of B2)
 
-- [ ] 7.1 Run `openspec validate unify-zaaktype-configuration-backend --strict` and verify that it reports the change as valid.
-- [ ] 7.2 Create a follow-up Jira ticket for the contract step of B2: drop the resultaattype UUID columns and the
-      fallback. Verify that the ticket links PZ-12637.
-- [ ] 7.3 Create a follow-up Jira ticket for the manual quarantine check (design Migration Plan, step 2). After the
+PR B4: branch `feature/PZ-12669-b4-drop-resultaattype-uuid`, base B3.
+
+- [ ] 7.1 Write `V104__drop_resultaattype_uuid.sql` (design D11):
+      - move zaakbeeindig parameters without an omschrijving to quarantine
+      - copy configurations with a niet-ontvankelijk UUID but no omschrijving to quarantine, and keep them
+      - report both counts with `RAISE WARNING`
+      - drop both UUID columns and set `zaaktype_completion_parameters.resultaattype_omschrijving` NOT NULL
+
+      Verify on the itest stack that ZAC starts and that Flyway reports V104 as applied. Also verify with a migration
+      test from V103 (as in 1.3) that resolved references keep their omschrijving and that every unresolved reference
+      is in the quarantine table with its UUID.
+- [ ] 7.2 Remove the UUID fields from `ZaaktypeConfiguration` and `ZaaktypeCompletionParameters`. Make the REST
+      converters read the omschrijving of the UUID in the payload through `ResultaattypeReferenceService`, and stop
+      filling omschrijvingen in `ZaaktypeConfigurationBeheerService`. Verify with unit tests of both REST resources.
+- [ ] 7.3 Make `ResultaattypeReferenceService` resolve only by omschrijving, and return no resultaattype with a
+      warning when the zaaktype version has none with the omschrijving. Leave such a reference out of the REST
+      responses, and fail zaak termination for a zaakbeeindig reden whose resultaattype cannot be resolved. Verify
+      with unit tests for a match and a missing omschrijving.
+- [ ] 7.4 Make `ZaaktypeConfigurationVersioning.createNextVersion` match the stored omschrijving only. Remove
+      `ResultaattypeOmschrijvingBackfill`, its repository queries, and its tests. Verify with
+      `./gradlew test` and the itest `NotificationZaaktypeCompletionParametersTest`.
+- [ ] 7.5 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the draft PR
+      `refactor(admin): drop the resultaattype UUID columns from the zaaktype configuration`, with body footer
+      `Solves PZ-12669`.
+- [ ] 7.6 Merge only after the release that contains B2 has run on every environment and the backfill summary log
+      shows no unresolved references there (design Migration Plan, step 4). Record the result per environment in the PR.
+- [ ] 7.7 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
+      startup log shows the migration and any quarantine warnings, and that the quarantine table holds no V104 rows.
+      Verify that the zaakbeeindig parameters and the niet-ontvankelijk resultaattype of one CMMN and one BPMN
+      zaaktype are unchanged. Record the result in the PR.
+
+## 8. Wrap-up
+
+- [ ] 8.1 Run `openspec validate unify-zaaktype-configuration-backend --strict` and verify that it reports the change as valid.
+- [ ] 8.2 Create a follow-up Jira ticket for the manual quarantine check (design Migration Plan, step 2). After the
       release with A1–A3, it covers these steps on every environment, production included:
       - inspect `zaaktype_configuration_migration_quarantine`
       - restore the needed rows with `jsonb_populate_record`

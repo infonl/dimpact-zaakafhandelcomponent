@@ -28,7 +28,7 @@ attached to the ticket. The REST contract and the frontend stay unchanged. PZ-12
 - Put zaak start, zaak termination, and zaak cleanup behind one process binding interface with one CDI adapter
   per engine. The callers no longer branch on the engine.
 - Store a resultaattype reference by its omschrijving next to its UUID (the expand step), and backfill the
-  omschrijving for existing rows. Dropping the UUID columns is a later release.
+  omschrijving for existing rows. Then drop the UUID columns and the UUID fallback (the contract step).
 - Make the versioning of a configuration a pure function that returns the new configuration. Rename
   `ZaaktypeHelperService` to `ZaaktypeConfigurationVersioning`.
 - Behaviour changes that the unification brings about:
@@ -39,8 +39,9 @@ attached to the ticket. The REST contract and the frontend stay unchanged. PZ-12
 - **No REST contract change.** Both `/zaakafhandelparameters` and `/zaaktype-bpmn-configuration` keep their
   paths, verbs, keys, and payloads.
 
-Delivery: one stacked GitHub pull request per RFC chunk (A1, A2, A3, B1, B2, B3). Each pull request is based
-on the branch of the previous chunk.
+Delivery: one stacked GitHub pull request per RFC chunk (A1, A2, A3, B1, B2, B3, B4). Each pull request is based
+on the branch of the previous chunk. B4, the contract step, merges only after the release that contains B2 has
+run on every environment.
 
 ## Capabilities
 
@@ -58,9 +59,9 @@ changes, and that is specified in `zaaktype-process-binding`.
 
 ## Impact
 
-- **Database**: Flyway migrations V100 to V103 in `src/main/resources/schemas/`. V102 drops
+- **Database**: Flyway migrations V100 to V104 in `src/main/resources/schemas/`. V102 drops
   `zaaktype_cmmn_configuration`, `zaaktype_bpmn_configuration`, and the `configuration_type` enum. V103 adds
-  the resultaattype omschrijving columns.
+  the resultaattype omschrijving columns. V104 drops the resultaattype UUID columns.
 - **Backend code**:
   - `nl.info.zac.admin` and its `model` package, plus the converters and both REST resources in
     `nl.info.zac.app.admin`
@@ -79,7 +80,6 @@ changes, and that is specified in `zaaktype-process-binding`.
   - the REST and UI unification (PZ-12754)
   - the task form configuration question (RFC section 7)
   - zaaktype identity by omschrijving (RFC section 10)
-  - dropping the resultaattype UUID columns
   - the automatic confirmation of receipt (automatische ontvangstbevestiging) for BPMN zaken. It stays CMMN only;
     a BPMN process sends a confirmation email itself when it needs one.
   - using zaakafzenders and mailtemplate koppelingen for BPMN zaken. The engine-agnostic configuration stores them

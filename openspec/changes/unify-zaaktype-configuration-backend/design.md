@@ -1,7 +1,7 @@
 ## Context
 
 See proposal.md for the motivation. The RFC attached to PZ-12637 (`rfc-unify-bpmn-cmmn-zaaktype-configuration.md`)
-is the source design. This document records the decisions for its backend chunks A1–A3 and B1–B3, and the
+is the source design. This document records the decisions for its backend chunks A1–A3 and B1–B4, and the
 places where it deviates from the RFC after reading the code at `9e5c88f570`.
 
 Current state:
@@ -45,7 +45,6 @@ Current state:
 - Any change to the REST resources, their payloads, or the OpenAPI spec (PZ-12754).
 - A shared task form configuration (RFC section 7).
 - Using the zaaktype `identificatie` in place of the omschrijving as zaaktype identity (RFC section 10).
-- Dropping the resultaattype UUID columns. This is the contract step of B2 in a later release.
 - Using zaakafzenders and mailtemplate koppelingen for BPMN zaken. The engine-agnostic configuration stores them
   for both engines, so a later change can add this.
 - Admin input for the other moved settings on a BPMN zaaktype. The BPMN payload does not carry them, so a beheerder
@@ -67,13 +66,14 @@ Each chunk is a branch based on the branch of the previous chunk:
 | B1 | `feature/PZ-12669-b1-process-binding` | A3 | — |
 | B2 | `feature/PZ-12669-b2-resultaattype-omschrijving` | B1 | V103 |
 | B3 | `feature/PZ-12669-b3-configuration-versioning` | B2 | — |
+| B4 | `feature/PZ-12669-b4-drop-resultaattype-uuid` | B3 | V104 |
 
 A1 carries the openspec change directory. When a chunk has to change Java code, the conversion of that code to
 Kotlin is a PR of its own, stacked directly below the chunk (A2-java below A2). That PR changes no behaviour, so
 a reviewer can read it as a pure conversion. Every PR title follows Conventional Commits, for example
 `refactor(admin): ...`, and every PR body ends with `Solves PZ-12669`. When a lower PR merges, the next PR
 is rebased onto `main` and retargeted. The flyway versions are fixed per chunk, so a rebase never renumbers a
-migration. If another PR takes V100–V103 on `main` first, the stack renumbers its migrations once, from A1 up.
+migration. If another PR takes V100–V104 on `main` first, the stack renumbers its migrations once, from A1 up.
 
 Alternative: one large PR. Rejected, because the story asks for stacked PRs, and A3 alone touches about 30
 call sites.
@@ -371,8 +371,7 @@ V103 adds `niet_ontvankelijk_resultaattype_omschrijving` to `zaaktype_configurat
   backfill is logged and does not stop the start; the next start retries it too. A Flyway Java migration is rejected,
   because it has no CDI access to the ZTC client and its credentials.
 
-Dropping the UUID columns and the fallback is the contract step. It ships in a later release, after ops has
-confirmed from the summary log that no row is left unresolved on every municipality environment.
+Dropping the UUID columns, the fallback, and the backfill is the contract step, B4 (D11).
 
 ### D8. B3: versioning as a pure function
 
@@ -431,6 +430,42 @@ configuration.
   as the baseline outside the repo. In every PR, regenerate it and `diff` it against that baseline. The diff
   must be empty.
 
+### D11. B4: drop the resultaattype UUID columns, the contract step of B2
+
+V104 drops `zaaktype_configuration.niet_ontvankelijk_resultaattype_uuid` and
+`zaaktype_completion_parameters.resultaattype_uuid`, and sets `zaaktype_completion_parameters.resultaattype_omschrijving`
+NOT NULL. A zaakbeeindig parameter always references a resultaattype. The niet-ontvankelijk omschrijving stays
+nullable, because a BPMN configuration does not need one.
+
+A reference whose omschrijving is still null cannot be resolved without its UUID. V104 does not fail on it and
+does not drop it without a copy (D2a):
+
+- A zaakbeeindig parameter without an omschrijving would violate the NOT NULL constraint. V104 moves the row to
+  the quarantine table and deletes it.
+- A configuration with a niet-ontvankelijk UUID but no omschrijving keeps its row. V104 copies the complete row to
+  the quarantine table before it drops the column, so the UUID is kept there. The configuration then has no
+  niet-ontvankelijk resultaattype. A CMMN configuration without one is not valid for zaak creation, until a
+  beheerder sets it again.
+
+V104 reports both counts with `RAISE WARNING`. Merging B4 only after a clean backfill summary on every
+environment (Migration Plan) keeps both counts at zero in practice.
+
+The code changes:
+
+- **Entities.** `ZaaktypeConfiguration` and `ZaaktypeCompletionParameters` hold only the omschrijving.
+- **Write path.** The REST payload still carries the UUID. The REST converters read the omschrijving through
+  `ResultaattypeReferenceService`, which asks ZTC, and write only the omschrijving. The REST contract does not
+  change.
+- **Read path.** `ResultaattypeReferenceService` resolves a reference only by its omschrijving, among the
+  resultaattypen of the zaaktype version of the configuration. When that version has no resultaattype with the
+  omschrijving, it logs a warning and returns no resultaattype. The REST resources then leave the
+  niet-ontvankelijk resultaattype or that zaakbeeindig parameter out of the response, as versioning drops such a
+  reference (D8). Intake afronden and zaak termination as niet-ontvankelijk do not set a result, as for a
+  configuration without a niet-ontvankelijk resultaattype. Terminating a zaak with a zaakbeeindig reden whose
+  resultaattype cannot be resolved fails, as for a reden without a parameter.
+- **Versioning.** `createNextVersion` matches the stored omschrijving only.
+- **Backfill.** `ResultaattypeOmschrijvingBackfill` and its repository queries are removed.
+
 ## Risks / Trade-offs
 
 - [V102 rewrites the configuration tables of every municipality] → One transactional migration (Postgres DDL
@@ -451,7 +486,9 @@ configuration.
 - [B2 read path calls ZTC per resultaattype resolution] → `readResultaattypen` is cached per zaaktype URI, so
   each zaaktype version costs one ZTC call per cache period.
 - [Backfill leaves rows unresolved when ZTC is down at startup] → The UUID fallback keeps behaviour unchanged,
-  and the next start retries. The contract step waits for a clean summary.
+  and the next start retries. B4 merges only after a clean summary on every environment.
+- [B4 runs on an environment where a reference is still unresolved] → V104 keeps the UUID of every such
+  reference in the quarantine table and logs a warning (D11). A beheerder sets the reference again.
 - [`Instance<ProcessBinding>` resolution and `@Transactional` on adapters] → The adapters are
   `@ApplicationScoped` and delegate to the existing transactional services. A Weld unit or itest checks that
   both adapters resolve.
@@ -461,7 +498,7 @@ configuration.
 ## Migration Plan
 
 1. Merge A1 to B3 in order. Each release that contains A1–A3 runs V100–V102 at startup through
-   `FlywayIntegrator`. After each migration chunk (A1, A2, A3, B2) merges, deploy it to the TEST environment
+   `FlywayIntegrator`. After each migration chunk (A1, A2, A3, B2, B4) merges, deploy it to the TEST environment
    with real data. Check the startup log, the quarantine table, and the configuration screens of a CMMN and a
    BPMN zaaktype before the next chunk merges.
 2. After the release that contains A1–A3, check `zaaktype_configuration_migration_quarantine` on every
@@ -470,7 +507,10 @@ configuration.
    - record the result per environment
    - when every environment is checked, drop the table by hand with `DROP TABLE`
 3. After the release that contains B2, check the backfill summary log on every environment.
-4. In a later release, a follow-up change drops the UUID columns and the fallback (outside this change).
+4. Merge B4 only after the release that contains B2 has run on every environment and the backfill summary log
+   shows no unresolved references there. Deployments happen from `main` only, so B4 reaches no environment
+   before it merges. B4 then ships in a later release than B2. After the release that contains B4, check the V104
+   rows in the quarantine table on every environment, as in step 2.
 
 Rollback is forward-only. A defect in a migration that has already run is fixed by a new forward migration
 in the next release, never by editing the applied migration or by restoring a backup. Rows that a migration
