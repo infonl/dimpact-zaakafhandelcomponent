@@ -156,6 +156,10 @@ Notes:
   the taakbehandelaars of its open taken. The rol is never removed because of a taak, so reassigning,
   releasing or completing the taak leaves the medewerker's access intact. The zaakbehandelaar, and a
   medewerker who already holds the rol, get no extra rol.
+- **An employee with `wijzigen` on a zaakspecifiek geautoriseerde zaak can add extra medewerkers to it**: they
+  pick a medewerker of a behandelaar groep of the zaaktype who has no access yet, and ZAC gives that medewerker
+  the `Zaakspecifiek geautoriseerde medewerker` rol on the zaak. The medewerker then has the same access as a
+  previous zaak- or taakbehandelaar.
 - **Other employees are able to access zaakspecifiek geautoriseerde zaken** by being granted
   `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration, exactly like any other
   application role. Granting them that mapping is therefore a deployment prerequisite: without it, they cannot
