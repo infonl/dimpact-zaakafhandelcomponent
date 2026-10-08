@@ -58,7 +58,7 @@ Adding such a medewerker anyway SHALL be refused with
 #### Scenario: Adding a medewerker who already has access
 - **WHEN** an employee adds a medewerker who is the zaakbehandelaar or already holds the rol
 - **THEN** the request fails with `ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD`
-- **AND** the zaak still has at most one *Zaakspecifiek geautoriseerde medewerker* rol for them
+- **AND** no new *Zaakspecifiek geautoriseerde medewerker* rol is added for them
 
 ### Requirement: An added medewerker can use their own application role on the zaak
 

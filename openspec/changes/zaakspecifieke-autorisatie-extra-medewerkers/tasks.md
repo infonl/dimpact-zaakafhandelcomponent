@@ -10,8 +10,10 @@
 - [x] 1.4 New `ZaakspecifiekeAutorisatieRestService`: `GET zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten`
       and `POST zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers`, both asserting `wijzigen`.
 - [x] 1.5 Unit tests for 1.1-1.4.
-- [x] 1.6 Integration test: add a medewerker and check the rol, access, the zoekresultaten, the zaakhistorie, the
-      betrokkenen, the candidates, a refused duplicate, and that the added medewerker can add another one.
+- [x] 1.6 Integration test: add a medewerker and check the rol, access, that the medewerker finds the zaak, its
+      taak and its document through `zoeken/list` (the endpoint behind the werkvoorraden and zoekresultaten), the
+      zaakhistorie, the betrokkenen, the candidates, a refused duplicate, a request without groep, and that the
+      added medewerker can add another one.
 
 ## 2. Frontend
 
