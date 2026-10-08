@@ -298,13 +298,13 @@ podSecurityContext:
 
 # -- generic security context
 securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   capabilities:
     drop:
       - ALL
-# runAsNonRoot: true
-# runAsUser: 1000
 
 # service specifications
 service:
@@ -446,6 +446,8 @@ opa:
       type: RuntimeDefault
    # -- container security context applied to the OPA container in both sidecar and standalone modes
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:

@@ -278,6 +278,8 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | opa.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | opa.securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| opa.securityContext.runAsNonRoot | bool | `true` |  |
+| opa.securityContext.runAsUser | int | `1000` |  |
 | opa.service.annotations | object | `{}` |  |
 | opa.service.port | int | `8181` |  |
 | opa.service.type | string | `"ClusterIP"` |  |
@@ -318,7 +320,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.ephemeral-storage | string | `"4Gi"` |  |
 | resources.requests.memory | string | `"2Gi"` |  |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | generic security context |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":1001}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
 | service.type | string | `"ClusterIP"` |  |
