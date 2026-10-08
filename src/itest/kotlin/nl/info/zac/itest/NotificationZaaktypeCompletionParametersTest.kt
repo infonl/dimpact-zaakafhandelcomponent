@@ -94,13 +94,23 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
     fun readStoredZaakbeeindigResultaattypen(zaaktypeUuid: UUID) =
         queryZacDatabase(
             """
-            SELECT parameters.resultaattype_uuid || ' ' || parameters.resultaattype_omschrijving
+            SELECT parameters.resultaattype_omschrijving
             FROM zaakafhandelcomponent.zaaktype_completion_parameters parameters
             JOIN zaakafhandelcomponent.zaaktype_configuration configuration
                 ON configuration.id = parameters.zaaktype_configuration_id
             WHERE configuration.zaaktype_uuid = '$zaaktypeUuid'
             """.trimIndent()
         )
+
+    fun readResultaattypeUuidsThroughRest(zaaktypeUuid: UUID) =
+        JSONObject(read("$zaaktypeCmmnConfigurationUri/$zaaktypeUuid")).let { configuration ->
+            configuration.getJSONObject("zaakNietOntvankelijkResultaattype").getString("id") to
+                configuration.getJSONArray("zaakbeeindigParameters").let { parameters ->
+                    (0 until parameters.length()).map {
+                        parameters.getJSONObject(it).getJSONObject("resultaattype").getString("id")
+                    }
+                }
+        }
 
     listOf(
         ZaaktypeConfigurationUnderTest(
@@ -187,29 +197,34 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
                 sendZaaktypeCreatedNotification(zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid)
 
                 then(
-                    """the second version gets a copy of the configuration that references the resultaattypen of the
-                        second version with the same omschrijving, and drops the reference whose omschrijving the
-                        second version does not have"""
+                    """the second version gets a copy of the configuration that stores the resultaattype omschrijvingen,
+                        and drops the reference whose omschrijving the second version does not have"""
                 ) {
                     eventually(30.seconds) {
                         readStoredConfiguration(
                             zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid,
-                            "niet_ontvankelijk_resultaattype_uuid || ' ' || niet_ontvankelijk_resultaattype_omschrijving"
-                        ) shouldBe listOf(
-                            "${zaaktypeConfigurationUnderTest.secondVersionNietOntvankelijkResultaattypeUuid} " +
-                                zaaktypeConfigurationUnderTest.nietOntvankelijkResultaattypeOmschrijving
-                        )
+                            "niet_ontvankelijk_resultaattype_omschrijving"
+                        ) shouldBe listOf(zaaktypeConfigurationUnderTest.nietOntvankelijkResultaattypeOmschrijving)
                         readStoredZaakbeeindigResultaattypen(
                             zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid
-                        ) shouldBe listOf("${zaaktypeConfigurationUnderTest.secondVersionZaakbeeindigResultaattypeUuid} Afgebroken")
+                        ) shouldBe listOf("Afgebroken")
                     }
                 }
 
-                then("the configuration of the first version keeps referencing the resultaattypen of the first version") {
-                    readStoredConfiguration(
-                        zaaktypeConfigurationUnderTest.zaaktypeUuid,
-                        "niet_ontvankelijk_resultaattype_uuid"
-                    ) shouldBe listOf(zaaktypeConfigurationUnderTest.nietOntvankelijkResultaattypeUuid)
+                then("the REST API returns the UUIDs of the resultaattypen of the second version") {
+                    readResultaattypeUuidsThroughRest(zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid) shouldBe
+                        Pair(
+                            zaaktypeConfigurationUnderTest.secondVersionNietOntvankelijkResultaattypeUuid,
+                            listOf(zaaktypeConfigurationUnderTest.secondVersionZaakbeeindigResultaattypeUuid)
+                        )
+                }
+
+                then("the REST API keeps returning the UUIDs of its own resultaattypen for the first version") {
+                    readResultaattypeUuidsThroughRest(zaaktypeConfigurationUnderTest.zaaktypeUuid) shouldBe
+                        Pair(
+                            zaaktypeConfigurationUnderTest.nietOntvankelijkResultaattypeUuid,
+                            listOf(zaaktypeConfigurationUnderTest.zaakbeeindigResultaattypeUuid)
+                        )
                 }
 
                 then("the second version keeps the productaanvraagtype of the first version") {

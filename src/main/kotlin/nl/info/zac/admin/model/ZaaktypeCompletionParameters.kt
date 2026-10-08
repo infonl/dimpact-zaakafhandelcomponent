@@ -16,7 +16,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
-import java.util.UUID
 
 @Entity
 @Table(schema = FlywayIntegrator.Companion.SCHEMA, name = "zaaktype_completion_parameters")
@@ -43,17 +42,14 @@ class ZaaktypeCompletionParameters : UserModifiableZaaktypeConfigurationData<Zaa
     @NotNull
     lateinit var zaakbeeindigReden: ZaakbeeindigReden
 
-    @Column(name = "resultaattype_uuid", nullable = false)
+    @Column(name = "resultaattype_omschrijving", nullable = false)
     @NotNull
-    lateinit var resultaattype: UUID
-
-    @Column(name = "resultaattype_omschrijving")
-    var resultaattypeOmschrijving: String? = null
+    lateinit var resultaattypeOmschrijving: String
 
     override fun equals(other: Any?): Boolean {
         if (other !is ZaaktypeCompletionParameters) return false
         return zaakbeeindigReden.id == other.zaakbeeindigReden.id &&
-            resultaattype == other.resultaattype
+            resultaattypeOmschrijving == other.resultaattypeOmschrijving
     }
 
     // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
@@ -62,7 +58,6 @@ class ZaaktypeCompletionParameters : UserModifiableZaaktypeConfigurationData<Zaa
     override fun hashCode() = javaClass.hashCode()
 
     override fun applyChanges(changes: ZaaktypeCompletionParameters) {
-        resultaattype = changes.resultaattype
         resultaattypeOmschrijving = changes.resultaattypeOmschrijving
     }
 

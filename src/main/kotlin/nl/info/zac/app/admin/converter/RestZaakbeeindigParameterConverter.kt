@@ -5,6 +5,7 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
+import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden
 import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
@@ -17,15 +18,28 @@ class RestZaakbeeindigParameterConverter @Inject constructor(
     fun convertZaakbeeindigParameters(
         zaakbeeindigRedenen: Set<ZaaktypeCompletionParameters>
     ): List<RestZaakbeeindigParameter> =
-        zaakbeeindigRedenen.map { convertZaakbeeindigParameter(it) }
+        zaakbeeindigRedenen.mapNotNull { convertZaakbeeindigParameter(it) }
+
+    fun toZaaktypeCompletionParameters(
+        restZaakbeeindigParameters: List<RestZaakbeeindigParameter>
+    ): List<ZaaktypeCompletionParameters> =
+        restZaakbeeindigParameters.map { restZaakbeeindigParameter ->
+            ZaaktypeCompletionParameters().apply {
+                id = restZaakbeeindigParameter.id
+                zaakbeeindigReden = convertRESTZaakbeeindigReden(restZaakbeeindigParameter.zaakbeeindigReden)
+                resultaattypeOmschrijving =
+                    resultaattypeReferenceService.readOmschrijving(restZaakbeeindigParameter.resultaattype.id)
+            }
+        }
 
     private fun convertZaakbeeindigParameter(
         zaaktypeCompletionParameters: ZaaktypeCompletionParameters
-    ): RestZaakbeeindigParameter = RestZaakbeeindigParameter(
-        id = zaaktypeCompletionParameters.id,
-        zaakbeeindigReden = convertZaakbeeindigReden(
-            zaaktypeCompletionParameters.zaakbeeindigReden
-        ),
-        resultaattype = resultaattypeReferenceService.readResultaattype(zaaktypeCompletionParameters).toRestResultaatType()
-    )
+    ): RestZaakbeeindigParameter? =
+        resultaattypeReferenceService.findResultaattype(zaaktypeCompletionParameters)?.let {
+            RestZaakbeeindigParameter(
+                id = zaaktypeCompletionParameters.id,
+                zaakbeeindigReden = convertZaakbeeindigReden(zaaktypeCompletionParameters.zaakbeeindigReden),
+                resultaattype = it.toRestResultaatType()
+            )
+        }
 }

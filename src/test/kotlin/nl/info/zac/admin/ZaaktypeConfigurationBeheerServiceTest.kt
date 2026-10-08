@@ -34,14 +34,12 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val zaaktypeConfigurationVersioning = mockk<ZaaktypeConfigurationVersioning>()
-    val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
     val zaaktypeConfigurationBeheerService = ZaaktypeConfigurationBeheerService(
         zaaktypeConfigurationRepository = zaaktypeConfigurationRepository,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         ztcClientService = ztcClientService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning,
-        resultaattypeReferenceService = resultaattypeReferenceService
+        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning
     )
 
     afterEach {
@@ -59,28 +57,23 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         context("storing a $configurationType configuration") {
             given("a valid $configurationType configuration for a zaaktype version that already has a configuration") {
-                val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                     id = 999L
                     groepID = "fakeGroup"
                 }
-                val storedZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply { id = 42L }
+                val storedZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply { id = 42L }
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
                 } returns storedZaaktypeConfiguration
-                every { resultaattypeReferenceService.fillOmschrijvingen(zaaktypeConfiguration) } just runs
                 every { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) } returns zaaktypeConfiguration
                 every { zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid) } just runs
 
                 `when`("it is stored with an id that does not exist") {
                     zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
 
-                    then(
-                        """the existing configuration of the zaaktype version is updated with the omschrijvingen of its
-                            resultaattypen, and the cache is evicted"""
-                    ) {
+                    then("the existing configuration of the zaaktype version is updated, and the cache is evicted") {
                         zaaktypeConfiguration.id shouldBe 42L
                         verifyOrder {
-                            resultaattypeReferenceService.fillOmschrijvingen(zaaktypeConfiguration)
                             zaaktypeConfigurationRepository.store(zaaktypeConfiguration)
                             zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid)
                         }
@@ -89,7 +82,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             given("a $configurationType configuration without groep") {
-                val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply { groepID = null }
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply { groepID = null }
 
                 `when`("it is stored") {
                     shouldThrow<ConstraintViolationException> {
@@ -105,13 +98,13 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
         context("handling a notification for a new version of a $configurationType zaaktype") {
             given("a $configurationType configuration of the previous version of the zaaktype") {
-                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID())
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
                 val newZaaktypeUuid = UUID.randomUUID()
                 val newZaaktype = createZaakType(
                     uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"),
                     omschrijving = previousZaaktypeConfiguration.zaaktypeOmschrijving
                 )
-                val nextZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                val nextZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                     id = null
                     zaaktypeUuid = newZaaktypeUuid
                     groepID = "fakeCopiedGroup"
@@ -125,7 +118,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationVersioning.createNextVersion(previousZaaktypeConfiguration, newZaaktype)
                 } returns nextZaaktypeConfiguration
-                every { resultaattypeReferenceService.fillOmschrijvingen(nextZaaktypeConfiguration) } just runs
                 every { zaaktypeConfigurationRepository.store(nextZaaktypeConfiguration) } returns nextZaaktypeConfiguration
                 every { zaaktypeConfigurationService.evict(newZaaktypeUuid) } just runs
                 every {
@@ -154,7 +146,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             given("an existing $configurationType configuration of the zaaktype version itself") {
-                val existingZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                val existingZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                     groepID = "fakeGroup"
                     zaaktypeOmschrijving = "fakeExistingZaaktype$configurationType"
                 }
@@ -167,7 +159,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(existingZaaktypeConfiguration.zaaktypeUuid)
                 } returns existingZaaktypeConfiguration
-                every { resultaattypeReferenceService.fillOmschrijvingen(existingZaaktypeConfiguration) } just runs
                 every {
                     zaaktypeConfigurationRepository.store(existingZaaktypeConfiguration)
                 } returns existingZaaktypeConfiguration
@@ -197,10 +188,10 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             given("$configurationType configurations of an older and a newer version of the same zaaktype") {
-                val olderZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                val olderZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                     groepID = "fakeOlderGroup"
                 }
-                val newerZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                val newerZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                     groepID = "fakeNewerGroup"
                 }
                 val olderZaaktype = createZaakType(
@@ -212,7 +203,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(olderZaaktypeConfiguration.zaaktypeUuid)
                 } returns olderZaaktypeConfiguration
-                every { resultaattypeReferenceService.fillOmschrijvingen(olderZaaktypeConfiguration) } just runs
                 every {
                     zaaktypeConfigurationRepository.store(olderZaaktypeConfiguration)
                 } returns olderZaaktypeConfiguration
@@ -234,7 +224,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
         context("checking the productaanvraagtype of a $configurationType configuration") {
             given("a productaanvraagtype that the current configuration of another zaaktype uses") {
-                val otherZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                val otherZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                     zaaktypeOmschrijving = "fakeOtherZaaktype"
                 }
                 every {
@@ -256,7 +246,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             given("a productaanvraagtype that the current configuration of the same zaaktype uses") {
-                val previousVersionConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                val previousVersionConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                     zaaktypeOmschrijving = "fakeZaaktype"
                 }
                 every {
@@ -362,7 +352,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 servicenorm = null
             )
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns existingConfig
-            every { resultaattypeReferenceService.fillOmschrijvingen(existingConfig) } just runs
             every { zaaktypeConfigurationRepository.store(existingConfig) } returns existingConfig
             every { zaaktypeConfigurationService.evict(zaaktypeUuid) } just runs
 

@@ -16,7 +16,6 @@ import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -61,12 +60,10 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
     fun completionParameter(
         zaaktypeConfiguration: ZaaktypeConfiguration,
         zaakbeeindigReden: ZaakbeeindigReden,
-        resultaattype: UUID,
-        resultaattypeOmschrijving: String? = null
+        resultaattypeOmschrijving: String
     ) = ZaaktypeCompletionParameters().apply {
         this.zaaktypeConfiguration = zaaktypeConfiguration
         this.zaakbeeindigReden = zaakbeeindigReden
-        this.resultaattype = resultaattype
         this.resultaattypeOmschrijving = resultaattypeOmschrijving
     }
 
@@ -75,17 +72,9 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
             createResultaatType(url = resultaattypeUri(uuid), omschrijving = omschrijving)
     }
 
-    fun stubPreviousResultaattype(uuid: UUID, omschrijving: String) {
-        every { ztcClientService.readResultaattype(uuid) } returns
-            createResultaatType(url = resultaattypeUri(uuid), omschrijving = omschrijving)
-    }
-
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         context("creating the next version of a $configurationType zaaktype configuration") {
             given("a previous configuration whose resultaattypen are not the first ones of the new zaaktype") {
-                val previousAfgebrokenUuid = UUID.randomUUID()
-                val previousToegekendUuid = UUID.randomUUID()
-                val previousNietOntvankelijkUuid = UUID.randomUUID()
                 val newVerlengdUuid = UUID.randomUUID()
                 val newToegekendUuid = UUID.randomUUID()
                 val newNietOntvankelijkUuid = UUID.randomUUID()
@@ -98,21 +87,18 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
                 stubResultaattype(newToegekendUuid, "Toegekend")
                 stubResultaattype(newNietOntvankelijkUuid, "Niet ontvankelijk")
                 stubResultaattype(newAfgebrokenUuid, "Afgebroken")
-                stubPreviousResultaattype(previousAfgebrokenUuid, "Afgebroken")
-                stubPreviousResultaattype(previousToegekendUuid, "Toegekend")
-                stubPreviousResultaattype(previousNietOntvankelijkUuid, "Niet ontvankelijk")
-                val previousZaaktypeConfiguration = createZaaktypeConfiguration(previousNietOntvankelijkUuid).apply {
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration("Niet ontvankelijk").apply {
                     setZaakbeeindigParameters(
                         listOf(
                             completionParameter(
                                 this,
                                 zaakbeeindigReden(id = 1L, naam = "Zaak is afgebroken"),
-                                previousAfgebrokenUuid
+                                "Afgebroken"
                             ),
                             completionParameter(
                                 this,
                                 zaakbeeindigReden(id = 2L, naam = "Zaak is toegekend"),
-                                previousToegekendUuid
+                                "Toegekend"
                             )
                         )
                     )
@@ -122,82 +108,34 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
                     val nextZaaktypeConfiguration =
                         zaaktypeConfigurationVersioning.createNextVersion(previousZaaktypeConfiguration, newZaaktype)
 
-                    then("every zaakbeeindig parameter is matched on omschrijving instead of on position") {
+                    then("every zaakbeeindig parameter keeps its omschrijving and belongs to the next version") {
                         val zaakbeeindigParameters = nextZaaktypeConfiguration.getZaakbeeindigParameters()
                         zaakbeeindigParameters shouldHaveSize 2
                         with(zaakbeeindigParameters.first { it.zaakbeeindigReden.id == 1L }) {
-                            resultaattype shouldBe newAfgebrokenUuid
                             resultaattypeOmschrijving shouldBe "Afgebroken"
                             zaaktypeConfiguration shouldBeSameInstanceAs nextZaaktypeConfiguration
                         }
-                        with(zaakbeeindigParameters.first { it.zaakbeeindigReden.id == 2L }) {
-                            resultaattype shouldBe newToegekendUuid
-                            resultaattypeOmschrijving shouldBe "Toegekend"
-                        }
+                        zaakbeeindigParameters.first { it.zaakbeeindigReden.id == 2L }
+                            .resultaattypeOmschrijving shouldBe "Toegekend"
                     }
 
-                    and("the niet-ontvankelijk resultaattype is matched on omschrijving as well") {
-                        nextZaaktypeConfiguration.nietOntvankelijkResultaattype shouldBe newNietOntvankelijkUuid
+                    and("the niet-ontvankelijk resultaattype keeps its omschrijving as well") {
                         nextZaaktypeConfiguration.nietOntvankelijkResultaattypeOmschrijving shouldBe "Niet ontvankelijk"
                     }
                 }
             }
 
-            given("a previous configuration whose resultaattype references hold their omschrijving") {
-                val previousToegekendUuid = UUID.randomUUID()
-                val previousNietOntvankelijkUuid = UUID.randomUUID()
-                val newToegekendUuid = UUID.randomUUID()
-                val newNietOntvankelijkUuid = UUID.randomUUID()
-                val newZaaktype = createZaakType(
-                    resultTypes = listOf(newToegekendUuid, newNietOntvankelijkUuid).map(::resultaattypeUri)
-                )
-                stubResultaattype(newToegekendUuid, "Toegekend")
-                stubResultaattype(newNietOntvankelijkUuid, "Niet ontvankelijk")
-                val previousZaaktypeConfiguration = createZaaktypeConfiguration(previousNietOntvankelijkUuid).apply {
-                    nietOntvankelijkResultaattypeOmschrijving = "Niet ontvankelijk"
-                    setZaakbeeindigParameters(
-                        listOf(
-                            completionParameter(
-                                zaaktypeConfiguration = this,
-                                zaakbeeindigReden = zaakbeeindigReden(id = 2L, naam = "Zaak is toegekend"),
-                                resultaattype = previousToegekendUuid,
-                                resultaattypeOmschrijving = "Toegekend"
-                            )
-                        )
-                    )
-                }
-
-                `when`("the next version is created") {
-                    val nextZaaktypeConfiguration =
-                        zaaktypeConfigurationVersioning.createNextVersion(previousZaaktypeConfiguration, newZaaktype)
-
-                    then("the references are matched on the stored omschrijving without reading the previous resultaattypen") {
-                        nextZaaktypeConfiguration.nietOntvankelijkResultaattype shouldBe newNietOntvankelijkUuid
-                        nextZaaktypeConfiguration.getZaakbeeindigParameters().single().resultaattype shouldBe
-                            newToegekendUuid
-                        verify(exactly = 0) {
-                            ztcClientService.readResultaattype(previousToegekendUuid)
-                            ztcClientService.readResultaattype(previousNietOntvankelijkUuid)
-                        }
-                    }
-                }
-            }
-
             given("a previous configuration with a resultaattype that no longer exists in the new zaaktype") {
-                val previousRemovedUuid = UUID.randomUUID()
-                val previousNietOntvankelijkUuid = UUID.randomUUID()
                 val newToegekendUuid = UUID.randomUUID()
                 val newZaaktype = createZaakType(resultTypes = listOf(resultaattypeUri(newToegekendUuid)))
                 stubResultaattype(newToegekendUuid, "Toegekend")
-                stubPreviousResultaattype(previousRemovedUuid, "Verwijderd")
-                stubPreviousResultaattype(previousNietOntvankelijkUuid, "Niet ontvankelijk")
-                val previousZaaktypeConfiguration = createZaaktypeConfiguration(previousNietOntvankelijkUuid).apply {
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration("Niet ontvankelijk").apply {
                     setZaakbeeindigParameters(
                         listOf(
                             completionParameter(
                                 this,
                                 zaakbeeindigReden(id = 1L, naam = "Zaak is verwijderd"),
-                                previousRemovedUuid
+                                "Verwijderd"
                             )
                         )
                     )
@@ -207,9 +145,8 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
                     val nextZaaktypeConfiguration =
                         zaaktypeConfigurationVersioning.createNextVersion(previousZaaktypeConfiguration, newZaaktype)
 
-                    then("the unmatched references are dropped instead of being mapped to an arbitrary resultaattype") {
+                    then("the unmatched references are dropped") {
                         nextZaaktypeConfiguration.zaaktypeCompletionParameters.shouldNotBeNull().shouldBeEmpty()
-                        nextZaaktypeConfiguration.nietOntvankelijkResultaattype.shouldBeNull()
                         nextZaaktypeConfiguration.nietOntvankelijkResultaattypeOmschrijving.shouldBeNull()
                     }
                 }
@@ -222,8 +159,7 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
                     omschrijving = "fakeNewZaaktypeOmschrijving",
                     resultTypes = emptyList()
                 )
-                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
-                    nietOntvankelijkResultaattype = null
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(null).apply {
                     groepID = "fakeGroupId"
                     defaultBehandelaarId = "fakeDefaultBehandelaarId"
                     productaanvraagtype = "fakeProductaanvraagtype"
@@ -270,8 +206,7 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
             given("a previous configuration with deadline warning windows, mail settings and a confirmation email") {
                 val newZaaktype = createZaakType(resultTypes = emptyList(), servicenorm = "P30D")
                 val zaakAlgemeenMailTemplate = createMailTemplate()
-                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
-                    nietOntvankelijkResultaattype = null
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(null).apply {
                     einddatumGeplandWaarschuwing = 3
                     uiterlijkeEinddatumAfdoeningWaarschuwing = 2
                     setMailtemplateKoppelingen(emptyList())
@@ -327,8 +262,7 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
 
             given("a previous configuration with deadline warning windows and without a confirmation email") {
                 val newZaaktype = createZaakType(resultTypes = emptyList(), servicenorm = null)
-                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
-                    nietOntvankelijkResultaattype = null
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(null).apply {
                     einddatumGeplandWaarschuwing = 3
                     uiterlijkeEinddatumAfdoeningWaarschuwing = 2
                     zaaktypeEmailParameters = null
@@ -354,8 +288,7 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
 
             given("a previous configuration bound to $configurationType") {
                 val newZaaktype = createZaakType(resultTypes = emptyList())
-                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
-                    nietOntvankelijkResultaattype = null
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(null).apply {
                     bindTo(configurationType, "fakePreviousDefinitionKey")
                 }
 
@@ -393,8 +326,7 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
                     createReferenceTableValue(id = 2L, name = "Negatief")
                 )
             )
-            val previousZaaktypeConfiguration = createZaaktypeCmmnConfiguration().apply {
-                nietOntvankelijkResultaattype = null
+            val previousZaaktypeConfiguration = createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattypeOmschrijving = null).apply {
                 getOrCreateCmmnExtension().apply {
                     intakeMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_AAN.name
                     afrondenMail = ZaakafhandelparametersStatusMailOption.NIET_BESCHIKBAAR.name
@@ -475,8 +407,6 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
                 get(zaaktypeConfiguration).let {
                     it == null || it == get(defaultZaaktypeConfiguration) || (it is Collection<*> && it.isEmpty())
                 }
-            val previousToegekendUuid = UUID.randomUUID()
-            val previousNietOntvankelijkUuid = UUID.randomUUID()
             val newToegekendUuid = UUID.randomUUID()
             val newNietOntvankelijkUuid = UUID.randomUUID()
             val newZaaktype = createZaakType(
@@ -486,21 +416,19 @@ class ZaaktypeConfigurationVersioningTest : BehaviorSpec({
             stubResultaattype(newToegekendUuid, "Toegekend")
             stubResultaattype(newNietOntvankelijkUuid, "Niet ontvankelijk")
             val previousZaaktypeConfiguration = createZaaktypeCmmnConfiguration(
-                nietOntvankelijkResultaattype = previousNietOntvankelijkUuid,
+                nietOntvankelijkResultaattypeOmschrijving = "Niet ontvankelijk",
                 groupId = "fakeGroupId",
                 defaultBehandelaarId = "fakeDefaultBehandelaarId",
                 productaanvraagtype = "fakeProductaanvraagtype",
                 smartDocumentsEnabled = true,
                 einddatumGeplandWaarschuwing = 3
             ).apply {
-                nietOntvankelijkResultaattypeOmschrijving = "Niet ontvankelijk"
                 uiterlijkeEinddatumAfdoeningWaarschuwing = 2
                 setZaakbeeindigParameters(
                     listOf(
                         completionParameter(
                             zaaktypeConfiguration = this,
                             zaakbeeindigReden = zaakbeeindigReden(id = 2L, naam = "Zaak is toegekend"),
-                            resultaattype = previousToegekendUuid,
                             resultaattypeOmschrijving = "Toegekend"
                         )
                     )

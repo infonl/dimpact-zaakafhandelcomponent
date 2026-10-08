@@ -72,11 +72,11 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
                 omschrijving = "fakeZaakTypeOmschrijving2"
             )
             val zaakTypen = listOf(zaakType1, zaakType2)
-            val zaaktypeConfiguration1 = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+            val zaaktypeConfiguration1 = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                 zaaktypeUuid = zaakTypeUUID1
                 einddatumGeplandWaarschuwing = 1
             }
-            val zaaktypeConfiguration2 = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+            val zaaktypeConfiguration2 = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                 zaaktypeUuid = zaakTypeUUID2
             }
             val assigneeName = "fakeAssignee"

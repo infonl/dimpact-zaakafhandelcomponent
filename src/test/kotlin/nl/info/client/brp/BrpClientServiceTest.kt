@@ -153,7 +153,7 @@ class BrpClientServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val person = createPersoon(bsn = bsn)
             val queryPersonenPurpose = "zoekWaarde"
-            val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+            val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
                 zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
                     zoekWaarde = queryPersonenPurpose
                     verwerkingregisterWaarde = "Leerplicht"

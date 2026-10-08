@@ -221,7 +221,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         given("an existing zaaktype configuration bound to $configurationType") {
-            val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID())
+            val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
                 zaaktypeConfigurationService.findConfiguration(zaaktypeConfiguration.zaaktypeUuid)

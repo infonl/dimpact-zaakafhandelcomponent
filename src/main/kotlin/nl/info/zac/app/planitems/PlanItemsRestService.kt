@@ -261,7 +261,7 @@ class PlanItemsRestService @Inject constructor(
         if (userEventListenerData.isZaakOntvankelijk) return
 
         val zaaktypeConfiguration = zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
-        resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)?.let { resultaattype ->
+        resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)?.let { resultaattype ->
             zgwApiService.closeZaak(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattype.url.extractUuid(),

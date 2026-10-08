@@ -67,6 +67,7 @@ nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeIngangsdatumBesluitArch
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeTermijnArchiveTest
 nl.info.zac.itest.ZaakSuspendRestServiceTest
 nl.info.zac.itest.ZaaktypeConfigurationZaakSettingsMigrationTest
+nl.info.zac.itest.ZaaktypeConfigurationResultaattypeUuidMigrationTest
 
 [shard 3]
 
