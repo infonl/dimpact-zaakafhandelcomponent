@@ -8,6 +8,7 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
 import { MatHint } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
@@ -30,6 +31,7 @@ import { ZakenService } from "../zaken.service";
   imports: [
     MatButtonModule,
     MatDividerModule,
+    MatExpansionModule,
     MatHint,
     MatIconModule,
     MatSidenavModule,
