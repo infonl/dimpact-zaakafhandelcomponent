@@ -39,9 +39,9 @@
 
 - [x] 4.1 `ZaakAutorisatieGegevens`: `isGeautoriseerdeMedewerker` covers a zsa zaak with and without the user, and a
       zaak that is not zsa, for which the medewerkers are not read.
-- [ ] 4.2 `ZaakspecifiekeAutorisatieServiceTest`: `readZaakAutorisatieGegevens` reads the rollen only when
+- [x] 4.2 `ZaakspecifiekeAutorisatieServiceTest`: `readZaakAutorisatieGegevens` reads the rollen only when
       `geautoriseerdeMedewerkers` is used on a zsa zaak. Move or adapt the existing `ReindexSupportService` tests.
-- [ ] 4.3 `PolicyServiceTest`: with and without passed-in data, the OPA input is identical to today, and passed-in
+- [x] 4.3 `PolicyServiceTest`: with and without passed-in data, the OPA input is identical to today, and passed-in
       data causes no zsa call.
 - [x] 4.4 `ZaakRestServiceTest`, `TaskRestServiceTest` and `EnkelvoudigInformatieObjectRestServiceTest`: the zsa
       marking is read once per request on the listed paths, and `updateZaak` returns the marking read after the
@@ -52,6 +52,6 @@
 
 ## 5. Wrap-up
 
-- [ ] 5.1 Ask the developer to run `./gradlew spotlessApply detektApply`, `./gradlew detekt`, the unit tests and the
+- [x] 5.1 Ask the developer to run `./gradlew spotlessApply detektApply`, `./gradlew detekt`, the unit tests and the
       integration tests. The integration tests are the main safety net for "no behaviour change".
-- [ ] 5.2 Run `openspec validate refactor-zaakspecifieke-autorisatie-check`.
+- [x] 5.2 Run `openspec validate refactor-zaakspecifieke-autorisatie-check`.

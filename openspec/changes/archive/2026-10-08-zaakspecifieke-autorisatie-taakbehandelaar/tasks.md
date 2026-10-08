@@ -112,7 +112,7 @@
 
 ## 6. Wrap-up
 
-- [ ] 6.1 Ask the developer to run `./gradlew spotlessApply detektApply`, `./gradlew detekt`, the unit tests
+- [x] 6.1 Ask the developer to run `./gradlew spotlessApply detektApply`, `./gradlew detekt`, the unit tests
       and the integration tests, and report back.
 - [x] 6.2 Update `docs/solution-architecture/accessControlPolicies.md`: a taakbehandelaar of a marked zaak
       receives the *Zaakspecifiek geautoriseerde medewerker* rol on assignment and keeps it.
