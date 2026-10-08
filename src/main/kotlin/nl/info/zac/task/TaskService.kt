@@ -68,7 +68,7 @@ class TaskService @Inject constructor(
         groupId?.let { flowableTaskService.assignTaskToGroup(task, it, reason) }
         val assignedTask = taskAssignedToOrReleasedFromUser ?: task
         eventingService.send(ScreenEventType.TAAK.updated(assignedTask))
-        eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(TaakVariabelenService.readZaakUUID(task)))
+        eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(readZaakUUID(task)))
         indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
         return assignedTask
     }
