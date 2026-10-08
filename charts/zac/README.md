@@ -131,7 +131,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | initContainer.enabled | bool | `true` |  |
 | initContainer.resources.requests.cpu | string | `"50m"` |  |
 | initContainer.resources.requests.memory | string | `"256Mi"` |  |
-| initContainer.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security context for the curl-based init containers (read-only root filesystem is safe here) |
+| initContainer.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsGroup":10001,"runAsNonRoot":true,"runAsUser":10001}` | Security context for the curl-based init containers (read-only root filesystem is safe here) |
 | javaOptions | string | `""` | JVM startup options. Defaults to "-XX:MaxRAMPercentage=75.0 -Xlog:gc::time,uptime", which leaves the heap to be sized from `resources.limits.memory` by the JVM itself. Prefer changing that limit over pinning the heap here with `-Xmx`. |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
@@ -255,6 +255,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | office_converter.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | office_converter.securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| office_converter.securityContext.runAsGroup | int | `10001` |  |
+| office_converter.securityContext.runAsNonRoot | bool | `true` |  |
+| office_converter.securityContext.runAsUser | int | `10001` |  |
 | office_converter.service.annotations | object | `{}` |  |
 | office_converter.service.port | int | `80` |  |
 | office_converter.service.type | string | `"ClusterIP"` |  |
@@ -278,8 +281,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | opa.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | opa.securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| opa.securityContext.runAsGroup | int | `10001` |  |
 | opa.securityContext.runAsNonRoot | bool | `true` |  |
-| opa.securityContext.runAsUser | int | `1000` |  |
+| opa.securityContext.runAsUser | int | `10001` |  |
 | opa.service.annotations | object | `{}` |  |
 | opa.service.port | int | `8181` |  |
 | opa.service.type | string | `"ClusterIP"` |  |
@@ -320,7 +324,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.ephemeral-storage | string | `"4Gi"` |  |
 | resources.requests.memory | string | `"2Gi"` |  |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":1001}` | generic security context |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsGroup":10001,"runAsNonRoot":true,"runAsUser":10001}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
 | service.type | string | `"ClusterIP"` |  |
