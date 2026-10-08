@@ -1,16 +1,17 @@
 ## 1. Backend
 
-- [ ] 1.1 Add `ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD` and
-      `ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD` with their exceptions.
-- [ ] 1.2 `ZaakspecifiekeAutorisatieService.listKandidaten(zaak, groepId)`: the users of a `behandelaar` groep for
-      the zaaktype minus `geautoriseerdeMedewerkerIds` and members of `zaakspecifiek_geautoriseerd` groepen.
-- [ ] 1.3 `ZaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(zaak, groepId, medewerkerId)`:
-      validate, grant under the lock with the taakbehandelaar toelichting, reindex.
-- [ ] 1.4 `ZaakRestService`: `GET zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten` and
-      `POST zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers`, both asserting `wijzigen`.
-- [ ] 1.5 Unit tests for 1.2-1.4; integration test that adds a medewerker and checks access, the rol, the
-      betrokkenen and the candidates.
-- [ ] 1.6 Regenerate the OpenAPI spec.
+- [ ] 1.1 Add `ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD`, `ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD`
+      and `ERROR_CODE_GROUP_NOT_BEHANDELAAR_FOR_ZAAKTYPE` with their exceptions.
+- [ ] 1.2 `ZaakspecifiekeAutorisatieService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(zaak, zaakType, groepId)`:
+      the users of a `behandelaar` groep for the zaaktype minus `geautoriseerdeMedewerkerIds` and members of
+      `zaakspecifiek_geautoriseerd` groepen.
+- [ ] 1.3 `ZaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(zaak, zaakType, groepId, medewerkerId)`:
+      validate, grant under the lock with the shared toelichting, reindex.
+- [ ] 1.4 New `ZaakspecifiekeAutorisatieRestService`: `GET zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten`
+      and `POST zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers`, both asserting `wijzigen`.
+- [ ] 1.5 Unit tests for 1.1-1.4.
+- [ ] 1.6 Integration test: add a medewerker and check the rol, access, the zoekresultaten, the zaakhistorie, the
+      betrokkenen, the candidates, a refused duplicate, and that the added medewerker can add another one.
 
 ## 2. Frontend
 

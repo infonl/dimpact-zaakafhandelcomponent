@@ -40,17 +40,23 @@ of the groep minus everyone who already has access:
 The frontend then needs no knowledge of IAM. The endpoint refuses a groep that is not a `behandelaar` groep
 for the zaaktype.
 
+### The endpoints live in their own REST service
+
+`ZaakRestService` is already large. A new `ZaakspecifiekeAutorisatieRestService` under the same `zaken` path holds
+both endpoints, like the other `zaken` REST services split off before it.
+
 ### Adding repeats the checks
 
 `POST /rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers` with `{ groepId, medewerkerId }`:
 1. asserts `wijzigen` on the zaak;
-2. refuses a zaak that is not zaakspecifiek geautoriseerd;
-3. refuses a groep that is not a `behandelaar` groep for the zaaktype, or a medewerker outside it;
+2. refuses a zaak that is not zaakspecifiek geautoriseerd (`ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD`);
+3. refuses a groep that is not a `behandelaar` groep for the zaaktype
+   (`ERROR_CODE_GROUP_NOT_BEHANDELAAR_FOR_ZAAKTYPE`), or a medewerker outside it (existing
+   `ERROR_CODE_USER_NOT_IN_GROUP`);
 4. refuses a medewerker who already has access (`ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD`);
 5. grants under the per-zaak lock and reindexes.
 
-Refusals reuse `InputValidationFailedException` with a new error code, as the other zaakspecifieke autorisatie
-errors do. A missing roltype gives the existing
+Refusals use `InputValidationFailedException`, as the other zaakspecifieke autorisatie errors do. A missing roltype gives the existing
 `ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND`.
 
 ### Same rol, same toelichting
@@ -65,10 +71,15 @@ same way.
   → Few such groepen are expected; accepted.
 - [The candidate list can be stale when another employee adds the same medewerker meanwhile] → The POST
   refuses the duplicate.
+- [The per-zaak lock is in memory, so two pods can each add the same medewerker at the same moment] → Same
+  trade-off as the zaak and taak assignment flows, which use this lock. A second identical rol grants no extra
+  access. Removing access (PZ-12046) must remove every rol of the medewerker.
 
 ## Migration Plan
 
-None. Rollback leaves added rollen in Open Zaak, where they keep granting access.
+None. Rollback leaves added rollen in Open Zaak, where they keep granting access. That is intended: the
+access was granted on purpose, and it is the same rol previous zaak- and taakbehandelaars keep. Removing it is
+PZ-12046.
 
 ## Open Questions
 

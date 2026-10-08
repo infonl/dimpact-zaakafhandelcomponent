@@ -36,8 +36,8 @@ None. The rol already feeds the OPA policies (`zaakspecifieke-autorisatie-toegan
 
 ## Impact
 
-- **Backend**: a new function in `ZaakspecifiekeAutorisatieService`, two endpoints in `ZaakRestService`, two
-  error codes.
+- **Backend**: new functions in `ZaakspecifiekeAutorisatieService`, a new `ZaakspecifiekeAutorisatieRestService`
+  with two endpoints, three error codes.
 - **Frontend**: a new side menu item and side panel in the zaak view, i18n texts.
 - **Solr, OPA, Open Zaak catalogus**: no change.
 - **Out of scope**:

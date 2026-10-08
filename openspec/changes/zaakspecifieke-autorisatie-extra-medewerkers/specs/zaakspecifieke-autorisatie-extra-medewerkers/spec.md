@@ -63,11 +63,12 @@ Adding such a medewerker anyway SHALL be refused with
 ### Requirement: An added medewerker can use their own application role on the zaak
 
 An added medewerker SHALL get the rights of the application role they hold for the zaaktype on the zaak, its
-taken and its documenten, and SHALL be able to add further medewerkers. They SHALL find the zaak, its taken and
+taken and its documenten. When those rights include `wijzigen`, as the `behandelaar` role does on an open zaak,
+they SHALL be able to add further medewerkers. They SHALL find the zaak, its taken and
 its documenten in the werkvoorraden and zoekresultaten without a manual reindex.
 
 #### Scenario: The added medewerker edits the zaak and adds another medewerker
-- **GIVEN** medewerker A, with `behandelaar` but not `zaakspecifiek_geautoriseerd`, who was added to the zaak
+- **GIVEN** medewerker A, with `behandelaar` but not `zaakspecifiek_geautoriseerd`, who was added to an open zaak
 - **WHEN** rechten are computed for A on the zaak
 - **THEN** `lezen` and `wijzigen` are `true`
 - **AND** A can add medewerker B to the zaak
