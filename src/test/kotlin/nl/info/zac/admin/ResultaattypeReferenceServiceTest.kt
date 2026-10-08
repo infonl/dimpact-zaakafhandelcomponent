@@ -4,8 +4,10 @@
  */
 package nl.info.zac.admin
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -122,6 +124,43 @@ class ResultaattypeReferenceServiceTest : BehaviorSpec({
                 then("no resultaattype is returned without asking ZTC") {
                     resultaattype shouldBe null
                     verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
+                }
+            }
+        }
+    }
+
+    context("Reading the niet-ontvankelijk resultaattype to end a zaak with") {
+        val zaaktype = createZaakType()
+        val zaaktypeUuid = UUID.randomUUID()
+
+        given("a niet-ontvankelijk omschrijving that matches a resultaattype of the zaaktype version") {
+            val matchingResultaattype = createResultaatType(omschrijving = "fakeNietOntvankelijk")
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
+            every { ztcClientService.readResultaattypen(zaaktype.url) } returns listOf(matchingResultaattype)
+
+            `when`("the niet-ontvankelijk resultaattype is read") {
+                val resultaattype = resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeUuid, "fakeNietOntvankelijk")
+
+                then("the resultaattype with that omschrijving is returned") {
+                    resultaattype shouldBe matchingResultaattype
+                }
+            }
+        }
+
+        given("a niet-ontvankelijk omschrijving that is missing from the zaaktype version") {
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
+            every {
+                ztcClientService.readResultaattypen(zaaktype.url)
+            } returns listOf(createResultaatType(omschrijving = "fakeToegekend"))
+
+            `when`("the niet-ontvankelijk resultaattype is read") {
+                val exception = shouldThrow<IllegalStateException> {
+                    resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeUuid, "fakeNietOntvankelijk")
+                }
+
+                then("it fails with the zaaktype and the omschrijving that cannot be resolved") {
+                    exception.message shouldContain zaaktypeUuid.toString()
+                    exception.message shouldContain "fakeNietOntvankelijk"
                 }
             }
         }
