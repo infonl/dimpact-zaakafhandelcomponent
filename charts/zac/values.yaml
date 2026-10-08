@@ -299,7 +299,8 @@ podSecurityContext:
 # -- generic security context
 securityContext:
   runAsNonRoot: true
-  runAsUser: 1001
+  runAsUser: 10001
+  runAsGroup: 10001
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   capabilities:
@@ -397,6 +398,9 @@ initContainer:
   enabled: true
    # -- Security context for the curl-based init containers (read-only root filesystem is safe here)
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
@@ -447,7 +451,8 @@ opa:
    # -- container security context applied to the OPA container in both sidecar and standalone modes
   securityContext:
     runAsNonRoot: true
-    runAsUser: 1000
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
@@ -703,6 +708,9 @@ office_converter:
     seccompProfile:
       type: RuntimeDefault
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
