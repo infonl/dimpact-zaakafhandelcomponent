@@ -8,6 +8,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -44,7 +45,7 @@ class ZaakspecifiekeAutorisatieRestService @Inject constructor(
     @Path("zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten")
     fun listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
         @PathParam("uuid") zaakUUID: UUID,
-        @QueryParam("groepId") groepId: String
+        @QueryParam("groepId") @NotBlank groepId: String
     ): List<RestUser> {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canWijzigen)

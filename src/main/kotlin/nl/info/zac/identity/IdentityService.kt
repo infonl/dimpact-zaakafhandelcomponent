@@ -83,13 +83,25 @@ class IdentityService @Inject constructor(
 
     /**
      * Returns the ids of the members of every group that the PABC authorises for [applicationRole] and the given
-     * zaaktype.
+     * zaaktype. A group that the PABC knows but Keycloak does not is skipped.
      */
     fun listUserIdsForApplicationRoleAndZaaktype(applicationRole: String, zaaktypeDescription: String): Set<String> =
         pabcClientService.getGroupsByApplicationRoleAndZaaktype(
             applicationRole = applicationRole,
             zaaktypeDescription = zaaktypeDescription
-        ).flatMap { listUsersInGroup(it.name) }
+        ).flatMap { group ->
+            try {
+                listUsersInGroup(group.name)
+            } catch (groupNotFoundException: GroupNotFoundException) {
+                log(
+                    logger = LOG,
+                    level = Level.WARNING,
+                    message = "Group '${group.name}' from the PABC could not be found in Keycloak",
+                    throwable = groupNotFoundException
+                )
+                emptyList()
+            }
+        }
             .map { it.id }
             .toSet()
 

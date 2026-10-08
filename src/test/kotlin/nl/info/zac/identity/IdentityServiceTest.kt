@@ -481,6 +481,49 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
+    context("Listing the members of the groups with an application role for a zaaktype, one of which is not in Keycloak") {
+        given("a group in PABC with the application role for the zaaktype that Keycloak does not know") {
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "fakeApplicationRole",
+                    zaaktypeDescription = "fakeZaaktypeDescription"
+                )
+            } returns listOf(
+                createPabcGroupRepresentation(name = "fakeUnknownGroupId"),
+                createPabcGroupRepresentation(name = "fakeGroupId")
+            )
+            every { realmResource.groups().groups("fakeUnknownGroupId", true, 0, 1, true) } returns emptyList()
+            every {
+                realmResource.groups().groups("fakeGroupId", true, 0, 1, true)
+            } returns listOf(createGroupRepresentation(id = "fakeKeycloakGroupId"))
+            every { realmResource.groups().group("fakeKeycloakGroupId").members() } returns listOf(
+                createUserRepresentation(username = "fakeUsername")
+            )
+
+            `when`("the members are listed") {
+                val userIds = identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    applicationRole = "fakeApplicationRole",
+                    zaaktypeDescription = "fakeZaaktypeDescription"
+                )
+
+                then("the unknown group is skipped and the members of the other group are returned") {
+                    userIds shouldBe setOf("fakeUsername")
+                }
+
+                and("the unknown group is logged at the level WARNING") {
+                    verify(exactly = 1) {
+                        log(
+                            logger = any(),
+                            level = Level.WARNING,
+                            message = "Group 'fakeUnknownGroupId' from the PABC could not be found in Keycloak",
+                            throwable = any<GroupNotFoundException>()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     context("Listing groups for multiple zaaktypes") {
         given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing one common group") {
             val zaaktypeDescription1 = "fakeZaaktypeDescription1"
