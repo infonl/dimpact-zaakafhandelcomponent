@@ -94,18 +94,6 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
 
     return [
       {
-        type: "checkbox",
-        key: "taakStuurGegevens.sendMail",
-        hidden: true,
-        control: this.formBuilder.control(true),
-      },
-      {
-        type: "input",
-        key: "taakStuurGegevens.mail",
-        hidden: true,
-        control: this.formBuilder.control("TAAK_ADVIES_EXTERN"),
-      },
-      {
         type: "input",
         key: "adviseur",
         control: this.formBuilder.control<string | null>(null, [

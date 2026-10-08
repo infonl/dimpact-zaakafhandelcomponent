@@ -86,13 +86,13 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
   describe("requestForm", () => {
     describe("field structure", () => {
-      it("should return exactly 10 fields for a non-suspendable zaak", async () => {
+      it("should return exactly 8 fields for a non-suspendable zaak", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
-        expect(fields.length).toBe(10);
+        expect(fields.length).toBe(8);
       });
 
-      it("should return 11 fields for a suspendable zaak (adds zaakOpschorten)", async () => {
+      it("should return 9 fields for a suspendable zaak (adds zaakOpschorten)", async () => {
         const suspendableZaak = fromPartial<GeneratedType<"RestZaak">>({
           uuid: "zaak-uuid",
           zaaktype: { isOpschortingMogelijk: true },
@@ -104,15 +104,13 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
         const fields = await formulier.requestForm(suspendableZaak);
 
-        expect(fields.length).toBe(11);
+        expect(fields.length).toBe(9);
       });
 
       it("should return fields in the expected order", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
         expect(fields.map((f) => f.key)).toEqual([
-          "taakStuurGegevens.sendMail",
-          "taakStuurGegevens.mail",
           "verzender",
           "replyTo",
           "emailadres",
@@ -122,24 +120,6 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           "taakFataledatum",
           "messageField",
         ]);
-      });
-
-      it("should set sendMail hidden to true with value true", async () => {
-        const fields = await formulier.requestForm(mockZaak);
-
-        const field = fields.find(
-          (f) => f.key === "taakStuurGegevens.sendMail",
-        );
-        expect(field?.hidden).toBe(true);
-        expect(field?.control?.value).toBe(true);
-      });
-
-      it("should set mail hidden to true with value TAAK_AANVULLENDE_INFORMATIE", async () => {
-        const fields = await formulier.requestForm(mockZaak);
-
-        const field = fields.find((f) => f.key === "taakStuurGegevens.mail");
-        expect(field?.hidden).toBe(true);
-        expect(field?.control?.value).toBe("TAAK_AANVULLENDE_INFORMATIE");
       });
 
       it("should set replyTo as hidden", async () => {

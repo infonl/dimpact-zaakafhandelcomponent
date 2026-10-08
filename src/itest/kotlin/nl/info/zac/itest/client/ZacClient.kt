@@ -21,6 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVA
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_MAIL_BODY
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
 import nl.info.zac.itest.config.TestUser
@@ -503,7 +505,10 @@ class ZacClient(
                     "fataledatum": "${fatalDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
                     "groep": { "id": "$groupId", "naam": "$groupName" },
                     $medewerkerField
-                    "taakdata":{}
+                    "taakdata": {
+                        "emailadres": "$TEST_AANVULLENDE_INFORMATIE_EMAIL",
+                        "body": "$TEST_AANVULLENDE_INFORMATIE_MAIL_BODY"
+                    }
                 }
             """.trimIndent(),
             testUser = testUser

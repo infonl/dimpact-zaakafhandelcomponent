@@ -9,7 +9,9 @@ import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
@@ -18,7 +20,10 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_MAIL_BODY
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
@@ -109,6 +114,19 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
+
+            and("the aanvullende informatie email is sent to the recipient from the task data") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$TEST_AANVULLENDE_INFORMATIE_EMAIL/messages/",
+                    testUser = BEHANDELAAR_1
+                )
+                receivedMailsResponse.code shouldBe HTTP_OK
+                with(JSONArray(receivedMailsResponse.bodyAsString)) {
+                    length() shouldBeGreaterThan 0
+                    getJSONObject(length() - 1).getString("mimeMessage") shouldContain
+                        TEST_AANVULLENDE_INFORMATIE_MAIL_BODY
+                }
+            }
         }
 
         `when`("creation of a new additional info task with fatal date past the zaak fatal date is requested") {
@@ -130,7 +148,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                         "planItemInstanceId": "$newAdditionalInfoTaskId",
                         "fataledatum": "$fataleDatum",
                         "groep": { "id": "${GROUP_BEHANDELAARS_TEST_1.name}", "naam": "${GROUP_BEHANDELAARS_TEST_1.description}" },
-                        "taakdata":{}
+                        "taakdata": {
+                            "emailadres": "$TEST_AANVULLENDE_INFORMATIE_EMAIL",
+                            "body": "$TEST_AANVULLENDE_INFORMATIE_MAIL_BODY"
+                        }
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1

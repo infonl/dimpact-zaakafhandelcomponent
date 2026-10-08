@@ -153,6 +153,8 @@ object ItestConfiguration {
     const val TEST_TXT_FILE_SIZE = 62
     const val TEST_VESTIGING_EMAIL = "fake.vestiging@example.com"
     const val TEST_KVK_EMAIL = "fake.kvk@example.com"
+    const val TEST_AANVULLENDE_INFORMATIE_EMAIL = "aanvullende-informatie@example.com"
+    const val TEST_AANVULLENDE_INFORMATIE_MAIL_BODY = "fakeAanvullendeInformatieMailBody"
     const val TEST_VESTIGING_TELEPHONE_NUMBER = "0201234567"
     const val TEST_RECHTSPERSOON_TELEPHONE_NUMBER = "0101234567"
     const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
