@@ -289,6 +289,7 @@ export class ZakenService {
         "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
         { path: { uuid }, query: { groepId } },
       ),
+      staleTime: 0,
     });
   }
 

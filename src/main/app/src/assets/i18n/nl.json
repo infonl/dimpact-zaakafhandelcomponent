@@ -915,6 +915,7 @@
   "msg.error.medewerker.already.zaakspecifiek.geautoriseerd": "Deze medewerker heeft al toegang tot deze zaak.",
   "msg.error.group.not.behandelaar.for.zaaktype": "De geselecteerde groep is geen behandelaarsgroep voor dit zaaktype.",
   "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd": "{{medewerker}} heeft nu toegang tot deze zaak",
+  "msg.zaakspecifiek-geautoriseerde-medewerker.geen-kandidaten": "Alle medewerkers van deze groep hebben al toegang tot deze zaak.",
   "msg.hint.kvk.unknown": "Herkoppel de betrokkene met een bekend KvK-nummer.",
   "msg.hint.kvk.outdated": "De gekoppelde betrokkene is niet meer bekend bij de KvK.",
   "msg.hint.kvk.other-error": "Er is een fout opgetreden bij het ophalen van de KvK-gegevens.",

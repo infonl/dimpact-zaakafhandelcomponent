@@ -26,6 +26,10 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
     id: "fakeGroepId",
     naam: "fakeGroepNaam",
   });
+  const otherGroep = fromPartial<GeneratedType<"RestGroup">>({
+    id: "fakeOtherGroepId",
+    naam: "fakeOtherGroepNaam",
+  });
   const kandidaat = fromPartial<GeneratedType<"RestUser">>({
     id: "fakeMedewerkerId",
     naam: "fakeMedewerkerNaam",
@@ -52,7 +56,7 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
 
     httpTestingController
       .expectOne("/rest/identity/zaaktype/fakeZaaktype/behandelaar-groups")
-      .flush([groep]);
+      .flush([groep, otherGroep]);
     await settle();
   }
 
@@ -63,17 +67,20 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
     fixture.detectChanges();
   }
 
-  async function chooseGroep() {
+  async function chooseGroep(
+    groepToChoose = groep,
+    kandidaten: GeneratedType<"RestUser">[] = [kandidaat],
+  ) {
     await sleep();
     await user.click(screen.getByRole("combobox", { name: /groep/i }));
     await user.click(
-      await screen.findByRole("option", { name: "fakeGroepNaam" }),
+      await screen.findByRole("option", { name: groepToChoose.naam }),
     );
     httpTestingController
       .expectOne(
-        "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers/kandidaten?groepId=fakeGroepId",
+        `/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers/kandidaten?groepId=${groepToChoose.id}`,
       )
-      .flush([kandidaat]);
+      .flush(kandidaten);
     await settle();
   }
 
@@ -122,5 +129,35 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
       { medewerker: "fakeMedewerkerNaam" },
     );
     expect(sideNav.close).toHaveBeenCalled();
+  });
+
+  it("tells the user when every medewerker of the chosen groep already has access", async () => {
+    await setup();
+
+    await chooseGroep(groep, []);
+
+    expect(
+      screen.getByText(
+        "msg.zaakspecifiek-geautoriseerde-medewerker.geen-kandidaten",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("clears the chosen medewerker when another groep is chosen", async () => {
+    await setup();
+    await chooseGroep();
+    await user.click(screen.getByRole("combobox", { name: /medewerker/i }));
+    await user.click(
+      await screen.findByRole("option", { name: "fakeMedewerkerNaam" }),
+    );
+
+    await chooseGroep(otherGroep, []);
+
+    expect(
+      screen.getByRole("combobox", { name: /medewerker/i }),
+    ).not.toHaveTextContent("fakeMedewerkerNaam");
+    expect(
+      screen.getByRole("button", { name: "actie.toevoegen" }),
+    ).toBeDisabled();
   });
 });

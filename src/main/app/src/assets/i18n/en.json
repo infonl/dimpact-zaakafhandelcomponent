@@ -915,6 +915,7 @@
   "msg.error.medewerker.already.zaakspecifiek.geautoriseerd": "This employee already has access to this zaak.",
   "msg.error.group.not.behandelaar.for.zaaktype": "The selected group is not a behandelaar group for this zaaktype.",
   "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd": "{{medewerker}} now has access to this zaak",
+  "msg.zaakspecifiek-geautoriseerde-medewerker.geen-kandidaten": "All employees of this group already have access to this zaak.",
   "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
   "msg.hint.kvk.outdated": "The registered involved is not found at the CoC.",
   "msg.hint.kvk.other-error": "An error occurred while retrieving the KvK data",
