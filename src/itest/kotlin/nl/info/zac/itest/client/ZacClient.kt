@@ -488,6 +488,8 @@ class ZacClient(
         groupId: String,
         groupName: String,
         medewerker: TestUser? = null,
+        mailRecipient: String = TEST_AANVULLENDE_INFORMATIE_EMAIL,
+        mailBody: String = TEST_AANVULLENDE_INFORMATIE_MAIL_BODY,
         testUser: TestUser
     ): ResponseContent {
         logger.info {
@@ -506,8 +508,8 @@ class ZacClient(
                     "groep": { "id": "$groupId", "naam": "$groupName" },
                     $medewerkerField
                     "taakdata": {
-                        "emailadres": "$TEST_AANVULLENDE_INFORMATIE_EMAIL",
-                        "body": "$TEST_AANVULLENDE_INFORMATIE_MAIL_BODY"
+                        "emailadres": "$mailRecipient",
+                        "body": "$mailBody"
                     }
                 }
             """.trimIndent(),

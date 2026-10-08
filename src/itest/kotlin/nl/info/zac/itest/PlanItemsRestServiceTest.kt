@@ -9,9 +9,7 @@ import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
@@ -35,6 +33,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 const val UITERLIJKE_EINDDATUM_AFDOENING = "2001-01-01"
+private const val PLAN_ITEMS_REST_SERVICE_TEST_MAIL_RECIPIENT = "plan-items-rest-service-test@example.com"
 
 class PlanItemsRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -101,11 +100,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         `when`("the start human task plan items endpoint is called with a fatal date") {
+            val mailBody = "fakePlanItemsRestServiceTestMailBody-${UUID.randomUUID()}"
             val response = zacClient.startHumanTaskPlanItem(
                 planItemInstanceId = humanTaskItemAanvullendeInformatieId,
                 fatalDate = LocalDate.parse(UITERLIJKE_EINDDATUM_AFDOENING).minusDays(1),
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
+                mailRecipient = PLAN_ITEMS_REST_SERVICE_TEST_MAIL_RECIPIENT,
+                mailBody = mailBody,
                 testUser = BEHANDELAAR_1
             )
 
@@ -117,15 +119,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             and("the aanvullende informatie email is sent to the recipient from the task data") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "$GREENMAIL_API_URI/user/$TEST_AANVULLENDE_INFORMATIE_EMAIL/messages/",
+                    url = "$GREENMAIL_API_URI/user/$PLAN_ITEMS_REST_SERVICE_TEST_MAIL_RECIPIENT/messages/",
                     testUser = BEHANDELAAR_1
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
-                with(JSONArray(receivedMailsResponse.bodyAsString)) {
-                    length() shouldBeGreaterThan 0
-                    getJSONObject(length() - 1).getString("mimeMessage") shouldContain
-                        TEST_AANVULLENDE_INFORMATIE_MAIL_BODY
-                }
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                (0 until receivedMails.length())
+                    .map { receivedMails.getJSONObject(it).getString("mimeMessage") }
+                    .count { it.contains(mailBody) } shouldBe 1
             }
         }
 
