@@ -227,7 +227,7 @@ PR B4: branch `feature/PZ-12669-b4-drop-resultaattype-uuid`, base B3.
 
 ## 8. Wrap-up
 
-- [ ] 8.1 Run `openspec validate unify-zaaktype-configuration-backend --strict` and verify that it reports the change as valid.
+- [x] 8.1 Run `openspec validate unify-zaaktype-configuration-backend --strict` and verify that it reports the change as valid.
 - [ ] 8.2 Create a follow-up Jira ticket for the manual quarantine check (design Migration Plan, step 2). After the
       release with A1–A3, it covers these steps on every environment, production included:
       - inspect `zaaktype_configuration_migration_quarantine`
