@@ -443,6 +443,44 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
+    context("Listing the members of the groups with an application role for a zaaktype") {
+        given("two groups in PABC with the application role for the zaaktype that share a member") {
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "fakeApplicationRole",
+                    zaaktypeDescription = "fakeZaaktypeDescription"
+                )
+            } returns listOf(
+                createPabcGroupRepresentation(name = "fakeGroupId1"),
+                createPabcGroupRepresentation(name = "fakeGroupId2")
+            )
+            every {
+                realmResource.groups().groups("fakeGroupId1", true, 0, 1, true)
+            } returns listOf(createGroupRepresentation(id = "fakeKeycloakGroupId1"))
+            every {
+                realmResource.groups().groups("fakeGroupId2", true, 0, 1, true)
+            } returns listOf(createGroupRepresentation(id = "fakeKeycloakGroupId2"))
+            every { realmResource.groups().group("fakeKeycloakGroupId1").members() } returns listOf(
+                createUserRepresentation(username = "fakeUsername1"),
+                createUserRepresentation(username = "fakeUsername2")
+            )
+            every { realmResource.groups().group("fakeKeycloakGroupId2").members() } returns listOf(
+                createUserRepresentation(username = "fakeUsername2")
+            )
+
+            `when`("the members are listed") {
+                val userIds = identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    applicationRole = "fakeApplicationRole",
+                    zaaktypeDescription = "fakeZaaktypeDescription"
+                )
+
+                then("every member is returned once") {
+                    userIds shouldBe setOf("fakeUsername1", "fakeUsername2")
+                }
+            }
+        }
+    }
+
     context("Listing groups for multiple zaaktypes") {
         given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing one common group") {
             val zaaktypeDescription1 = "fakeZaaktypeDescription1"

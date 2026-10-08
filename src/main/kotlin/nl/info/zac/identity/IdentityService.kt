@@ -81,6 +81,18 @@ class IdentityService @Inject constructor(
             .sortedBy { it.description }
     }
 
+    /**
+     * Returns the ids of the members of every group that the PABC authorises for [applicationRole] and the given
+     * zaaktype.
+     */
+    fun listUserIdsForApplicationRoleAndZaaktype(applicationRole: String, zaaktypeDescription: String): Set<String> =
+        pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+            applicationRole = applicationRole,
+            zaaktypeDescription = zaaktypeDescription
+        ).flatMap { listUsersInGroup(it.name) }
+            .map { it.id }
+            .toSet()
+
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
         .map { it.toUser() }.firstOrNull()

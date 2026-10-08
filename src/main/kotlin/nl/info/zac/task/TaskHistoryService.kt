@@ -37,7 +37,7 @@ class TaskHistoryService @Inject constructor(
                     ValueChangeData(
                         "",
                         identityService.readUser(medewerkerId).getFullName(),
-                        ZaakspecifiekeAutorisatieService.taakbehandelaarToelichting(zaak)
+                        ZaakspecifiekeAutorisatieService.zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak)
                     )
                 )
             )
