@@ -866,7 +866,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns intakeAfrondenZaaktypeCmmnConfiguration
             every {
-                resultaattypeReferenceService.findNietOntvankelijkResultaattype(intakeAfrondenZaaktypeCmmnConfiguration)
+                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(intakeAfrondenZaaktypeCmmnConfiguration)
             } returns createResultaatType(url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid"))
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every {
@@ -951,7 +951,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns geenResultaattypeZaaktypeCmmnConfiguration
             every {
-                resultaattypeReferenceService.findNietOntvankelijkResultaattype(geenResultaattypeZaaktypeCmmnConfiguration)
+                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(geenResultaattypeZaaktypeCmmnConfiguration)
             } returns null
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
@@ -993,6 +993,45 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             `when`("doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk") {
                 shouldThrow<ZaaktypeConfigurationNotFoundException> {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                }
+
+                then("the zaak is not closed and the user event listener is not started, so the failure is visible") {
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any())
+                        cmmnService.startUserEventListenerPlanItem(any())
+                    }
+                }
+            }
+        }
+
+        given("Zaak that is not ontvankelijk and whose niet-ontvankelijk resultaattype cannot be resolved") {
+            val zaak = createZaak(resultaat = null)
+            val restUserEventListenerData = createRestUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.INTAKE_AFRONDEN,
+                restMailGegevens = null
+            ).apply {
+                this.isZaakOntvankelijk = false
+                this.planItemInstanceId = planItemInstanceId
+            }
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaak.zaaktype.extractUuid())
+            val loggedInUser = createLoggedInUser()
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every {
+                zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
+            } returns zaaktypeConfiguration
+            every {
+                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
+            } throws IllegalStateException("fakeMessage")
+            every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk") {
+                shouldThrow<IllegalStateException> {
                     planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
                 }
 

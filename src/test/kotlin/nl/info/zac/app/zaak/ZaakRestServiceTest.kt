@@ -1734,7 +1734,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
             } returns createResultaatType(
                 url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )
@@ -1759,6 +1759,41 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "Zaak is niet ontvankelijk"
                         )
                         zaakProcessService.terminate(any(), zaak.uuid)
+                    }
+                }
+            }
+        }
+
+        given("A zaak whose niet-ontvankelijk resultaattype cannot be resolved") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(afbreken = true)
+            every {
+                zaaktypeConfigurationService.findConfiguration(zaakType.url.extractUuid())
+            } returns zaaktypeConfiguration
+            every {
+                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
+            } throws IllegalStateException("fakeMessage")
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
+                shouldThrow<IllegalStateException> {
+                    zaakRestService.terminateZaak(
+                        zaak.uuid,
+                        RestZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+                    )
+                }
+
+                then("neither the zaak nor its process is ended, so the failure is visible") {
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any())
+                        zaakProcessService.terminate(any(), any())
                     }
                 }
             }
@@ -1791,7 +1826,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
             } returns createResultaatType(
                 url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )
@@ -1977,7 +2012,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
             } returns createResultaatType(
                 url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )

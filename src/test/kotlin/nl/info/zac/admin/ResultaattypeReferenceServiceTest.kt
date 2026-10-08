@@ -4,8 +4,10 @@
  */
 package nl.info.zac.admin
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -118,6 +120,68 @@ class ResultaattypeReferenceServiceTest : BehaviorSpec({
 
             `when`("the niet-ontvankelijk resultaattype is found") {
                 val resultaattype = resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)
+
+                then("no resultaattype is returned without asking ZTC") {
+                    resultaattype shouldBe null
+                    verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
+                }
+            }
+        }
+    }
+
+    context("Reading the niet-ontvankelijk resultaattype to end a zaak with") {
+        val zaaktype = createZaakType()
+        val zaaktypeUuid = UUID.randomUUID()
+
+        given("a niet-ontvankelijk reference whose omschrijving matches a resultaattype of the zaaktype version") {
+            val matchingResultaattype = createResultaatType(omschrijving = "fakeNietOntvankelijk")
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeUUID = zaaktypeUuid,
+                nietOntvankelijkResultaattypeOmschrijving = "fakeNietOntvankelijk"
+            )
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
+            every { ztcClientService.readResultaattypen(zaaktype.url) } returns listOf(matchingResultaattype)
+
+            `when`("the niet-ontvankelijk resultaattype is read") {
+                val resultaattype = resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(
+                    zaaktypeConfiguration
+                )
+
+                then("the resultaattype with that omschrijving is returned") {
+                    resultaattype shouldBe matchingResultaattype
+                }
+            }
+        }
+
+        given("a niet-ontvankelijk reference whose omschrijving is missing from the zaaktype version") {
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeUUID = zaaktypeUuid,
+                nietOntvankelijkResultaattypeOmschrijving = "fakeNietOntvankelijk"
+            )
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
+            every {
+                ztcClientService.readResultaattypen(zaaktype.url)
+            } returns listOf(createResultaatType(omschrijving = "fakeToegekend"))
+
+            `when`("the niet-ontvankelijk resultaattype is read") {
+                val exception = shouldThrow<IllegalStateException> {
+                    resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                }
+
+                then("it fails with the zaaktype and the omschrijving that cannot be resolved") {
+                    exception.message shouldContain zaaktypeUuid.toString()
+                    exception.message shouldContain "fakeNietOntvankelijk"
+                }
+            }
+        }
+
+        given("a configuration without a niet-ontvankelijk resultaattype") {
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattypeOmschrijving = null)
+
+            `when`("the niet-ontvankelijk resultaattype is read") {
+                val resultaattype = resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(
+                    zaaktypeConfiguration
+                )
 
                 then("no resultaattype is returned without asking ZTC") {
                     resultaattype shouldBe null
