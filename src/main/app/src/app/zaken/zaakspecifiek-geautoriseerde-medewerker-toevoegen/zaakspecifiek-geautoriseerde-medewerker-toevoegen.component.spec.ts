@@ -123,6 +123,11 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
     });
     request.flush(null);
     await settle();
+    httpTestingController
+      .expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers/kandidaten?groepId=fakeGroepId",
+      )
+      .flush([]);
 
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd",
