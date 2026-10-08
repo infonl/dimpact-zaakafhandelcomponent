@@ -181,19 +181,16 @@ class PolicyService @Inject constructor(
             zaak = zaak
         )
 
-    /**
-     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of [zaak], for a caller that already read
-     * it in this request. When omitted, it is read here. A document without a [zaak] is never zaakspecifiek
-     * geautoriseerd.
-     */
     fun readDocumentRechten(
         enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
         lock: EnkelvoudigInformatieObjectLock?,
         zaak: Zaak?,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): DocumentRechten {
-        val resolvedZaakAutorisatieGegevens = zaakAutorisatieGegevens
-            ?: zaak?.let { zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, it) }
+        val resolvedZaakAutorisatieGegevens = zaak?.let {
+            zaakAutorisatieGegevens
+                ?: zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, it)
+        }
         val documentData = DocumentData(
             isDefinitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF,
             isVergrendeld = enkelvoudigInformatieobject.getLocked(),
