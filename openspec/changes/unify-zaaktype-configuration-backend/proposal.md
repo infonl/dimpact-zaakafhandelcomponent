@@ -36,7 +36,7 @@ attached to the ticket. The REST contract and the frontend stay unchanged. PZ-12
 - Behaviour changes that the unification brings about:
   - one productaanvraagtype check for both engines, which excludes by zaaktype omschrijving
   - BPMN process instances are deleted when their zaak is deleted
-  - BPMN zaken use their BRP doelbindingen, deadline warnings, and zaakafzenders
+  - BPMN zaken use their BRP doelbindingen and deadline warnings
   - BPMN configurations get the same bean validation as CMMN configurations
 - **No REST contract change.** Both `/zaakafhandelparameters` and `/zaaktype-bpmn-configuration` keep their
   paths, verbs, keys, and payloads.
@@ -83,3 +83,4 @@ changes, and that is specified in `zaaktype-process-binding`.
   - the task form configuration question (RFC section 7)
   - zaaktype identity by omschrijving (RFC section 10)
   - dropping the resultaattype UUID columns
+  - zaakafzenders and mailtemplate koppelingen for BPMN zaaktypen, which are CMMN only

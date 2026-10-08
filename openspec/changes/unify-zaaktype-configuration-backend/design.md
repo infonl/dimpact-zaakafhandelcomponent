@@ -46,7 +46,8 @@ Current state:
 - A shared task form configuration (RFC section 7).
 - Using the zaaktype `identificatie` in place of the omschrijving as zaaktype identity (RFC section 10).
 - Dropping the resultaattype UUID columns. This is the contract step of B2 in a later release.
-- Admin input for the moved settings on a BPMN zaaktype. The BPMN payload does not carry them, so a beheerder
+- Zaakafzenders and mailtemplate koppelingen for a BPMN zaaktype. They are CMMN only.
+- Admin input for the other moved settings on a BPMN zaaktype. The BPMN payload does not carry them, so a beheerder
   sets them after PZ-12754. Until then a BPMN configuration gets them only from a predecessor version or from
   data.
 

@@ -120,7 +120,7 @@ dropped. The REST resources SHALL keep exposing and accepting resultaattype UUID
 ### Requirement: Engine-agnostic settings apply to BPMN zaken
 
 The system SHALL apply these settings to a zaak of a BPMN zaaktype in the same way as to a zaak of a CMMN
-zaaktype: the BRP doelbindingen, the deadline warning windows, and the zaakafzenders.
+zaaktype: the BRP doelbindingen and the deadline warning windows.
 
 #### Scenario: BRP query of a BPMN zaak uses its doelbinding
 - **GIVEN** a BPMN zaaktype configuration with BRP zoek-doelbinding `D`
@@ -131,11 +131,6 @@ zaaktype: the BRP doelbindingen, the deadline warning windows, and the zaakafzen
 - **GIVEN** a BPMN zaaktype configuration with a uiterlijke-einddatum-afdoening warning window of 2 days
 - **WHEN** a zaak of that zaaktype is 1 day from its uiterlijke einddatum afdoening
 - **THEN** the zaak is listed by the zaak warnings endpoint and its due-date signalering is sent
-
-#### Scenario: BPMN zaak lists the configured afzenders
-- **GIVEN** a BPMN zaaktype configuration with a zaakafzender
-- **WHEN** a user lists the afzenders for a zaak of that zaaktype
-- **THEN** the configured zaakafzender is in the list
 
 ### Requirement: One answer for the configuration of a zaaktype
 
