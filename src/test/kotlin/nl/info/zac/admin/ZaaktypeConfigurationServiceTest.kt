@@ -38,7 +38,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
         context("finding the configuration of a zaaktype bound to $configurationType") {
             given("a stored $configurationType configuration") {
                 val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
-                val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID())
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
                 } returns zaaktypeConfiguration
@@ -59,7 +59,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
             given("a cached $configurationType configuration that is evicted") {
                 val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
-                val zaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID())
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
                 } returns zaaktypeConfiguration

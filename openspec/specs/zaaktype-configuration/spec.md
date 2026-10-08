@@ -1,10 +1,12 @@
+# zaaktype-configuration Specification
+
 ## Purpose
 
 Defines how ZAC stores, validates, versions, and applies the configuration of a zaaktype version
 (the zaakafhandelparameters), so that CMMN and BPMN zaaktypen behave the same wherever the setting does not
 describe the process engine itself.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: The configuration REST contract stays unchanged
 
@@ -98,9 +100,11 @@ that omschrijving exists, the system SHALL create nothing.
 ### Requirement: Resultaattype references follow the omschrijving
 
 The system SHALL identify the resultaattype of the niet-ontvankelijk setting and of every zaakbeeindig
-parameter by its omschrijving within the zaaktype version that the configuration belongs to. When a new
-version inherits a configuration, a reference whose omschrijving does not exist in the new version SHALL be
-dropped. The REST resources SHALL keep exposing and accepting resultaattype UUIDs.
+parameter by its omschrijving within the zaaktype version that the configuration belongs to, and SHALL NOT
+store its UUID. When a new version inherits a configuration, a reference whose omschrijving does not exist in
+the new version SHALL be dropped. When the zaaktype version of a configuration has no resultaattype with the
+stored omschrijving, the system SHALL treat the reference as absent and log a warning. The REST resources
+SHALL keep exposing and accepting resultaattype UUIDs.
 
 #### Scenario: Zaakbeeindig parameter is remapped to the new version
 - **GIVEN** version 1 of "Melding" with a zaakbeeindig parameter that points at resultaattype "Toegekend"
@@ -112,10 +116,21 @@ dropped. The REST resources SHALL keep exposing and accepting resultaattype UUID
 - **WHEN** version 2 inherits the configuration and has no resultaattype "Ingetrokken"
 - **THEN** the configuration of version 2 has no zaakbeeindig parameter for that reden
 
-#### Scenario: Existing rows are backfilled
-- **GIVEN** a configuration stored before this change, which holds only resultaattype UUIDs
-- **WHEN** the backfill runs while ZTC can still resolve those UUIDs
-- **THEN** each reference also holds the omschrijving of its resultaattype
+#### Scenario: A stored resultaattype UUID becomes an omschrijving
+- **WHEN** a beheerder stores a configuration with a zaakbeeindig parameter for the resultaattype with UUID `R`
+  and omschrijving "Toegekend"
+- **THEN** the configuration stores the omschrijving "Toegekend" and not `R`, and the REST resources return `R`
+
+#### Scenario: Unresolvable omschrijving is left out
+- **GIVEN** a configuration whose niet-ontvankelijk omschrijving no resultaattype of its zaaktype version has
+- **WHEN** a client reads the configuration through the REST resources
+- **THEN** the response has no niet-ontvankelijk resultaattype, and a warning is logged
+
+#### Scenario: Reference without omschrijving is quarantined when the UUID columns are dropped
+- **GIVEN** a zaakbeeindig parameter that holds a resultaattype UUID but no omschrijving
+- **WHEN** the migration that drops the resultaattype UUID columns runs
+- **THEN** the parameter row is in the quarantine table with its complete data, the startup log has a warning
+  with the count, and ZAC starts
 
 ### Requirement: Engine-agnostic settings apply to BPMN zaken
 

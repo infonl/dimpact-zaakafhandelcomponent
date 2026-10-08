@@ -64,8 +64,4 @@ fun RestZaaktypeBpmnConfiguration.toZaaktypeConfiguration() = ZaaktypeConfigurat
         this@toZaaktypeConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
     zaaktypeBrpParameters =
         this@toZaaktypeConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
-    nietOntvankelijkResultaattype = this@toZaaktypeConfiguration.zaakNietOntvankelijkResultaattype?.id
-    setZaakbeeindigParameters(
-        this@toZaaktypeConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList()
-    )
 }

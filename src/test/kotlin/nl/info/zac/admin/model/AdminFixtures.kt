@@ -114,7 +114,7 @@ fun createZaaktypeCmmnConfiguration(
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
     productaanvraagtype: String? = null,
-    nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
+    nietOntvankelijkResultaattypeOmschrijving: String? = "fakeNietOntvankelijkResultaattype",
     zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters> = emptySet(),
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
@@ -131,7 +131,7 @@ fun createZaaktypeCmmnConfiguration(
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
-        this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.nietOntvankelijkResultaattypeOmschrijving = nietOntvankelijkResultaattypeOmschrijving
         this.groepID = groupId
         bindTo(ProcessEngine.CMMN, caseDefinitionId)
         getOrCreateCmmnExtension()
@@ -166,7 +166,7 @@ fun createZaaktypeBpmnConfiguration(
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     productaanvraagtype: String? = null,
-    nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
+    nietOntvankelijkResultaattypeOmschrijving: String? = "fakeNietOntvankelijkResultaattype",
     zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters> = emptySet(),
     groupId: String? = null,
     defaultBehandelaarId: String? = null,
@@ -181,7 +181,7 @@ fun createZaaktypeBpmnConfiguration(
         this.zaaktypeUuid = zaaktypeUUID
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.productaanvraagtype = productaanvraagtype
-        this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.nietOntvankelijkResultaattypeOmschrijving = nietOntvankelijkResultaattypeOmschrijving
         this.groepID = groupId
         this.defaultBehandelaarId = defaultBehandelaarId
         this.isSmartDocumentsEnabled = smartDocumentsEnabled
@@ -198,7 +198,7 @@ fun createZaaktypeBpmnConfiguration(
 
 data class ZaaktypeConfigurationUnderTest(
     val configurationType: ProcessEngine,
-    val create: (nietOntvankelijkResultaattype: UUID) -> ZaaktypeConfiguration
+    val create: (nietOntvankelijkResultaattypeOmschrijving: String?) -> ZaaktypeConfiguration
 )
 
 /**
@@ -206,21 +206,21 @@ data class ZaaktypeConfigurationUnderTest(
  */
 fun createZaaktypeConfigurationsUnderTest() = listOf(
     ZaaktypeConfigurationUnderTest(ProcessEngine.CMMN) {
-        createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattype = it)
+        createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattypeOmschrijving = it)
     },
     ZaaktypeConfigurationUnderTest(ProcessEngine.BPMN) {
-        createZaaktypeBpmnConfiguration(nietOntvankelijkResultaattype = it)
+        createZaaktypeBpmnConfiguration(nietOntvankelijkResultaattypeOmschrijving = it)
     }
 )
 
 fun createZaaktypeCompletionParameters(
     id: Long? = 1234L,
     zaakbeeindigReden: ZaakbeeindigReden = createZaakbeeindigReden(),
-    resultaattype: UUID = UUID.randomUUID()
+    resultaattypeOmschrijving: String = "fakeResultaattypeOmschrijving"
 ) = ZaaktypeCompletionParameters().apply {
     this.id = id
     this.zaakbeeindigReden = zaakbeeindigReden
-    this.resultaattype = resultaattype
+    this.resultaattypeOmschrijving = resultaattypeOmschrijving
 }
 
 fun createMailtemplateKoppelingen(

@@ -28,7 +28,6 @@ import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.toZaakAfzenders
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
-import nl.info.zac.app.admin.model.toZaaktypeCompletionParametersList
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
@@ -107,8 +106,10 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             groepID = restZaaktypeConfiguration.defaultGroepId
                 ?: throw NullPointerException("restZaakafhandelParameters.defaultGroepId is null")
             uiterlijkeEinddatumAfdoeningWaarschuwing = restZaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
-            nietOntvankelijkResultaattype = restZaaktypeConfiguration.zaakNietOntvankelijkResultaattype?.id
-                ?: throw NullPointerException("restZaakafhandelParameters.zaakNietOntvankelijkResultaattype is null")
+            nietOntvankelijkResultaattypeOmschrijving = resultaattypeReferenceService.readOmschrijving(
+                restZaaktypeConfiguration.zaakNietOntvankelijkResultaattype?.id
+                    ?: throw NullPointerException("restZaakafhandelParameters.zaakNietOntvankelijkResultaattype is null")
+            )
             productaanvraagtype = restZaaktypeConfiguration.productaanvraagtype?.trim()
             defaultBehandelaarId = restZaaktypeConfiguration.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaaktypeConfiguration.einddatumGeplandWaarschuwing
@@ -128,7 +129,9 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
                 )
             }
             it.setZaakbeeindigParameters(
-                restZaaktypeConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList()
+                zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(
+                    restZaaktypeConfiguration.zaakbeeindigParameters
+                )
             )
             it.setMailtemplateKoppelingen(
                 restZaaktypeConfiguration.mailtemplateKoppelingen.map { koppeling ->
@@ -159,7 +162,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
                     caseDefinition.userEventListenerDefinitions
                 )
         }
-        resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)?.let {
+        resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)?.let {
             this.zaakNietOntvankelijkResultaattype = it.toRestResultaatType()
         }
         this.zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(

@@ -29,7 +29,6 @@ import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
-import nl.info.zac.app.admin.model.toZaaktypeCompletionParametersList
 import nl.info.zac.app.admin.model.toZaaktypeConfiguration
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.policy.PolicyService
@@ -113,10 +112,17 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
             zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
             zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
-            nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
             isSmartDocumentsEnabled = restZaaktypeBpmnConfiguration.smartDocuments?.isEnabledForZaaktype ?: false
-            setZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList())
         } ?: restZaaktypeBpmnConfiguration.toZaaktypeConfiguration()
+        zaaktypeConfiguration.apply {
+            nietOntvankelijkResultaattypeOmschrijving = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype
+                ?.let { resultaattypeReferenceService.readOmschrijving(it.id) }
+            setZaakbeeindigParameters(
+                restZaakbeeindigParameterConverter.toZaaktypeCompletionParameters(
+                    restZaaktypeBpmnConfiguration.zaakbeeindigParameters
+                )
+            )
+        }
         return zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
             .toRestZaaktypeBpmnConfiguration()
     }
@@ -132,7 +138,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         defaultBehandelaarId = this.defaultBehandelaarId,
         productaanvraagtype = this.productaanvraagtype,
         creatiedatum = this.creatiedatum,
-        zaakNietOntvankelijkResultaattype = resultaattypeReferenceService.readNietOntvankelijkResultaattype(this)
+        zaakNietOntvankelijkResultaattype = resultaattypeReferenceService.findNietOntvankelijkResultaattype(this)
             ?.toRestResultaatType(),
         zaakbeeindigParameters = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(
             this.getZaakbeeindigParameters()

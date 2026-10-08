@@ -72,9 +72,6 @@ class ZaaktypeConfiguration {
     @Column(name = "productaanvraagtype")
     var productaanvraagtype: String? = null
 
-    @Column(name = "niet_ontvankelijk_resultaattype_uuid")
-    var nietOntvankelijkResultaattype: UUID? = null
-
     @Column(name = "niet_ontvankelijk_resultaattype_omschrijving")
     var nietOntvankelijkResultaattypeOmschrijving: String? = null
 
@@ -189,7 +186,7 @@ class ZaaktypeConfiguration {
     fun isValidForZaakCreation(): Boolean =
         !groepID.isNullOrBlank() &&
             processBinding?.definitionKey?.isNotBlank() == true &&
-            (getProcessEngine() != ProcessEngine.CMMN || nietOntvankelijkResultaattype != null)
+            (getProcessEngine() != ProcessEngine.CMMN || nietOntvankelijkResultaattypeOmschrijving != null)
 
     fun getBetrokkeneParameters(): ZaaktypeBetrokkeneParameters =
         zaaktypeBetrokkeneParameters ?: ZaaktypeBetrokkeneParameters()

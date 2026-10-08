@@ -16,9 +16,8 @@ import java.util.UUID
 import java.util.logging.Logger
 
 /**
- * Resolves the resultaattypen that a zaaktype configuration references. A reference holds the UUID and the
- * omschrijving of its resultaattype; the omschrijving decides, and the UUID is the fallback while the omschrijving is
- * not filled yet.
+ * Resolves the resultaattypen that a zaaktype configuration references by omschrijving, within the zaaktype
+ * version of the configuration.
  */
 @ApplicationScoped
 @NoArgConstructor
@@ -30,41 +29,31 @@ class ResultaattypeReferenceService @Inject constructor(
         private val LOG = Logger.getLogger(ResultaattypeReferenceService::class.java.name)
     }
 
-    fun fillOmschrijvingen(zaaktypeConfiguration: ZaaktypeConfiguration) {
-        zaaktypeConfiguration.nietOntvankelijkResultaattypeOmschrijving =
-            zaaktypeConfiguration.nietOntvankelijkResultaattype?.let(::readOmschrijving)
-        zaaktypeConfiguration.getZaakbeeindigParameters().forEach {
-            it.resultaattypeOmschrijving = readOmschrijving(it.resultaattype)
-        }
-    }
+    fun readOmschrijving(resultaattypeUuid: UUID): String = ztcClientService.readResultaattype(resultaattypeUuid).omschrijving
 
-    fun readNietOntvankelijkResultaattype(zaaktypeConfiguration: ZaaktypeConfiguration): ResultaatType? =
-        zaaktypeConfiguration.nietOntvankelijkResultaattype?.let {
-            resolve(
-                zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid,
-                resultaattypeUuid = it,
-                resultaattypeOmschrijving = zaaktypeConfiguration.nietOntvankelijkResultaattypeOmschrijving
-            )
+    fun findNietOntvankelijkResultaattype(zaaktypeConfiguration: ZaaktypeConfiguration): ResultaatType? =
+        zaaktypeConfiguration.nietOntvankelijkResultaattypeOmschrijving?.let {
+            find(zaaktypeConfiguration.zaaktypeUuid, it)
         }
 
-    fun readResultaattype(zaaktypeCompletionParameters: ZaaktypeCompletionParameters): ResultaatType =
-        resolve(
-            zaaktypeUuid = zaaktypeCompletionParameters.zaaktypeConfiguration.zaaktypeUuid,
-            resultaattypeUuid = zaaktypeCompletionParameters.resultaattype,
-            resultaattypeOmschrijving = zaaktypeCompletionParameters.resultaattypeOmschrijving
+    fun readNietOntvankelijkResultaattype(zaaktypeUuid: UUID, resultaattypeOmschrijving: String): ResultaatType =
+        checkNotNull(find(zaaktypeUuid, resultaattypeOmschrijving)) {
+            "Zaaktype with UUID '$zaaktypeUuid' has no niet-ontvankelijk resultaattype with " +
+                "omschrijving '$resultaattypeOmschrijving'"
+        }
+
+    fun findResultaattype(zaaktypeCompletionParameters: ZaaktypeCompletionParameters): ResultaatType? =
+        find(
+            zaaktypeCompletionParameters.zaaktypeConfiguration.zaaktypeUuid,
+            zaaktypeCompletionParameters.resultaattypeOmschrijving
         )
 
-    private fun readOmschrijving(resultaattypeUuid: UUID) = ztcClientService.readResultaattype(resultaattypeUuid).omschrijving
-
-    private fun resolve(zaaktypeUuid: UUID, resultaattypeUuid: UUID, resultaattypeOmschrijving: String?): ResultaatType =
-        resultaattypeOmschrijving?.let { omschrijving ->
-            ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUuid).url)
-                .firstOrNull { it.omschrijving == omschrijving }
-                ?: null.also {
-                    LOG.warning {
-                        "Zaaktype with UUID '$zaaktypeUuid' has no resultaattype with omschrijving '$omschrijving'. " +
-                            "Using the resultaattype with UUID '$resultaattypeUuid'"
-                    }
+    private fun find(zaaktypeUuid: UUID, resultaattypeOmschrijving: String): ResultaatType? =
+        ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUuid).url)
+            .firstOrNull { it.omschrijving == resultaattypeOmschrijving }
+            ?: null.also {
+                LOG.warning {
+                    "Zaaktype with UUID '$zaaktypeUuid' has no resultaattype with omschrijving '$resultaattypeOmschrijving'"
                 }
-        } ?: ztcClientService.readResultaattype(resultaattypeUuid)
+            }
 }
