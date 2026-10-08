@@ -89,10 +89,7 @@ class PolicyService @Inject constructor(
             )
         ).requireResult(OpaEvaluationClient.OVERIGE_RECHTEN_PATH)
 
-    /**
-     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of [zaak], for a caller that already read
-     * it in this request. When omitted, it is read here.
-     */
+
     fun readZaakRechten(
         zaak: Zaak,
         loggedInUser: LoggedInUser,
@@ -107,10 +104,7 @@ class PolicyService @Inject constructor(
         )
     }
 
-    /**
-     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of [zaak], for a caller that already read
-     * it in this request. When omitted, it is read here.
-     */
+
     fun readZaakRechten(
         zaak: Zaak,
         zaaktype: ZaakType,
