@@ -391,7 +391,7 @@ omschrijving does not exist in the new version.
 `updateZaakbeeindigGegevens` is removed: with B2 an existing configuration needs no remap. The beheer
 service's `upsertConfiguration` is the only caller. In order, it:
 
-1. finds the existing configuration by UUID (done, nothing to change)
+1. finds the existing configuration by UUID; if there is one, it updates its zaaktype omschrijving and the servicenorm rule, stores it, and stops
 2. otherwise finds the current configuration by omschrijving
 3. calls `createNextVersion`
 4. stores the result
