@@ -168,13 +168,13 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
       for a match, a fallback, and a missing omschrijving.
 - [x] 5.4 Add `ResultaattypeOmschrijvingBackfill`, which runs on application start, is idempotent, and logs a
       summary of filled and unresolved rows. Verify with unit tests for success, a ZTC failure, and a second run.
-- [ ] 5.5 Add a second version of one CMMN and one BPMN zaaktype to the Open Zaak seed data
+- [x] 5.5 Add a second version of one CMMN and one BPMN zaaktype to the Open Zaak seed data
       (`scripts/docker-compose/imports/openzaak-database/database/`), valid from 2099 so that the first version stays
       the one for creating zaken. Rework `NotificationZaaktypeCompletionParametersTest` to publish that version, then
       verify that it passes for both engines. In the same test, store the configuration of the second BPMN version with
       the productaanvraagtype of the first, and verify that it is accepted. The test deletes the configurations of the
       second versions afterwards, because ZAC would otherwise use them as the current ones.
-- [ ] 5.6 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
+- [x] 5.6 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
       `feat(admin): reference resultaattypen by omschrijving in the zaaktype configuration`, with body footer `Solves PZ-12669`.
 - [ ] 5.7 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
       startup log shows the migration and any quarantine warnings, and that the quarantine table holds only expected rows.
