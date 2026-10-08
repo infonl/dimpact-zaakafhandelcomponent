@@ -83,4 +83,5 @@ changes, and that is specified in `zaaktype-process-binding`.
   - the task form configuration question (RFC section 7)
   - zaaktype identity by omschrijving (RFC section 10)
   - dropping the resultaattype UUID columns
-  - zaakafzenders and mailtemplate koppelingen for BPMN zaaktypen, which are CMMN only
+  - using zaakafzenders and mailtemplate koppelingen for BPMN zaken. The engine-agnostic configuration stores them
+    for both engines, so a later change can add this.
