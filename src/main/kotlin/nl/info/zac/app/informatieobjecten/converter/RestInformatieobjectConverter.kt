@@ -63,40 +63,35 @@ class RestInformatieobjectConverter @Inject constructor(
         private val LOG = Logger.getLogger(RestInformatieobjectConverter::class.java.name)
     }
 
-    fun convertToREST(zaakInformatieobjecten: List<ZaakInformatieObject>): List<RestEnkelvoudigInformatieobject> =
-        zaakInformatieobjecten.map(::convertToREST)
-
-    fun convertToREST(zaakInformatieObject: ZaakInformatieObject): RestEnkelvoudigInformatieobject {
+    fun convertToRestEnkelvoudigInformatieobject(zaakInformatieObject: ZaakInformatieObject): RestEnkelvoudigInformatieobject {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
             zaakInformatieObject.informatieobject
         )
         val zaak = zrcClientService.readZaak(zaakInformatieObject.zaakUUID)
-        return convertToREST(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = zaak)
+        return convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = zaak)
     }
 
-    /**
-     * Converts a [zaakInformatieObject] of [zaak], reusing the [zaak] and its [zaakAutorisatieGegevens] that the
-     * caller already read.
-     */
-    fun convertToREST(
+    fun convertToRestEnkelvoudigInformatieobject(
         zaakInformatieObject: ZaakInformatieObject,
         zaak: Zaak,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens
-    ) = convertToREST(
+    ) = convertToRestEnkelvoudigInformatieobject(
         enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(zaakInformatieObject.informatieobject),
         zaak = zaak,
         zaakAutorisatieGegevens = zaakAutorisatieGegevens
     )
 
-    fun convertToREST(enkelvoudigInformatieObject: EnkelvoudigInformatieObject): RestEnkelvoudigInformatieobject =
-        convertToREST(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = null)
+    fun convertToRestEnkelvoudigInformatieobject(
+        enkelvoudigInformatieObject: EnkelvoudigInformatieObject
+    ): RestEnkelvoudigInformatieobject =
+        convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = null)
 
     /**
      * [documentRechten] can be passed in by callers that already evaluated them, so that reading a
      * document does not evaluate the same policy twice. Likewise, [zaakAutorisatieGegevens] can be passed in by
      * callers that already read the zaakspecifieke autorisatie data of [zaak].
      */
-    fun convertToREST(
+    fun convertToRestEnkelvoudigInformatieobject(
         enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
         zaak: Zaak?,
         documentRechten: DocumentRechten? = null,
@@ -316,7 +311,7 @@ class RestInformatieobjectConverter @Inject constructor(
     fun convertUUIDsToREST(enkelvoudigInformatieobjectUUIDs: List<UUID>, zaak: Zaak?): List<RestEnkelvoudigInformatieobject> =
         enkelvoudigInformatieobjectUUIDs.mapNotNull { enkelvoudigInformatieobjectUUID ->
             try {
-                convertToREST(
+                convertToRestEnkelvoudigInformatieobject(
                     enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
                         enkelvoudigInformatieobjectUUID
                     ),
@@ -366,7 +361,7 @@ class RestInformatieobjectConverter @Inject constructor(
     }
 
     fun convertInformatieobjectenToREST(informatieobjecten: List<EnkelvoudigInformatieObject>): List<RestEnkelvoudigInformatieobject> =
-        informatieobjecten.map { convertToREST(it) }
+        informatieobjecten.map { convertToRestEnkelvoudigInformatieobject(it) }
 
     private fun hasFileContent(versieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens) =
         versieGegevens.file != null &&

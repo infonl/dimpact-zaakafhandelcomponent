@@ -122,7 +122,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 findZaakForDocument(enkelvoudigInformatieObject).let { zaak ->
                     val documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
                     assertPolicy(documentRechten.canLezen)
-                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, documentRechten)
+                    restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(
+                        enkelvoudigInformatieObject,
+                        zaak,
+                        documentRechten
+                    )
                 }
             }
 
@@ -139,11 +143,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 val documentRechten = policyService.readDocumentRechten(currentVersion, zaak)
                 assertPolicy(documentRechten.canLezen)
                 when {
-                    version < currentVersion.versie -> restInformatieobjectConverter.convertToREST(
+                    version < currentVersion.versie -> restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(
                         drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version),
                         zaak
                     )
-                    else -> restInformatieobjectConverter.convertToREST(currentVersion, zaak, documentRechten)
+                    else -> restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(currentVersion, zaak, documentRechten)
                 }
             }
 
@@ -202,7 +206,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .map { it.informatieobject }
             .map(drcClientService::readEnkelvoudigInformatieobject)
             .filter(::isVerzendenToegestaan)
-            .map { restInformatieobjectConverter.convertToREST(it, zaak) }
+            .map { restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(it, zaak) }
     }
 
     @POST
@@ -242,7 +246,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 taskId = if (isTaakObject) documentReferenceId else null,
                 content = content
             )
-        }.let(restInformatieobjectConverter::convertToREST)
+        }.let(restInformatieobjectConverter::convertToRestEnkelvoudigInformatieobject)
     }
 
     @POST
@@ -298,7 +302,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): RestEnkelvoudigInformatieobject =
         zrcClientService.readZaakinformatieobject(uuid).informatieobject
             .let(drcClientService::readEnkelvoudigInformatieobject)
-            .let(restInformatieobjectConverter::convertToREST)
+            .let(restInformatieobjectConverter::convertToRestEnkelvoudigInformatieobject)
 
     @GET
     @Path("informatieobject/{uuid}/zaakinformatieobjecten")
@@ -438,7 +442,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 toelichting = enkelvoudigInformatieObjectVersieGegevens.toelichting,
                 content = content
             )
-        }.let(restInformatieobjectConverter::convertToREST)
+        }.let(restInformatieobjectConverter::convertToRestEnkelvoudigInformatieobject)
     }
 
     @POST
@@ -585,7 +589,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens
     ): List<RestEnkelvoudigInformatieobject> =
         zaak.let(zrcClientService::listZaakinformatieobjecten)
-            .map { restInformatieobjectConverter.convertToREST(it, zaak, zaakAutorisatieGegevens) }
+            .map { restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(it, zaak, zaakAutorisatieGegevens) }
 
     private fun listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
         zaakURI: URI,

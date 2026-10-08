@@ -161,7 +161,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
             } returns enkelvoudigInformatieObjectData
             every {
-                restInformatieobjectConverter.convertToREST(zaakInformatieobject)
+                restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(zaakInformatieobject)
             } returns responseRestEnkelvoudigInformatieobject
             every {
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
@@ -240,7 +240,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
             } returns enkelvoudigInformatieObjectData
             every {
-                restInformatieobjectConverter.convertToREST(zaakInformatieobject)
+                restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(zaakInformatieobject)
             } returns responseRestEnkelvoudigInformatieobject
             every {
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
@@ -354,7 +354,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
         } returns zaakInformatieobject
         every {
-            restInformatieobjectConverter.convertToREST(zaakInformatieobject)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(zaakInformatieobject)
         } returns responseRestEnkelvoudigInformatieobject
         every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -416,7 +416,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             } returns enkelvoudigInformatieObject
             every {
-                restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+                restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject)
             } returns restEnkelvoudigInformatieobject
 
             val returnedRESTEnkelvoudigInformatieobject =
@@ -488,7 +488,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
         } returns enkelvoudigInformatieObject
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject)
         } returns restEnkelvoudigInformatieobject
 
         `when`("the new version is submitted") {
@@ -592,7 +592,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak, loggedInUser, any()) } returns createZaakRechten()
         every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
         every {
-            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0], zaak, any())
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(zaakInformatieobjecten[0], zaak, any())
         } returns restEnkelvoudigInformatieobjecten[0]
         every { zrcClientService.readZaak(deelzaak.url) } returns deelzaak
         every { zrcClientService.listZaakinformatieobjecten(deelzaak) } returns emptyList()
@@ -633,7 +633,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns createZaakRechten()
         every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
         every {
-            restInformatieobjectConverter.convertToREST(
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(
                 any<ZaakInformatieObject>(),
                 zaak,
                 capture(zaakAutorisatieGegevensForConverter)
@@ -689,7 +689,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak, loggedInUser, any()) } returns createZaakRechten()
         every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
         every {
-            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0], zaak, any())
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(zaakInformatieobjecten[0], zaak, any())
         } returns restEnkelvoudigInformatieobjectVoorZaak
         every { zrcClientService.readZaak(gerelateerdeZaakUri) } returns gerelateerdeZaak
         every { zrcClientService.listZaakinformatieobjecten(gerelateerdeZaak) } returns gerelateerdeZaakInformatieobjecten
@@ -1066,7 +1066,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
         } returns documentRechten
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, documentRechten)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject, zaak, documentRechten)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobject is called") {
@@ -1092,7 +1092,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             policyService.readDocumentRechten(enkelvoudigInformatieObject, null)
         } returns documentRechten
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null, documentRechten)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject, null, documentRechten)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobject is called") {
@@ -1130,7 +1130,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             policyService.readDocumentRechten(enkelvoudigInformatieObject, firstZaak)
         } returns documentRechten
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, firstZaak, documentRechten)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject, firstZaak, documentRechten)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobject is called") {
@@ -1168,7 +1168,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             then("no REST representation of the document is built") {
                 verify(exactly = 0) {
-                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, any())
+                    restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject, zaak, any())
                 }
             }
         }
@@ -1181,7 +1181,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             then("neither the requested version nor its REST representation is fetched") {
                 verify(exactly = 0) { drcClientService.readEnkelvoudigInformatieobjectVersie(any(), any()) }
                 verify(exactly = 0) {
-                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, any())
+                    restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject, zaak, any())
                 }
             }
         }
@@ -1204,7 +1204,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             policyService.readDocumentRechten(currentVersionEnkelvoudigInformatieObject, null)
         } returns createDocumentRechten()
         every {
-            restInformatieobjectConverter.convertToREST(olderVersionEnkelvoudigInformatieObject, null)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(olderVersionEnkelvoudigInformatieObject, null)
         } returns restOlderEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobjectVersion is called with an older version") {
@@ -1231,7 +1231,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             policyService.readDocumentRechten(currentVersionEnkelvoudigInformatieObject, null)
         } returns documentRechten
         every {
-            restInformatieobjectConverter.convertToREST(currentVersionEnkelvoudigInformatieObject, null, documentRechten)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(
+                currentVersionEnkelvoudigInformatieObject,
+                null,
+                documentRechten
+            )
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobjectVersion is called with the current version") {
@@ -1269,7 +1273,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUri)
         } returns enkelvoudigInformatieObject
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject, zaak)
         } returns restEnkelvoudigInformatieobject
         every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -1316,7 +1320,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUri)
         } returns enkelvoudigInformatieObject
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID is called") {
@@ -2021,7 +2025,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verzenddatum = testCase.verzenddatum
             )
             every {
-                restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null, documentRechten)
+                restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(enkelvoudigInformatieObject, null, documentRechten)
             } returns restEnkelvoudigInformatieobject
 
             `when`("readEnkelvoudigInformatieobject is called") {

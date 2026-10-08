@@ -168,7 +168,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         } returns createInformatieObjectType()
 
         `when`("converted to REST Enkelvoudig Informatie Object") {
-            val restEnkelvoudigInformatieObject = restInformatieobjectConverter.convertToREST(
+            val restEnkelvoudigInformatieObject = restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(
                 enkelvoudigInformatieObject
             )
 
