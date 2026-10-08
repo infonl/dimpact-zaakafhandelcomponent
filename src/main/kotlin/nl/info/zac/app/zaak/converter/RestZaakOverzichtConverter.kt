@@ -37,20 +37,20 @@ class RestZaakOverzichtConverter @Inject constructor(
             uuid = zaak.uuid,
             identificatie = zaak.identificatie,
             rechten = zaakrechten.toRestZaakRechten(),
-            startdatum = zaakrechten.lezen.takeIf { it }?.let { zaak.startdatum },
-            einddatum = zaakrechten.lezen.takeIf { it }?.let { zaak.einddatum },
-            einddatumGepland = zaakrechten.lezen.takeIf { it }?.let { zaak.einddatumGepland },
-            uiterlijkeEinddatumAfdoening = zaakrechten.lezen.takeIf { it }?.let { zaak.uiterlijkeEinddatumAfdoening },
-            toelichting = zaakrechten.lezen.takeIf { it }?.let { zaak.toelichting },
-            omschrijving = zaakrechten.lezen.takeIf { it }?.let { zaak.omschrijving },
-            zaaktype = zaakrechten.lezen.takeIf { it }?.let { zaaktype.omschrijving },
+            startdatum = zaakrechten.canLezen.takeIf { it }?.let { zaak.startdatum },
+            einddatum = zaakrechten.canLezen.takeIf { it }?.let { zaak.einddatum },
+            einddatumGepland = zaakrechten.canLezen.takeIf { it }?.let { zaak.einddatumGepland },
+            uiterlijkeEinddatumAfdoening = zaakrechten.canLezen.takeIf { it }?.let { zaak.uiterlijkeEinddatumAfdoening },
+            toelichting = zaakrechten.canLezen.takeIf { it }?.let { zaak.toelichting },
+            omschrijving = zaakrechten.canLezen.takeIf { it }?.let { zaak.omschrijving },
+            zaaktype = zaakrechten.canLezen.takeIf { it }?.let { zaaktype.omschrijving },
             openstaandeTaken = openstaandeTakenConverter.convert(zaak.uuid),
-            resultaat = zaakrechten.lezen.takeIf { it }?.let { zaak.toRestZaakResultaat() },
-            status = zaakrechten.lezen.takeIf { it }?.let { zaak.status }
+            resultaat = zaakrechten.canLezen.takeIf { it }?.let { zaak.toRestZaakResultaat() },
+            status = zaakrechten.canLezen.takeIf { it }?.let { zaak.status }
                 ?.let { zrcClientService.readStatus(it).statustype }
                 ?.let { ztcClientService.readStatustype(it).omschrijving },
-            behandelaar = zaakrechten.lezen.takeIf { it }?.let { getBehandelaarForZaak(zaak) },
-            groep = zaakrechten.lezen.takeIf { it }?.let { getGroupForZaak(zaak) }
+            behandelaar = zaakrechten.canLezen.takeIf { it }?.let { getBehandelaarForZaak(zaak) },
+            groep = zaakrechten.canLezen.takeIf { it }?.let { getGroupForZaak(zaak) }
         )
     }
 
@@ -60,7 +60,7 @@ class RestZaakOverzichtConverter @Inject constructor(
         return RestZaakOverzicht(
             identificatie = zaak.identificatie,
         ).apply {
-            if (zaakrechten.lezen) {
+            if (zaakrechten.canLezen) {
                 startdatum = zaak.startdatum
                 omschrijving = zaak.omschrijving
                 zaaktype = zaakType.omschrijving
@@ -74,8 +74,8 @@ class RestZaakOverzichtConverter @Inject constructor(
     private fun getBehandelaarForZaak(
         zaak: Zaak
     ): RestUser? = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-        ?.betrokkeneIdentificatie
-        ?.let { userConverter.convertUserId(it.identificatie) }
+        ?.identificatienummer
+        ?.let(userConverter::convertUserId)
 
     private fun getGroupForZaak(
         zaak: Zaak

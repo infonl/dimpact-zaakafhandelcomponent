@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.shared.model.audit.ZrcAuditTrailRegel
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
@@ -62,17 +62,17 @@ class ZaakHistoryService @Inject constructor(
             .filter { it.attributeLabel != RESOURCE_EXTENSION && it.attributeLabel != RESOURCE_SUSPENSION }
             .sortedByDescending { it.zonedDateTime }
 
-    private fun convertZaakHistoryLine(auditTrailLine: ZRCAuditTrailRegel): List<HistoryLine> {
+    private fun convertZaakHistoryLine(auditTrailLine: ZrcAuditTrailRegel): List<HistoryLine> {
         val old = (auditTrailLine.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
         val new = (auditTrailLine.wijzigingen.nieuw as? Map<*, *>)?.asMapWithKeyOfString()
         return when (auditTrailLine.actie) {
             ACTION_PARTIAL_UPDATE if old != null &&
                 new != null
             -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                auditTrailLine,
-                convertActie(auditTrailLine.resource, auditTrailLine.actie),
-                old,
-                new
+                auditTrailLine = auditTrailLine,
+                historyAction = convertActie(auditTrailLine.resource, auditTrailLine.actie),
+                oldValues = old,
+                newValues = new
             )
 
             ACTION_CREATE, ACTION_UPDATE, ACTION_DESTROY
@@ -82,7 +82,7 @@ class ZaakHistoryService @Inject constructor(
         }
     }
 
-    private fun convertLine(auditTrail: ZRCAuditTrailRegel, old: Map<String, *>?, new: Map<String, *>?): HistoryLine? =
+    private fun convertLine(auditTrail: ZrcAuditTrailRegel, old: Map<String, *>?, new: Map<String, *>?): HistoryLine? =
         (old ?: new)
             ?.let { convertResource(auditTrail.resource, it) }
             ?.let { resource ->

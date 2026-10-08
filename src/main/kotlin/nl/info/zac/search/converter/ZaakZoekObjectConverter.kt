@@ -19,7 +19,7 @@ import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
-import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
+import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
@@ -38,22 +38,13 @@ class ZaakZoekObjectConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zgwApiService: ZgwApiService,
     private val identityService: IdentityService,
-    private val flowableTaskService: FlowableTaskService
-) : AbstractZoekObjectConverter<ZaakZoekObject>() {
+    private val flowableTaskService: FlowableTaskService,
+    private val reindexSupportService: ReindexSupportService
+) : ZoekObjectConverter<ZaakZoekObject> {
 
     override fun convert(id: String): ZaakZoekObject =
         zrcClientService.readZaak(UUID.fromString(id)).let { zaak ->
-            convert(zaak) { zaakUUID ->
-                ZaakAutorisatieGegevens(
-                    isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-                ) {
-                    listOfNotNull(
-                        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-                            ?.betrokkeneIdentificatie
-                            ?.identificatie
-                    )
-                }
-            }
+            convert(zaak) { reindexSupportService.zaakAutorisatieGegevens(zaak) }
         }
 
     /**
@@ -157,7 +148,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // In this case, we treat the rol as an empty 'orphaned' role and ignore it here.
             role.toBetrokkeneIdentification()?.run {
                 zaakZoekObject.addBetrokkene(
-                    rol = role.omschrijving.orEmpty(),
+                    rol = role.omschrijving,
                     identificatie = this.toSolrFormatting()
                 )
             }

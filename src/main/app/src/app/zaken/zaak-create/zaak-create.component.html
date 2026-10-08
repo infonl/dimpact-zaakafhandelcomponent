@@ -11,18 +11,19 @@
       [initiator]="true"
       [allowBedrijf]="
         form.controls.zaaktype.value?.zaakafhandelparameters
-          ?.betrokkeneKoppelingen?.kvkKoppelen ?? false
+          ?.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false
       "
       [allowPersoon]="
         form.controls.zaaktype.value?.zaakafhandelparameters
-          ?.betrokkeneKoppelingen?.brpKoppelen ?? false
+          ?.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false
       "
       [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
       class="side-nav-container"
     ></zac-klant-koppel>
     <zac-bag-zoek
-      *ngSwitchCase="'actie.bagObject.koppelen'"
+      *ngSwitchCase="'actie.bag-object.koppelen'"
       [gekoppeldeBagObjecten]="form.controls.bagObjecten"
+      isSelectable
       (bagObject)="bagObjectSelected()"
       [sideNav]="actionsSidenav"
     ></zac-bag-zoek>
@@ -79,7 +80,7 @@
           class="col-12 col-md-6 bag-display-field"
           [form]="form"
           [displayValue]="bagDisplayValue"
-          (click)="openSideNav('actie.bagObject.koppelen')"
+          (click)="openSideNav('actie.bag-object.koppelen')"
         >
           <button
             type="button"
@@ -88,7 +89,7 @@
             (click)="
               hasBagObject()
                 ? clearBagObjecten()
-                : openSideNav('actie.bagObject.koppelen');
+                : openSideNav('actie.bag-object.koppelen');
               $event.stopPropagation()
             "
           >

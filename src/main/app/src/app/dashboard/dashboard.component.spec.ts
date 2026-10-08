@@ -8,6 +8,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -16,18 +17,24 @@ import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-
 import { fromPartial } from "src/test-helpers";
+
 import { sleep, testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
-import { WebsocketService } from "../core/websocket/websocket.service";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { toI18nKey } from "../shared/utils/i18n-key";
 import { DashboardComponent } from "./dashboard.component";
+import { InformatieobjectenCardComponent } from "./informatieobjecten-card/informatieobjecten-card.component";
+import { DashboardCard } from "./model/dashboard-card";
 import { DashboardCardId } from "./model/dashboard-card-id";
+import { TaakZoekenCardComponent } from "./taak-zoeken-card/taak-zoeken-card.component";
+import { TakenCardComponent } from "./taken-card/taken-card.component";
+import { ZaakWaarschuwingenCardComponent } from "./zaak-waarschuwingen-card/zaak-waarschuwingen-card.component";
+import { ZaakZoekenCardComponent } from "./zaak-zoeken-card/zaak-zoeken-card.component";
+import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
 
 type RequestAnimationFrameCallback = (time: number) => void;
 
-const LOGGED_IN_USER_QUERY_KEY = ["/rest/identity/loggedInUser"];
 const DASHBOARD_CARDS_URL = "/rest/gebruikersvoorkeuren/dasboardcard/actief";
 const DASHBOARD_CARD_URL = "/rest/gebruikersvoorkeuren/dasboardcard";
 const SIGNALERING_TYPEN_URL = "/rest/signaleringen/typen/dashboard";
@@ -38,6 +45,16 @@ const instellingen: GeneratedType<"RESTDashboardCardInstelling">[] = [
   { cardId: "MIJN_ZAKEN", column: 1, row: 0 },
   { cardId: "MIJN_DOCUMENTEN_NIEUW", column: 1, row: 1 },
 ];
+
+@Component({
+  selector:
+    "zac-informatieobjecten-card, zac-taken-card, zac-taak-zoeken-card, zac-zaken-card, zac-zaak-waarschuwingen-card, zac-zaak-zoeken-card",
+  template: "",
+  standalone: true,
+})
+class DashboardCardContentStubComponent {
+  readonly data = input.required<DashboardCard>();
+}
 
 class FakeResizeObserver {
   static instances: FakeResizeObserver[] = [];
@@ -101,18 +118,17 @@ describe(DashboardComponent.name, () => {
     }) as typeof requestAnimationFrame;
 
     stacked = false;
-    jest.spyOn(window, "matchMedia").mockImplementation(
-      (query: string) =>
-        ({
-          matches: stacked && query.includes("max-width"),
-          media: query,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: jest.fn(),
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
-          onchange: null,
-        }) as unknown as MediaQueryList,
+    jest.spyOn(window, "matchMedia").mockImplementation((query: string) =>
+      fromPartial<MediaQueryList>({
+        matches: stacked && query.includes("max-width"),
+        media: query,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+        onchange: null,
+      }),
     );
   });
 
@@ -124,13 +140,19 @@ describe(DashboardComponent.name, () => {
   });
 
   async function setup() {
-    testQueryClient.setQueryData(
-      LOGGED_IN_USER_QUERY_KEY,
-      fromPartial<GeneratedType<"RestUser">>({
-        id: "fakeUserId",
-        naam: "fakeUserName",
-      }),
-    );
+    TestBed.overrideComponent(DashboardComponent, {
+      remove: {
+        imports: [
+          InformatieobjectenCardComponent,
+          TakenCardComponent,
+          TaakZoekenCardComponent,
+          ZakenCardComponent,
+          ZaakWaarschuwingenCardComponent,
+          ZaakZoekenCardComponent,
+        ],
+      },
+      add: { imports: [DashboardCardContentStubComponent] },
+    });
 
     const rendered = await render(DashboardComponent, {
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
@@ -140,7 +162,6 @@ describe(DashboardComponent.name, () => {
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
         { provide: UtilService, useValue: { setTitle: jest.fn() } },
-        { provide: WebsocketService, useValue: { addListener: jest.fn() } },
       ],
     });
 
@@ -162,11 +183,6 @@ describe(DashboardComponent.name, () => {
   async function settle() {
     await sleep();
     fixture.detectChanges();
-    httpTestingController
-      .match(() => true)
-      .forEach((request) => request.flush({ resultaten: [], totaal: 0 }));
-    await sleep();
-    fixture.detectChanges();
     flushAnimationFrames();
   }
 
@@ -178,9 +194,9 @@ describe(DashboardComponent.name, () => {
   }
 
   function cardOf(cardId: DashboardCardId) {
-    return screen
-      .getByText(`dashboard.card.${cardId}`)
-      .closest<HTMLElement>("mat-card")!;
+    return screen.getByRole("region", {
+      name: toI18nKey(`dashboard.card.${cardId}`),
+    });
   }
 
   function minHeightOf(cardId: DashboardCardId) {
@@ -334,7 +350,9 @@ describe(DashboardComponent.name, () => {
 
     expect(dashboardObserver().observed).not.toContain(removedCard);
     expect(
-      screen.queryByText(`dashboard.card.${DashboardCardId.MIJN_ZAKEN}`),
+      screen.queryByText(
+        toI18nKey(`dashboard.card.${DashboardCardId.MIJN_ZAKEN}`),
+      ),
     ).toBeNull();
   });
 

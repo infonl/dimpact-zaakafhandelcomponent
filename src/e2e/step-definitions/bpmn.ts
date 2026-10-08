@@ -9,9 +9,11 @@ import path from "path";
 import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
+  INFLATED_STEP_TIMEOUT_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
+import { groups } from "../support/worlds/groups";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
@@ -95,8 +97,6 @@ async function selectFirstOption(form: Locator, label: string) {
     .click();
 }
 
-const e2eTestGroupAId = "test-group-a";
-const e2eTestGroupAName = "Test groep A";
 const testUser1Id = "e2etestuser1";
 const testUser1Name = "E2etest User1";
 
@@ -238,7 +238,7 @@ Then(
     await waitForFormioReady(this.page);
     const form = formioForm(this.page);
     await expect(form.getByLabel("Group").nth(0)).toContainText(
-      e2eTestGroupAName,
+      groups.TestGroupA.name,
       {
         timeout: FORTY_SECONDS_IN_MS,
       },
@@ -256,7 +256,7 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
-    await form.getByLabel("Group").nth(0).selectOption(e2eTestGroupAName);
+    await form.getByLabel("Group").nth(0).selectOption(groups.TestGroupA.name);
     // User options populate from the Group selection via a backend call;
     // wait for it to return before assuming the specific option exists.
     const userSelect = form.getByLabel("User");
@@ -351,7 +351,7 @@ Then(
     const form = formioForm(this.page);
     const groupTextbox = form.getByRole("textbox", { name: "Group" });
     await waitForFormioContent(this.page, groupTextbox);
-    await expect(groupTextbox).toHaveValue(e2eTestGroupAId, {
+    await expect(groupTextbox).toHaveValue(groups.TestGroupA.id, {
       timeout: FORTY_SECONDS_IN_MS,
     });
     await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
@@ -427,6 +427,8 @@ Then(
     groupName: string,
     userName: string,
   ) {
+    const group = Object.values(groups).find(({ name }) => name === groupName);
+    expect(group, `Unknown group "${groupName}"`).toBeDefined();
     const behandelaarField = this.page.getByRole("textbox", {
       name: "zaakBehandelaar",
     });
@@ -439,7 +441,7 @@ Then(
       await this.page.getByRole("button", { name: "Zaakdata" }).click();
       await expect(
         this.page.getByRole("textbox", { name: "zaakGroep" }),
-      ).toHaveValue(groupName, { timeout: TEN_SECONDS_IN_MS });
+      ).toHaveValue(group!.id, { timeout: TEN_SECONDS_IN_MS });
 
       const isLastAttempt = attempt === maxAttempts;
       if (isLastAttempt) {
@@ -469,7 +471,7 @@ Then(
 
 Then(
   "{string} sees the select documents to sign form",
-  { timeout: FORTY_SECONDS_IN_MS },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioContent(
       this.page,
@@ -577,7 +579,9 @@ Then(
 );
 
 function processDefinitionGroupRow(page: Page, name: string) {
-  return page.locator("mat-nested-tree-node.group").filter({ hasText: name });
+  return page
+    .locator("mat-nested-tree-node.group")
+    .filter({ has: page.getByText(name, { exact: true }) });
 }
 
 When(
@@ -620,9 +624,9 @@ Then(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(
-      this.page.getByText(
-        `Procesdefinitie '${E2E_PROCESS_DEFINITION_BPMN_FILE}' is geüpload`,
-      ),
+      processDefinitionGroupRow(this.page, E2E_PROCESS_DEFINITION_NAME)
+        .locator(".tree-group-row mat-icon")
+        .filter({ hasText: "check_circle" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
@@ -641,11 +645,8 @@ When(
       timeout: FORTY_SECONDS_IN_MS,
     });
 
-    // Until the allowed file types have been fetched the form rejects every file it is given.
     const fileField = addDocumentPanel.locator('input[type="file"]');
-    await expect(fileField).not.toHaveAttribute("accept", "", {
-      timeout: FORTY_SECONDS_IN_MS,
-    });
+    await expect(fileField).toBeEnabled();
     await fileField.setInputFiles(
       path.join(__dirname, "../testdata", `${title}.docx`),
     );

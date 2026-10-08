@@ -11,13 +11,23 @@ import {
   FIFTEEN_SECONDS_IN_MS,
   FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
+  INFLATED_SEARCH_INDEX_TIMEOUT_IN_MS,
+  INFLATED_STEP_TIMEOUT_IN_MS,
+  INFLATED_TIMEOUT_IN_MS,
   ONE_MINUTE_IN_MS,
   TWO_MINUTES_IN_MS,
   TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
+import { groups } from "../support/worlds/groups";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
+import {
+  currentDutchTimestamp,
+  describeCaseDescription,
+  describeTestOrigin,
+  describeTestOriginShort,
+} from "../utils/test-origin";
 
 const ZAAK_NUMBER_REGEX = /ZAAK-\d{4}-\d+/;
 const ZAAK_DETAIL_URL_REGEX = /\/zaken\/ZAAK-\d{4}-\d+/;
@@ -35,7 +45,7 @@ async function checkZaakAssignment(
     this.page
       .getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)
       .first(),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page
@@ -43,19 +53,19 @@ async function checkZaakAssignment(
         name: "Aanvullende informatie",
       })
       .first(),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: "Toegekend" }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.group }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 
   await this.expect(
     this.page.getByRole("cell", { name: userProfile.username }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: INFLATED_TIMEOUT_IN_MS });
 }
 
 async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
@@ -176,7 +186,9 @@ When(
     });
     await userOption.click();
 
-    await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
+    await this.page
+      .getByRole("textbox", { name: "Reden" })
+      .fill(describeTestOriginShort(this.browser));
 
     await this.page.getByRole("button", { name: "Opslaan" }).click();
 
@@ -193,7 +205,7 @@ When(
 
 When(
   "{string} wants to create a new {string} zaak",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -205,8 +217,17 @@ When(
       : "Zaaktype voor e2e testen";
 
     await this.page.getByLabel("Zaak toevoegen").click();
-    await this.page.getByLabel("Zaaktype").click();
-    await this.page.getByRole("option", { name: zaakTypeName }).click();
+    // The panel stays closed when it is clicked before the zaaktypes have loaded.
+    const zaaktypeField = this.page.getByRole("combobox", {
+      name: "Zaaktype",
+    });
+    const zaaktypeOption = this.page.getByRole("option", {
+      name: zaakTypeName,
+    });
+    await this.expect(async () => {
+      await zaaktypeField.click();
+      await zaaktypeOption.click({ timeout: FIVE_SECONDS_IN_MS });
+    }).toPass({ timeout: FORTY_SECONDS_IN_MS });
     await this.page
       .locator("div")
       .filter({ hasText: /^person$/ })
@@ -240,9 +261,9 @@ When(
     const group = this.page.getByRole("combobox", {
       name: "Zaak toekennen aan groep",
     });
-    await group.fill("Test groep A");
+    await group.fill(groups.TestGroupA.name);
     await this.page
-      .getByRole("option", { name: "Test groep A", exact: true })
+      .getByRole("option", { name: groups.TestGroupA.name, exact: true })
       .click();
 
     if (bpmnZaakType) {
@@ -259,14 +280,14 @@ When(
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
-    // A UTC timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
-    const timestampUtc = new Date().toISOString().replace(/[-:.]/g, "");
-    const caseDescription = `E2E-test-${timestampUtc}`;
+    // A timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
+    const timestamp = currentDutchTimestamp();
+    const caseDescription = describeCaseDescription("E2E test", timestamp);
     await this.page.getByLabel("Omschrijving").fill(caseDescription);
     this.testStorage.set("caseDescription", caseDescription);
     await this.page
       .getByLabel("Toelichting")
-      .fill(`This task is created by E2E test scenario: ${this.testName}`);
+      .fill(describeTestOrigin(this.testName, this.browser, timestamp));
 
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 
@@ -384,12 +405,16 @@ Then(
 
 Then(
   "Employee {string} opens the zaak that was created from the open-forms submission",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const openFormsReference = this.testStorage.get("open-forms-reference");
-    const zaakLink = this.page
-      .locator("mat-sidenav")
-      .getByRole("link", { name: ZAAK_NUMBER_REGEX });
+    const zaakResults = this.page.locator("mat-sidenav zac-zaak-zoek-object");
+    const zaakResultWithReference = zaakResults.filter({
+      has: this.page.locator(".toelichting", { hasText: openFormsReference }),
+    });
+    const zaakLink = zaakResultWithReference.getByRole("link", {
+      name: ZAAK_NUMBER_REGEX,
+    });
 
     // ZAC stores the reference of the open-forms submission in the toelichting of the zaak, which is
     // searchable, so the zaak can be looked up instead of guessing which zaak it is. The zaak is
@@ -403,16 +428,21 @@ Then(
       await searchField.fill(openFormsReference);
       await searchField.press("Enter");
 
-      await this.expect(zaakLink).toHaveCount(1, {
+      await this.expect(zaakResults).toHaveCount(1, {
+        timeout: TWO_SECONDS_IN_MS,
+      });
+      await this.expect(zaakResultWithReference).toHaveCount(1, {
         timeout: TWO_SECONDS_IN_MS,
       });
     }).toPass({
       intervals: [FIVE_SECONDS_IN_MS],
-      timeout: FORTY_SECONDS_IN_MS,
+      timeout: INFLATED_SEARCH_INDEX_TIMEOUT_IN_MS,
     });
 
     await zaakLink.click();
-    await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX);
+    await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX, {
+      timeout: INFLATED_TIMEOUT_IN_MS,
+    });
   },
 );
 

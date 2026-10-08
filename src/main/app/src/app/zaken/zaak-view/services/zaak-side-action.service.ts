@@ -17,7 +17,7 @@ export class ZaakSideActionService {
   private sidenav?: MatSidenav;
 
   readonly activeAction = signal<string | null>(null);
-  readonly actiefPlanItem = signal<GeneratedType<"RESTPlanItem"> | null>(null);
+  readonly actiefPlanItem = signal<GeneratedType<"RestPlanItem"> | null>(null);
 
   register(sidenav: MatSidenav) {
     this.sidenav = sidenav;

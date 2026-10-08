@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 import {
   Component,
   OnInit,
@@ -28,7 +27,6 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { firstValueFrom } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
@@ -75,20 +73,16 @@ export class BesluitEditComponent implements OnInit {
   protected readonly besluitGewijzigd = output<boolean>();
 
   protected readonly showPublicationSection = computed(
-    () => this.besluit().besluittype?.publication.enabled ?? false,
+    () => this.besluit().besluittype?.publication.isEnabled ?? false,
   );
 
   protected readonly documentenQuery = injectQuery(() => {
     const besluittypeId = this.besluit().besluittype?.id;
     return {
-      queryKey: ["besluit-documenten", this.zaak().uuid, besluittypeId],
-      queryFn: () =>
-        firstValueFrom(
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-            zaakUUID: this.zaak().uuid,
-            besluittypeUUID: besluittypeId!,
-          }),
-        ),
+      ...this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak().uuid,
+        besluittypeUUID: besluittypeId!,
+      }),
       enabled: Boolean(besluittypeId),
     };
   });
@@ -201,7 +195,7 @@ export class BesluitEditComponent implements OnInit {
 
     this.setVervaldatumMinDate(this.form.controls.ingangsdatum.value);
 
-    if (besluit.besluittype?.publication.enabled && besluit.vervaldatum) {
+    if (besluit.besluittype?.publication.isEnabled && besluit.vervaldatum) {
       this.setLastResponseDateMinDate(moment(besluit.vervaldatum));
     }
   }
@@ -225,7 +219,7 @@ export class BesluitEditComponent implements OnInit {
       vervaldatum: vervaldatum?.toISOString(),
       informatieobjecten:
         documenten?.map(({ uuid }) => uuid!).filter(Boolean) ?? [],
-      ...(besluit.besluittype?.publication.enabled
+      ...(besluit.besluittype?.publication.isEnabled
         ? {
             publicationDate: publicationDate?.toISOString(),
             lastResponseDate: lastResponseDate?.toISOString(),

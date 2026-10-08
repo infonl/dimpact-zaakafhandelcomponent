@@ -7,18 +7,22 @@ import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
-  Input,
-  OnChanges,
+  effect,
+  inject,
+  input,
   OnInit,
+  untracked,
   ViewChild,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { PutBody } from "../../shared/http/http-client";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -40,10 +44,10 @@ import { ContactmomentenService } from "../contactmomenten.service";
   ],
 })
 export class KlantContactmomentenTabelComponent
-  implements OnInit, AfterViewInit, OnChanges
+  implements OnInit, AfterViewInit
 {
-  @Input() bsn?: string;
-  @Input() vestigingsnummer?: string;
+  readonly bsn = input<string>();
+  readonly vestigingsnummer = input<string>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestContactmoment">
@@ -61,14 +65,27 @@ export class KlantContactmomentenTabelComponent
   private init = false;
   protected isLoadingResults = true;
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly contactmomentenService: ContactmomentenService,
     private readonly utilService: UtilService,
-  ) {}
+  ) {
+    effect(() => {
+      this.bsn();
+      this.vestigingsnummer();
+      untracked(() => {
+        if (this.init) {
+          this.paginator.pageIndex = 0;
+          this.paginator.page.emit();
+        }
+      });
+    });
+  }
 
   ngOnInit(): void {
-    this.listParameters.bsn = this.bsn;
-    this.listParameters.vestigingsnummer = this.vestigingsnummer;
+    this.listParameters.bsn = this.bsn();
+    this.listParameters.vestigingsnummer = this.vestigingsnummer();
   }
 
   ngAfterViewInit(): void {
@@ -79,7 +96,7 @@ export class KlantContactmomentenTabelComponent
         switchMap(() => {
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
-          return this.loadContactmomenten();
+          return runQuery(this.queryClient, this.loadContactmomenten());
         }),
         map((resultaat) => {
           this.isLoadingResults = false;
@@ -91,13 +108,6 @@ export class KlantContactmomentenTabelComponent
         this.paginator.length = resultaat.totaal ?? 0;
         this.dataSource.data = resultaat.resultaten ?? [];
       });
-  }
-
-  ngOnChanges(): void {
-    if (this.init) {
-      this.paginator.pageIndex = 0;
-      this.paginator.page.emit();
-    }
   }
 
   private loadContactmomenten() {

@@ -86,8 +86,8 @@ export class InrichtingscheckComponent
   protected readonly versionLayout = VersionLayout;
   protected readonly rowOf = rowOf;
   protected dataSource: MatTableDataSource<
-    GeneratedType<"RESTZaaktypeInrichtingscheck">
-  > = new MatTableDataSource<GeneratedType<"RESTZaaktypeInrichtingscheck">>();
+    GeneratedType<"RestZaaktypeInrichtingscheck">
+  > = new MatTableDataSource<GeneratedType<"RestZaaktypeInrichtingscheck">>();
   protected loadingZaaktypes = true;
   protected loadingCommunicatiekanaal = true;
   protected columnsToDisplay = [
@@ -97,7 +97,7 @@ export class InrichtingscheckComponent
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  protected expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null =
+  protected expandedRow: GeneratedType<"RestZaaktypeInrichtingscheck"> | null =
     null;
   protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   private filterValue = "";
@@ -128,10 +128,16 @@ export class InrichtingscheckComponent
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
     this.dataSource.filterPredicate = (data, filter: string) => {
-      if (this.valideFilter === ToggleSwitchOptions.CHECKED && !data.valide) {
+      if (
+        this.valideFilter === ToggleSwitchOptions.CHECKED &&
+        this.needsAttention(data)
+      ) {
         return false;
       }
-      if (this.valideFilter === ToggleSwitchOptions.UNCHECKED && data.valide) {
+      if (
+        this.valideFilter === ToggleSwitchOptions.UNCHECKED &&
+        !this.needsAttention(data)
+      ) {
         return false;
       }
       const dataString = (data.zaaktype.omschrijving + " " + data.zaaktype.doel)
@@ -151,6 +157,22 @@ export class InrichtingscheckComponent
     this.healtCheckService.readZTCCacheTime().subscribe((value) => {
       this.ztcCacheTime = value;
     });
+  }
+
+  protected needsAttention(
+    zaaktypeInrichtingscheck: GeneratedType<"RestZaaktypeInrichtingscheck">,
+  ) {
+    return (
+      !zaaktypeInrichtingscheck.isValide ||
+      Boolean(zaaktypeInrichtingscheck.hasWaarschuwingen)
+    );
+  }
+
+  protected rowStateClass(
+    zaaktypeInrichtingscheck: GeneratedType<"RestZaaktypeInrichtingscheck">,
+  ) {
+    if (!zaaktypeInrichtingscheck.isValide) return "error";
+    return zaaktypeInrichtingscheck.hasWaarschuwingen ? "warning" : "ok";
   }
 
   protected applyFilter(event?: Event) {
@@ -212,7 +234,7 @@ export class InrichtingscheckComponent
             isAsc,
           );
         case "valide":
-          return this.compare(a.valide ?? false, b.valide ?? false, isAsc);
+          return this.compare(a.isValide ?? false, b.isValide ?? false, isAsc);
         default:
           return 0;
       }

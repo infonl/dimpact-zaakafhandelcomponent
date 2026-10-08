@@ -4,31 +4,32 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, Input, numberAttribute, OnChanges } from "@angular/core";
+import { Component, computed, input, numberAttribute } from "@angular/core";
 import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
   selector: "read-more",
   template: ` <div
-      *ngIf="showTooltip"
-      matTooltip="{{ text }}"
-      [innerHTML]="subText"
+      *ngIf="showTooltip()"
+      matTooltip="{{ text() }}"
+      [innerHTML]="subText()"
     ></div>
-    <div *ngIf="!showTooltip" [innerHTML]="text"></div>`,
+    <div *ngIf="!showTooltip()" [innerHTML]="text()"></div>`,
   standalone: true,
   imports: [NgIf, MatTooltipModule],
 })
-export class ReadMoreComponent implements OnChanges {
-  @Input() text?: string;
-  @Input({ transform: numberAttribute }) maxLength = 100;
-  protected subText: string | null = null;
-  protected showTooltip = false;
+export class ReadMoreComponent {
+  readonly text = input<string>();
+  readonly maxLength = input(100, { transform: numberAttribute });
 
-  ngOnChanges() {
-    this.showTooltip =
-      typeof this.text === "string" ? this.text.length > this.maxLength : false;
-    this.subText = this.showTooltip
-      ? this.text?.substring(0, this.maxLength - 3) + "..."
-      : null;
-  }
+  protected readonly showTooltip = computed(() => {
+    const text = this.text();
+    return typeof text === "string" ? text.length > this.maxLength() : false;
+  });
+
+  protected readonly subText = computed(() =>
+    this.showTooltip()
+      ? this.text()?.substring(0, this.maxLength() - 3) + "..."
+      : null,
+  );
 }

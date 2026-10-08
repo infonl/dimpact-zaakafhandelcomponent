@@ -42,7 +42,8 @@
           (editCaseDetails)="editCaseDetails.emit()"
         ></zac-zaak-details-algemeen-tab>
       </mat-tab>
-      @if (zaak().zaakgeometrie) {
+      @let zaakgeometrie = zaak().zaakgeometrie;
+      @if (zaakgeometrie) {
         <mat-tab>
           <ng-template mat-tab-label>
             <mat-icon>place</mat-icon>
@@ -53,10 +54,10 @@
               <div class="flex flex-row space-between">
                 <zac-static-text
                   label="coordinates"
-                  [value]="zaak().zaakgeometrie | location"
+                  [value]="zaakgeometrie | location"
                   class="flex-item"
                 />
-                @if (zaak().rechten.wijzigenLocatie) {
+                @if (zaak().rechten.canWijzigenLocatie) {
                   @let editLocatieLabel =
                     "actie.zaak.locatie.wijzigen" | translate;
                   <button
@@ -71,7 +72,7 @@
               </div>
               @defer (on viewport) {
                 <zac-locatie-tonen
-                  [currentLocation]="zaak().zaakgeometrie"
+                  [currentLocation]="zaakgeometrie"
                 ></zac-locatie-tonen>
               } @placeholder {
                 <div class="locatie-kaart-placeholder"></div>
@@ -85,7 +86,7 @@
         <mat-tab>
           <ng-template mat-tab-label>
             <mat-icon>account_tree</mat-icon>
-            {{ "gerelateerdeZaken" | translate }}</ng-template
+            {{ "gerelateerde-zaken" | translate }}</ng-template
           >
           <zac-zaak-details-gerelateerde-zaken-tab
             [gerelateerdeZaken]="zaak().gerelateerdeZaken ?? []"
@@ -119,11 +120,11 @@
         <mat-tab>
           <ng-template mat-tab-label>
             <mat-icon>gps_fixed</mat-icon>
-            {{ "bagObjecten" | translate }}
+            {{ "bag-objecten" | translate }}
           </ng-template>
           <zac-zaak-details-bag-objecten-tab
             [bagObjecten]="bagObjecten()"
-            [isOntkoppelenToegestaan]="!!zaak().rechten.behandelen"
+            [isOntkoppelenToegestaan]="!!zaak().rechten.canBehandelen"
             (bagObjectVerwijderen)="bagObjectVerwijderen.emit($event)"
           ></zac-zaak-details-bag-objecten-tab>
         </mat-tab>

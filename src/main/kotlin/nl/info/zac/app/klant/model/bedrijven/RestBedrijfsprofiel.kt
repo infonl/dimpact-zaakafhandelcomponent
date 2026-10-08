@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.klant.model.bedrijven
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.zac.util.AllOpen
@@ -16,7 +17,11 @@ private const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
 @NoArgConstructor
 data class RestBedrijfsprofiel(
     var adressen: List<RestBedrijfAdres>? = null,
-    var commercieleVestiging: Boolean = false,
+
+    @get:JsonbProperty("isCommercieleVestiging")
+    @set:JsonbProperty("isCommercieleVestiging")
+    var isCommercieleVestiging: Boolean = false,
+
     var deeltijdWerkzamePersonen: Int? = null,
     var eersteHandelsnaam: String? = null,
     var kvkNummer: String? = null,
@@ -41,7 +46,7 @@ fun Vestiging.toRestBedrijfsprofiel() = RestBedrijfsprofiel(
     totaalWerkzamePersonen = this.totaalWerkzamePersonen,
     deeltijdWerkzamePersonen = this.deeltijdWerkzamePersonen,
     voltijdWerkzamePersonen = this.voltijdWerkzamePersonen,
-    commercieleVestiging = this.indCommercieleVestiging?.isIndicatie() ?: false,
+    isCommercieleVestiging = this.indCommercieleVestiging?.isIndicatie() ?: false,
     type = if (this.indHoofdvestiging?.isIndicatie() == true) VESTIGINGTYPE_HOOFDVESTIGING else VESTIGINGTYPE_NEVENVESTIGING,
     sbiHoofdActiviteit = this.sbiActiviteiten?.firstOrNull {
         it?.indHoofdactiviteit?.isIndicatie() == true

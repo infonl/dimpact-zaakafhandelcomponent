@@ -7,6 +7,7 @@ import { ButtonMenuItem } from "../../../shared/side-nav/menu-item/button-menu-i
 import { HeaderMenuItem } from "../../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../../shared/side-nav/menu-item/menu-item";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../shared/utils/i18n-key";
 import {
   allowedToAddBetrokkene,
   hasAfleidingswijzeBrondatumEigenschap,
@@ -14,7 +15,7 @@ import {
 } from "./zaak-view.predicates";
 
 type Zaak = GeneratedType<"RestZaak">;
-type PlanItem = GeneratedType<"RESTPlanItem">;
+type PlanItem = GeneratedType<"RestPlanItem">;
 
 export interface ZaakMenuPlanItems {
   userEventListener: PlanItem[];
@@ -67,17 +68,18 @@ export function buildZaakMenu(
   handlers: ZaakMenuHandlers,
   dialogs: ZaakMenuDialogs,
   hasBrpSearchRight: boolean,
+  isZaakdataGearchiveerd: boolean,
 ): MenuItem[] {
   const menu: MenuItem[] = [
     new HeaderMenuItem("zaak"),
-    ...zaakMenuItems(zaak, handlers),
+    ...zaakMenuItems(zaak, handlers, isZaakdataGearchiveerd),
   ];
 
   if (!planItems) return menu;
 
   const actionMenuItems = createActionMenuItems(zaak, dialogs);
 
-  if (zaak.rechten.behandelen) {
+  if (zaak.rechten.canBehandelen) {
     if (planItems.userEventListener.length || actionMenuItems.length) {
       menu.push(new HeaderMenuItem("actie.zaak.acties"));
     }
@@ -85,7 +87,7 @@ export function buildZaakMenu(
       ...planItems.userEventListener.map(
         (planItem) =>
           new ButtonMenuItem(
-            "planitem." + planItem.userEventListenerActie,
+            toI18nKey("planitem." + planItem.userEventListenerActie),
             () => dialogs.openPlanItemStarten(zaak, planItem),
             userEventListenerIcon(planItem.userEventListenerActie),
           ),
@@ -95,7 +97,7 @@ export function buildZaakMenu(
 
   menu.push(...actionMenuItems);
 
-  if (zaak.rechten.behandelen) {
+  if (zaak.rechten.canBehandelen) {
     if (planItems.humanTask.length) {
       menu.push(new HeaderMenuItem("actie.taak.starten"));
     }
@@ -120,14 +122,18 @@ export function buildZaakMenu(
   return menu;
 }
 
-function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
+function zaakMenuItems(
+  zaak: Zaak,
+  handlers: ZaakMenuHandlers,
+  isZaakdataGearchiveerd: boolean,
+) {
   const menu: MenuItem[] = [];
   const open = () => handlers.openSideAction();
 
-  if (zaak.rechten.behandelen && !zaak.isProcesGestuurd) {
+  if (zaak.rechten.canBehandelen && !zaak.isProcesGestuurd) {
     if (
-      zaak.rechten.versturenOntvangstbevestiging &&
-      !zaak.heeftOntvangstbevestigingVerstuurd
+      zaak.rechten.canVersturenOntvangstbevestiging &&
+      !zaak.isOntvangstbevestigingVerstuurd
     ) {
       menu.push(
         new ButtonMenuItem(
@@ -138,14 +144,17 @@ function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
       );
     }
 
-    if (zaak.rechten.versturenEmail) {
+    if (zaak.rechten.canVersturenEmail) {
       menu.push(new ButtonMenuItem("actie.mail.versturen", open, "mail"));
     }
   }
 
-  if (zaak.rechten.creerenDocument) {
+  if (zaak.rechten.canCreerenDocument) {
     const smartDocuments = zaak.zaaktype.zaakafhandelparameters?.smartDocuments;
-    if (smartDocuments?.enabledForZaaktype && smartDocuments.enabledGlobally) {
+    if (
+      smartDocuments?.isEnabledForZaaktype &&
+      smartDocuments.isEnabledGlobally
+    ) {
       menu.push(new ButtonMenuItem("actie.document.maken", open, "note_add"));
     }
 
@@ -159,7 +168,7 @@ function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
 
   if (
     zaak.isOpen &&
-    zaak.rechten.behandelen &&
+    zaak.rechten.canBehandelen &&
     !zaak.isInIntakeFase &&
     zaak.isBesluittypeAanwezig &&
     !zaak.isProcesGestuurd
@@ -167,9 +176,15 @@ function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
     menu.push(new ButtonMenuItem("actie.besluit.vastleggen", open, "gavel"));
   }
 
-  if (hasZaakData(zaak) && zaak.rechten.bekijkenZaakdata) {
+  if (hasZaakData(zaak) && zaak.rechten.canBekijkenZaakdata) {
     menu.push(
-      new ButtonMenuItem("actie.zaakdata.bekijken", open, "folder_copy"),
+      new ButtonMenuItem(
+        isZaakdataGearchiveerd
+          ? "actie.zaakdata.archief"
+          : "actie.zaakdata.bekijken",
+        open,
+        "folder_copy",
+      ),
     );
   }
 
@@ -185,7 +200,7 @@ function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
 function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
   const actionMenuItems: MenuItem[] = [];
 
-  if (!zaak.isOpen && zaak.rechten.heropenen) {
+  if (!zaak.isOpen && zaak.rechten.canHeropenen) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.heropenen",
@@ -197,12 +212,12 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
 
   if (
     zaak.isOpen &&
-    zaak.rechten.behandelen &&
-    zaak.zaaktype.opschortingMogelijk &&
+    zaak.rechten.canBehandelen &&
+    zaak.zaaktype.isOpschortingMogelijk &&
     !zaak.isHeropend &&
     !zaak.isOpgeschort &&
     !zaak.isProcesGestuurd &&
-    !zaak.eerdereOpschorting
+    !zaak.hasEerdereOpschorting
   ) {
     actionMenuItems.push(
       new ButtonMenuItem(
@@ -215,8 +230,8 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
 
   if (
     zaak.isOpen &&
-    zaak.rechten.wijzigenDoorlooptijd &&
-    zaak.zaaktype.verlengingMogelijk &&
+    zaak.rechten.canWijzigenDoorlooptijd &&
+    zaak.zaaktype.isVerlengingMogelijk &&
     !zaak.duurVerlenging &&
     !zaak.isHeropend &&
     !zaak.isOpgeschort &&
@@ -231,7 +246,11 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
     );
   }
 
-  if (zaak.isOpgeschort && zaak.rechten.behandelen && !zaak.isProcesGestuurd) {
+  if (
+    zaak.isOpgeschort &&
+    zaak.rechten.canBehandelen &&
+    !zaak.isProcesGestuurd
+  ) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.hervatten",
@@ -241,7 +260,7 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
     );
   }
 
-  if (zaak.isOpen && !zaak.isHeropend && zaak.rechten.afbreken) {
+  if (zaak.isOpen && !zaak.isHeropend && zaak.rechten.canAfbreken) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.afbreken",
@@ -251,7 +270,7 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
     );
   }
 
-  if (zaak.isHeropend && zaak.rechten.behandelen) {
+  if (zaak.isHeropend && zaak.rechten.canBehandelen) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.afsluiten",
@@ -262,12 +281,12 @@ function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
   }
 
   if (
-    zaak.rechten.brondatumZetten &&
+    zaak.rechten.canBrondatumZetten &&
     hasAfleidingswijzeBrondatumEigenschap(zaak)
   ) {
     actionMenuItems.push(
       new ButtonMenuItem(
-        "actie.zaak.brondatumZetten",
+        "actie.zaak.brondatum-zetten",
         () => dialogs.openBrondatumZetten(zaak),
         "calendar_today",
       ),
@@ -282,7 +301,7 @@ function createKoppelingenMenuItems(
   handlers: ZaakMenuHandlers,
   hasBrpSearchRight: boolean,
 ) {
-  if (!zaak.rechten.behandelen && !zaak.rechten.wijzigen) return [];
+  if (!zaak.rechten.canBehandelen && !zaak.rechten.canWijzigen) return [];
 
   const menu: MenuItem[] = [new HeaderMenuItem("koppelingen")];
   const open = () => handlers.openSideAction();
@@ -293,13 +312,13 @@ function createKoppelingenMenuItems(
     );
   }
 
-  if (zaak.rechten.toevoegenBagObject) {
+  if (zaak.rechten.canToevoegenBagObject) {
     menu.push(
-      new ButtonMenuItem("actie.bagObject.koppelen", open, "add_home_work"),
+      new ButtonMenuItem("actie.bag-object.koppelen", open, "add_home_work"),
     );
   }
 
-  if (zaak.rechten.wijzigenLocatie && !zaak.zaakgeometrie) {
+  if (zaak.rechten.canWijzigenLocatie && !zaak.zaakgeometrie) {
     menu.push(
       new ButtonMenuItem(
         "actie.zaak.locatie.koppelen",
@@ -309,7 +328,7 @@ function createKoppelingenMenuItems(
     );
   }
 
-  if (zaak.rechten.wijzigen) {
+  if (zaak.rechten.canWijzigen) {
     menu.push(new ButtonMenuItem("actie.zaak.koppelen", open, "account_tree"));
   }
 

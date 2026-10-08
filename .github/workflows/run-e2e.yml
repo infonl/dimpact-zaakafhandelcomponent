@@ -17,11 +17,20 @@ jobs:
   playwright:
     name: "Playwright Tests"
     runs-on: ubuntu-26.04
+    timeout-minutes: 90
     environment: azure-dimpact-dta
     steps:
       - name: Get current date
         id: date
-        run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
+        run: |
+          date=$(date +'%Y-%m-%d-%H-%M')
+          echo "date=$date" >> $GITHUB_OUTPUT
+          # Branch reports go to a separate folder, so the main reports stay together.
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            echo "report_path=$date" >> $GITHUB_OUTPUT
+          else
+            echo "report_path=branches/$date-run-id-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> $GITHUB_OUTPUT
+          fi
       - name: login to azure and allow pssessions
         uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
         with:
@@ -44,41 +53,43 @@ jobs:
       - name: Install dependencies
         run: cd src/e2e && npm ci --ignore-scripts
       - name: Install Playwright Browsers
-        run: cd src/e2e && npx playwright install --with-deps
+        timeout-minutes: 20
+        run: cd src/e2e && npx playwright install --with-deps msedge
       - name: Run your tests
         run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\", \"openForms\": \"${{ secrets.OPEN_FORMS_URL }}\" }, \"headless\": true, \"users\": { \"Bob\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}\"}, \"Oscar\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}\"}}}"'
       - name: Make a playwright report
-        if: always()
+        if: ${{ !cancelled() }}
         run: "cd src/e2e && npm run e2e:generate:report"
       - name: Extract metrics from Cucumber report
-        if: always()
+        id: metrics
+        if: ${{ !cancelled() }}
         run: "cd src/e2e && npm run e2e:extract:metrics"
       - name: copy report to separate folder
-        if: always()
-        run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: ${{ !cancelled() }}
+        run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir -p reports/$(dirname ${{ steps.date.outputs.report_path }}) && mv ${{ steps.date.outputs.date }} reports/${{ steps.date.outputs.report_path }}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
         with:
           path: src/e2e/reports
           retention-days: 7
       - name: Create .env file from secrets
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           echo "${{ secrets.E2E_ENV_FILE }}" > src/e2e/.env
       - name: BDD playwright
         run: cd src/e2e && npm run bdd:ci
-        if: always()
+        if: ${{ !cancelled() }}
         continue-on-error: true
       - name: Upload BDD test artifacts
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: bdd-test-artifacts
           path: |
             src/e2e/playwright-report
           retention-days: 7
       - name: Deploy to GitHub Pages
-        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        if: ${{ !cancelled() }}
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -86,7 +97,7 @@ jobs:
           publish_branch: gh-pages # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
-        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        if: ${{ !cancelled() }}
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -123,6 +134,14 @@ jobs:
                         {
                           "type": "mrkdwn",
                           "text": "*Status:*\n${{ job.status }} ${{ job.status == 'success' && ':white_check_mark:' || ':x:' }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Branch:*\n${{ github.ref_name }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Triggered by:*\n${{ github.event_name == 'schedule' && 'schedule' || github.triggering_actor }}"
                         }
                       ]
                     },
@@ -130,7 +149,14 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/index.html"
+                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/index.html"
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": ${{ steps.metrics.outputs.slack_summary || '"No e2e metrics available for this run."' }}
                       }
                     },
                     {
@@ -142,13 +168,13 @@ jobs:
                             "type": "plain_text",
                             "text": "View Report"
                           },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/index.html"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/index.html"
                         },
                         {
                           "type": "button",
                           "text": {
                             "type": "plain_text",
-                            "text": "View Run"
+                            "text": "View Run & Timings"
                           },
                           "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                         },
@@ -158,7 +184,7 @@ jobs:
                             "type": "plain_text",
                             "text": "View Videos"
                           },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/videos.html"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/videos.html"
                         }
                       ]
                     }

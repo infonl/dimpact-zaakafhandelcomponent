@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.history
@@ -10,7 +10,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.shared.model.Bron
-import nl.info.client.zgw.shared.model.audit.createZRCAuditTrailRegel
+import nl.info.client.zgw.shared.model.audit.createZrcAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Wijzigingen
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -39,7 +39,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
     given("Audit trail has resource zaak with action created") {
         val zaakUUID = UUID.randomUUID()
         val zaakIdentificatie = "ZAAK-2024-0000000003"
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.ZAKEN_API,
             actie = "create",
             actieWeergave = "Object aangemaakt",
@@ -77,7 +77,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         val zaakUUID = UUID.randomUUID()
         val rolTypeUri = "https://example.com/roltype/$zaakUUID"
         val rolType = createRolType()
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "update",
             actieWeergave = "Update",
@@ -128,7 +128,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
 
     given("Audit trail has resource zaakinformatieobject with action destroy") {
         val zaakUUID = UUID.randomUUID()
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "destroy",
             actieWeergave = "Destroy",
@@ -164,7 +164,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
 
     given("Audit trail has resource klantcontact with action create") {
         val zaakUUID = UUID.randomUUID()
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "create",
             actieWeergave = "Create",
@@ -200,7 +200,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
 
     given("Audit trail has resource resultaat with action update") {
         val zaakUUID = UUID.randomUUID()
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "update",
             actieWeergave = "Update",
@@ -239,7 +239,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
 
     given("Audit trail has resource status with action update") {
         val zaakUUID = UUID.randomUUID()
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "update",
             actieWeergave = "Update",
@@ -278,7 +278,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
 
     given("Audit trail has resource zaakobject with action destroy") {
         val zaakUUID = UUID.randomUUID()
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "destroy",
             actieWeergave = "Destroy",
@@ -325,7 +325,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
 
     given("A retrieve action") {
         val zaakUUID = UUID.randomUUID()
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "retrieve",
             actieWeergave = "retrieved some data",
@@ -349,7 +349,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
 
     given("An unknown resource") {
         val zaakUUID = UUID.randomUUID()
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "update",
             actieWeergave = "updated some data",

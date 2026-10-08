@@ -8,7 +8,8 @@ import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
   ElementRef,
-  Input,
+  inject,
+  input,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -51,8 +52,12 @@ import { NotitieService } from "./notities.service";
   ],
 })
 export class NotitiesComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) zaakUuid!: string;
-  @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
+  private readonly identityService = inject(IdentityService);
+  private readonly notitieService = inject(NotitieService);
+  private readonly websocketService = inject(WebsocketService);
+
+  readonly zaakUuid = input.required<string>();
+  readonly notitieRechten = input<GeneratedType<"RestNotitieRechten">>();
 
   @ViewChild("notitieTekst") notitieTekst!: {
     nativeElement: HTMLTextAreaElement;
@@ -61,6 +66,19 @@ export class NotitiesComponent implements OnInit, OnDestroy {
 
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
+  );
+  private readonly createNotitieMutation = injectMutation(
+    () => this.notitieService.createNotitie(),
+    {
+      onSuccess: (notitie) => {
+        this.notities.splice(0, 0, notitie);
+        this.notitieTekst.nativeElement.value = "";
+        this.scrollTarget.nativeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      },
+    },
   );
   private readonly deleteNotitieMutation = injectMutation(
     () => this.notitieService.deleteNotitie(),
@@ -81,19 +99,13 @@ export class NotitiesComponent implements OnInit, OnDestroy {
 
   private notitiesListener!: WebsocketListener;
 
-  constructor(
-    private identityService: IdentityService,
-    private notitieService: NotitieService,
-    private websocketService: WebsocketService,
-  ) {}
-
   ngOnInit() {
     this.haalNotitiesOp();
 
     this.notitiesListener = this.websocketService.addListener(
       Opcode.UPDATED,
       ObjectType.ZAAK_NOTITIES,
-      this.zaakUuid,
+      this.zaakUuid(),
       () => this.haalNotitiesOp(),
     );
   }
@@ -111,7 +123,7 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   }
 
   private haalNotitiesOp() {
-    this.notitieService.listNotities(this.zaakUuid).subscribe((notities) => {
+    this.notitieService.listNotities(this.zaakUuid()).subscribe((notities) => {
       this.notities = notities;
       this.notities.sort((a, b) => {
         if (!a.tijdstipLaatsteWijziging) return -1;
@@ -130,20 +142,11 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
 
-    this.notitieService
-      .createNotitie({
-        zaakUUID: this.zaakUuid,
-        tekst: tekst,
-        gebruikersnaamMedewerker: loggedInUser.id,
-      })
-      .subscribe((notitie) => {
-        this.notities.splice(0, 0, notitie);
-        this.notitieTekst.nativeElement.value = "";
-        this.scrollTarget.nativeElement.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      });
+    this.createNotitieMutation.mutate({
+      zaakUUID: this.zaakUuid(),
+      tekst: tekst,
+      gebruikersnaamMedewerker: loggedInUser.id,
+    });
   }
 
   protected updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {

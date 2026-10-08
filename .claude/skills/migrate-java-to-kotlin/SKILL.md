@@ -16,6 +16,17 @@ Given the source package `$ARGUMENTS`:
 - **Target directory**: replace `src/main/java/net/atos/` with `src/main/kotlin/nl/info/`.
   Example: `src/main/java/net/atos/client/bag/` → `src/main/kotlin/nl/info/client/bag/`
 
+## Step 0 — Use a separate branch and pull request
+
+The conversion is a pull request of its own and contains no functional changes, so a reviewer can read it as a
+pure conversion (see "Convert Java to Kotlin in a separate pull request" in `CLAUDE.md`).
+
+- Create a new branch for the conversion, following the branch conventions in `CLAUDE.md`. Base it on `main`, or on
+  the branch below it when it is part of a stack of pull requests.
+- If the conversion is needed for a functional change, do the conversion first, and base the branch of the
+  functional change on the conversion branch until the conversion pull request is merged.
+- If uncommitted functional changes exist when this skill starts, keep them out of the conversion branch.
+
 ## Step 1 — Explore the source package
 
 Read every `.java` file in the source directory (including sub-directories). Note:
@@ -36,7 +47,7 @@ Check whether the converted classes have adequate unit test coverage:
     - Adapter/converter round-trip correctness
     - Enum `fromValue` / companion factory methods
 
-Write idiomatic Kotlin tests (JUnit 5 + Mockk or the framework already used in the module). Do **not** add tests for trivial getters or delegating one-liners that provide no value.
+Write idiomatic Kotlin tests with Kotest `BehaviorSpec` and MockK, following the conventions in `.claude/rules/kotlin-tests.md`. Do **not** add tests for trivial getters or delegating one-liners that provide no value.
 
 ## Step 3 — Run tests
 
@@ -77,8 +88,6 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 
 **b) Package declaration** — update to the target package (e.g. `nl.info.client.bag`).
 
-**b2) Acronym casing** — Java names routinely all-caps an acronym (`RESTMailtemplate`, `RESTZaakbeeindigRedenConverter`, `XMLParser`). Kotlin naming conventions only allow that for a two-letter acronym (`IOStream`); a longer one gets only its first letter capitalized (`XmlFormatter`, `HttpInputStream`, `RestMailtemplate`). Rename the class (and its file) to match while converting — `RESTMailtemplateConverter.java` → `RestMailtemplateConverter.kt`, not `RESTMailtemplateConverter.kt`. Apply this to every renamed declaration, not just the top-level class: nested types too. Update every call site accordingly (Step 7).
-
 **c) Imports** — update any `net.atos.*` imports to `nl.info.*`. Remove Java stdlib imports that have Kotlin equivalents.
 
 **d) Classes**:
@@ -88,7 +97,7 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 - `private final Type field;` → constructor parameter `private val field: Type`
 - `public static final String X = "y";` → `companion object { const val X = "y" }`
 - **Companion object placement**: put `companion object { ... }` at the top of the class body — before secondary constructors, properties, and functions (this project overrides the general Kotlin style guide's "companion object last" recommendation). In an `enum class`, the enum constants must still come first (a language requirement), so place the companion object immediately after the constants, before any other member. See `nl.info.client.zgw.shared.model.Results` and `nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding` for examples.
-- **Static-only utility/converter classes** (a `final class` with a private no-arg constructor and only `public static` methods, no instance state) → do **not** wrap the functions in a Kotlin `object`. Convert each method to a plain top-level function in the file instead, and **never use `@JvmStatic`** — that annotation only makes sense inside an `object`/`companion object`, and this project avoids that pattern entirely for stateless utility/converter classes. **Never use `@file:JvmName(...)` either** — don't try to preserve the old Java class-qualified call syntax (`Foo.bar(x)`) by forcing the file's JVM facade class to keep the class's old name. If Java callers of the old class are out of scope for this migration, just update those call sites to use the Kotlin default: a file `Foo.kt` with top-level functions compiles to a facade class `FooKt`, so update the caller's import and every call site from `Foo.bar(x)` to `FooKt.bar(x)`. See `nl.info.zac.app.admin.converter.RestMailtemplateConverter` for a worked example (note the class/file is named `RestMailtemplateConverter`, not `RESTMailtemplateConverter` — see the acronym-casing bullet under (b) below; its Java callers use `RestMailtemplateConverterKt.toRestMailtemplate(...)`).
+- **Static-only utility/converter classes** (a `final class` with a private no-arg constructor and only `public static` methods, no instance state) → do **not** wrap the functions in a Kotlin `object`. Convert each method to a plain top-level function in the file instead, and **never use `@JvmStatic`** — that annotation only makes sense inside an `object`/`companion object`, and this project avoids that pattern entirely for stateless utility/converter classes. **Never use `@file:JvmName(...)` either** — don't try to preserve the old Java class-qualified call syntax (`Foo.bar(x)`) by forcing the file's JVM facade class to keep the class's old name. If Java callers of the old class are out of scope for this migration, just update those call sites to use the Kotlin default: a file `Foo.kt` with top-level functions compiles to a facade class `FooKt`, so update the caller's import and every call site from `Foo.bar(x)` to `FooKt.bar(x)`. See `nl.info.zac.app.admin.model.RestMailtemplate` for a worked example (its Java callers use `RestMailtemplateKt.toRestMailtemplate(...)`).
 
 **e) Methods**:
 - Remove `public`, `final` modifiers
@@ -137,12 +146,6 @@ to this
 @field:QueryParam("fakeFieldName")
 ```
 
-**l) Use named parameters** — when calling methods with multiple parameters, use named arguments for clarity:
-```kotlin
-// Java: someMethod(x, y, z);
-// Kotlin: someMethod(x = x, y = y, z = z)
-```
-
 **m) Prefer extension functions for single-argument conversions** — a Java `static` method that takes exactly one argument and converts it to another type is a converter/mapper, and should become a Kotlin extension function on that argument's type, not a top-level function taking it as a parameter. Give it a descriptive `toXxx()`/`fromXxx()` name rather than reusing the old method name (`convert`, `map`, ...) — the receiver already tells the reader what's being converted, so the name should say what it becomes. Declare it as a top-level function, not inside an `object` — see the static-utility-class bullet under (d), including its ban on `@file:JvmName`: the receiver becomes the first parameter for Java, so a Java caller of `Foo.convert(note)` moves to `FooKt.toDto(note)`.
 
 Don't put it in a standalone `XxxConverter.kt` file/package by default. This project's layers only depend downward (`app`/REST-facing model classes depend on domain/persistence model classes, never the reverse), so when a conversion function's two types sit in different layers, put the function in the file of whichever type is in the *higher* layer — that file already legitimately imports the lower-layer type, so colocating there adds no new dependency, whereas a separate `converter` package is just indirection. Both directions of a to/from pair go in the same (higher-layer) file, since both directions need only the "higher depends on lower" relationship. See `nl.info.zac.app.admin.model.RestMailtemplate` — it has `toRestMailtemplate()` (`MailTemplate` → `RestMailtemplate`) and `toMailTemplate()` (`RestMailtemplate` → `MailTemplate`) both living next to the `RestMailtemplate` class itself, because `nl.info.zac.app.admin.model` (REST layer) already depends on `nl.info.zac.mailtemplates.model` (domain layer) — not the other way around. `nl.info.zac.app.admin.model.RestZaakbeeindigParameter` and `nl.info.zac.app.admin.model.RestReferenceTable` follow the same pattern. Only fall back to a separate converter file when neither type's layer can see the other (e.g. converting between two peer REST models in unrelated packages) — and even then, prefer adding a dependency from one to the other over a converter package if the layering allows it. For example:
@@ -162,7 +165,7 @@ This allows callers to use the conversion methods in a more natural way:
 val noteDto = note.toDto()
 val note = noteDto.fromDto()
 ```
-The conversion body is configuring a freshly constructed object, so use `.apply { ... }` for it (see CLAUDE.md's ".apply for object configuration" convention) even though the extension receiver and the new object are two different values in scope at once — qualify reads of the extension receiver with `this@functionName` so every unqualified assignment inside the block unambiguously targets the new object: `RESTMailtemplate().apply { mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam }`. Don't reach for `.also` just to dodge the qualification — `.also` is for side effects on an existing value, and configuring a new object's fields isn't one. See `nl.info.zac.app.admin.model.RestMailtemplate` (`toRestMailtemplate()`, `toMailTemplate()`) for a worked example. It started out with two separate single-argument static methods (`convertForCreate`/`convertForUpdate`) that turned out to have identical bodies once converted, so they were first collapsed into one function (`toMailTemplateWithoutID()`) — but that was still one function too many: the *only* difference between it and the id-preserving `toMailTemplate()` was whether a nullable field (`RestMailtemplate.id: Long?`) got copied, and every real call site either already held a null id (so leaving the domain object's id at its default was correct) or a real, non-null id (so copying it was correct). Once traced against actual callers — `MailTemplateService.createMailtemplate`/`updateMailtemplate` ignore the passed-in id entirely, and the one caller that needs it preserved (`RESTMailtemplateKoppelingConverter`, to populate a JPA `@ManyToOne`) always has a real one — a single `id?.let { id = it }` handled both cases correctly, so the two functions collapsed into `toMailTemplate()` alone. Collapse duplicate-bodied conversions like this by default, and when the only difference is "copy a nullable field or don't", prefer branching on the nullability itself (`?.let`) over keeping separate named variants; only keep functions separate when the names genuinely carry different intent that the call site relies on.
+The conversion body is configuring a freshly constructed object, so use `.apply { ... }` for it (see the ".apply for object configuration" convention in `.claude/rules/kotlin.md`) even though the extension receiver and the new object are two different values in scope at once — qualify reads of the extension receiver with `this@functionName` so every unqualified assignment inside the block unambiguously targets the new object: `RESTMailtemplate().apply { mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam }`. Don't reach for `.also` just to dodge the qualification — `.also` is for side effects on an existing value, and configuring a new object's fields isn't one. See `nl.info.zac.app.admin.model.RestMailtemplate` (`toRestMailtemplate()`, `toMailTemplate()`) for a worked example. Collapse conversions whose bodies turn out identical once converted into one function. When two variants differ only in whether a nullable field is copied, trace the real call sites: if each one either holds a null value (so skipping the copy is correct) or a real one (so copying it is correct), keep one function that branches on the nullability itself (`id?.let { id = it }`). Only keep functions separate when their names carry different intent that a call site relies on.
 
 **n) Nullability — default to non-null, widen only when a real caller needs it**
 
@@ -208,7 +211,7 @@ Java fields are mutable by default, but most converted fields are only ever assi
 
 This mirrors the nullability rule in (n): check real usage before defaulting to the more permissive option. If it's unclear whether a field is ever reassigned after construction (e.g. a framework calls a setter you can't easily trace), ask the user rather than guessing.
 
-Also follow the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) throughout the conversion (naming, formatting, idiomatic collection operations, etc.) — this project's own conventions in `CLAUDE.md` are a superset of them, not a replacement.
+Also follow the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) throughout the conversion (naming, formatting, idiomatic collection operations, etc.) — this project's own conventions in `.claude/rules/kotlin.md` are a superset of them, not a replacement.
 
 ## Step 7 — Update all call sites
 
@@ -218,7 +221,7 @@ grep -r "import net\.atos\." src/ --include="*.java" --include="*.kt" -l
 ```
 Update imports in every found file (Java callers use the same `nl.info.*` import).
 
-**If a renamed class is a JAX-RS model (a `RESTxxx`/request/response DTO reachable from a `@Path` resource method) — always check the Angular frontend too**, even though it's a different language/build in `src/main/app/`. The acronym-casing rename in (b2) changes the class's simple name, which becomes the OpenAPI schema name (`RESTMailtemplate` → `RestMailtemplate`), which is also the string-literal key the frontend uses to reference that type: `GeneratedType<"RESTMailtemplate">`. This does *not* fail at Kotlin/Java compile time — the backend compiles fine — but it breaks the Angular build (`ng build` / the `npmRunBuild` Gradle task) with TypeScript errors like `Property 'x' does not exist on type 'never'`, because the string literal no longer matches any key in the generated types union. To check and fix this:
+**If a renamed class is a JAX-RS model (a `RESTxxx`/request/response DTO reachable from a `@Path` resource method) — always check the Angular frontend too**, even though it's a different language/build in `src/main/app/`. Converting a class such as `RESTMailtemplate` renames it to `RestMailtemplate`. That changes the class's simple name, which becomes the OpenAPI schema name (`RESTMailtemplate` → `RestMailtemplate`), which is also the string-literal key the frontend uses to reference that type: `GeneratedType<"RESTMailtemplate">`. This does *not* fail at Kotlin/Java compile time — the backend compiles fine — but it breaks the Angular build (`ng build` / the `npmRunBuild` Gradle task) with TypeScript errors like `Property 'x' does not exist on type 'never'`, because the string literal no longer matches any key in the generated types union. To check and fix this:
 1. Regenerate the spec and types locally: `./gradlew generateOpenApiSpec`, then from `src/main/app/`: `npm run generate:types:zac-openapi` (or just `npm run build`, which does this first). Diff or grep the regenerated `src/generated/types/zac-openapi-types.d.ts` (gitignored, not committed) for the new schema name to confirm it — don't guess the casing.
 2. `grep -rn '"<OldName>"' src/main/app/src --include="*.ts"` to find every frontend file referencing the old name as a `GeneratedType<"...">` string literal (component code and spec files both — specs commonly use `fromPartial<GeneratedType<"OldName">>(...)`).
 3. Update every match to the new name, then rerun `npm run build` (or at minimum `npm run lint` plus a targeted `ng test` on the affected specs) from `src/main/app/` to confirm the frontend compiles and its tests still pass.
@@ -264,6 +267,13 @@ and converts Java syntax to idiomatic Kotlin.
 git log --oneline --follow -- src/main/kotlin/nl/info/<path>/<MainClass>.kt
 ```
 The log should show: the conversion commit + the rename commit + the full original Java history.
+
+## Step 13 — Open the conversion pull request
+
+Push the conversion branch and open its pull request, with the branch below it as base. Use a Conventional Commits
+title such as `refactor(<scope>): convert <classes> to Kotlin` and end the description with the `Solves PZ-XXX`
+footer. Describe in the description how the change was verified, including any OpenAPI schema name that changed
+and the frontend files updated for it (Step 7).
 
 ## Key references
 

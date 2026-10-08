@@ -116,6 +116,11 @@ Notes:
   and therefore no task can be started.
 - The policies listed above are backend policies. Whether the related functionality is available to the user in the
   frontend (browser) is, for a large part, also determined by these policies, but differences may apply.
+- **Werklijsten and zoekresultaten only contain zaken, taken and documenten of zaaktypen for which the
+  medewerker has at least one zaaktype-specific role and the combined zaaktype-specific and overall roles
+  include a role that grants `lezen`** (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager` or
+  `beheerder`). This also applies to the list of zaken offered when relating a zaak. Holding only `brp_zoeken`
+  or `zaakspecifiek_geautoriseerd` for a zaaktype does not make its zaken appear there.
 - The `zaakspecifiek_geautoriseerd` application role is not listed as a separate column in the table above
   because it does not grant any permission on its own. It is a flag: when a medewerker holds
   `zaakspecifiek_geautoriseerd` for a zaaktype *in addition to* one of the normal application roles above
@@ -126,14 +131,28 @@ Notes:
   covers the taken and documenten of a zaakspecifiek geautoriseerde zaak, as well as werklijsten and
   zoekresultaten: a medewerker who lacks `zaakspecifiek_geautoriseerd` for a zaaktype sees no zaakspecifiek
   geautoriseerde zaken (or their taken/documenten) of that zaaktype in worklists or search results.
-- There is one exception to that flag: the **current behandelaar of a zaakspecifiek geautoriseerde zaak keeps
-  their own application role's rights on that zaak**, and on its taken and documenten, without holding
-  `zaakspecifiek_geautoriseerd`. This is what makes it possible for a behandelaar to mark their own zaak
-  without immediately losing access to it. The exception applies to that one zaak only: it does not extend to
-  any other zaakspecifiek geautoriseerde zaak of the same zaaktype. Like the flag itself, being the
-  behandelaar grants no rights of its own - a medewerker who holds no application role for the zaaktype gets
-  nothing from it. The exception applies to worklists and search results as well, so a behandelaar keeps
-  finding their own zaak, its taken and its documenten.
+- There is one exception to that flag: the **medewerkers who are individually authorised for a zaakspecifiek
+  geautoriseerde zaak keep their own application role's rights on that zaak**, and on its taken and
+  documenten, without holding `zaakspecifiek_geautoriseerd`. Individually authorised are the current
+  behandelaar of the zaak and every medewerker holding the `Zaakspecifiek geautoriseerde medewerker` rol on
+  it. This is what makes it possible for a behandelaar to mark their own zaak without immediately losing
+  access to it. The exception applies to that one zaak only: it does not extend to any other zaakspecifiek
+  geautoriseerde zaak of the same zaaktype. Like the flag itself, being individually authorised grants no
+  rights of its own - a medewerker who holds no application role for the zaaktype gets nothing from it. The
+  exception applies to worklists and search results as well, so an individually authorised medewerker keeps
+  finding the zaak, its taken and its documenten.
+- **Handing a zaakspecifiek geautoriseerde zaak over does not take access away from the previous
+  behandelaar**: when the behandelaar of a marked zaak changes, ZAC gives the previous behandelaar the
+  `Zaakspecifiek geautoriseerde medewerker` rol on that zaak, so they remain individually authorised for it
+  and keep seeing the zaak, its taken and its documenten. A marked zaak can never be released: leaving it
+  without a behandelaar is refused, so such a zaak always has at least one individually authorised
+  medewerker.
+- **A taakbehandelaar of a zaakspecifiek geautoriseerde zaak is individually authorised for that zaak**:
+  when a taak of a marked zaak is assigned to a medewerker, ZAC gives that medewerker the `Zaakspecifiek
+  geautoriseerde medewerker` rol on the zaak before the assignment is written. Marking a zaak does the same for
+  the taakbehandelaars of its open taken. The rol is never removed because of a taak, so reassigning,
+  releasing or completing the taak leaves the medewerker's access intact. The zaakbehandelaar, and a
+  medewerker who already holds the rol, get no extra rol.
 - **Other employees are able to access zaakspecifiek geautoriseerde zaken** by being granted
   `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration, exactly like any other
   application role. Granting them that mapping is therefore a deployment prerequisite: without it, they cannot
@@ -146,6 +165,13 @@ Notes:
   This role is not assigned to employees; it is hardcoded to the internal productaanvraag system user (see
   the roles table above), so that ZAC can process a zaak created from a productaanvraag regardless of its
   zaaktype or current status.
+- **A zaaktype is only zaakspecifiek autoriseerbaar when its catalogus defines both the `ZAAK_GEAUTORISEERD`
+  eigenschap and the `Zaakspecifiek geautoriseerde medewerker` roltype** (with omschrijving generiek
+  `behandelaar`), which functioneel beheer provisions per environment. This is the second deployment
+  prerequisite. A zaaktype that defines only the eigenschap is not offered as autoriseerbaar, so none of its
+  zaken can be marked. A zaak that was already marked before the roltype was added to its zaaktype fails its
+  next handover with a dedicated error message telling functioneel beheer that the roltype is missing, rather
+  than with an internal server error.
 
 ## Technical implementation
 

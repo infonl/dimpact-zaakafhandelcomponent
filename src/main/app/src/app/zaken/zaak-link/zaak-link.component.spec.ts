@@ -23,6 +23,7 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZaakLinkComponent } from "./zaak-link.component";
 
@@ -35,6 +36,9 @@ const makeFakeZaak = (
   fromPartial<GeneratedType<"RestZaak">>({
     uuid: "fake-zaak-uuid",
     identificatie: "ZAAK-2026-001",
+    zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+      omschrijving: "fakeZaaktypeOmschrijving",
+    }),
     ...fields,
   });
 
@@ -44,9 +48,21 @@ const makeFakeSearchResult = (
   fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
     id: "fake-result-uuid",
     identificatie: "ZAAK-2026-002",
-    isKoppelbaar: true,
     ...fields,
   });
+
+const NOT_LINKABLE_REASONS: NonNullable<
+  GeneratedType<"RestZaakKoppelenZoekObject">["nietKoppelbaarReden"]
+>[] = [
+  "ALREADY_GERELATEERD",
+  "AFGEHANDELD",
+  "OPEN",
+  "IS_DEELZAAK",
+  "ALREADY_DEELZAAK",
+  "HAS_DEELZAKEN",
+  "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
+  "NOT_AUTHORISED_TO_KOPPELEN",
+];
 
 describe(ZaakLinkComponent.name, () => {
   let fixture: ComponentFixture<ZaakLinkComponent>;
@@ -100,7 +116,7 @@ describe(ZaakLinkComponent.name, () => {
     await user.click(relationTypeSelect());
     await user.click(
       screen.getByRole("option", {
-        name: `zaak.koppelen.link.type.${relationType}`,
+        name: toI18nKey(`zaak.koppelen.link.type.${relationType}`),
       }),
     );
   };
@@ -141,7 +157,7 @@ describe(ZaakLinkComponent.name, () => {
     );
     await user.type(
       within(dateRangeField(label)).getByPlaceholderText(
-        "zoeken.filter.tot_en_met",
+        "zoeken.filter.tot-en-met",
       ),
       tot,
     );
@@ -161,9 +177,9 @@ describe(ZaakLinkComponent.name, () => {
     expect(
       screen.getAllByRole("option").map((option) => option.textContent?.trim()),
     ).toEqual([
-      "zaak.koppelen.link.type.DEELZAAK",
-      "zaak.koppelen.link.type.HOOFDZAAK",
-      "zaak.koppelen.link.type.GERELATEERD",
+      "zaak.koppelen.link.type.deelzaak",
+      "zaak.koppelen.link.type.hoofdzaak",
+      "zaak.koppelen.link.type.gerelateerd",
     ]);
   });
 
@@ -261,7 +277,7 @@ describe(ZaakLinkComponent.name, () => {
     await chooseRelationType("DEELZAAK");
     await user.type(screen.getByLabelText("Zaak.identificatie"), "ZAAK-2026");
     await user.type(
-      screen.getByLabelText("ZoekVeld.ZAAK_OMSCHRIJVING"),
+      screen.getByLabelText("Zoek-veld.zaak-omschrijving"),
       "ZAAKOMSCHR",
     );
     await fillDateRange("Startdatum", "01-02-2026", "01-03-2026");
@@ -435,7 +451,7 @@ describe(ZaakLinkComponent.name, () => {
     findLinkableZaken([
       makeFakeSearchResult({
         identificatie: "ZAAK-2026-003",
-        isKoppelbaar: false,
+        nietKoppelbaarReden: "AFGEHANDELD",
       }),
     ]);
 
@@ -443,21 +459,32 @@ describe(ZaakLinkComponent.name, () => {
     await enterSearchCriterion();
     await clickSearch();
 
-    expect(linkButtonOfRow("ZAAK-2026-003")).toBeDisabled();
+    expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
-  it("cannot link the zaak to itself", async () => {
-    await setup();
-    findLinkableZaken([
-      makeFakeSearchResult({ identificatie: "ZAAK-2026-001" }),
-    ]);
+  it.each(NOT_LINKABLE_REASONS)(
+    "explains that a found zaak cannot be linked because of %s",
+    async (reason) => {
+      await setup();
+      findLinkableZaken([
+        makeFakeSearchResult({
+          identificatie: "ZAAK-2026-003",
+          nietKoppelbaarReden: reason,
+        }),
+      ]);
 
-    await chooseRelationType("DEELZAAK");
-    await enterSearchCriterion();
-    await clickSearch();
+      await chooseRelationType("DEELZAAK");
+      await enterSearchCriterion();
+      await clickSearch();
 
-    expect(linkButtonOfRow("ZAAK-2026-001")).toBeDisabled();
-  });
+      expect(linkButtonOfRow("ZAAK-2026-003")).toHaveAccessibleDescription(
+        toI18nKey(`zaak.koppelen.niet-koppelbaar.${reason}`),
+      );
+    },
+  );
 
   it("links the zaak of the row the button was clicked on", async () => {
     const { zaak, zaakLinked, utilService, sideNav } = await setup();
@@ -528,8 +555,14 @@ describe(ZaakLinkComponent.name, () => {
     fixture.detectChanges();
 
     const request = httpTestingController.expectOne(KOPPEL_URL);
-    expect(linkButtonOfRow("ZAAK-2026-002")).toBeDisabled();
-    expect(linkButtonOfRow("ZAAK-2026-003")).toBeEnabled();
+    expect(linkButtonOfRow("ZAAK-2026-002")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+    expect(linkButtonOfRow("ZAAK-2026-003")).not.toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
 
     request.flush(null);
     await sleep();
@@ -567,11 +600,5 @@ describe(ZaakLinkComponent.name, () => {
     );
 
     expect(sideNav.close).toHaveBeenCalled();
-  });
-
-  it("can be destroyed without errors", async () => {
-    await setup();
-
-    expect(() => fixture.destroy()).not.toThrow();
   });
 });

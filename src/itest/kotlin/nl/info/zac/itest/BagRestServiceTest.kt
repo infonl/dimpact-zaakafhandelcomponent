@@ -22,6 +22,7 @@ import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
@@ -1162,6 +1163,72 @@ class BagRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("A logged-in raadpleger and BAG objects of every other type than an address in the BAG API mock") {
+        mapOf(
+            "WOONPLAATS/3594" to """
+                {
+                    "bagObjectType": "WOONPLAATS",
+                    "identificatie": "3594",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/woonplaatsen/3594",
+                    "naam": "Amsterdam",
+                    "omschrijving": "Amsterdam",
+                    "status": "Woonplaats aangewezen",
+                    "geconstateerd": false
+                }
+            """,
+            "PAND/0363100012168052" to """
+                {
+                    "bagObjectType": "PAND",
+                    "identificatie": "0363100012168052",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/panden/0363100012168052",
+                    "oorspronkelijkBouwjaar": "1914",
+                    "status": "Pand in gebruik",
+                    "statusWeergave": "Pand in gebruik",
+                    "geometry": { "type": "POLYGON" }
+                }
+            """,
+            "OPENBARE_RUIMTE/0363300000003186" to """
+                {
+                    "bagObjectType": "OPENBARE_RUIMTE",
+                    "identificatie": "0363300000003186",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186",
+                    "naam": "Dam",
+                    "omschrijving": "Dam",
+                    "status": "Naamgeving uitgegeven",
+                    "type": "Weg",
+                    "typeWeergave": "Weg"
+                }
+            """,
+            "NUMMERAANDUIDING/$BAG_TEST_ADRES_1_IDENTIFICATION" to """
+                {
+                    "bagObjectType": "NUMMERAANDUIDING",
+                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/nummeraanduidingen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                    "huisnummer": 1,
+                    "huisnummerWeergave": "1",
+                    "postcode": "1012JS",
+                    "omschrijving": "1 1012JS",
+                    "status": "Naamgeving uitgegeven",
+                    "typeAdresseerbaarObject": "Verblijfsobject"
+                }
+            """
+        ).forEach { (typeAndIdentificatie, expectedResponseBody) ->
+            `when`("the BAG object $typeAndIdentificatie is requested") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/bag/$typeAndIdentificatie",
+                    testUser = RAADPLEGER_1
+                )
+
+                then("the BAG object is returned") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJsonIgnoringExtraneousFields expectedResponseBody.trimIndent()
+                }
+            }
+        }
+    }
+
     given("An existing zaak and a logged-in behandelaar authorised for the zaaktype of the zaak") {
         val zaakUUID = zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
@@ -1217,7 +1284,7 @@ class BagRestServiceTest : BehaviorSpec({
                                 "bagObjectType": "ADRES",
                                 "huisnummer": 0,
                                 "huisnummerWeergave": "0",
-                                "omschrijving": "Dam 0,  Amsterdam",
+                                "omschrijving": "Dam 0, Amsterdam",
                                 "openbareRuimteNaam": "Dam",
                                 "panden": [],
                                 "postcode": "",
@@ -1230,7 +1297,7 @@ class BagRestServiceTest : BehaviorSpec({
                                 "bagObjectType": "ADRES",
                                 "huisnummer": 0,
                                 "huisnummerWeergave": "0",
-                                "omschrijving": "Dam 0,  Amsterdam",
+                                "omschrijving": "Dam 0, Amsterdam",
                                 "openbareRuimteNaam": "Dam",
                                 "panden": [],
                                 "postcode": "",
@@ -1260,6 +1327,193 @@ class BagRestServiceTest : BehaviorSpec({
                 deleteResponse.code shouldBe HTTP_NO_CONTENT
 
                 // verify it is no longer linked to the zaak
+                itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/bag/zaak/$zaakUUID",
+                    testUser = BEHANDELAAR_1
+                ).bodyAsString shouldEqualJsonIgnoringExtraneousFields "[]"
+            }
+        }
+    }
+
+    given("An existing zaak, a logged-in behandelaar and a BAG object of every other type than an address") {
+        val zaakUUID = zacClient.createZaakAndRetrieve(
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_1
+        ).let { JSONObject(it.bodyAsString).getString("uuid").run(UUID::fromString) }
+        val bagObjects = listOf(
+            """
+                {
+                    "bagObjectType": "WOONPLAATS",
+                    "identificatie": "3594",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/woonplaatsen/3594",
+                    "naam": "Amsterdam"
+                }
+            """,
+            """
+                {
+                    "bagObjectType": "PAND",
+                    "identificatie": "0363100012168052",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/panden/0363100012168052"
+                }
+            """,
+            """
+                {
+                    "bagObjectType": "OPENBARE_RUIMTE",
+                    "identificatie": "0363300000003186",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186",
+                    "naam": "Dam",
+                    "woonplaatsNaam": "Amsterdam"
+                }
+            """,
+            """
+                {
+                    "bagObjectType": "NUMMERAANDUIDING",
+                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/nummeraanduidingen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                    "huisnummer": 1,
+                    "huisletter": "A",
+                    "postcode": "1012JS",
+                    "status": "Naamgeving uitgegeven",
+                    "typeAdresseerbaarObject": "Verblijfsobject"
+                }
+            """
+        )
+
+        `when`("the BAG objects are added to the zaak") {
+            val responseCodes = bagObjects.map { bagObject ->
+                itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/bag",
+                    requestBodyAsString = """{ "zaakUuid": "$zaakUUID", "zaakobject": $bagObject }""",
+                    testUser = BEHANDELAAR_1
+                ).also { logger.info { "Response: ${it.code} ${it.bodyAsString}" } }.code
+            }
+
+            then("they are all linked to the zaak with the data that was stored in the zaakobject") {
+                responseCodes shouldBe List(bagObjects.size) { HTTP_NO_CONTENT }
+                val listResponseBody = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/bag/zaak/$zaakUUID",
+                    testUser = BEHANDELAAR_1
+                ).bodyAsString
+                logger.info { "Response: $listResponseBody" }
+                val bagObjectsByType = JSONArray(listResponseBody).let { restBagObjectGegevensList ->
+                    (0 until restBagObjectGegevensList.length())
+                        .map { restBagObjectGegevensList.getJSONObject(it).getJSONObject("zaakobject") }
+                        .associateBy { it.getString("bagObjectType") }
+                }
+                bagObjectsByType.keys shouldBe setOf("WOONPLAATS", "PAND", "OPENBARE_RUIMTE", "NUMMERAANDUIDING")
+                bagObjectsByType.getValue("WOONPLAATS").toString() shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                        "identificatie": "3594",
+                        "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/woonplaatsen/3594",
+                        "naam": "Amsterdam",
+                        "omschrijving": "Amsterdam"
+                    }
+                """.trimIndent()
+                bagObjectsByType.getValue("PAND").toString() shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                        "identificatie": "0363100012168052",
+                        "omschrijving": "0363100012168052"
+                    }
+                """.trimIndent()
+                bagObjectsByType.getValue("OPENBARE_RUIMTE").toString() shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                        "identificatie": "0363300000003186",
+                        "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186",
+                        "naam": "Dam",
+                        "woonplaatsNaam": "Amsterdam"
+                    }
+                """.trimIndent()
+                bagObjectsByType.getValue("NUMMERAANDUIDING").toString() shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                        "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                        "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/nummeraanduidingen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                        "huisnummer": 1,
+                        "huisletter": "A",
+                        "huisnummerWeergave": "1A",
+                        "postcode": "1012JS",
+                        "status": "Naamgeving uitgegeven",
+                        "typeAdresseerbaarObject": "Verblijfsobject"
+                    }
+                """.trimIndent()
+            }
+        }
+    }
+
+    given("A BAG address that is already linked to a zaak and a logged-in behandelaar") {
+        val zaakUUID = zacClient.createZaakAndRetrieve(
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_1
+        ).let { JSONObject(it.bodyAsString).getString("uuid").run(UUID::fromString) }
+        val requestBody = """
+            {
+                "zaakUuid": "$zaakUUID",
+                "zaakobject": {
+                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                    "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                    "bagObjectType": "ADRES",
+                    "woonplaatsNaam": "Amsterdam",
+                    "openbareRuimteNaam": "Dam"
+                }
+            }
+        """.trimIndent()
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/bag",
+            requestBodyAsString = requestBody,
+            testUser = BEHANDELAAR_1
+        ).code shouldBe HTTP_NO_CONTENT
+
+        `when`("the same BAG address is added to the zaak again") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/bag",
+                requestBodyAsString = requestBody,
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the request succeeds and the BAG address is linked to the zaak only once") {
+                response.code shouldBe HTTP_NO_CONTENT
+                JSONArray(
+                    itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/bag/zaak/$zaakUUID",
+                        testUser = BEHANDELAAR_1
+                    ).bodyAsString
+                ).length() shouldBe 1
+            }
+        }
+    }
+
+    given("An existing zaak and a logged-in raadpleger") {
+        val zaakUUID = zacClient.createZaakAndRetrieve(
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_1
+        ).let { JSONObject(it.bodyAsString).getString("uuid").run(UUID::fromString) }
+
+        `when`("the raadpleger adds a BAG object to the zaak") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/bag",
+                requestBodyAsString = """
+                    {
+                        "zaakUuid": "$zaakUUID",
+                        "zaakobject": {
+                            "bagObjectType": "PAND",
+                            "identificatie": "0363100012168052",
+                            "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/panden/0363100012168052"
+                        }
+                    }
+                """.trimIndent(),
+                testUser = RAADPLEGER_1
+            )
+
+            then("the request is forbidden and no BAG object is linked to the zaak") {
+                response.code shouldBe HTTP_FORBIDDEN
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/bag/zaak/$zaakUUID",
                     testUser = BEHANDELAAR_1

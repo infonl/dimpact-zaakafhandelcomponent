@@ -58,6 +58,7 @@ import { ExportButtonComponent } from "../../shared/export-button/export-button.
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
@@ -77,6 +78,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CdkDrag,
     CdkDropList,
     DagenPipe,
@@ -168,7 +170,7 @@ export class TakenWerkvoorraadComponent
   }
 
   protected showAssignToMe(taakZoekObject: TaakZoekObject) {
-    if (!taakZoekObject.rechten.toekennen) return false;
+    if (!taakZoekObject.rechten.canToekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
     if (loggedInUser.id === taakZoekObject.behandelaarGebruikersnaam)
@@ -260,7 +262,7 @@ export class TakenWerkvoorraadComponent
       [ZoekenColumn.TOELICHTING, ColumnPickerValue.HIDDEN],
       [ZoekenColumn.URL, ColumnPickerValue.STICKY],
     ]);
-    if (!this.werklijstRechten.zakenTakenVerdelen) {
+    if (!this.werklijstRechten.canZakenTakenVerdelen) {
       columns.delete(ZoekenColumn.SELECT);
     }
     return columns;
@@ -293,6 +295,7 @@ export class TakenWerkvoorraadComponent
       ({ behandelaarGebruikersnaam }) =>
         !release || !!behandelaarGebruikersnaam,
     );
+    let skippedTakenCount = 0;
 
     this.batchProcessService.subscribe({
       ids: tasks.map(({ id }) => id),
@@ -300,6 +303,7 @@ export class TakenWerkvoorraadComponent
         opcode: Opcode.ANY,
         objectType: ObjectType.TAAK,
         onNotification: (id, event) => {
+          if (event.opcode === Opcode.SKIPPED) skippedTakenCount++;
           if (event.opcode !== Opcode.UPDATED) return;
 
           const taak = this.dataSource.data.find((task) => task.id === id);
@@ -322,6 +326,7 @@ export class TakenWerkvoorraadComponent
         this.dataSource.load(5_000); // We need to give the indexing service some time to finish
         this.takenLoading.set(false);
         this.batchProcessService.stop();
+        this.showSkippedTakenMessage(skippedTakenCount);
       },
     });
 
@@ -362,5 +367,14 @@ export class TakenWerkvoorraadComponent
   ngOnDestroy() {
     // Make sure when returning to this component, the very first page is loaded
     this.dataSource.zoekopdrachtResetToFirstPage();
+  }
+
+  private showSkippedTakenMessage(aantal: number) {
+    if (!aantal) return;
+    this.utilService.openSnackbar(
+      `msg.taken.verdelen.overgeslagen.${aantal === 1 ? "enkelvoud" : "meervoud"}`,
+      { aantal },
+      8,
+    );
   }
 }

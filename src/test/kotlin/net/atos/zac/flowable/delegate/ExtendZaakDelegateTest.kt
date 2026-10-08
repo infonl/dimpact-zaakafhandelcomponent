@@ -86,11 +86,11 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         val fatalDateSlot = slot<LocalDate>()
         every {
             suspensionZaakHelper.extendZaak(
-                zaak,
-                capture(dueDateSlot),
-                capture(fatalDateSlot),
-                any<String>(),
-                extendDays
+                zaak = zaak,
+                dueDate = capture(dueDateSlot),
+                fatalDate = capture(fatalDateSlot),
+                extensionReason = any<String>(),
+                numberOfDays = extendDays
             )
         } returns zaak
 
@@ -119,11 +119,11 @@ class ExtendZaakDelegateTest : BehaviorSpec({
             and("the zaak and tasks extend is called with correct parameters") {
                 verify(exactly = 1) {
                     suspensionZaakHelper.extendZaak(
-                        zaak,
-                        any<LocalDate>(),
-                        any<LocalDate>(),
-                        any<String>(),
-                        extendDays
+                        zaak = zaak,
+                        dueDate = any<LocalDate>(),
+                        fatalDate = any<LocalDate>(),
+                        extensionReason = any<String>(),
+                        numberOfDays = extendDays
                     )
                     suspensionZaakHelper.extendTasks(zaak, extendDays)
                 }
@@ -198,11 +198,11 @@ class ExtendZaakDelegateTest : BehaviorSpec({
             and("no zaak or tasks are extended") {
                 verify(exactly = 0) {
                     suspensionZaakHelper.extendZaak(
-                        zaak,
-                        any<LocalDate>(),
-                        any<LocalDate>(),
-                        any<String>(),
-                        extendDays
+                        zaak = zaak,
+                        dueDate = any<LocalDate>(),
+                        fatalDate = any<LocalDate>(),
+                        extensionReason = any<String>(),
+                        numberOfDays = extendDays
                     )
                     suspensionZaakHelper.extendTasks(zaak, extendDays)
                 }
@@ -252,7 +252,13 @@ class ExtendZaakDelegateTest : BehaviorSpec({
 
             and("the zaak is not extended") {
                 verify(exactly = 0) {
-                    suspensionZaakHelper.extendZaak(any(), any(), any(), any(), any())
+                    suspensionZaakHelper.extendZaak(
+                        zaak = any(),
+                        dueDate = any(),
+                        fatalDate = any(),
+                        extensionReason = any(),
+                        numberOfDays = any()
+                    )
                 }
             }
         }

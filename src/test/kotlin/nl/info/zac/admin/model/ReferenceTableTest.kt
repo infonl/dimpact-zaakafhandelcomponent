@@ -6,6 +6,7 @@
 package nl.info.zac.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 
 class ReferenceTableTest : BehaviorSpec({
@@ -15,10 +16,10 @@ class ReferenceTableTest : BehaviorSpec({
         val referenceTable2 = createReferenceTable()
 
         `when`("The values of the two objects are compared") {
-            val transitiveResult = referenceTable1 == referenceTable2 && referenceTable2 == referenceTable1
+            val isTransitivelyEqual = referenceTable1 == referenceTable2 && referenceTable2 == referenceTable1
 
             then("The objects should be considered equal") {
-                transitiveResult shouldBe true
+                isTransitivelyEqual shouldBe true
             }
         }
 
@@ -35,18 +36,18 @@ class ReferenceTableTest : BehaviorSpec({
         val referenceTable2 = createReferenceTable(isSystemReferenceTable = true)
 
         `when`("The values of the two objects are compared") {
-            val equalityResult = referenceTable1 == referenceTable2
+            val isEqual = referenceTable1 == referenceTable2
 
             then("The objects should be considered unequal") {
-                equalityResult shouldBe false
+                isEqual shouldBe false
             }
         }
 
         `when`("Transitive check is performed") {
-            val transitiveResult = referenceTable2 == referenceTable1
+            val isTransitivelyEqual = referenceTable2 == referenceTable1
 
             then("The objects should be considered unequal") {
-                transitiveResult shouldBe false
+                isTransitivelyEqual shouldBe false
             }
         }
 
@@ -55,6 +56,22 @@ class ReferenceTableTest : BehaviorSpec({
 
             then("The objects should have different hashcodes") {
                 hashcodeResult shouldBe false
+            }
+        }
+    }
+
+    given("A reference table and a value that have not been persisted yet") {
+        val referenceTable = createReferenceTable(
+            id = null,
+            values = mutableListOf(createReferenceTableValue(id = null))
+        )
+
+        `when`("the reference table is converted to a REST reference table including its values") {
+            val restReferenceTable = referenceTable.toRestReferenceTable(inclusiefWaarden = true)
+
+            then("the REST reference table and its value have no id") {
+                restReferenceTable.id.shouldBeNull()
+                restReferenceTable.values.single().id.shouldBeNull()
             }
         }
     }

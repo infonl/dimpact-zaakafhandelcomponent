@@ -14,10 +14,12 @@
 </button>
 
 <mat-menu #beschikbare_variabelen="matMenu" [class]="'variabelenMenu'">
-  <tr *ngFor="let variabele of variabelen">
+  <tr *ngFor="let variabele of variabelen()">
     <button mat-menu-item type="button" (click)="plakExpressie(variabele)">
       {{
-        variabele + ": " + ("mailtemplate.variabele." + variabele | translate)
+        variabele +
+          ": " +
+          ("mailtemplate.variabele." + variabele | i18nKey | translate)
       }}
     </button>
   </tr>

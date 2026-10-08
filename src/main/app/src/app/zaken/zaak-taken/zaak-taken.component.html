@@ -10,7 +10,7 @@
       [formControl]="toonAfgerondeTaken"
       color="primary"
       (change)="filterTakenOpStatus()"
-      >{{ "toonAfgerondeTaken" | translate }}</mat-slide-toggle
+      >{{ "toon-afgeronde-taken" | translate }}</mat-slide-toggle
     >
   </mat-card-header>
   <mat-card-content>
@@ -55,7 +55,7 @@
               [color]="taskStatusChipColor(taak.data.status)"
               [highlighted]="true"
             >
-              {{ "taak.status." + taak.data.status | translate }}
+              {{ "taak.status." + taak.data.status | i18nKey | translate }}
             </mat-chip>
           </td>
         </ng-container>
@@ -100,6 +100,11 @@
           </th>
           <td mat-cell *matCellDef="let taak">
             {{ taak.data.groep | empty: "naam" }}
+            @if (taak.data.groep?.isActive === false) {
+              <em class="inactive-label"
+                >({{ "inactief" | translate | lowercase }})</em
+              >
+            }
           </td>
         </ng-container>
         <ng-container matColumnDef="behandelaar">
@@ -115,7 +120,7 @@
           <td mat-cell *matCellDef="let row">
             <div class="flex-row">
               <a
-                *ngIf="row.data.rechten.lezen"
+                *ngIf="row.data.rechten.canLezen"
                 mat-icon-button
                 [routerLink]="['/taken', row.data.id]"
                 (click)="$event.stopPropagation()"
@@ -144,7 +149,7 @@
               <div class="flex-row flex-wrap gap-10">
                 <zac-static-text
                   label="uitkomst"
-                  [value]="row.data.taakinformatie?.uitkomst | translate"
+                  [value]="uitkomst(row.data) | translate"
                 />
                 <zac-static-text
                   label="bijlage"

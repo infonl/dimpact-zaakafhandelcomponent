@@ -19,7 +19,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.SearchService
@@ -46,7 +46,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val configurationService: ConfigurationService,
     private val ztcClientService: ZtcClientService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val searchService: SearchService,
     private val flowableTaskService: FlowableTaskService
 ) {
@@ -88,27 +88,27 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         LOG.info("Sending zaak due date email notifications...")
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .forEach { zaaktype ->
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+                zaaktypeConfigurationService.findConfiguration(
                     zaaktype.url.extractUuid()
-                ).let { parameters ->
-                    parameters.einddatumGeplandWaarschuwing?.let {
+                )?.let { parameters ->
+                    parameters.einddatumGeplandWaarschuwing?.let { venster ->
                         signaleringVerzendInfo.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
                             zaaktype,
-                            it
+                            venster
                         )
                         zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.einddatumGeplandWaarschuwing!!
+                            venster
                         )
                     }
-                    parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let {
+                    parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { venster ->
                         signaleringVerzendInfo.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
                             zaaktype,
-                            it
+                            venster
                         )
                         zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing!!
+                            venster
                         )
                     }
                 }
@@ -127,7 +127,11 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM) }
-            .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.STREEFDATUM) }
+            .mapNotNull { zaakZoekObject ->
+                zaakZoekObject.behandelaarGebruikersnaam?.let {
+                    buildZaakSignalering(it, zaakZoekObject, SignaleringDetail.STREEFDATUM)
+                }
+            }
             .sumOf(::verzendZaakSignalering)
 
     /**
@@ -141,7 +145,11 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
-            .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.FATALE_DATUM) }
+            .mapNotNull { zaakZoekObject ->
+                zaakZoekObject.behandelaarGebruikersnaam?.let {
+                    buildZaakSignalering(it, zaakZoekObject, SignaleringDetail.FATALE_DATUM)
+                }
+            }
             .sumOf(::verzendZaakSignalering)
 
     private fun hasZaakSignaleringTarget(zaakZoekObject: ZaakZoekObject, detail: SignaleringDetail): Boolean =
@@ -199,12 +207,14 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ) = searchService.search(
         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
     ).items.map { it as ZaakZoekObject }
-        .map {
-            getZaakSignaleringVerzondenParameters(
-                it.behandelaarGebruikersnaam!!,
-                it.getObjectId(),
-                SignaleringDetail.STREEFDATUM
-            )
+        .mapNotNull { zaakZoekObject ->
+            zaakZoekObject.behandelaarGebruikersnaam?.let {
+                getZaakSignaleringVerzondenParameters(
+                    it,
+                    zaakZoekObject.getObjectId(),
+                    SignaleringDetail.STREEFDATUM
+                )
+            }
         }.forEach(signaleringService::deleteSignaleringVerzonden)
 
     /**
@@ -217,12 +227,14 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ) = searchService.search(
         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
     ).items.map { it as ZaakZoekObject }
-        .map {
-            getZaakSignaleringVerzondenParameters(
-                it.behandelaarGebruikersnaam!!,
-                it.getObjectId(),
-                SignaleringDetail.FATALE_DATUM
-            )
+        .mapNotNull { zaakZoekObject ->
+            zaakZoekObject.behandelaarGebruikersnaam?.let {
+                getZaakSignaleringVerzondenParameters(
+                    it,
+                    zaakZoekObject.getObjectId(),
+                    SignaleringDetail.FATALE_DATUM
+                )
+            }
         }
         .forEach(signaleringService::deleteSignaleringVerzonden)
 

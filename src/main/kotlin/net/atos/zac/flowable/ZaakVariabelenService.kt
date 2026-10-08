@@ -67,14 +67,6 @@ open class ZaakVariabelenService @Inject constructor(
      *
      * @param zaakUuid the zaak UUID
      */
-    fun deleteAllCaseVariables(zaakUuid: UUID) {
-        cmmnRuntimeService.createCaseInstanceQuery()
-            .variableValueEquals(VAR_ZAAK_UUID, zaakUuid)
-            .singleResult()?.let {
-                cmmnRuntimeService.removeVariables(it.id, ALL_ZAAK_VARIABLE_NAMES)
-            }
-    }
-
     fun readZaakUUID(planItemInstance: PlanItemInstance): UUID =
         readCaseVariable(planItemInstance, VAR_ZAAK_UUID) as UUID
 
@@ -133,10 +125,10 @@ open class ZaakVariabelenService @Inject constructor(
         setVariable(zaakUuid, VAR_ZAAK_COMMUNICATIEKANAAL, communicationChannel)
 
     fun readZaakdata(zaakUuid: UUID) =
-        findVariables(zaakUuid) ?: emptyMap()
+        findVariables(zaakUuid).orEmpty()
 
     fun readProcessZaakdata(zaakUuid: UUID) =
-        findProcessVariables(zaakUuid) ?: emptyMap()
+        findProcessVariables(zaakUuid).orEmpty()
 
     fun setZaakdata(zaakUuid: UUID, zaakdata: Map<String, Any>) =
         setVariables(zaakUuid, zaakdata)

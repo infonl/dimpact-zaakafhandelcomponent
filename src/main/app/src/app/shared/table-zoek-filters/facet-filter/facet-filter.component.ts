@@ -4,19 +4,12 @@
  */
 
 import { NgFor } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from "@angular/core";
+import { Component, effect, input, output, untracked } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import { TranslateModule } from "@ngx-translate/core";
+import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 
 @Component({
@@ -25,6 +18,7 @@ import { GeneratedType } from "../../utils/generated-types";
   styleUrls: ["./facet-filter.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgFor,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -32,36 +26,29 @@ import { GeneratedType } from "../../utils/generated-types";
     TranslateModule,
   ],
 })
-export class FacetFilterComponent implements OnInit, OnChanges {
+export class FacetFilterComponent {
   protected selected = new FormControl<string | undefined>(undefined);
-  @Input() filter?: GeneratedType<"FilterParameters">;
-  @Input() opties?: GeneratedType<"FilterResultaat">[] = [];
-  @Input({ required: true }) label!: string;
-  @Output() changed = new EventEmitter<GeneratedType<"FilterParameters">>();
+  readonly filter = input<GeneratedType<"FilterParameters">>();
+  readonly opties = input<GeneratedType<"FilterResultaat">[] | undefined>([]);
+  readonly label = input.required<string>();
+  readonly changed = output<GeneratedType<"FilterParameters">>();
 
   /* veld: prefix */
   protected VERTAALBARE_FACETTEN: Record<string, string> = {
     indicaties: "indicatie.",
     vertrouwelijkheidaanduiding: "vertrouwelijkheidaanduiding.",
-    archiefNominatie: "archiefNominatie.",
+    archiefNominatie: "archief-nominatie.",
   };
 
+  constructor() {
+    effect(() => {
+      const firstValue = this.filter()?.values?.[0] ?? null;
+      untracked(() => this.selected.setValue(firstValue));
+    });
+  }
+
   protected getFilters() {
-    return this.opties?.sort((a, b) => a.naam.localeCompare(b.naam));
-  }
-
-  ngOnInit() {
-    this.setSelected();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes["filter"] && !changes["filter"].firstChange) {
-      this.setSelected();
-    }
-  }
-
-  private setSelected() {
-    this.selected.setValue(this.filter?.values?.[0] ?? null);
+    return this.opties()?.sort((a, b) => a.naam.localeCompare(b.naam));
   }
 
   protected isVertaalbaar(veld: string) {

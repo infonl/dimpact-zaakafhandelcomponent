@@ -15,8 +15,6 @@ import type {
   PatchBody,
   PathParameters,
   Paths,
-  PostBody,
-  PutBody,
 } from "./http-client";
 import { HttpClient } from "./http-client";
 
@@ -33,40 +31,6 @@ export class ZacHttpClient {
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
     return this.httpClient
       .GET<Path, Method>(url, ...args)
-      .pipe(
-        catchError((error) =>
-          this.foutAfhandelingService.foutAfhandelen(error),
-        ),
-      );
-  }
-
-  public POST<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "post",
-  >(
-    url: Path,
-    body: PostBody<Path, Method>,
-    ...args: ArgsTuple<PathParameters<Path, Method>>
-  ) {
-    return this.httpClient
-      .POST<Path, Method>(url, body, ...args)
-      .pipe(
-        catchError((error) =>
-          this.foutAfhandelingService.foutAfhandelen(error),
-        ),
-      );
-  }
-
-  public PUT<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "put",
-  >(
-    url: Path,
-    body: PutBody<Path, Method>,
-    ...args: ArgsTuple<PathParameters<Path, Method>>
-  ) {
-    return this.httpClient
-      .PUT<Path, Method>(url, body, ...args)
       .pipe(
         catchError((error) =>
           this.foutAfhandelingService.foutAfhandelen(error),

@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.Mail.Companion.LINKABLE_MAILS
@@ -65,10 +66,10 @@ class MailTemplateService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    fun readMailtemplate(mail: Mail): MailTemplate =
-        findDefaultMailtemplate(mail) ?: throw MailTemplateNotFoundException(mail)
+    fun readDefaultMailTemplate(mail: Mail): MailTemplate =
+        findDefaultMailtemplate(mail) ?: throw MailTemplateNotConfiguredException(mail)
 
-    fun readMailtemplate(id: Long): MailTemplate {
+    fun readMailTemplate(id: Long): MailTemplate {
         return entityManager.find(MailTemplate::class.java, id)
             ?: throw MailTemplateNotFoundException(id)
     }
@@ -83,7 +84,7 @@ class MailTemplateService @Inject constructor(
 
     fun updateMailtemplate(id: Long, mailTemplate: MailTemplate): MailTemplate {
         validateObject(mailTemplate)
-        val existingTemplate = readMailtemplate(id)
+        val existingTemplate = readMailTemplate(id)
 
         existingTemplate.apply {
             this.mailTemplateNaam = mailTemplate.mailTemplateNaam

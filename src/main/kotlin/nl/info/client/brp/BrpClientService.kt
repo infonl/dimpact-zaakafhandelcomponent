@@ -6,6 +6,8 @@ package nl.info.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.persistence.PersistenceException
+import jakarta.ws.rs.WebApplicationException
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -23,8 +25,8 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.configuration.BrpConfigurationProvider
 import nl.info.zac.configuration.BrpConfigurationValue
 import nl.info.zac.util.AllOpen
@@ -42,7 +44,7 @@ import java.util.logging.Logger
 class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
     private val brpConfiguration: BrpConfigurationProvider,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val brpProtocolleringContext: BrpProtocolleringContext,
 ) {
     companion object {
@@ -138,7 +140,7 @@ class BrpClientService @Inject constructor(
         zaaktypeUuid: UUID?,
         user: String,
         doelbindingConfig: BrpConfigurationValue,
-        extractDoelbinding: (ZaaktypeCmmnConfiguration) -> String?
+        extractDoelbinding: (ZaaktypeConfiguration) -> String?
     ) {
         if (!doelbindingConfig.isAvailable()) {
             LOG.warning(
@@ -230,7 +232,7 @@ class BrpClientService @Inject constructor(
     private fun resolveDoelbinding(
         zaaktypeUuid: UUID?,
         defaultDoelbinding: String?,
-        extractDoelbinding: (ZaaktypeCmmnConfiguration) -> String?
+        extractDoelbinding: (ZaaktypeConfiguration) -> String?
     ): String? =
         resolveBRPValue(
             zaaktypeUuid = zaaktypeUuid,
@@ -263,23 +265,45 @@ class BrpClientService @Inject constructor(
         zaaktypeUuid: UUID?,
         defaultValue: String?,
         valueDescription: String,
-        resolveFunction: (ZaaktypeCmmnConfiguration) -> String?,
-        buildFunction: (resolvedValue: String?, ZaaktypeCmmnConfiguration) -> String?
+        resolveFunction: (ZaaktypeConfiguration) -> String?,
+        buildFunction: (resolvedValue: String?, ZaaktypeConfiguration) -> String?
     ): String? =
-        zaaktypeUuid?.runCatching {
-            LOG.fine("Resolving purpose for zaak with UUID: $this")
-            resolveValueFromZaaktypeCmmnConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
-        }?.onFailure {
-            LOG.log(Level.WARNING, "Failed to resolve $valueDescription for zaaktype $zaaktypeUuid", it)
-        }?.getOrElse {
-            LOG.info("Using default $valueDescription '$defaultValue' for zaaktype $zaaktypeUuid")
-            null
+        zaaktypeUuid?.let {
+            LOG.fine("Resolving purpose for zaak with UUID: $it")
+            try {
+                it.resolveValueFromZaaktypeConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
+            } catch (webApplicationException: WebApplicationException) {
+                logBrpValueResolutionFailure(
+                    valueDescription = valueDescription,
+                    defaultValue = defaultValue,
+                    zaaktypeUuid = it,
+                    exception = webApplicationException
+                )
+            } catch (persistenceException: PersistenceException) {
+                logBrpValueResolutionFailure(
+                    valueDescription = valueDescription,
+                    defaultValue = defaultValue,
+                    zaaktypeUuid = it,
+                    exception = persistenceException
+                )
+            }
         } ?: run {
             val reason = zaaktypeUuid?.let { "No $valueDescription found for zaaktype $zaaktypeUuid" }
                 ?: "No zaak identification provided"
             LOG.info("$reason. Using default $valueDescription '$defaultValue'")
             defaultValue
         }
+
+    private fun logBrpValueResolutionFailure(
+        valueDescription: String,
+        defaultValue: String?,
+        zaaktypeUuid: UUID,
+        exception: RuntimeException
+    ): String? {
+        LOG.log(Level.WARNING, "Failed to resolve $valueDescription for zaaktype $zaaktypeUuid", exception)
+        LOG.info("Using default $valueDescription '$defaultValue' for zaaktype $zaaktypeUuid")
+        return null
+    }
 
     /**
      * Resolves a value using the zaakafhandelparameters settings of the zaaktype
@@ -292,14 +316,14 @@ class BrpClientService @Inject constructor(
      *
      * @return the resolved value, or null if only whitespace characters are present in the resolved value
      */
-    private fun UUID.resolveValueFromZaaktypeCmmnConfiguration(
+    private fun UUID.resolveValueFromZaaktypeConfiguration(
         valueDescription: String,
         defaultValue: String?,
-        resolveFunction: (ZaaktypeCmmnConfiguration) -> String?,
-        buildFunction: (String?, ZaaktypeCmmnConfiguration) -> String?
+        resolveFunction: (ZaaktypeConfiguration) -> String?,
+        buildFunction: (String?, ZaaktypeConfiguration) -> String?
     ): String? =
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(this).let { zaaktypeCmmnConfiguration ->
-            resolveFunction(zaaktypeCmmnConfiguration)?.let { resolvedValue ->
+        zaaktypeConfigurationService.findConfiguration(this)?.let { zaaktypeConfiguration ->
+            resolveFunction(zaaktypeConfiguration)?.let { resolvedValue ->
                 if (StandardCharsets.US_ASCII.newEncoder().canEncode(resolvedValue)) {
                     resolvedValue.trim().takeIf { it.isNotBlank() }
                 } else {
@@ -308,6 +332,6 @@ class BrpClientService @Inject constructor(
                     }
                     defaultValue
                 }
-            }.let { buildFunction(it, zaaktypeCmmnConfiguration) }
+            }.let { buildFunction(it, zaaktypeConfiguration) }
         }
 }

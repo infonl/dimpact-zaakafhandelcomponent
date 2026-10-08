@@ -16,16 +16,18 @@ fun createLoggedInUser(
     groups: Set<String> = setOf("fakeGroup1", "fakeGroup2"),
     applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap(),
     overallRoles: Set<String> = emptySet(),
-    brpGemeenten: Map<String, String> = emptyMap()
+    brpGemeenten: Map<String, String> = emptyMap(),
+    hasReadApplicationRole: Boolean = false
 ) = LoggedInUser(
-    id,
-    firstName,
-    lastName,
-    displayName,
-    email,
-    roles,
-    groups,
-    applicationRolesPerZaaktype,
-    overallRoles,
-    brpGemeenten
+    id = id,
+    firstName = firstName,
+    lastName = lastName,
+    displayName = displayName,
+    email = email,
+    roles = roles,
+    groupIds = groups,
+    applicationRolesPerZaaktype = applicationRolesPerZaaktype,
+    overallRoles = overallRoles,
+    brpGemeenten = brpGemeenten,
+    hasReadApplicationRole = hasReadApplicationRole
 )

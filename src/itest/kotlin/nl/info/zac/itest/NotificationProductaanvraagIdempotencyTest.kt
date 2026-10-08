@@ -17,8 +17,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_CONCUR
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_CONCURRENT_NOTIFICATIONS
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_DATABASE_CONTAINER_SERVICE_NAME
-import nl.info.zac.itest.config.dockerComposeContainer
+import nl.info.zac.itest.util.queryZacDatabase
 import okhttp3.Headers
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -37,15 +36,7 @@ private const val INBOX_LIST_MAX_RESULTS = 10
 
 private val logger = KotlinLogging.logger {}
 
-private fun executeSqlInZacDatabase(sql: String): String =
-    dockerComposeContainer.getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME).get()
-        .execInContainer("psql", "-U", "zac", "-d", "zac", "-t", "-A", "-c", sql)
-        .let { execResult ->
-            check(execResult.exitCode == 0) { "psql failed: ${execResult.stderr}" }
-            execResult.stdout.trim()
-        }
-
-private fun selectFromClaim(productaanvraagObjectUUID: Any, columns: String) = executeSqlInZacDatabase(
+private fun selectFromClaim(productaanvraagObjectUUID: Any, columns: String) = queryZacDatabase(
     "SELECT $columns FROM $CLAIM_TABLE WHERE uuid_productaanvraag_object = '$productaanvraagObjectUUID'"
 )
 
@@ -56,7 +47,7 @@ private fun readClaimStatus(productaanvraagObjectUUID: Any) =
     selectFromClaim(productaanvraagObjectUUID, columns = "status")
 
 private fun insertClaim(productaanvraagObjectUUID: UUID, status: String, age: String) {
-    executeSqlInZacDatabase(
+    queryZacDatabase(
         "INSERT INTO $CLAIM_TABLE (uuid_productaanvraag_object, status, gestart_op) " +
             "VALUES ('$productaanvraagObjectUUID', '$status', now() - interval '$age')"
     )
@@ -95,7 +86,7 @@ class NotificationProductaanvraagIdempotencyTest : BehaviorSpec({
             not yet recorded a claim
         """.trimIndent()
     ) {
-        readClaimStatus(OBJECT_PRODUCTAANVRAAG_CONCURRENT_UUID) shouldBe ""
+        readClaimStatus(OBJECT_PRODUCTAANVRAAG_CONCURRENT_UUID) shouldBe emptyList()
 
         `when`("$NUMBER_OF_SIMULTANEOUS_NOTIFICATIONS identical create notifications arrive simultaneously") {
             val startSignal = CountDownLatch(1)
@@ -147,7 +138,7 @@ class NotificationProductaanvraagIdempotencyTest : BehaviorSpec({
                 """.trimIndent()
             ) {
                 eventually(10.seconds) {
-                    readClaimStatus(OBJECT_PRODUCTAANVRAAG_CONCURRENT_UUID) shouldBe "DONE"
+                    readClaimStatus(OBJECT_PRODUCTAANVRAAG_CONCURRENT_UUID) shouldBe listOf("DONE")
                 }
             }
         }
@@ -171,7 +162,7 @@ class NotificationProductaanvraagIdempotencyTest : BehaviorSpec({
                     selectFromClaim(
                         productaanvraagObjectUUID,
                         columns = "gestart_op > now() - interval '1 minute'"
-                    ) shouldBe "t"
+                    ) shouldBe listOf("t")
                 }
             }
 
@@ -181,7 +172,7 @@ class NotificationProductaanvraagIdempotencyTest : BehaviorSpec({
                     so that it can be taken over once more after the staleness period
                 """.trimIndent()
             ) {
-                readClaimStatus(productaanvraagObjectUUID) shouldBe "IN_PROGRESS"
+                readClaimStatus(productaanvraagObjectUUID) shouldBe listOf("IN_PROGRESS")
             }
         }
     }

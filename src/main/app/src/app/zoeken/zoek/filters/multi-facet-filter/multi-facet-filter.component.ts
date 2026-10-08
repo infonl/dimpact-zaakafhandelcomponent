@@ -4,13 +4,14 @@
  */
 
 import { LowerCasePipe, NgFor, NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
 import { ZacNarrowMatCheckboxDirective } from "../../../../shared/material/narrow-checkbox.directive";
+import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { ReadMoreComponent } from "../../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
@@ -20,6 +21,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styleUrls: ["./multi-facet-filter.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     NgFor,
     LowerCasePipe,
@@ -33,12 +35,14 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   ],
 })
 export class MultiFacetFilterComponent implements OnInit {
-  @Input({ required: true }) filter!: GeneratedType<"FilterParameters">;
-  @Input({ required: true }) opties!: GeneratedType<"FilterResultaat">[];
-  @Input({ required: true }) label!: string;
-  @Output() changed = new EventEmitter<GeneratedType<"FilterParameters">>();
+  readonly filter = input.required<GeneratedType<"FilterParameters">>();
+  readonly opties = input.required<GeneratedType<"FilterResultaat">[]>();
+  readonly label = input.required<string>();
+  readonly changed = output<GeneratedType<"FilterParameters">>();
 
-  protected formGroup = this._formBuilder.group<{
+  private readonly formBuilder = inject(FormBuilder);
+
+  protected formGroup = this.formBuilder.group<{
     [key: string]: FormControl<boolean | null>;
   }>({});
 
@@ -49,21 +53,20 @@ export class MultiFacetFilterComponent implements OnInit {
   protected VERTAALBARE_FACETTEN: Record<string, string> = {
     TAAK_STATUS: "taak.status.",
     TYPE: "type.",
-    TOEGEKEND: "zoeken.filter.jaNee.",
+    TOEGEKEND: "zoeken.filter.ja-nee.",
     ZAAK_INDICATIES: "indicatie.",
     DOCUMENT_INDICATIES: "indicatie.",
     DOCUMENT_STATUS: "informatieobject.status.",
     ZAAK_VERTROUWELIJKHEIDAANDUIDING: "vertrouwelijkheidaanduiding.",
-    ZAAK_ARCHIEF_NOMINATIE: "archiefNominatie.",
+    ZAAK_ARCHIEF_NOMINATIE: "archief-nominatie.",
   } as const;
 
-  constructor(private _formBuilder: FormBuilder) {}
-
   ngOnInit(): void {
+    const filter = this.filter();
     this.inverse =
-      this.filter?.inverse === true || String(this.filter?.inverse) === "true";
-    this.selected = this.filter?.values ?? [];
-    this.opties.forEach((value) => {
+      filter?.inverse === true || String(filter?.inverse) === "true";
+    this.selected = filter?.values ?? [];
+    this.opties().forEach((value) => {
       this.formGroup.addControl(
         value.naam,
         new FormControl(!!this.selected.find((s) => s === value.naam)),

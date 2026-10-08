@@ -31,7 +31,8 @@ import nl.info.zac.util.AllOpen
 class ReferenceTable {
     /**
      * Defines the list of 'system reference tables'.
-     * Make sure to keep this list in sync with the 'is_systeem_tabel' column in the database.
+     * The implementation expects that these system reference tables exist in the database,
+     * and have the [isSystemReferenceTable] column set to 'true'.
      */
     enum class SystemReferenceTable {
         ADVIES,
@@ -90,11 +91,11 @@ fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenc
         emptyList()
     }
     return RestReferenceTable(
-        this.id!!,
-        this.code,
-        this.name,
-        this.isSystemReferenceTable,
-        this.values.size,
-        restReferenceTableValues
+        id = this.id,
+        code = this.code,
+        name = this.name,
+        isSystemTable = this.isSystemReferenceTable,
+        valuesCount = this.values.size,
+        values = restReferenceTableValues
     )
 }

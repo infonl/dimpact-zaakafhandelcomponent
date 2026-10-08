@@ -28,6 +28,7 @@ import nl.info.client.pabc.ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
 import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.policy.PolicyService
 import org.jose4j.jwt.JwtClaims
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -36,11 +37,35 @@ import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 
 class UserPrincipalFilterTest : BehaviorSpec({
     val pabcClientService = mockk<PabcClientService>()
+    val policyService = mockk<PolicyService>()
     val httpServletRequest = mockk<HttpServletRequest>()
     val servletResponse = mockk<HttpServletResponse>()
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>()
     val newHttpSession = mockk<HttpSession>()
+    val leesrollen = setOf("raadpleger", "behandelaar", "coordinator", "recordmanager", "beheerder")
+
+    fun stubRequestWithoutLoggedInUser(functionalRoles: List<String>) {
+        val accessToken = AccessToken(
+            JwtClaims.parse(
+                """
+                {
+                    "preferred_username": "fakeUserName",
+                    "realm_access": {
+                        "roles": [ ${functionalRoles.joinToString(separator = ", ") { "\"$it\"" }} ]
+                    }
+                }
+                """.trimMargin(),
+                null
+            )
+        )
+        val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
+        every { httpSession.getAttribute("logged-in-user") } returns null
+        every { httpServletRequest.userPrincipal } returns OidcPrincipal("fakeUserId", oidcSecurityContext)
+        every { httpServletRequest.getSession(true) } returns httpSession
+        every { httpSession.setAttribute(any(), any()) } just runs
+        every { filterChain.doFilter(any(), any()) } just runs
+    }
 
     afterEach {
         checkUnnecessaryStub()
@@ -48,7 +73,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
     context("PABC integration is enabled") {
         val userPrincipalFilter = UserPrincipalFilter(
-            pabcClientService = pabcClientService
+            pabcClientService = pabcClientService,
+            policyService = policyService
         )
 
         given(
@@ -259,6 +285,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
+            every { policyService.readLeesrollen() } returns leesrollen
 
             `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -320,6 +347,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
+            every { policyService.readLeesrollen() } returns leesrollen
 
             `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -375,6 +403,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
+            every { policyService.readLeesrollen() } returns leesrollen
 
             `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -487,6 +516,166 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                     with(loggedInUserSlot.captured) {
                         brpGemeenten shouldBe emptyMap()
+                    }
+                }
+            }
+        }
+    }
+    context("Determining whether the logged-in user holds a read application role") {
+        val userPrincipalFilter = UserPrincipalFilter(
+            pabcClientService = pabcClientService,
+            policyService = policyService
+        )
+
+        given("PABC returns only the brp_zoeken role, for a zaaktype and as overall role") {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            stubRequestWithoutLoggedInUser(listOf("fakeFunctionalRole"))
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = "fakeZaaktype1",
+                        entityTypeType = ENTITY_TYPE_ZAAKTYPE,
+                        roleNames = listOf(ROLE_NAME_BRP_ZOEKEN)
+                    ),
+                    createApplicationRolesResponseModel(
+                        entityTypeId = null,
+                        roleNames = listOf(ROLE_NAME_BRP_ZOEKEN)
+                    )
+                )
+            }
+            every { policyService.readLeesrollen() } returns leesrollen
+
+            `when`("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                then("the logged-in user does not hold a read application role") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    loggedInUserSlot.captured.hasReadApplicationRole shouldBe false
+                }
+            }
+        }
+
+        given("PABC returns the brp_zoeken role for one zaaktype and the raadpleger role for another") {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            stubRequestWithoutLoggedInUser(listOf("fakeFunctionalRole"))
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = "fakeZaaktype1",
+                        entityTypeType = ENTITY_TYPE_ZAAKTYPE,
+                        roleNames = listOf(ROLE_NAME_BRP_ZOEKEN)
+                    ),
+                    createApplicationRolesResponseModel(
+                        entityTypeId = "fakeZaaktype2",
+                        entityTypeType = ENTITY_TYPE_ZAAKTYPE,
+                        roleNames = listOf("raadpleger")
+                    )
+                )
+            }
+            every { policyService.readLeesrollen() } returns leesrollen
+
+            `when`("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                then("the logged-in user holds a read application role") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    loggedInUserSlot.captured.hasReadApplicationRole shouldBe true
+                }
+            }
+        }
+
+        leesrollen.forEach { leesrol ->
+            given("PABC returns only the '$leesrol' role for a zaaktype") {
+                val loggedInUserSlot = slot<LoggedInUser>()
+                stubRequestWithoutLoggedInUser(listOf("fakeFunctionalRole"))
+                every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                    results = listOf(
+                        createApplicationRolesResponseModel(
+                            entityTypeId = "fakeZaaktype1",
+                            entityTypeType = ENTITY_TYPE_ZAAKTYPE,
+                            roleNames = listOf(leesrol)
+                        )
+                    )
+                }
+                every { policyService.readLeesrollen() } returns leesrollen
+
+                `when`("doFilter is called") {
+                    userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                    then("the logged-in user holds a read application role") {
+                        verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                        loggedInUserSlot.captured.hasReadApplicationRole shouldBe true
+                    }
+                }
+            }
+        }
+
+        given("PABC returns only the behandelaar role as overall role") {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            stubRequestWithoutLoggedInUser(listOf("fakeFunctionalRole"))
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = null,
+                        roleNames = listOf("behandelaar")
+                    )
+                )
+            }
+            every { policyService.readLeesrollen() } returns leesrollen
+
+            `when`("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                then("the logged-in user holds a read application role") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    loggedInUserSlot.captured.hasReadApplicationRole shouldBe true
+                }
+            }
+        }
+
+        given(
+            "PABC is misconfigured to return only the systeemrol for all zaaktypen, for a zaaktype and as overall role"
+        ) {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            stubRequestWithoutLoggedInUser(listOf("fakeFunctionalRole"))
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = "fakeZaaktype1",
+                        entityTypeType = ENTITY_TYPE_ZAAKTYPE,
+                        roleNames = listOf(ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN)
+                    ),
+                    createApplicationRolesResponseModel(
+                        entityTypeId = null,
+                        roleNames = listOf(ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN)
+                    )
+                )
+            }
+            every { policyService.readLeesrollen() } returns leesrollen
+
+            `when`("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                then("the logged-in user does not hold a read application role, because the systeemrol is not one") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    loggedInUserSlot.captured.hasReadApplicationRole shouldBe false
+                }
+            }
+        }
+
+        given("A token without any functional role") {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            stubRequestWithoutLoggedInUser(emptyList())
+
+            `when`("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                then("the logged-in user does not hold a read application role, without asking PABC or OPA") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    loggedInUserSlot.captured.hasReadApplicationRole shouldBe false
+                    verify(exactly = 0) {
+                        pabcClientService.getApplicationRoles(any())
+                        policyService.readLeesrollen()
                     }
                 }
             }

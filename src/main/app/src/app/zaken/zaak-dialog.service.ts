@@ -125,15 +125,15 @@ export class ZaakDialogService {
     callback: RedenCallback,
   ) {
     return this.openReden({
-      titleKey: "actie.bagObject.ontkoppelen",
+      titleKey: "actie.bag-object.ontkoppelen",
       icon: "link_off",
       label: "reden",
       maxlength: 80,
       uitleg: this.translateService.instant(
-        "msg.bagObject.ontkoppelen.bevestigen",
+        "msg.bag-object.ontkoppelen.bevestigen",
         { omschrijving },
       ),
-      confirmButtonActionKey: "actie.bagObject.ontkoppelen",
+      confirmButtonActionKey: "actie.bag-object.ontkoppelen",
       callback,
     });
   }

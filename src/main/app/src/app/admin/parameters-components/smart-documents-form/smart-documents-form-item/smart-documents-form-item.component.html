@@ -7,22 +7,24 @@
 <fieldset>
   <mat-checkbox
     [formControl]="checkbox"
-    [checked]="node.informatieObjectTypeUUID !== ''"
+    [checked]="node().informatieObjectTypeUUID !== ''"
     (change)="clearSelectedDocumentType()"
   ></mat-checkbox>
-  <div class="flex-1">{{ node.name }}</div>
+  <div class="flex-1">{{ node().name }}</div>
   <mat-form-field subscriptSizing="dynamic">
-    <mat-label>{{ "informatieobjectTypeOmschrijving" | translate }}</mat-label>
+    <mat-label>{{
+      "informatieobject-type-omschrijving" | translate
+    }}</mat-label>
     <mat-select
-      [(value)]="node.informatieObjectTypeUUID"
-      (valueChange)="updateFormControls()"
-      placeholder="{{ 'informatieobjectType.-kies-' | translate }}"
+      [value]="node().informatieObjectTypeUUID"
+      (valueChange)="selectDocumentType($event)"
+      placeholder="{{ 'informatieobject-type.kies' | translate }}"
     >
       <mat-option [value]="">{{
-        "informatieobjectType.-geen-" | translate
+        "informatieobject-type.geen" | translate
       }}</mat-option>
       <mat-option
-        *ngFor="let informationObjectType of informationObjectTypes"
+        *ngFor="let informationObjectType of informationObjectTypes()"
         [value]="informationObjectType.uuid"
         >{{ informationObjectType.omschrijving }}</mat-option
       >
@@ -34,7 +36,7 @@
       matInput
       [formControl]="confidentiality"
       translate="{{
-        'vertrouwelijkheidaanduiding.' + confidentiality.getRawValue()
+        'vertrouwelijkheidaanduiding.' + confidentiality.getRawValue() | i18nKey
       }}"
     />
   </mat-form-field>

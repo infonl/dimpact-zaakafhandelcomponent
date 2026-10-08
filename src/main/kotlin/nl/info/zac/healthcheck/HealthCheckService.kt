@@ -21,10 +21,11 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.INITIATOR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.KLANTCONTACTER
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.MEDE_INITIATOR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORDINATOR
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE
@@ -62,8 +63,7 @@ class HealthCheckService @Inject constructor(
     private val versionNumber: Optional<String?>,
 
     private val referenceTableService: ReferenceTableService,
-    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val ztcClientService: ZtcClientService
 ) {
     companion object {
@@ -71,10 +71,10 @@ class HealthCheckService @Inject constructor(
         private const val DEV_BUILD_ID = "dev"
     }
 
-    private var buildInformation: BuildInformation = createBuildInformatie()
+    private val buildInformation: BuildInformation = createBuildInformatie()
 
     fun bestaatCommunicatiekanaalEformulier() =
-        referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name).values.any {
+        referenceTableService.readSystemReferenceTable(COMMUNICATIEKANAAL).values.any {
             COMMUNICATIEKANAAL_EFORMULIER == it.name
         }
 
@@ -88,16 +88,16 @@ class HealthCheckService @Inject constructor(
     }
 
     private fun inrichtingscheck(zaaktypeUuid: UUID, zaaktype: ZaakType): ZaaktypeInrichtingscheck =
-        zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { zaakafhandelParams ->
+        zaaktypeConfigurationService.findConfiguration(zaaktypeUuid).let { zaaktypeConfiguration ->
             return ZaaktypeInrichtingscheck(zaaktype).apply {
-                isZaakafhandelParametersValide = zaakafhandelParams?.isValide()
-                    ?: (zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) != null)
+                isZaakafhandelParametersValide = zaaktypeConfiguration?.isValidForZaakCreation() ?: false
             }.also {
                 controleerZaaktypeStatustypeInrichting(it)
                 controleerZaaktypeResultaattypeInrichting(it)
                 controleerZaaktypeBesluittypeInrichting(it)
                 controleerZaaktypeRoltypeInrichting(it)
                 controleerZaaktypeInformatieobjecttypeInrichting(it)
+                controleerZaakspecifiekeAutorisatieInrichting(it)
                 controleerBrpInstellingenCorrect(it)
             }
         }
@@ -116,10 +116,10 @@ class HealthCheckService @Inject constructor(
             null
         }
         return BuildInformation(
-            commitHash.orElse(null),
-            branchName.orElse(null),
-            buildDateTime,
-            versionNumber.orElse(DEV_BUILD_ID)
+            commit = commitHash.orElse(null),
+            buildId = branchName.orElse(null),
+            buildDateTime = buildDateTime,
+            versionNumber = versionNumber.orElse(DEV_BUILD_ID)
         )
     }
 
@@ -185,15 +185,23 @@ class HealthCheckService @Inject constructor(
                     BESLISSER,
                     KLANTCONTACTER,
                     ZAAKCOORDINATOR -> zaaktypeInrichtingscheck.isRolOverigeAanwezig = true
-                    BEHANDELAAR -> {
-                        if (it.omschrijving == ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR) {
+                    BEHANDELAAR -> when (it.omschrijving) {
+                        ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR ->
                             zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
-                        }
+                        ZgwApiService.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER ->
+                            zaaktypeInrichtingscheck.isZaakspecifiekeAutorisatieRoltypeAanwezig = true
                     }
                     INITIATOR -> zaaktypeInrichtingscheck.aantalInitiatorroltypen++
                 }
             }
         }
+    }
+
+    private fun controleerZaakspecifiekeAutorisatieInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
+        zaaktypeInrichtingscheck.isZaakspecifiekeAutorisatieEigenschapAanwezig = ztcClientService.findEigenschap(
+            zaaktype = zaaktypeInrichtingscheck.zaaktype.url,
+            eigenschap = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+        ) != null
     }
 
     private fun controleerZaaktypeInformatieobjecttypeInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) =
@@ -204,16 +212,16 @@ class HealthCheckService @Inject constructor(
         }
 
     private fun controleerBrpInstellingenCorrect(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
-        if (isReferenceTableValidForAuditLogHeaders(BRP_DOELBINDING_ZOEK_WAARDE.name) &&
-            isReferenceTableValidForAuditLogHeaders(BRP_DOELBINDING_RAADPLEEG_WAARDE.name) &&
-            isReferenceTableValidForAuditLogHeaders(BRP_VERWERKINGSREGISTER_WAARDE.name)
+        if (isReferenceTableValidForAuditLogHeaders(BRP_DOELBINDING_ZOEK_WAARDE) &&
+            isReferenceTableValidForAuditLogHeaders(BRP_DOELBINDING_RAADPLEEG_WAARDE) &&
+            isReferenceTableValidForAuditLogHeaders(BRP_VERWERKINGSREGISTER_WAARDE)
         ) {
             zaaktypeInrichtingscheck.isBrpInstellingenCorrect = true
         }
     }
 
-    private fun isReferenceTableValidForAuditLogHeaders(referenceTableCode: String): Boolean =
-        referenceTableService.readReferenceTable(referenceTableCode).values.let { values ->
+    private fun isReferenceTableValidForAuditLogHeaders(systemReferenceTable: SystemReferenceTable): Boolean =
+        referenceTableService.readSystemReferenceTable(systemReferenceTable).values.let { values ->
             values.isNotEmpty() && values.all { it.name.isPureAscii() }
         }
 }

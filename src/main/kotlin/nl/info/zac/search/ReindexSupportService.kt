@@ -7,7 +7,7 @@ package nl.info.zac.search
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -23,13 +23,14 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.systemUserContext
-import nl.info.zac.search.converter.AbstractZoekObjectConverter
+import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
 import nl.info.zac.util.AllOpen
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.common.params.CursorMarkParams
@@ -64,12 +65,13 @@ internal data class ReindexSummary(val successCount: Int, val skippedCount: Int,
 @AllOpen
 @Suppress("TooManyFunctions")
 class ReindexSupportService @Inject constructor(
-    private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
+    private val converterInstances: Instance<ZoekObjectConverter<out ZoekObject>>,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService,
-    private val zgwApiService: ZgwApiService,
-    solrClientFactory: SolrClientFactory
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
+    solrClientFactory: SolrClientFactory,
+    dispatcher: CoroutineDispatcher
 ) {
     companion object {
         private const val SOLR_MAX_RESULTS = 100
@@ -79,7 +81,7 @@ class ReindexSupportService @Inject constructor(
         private val LOG = Logger.getLogger(ReindexSupportService::class.java.name)
     }
 
-    private val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
+    private val pageConversionDispatcher = dispatcher.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
     private val solrClient: SolrClient = solrClientFactory.createSolrClient(IndexingService.SOLR_CORE)
 
@@ -99,13 +101,13 @@ class ReindexSupportService @Inject constructor(
             this.page = page
         }
 
-    internal fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> =
+    internal fun getConverter(objectType: ZoekObjectType): ZoekObjectConverter<out ZoekObject> =
         converterInstances
             .firstOrNull { it.supports(objectType) }
             ?: throw IndexingException("[$objectType] No converter found")
 
     private fun convert(
-        converter: AbstractZoekObjectConverter<out ZoekObject>,
+        converter: ZoekObjectConverter<out ZoekObject>,
         objectType: ZoekObjectType,
         objectId: String,
         zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens
@@ -307,9 +309,7 @@ class ReindexSupportService @Inject constructor(
     internal fun memoizedZaakAutorisatieGegevens(): (UUID) -> ZaakAutorisatieGegevens {
         val zaakAutorisatieGegevensByZaakUUID = ConcurrentHashMap<UUID, ZaakAutorisatieGegevens>()
         return { zaakUUID ->
-            zaakAutorisatieGegevensByZaakUUID.computeIfAbsent(zaakUUID) {
-                zaakAutorisatieGegevens(zaakUUID) { zrcClientService.readZaak(zaakUUID) }
-            }
+            zaakAutorisatieGegevensByZaakUUID.computeIfAbsent(zaakUUID) { zaakAutorisatieGegevens(zaakUUID) }
         }
     }
 
@@ -319,15 +319,23 @@ class ReindexSupportService @Inject constructor(
      */
     internal fun zaakAutorisatieGegevens(zaak: Zaak) = zaakAutorisatieGegevens(zaak.uuid) { zaak }
 
+    /**
+     * The single place where the zaak-level data indexed for every zoekobject type is derived, so that
+     * the `ZAAK`, `TAAK` and `DOCUMENT` converters all index the same medewerkers for a given zaak.
+     */
+    internal fun zaakAutorisatieGegevens(zaakUUID: UUID) =
+        zaakAutorisatieGegevens(zaakUUID) { zrcClientService.readZaak(zaakUUID) }
+
     private fun zaakAutorisatieGegevens(zaakUUID: UUID, zaakSupplier: () -> Zaak) =
-        ZaakAutorisatieGegevens(
-            isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-        ) {
-            listOfNotNull(
-                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaakSupplier())
-                    ?.betrokkeneIdentificatie
-                    ?.identificatie
-            )
+        zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID).let { isZaakspecifiekGeautoriseerd ->
+            ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd) {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(
+                    zaak = zaakSupplier(),
+                    isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
+                )
+                    .geautoriseerdeMedewerkerIds
+                    .toList()
+            }
         }
 
     internal fun reindexAllZaken(): ReindexSummary? {

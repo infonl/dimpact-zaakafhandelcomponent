@@ -106,8 +106,7 @@ class MailService @Inject constructor(
                 mailGegevens.subject.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX) ||
                     mailGegevens.body.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX)
             }
-            ?.let { mailTemplateHelper.readZaakdata(it) }
-            ?: emptyMap()
+            ?.let { mailTemplateHelper.readZaakdata(it) }.orEmpty()
         val subject =
             StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen, zaakdata), SUBJECT_MAX_WIDTH)
         val body = resolveVariabelen(mailGegevens.body, bronnen, zaakdata)
@@ -145,7 +144,7 @@ class MailService @Inject constructor(
     }
 
     @PostConstruct
-    @Suppress("UnusedPrivateMember")
+    @Suppress("UnusedPrivateFunction")
     private fun initPasswordAuthentication() {
         // If there's no SMTP_USERNAME environment variable set, we consider this as a case, where SMTP server
         // has no authentication. In this case we disable SMTP authentication in the mail session to prevent sending
@@ -188,11 +187,11 @@ class MailService @Inject constructor(
             verzenddatum = LocalDate.now()
         }
         zgwApiService.createZaakInformatieobjectForZaak(
-            zaak,
-            enkelvoudigInformatieobjectWithInhoud,
-            subject,
-            subject,
-            ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+            zaak = zaak,
+            enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieobjectWithInhoud,
+            titel = subject,
+            beschrijving = subject,
+            omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
         )
     }
 

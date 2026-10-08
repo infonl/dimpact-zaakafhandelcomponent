@@ -7,10 +7,11 @@ import { NgClass, NgFor, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
-  Input,
+  inject,
+  input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -45,18 +46,20 @@ import { ZoekFilters } from "./zoekfilters.model";
   ],
 })
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) werklijst!: GeneratedType<"Werklijst">;
-  @Input({ required: true }) zoekFilters!: ZoekFilters;
-  @Output() zoekopdracht = new EventEmitter<
-    GeneratedType<"RESTZoekopdracht">
-  >();
-  @Input({ required: true }) filtersChanged!: EventEmitter<void>;
+  readonly werklijst = input.required<GeneratedType<"Werklijst">>();
+  readonly zoekFilters = input.required<ZoekFilters>();
+  readonly zoekopdracht = output<GeneratedType<"RESTZoekopdracht">>();
+  readonly filtersChanged = input.required<EventEmitter<void>>();
 
   protected zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [];
   protected actieveZoekopdracht: GeneratedType<"RESTZoekopdracht"> | null =
     null;
   protected actieveFilters = false;
   private filtersChangedSubscription$!: Subscription;
+  private readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+  private readonly dialog = inject(MatDialog);
   private readonly deleteZoekopdrachtMutation = injectMutation(
     () => this.gebruikersvoorkeurenService.deleteZoekOpdrachten(),
     {
@@ -66,18 +69,16 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   private readonly removeZoekopdrachtActiefMutation = injectMutation(() =>
     this.gebruikersvoorkeurenService.removeZoekopdrachtActief(),
   );
-
-  constructor(
-    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    private readonly dialog: MatDialog,
-  ) {}
+  private readonly setZoekopdrachtActiefMutation = injectMutation(() =>
+    this.gebruikersvoorkeurenService.setZoekopdrachtActief(),
+  );
 
   ngOnDestroy() {
     this.filtersChangedSubscription$.unsubscribe();
   }
 
   ngOnInit() {
-    this.filtersChangedSubscription$ = this.filtersChanged.subscribe(() => {
+    this.filtersChangedSubscription$ = this.filtersChanged().subscribe(() => {
       this.clearActief();
     });
     this.loadZoekopdrachten();
@@ -87,8 +88,8 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ZoekopdrachtSaveDialogComponent, {
       data: {
         zoekopdrachten: this.zoekopdrachten,
-        lijstID: this.werklijst,
-        zoekopdracht: this.zoekFilters,
+        lijstID: this.werklijst(),
+        zoekopdracht: this.zoekFilters(),
       },
     });
     dialogRef.afterClosed().subscribe((result) => {
@@ -102,9 +103,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     this.actieveZoekopdracht = zoekopdracht;
     this.actieveFilters = true;
     this.zoekopdracht.emit(this.actieveZoekopdracht);
-    this.gebruikersvoorkeurenService
-      .setZoekopdrachtActief(this.actieveZoekopdracht)
-      .subscribe();
+    this.setZoekopdrachtActiefMutation.mutate(this.actieveZoekopdracht);
   }
 
   protected deleteZoekopdracht(
@@ -117,7 +116,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
 
   protected clearActief(emit?: boolean) {
     this.actieveZoekopdracht = null;
-    this.removeZoekopdrachtActiefMutation.mutate(this.werklijst);
+    this.removeZoekopdrachtActiefMutation.mutate(this.werklijst());
     if (emit && this.actieveZoekopdracht) {
       this.actieveFilters = false;
       this.zoekopdracht.emit(this.actieveZoekopdracht);
@@ -128,7 +127,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
 
   private loadZoekopdrachten() {
     this.gebruikersvoorkeurenService
-      .listZoekOpdrachten(this.werklijst)
+      .listZoekOpdrachten(this.werklijst())
       .subscribe((zoekopdrachten) => {
         this.zoekopdrachten = zoekopdrachten;
         this.actieveZoekopdracht = zoekopdrachten.find((z) => z.actief) ?? null;
@@ -140,24 +139,25 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   }
 
   private heeftActieveFilters(): boolean {
-    switch (this.zoekFilters.filtersType) {
+    const zoekFilters = this.zoekFilters();
+    switch (zoekFilters.filtersType) {
       case "ZoekParameters":
-        return hasActiveSearchFilters(this.zoekFilters);
+        return hasActiveSearchFilters(zoekFilters);
       case "DetachedDocumentListParameters":
-        if (this.zoekFilters.zaakID) return true;
-        if (this.zoekFilters.ontkoppeldDoor) return true;
-        if (this.zoekFilters.ontkoppeldOp?.van) return true;
-        if (this.zoekFilters.ontkoppeldOp?.tot) return true;
-        if (this.zoekFilters.creatiedatum?.van) return true;
-        if (this.zoekFilters.creatiedatum?.tot) return true;
-        if (this.zoekFilters.titel) return true;
-        if (this.zoekFilters.reden) return true;
+        if (zoekFilters.zaakID) return true;
+        if (zoekFilters.ontkoppeldDoor) return true;
+        if (zoekFilters.ontkoppeldOp?.van) return true;
+        if (zoekFilters.ontkoppeldOp?.tot) return true;
+        if (zoekFilters.creatiedatum?.van) return true;
+        if (zoekFilters.creatiedatum?.tot) return true;
+        if (zoekFilters.titel) return true;
+        if (zoekFilters.reden) return true;
         return false;
       case "InboxDocumentListParameters":
-        if (this.zoekFilters.identificatie) return true;
-        if (this.zoekFilters.creatiedatum?.van) return true;
-        if (this.zoekFilters.creatiedatum?.tot) return true;
-        if (this.zoekFilters.titel) return true;
+        if (zoekFilters.identificatie) return true;
+        if (zoekFilters.creatiedatum?.van) return true;
+        if (zoekFilters.creatiedatum?.tot) return true;
+        if (zoekFilters.titel) return true;
         return false;
       default:
         return false;

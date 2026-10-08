@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -24,6 +22,7 @@ import { StaticTextComponent } from "src/app/shared/static-text/static-text.comp
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
+import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -33,7 +32,6 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
-import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -49,7 +47,7 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
-const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+const planItemsQuery = (planItems: GeneratedType<"RestPlanItem">[]) =>
   queryOptions({
     queryKey: ["fakePlanItems", planItems],
     queryFn: () => planItems,
@@ -89,7 +87,7 @@ describe(ZaakViewComponent.name, () => {
     }),
     indicaties: [],
     rechten: {
-      behandelen: true,
+      canBehandelen: true,
     },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
@@ -123,14 +121,11 @@ describe(ZaakViewComponent.name, () => {
         StaticTextComponent,
         ZaakProcessFlowComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         PlanItemsService,
         {
@@ -160,7 +155,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -171,7 +166,7 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
         planItemsQuery([
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
@@ -254,7 +249,7 @@ describe(ZaakViewComponent.name, () => {
         .mockResolvedValue("close");
       sideActions.activeAction.set("actie.mail.versturen");
       sideActions.actiefPlanItem.set(
-        fromPartial<GeneratedType<"RESTPlanItem">>({ id: "fakePlanItemId" }),
+        fromPartial<GeneratedType<"RestPlanItem">>({ id: "fakePlanItemId" }),
       );
     });
 
@@ -375,7 +370,7 @@ describe(ZaakViewComponent.name, () => {
   });
 
   describe("starting a human task from the menu", () => {
-    const humanTaskPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+    const humanTaskPlanItem = fromPartial<GeneratedType<"RestPlanItem">>({
       id: "fakeHumanTaskPlanItemId",
       naam: "fakeHumanTaskNaam",
     });
@@ -453,7 +448,11 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,
-          rechten: { ...zaak.rechten, wijzigen: true, wijzigenLocatie: true },
+          rechten: {
+            ...zaak.rechten,
+            canWijzigen: true,
+            canWijzigenLocatie: true,
+          },
         },
       });
       fixture.detectChanges();
@@ -507,9 +506,9 @@ describe(ZaakViewComponent.name, () => {
         );
 
       detailsCard().bagObjectVerwijderen.emit(
-        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+        fromPartial<GeneratedType<"RestBagObjectGegevens">>({
           uuid: "fakeBagObjectGegevensUuid",
-          zaakobject: fromPartial<GeneratedType<"RESTBAGObject">>({
+          zaakobject: fromPartial<GeneratedType<"RestBagObject">>({
             omschrijving: "fakeBagObjectOmschrijving",
           }),
         }),
@@ -519,6 +518,20 @@ describe(ZaakViewComponent.name, () => {
         "fakeBagObjectOmschrijving",
         expect.any(Function),
       );
+    });
+  });
+
+  describe("the BAG object koppelen side action", () => {
+    it("makes the BAG search selectable", async () => {
+      mockActivatedRoute.data.next({ zaak });
+      sideActions.activeAction.set("actie.bag-object.koppelen");
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const bagZoek = fixture.debugElement.query(By.directive(BagZoekComponent))
+        .componentInstance as BagZoekComponent;
+
+      expect(bagZoek.isSelectable()).toBe(true);
     });
   });
 });

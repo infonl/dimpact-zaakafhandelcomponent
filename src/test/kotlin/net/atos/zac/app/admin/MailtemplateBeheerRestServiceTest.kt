@@ -46,7 +46,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                 mail = Mail.ZAAK_ALGEMEEN
             )
             val mailTemplateSlot = slot<MailTemplate>()
-            every { policyService.readOverigeRechten().beheren } returns true
+            every { policyService.readOverigeRechten().canBeheren } returns true
             every { mailTemplateService.createMailtemplate(capture(mailTemplateSlot)) } returns createdMailTemplate
 
             `when`("the mail template is created via POST") {
@@ -87,7 +87,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
             )
             val idSlot = slot<Long>()
             val mailTemplateSlot = slot<MailTemplate>()
-            every { policyService.readOverigeRechten().beheren } returns true
+            every { policyService.readOverigeRechten().canBeheren } returns true
             every {
                 mailTemplateService.updateMailtemplate(capture(idSlot), capture(mailTemplateSlot))
             } returns updatedMailTemplate
@@ -136,7 +136,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                     mail = Mail.ZAAK_ALGEMEEN
                 ).apply { id = 999L } // ID provided in POST request
                 then("it should ignore the provided ID and create successfully") {
-                    every { policyService.readOverigeRechten().beheren } returns true
+                    every { policyService.readOverigeRechten().canBeheren } returns true
                     val createdMailTemplate = createMailTemplate(id = 123L, mail = Mail.ZAAK_ALGEMEEN)
                     every { mailTemplateService.createMailtemplate(any()) } returns createdMailTemplate
                     val response = mailtemplateBeheerRestService.createMailtemplate(restMailTemplate)
@@ -153,7 +153,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         given("'beheren' rechten") {
             `when`("updating a non-existent mail template") {
                 then("it should propagate MailTemplateNotFoundException (404)") {
-                    every { policyService.readOverigeRechten().beheren } returns true
+                    every { policyService.readOverigeRechten().canBeheren } returns true
                     val restMailTemplate = createRestMailTemplate()
                     every { mailTemplateService.updateMailtemplate(999L, any()) } throws MailTemplateNotFoundException(999L)
 
@@ -169,8 +169,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         given("'beheren' rechten") {
             `when`("reading a non-existent mail template") {
                 then("it should propagate MailTemplateNotFoundException (404)") {
-                    every { policyService.readOverigeRechten().beheren } returns true
-                    every { mailTemplateService.readMailtemplate(999L) } throws MailTemplateNotFoundException(999L)
+                    every { policyService.readOverigeRechten().canBeheren } returns true
+                    every { mailTemplateService.readMailTemplate(999L) } throws MailTemplateNotFoundException(999L)
                     shouldThrow<MailTemplateNotFoundException> {
                         mailtemplateBeheerRestService.readMailtemplate(999L)
                     }

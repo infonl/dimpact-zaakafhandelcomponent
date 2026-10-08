@@ -53,10 +53,8 @@ data class RestPersoon(
     override var emailadres: String? = null,
     override var telefoonnummer: String? = null,
     val indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
-) : RestKlant() {
-    override fun getIdentificatieType(): IdentificatieType? {
-        return IdentificatieType.BSN
-    }
+) : RestKlant {
+    override fun getIdentificatieType(): IdentificatieType? = IdentificatieType.BSN
 }
 
 private const val DECEASED_CODE = "O"

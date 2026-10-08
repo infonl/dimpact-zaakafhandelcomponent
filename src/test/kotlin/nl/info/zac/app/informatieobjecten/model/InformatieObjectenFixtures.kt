@@ -36,7 +36,7 @@ fun createRestEnkelvoudigInformatieobject(
     file: InputStream? = "fakeFile".byteInputStream(),
     bestandsNaam: String = "fakeFilename",
     formaat: String = "fakeType",
-    indicatieGebruiksrecht: Boolean = false,
+    hasGebruiksrecht: Boolean = false,
     gelockedDoor: RestUser? = null,
     ondertekening: RestOndertekening? = null,
     isBesluitDocument: Boolean = false,
@@ -49,7 +49,7 @@ fun createRestEnkelvoudigInformatieobject(
     auteur = auteur,
     taal = taal,
     informatieobjectTypeUUID = informatieobjectTypeUUID,
-    indicatieGebruiksrecht = indicatieGebruiksrecht,
+    hasGebruiksrecht = hasGebruiksrecht,
     gelockedDoor = gelockedDoor,
     ondertekening = ondertekening,
     isBesluitDocument = isBesluitDocument,
@@ -82,7 +82,7 @@ fun createRestInformatieobjecttype(
     uuid = uuid,
     omschrijving = omschrijving,
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
-    concept = concept
+    isConcept = concept
 )
 
 @Suppress("LongParameterList")
@@ -91,7 +91,7 @@ fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     bestandsnaam: String = "fakeFile.txt",
     file: InputStream? = "fakeFile".byteInputStream(),
     formaat: String = "fakeType",
-    informatieobjectTypeUUID: UUID = UUID.randomUUID(),
+    informatieobjectTypeUUID: UUID? = UUID.randomUUID(),
     vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding =
         RestVertrouwelijkheidaanduiding.OPENBAAR
 ) = RestEnkelvoudigInformatieObjectVersieGegevens(
@@ -113,5 +113,5 @@ fun createRestInformatieobjectZoekParameters(
     informatieobjectUUIDs = informatieobjectUUIDs,
     zaakUUID = zaakUuid,
     besluittypeUUID = besluittypeUuid,
-    gekoppeldeZaakDocumenten = gekoppeldeZaakDocumenten
+    shouldIncludeGekoppeldeZaakDocumenten = gekoppeldeZaakDocumenten
 )

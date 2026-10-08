@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.flowable.delegate
@@ -9,7 +9,6 @@ import org.flowable.engine.delegate.DelegateExecution
 import org.flowable.engine.delegate.JavaDelegate
 
 abstract class AbstractDelegate : JavaDelegate {
-    protected fun getZaakIdentificatie(delegateExecution: DelegateExecution): String {
-        return delegateExecution.parent.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) as String
-    }
+    protected fun getZaakIdentificatie(delegateExecution: DelegateExecution): String =
+        delegateExecution.parent.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) as String
 }

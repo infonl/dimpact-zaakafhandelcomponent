@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.history.converter
@@ -9,10 +9,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.zgw.shared.model.Bron
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.shared.model.audit.createZRCAuditTrailRegel
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.model.Bron
+import nl.info.client.zgw.shared.model.audit.createZrcAuditTrailRegel
+import nl.info.client.zgw.shared.model.createValidationZgwError
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.zrc.model.generated.Wijzigingen
 import nl.info.zac.history.model.HistoryAction
 import java.math.BigDecimal
@@ -38,7 +41,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     ) {
         val rolTypeUri = "https://example.com/roltype/${UUID.randomUUID()}"
         val creationDate = ZonedDateTime.of(2024, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC)
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             aanmaakdatum = creationDate,
             gebruikersWeergave = userName,
             bron = Bron.ZAKEN_API,
@@ -83,10 +86,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("history is requested") {
             val history = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.AANGEMAAKT,
-                emptyMap<String, String>(),
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.AANGEMAAKT,
+                oldValues = emptyMap<String, String>(),
+                newValues = newValues
             )
 
             then("it is converted correctly") {
@@ -136,7 +139,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     }
 
     given("Audit trail has resource zaakgeometrie with action partial_update") {
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -168,10 +171,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return correct data") {
@@ -190,7 +193,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     }
 
     given("Audit trail has resource communicatiekanaal with action partial_update") {
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -206,10 +209,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return correct data") {
@@ -228,7 +231,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     }
 
     given("A partial update with a list that has gotten smaller") {
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -244,10 +247,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should not throw an exception") {
@@ -257,7 +260,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     }
 
     given("A partial update with a list that stays the same size but values change") {
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -273,10 +276,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should not throw an exception") {
@@ -286,7 +289,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     }
 
     given("A partial update with a list that stays exactly the same") {
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -302,10 +305,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should not contain lines") {
@@ -315,7 +318,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     }
 
     given("A partial update with a map with a value that changes") {
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -331,10 +334,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should contain a line") {
@@ -346,7 +349,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     given("Audit trail has a partial_update where gerelateerdeZaken was linked for the first time") {
         val gerelateerdeZaak = createZaak(identificatie = "fakeGerelateerdeZaakIdentificatie1")
         every { zrcClientService.readZaak(gerelateerdeZaak.url) } returns gerelateerdeZaak
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.ZAKEN_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -362,10 +365,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return null for oldValue and the zaak identificatie for newValue") {
@@ -388,7 +391,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
         val gerelateerdeZaak2 = createZaak(identificatie = "fakeGerelateerdeZaakIdentificatie2")
         every { zrcClientService.readZaak(gerelateerdeZaak1.url) } returns gerelateerdeZaak1
         every { zrcClientService.readZaak(gerelateerdeZaak2.url) } returns gerelateerdeZaak2
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.ZAKEN_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -409,10 +412,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return the zaak identificaties joined by a comma") {
@@ -429,7 +432,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     given("Audit trail has a partial_update where gerelateerdeZaken contains a duplicate url") {
         val gerelateerdeZaak = createZaak(identificatie = "fakeGerelateerdeZaakIdentificatie1")
         every { zrcClientService.readZaak(gerelateerdeZaak.url) } returns gerelateerdeZaak
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.ZAKEN_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -450,10 +453,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return the zaak identificatie only once") {
@@ -468,8 +471,8 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
     given("Audit trail has a partial_update where a gerelateerde zaak can no longer be resolved") {
         val gerelateerdeZaakUri = URI("https://example.com/zaken/${UUID.randomUUID()}")
-        every { zrcClientService.readZaak(gerelateerdeZaakUri) } throws RuntimeException("fakeException")
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        every { zrcClientService.readZaak(gerelateerdeZaakUri) } throws ZrcRuntimeException("fakeException")
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.ZAKEN_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -485,10 +488,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should fall back to the zaak url") {
@@ -503,11 +506,60 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
     given(
         """
+           Audit trail has a partial_update where gerelateerdeZaken contains a url outside the ZGW API,
+           a url without a UUID and a url that the ZGW API rejects as invalid
+        """.trimIndent()
+    ) {
+        val foreignZaakUri = URI("https://foreign.example.com/zaken/${UUID.randomUUID()}")
+        val zaakUriWithoutUuid = URI("https://example.com/zaken/notAUuid")
+        val rejectedZaakUri = URI("https://example.com/zaken/${UUID.randomUUID()}")
+        every { zrcClientService.readZaak(foreignZaakUri) } throws IllegalStateException("fakeException")
+        every { zrcClientService.readZaak(zaakUriWithoutUuid) } throws IllegalArgumentException("fakeException")
+        every {
+            zrcClientService.readZaak(rejectedZaakUri)
+        } throws ZgwValidationErrorException(createValidationZgwError())
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 200,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "",
+            wijzigingen = Wijzigingen()
+        )
+        val oldValues = mapOf("gerelateerdeZaken" to emptyList<Any>())
+        val newValues = mapOf(
+            "gerelateerdeZaken" to listOf(foreignZaakUri, zaakUriWithoutUuid, rejectedZaakUri)
+                .map { mapOf("url" to it.toString()) }
+        )
+
+        `when`("converted to REST historie regel") {
+            val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
+            )
+
+            then("it should fall back to the zaak urls") {
+                historyLines.size shouldBe 1
+                with(historyLines.first()) {
+                    attributeLabel shouldBe "gerelateerdeZaken"
+                    newValue shouldBe "$foreignZaakUri, $zaakUriWithoutUuid, $rejectedZaakUri"
+                }
+            }
+        }
+    }
+
+    given(
+        """
            Audit trail has a partial_update where gerelateerdeZaken contains an invalid url,
            a non-map entry and a map without a url
         """.trimIndent()
     ) {
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.ZAKEN_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -529,10 +581,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return null for newValue") {
@@ -550,7 +602,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
         val zaak2 = createZaak(identificatie = "identificatie2")
         every { zrcClientService.readZaak(zaak1.url) } returns zaak1
         every { zrcClientService.readZaak(zaak2.url) } returns zaak2
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "partial_update",
             actieWeergave = "Almost updated",
@@ -566,10 +618,10 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                zrcAuditTrailRegel,
-                HistoryAction.GEWIJZIGD,
-                oldValues,
-                newValues
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEWIJZIGD,
+                oldValues = oldValues,
+                newValues = newValues
             )
 
             then("it should return correct data") {

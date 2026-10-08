@@ -2,16 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
+import { HttpErrorResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { queryOptions } from "@tanstack/angular-query-experimental";
-import { lastValueFrom, map, Observable } from "rxjs";
+import type { CreateMutationOptions } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
-import { GeneratedType } from "../shared/utils/generated-types";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
@@ -116,34 +114,10 @@ export class InformatieObjectenService {
   listEnkelvoudigInformatieobjecten(
     body: PutBody<"/rest/informatieobjecten/informatieobjectenList">,
   ) {
-    return this.zacHttpClient.PUT(
+    return this.zacQueryClient.PUT_QUERY(
       "/rest/informatieobjecten/informatieobjectenList",
       body,
     );
-  }
-
-  /**
-   * The list endpoint is a `PUT` (search-with-body), so it cannot use {@link ZacQueryClient.GET};
-   * we wrap the existing call in `queryOptions` instead. The input is constrained to the fields
-   * this query supports so the query key provably covers every discriminating field (passing other
-   * filters of the endpoint would otherwise collide on the cache).
-   */
-  listEnkelvoudigInformatieobjectenQuery(
-    body: Pick<
-      GeneratedType<"RestInformatieobjectZoekParameters">,
-      "zaakUUID" | "gekoppeldeZaakDocumenten"
-    >,
-  ) {
-    return queryOptions({
-      queryKey: [
-        "/rest/informatieobjecten/informatieobjectenList",
-        body.zaakUUID,
-        body.gekoppeldeZaakDocumenten,
-      ],
-      queryFn: () =>
-        lastValueFrom(this.listEnkelvoudigInformatieobjecten(body)),
-      staleTime: StaleTimes.Short,
-    });
   }
 
   readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(uuid: string) {
@@ -208,9 +182,8 @@ export class InformatieObjectenService {
   }
 
   lockInformatieObject(uuid: string, zaakUuid: string) {
-    return this.zacHttpClient.POST(
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/lock",
-      undefined as never,
       {
         path: { uuid },
         query: { zaak: zaakUuid },
@@ -219,9 +192,8 @@ export class InformatieObjectenService {
   }
 
   unlockInformatieObject(uuid: string, zaakUuid?: string) {
-    return this.zacHttpClient.POST(
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/unlock",
-      undefined as never,
       {
         path: { uuid },
         query: { zaak: zaakUuid ?? null },
@@ -230,9 +202,8 @@ export class InformatieObjectenService {
   }
 
   ondertekenInformatieObject(uuid: string, zaakUuid: string) {
-    return this.zacHttpClient.POST(
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/onderteken",
-      undefined as never,
       {
         path: { uuid },
         query: { zaak: zaakUuid },
@@ -247,16 +218,20 @@ export class InformatieObjectenService {
     return `${this.basepath}/informatieobject/${uuid}/download`;
   }
 
-  getZIPDownload(
-    body: PostBody<"/rest/informatieobjecten/download/zip">,
-  ): Observable<Blob> {
-    return this.zacHttpClient.POST(
-      "/rest/informatieobjecten/download/zip",
-      body,
-      {
-        responseType: "blob",
-      } as Record<string, unknown>,
-    ) as unknown as Observable<Blob>;
+  /**
+   * The zip is a file rather than JSON, so `responseType` rides along with the
+   * parameters to reach the Angular `HttpClient`, and the response is typed as
+   * the `Blob` it is at runtime.
+   */
+  getZIPDownload() {
+    return this.zacQueryClient.POST("/rest/informatieobjecten/download/zip", {
+      responseType: "blob",
+    } as Record<string, unknown>) as unknown as CreateMutationOptions<
+      Blob,
+      HttpErrorResponse,
+      PostBody<"/rest/informatieobjecten/download/zip">,
+      void
+    >;
   }
 
   getPreviewUrl(uuid: string, versie?: number | null): string {
@@ -306,19 +281,13 @@ export class InformatieObjectenService {
     );
   }
 
-  convertInformatieObjectToPDF(
-    uuid: string,
-    zaakUuid: string,
-  ): Observable<void> {
-    return this.zacHttpClient
-      .POST(
-        "/rest/informatieobjecten/informatieobject/{uuid}/convert",
-        undefined as never,
-        {
-          path: { uuid },
-          query: { zaak: zaakUuid },
-        },
-      )
-      .pipe(map(() => void 0));
+  convertInformatieObjectToPDF(uuid: string, zaakUuid: string) {
+    return this.zacQueryClient.POST(
+      "/rest/informatieobjecten/informatieobject/{uuid}/convert",
+      {
+        path: { uuid },
+        query: { zaak: zaakUuid },
+      },
+    );
   }
 }

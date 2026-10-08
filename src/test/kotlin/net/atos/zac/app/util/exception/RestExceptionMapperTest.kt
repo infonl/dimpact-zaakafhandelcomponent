@@ -27,9 +27,13 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
+import nl.info.zac.admin.exception.SystemReferenceTableNotConfiguredException
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.besluit.BesluitPublicationDateMissingException
 import nl.info.zac.besluit.BesluitPublicationDisabledException
@@ -41,6 +45,11 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
+import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
+import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
+import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
@@ -50,6 +59,7 @@ import java.lang.reflect.InvocationTargetException
 import java.net.UnknownHostException
 import java.util.logging.Level
 
+@Suppress("LargeClass")
 class RestExceptionMapperTest : BehaviorSpec({
     val restExceptionMapper = RestExceptionMapper()
 
@@ -78,11 +88,39 @@ class RestExceptionMapperTest : BehaviorSpec({
                 val response = restExceptionMapper.toResponse(exception)
 
                 then("it should return a specific error code and the exception message") {
-                    checkResponse(response, "msg.error.invalid.argument", exceptionMessage, HttpStatus.SC_BAD_REQUEST)
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.invalid.argument",
+                        exceptionMessage = exceptionMessage,
+                        expectedStatus = HttpStatus.SC_BAD_REQUEST
+                    )
                 }
 
-                and("it should not log the exception") {
-                    verify(exactly = 0) { log(any(), any(), any<String>(), any()) }
+                and("it should log the exception at the level FINE") {
+                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exceptionMessage, throwable = exception) }
+                }
+            }
+        }
+
+        given("A WebApplicationException with a status different from 500 and no message") {
+            val exception = WebApplicationException(null as String?, Response.Status.NOT_FOUND)
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return the generic server error code as the message and the not found status") {
+                    checkResponse(response, "msg.error.server.generic", expectedStatus = HttpStatus.SC_NOT_FOUND)
+                }
+
+                and("it should log a fallback message naming the response status, at the level FINE") {
+                    verify(exactly = 1) {
+                        log(
+                            logger = any(),
+                            level = Level.FINE,
+                            message = "Exception was thrown. Returning response with status: '404'.",
+                            throwable = exception
+                        )
+                    }
                 }
             }
         }
@@ -96,7 +134,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the generic server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -110,7 +148,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BRC server error code and log the exception") {
                     checkResponse(response, "msg.error.brc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -124,7 +162,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the DRC server error code and log the exception") {
                     checkResponse(response, "msg.error.drc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -138,7 +176,26 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZRC server error code and log the exception") {
                     checkResponse(response, "msg.error.zrc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("A ZaakGeometrieNotSupportedException exception") {
+            val exceptionMessage = "Zaak 'fakeZaakUUID' has an unsupported zaakgeometrie type. " +
+                "Only 'Point' zaakgeometrie is supported."
+            val exception = ZaakGeometrieNotSupportedException(exceptionMessage, RuntimeException("cause"))
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return the zaak geometrie not supported error code, a bad request status, and log at WARNING") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.zaak.geometrie.not-supported",
+                        expectedStatus = HttpStatus.SC_BAD_REQUEST
+                    )
+                    verify(exactly = 1) { log(logger = any(), level = Level.WARNING, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -152,7 +209,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the generic server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -166,7 +223,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZTC server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.ztc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -183,7 +240,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.brp.temporary.person.id.expired",
                         expectedStatus = HttpStatus.SC_GONE
                     )
-                    verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -307,7 +364,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BAG server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.bag.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -332,7 +389,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BRC server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.brc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -357,7 +414,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the Klanten server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.klanten.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -382,7 +439,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the Objecten server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.objects.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -404,7 +461,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZTC server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.ztc.client.exception")
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -428,7 +485,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     "it should return the general server error error code with an exception message and log the exception"
                 ) {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -457,10 +514,10 @@ class RestExceptionMapperTest : BehaviorSpec({
                         exactly = 1
                     ) {
                         log(
-                            any(),
-                            Level.FINE,
-                            "fakeErrorMessage",
-                            exception
+                            logger = any(),
+                            level = Level.FINE,
+                            message = "fakeErrorMessage",
+                            throwable = exception
                         )
                     }
                 }
@@ -488,11 +545,11 @@ class RestExceptionMapperTest : BehaviorSpec({
                     )
                     verify(exactly = 1) {
                         log(
-                            any(),
-                            Level.FINE,
-                            "Exception was thrown. Returning response with error code: " +
+                            logger = any(),
+                            level = Level.FINE,
+                            message = "Exception was thrown. Returning response with error code: " +
                                 "'${ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value}'.",
-                            exception
+                            throwable = exception
                         )
                     }
                 }
@@ -511,7 +568,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.besluit.publication.disabled",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -532,10 +589,11 @@ class RestExceptionMapperTest : BehaviorSpec({
                         exactly = 1
                     ) {
                         log(
-                            any(),
-                            Level.FINE,
-                            "Exception was thrown. Returning response with error code: 'msg.error.besluit.publication.date.missing'.",
-                            exception
+                            logger = any(),
+                            level = Level.FINE,
+                            message = "Exception was thrown. Returning response with error code: " +
+                                "'msg.error.besluit.publication.date.missing'.",
+                            throwable = exception
                         )
                     }
                 }
@@ -554,7 +612,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.besluit.response.date.invalid",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -572,7 +630,127 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "fakeErrorCodeValue",
                         expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                     )
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("A SmartDocumentsConfigurationException exception") {
+            val exception = SmartDocumentsConfigurationException("fakeMessage")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the SmartDocuments not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.smartdocuments.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("A SmartDocumentsDisabledException exception") {
+            val exception = SmartDocumentsDisabledException()
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the SmartDocuments disabled error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.smartdocuments.disabled",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("A SystemReferenceTableNotConfiguredException exception") {
+            val exception = SystemReferenceTableNotConfiguredException(AFZENDER)
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the system reference table not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.system.reference.table.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("A MailTemplateNotConfiguredException exception") {
+            val exception = MailTemplateNotConfiguredException(Mail.ZAAK_ONTVANKELIJK)
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the mail template not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.mailtemplate.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("A CatalogusNotFoundException exception") {
+            val exception = CatalogusNotFoundException("fakeMessage")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the catalogus not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.catalogus.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("An OpaRuleNotConfiguredException exception") {
+            val exception = OpaRuleNotConfiguredException("zaak/zaak_rechten")
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                then("it should return a server error status with the OPA rule not configured error code") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.opa.rule.not.configured",
+                        expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
+                }
+
+                and("it should log the exception at the level SEVERE") {
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -594,7 +772,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception") {
-                    verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
                 }
             }
         }
@@ -615,7 +793,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception") {
-                    verify(exactly = 1) { log(any(), Level.WARNING, exception.message, exception) }
+                    verify(exactly = 1) { log(logger = any(), level = Level.WARNING, message = exception.message, throwable = exception) }
                 }
             }
         }

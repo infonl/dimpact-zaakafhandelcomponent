@@ -115,10 +115,10 @@ class TaskRestServiceTest : BehaviorSpec({
                               },
                               "naam" : "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
                               "rechten" : {
-                                "lezen" : true,
-                                "toekennen" : false,
-                                "toevoegenDocument" : false,
-                                "wijzigen" : false
+                                "canLezen" : true,
+                                "canToekennen" : false,
+                                "canToevoegenDocument" : false,
+                                "canWijzigen" : false
                               },
                               "status" : "NIET_TOEGEKEND",
                               "taakdata" : { },

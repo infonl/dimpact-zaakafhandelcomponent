@@ -52,6 +52,7 @@ import {
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -156,7 +157,7 @@ export class InboxDocumentenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.documenten.inboxDocumenten");
+    this.utilService.setTitle("title.documenten.inbox-documenten");
     this.listParameters = SessionStorageUtil.getItem(
       "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
@@ -172,10 +173,13 @@ export class InboxDocumentenListComponent
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
-          return this.inboxDocumentenService.list({
-            ...this.listParametersSort,
-            ...this.listParameters,
-          });
+          return runQuery(
+            this.queryClient,
+            this.inboxDocumentenService.list({
+              ...this.listParametersSort,
+              ...this.listParameters,
+            }),
+          );
         }),
         map((data) => {
           this.isLoadingResults = false;

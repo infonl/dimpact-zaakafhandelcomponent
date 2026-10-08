@@ -5,9 +5,9 @@
 
 package nl.info.zac.app.zaak.model
 
-import net.atos.zac.app.bag.model.RESTBAGObject
-import net.atos.zac.app.bag.model.RESTOpenbareRuimte
-import net.atos.zac.app.bag.model.RESTPand
+import nl.info.zac.app.bag.model.RestBagObject
+import nl.info.zac.app.bag.model.RestOpenbareRuimte
+import nl.info.zac.app.bag.model.RestPand
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.identity.model.RestGroup
@@ -128,9 +128,9 @@ fun createRestInboxProductaanvraag(
     initiatorID = null
 )
 
-fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
+fun createRestOpenbareRuimte() = RestOpenbareRuimte()
 
-fun createRESTPand() = RESTPand()
+fun createRestPand() = RestPand()
 
 fun createRestUser(
     id: String = "fakeId",
@@ -167,12 +167,12 @@ fun createRestZaak(
     bronorganisatie = "Sample Bronorganisatie",
     communicatiekanaal = communicatiekanaal,
     duurVerlenging = "Sample Duur Verlenging",
-    eerdereOpschorting = false,
+    hasEerdereOpschorting = false,
     einddatum = LocalDate.of(2023, 10, 5),
     einddatumGepland = einddatumGepland,
     gerelateerdeZaken = listOf(createRESTGerelateerdeZaak()),
     groep = restGroup,
-    heeftOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
+    isOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
     identificatie = "ZA2023001",
     indicaties = indicaties,
     initiatorIdentificatie = initiatorBetrokkeneIdentificatie,
@@ -205,15 +205,8 @@ fun createRestZaak(
     zaakdata = createZaakData(),
     zaakgeometrie = createRESTGeometry(),
     zaakSpecificContactDetails = null,
-    zaaktype = restZaakType
-)
-
-fun createRestZaakDataUpdate(
-    uuid: UUID = UUID.randomUUID(),
-    zaakData: Map<String, Any> = createZaakData()
-) = RestZaakDataUpdate(
-    uuid = uuid,
-    zaakdata = zaakData
+    zaaktype = restZaakType,
+    isZaakdataGearchiveerd = false
 )
 
 @Suppress("LongParameterList")
@@ -259,7 +252,7 @@ fun createRESTZaakAanmaakGegevens(
         )
     ),
     inboxProductaanvraag: RestInboxProductaanvraag = createRestInboxProductaanvraag(),
-    bagObjecten: List<RESTBAGObject> = listOf(createRESTPand(), createRESTOpenbareRuimte())
+    bagObjecten: List<RestBagObject> = listOf(createRestPand(), createRestOpenbareRuimte())
 ) = RestZaakAanmaakGegevens(
     zaak = restZaakCreateData,
     inboxProductaanvraag = inboxProductaanvraag,
@@ -374,26 +367,26 @@ fun createRestZaakRechten(
     wijzigenLocatie: Boolean = true,
     brondatumZetten: Boolean = true
 ) = RestZaakRechten(
-    lezen = lezen,
-    wijzigen = wijzigen,
-    toekennen = toekennen,
-    behandelen = behandelen,
-    afbreken = afbreken,
-    heropenen = heropenen,
-    bekijkenZaakdata = bekijkenZaakdata,
-    wijzigenDoorlooptijd = wijzigenDoorlooptijd,
-    toevoegenBagObject = toevoegenBagObject,
-    toevoegenBetrokkeneBedrijf = toevoegenBetrokkeneBedrijf,
-    toevoegenBetrokkenePersoon = toevoegenBetrokkenePersoon,
-    toevoegenInitiatorBedrijf = toevoegenInitiatorBedrijf,
-    toevoegenInitiatorPersoon = toevoegenInitiatorPersoon,
-    versturenOntvangstbevestiging = versturenOntvangstbevestiging,
-    verwijderenBetrokkene = verwijderenBetrokkene,
-    verwijderenInitiator = verwijderenInitiator,
-    creerenDocument = creerenDocument,
-    versturenEmail = versturenEmail,
-    wijzigenLocatie = wijzigenLocatie,
-    brondatumZetten = brondatumZetten
+    canLezen = lezen,
+    canWijzigen = wijzigen,
+    canToekennen = toekennen,
+    canBehandelen = behandelen,
+    canAfbreken = afbreken,
+    canHeropenen = heropenen,
+    canBekijkenZaakdata = bekijkenZaakdata,
+    canWijzigenDoorlooptijd = wijzigenDoorlooptijd,
+    canToevoegenBagObject = toevoegenBagObject,
+    canToevoegenBetrokkeneBedrijf = toevoegenBetrokkeneBedrijf,
+    canToevoegenBetrokkenePersoon = toevoegenBetrokkenePersoon,
+    canToevoegenInitiatorBedrijf = toevoegenInitiatorBedrijf,
+    canToevoegenInitiatorPersoon = toevoegenInitiatorPersoon,
+    canVersturenOntvangstbevestiging = versturenOntvangstbevestiging,
+    canVerwijderenBetrokkene = verwijderenBetrokkene,
+    canVerwijderenInitiator = verwijderenInitiator,
+    canCreerenDocument = creerenDocument,
+    canVersturenEmail = versturenEmail,
+    canWijzigenLocatie = wijzigenLocatie,
+    canBrondatumZetten = brondatumZetten
 )
 
 fun createRestZaakResultaat() = RestZaakResultaat()
@@ -414,14 +407,14 @@ fun createRestZaaktype(
     doel = "Sample Doel",
     omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
     referentieproces = "Sample Referentieproces",
-    servicenorm = true,
+    hasServicenorm = true,
     versiedatum = LocalDate.now(),
     beginGeldigheid = LocalDate.of(2023, 1, 1),
     eindeGeldigheid = LocalDate.of(2023, 12, 31),
     vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR,
-    nuGeldig = true,
-    opschortingMogelijk = false,
-    verlengingMogelijk = false,
+    isNuGeldig = true,
+    isOpschortingMogelijk = false,
+    isVerlengingMogelijk = false,
     verlengingstermijn = null,
     zaaktypeRelaties = emptyList(),
     informatieobjecttypes = emptyList(),

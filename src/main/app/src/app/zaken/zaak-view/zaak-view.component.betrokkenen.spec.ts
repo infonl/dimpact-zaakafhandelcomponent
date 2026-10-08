@@ -3,11 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -16,10 +12,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  queryOptions,
-} from "@tanstack/angular-query-experimental";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
@@ -38,7 +31,6 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
-import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -54,7 +46,7 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
-const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+const planItemsQuery = (planItems: GeneratedType<"RestPlanItem">[]) =>
   queryOptions({
     queryKey: ["fakePlanItems", planItems],
     queryFn: () => planItems,
@@ -93,7 +85,7 @@ describe(ZaakViewComponent.name, () => {
     }),
     indicaties: [],
     rechten: {
-      behandelen: true,
+      canBehandelen: true,
     },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
@@ -127,15 +119,11 @@ describe(ZaakViewComponent.name, () => {
         StaticTextComponent,
         ZaakProcessFlowComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
         PlanItemsService,
         {
           provide: ActivatedRoute,
@@ -158,7 +146,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -169,7 +157,7 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
         planItemsQuery([
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
@@ -248,7 +236,7 @@ describe(ZaakViewComponent.name, () => {
       ...zaak,
       rechten: {
         ...zaak.rechten,
-        toevoegenInitiatorPersoon: true,
+        canToevoegenInitiatorPersoon: true,
       },
       zaaktype: {
         ...zaak.zaaktype,
@@ -257,7 +245,7 @@ describe(ZaakViewComponent.name, () => {
         >({
           betrokkeneKoppelingen: fromPartial<
             GeneratedType<"RestBetrokkeneKoppelingen">
-          >({ brpKoppelen: true }),
+          >({ isBrpKoppelenEnabled: true }),
         }),
       },
     } satisfies GeneratedType<"RestZaak">;
@@ -268,7 +256,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: true,
+          canZoeken: true,
         }),
       );
 
@@ -286,7 +274,7 @@ describe(ZaakViewComponent.name, () => {
           ...zaakWithPersoonRechten,
           rechten: {
             ...zaakWithPersoonRechten.rechten,
-            toevoegenInitiatorPersoon: false,
+            canToevoegenInitiatorPersoon: false,
           },
         },
       });
@@ -306,7 +294,7 @@ describe(ZaakViewComponent.name, () => {
             >({
               betrokkeneKoppelingen: fromPartial<
                 GeneratedType<"RestBetrokkeneKoppelingen">
-              >({ brpKoppelen: false }),
+              >({ isBrpKoppelenEnabled: false }),
             }),
           },
         },
@@ -320,7 +308,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         policyService.readBrpRechten().queryKey,
         fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: false,
+          canZoeken: false,
         }),
       );
       fixture.detectChanges();
@@ -392,7 +380,7 @@ describe(ZaakViewComponent.name, () => {
 
     it("reports a failing BAG-object ontkoppelen through the error handler", async () => {
       fixture.componentInstance["bagObjectVerwijderen"](
-        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+        fromPartial<GeneratedType<"RestBagObjectGegevens">>({
           uuid: "fake-bag-object-uuid",
           zaakobject: { omschrijving: "fake bag object" },
         }),
@@ -539,14 +527,13 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
-    it("reloads the BAG-objecten after coupling an adres", () => {
-      const bagObject = fromPartial<GeneratedType<"RESTBAGObject">>({
+    it("reloads the BAG-objecten after coupling an adres", async () => {
+      const bagObject = fromPartial<GeneratedType<"RestBagObject">>({
         omschrijving: "fakeBagObjectOmschrijving",
       });
-      const create = jest
-        .spyOn(bagService, "create")
-        .mockReturnValue(of(undefined) as never);
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      httpTestingController.match(() => true);
       // the view already listed them while initialising, so ignore that call
       const list = jest
         .spyOn(bagService, "list")
@@ -554,13 +541,20 @@ describe(ZaakViewComponent.name, () => {
         .mockReturnValue(of([]));
 
       fixture.componentInstance["adresGeselecteerd"](bagObject);
+      await new Promise(requestAnimationFrame);
+      const request = httpTestingController.expectOne((httpRequest) =>
+        httpRequest.url.endsWith("/rest/bag"),
+      );
+      request.flush(null);
+      await new Promise(requestAnimationFrame);
 
-      expect(create).toHaveBeenCalledWith({
+      expect(request.request.method).toBe("POST");
+      expect(request.request.body).toEqual({
         zaakUuid: zaak.uuid,
         zaakobject: bagObject,
       });
       expect(list).toHaveBeenCalledWith(zaak.uuid);
-      expect(openSnackbar).toHaveBeenCalledWith("msg.bagObject.gekoppeld");
+      expect(openSnackbar).toHaveBeenCalledWith("msg.bag-object.gekoppeld");
     });
   });
 });

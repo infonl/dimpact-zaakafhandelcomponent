@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -21,6 +21,7 @@
         class="col-4"
         [form]="formGroup"
         [options]="types"
+        [optionDisplayValue]="typeLabel"
         key="type"
       />
     </section>
@@ -91,7 +92,7 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
         <button
-          *ngIf="bedrijf?.observed"
+          *ngIf="isSelectable()"
           mat-icon-button
           color="primary"
           (click)="selectBedrijf(row)"
@@ -100,7 +101,7 @@
           <mat-icon>business</mat-icon>
         </button>
         <button
-          *ngIf="!bedrijf?.observed"
+          *ngIf="!isSelectable()"
           mat-icon-button
           (click)="openBedrijfPagina(row)"
           [id]="

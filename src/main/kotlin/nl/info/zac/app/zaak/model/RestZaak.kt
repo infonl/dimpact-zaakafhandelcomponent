@@ -29,14 +29,15 @@ data class RestZaak(
     var bronorganisatie: String?,
     var communicatiekanaal: String?,
     var duurVerlenging: String?,
-    var eerdereOpschorting: Boolean,
+    var hasEerdereOpschorting: Boolean,
     var einddatum: LocalDate?,
     var einddatumGepland: LocalDate?,
     var gerelateerdeZaken: List<RestGerelateerdeZaak>?,
     var groep: RestGroup?,
 
-    @get:JsonbProperty("heeftOntvangstbevestigingVerstuurd")
-    var heeftOntvangstbevestigingVerstuurd: Boolean,
+    @get:JsonbProperty("isOntvangstbevestigingVerstuurd")
+    @set:JsonbProperty("isOntvangstbevestigingVerstuurd")
+    var isOntvangstbevestigingVerstuurd: Boolean,
 
     var identificatie: String,
     var indicaties: EnumSet<ZaakIndicatie>,
@@ -75,6 +76,9 @@ data class RestZaak(
 
     @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
     var isZaakspecifiekGeautoriseerd: Boolean,
+
+    @get:JsonbProperty("isZaakdataGearchiveerd")
+    var isZaakdataGearchiveerd: Boolean,
 
     var kenmerken: List<RestZaakKenmerk>?,
     var omschrijving: String,

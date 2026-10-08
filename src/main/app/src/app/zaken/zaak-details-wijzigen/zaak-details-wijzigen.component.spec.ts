@@ -69,9 +69,9 @@ describe(CaseDetailsEditComponent.name, () => {
     communicatiekanaal: "email",
     vertrouwelijkheidaanduiding: "OPENBAAR",
     rechten: {
-      wijzigen: true,
-      wijzigenDoorlooptijd: true,
-      toekennen: true,
+      canWijzigen: true,
+      canWijzigenDoorlooptijd: true,
+      canToekennen: true,
     },
     zaaktype: {
       uuid: "zaaktype-123",
@@ -175,7 +175,7 @@ describe(CaseDetailsEditComponent.name, () => {
           zaaktype: {
             uuid: "zaaktype-123",
             omschrijving: "Test zaaktype",
-            servicenorm: servicenormValue,
+            hasServicenorm: servicenormValue,
           } as Partial<
             GeneratedType<"RestZaaktype">
           > as unknown as GeneratedType<"RestZaaktype">,
@@ -199,9 +199,9 @@ describe(CaseDetailsEditComponent.name, () => {
       // Arrange
       renderComponent({
         rechten: {
-          wijzigen: false,
-          wijzigenDoorlooptijd: true,
-          toekennen: true,
+          canWijzigen: false,
+          canWijzigenDoorlooptijd: true,
+          canToekennen: true,
         } as Partial<
           GeneratedType<"RestZaakRechten">
         > as unknown as GeneratedType<"RestZaakRechten">,
@@ -221,9 +221,9 @@ describe(CaseDetailsEditComponent.name, () => {
       // Arrange
       renderComponent({
         rechten: {
-          wijzigen: true,
-          wijzigenDoorlooptijd: true,
-          toekennen: false,
+          canWijzigen: true,
+          canWijzigenDoorlooptijd: true,
+          canToekennen: false,
         } as Partial<
           GeneratedType<"RestZaakRechten">
         > as unknown as GeneratedType<"RestZaakRechten">,
@@ -241,9 +241,9 @@ describe(CaseDetailsEditComponent.name, () => {
       // Arrange
       renderComponent({
         rechten: {
-          wijzigen: true,
-          wijzigenDoorlooptijd: false,
-          toekennen: true,
+          canWijzigen: true,
+          canWijzigenDoorlooptijd: false,
+          canToekennen: true,
         } as Partial<
           GeneratedType<"RestZaakRechten">
         > as unknown as GeneratedType<"RestZaakRechten">,
@@ -264,9 +264,9 @@ describe(CaseDetailsEditComponent.name, () => {
       // Arrange
       renderComponent({
         rechten: {
-          wijzigen: true,
-          wijzigenDoorlooptijd: true,
-          toekennen: true,
+          canWijzigen: true,
+          canWijzigenDoorlooptijd: true,
+          canToekennen: true,
         } as Partial<
           GeneratedType<"RestZaakRechten">
         > as unknown as GeneratedType<"RestZaakRechten">,
@@ -295,7 +295,7 @@ describe(CaseDetailsEditComponent.name, () => {
       zaaktype: {
         uuid: "zaaktype-123",
         omschrijving: "Test zaaktype",
-        servicenorm: true,
+        hasServicenorm: true,
       } as Partial<
         GeneratedType<"RestZaaktype">
       > as unknown as GeneratedType<"RestZaaktype">,
@@ -349,7 +349,7 @@ describe(CaseDetailsEditComponent.name, () => {
           zaaktype: {
             uuid: "zaaktype-123",
             omschrijving: "Test zaaktype",
-            servicenorm: true,
+            hasServicenorm: true,
           } as Partial<
             GeneratedType<"RestZaaktype">
           > as unknown as GeneratedType<"RestZaaktype">,
@@ -416,14 +416,14 @@ describe(CaseDetailsEditComponent.name, () => {
       const activeGroup = fromPartial<GeneratedType<"RestGroup">>({
         id: "g1",
         naam: "Active Group",
-        active: true,
+        isActive: true,
       });
       jest
         .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
         .mockReturnValue(of([activeGroup]));
 
       renderComponent({
-        groep: { id: "g-inactive", naam: "Inactive Group", active: false },
+        groep: { id: "g-inactive", naam: "Inactive Group", isActive: false },
       });
       await fixture.whenStable();
 
@@ -433,7 +433,7 @@ describe(CaseDetailsEditComponent.name, () => {
       );
 
       expect(groups).toHaveLength(2);
-      expect(groups[0]).toMatchObject({ id: "g-inactive", active: false });
+      expect(groups[0]).toMatchObject({ id: "g-inactive", isActive: false });
       expect(groups[1]).toEqual(activeGroup);
     });
 
@@ -441,14 +441,14 @@ describe(CaseDetailsEditComponent.name, () => {
       const activeGroup = fromPartial<GeneratedType<"RestGroup">>({
         id: "g1",
         naam: "Active Group",
-        active: true,
+        isActive: true,
       });
       jest
         .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
         .mockReturnValue(of([activeGroup]));
 
       renderComponent({
-        groep: { id: "g1", naam: "Active Group", active: true },
+        groep: { id: "g1", naam: "Active Group", isActive: true },
       });
       await fixture.whenStable();
 
@@ -465,7 +465,7 @@ describe(CaseDetailsEditComponent.name, () => {
       const activeGroup = fromPartial<GeneratedType<"RestGroup">>({
         id: "g1",
         naam: "Active Group",
-        active: true,
+        isActive: true,
       });
       jest
         .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
@@ -489,7 +489,7 @@ describe(CaseDetailsEditComponent.name, () => {
       const group = fromPartial<GeneratedType<"RestGroup">>({
         id: "g1",
         naam: "Test Group",
-        active: false,
+        isActive: false,
       });
       const result = component["groupDisplayValue"](group);
       expect(result).toContain("Test Group");
@@ -501,7 +501,7 @@ describe(CaseDetailsEditComponent.name, () => {
       const group = fromPartial<GeneratedType<"RestGroup">>({
         id: "g1",
         naam: "Test Group",
-        active: true,
+        isActive: true,
       });
       expect(component["groupDisplayValue"](group)).toBe("Test Group");
     });
@@ -524,7 +524,7 @@ describe(CaseDetailsEditComponent.name, () => {
         zaaktype: {
           uuid: "zaaktype-123",
           omschrijving: "Test zaaktype",
-          servicenorm: true,
+          hasServicenorm: true,
         } as Partial<
           GeneratedType<"RestZaaktype">
         > as unknown as GeneratedType<"RestZaaktype">,
@@ -793,7 +793,7 @@ describe(CaseDetailsEditComponent.name, () => {
     const autoriseerbaarZaaktype = {
       uuid: "zaaktype-123",
       omschrijving: "Test zaaktype",
-      zaakafhandelparameters: { zaakspecifiekAutoriseerbaar: true },
+      zaakafhandelparameters: { isZaakspecifiekAutoriseerbaar: true },
     };
 
     it("is not shown for a zaaktype that is not zaakspecifiek autoriseerbaar", () => {
@@ -889,7 +889,7 @@ describe(CaseDetailsEditComponent.name, () => {
       options: { status: 400, statusText: "Bad Request" },
     });
 
-    it("shows the reassignment refusal, and the single request leaves the zaakgegevens unsaved", async () => {
+    it("shows the missing roltype refusal on a handover, and the single request leaves the zaakgegevens unsaved", async () => {
       renderComponent();
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
@@ -905,7 +905,7 @@ describe(CaseDetailsEditComponent.name, () => {
       await new Promise(requestAnimationFrame);
 
       const { body, options } = refusal(
-        "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned",
+        "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found",
       );
       expectUpdateZaakRequest().flush(body, options);
       await new Promise(requestAnimationFrame);
@@ -913,7 +913,7 @@ describe(CaseDetailsEditComponent.name, () => {
 
       expect(
         screen.getByText(
-          "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned",
+          "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found",
         ),
       ).toBeInTheDocument();
       httpTestingController.verify();

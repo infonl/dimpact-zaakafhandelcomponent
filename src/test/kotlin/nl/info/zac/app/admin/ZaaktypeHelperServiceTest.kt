@@ -23,15 +23,21 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeHelperService
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
+import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createHumanTaskReferentieTabel
+import nl.info.zac.admin.model.createMailTemplate
+import nl.info.zac.admin.model.createMailtemplateKoppelingen
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
+import nl.info.zac.admin.model.createZaakAfzender
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import java.net.URI
 import java.util.UUID
 
@@ -60,22 +66,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
         this.resultaattype = resultaattype
     }
 
-    data class ZaaktypeConfigurationUnderTest(
-        val configurationType: String,
-        val create: (UUID) -> ZaaktypeConfiguration
-    )
-
-    listOf(
-        ZaaktypeConfigurationUnderTest("CMMN") {
-            createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattype = it)
-        },
-        ZaaktypeConfigurationUnderTest("BPMN") {
-            createZaaktypeBpmnConfiguration(
-                nietOntvankelijkResultaattype = it,
-                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
-            )
-        }
-    ).forEach { (configurationType, createZaaktypeConfiguration) ->
+    createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         context("mapZaakbeeindigGegevens of a $configurationType zaaktype configuration") {
             given("a previous configuration whose resultaattypen are not the first ones of the new zaaktype") {
                 val previousAfgebrokenUuid = UUID.randomUUID()
@@ -360,7 +351,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                     groepID = "fakeGroupId"
                     defaultBehandelaarId = "fakeDefaultBehandelaarId"
                     productaanvraagtype = "fakeProductaanvraagtype"
-                    smartDocumentsEnabled = true
+                    isSmartDocumentsEnabled = true
                     zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false)
                     zaaktypeBrpParameters = createZaaktypeBrpParameters(raadpleegWaarde = "fakeRaadpleegWaarde")
                     setZaakbeeindigParameters(
@@ -393,13 +384,13 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                         newZaaktypeConfiguration.groepID shouldBe "fakeGroupId"
                         newZaaktypeConfiguration.defaultBehandelaarId shouldBe "fakeDefaultBehandelaarId"
                         newZaaktypeConfiguration.productaanvraagtype shouldBe "fakeProductaanvraagtype"
-                        newZaaktypeConfiguration.smartDocumentsEnabled shouldBe true
+                        newZaaktypeConfiguration.isSmartDocumentsEnabled shouldBe true
                     }
 
                     and("the betrokkene koppelingen and BRP doelbindingen are copied onto the new configuration") {
                         with(newZaaktypeConfiguration.getBetrokkeneParameters()) {
-                            brpKoppelen shouldBe false
-                            kvkKoppelen shouldBe true
+                            isBrpKoppelenEnabled shouldBe false
+                            isKvkKoppelenEnabled shouldBe true
                             zaaktypeConfiguration shouldBe newZaaktypeConfiguration
                         }
                         with(newZaaktypeConfiguration.getBrpParameters()) {
@@ -411,6 +402,110 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                     and("the new configuration is dated at the moment it was copied") {
                         newZaaktypeConfiguration.creatiedatum!! shouldNotBeBefore
                             previousZaaktypeConfiguration.creatiedatum!!
+                    }
+                }
+            }
+
+            given("a previous configuration with deadline warning windows, mail settings and a confirmation email") {
+                val newZaaktype = createZaakType(resultTypes = emptyList(), servicenorm = "P30D")
+                val zaakAlgemeenMailTemplate = createMailTemplate()
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    nietOntvankelijkResultaattype = null
+                    einddatumGeplandWaarschuwing = 3
+                    uiterlijkeEinddatumAfdoeningWaarschuwing = 2
+                    setMailtemplateKoppelingen(emptyList())
+                    setMailtemplateKoppelingen(
+                        setOf(
+                            createMailtemplateKoppelingen(
+                                zaaktypeConfiguration = this,
+                                mailTemplate = zaakAlgemeenMailTemplate
+                            )
+                        )
+                    )
+                    setZaakAfzenders(
+                        setOf(
+                            createZaakAfzender(
+                                zaaktypeConfiguration = this,
+                                defaultMail = true,
+                                mail = "afzender@example.com",
+                                replyTo = "antwoord@example.com"
+                            )
+                        )
+                    )
+                    zaaktypeEmailParameters = createAutomaticEmailConfirmation(zaaktypeConfiguration = this)
+                }
+                val newZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    setMailtemplateKoppelingen(emptyList())
+                    setZaakAfzenders(emptyList())
+                    zaaktypeEmailParameters = null
+                }
+
+                `when`("the configuration data is copied onto the configuration of a new zaaktype with a servicenorm") {
+                    zaaktypeHelperService.copyConfigurationData(
+                        previousZaaktypeConfiguration,
+                        newZaaktypeConfiguration,
+                        newZaaktype
+                    )
+
+                    then("both deadline warning windows are copied") {
+                        newZaaktypeConfiguration.einddatumGeplandWaarschuwing shouldBe 3
+                        newZaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe 2
+                    }
+
+                    and("the mailtemplate koppelingen and zaakafzenders are copied onto the new configuration") {
+                        with(newZaaktypeConfiguration.getMailtemplateKoppelingen().single()) {
+                            mailTemplate shouldBeSameInstanceAs zaakAlgemeenMailTemplate
+                            zaaktypeConfiguration shouldBeSameInstanceAs newZaaktypeConfiguration
+                        }
+                        with(newZaaktypeConfiguration.getZaakAfzenders().single()) {
+                            isDefaultMail shouldBe true
+                            mail shouldBe "afzender@example.com"
+                            replyTo shouldBe "antwoord@example.com"
+                            zaaktypeConfiguration shouldBeSameInstanceAs newZaaktypeConfiguration
+                        }
+                    }
+
+                    and("the confirmation email is copied onto the new configuration") {
+                        with(newZaaktypeConfiguration.zaaktypeEmailParameters.shouldNotBeNull()) {
+                            isEnabled shouldBe true
+                            templateName shouldBe "fakeTemplateName"
+                            emailSender shouldBe "sender@example.com"
+                            emailReply shouldBe "reply@example.com"
+                            zaaktypeConfiguration shouldBeSameInstanceAs newZaaktypeConfiguration
+                        }
+                    }
+                }
+            }
+
+            given("a previous configuration with deadline warning windows and without a confirmation email") {
+                val newZaaktype = createZaakType(resultTypes = emptyList(), servicenorm = null)
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    nietOntvankelijkResultaattype = null
+                    einddatumGeplandWaarschuwing = 3
+                    uiterlijkeEinddatumAfdoeningWaarschuwing = 2
+                    zaaktypeEmailParameters = null
+                }
+                val newZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    zaaktypeEmailParameters = null
+                }
+
+                `when`("the configuration data is copied onto the configuration of a new zaaktype without a servicenorm") {
+                    zaaktypeHelperService.copyConfigurationData(
+                        previousZaaktypeConfiguration,
+                        newZaaktypeConfiguration,
+                        newZaaktype
+                    )
+
+                    then("the einddatum gepland warning window is cleared, because the zaak has no einddatum gepland") {
+                        newZaaktypeConfiguration.einddatumGeplandWaarschuwing.shouldBeNull()
+                    }
+
+                    and("the uiterlijke einddatum afdoening warning window is copied") {
+                        newZaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe 2
+                    }
+
+                    and("no confirmation email is created for the new configuration") {
+                        newZaaktypeConfiguration.zaaktypeEmailParameters.shouldBeNull()
                     }
                 }
             }
@@ -433,10 +528,10 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 caseDefinitionId = "fakeCaseDefinitionId"
             ).apply {
                 nietOntvankelijkResultaattype = null
-                setHumanTaskParametersCollection(
+                getOrCreateCmmnExtension().setHumanTaskParametersCollection(
                     setOf(
                         createHumanTaskParameters(
-                            zaaktypeCmmnConfiguration = this,
+                            zaaktypeCmmnExtension = getOrCreateCmmnExtension(),
                             formulierDefinitieID = "ADVIES",
                             planItemDefinitionID = "ADVIES",
                             referenceTables = listOf(
@@ -450,7 +545,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 )
             }
             val previousHumanTaskParameters =
-                previousZaaktypeConfiguration.getHumanTaskParametersCollection().single()
+                checkNotNull(previousZaaktypeConfiguration.cmmnExtension).getHumanTaskParametersCollection().single()
             val previousReferentieTabel = previousHumanTaskParameters.getReferentieTabellen().single()
             val newZaaktypeConfiguration = createZaaktypeCmmnConfiguration()
 
@@ -462,7 +557,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 )
 
                 then("the new configuration is coupled to the same reference table") {
-                    with(newZaaktypeConfiguration.getHumanTaskParametersCollection().single()) {
+                    with(checkNotNull(newZaaktypeConfiguration.cmmnExtension).getHumanTaskParametersCollection().single()) {
                         planItemDefinitionID shouldBe "ADVIES"
                         with(getReferentieTabellen().single()) {
                             veld shouldBe "ADVIES"
@@ -478,7 +573,8 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
                 }
 
                 and("the coupling of the new configuration is a new, unsaved record of its own human task") {
-                    val newHumanTaskParameters = newZaaktypeConfiguration.getHumanTaskParametersCollection().single()
+                    val newHumanTaskParameters =
+                        checkNotNull(newZaaktypeConfiguration.cmmnExtension).getHumanTaskParametersCollection().single()
                     with(newHumanTaskParameters.getReferentieTabellen().single()) {
                         this shouldNotBeSameInstanceAs previousReferentieTabel
                         id.shouldBeNull()
@@ -489,47 +585,34 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
         }
     }
 
-    context("copyConfigurationData of a BPMN zaaktype configuration") {
-        given("a previous configuration with a BPMN process definition key") {
-            val newZaaktype = createZaakType(resultTypes = emptyList())
-            val previousZaaktypeConfiguration = createZaaktypeBpmnConfiguration(
-                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
-            ).apply { nietOntvankelijkResultaattype = null }
-            val newZaaktypeConfiguration = createZaaktypeBpmnConfiguration()
-
-            `when`("the configuration data is copied onto the configuration of the new zaaktype version") {
-                zaaktypeHelperService.copyConfigurationData(
-                    previousZaaktypeConfiguration,
-                    newZaaktypeConfiguration,
-                    newZaaktype
-                )
-
-                then("the BPMN process definition key is carried over") {
-                    newZaaktypeConfiguration.bpmnProcessDefinitionKey shouldBe "fakeBpmnProcessDefinitionKey"
+    context("copyConfigurationData of the process binding") {
+        createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
+            given("a previous configuration bound to $configurationType and a new configuration without a binding") {
+                val newZaaktype = createZaakType(resultTypes = emptyList())
+                val previousZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    nietOntvankelijkResultaattype = null
+                    bindTo(configurationType, "fakePreviousDefinitionKey")
                 }
-            }
-        }
-    }
+                val newZaaktypeConfiguration = ZaaktypeConfiguration()
 
-    context("copyConfigurationData onto a configuration of a different type") {
-        given("a CMMN previous configuration and a BPMN new configuration") {
-            val newZaaktype = createZaakType(resultTypes = emptyList())
-            val previousZaaktypeConfiguration =
-                createZaaktypeCmmnConfiguration().apply { nietOntvankelijkResultaattype = null }
-            val newZaaktypeConfiguration = createZaaktypeBpmnConfiguration()
-
-            `when`("the configuration data is copied") {
-                val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                `when`("the configuration data is copied onto the configuration of the new zaaktype version") {
                     zaaktypeHelperService.copyConfigurationData(
                         previousZaaktypeConfiguration,
                         newZaaktypeConfiguration,
                         newZaaktype
                     )
-                }
 
-                then("the copy is refused") {
-                    illegalArgumentException.message shouldBe
-                        "Cannot copy a CMMN zaaktype configuration onto a BPMN zaaktype configuration"
+                    then("the new configuration is bound to the same engine and definition") {
+                        with(checkNotNull(newZaaktypeConfiguration.processBinding)) {
+                            processEngine shouldBe configurationType
+                            definitionKey shouldBe "fakePreviousDefinitionKey"
+                            zaaktypeConfiguration shouldBeSameInstanceAs newZaaktypeConfiguration
+                        }
+                    }
+
+                    and("only a CMMN configuration gets a CMMN extension") {
+                        (newZaaktypeConfiguration.cmmnExtension != null) shouldBe (configurationType == ProcessEngine.CMMN)
+                    }
                 }
             }
         }

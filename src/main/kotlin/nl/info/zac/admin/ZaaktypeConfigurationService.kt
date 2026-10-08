@@ -4,97 +4,113 @@
  */
 package nl.info.zac.admin
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.persistence.EntityManager
-import jakarta.transaction.Transactional
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.shared.cache.Caching
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
+import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeConfiguration
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
+import nl.info.zac.admin.model.ZaaktypeDeadlineWarningWindows
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.net.URI
+import java.util.Optional
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
+/**
+ * Reads zaaktype configurations, whatever process engine they are bound to.
+ */
 @ApplicationScoped
-@Transactional
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class ZaaktypeConfigurationService @Inject constructor(
-    private val entityManager: EntityManager,
-    private val ztcClientService: ZtcClientService,
-    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
-) {
+    private val zaaktypeConfigurationRepository: ZaaktypeConfigurationRepository
+) : Caching {
     companion object {
+        const val INADMISSIBLE_TERMINATION_ID = "ZAAK_NIET_ONTVANKELIJK"
+        const val INADMISSIBLE_TERMINATION_REASON = "Zaak is niet ontvankelijk"
+
         private val LOG = Logger.getLogger(ZaaktypeConfigurationService::class.java.name)
+        private const val MAX_CACHE_SIZE = 20L
+        private const val EXPIRATION_TIME_HOURS = 1L
+
+        private val caches = mutableMapOf<String, Cache<*, *>>()
+
+        private fun <K : Any, V : Any> createCache(name: String): Cache<K, V> =
+            Caffeine.newBuilder()
+                .maximumSize(MAX_CACHE_SIZE)
+                .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
+                .recordStats()
+                .removalListener<K, V> { key, _, cause ->
+                    LOG.fine("Removing key: $key in cache $name because of: $cause")
+                }
+                .build<K, V>()
+                .also { caches[name] = it }
     }
 
-    private val beheerServicesByConfigurationType by lazy {
-        mapOf<ZaaktypeConfigurationType, ZaaktypeConfigurationBeheerService>(
-            CMMN to zaaktypeCmmnConfigurationBeheerService,
-            BPMN to zaaktypeBpmnConfigurationBeheerService
+    private val uuidToConfigurationCache: Cache<UUID, Optional<ZaaktypeConfiguration>> =
+        createCache("UUID -> ZaaktypeConfiguration")
+
+    private val deadlineWarningWindowsCache: Cache<String, List<ZaaktypeDeadlineWarningWindows>> =
+        createCache("List<ZaaktypeDeadlineWarningWindows>")
+
+    fun findConfiguration(zaaktypeUuid: UUID): ZaaktypeConfiguration? =
+        uuidToConfigurationCache.get(zaaktypeUuid) {
+            Optional.ofNullable(zaaktypeConfigurationRepository.findByZaaktypeUuid(it))
+        }.orElse(null)
+
+    fun readConfiguration(zaaktypeUuid: UUID): ZaaktypeConfiguration =
+        findConfiguration(zaaktypeUuid) ?: throw ZaaktypeConfigurationNotFoundException(
+            "No zaaktype configuration found for zaaktype with UUID '$zaaktypeUuid'"
         )
-    }
 
-    fun updateZaaktypeConfiguration(zaaktypeUri: URI) {
-        ztcClientService.clearZaaktypeCache()
-        ztcClientService.clearRoltypeCache()
-        ztcClientService.clearResultaattypeCache()
-        ztcClientService.clearStatustypeCache()
-        ztcClientService.clearEigenschapCache()
-        ztcClientService.readZaaktype(zaaktypeUri).let {
-            if (it.concept) {
-                LOG.info { "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }
-                return
-            }
-            getLastCreatedConfiguration(it.omschrijving)?.let { zaaktypeConfiguration ->
-                beheerServicesByConfigurationType
-                    .getValue(zaaktypeConfiguration.getConfigurationType())
-                    .upsertConfiguration(it)
-            } ?: LOG.info {
-                "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} has no known configuration. Ignoring"
-            }
-        }
-    }
+    fun findCurrentConfiguration(zaaktypeOmschrijving: String): ZaaktypeConfiguration? =
+        zaaktypeConfigurationRepository.findCurrentByZaaktypeOmschrijving(zaaktypeOmschrijving)
 
     /**
-     * Reads the ZaaktypeConfiguration for a specific zaaktype UUID.
-     *
-     * @param zaaktypeUUID UUID of the zaaktype (version).
-     * @return ZaaktypeConfiguration for the specified zaaktype UUID or null if no configuration exists.
+     * Returns the current configurations whose productaanvraagtype is the given one, the most recently created first.
+     * More than one indicates data stored before the productaanvraagtype check covered both process engines.
      */
-    fun readZaaktypeConfiguration(zaaktypeUUID: UUID): ZaaktypeConfiguration? {
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val query = criteriaBuilder.createQuery(ZaaktypeConfiguration::class.java)
-        val root = query.from(ZaaktypeConfiguration::class.java)
+    fun listCurrentConfigurationsByProductaanvraagtype(productaanvraagtype: String): List<ZaaktypeConfiguration> =
+        zaaktypeConfigurationRepository.listCurrentByProductaanvraagtype(productaanvraagtype)
 
-        query.select(root)
-            .where(criteriaBuilder.equal(root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
+    fun listConfigurationsBoundTo(processEngine: ProcessEngine): List<ZaaktypeConfiguration> =
+        zaaktypeConfigurationRepository.listBoundTo(processEngine)
 
-        return entityManager.createQuery(query).setMaxResults(1).resultList.firstOrNull()
+    fun listDefinitionKeysBoundTo(processEngine: ProcessEngine): List<String> =
+        zaaktypeConfigurationRepository.listDistinctDefinitionKeys(processEngine)
+
+    fun listDeadlineWarningWindows(): List<ZaaktypeDeadlineWarningWindows> =
+        deadlineWarningWindowsCache.get(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION) {
+            zaaktypeConfigurationRepository.listDeadlineWarningWindows()
+        }
+
+    fun listZaakbeeindigRedenen(): List<ZaakbeeindigReden> = zaaktypeConfigurationRepository.listZaakbeeindigRedenen()
+
+    fun isSmartDocumentsEnabled(zaaktypeUuid: UUID): Boolean = findConfiguration(zaaktypeUuid)?.isSmartDocumentsEnabled ?: false
+
+    fun evict(zaaktypeUuid: UUID) {
+        uuidToConfigurationCache.invalidate(zaaktypeUuid)
+        deadlineWarningWindowsCache.invalidateAll()
     }
 
-    private fun getLastCreatedConfiguration(zaaktypeDescription: String): ZaaktypeConfiguration? {
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val query = criteriaBuilder.createQuery(ZaaktypeConfiguration::class.java)
-        val root = query.from(ZaaktypeConfiguration::class.java)
-
-        query.select(root)
-            .where(criteriaBuilder.equal(root.get<UUID>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME), zaaktypeDescription))
-            .orderBy(criteriaBuilder.desc(root.get<Any>(CREATIEDATUM_VARIABLE_NAME)))
-
-        return entityManager.createQuery(query).setMaxResults(1).resultList.firstOrNull()
+    fun clearManagedCache(): String {
+        uuidToConfigurationCache.invalidateAll()
+        return cleared(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION_MANAGED)
     }
 
-    fun isSmartDocumentsEnabled(zaaktypeUUID: UUID): Boolean {
-        return readZaaktypeConfiguration(zaaktypeUUID)?.smartDocumentsEnabled ?: false
+    fun clearListCache(): String {
+        deadlineWarningWindowsCache.invalidateAll()
+        return cleared(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION)
     }
+
+    override fun cacheStatistics(): Map<String, CacheStats> = caches.mapValues { it.value.stats() }
+
+    override fun estimatedCacheSizes(): Map<String, Long> = caches.mapValues { it.value.estimatedSize() }
 }

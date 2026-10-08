@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -37,7 +37,7 @@
           <mat-icon outlined>other_admission</mat-icon>
         </button>
         <button
-          *ngIf="zaak().rechten.toevoegenInitiatorBedrijf"
+          *ngIf="zaak().rechten.canToevoegenInitiatorBedrijf"
           [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.initiator.wijzigen' | translate"
           mat-icon-button
@@ -48,7 +48,7 @@
           <mat-icon>edit</mat-icon>
         </button>
         <button
-          *ngIf="zaak().rechten.verwijderenInitiator"
+          *ngIf="zaak().rechten.canVerwijderenInitiator"
           [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.ontkoppelen' | translate"
           mat-icon-button
@@ -76,24 +76,24 @@
   >
     <zac-static-text label="bedrijfsnaam" [value]="bedrijfQuery.data()?.naam" />
     <zac-static-text
-      *ngIf="initiatorIdentificatie()?.kvkNummer"
+      *ngIf="initiatorIdentificatie().kvkNummer"
       label="kvknummer"
-      [value]="initiatorIdentificatie()?.kvkNummer"
+      [value]="initiatorIdentificatie().kvkNummer"
     />
     <zac-static-text
-      *ngIf="!initiatorIdentificatie()?.kvkNummer"
+      *ngIf="!initiatorIdentificatie().kvkNummer"
       label="kvknummer"
       [icon]="warningIcon"
       [value]="'msg.error.kvk.unknown' | translate"
     />
     <zac-static-text
-      *ngIf="initiatorIdentificatie()?.vestigingsnummer"
+      *ngIf="initiatorIdentificatie().vestigingsnummer"
       label="vestigingsnummer"
-      [value]="initiatorIdentificatie()?.vestigingsnummer"
+      [value]="initiatorIdentificatie().vestigingsnummer"
     />
     <zac-static-text
       label="type"
-      [value]="bedrijfQuery.data()?.type | translate"
+      [value]="bedrijfQuery.data()?.type | i18nKey | translate"
     />
     <zac-static-text *ngIf="profiel()" label="rsin" [value]="profiel()?.rsin" />
     <zac-static-text
@@ -142,7 +142,7 @@
     </div>
     <zac-static-text
       *ngIf="profiel()"
-      label="totaalWerkzamePersonen"
+      label="totaal-werkzame-personen"
       [value]="profiel()?.totaalWerkzamePersonen"
     />
     <zac-static-text
@@ -167,12 +167,12 @@
     />
     <zac-static-text
       *ngIf="profiel()?.uitgebreideRechtsvorm"
-      label="uitgebreideRechtsvorm"
+      label="uitgebreide-rechtsvorm"
       [value]="profiel()?.uitgebreideRechtsvorm"
     />
     <zac-static-text
       *ngIf="profiel()?.statutaireNaam"
-      label="statutaireNaam"
+      label="statutaire-naam"
       [value]="profiel()?.statutaireNaam"
     />
   </div>

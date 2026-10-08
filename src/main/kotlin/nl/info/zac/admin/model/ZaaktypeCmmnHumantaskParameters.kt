@@ -35,7 +35,7 @@ import java.util.Objects
 )
 @AllOpen
 class ZaaktypeCmmnHumantaskParameters :
-    UserModifiable<ZaaktypeCmmnHumantaskParameters> {
+    UserModifiableZaaktypeConfigurationData<ZaaktypeCmmnHumantaskParameters> {
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_cmmn_humantask_parameters", strategy = GenerationType.SEQUENCE)
@@ -43,12 +43,12 @@ class ZaaktypeCmmnHumantaskParameters :
     var id: Long? = null
 
     @ManyToOne
-    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    @JoinColumn(name = "zaaktype_cmmn_extension_id", referencedColumnName = "id")
     @NotNull
-    var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null
+    lateinit var zaaktypeCmmnExtension: ZaaktypeCmmnExtension
 
     @Column(name = "actief")
-    var actief: Boolean = false
+    var isActief: Boolean = false
 
     @Column(name = "id_formulier_definition")
     private var formulierDefinitieID: String? = null
@@ -82,12 +82,18 @@ class ZaaktypeCmmnHumantaskParameters :
     fun getReferentieTabellen(): List<HumanTaskReferentieTabel> =
         Collections.unmodifiableList(referentieTabellen)
 
-    // humantask_referentie_tabel has one non-nullable FK to its human task, so adopting a coupling that
-    // still belongs to another human task moves it there instead of duplicating it
+    // Hibernate flushes inserts before orphan deletes, so replacing a coupling instead of updating it would violate
+    // the unique constraint on (human task, veld). A coupling that still belongs to another human task is copied,
+    // because adopting it would move its row away from that human task.
     fun setReferentieTabellen(value: List<HumanTaskReferentieTabel>) {
-        val copies = value.map { it.copyForNewHumantask() }
-        referentieTabellen.clear()
-        copies.forEach { addReferentieTabel(it) }
+        val desiredByVeld = value.associateBy { it.veld }
+        require(desiredByVeld.size == value.size) { "Reference table couplings have duplicate velden" }
+        referentieTabellen.removeIf { it.veld !in desiredByVeld }
+        referentieTabellen.forEach { it.tabel = desiredByVeld.getValue(it.veld).tabel }
+        val existingVelden = referentieTabellen.map { it.veld }.toSet()
+        desiredByVeld.filterKeys { it !in existingVelden }.values.forEach {
+            addReferentieTabel(it.copyForNewHumantask())
+        }
     }
 
     private fun addReferentieTabel(referentieTabel: HumanTaskReferentieTabel): Boolean {
@@ -97,7 +103,7 @@ class ZaaktypeCmmnHumantaskParameters :
 
     override fun equals(other: Any?): Boolean {
         if (other !is ZaaktypeCmmnHumantaskParameters) return false
-        return actief == other.actief &&
+        return isActief == other.isActief &&
             Objects.equals(formulierDefinitieID, other.formulierDefinitieID) &&
             Objects.equals(planItemDefinitionID, other.planItemDefinitionID) &&
             Objects.equals(groepID, other.groepID) &&
@@ -105,29 +111,17 @@ class ZaaktypeCmmnHumantaskParameters :
             Objects.deepEquals(referentieTabellen.toTypedArray(), other.referentieTabellen.toTypedArray())
     }
 
-    override fun hashCode(): Int =
-        Objects.hash(actief, formulierDefinitieID, planItemDefinitionID, groepID, doorlooptijd, referentieTabellen)
-
-    override fun isModifiedFrom(original: ZaaktypeCmmnHumantaskParameters): Boolean {
-        return Objects.equals(original.planItemDefinitionID, planItemDefinitionID) &&
-            (
-                actief != original.actief ||
-                    !Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
-                    !Objects.equals(original.groepID, groepID) ||
-                    !Objects.equals(original.doorlooptijd, doorlooptijd) ||
-                    !Objects.deepEquals(referentieTabellen.toTypedArray(), original.referentieTabellen.toTypedArray())
-                )
-    }
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 
     override fun applyChanges(changes: ZaaktypeCmmnHumantaskParameters) {
-        actief = changes.actief
+        isActief = changes.isActief
         formulierDefinitieID = changes.formulierDefinitieID
         groepID = changes.groepID
         doorlooptijd = changes.doorlooptijd
-        // assigning the collection itself would detach the one Hibernate manages for this entity
-        if (referentieTabellen != changes.referentieTabellen) {
-            setReferentieTabellen(changes.getReferentieTabellen())
-        }
+        setReferentieTabellen(changes.getReferentieTabellen())
     }
 
     override fun resetId(): ZaaktypeCmmnHumantaskParameters {

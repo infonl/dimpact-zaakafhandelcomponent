@@ -25,6 +25,7 @@ import nl.info.zac.search.model.createTaakZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.zaak.model.ZaakNotLinkableReason
 
 class RestZoekResultaatConverterTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
@@ -106,7 +107,7 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
                 then("filters from zoekResultaat are carried over") {
-                    val zaaktypeFilters = result.filters[FilterVeld.ZAAKTYPE]!!
+                    val zaaktypeFilters = result.filters.getValue(FilterVeld.ZAAKTYPE)
                     zaaktypeFilters shouldHaveSize 1
                     zaaktypeFilters.first().naam shouldBe "fakeZaaktype"
                     zaaktypeFilters.first().aantal shouldBe 5
@@ -129,7 +130,7 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
                 then("missing filter values are added with count 0") {
-                    val behandelaarFilters = result.filters[FilterVeld.BEHANDELAAR]!!
+                    val behandelaarFilters = result.filters.getValue(FilterVeld.BEHANDELAAR)
                     behandelaarFilters shouldHaveSize 1
                     behandelaarFilters.first().naam shouldBe "fakeMissingBehandelaar"
                     behandelaarFilters.first().aantal shouldBe 0
@@ -150,9 +151,27 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
             `when`("convert is called with documentLinkableList") {
                 val result = restZoekResultaatConverter.convert(zoekResultaat, documentLinkableList)
 
-                then("it returns RestZaakKoppelenZoekObjects") {
+                then("it returns a linkable RestZaakKoppelenZoekObject") {
                     result.resultCount shouldBe 1L
                     result.results shouldHaveSize 1
+                    result.results.first().nietKoppelbaarReden shouldBe null
+                }
+            }
+        }
+
+        given("a ZoekResultaat containing a ZaakZoekObject whose zaaktype does not allow the informatieobjecttype") {
+            val zaakZoekObject = createZaakZoekObject()
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1L)
+            val zaakRechten = createZaakRechten()
+
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns zaakRechten
+
+            `when`("convert is called with documentLinkableList") {
+                val result = restZoekResultaatConverter.convert(zoekResultaat, listOf(false))
+
+                then("it returns a RestZaakKoppelenZoekObject that explains why it cannot be linked") {
+                    result.results.first().nietKoppelbaarReden shouldBe
+                        ZaakNotLinkableReason.ZAAKTYPE_DOES_NOT_ALLOW_INFORMATIEOBJECTTYPE
                 }
             }
         }

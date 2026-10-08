@@ -16,6 +16,7 @@ import nl.info.zac.productaanvraag.model.InboxProductaanvraagResultaat
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.Locale
 
 @ApplicationScoped
 @Transactional
@@ -87,7 +88,7 @@ class InboxProductaanvraagService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val predicates = mutableListOf<Predicate>()
         listParameters.initiatorID?.takeIf { it.isNotBlank() }?.let {
-            predicates.add(builder.like(root.get(InboxProductaanvraag.INITIATOR), LIKE.format(it)))
+            predicates.add(builder.like(root.get(InboxProductaanvraag.INITIATOR), LIKE.format(Locale.ROOT, it)))
         }
         listParameters.type?.takeIf { it.isNotBlank() }?.let {
             predicates.add(builder.equal(root.get<String>(InboxProductaanvraag.TYPE), it))

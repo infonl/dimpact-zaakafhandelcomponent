@@ -19,7 +19,8 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.MailTemplateKoppelingenService
-import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ZaaktypeMailtemplateParameters
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -27,10 +28,11 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 class MailTemplateKoppelingenServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val criteriaBuilder = mockk<CriteriaBuilder>()
-    val criteriaQuery = mockk<CriteriaQuery<ZaaktypeCmmnMailtemplateParameters>>()
-    val root = mockk<Root<ZaaktypeCmmnMailtemplateParameters>>()
-    val typedQuery = mockk<TypedQuery<ZaaktypeCmmnMailtemplateParameters>>()
-    val service = MailTemplateKoppelingenService(entityManager)
+    val criteriaQuery = mockk<CriteriaQuery<ZaaktypeMailtemplateParameters>>()
+    val root = mockk<Root<ZaaktypeMailtemplateParameters>>()
+    val typedQuery = mockk<TypedQuery<ZaaktypeMailtemplateParameters>>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+    val service = MailTemplateKoppelingenService(entityManager, zaaktypeConfigurationService)
 
     afterEach {
         checkUnnecessaryStub()
@@ -40,10 +42,10 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         val id = 42L
         val koppeling = createMailtemplateKoppelingen(
             id = id,
-            zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+            zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
             mailTemplate = createMailTemplate()
         )
-        every { entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id) } returns koppeling
+        every { entityManager.find(ZaaktypeMailtemplateParameters::class.java, id) } returns koppeling
 
         `when`("find is called with the id") {
             val result = service.find(id)
@@ -54,19 +56,28 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         }
 
         `when`("delete is called with the id") {
-            every { entityManager.remove(any<ZaaktypeCmmnMailtemplateParameters>()) } just runs
+            every { entityManager.remove(any<ZaaktypeMailtemplateParameters>()) } just runs
+            every { zaaktypeConfigurationService.evict(koppeling.zaaktypeConfiguration.zaaktypeUuid) } just runs
 
             service.delete(id)
 
-            then("entityManager.remove is called with the entity") {
-                verify { entityManager.remove(any<ZaaktypeCmmnMailtemplateParameters>()) }
+            then(
+                """
+                the koppeling is removed and its zaaktype configuration is evicted from the cache,
+                so that a cached configuration does not keep serving the deleted koppeling
+                """
+            ) {
+                verify {
+                    entityManager.remove(koppeling)
+                    zaaktypeConfigurationService.evict(koppeling.zaaktypeConfiguration.zaaktypeUuid)
+                }
             }
         }
     }
 
     given("No mail template koppeling exists for the given id") {
         val id = 99L
-        every { entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id) } returns null
+        every { entityManager.find(ZaaktypeMailtemplateParameters::class.java, id) } returns null
 
         `when`("find is called with the id") {
             val result = service.find(id)
@@ -83,7 +94,7 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
 
             then("a NoSuchElementException is thrown containing the class name and id") {
                 exception.message!!.let {
-                    it.contains(ZaaktypeCmmnMailtemplateParameters::class.java.simpleName) shouldBe true
+                    it.contains(ZaaktypeMailtemplateParameters::class.java.simpleName) shouldBe true
                     it.contains(id.toString()) shouldBe true
                 }
             }
@@ -93,16 +104,25 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
     given("storeMailtemplateKoppeling with a new entity (no id)") {
         val koppeling = createMailtemplateKoppelingen(
             id = null,
-            zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+            zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
             mailTemplate = createMailTemplate()
         )
-        every { entityManager.persist(any<ZaaktypeCmmnMailtemplateParameters>()) } just runs
+        every { entityManager.persist(any<ZaaktypeMailtemplateParameters>()) } just runs
+        every { zaaktypeConfigurationService.evict(koppeling.zaaktypeConfiguration.zaaktypeUuid) } just runs
 
         `when`("storeMailtemplateKoppeling is called") {
             val result = service.storeMailtemplateKoppeling(koppeling)
 
-            then("entityManager.persist is called and the same entity instance is returned") {
-                verify { entityManager.persist(any<ZaaktypeCmmnMailtemplateParameters>()) }
+            then(
+                """
+                entityManager.persist is called, the same entity instance is returned
+                and its zaaktype configuration is evicted from the cache
+                """
+            ) {
+                verify {
+                    entityManager.persist(any<ZaaktypeMailtemplateParameters>())
+                    zaaktypeConfigurationService.evict(koppeling.zaaktypeConfiguration.zaaktypeUuid)
+                }
                 (result === koppeling) shouldBe true
             }
         }
@@ -112,22 +132,31 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         val id = 7L
         val koppeling = createMailtemplateKoppelingen(
             id = id,
-            zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+            zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
             mailTemplate = createMailTemplate()
         )
         val merged = createMailtemplateKoppelingen(
             id = id,
-            zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+            zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
             mailTemplate = createMailTemplate()
         )
-        every { entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id) } returns koppeling
-        every { entityManager.merge(any<ZaaktypeCmmnMailtemplateParameters>()) } returns merged
+        every { entityManager.find(ZaaktypeMailtemplateParameters::class.java, id) } returns koppeling
+        every { entityManager.merge(any<ZaaktypeMailtemplateParameters>()) } returns merged
+        every { zaaktypeConfigurationService.evict(merged.zaaktypeConfiguration.zaaktypeUuid) } just runs
 
         `when`("storeMailtemplateKoppeling is called") {
             val result = service.storeMailtemplateKoppeling(koppeling)
 
-            then("entityManager.merge is called and the merged entity instance is returned") {
-                verify { entityManager.merge(any<ZaaktypeCmmnMailtemplateParameters>()) }
+            then(
+                """
+                entityManager.merge is called, the merged entity instance is returned
+                and its zaaktype configuration is evicted from the cache
+                """
+            ) {
+                verify {
+                    entityManager.merge(any<ZaaktypeMailtemplateParameters>())
+                    zaaktypeConfigurationService.evict(merged.zaaktypeConfiguration.zaaktypeUuid)
+                }
                 (result === merged) shouldBe true
             }
         }
@@ -137,10 +166,10 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         val id = 5L
         val koppeling = createMailtemplateKoppelingen(
             id = id,
-            zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+            zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
             mailTemplate = createMailTemplate()
         )
-        every { entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id) } returns koppeling
+        every { entityManager.find(ZaaktypeMailtemplateParameters::class.java, id) } returns koppeling
 
         `when`("readMailtemplateKoppeling is called with the id") {
             val result = service.readMailtemplateKoppeling(id)
@@ -154,18 +183,18 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
     given("Two mail template koppelingen in the database") {
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every {
-            criteriaBuilder.createQuery(ZaaktypeCmmnMailtemplateParameters::class.java)
+            criteriaBuilder.createQuery(ZaaktypeMailtemplateParameters::class.java)
         } returns criteriaQuery
-        every { criteriaQuery.from(ZaaktypeCmmnMailtemplateParameters::class.java) } returns root
+        every { criteriaQuery.from(ZaaktypeMailtemplateParameters::class.java) } returns root
         every { criteriaQuery.select(root) } returns criteriaQuery
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         val koppelingen = listOf(
             createMailtemplateKoppelingen(
-                zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+                zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
             ),
             createMailtemplateKoppelingen(
-                zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+                zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
             )
         )

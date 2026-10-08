@@ -5,18 +5,18 @@
 package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
+import nl.info.zac.flowable.task.readTaskData
+import nl.info.zac.flowable.task.readTaskDocuments
+import nl.info.zac.flowable.task.readTaskInformation
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.flowable.task.readZaaktypeOmschrijving
+import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.util.time.convertToZonedDateTime
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
@@ -34,7 +34,7 @@ class RestTaskConverter @Inject constructor(
     private val groepConverter: RestGroupConverter,
     private val medewerkerConverter: RestUserConverter,
     private val policyService: PolicyService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
 ) {
     fun convert(tasks: List<TaskInfo>) = tasks.map(::convert)
@@ -50,25 +50,25 @@ class RestTaskConverter @Inject constructor(
             zaakUuid = readZaakUUID(taskInfo),
             zaakIdentificatie = readZaakIdentificatie(taskInfo),
             rechten = restTaakRechten,
-            zaaktypeOmschrijving = if (restTaakRechten.lezen) zaaktypeOmschrijving else null,
+            zaaktypeOmschrijving = if (restTaakRechten.canLezen) zaaktypeOmschrijving else null,
             zaaktypeUUID = readZaaktypeUUID(taskInfo),
-            toelichting = if (restTaakRechten.lezen) taskInfo.description else null,
-            creatiedatumTijd = if (restTaakRechten.lezen) {
+            toelichting = if (restTaakRechten.canLezen) taskInfo.description else null,
+            creatiedatumTijd = if (restTaakRechten.canLezen) {
                 taskInfo.createTime?.let(::convertToZonedDateTime)
             } else {
                 null
             },
-            toekenningsdatumTijd = if (restTaakRechten.lezen) {
+            toekenningsdatumTijd = if (restTaakRechten.canLezen) {
                 taskInfo.claimTime?.let(::convertToZonedDateTime)
             } else {
                 null
             },
-            fataledatum = if (restTaakRechten.lezen) {
+            fataledatum = if (restTaakRechten.canLezen) {
                 taskInfo.dueDate?.let(::convertToLocalDate)
             } else {
                 null
             },
-            behandelaar = if (restTaakRechten.lezen) {
+            behandelaar = if (restTaakRechten.canLezen) {
                 taskInfo.assignee?.let {
                     medewerkerConverter.convertUserId(
                         it
@@ -77,14 +77,14 @@ class RestTaskConverter @Inject constructor(
             } else {
                 null
             },
-            groep = if (restTaakRechten.lezen) {
+            groep = if (restTaakRechten.canLezen) {
                 extractGroupId(taskInfo.identityLinks)?.let { groepConverter.convertGroupId(it) }
             } else {
                 null
             },
-            taakinformatie = if (restTaakRechten.lezen) readTaskInformation(taskInfo) else null,
-            taakdata = if (restTaakRechten.lezen) readTaskData(taskInfo).toMutableMap() else null,
-            taakdocumenten = if (restTaakRechten.lezen) {
+            taakinformatie = if (restTaakRechten.canLezen) readTaskInformation(taskInfo) else null,
+            taakdata = if (restTaakRechten.canLezen) readTaskData(taskInfo).toMutableMap() else null,
+            taakdocumenten = if (restTaakRechten.canLezen) {
                 readTaskDocuments(
                     taskInfo
                 )
@@ -116,8 +116,10 @@ class RestTaskConverter @Inject constructor(
         zaaktypeUUID: UUID,
         taskDefinitionKey: String
     ) {
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
-            .getHumanTaskParametersCollection()
+        zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
+            ?.cmmnExtension
+            ?.getHumanTaskParametersCollection()
+            .orEmpty()
             .first { taskDefinitionKey == it.planItemDefinitionID }.let {
                 verwerkZaakafhandelParameters(restTask, it)
             }

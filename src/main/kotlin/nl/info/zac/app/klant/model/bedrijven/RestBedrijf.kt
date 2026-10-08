@@ -25,7 +25,7 @@ data class RestBedrijf(
     override var emailadres: String? = null,
     override var naam: String? = null,
     override var telefoonnummer: String? = null
-) : RestKlant() {
+) : RestKlant {
     /**
      * If a [vestigingsnummer] is present (with or without a (KVK nummer)[kvkNummer]), we return a vestiging type,
      * if we either have a (KVK nummer)[kvkNummer] or an (RSIN)[rsin] we return a rechtspersoon (RSIN) type.
@@ -55,7 +55,7 @@ fun ResultaatItem.toRestBedrijf(): RestBedrijf {
         adres = volledigAdres?.let {
             RestBedrijfAdres(
                 type = adresType.toString(),
-                afgeschermd = false,
+                isAfgeschermd = false,
                 volledigAdres = it,
                 postcode = this.adres?.binnenlandsAdres?.postcode
             )

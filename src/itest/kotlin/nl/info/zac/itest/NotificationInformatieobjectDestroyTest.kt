@@ -156,10 +156,10 @@ class NotificationInformatieobjectDestroyTest : BehaviorSpec({
                     )
                     listResponse.code shouldBe HTTP_OK
                     val resultaten = JSONObject(listResponse.bodyAsString).getJSONArray("resultaten")
-                    val stillPresent = (0 until resultaten.length())
+                    val isStillPresent = (0 until resultaten.length())
                         .map { resultaten.getJSONObject(it) }
                         .any { it.getString("documentUUID") == documentUuid.toString() }
-                    stillPresent shouldBe false
+                    isStillPresent shouldBe false
                 }
             }
         }

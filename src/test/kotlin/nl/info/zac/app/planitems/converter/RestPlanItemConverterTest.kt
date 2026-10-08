@@ -12,9 +12,10 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.model.createZaak
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.FormulierDefinitie
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnExtension
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -26,10 +27,10 @@ import java.net.URI
 import java.util.UUID
 
 class RestPlanItemConverterTest : BehaviorSpec({
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
 
     val restPlanItemConverter =
-        RestPlanItemConverter(zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService)
+        RestPlanItemConverter(zaaktypeConfigurationService = zaaktypeConfigurationService)
 
     afterEach { checkUnnecessaryStub() }
 
@@ -41,7 +42,7 @@ class RestPlanItemConverterTest : BehaviorSpec({
             val planItemInstance2 = mockk<PlanItemInstance>()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zaaktypeConfigurationService.findConfiguration(zaaktypeUUID) } returns zaaktypeCmmnConfiguration
             for (planItem in listOf(planItemInstance1, planItemInstance2)) {
                 every { planItem.id } returns "fakePlanItemId"
                 every { planItem.name } returns "fakePlanItemName"
@@ -64,7 +65,7 @@ class RestPlanItemConverterTest : BehaviorSpec({
 
     context("convertPlanItem") {
         val zaakUUID = UUID.randomUUID()
-        val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+        val zaaktypeCmmnExtension = mockk<ZaaktypeCmmnExtension>()
 
         given("a USER_EVENT_LISTENER plan item") {
             val planItemInstance = mockk<PlanItemInstance>()
@@ -79,14 +80,14 @@ class RestPlanItemConverterTest : BehaviorSpec({
             every { planItemInstance.planItemDefinitionType } returns PlanItemDefinitionType.USER_EVENT_LISTENER
             every { planItemInstance.planItemDefinitionId } returns planItemDefinitionId
             every {
-                zaaktypeCmmnConfiguration.readUserEventListenerParameters(planItemDefinitionId)
+                zaaktypeCmmnExtension.readUserEventListenerParameters(planItemDefinitionId)
             } returns userEventListenerParams
 
             `when`("convertPlanItem is called") {
                 val restPlanItem = restPlanItemConverter.convertPlanItem(
                     planItemInstance,
                     zaakUUID,
-                    zaaktypeCmmnConfiguration
+                    zaaktypeCmmnExtension
                 )
 
                 then("it maps the type and userEventListenerActie") {
@@ -116,18 +117,18 @@ class RestPlanItemConverterTest : BehaviorSpec({
             every { planItemInstance.name } returns "fakeHumanTaskName"
             every { planItemInstance.planItemDefinitionType } returns PlanItemDefinitionType.HUMAN_TASK
             every { planItemInstance.planItemDefinitionId } returns planItemDefinitionId
-            every { zaaktypeCmmnConfiguration.findHumanTaskParameter(planItemDefinitionId) } returns humanTaskParameters
+            every { zaaktypeCmmnExtension.findHumanTaskParameter(planItemDefinitionId) } returns humanTaskParameters
 
             `when`("convertPlanItem is called") {
                 val restPlanItem = restPlanItemConverter.convertPlanItem(
                     planItemInstance,
                     zaakUUID,
-                    zaaktypeCmmnConfiguration
+                    zaaktypeCmmnExtension
                 )
 
                 then("it maps human task fields") {
                     restPlanItem.type shouldBe PlanItemType.HUMAN_TASK
-                    restPlanItem.actief shouldBe true
+                    restPlanItem.isActief shouldBe true
                     restPlanItem.formulierDefinitie shouldBe FormulierDefinitie.AANVULLENDE_INFORMATIE
                     restPlanItem.groepId shouldBe "fakeGroupId"
                     restPlanItem.fataleDatum.shouldBeNull()
@@ -146,7 +147,7 @@ class RestPlanItemConverterTest : BehaviorSpec({
                 val restPlanItem = restPlanItemConverter.convertPlanItem(
                     planItemInstance,
                     zaakUUID,
-                    zaaktypeCmmnConfiguration
+                    zaaktypeCmmnExtension
                 )
 
                 then("it maps basic fields without extra PROCESS_TASK fields") {
@@ -169,7 +170,7 @@ class RestPlanItemConverterTest : BehaviorSpec({
 
             `when`("convertPlanItem is called") {
                 val exception = shouldThrow<IllegalArgumentException> {
-                    restPlanItemConverter.convertPlanItem(planItemInstance, zaakUUID, zaaktypeCmmnConfiguration)
+                    restPlanItemConverter.convertPlanItem(planItemInstance, zaakUUID, zaaktypeCmmnExtension)
                 }
 
                 then("it throws with an informative message") {

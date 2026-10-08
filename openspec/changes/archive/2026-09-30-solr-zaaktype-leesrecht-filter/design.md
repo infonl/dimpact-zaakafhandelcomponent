@@ -1,0 +1,82 @@
+## Context
+
+`SearchService.search` adds two filter queries derived from the `LoggedInUser`:
+
+- `getAllowedZaaktypenFilterQuery`: an `OR` over `zaaktypeOmschrijving` for every key of
+  `applicationRolesPerZaaktype`, i.e. every zaaktype the user holds *any* role for. An empty set yields a
+  filter on a non-existing zaaktype, so no results.
+- `getZaakspecifiekGeautoriseerdFilterQuery`: excludes zaakspecifiek geautoriseerde rows for zaaktypen
+  without the `zaakspecifiek_geautoriseerd` flag.
+
+OPA (`zaak-rechten.rego`, `taak-rechten.rego`, `document-rechten.rego`) grants `lezen` only when the roles
+passed as `user.rollen` contain one of `raadpleger`, `behandelaar`, `coordinator`, `recordmanager`,
+`beheerder`. `UserInput` computes `user.rollen` for a zaaktype as
+`applicationRolesPerZaaktype[zaaktype] + overallRoles`. The Solr filter ignores both the role names and the
+overall roles, which is the mismatch this change removes. See proposal.md - Why.
+
+In the Koppelen flow, `ZaakKoppelenRestService` evaluates OPA rights for every search hit and
+`gerelateerdNotLinkableReason` returns `NOT_AUTHORISED_TO_LEZEN` when `lezen` is false; `linkZaak` asserts
+`canBeRelatedTo`, which today is defined as "no reason".
+
+## Goals / Non-Goals
+
+**Goals:**
+- Solr admits a zaaktype only when the roles OPA would see for it contain a read role.
+- Remove the now-unreachable `NOT_AUTHORISED_TO_LEZEN` reason end to end, while keeping the server-side read
+  check in `linkZaak`.
+
+**Non-Goals:**
+- Admitting zaaktypen the user has no per-zaaktype roles for at all, even when they hold an overall read
+  role. OPA would grant `lezen` there, but Solr hides those today and the ticket requires that users with a
+  read role see the same zaken as now. System users (`FUNCTIONEEL_GEBRUIKER`, `PRODUCTAANVRAAG_GEBRUIKER`)
+  have no per-zaaktype roles and are unaffected.
+- Changing the zaakspecifiek geautoriseerd filter or any OPA policy.
+- Changing the werklijst-level `zaken_taken` policy.
+
+## Decisions
+
+### Filter on read roles in `getAllowedZaaktypenFilterQuery`
+Replace `applicationRolesPerZaaktype.keys` with the keys whose role set, united with `overallRoles`,
+intersects the read roles. Keep the empty-set fallback to the non-existing zaaktype.
+
+Alternatives considered:
+- *Post-filter the Solr results through OPA*: correct by construction, but breaks paging, counts and facets,
+  and costs one OPA call per hit.
+- *Index read-role information in Solr*: roles are per user; nothing to index.
+
+### Define the read roles once in rego and read them from OPA
+Add a `leesrollen` set (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`, `beheerder`) to
+`rollen.rego` and use it in the `lezen` rules of `zaak-rechten.rego`, `taak-rechten.rego` and
+`document-rechten.rego`. ZAC reads the set per search through OPA's data API
+(`GET v1/data/net/atos/zac/rol/leesrollen`), so the rego files are the only place the read roles are defined.
+
+Alternatives considered:
+- *A Kotlin constant that mirrors the rego set, pinned by a unit test*: the two sides can drift apart and
+  only review catches it.
+- *Ask OPA which zaaktypen are readable*: moves the whole decision into rego, but needs a new rule, new input
+  and output models and a rego refactoring; left for a follow-up.
+
+### Remove `NOT_AUTHORISED_TO_LEZEN`, keep the read check in `canBeRelatedTo`
+- Drop the enum value and the `!to.lezen` branch from `gerelateerdNotLinkableReason`. The function then only
+  depends on the current zaak's `koppelen` right, so it no longer takes the found zaak as an argument.
+- Redefine `canBeRelatedTo` as `to.lezen && gerelateerdNotLinkableReason() == null` so `linkZaak` still
+  refuses an unreadable target.
+- Regenerate the OpenAPI spec and frontend types; remove the i18n keys in `nl.json` and `en.json` and the
+  value from the reason list in `zaak-link.component.spec.ts`. That spec already uses Testing Library, so
+  touching it needs no migration.
+
+A hit that slips through anyway (e.g. an index row whose zaaktype roles changed mid-session) is then listed
+without a reason but refused on link with the generic policy error. Acceptable: it requires a PABC change
+during the session.
+
+## Risks / Trade-offs
+
+- [Kotlin read-role set drifts from `rollen.rego` / `lezen` rules] → constant documented as mirroring the
+  rego rule; unit test on the set; policy documentation (`docs/solution-architecture/accessControlPolicies.md`)
+  mentions the search filter.
+- [Users relying on a misconfiguration lose search visibility] → intended; they could not open those zaken.
+- [REST enum value removal] → only consumed by the ZAC frontend, regenerated in the same change.
+
+## Migration Plan
+
+No data or index migration: the filter is computed per query. Rollback is a plain revert.

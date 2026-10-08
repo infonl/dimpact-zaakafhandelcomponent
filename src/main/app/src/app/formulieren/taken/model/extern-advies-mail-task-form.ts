@@ -6,11 +6,13 @@
 import { DestroyRef, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Validators } from "@angular/forms";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { KlantenService } from "src/app/klanten/klanten.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
+import { runQuery } from "../../../shared/http/run-query";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { ZakenService } from "../../../zaken/zaken.service";
@@ -28,6 +30,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
     InformatieObjectenService,
   );
   private readonly destroyRef = inject(DestroyRef);
+  private readonly queryClient = inject(QueryClient);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
     const replyToControl = this.formBuilder.control<string | null>(null);
@@ -54,7 +57,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       });
 
     const defaultAfzender = afzendersVoorZaakOptions.find(
-      ({ defaultMail }: GeneratedType<"RestZaakAfzender">) => defaultMail,
+      ({ isDefaultMail }: GeneratedType<"RestZaakAfzender">) => isDefaultMail,
     );
     verzenderControl.setValue(defaultAfzender ?? null);
 
@@ -137,10 +140,12 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       {
         type: "documents",
         key: "bijlagen",
-        options:
+        options: runQuery(
+          this.queryClient,
           this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
             zaakUUID: zaak.uuid,
           }),
+        ),
       },
     ];
   }
@@ -174,7 +179,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
           taak.taakdata?.["externAdvies"] ?? null,
           [Validators.required, Validators.maxLength(1000)],
         ),
-        readonly: taak.status === "AFGEROND" || !taak.rechten?.wijzigen,
+        readonly: taak.status === "AFGEROND" || !taak.rechten?.canWijzigen,
       },
     ];
   }

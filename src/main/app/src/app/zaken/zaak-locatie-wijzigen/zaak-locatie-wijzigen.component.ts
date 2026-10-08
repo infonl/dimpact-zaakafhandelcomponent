@@ -8,12 +8,11 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  EventEmitter,
   inject,
-  Input,
+  input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   ViewChild,
 } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
@@ -78,9 +77,9 @@ import { ZakenService } from "../zaken.service";
 export class CaseLocationEditComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() locatie = new EventEmitter<void>();
+  readonly zaak = input.required<GeneratedType<"RestZaak">>();
+  readonly sideNav = input.required<MatDrawer>();
+  readonly locatie = output<void>();
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
 
@@ -99,11 +98,11 @@ export class CaseLocationEditComponent
   protected readonly form = new FormGroup({ reason: this.reasonControl });
 
   protected readonly mutation = injectMutation(
-    () => this.zakenService.updateZaakLocatie(this.zaak.uuid),
+    () => this.zakenService.updateZaakLocatie(this.zaak().uuid),
     {
       onSuccess: () => {
         this.locatie.emit();
-        void this.sideNav.close();
+        void this.sideNav().close();
       },
     },
   );
@@ -125,7 +124,7 @@ export class CaseLocationEditComponent
   private readonly locationMap = new OpenLayersLocationMap(this.pointStyle);
 
   ngOnInit(): void {
-    this.readonly = !this.zaak.rechten.wijzigenLocatie;
+    this.readonly = !this.zaak().rechten.canWijzigenLocatie;
     this.reasonControl.disable();
 
     this.searchControl.valueChanges
@@ -137,7 +136,7 @@ export class CaseLocationEditComponent
     this.markerLocatie$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((geometry) => {
-        if (LocationUtil.isSameGeometry(geometry, this.zaak.zaakgeometrie)) {
+        if (LocationUtil.isSameGeometry(geometry, this.zaak().zaakgeometrie)) {
           this.disableReasonControl();
         } else {
           this.reasonControl.enable();
@@ -169,8 +168,9 @@ export class CaseLocationEditComponent
       this.openLayersMapRef.nativeElement.focus();
     });
 
-    if (this.zaak.zaakgeometrie) {
-      this.setLocation(this.zaak.zaakgeometrie, false);
+    const zaak = this.zaak();
+    if (zaak.zaakgeometrie) {
+      this.setLocation(zaak.zaakgeometrie, false);
     }
   }
 
@@ -243,7 +243,7 @@ export class CaseLocationEditComponent
   }
 
   cancel(): void {
-    void this.sideNav.close();
+    void this.sideNav().close();
   }
 
   save(): void {

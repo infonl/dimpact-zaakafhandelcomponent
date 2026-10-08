@@ -35,6 +35,8 @@ import { UtilService } from "../../core/service/util.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { injectMutation } from "../../shared/http/inject-mutation";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
@@ -44,6 +46,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./intake-afronden-dialog.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     NgFor,
     AsyncPipe,
@@ -64,7 +67,6 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
-  loading = false;
   zaakOntvankelijkMail?: GeneratedType<"RestMailtemplate">;
   zaakNietOntvankelijkMail?: GeneratedType<"RestMailtemplate">;
   mailBeschikbaar = false;
@@ -76,12 +78,20 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
   private ngDestroy = new Subject<void>();
 
+  protected readonly afrondenMutation = injectMutation(
+    () => this.planItemsService.doUserEventListenerPlanItem(),
+    {
+      onSuccess: () => this.dialogRef.close(true),
+      onError: () => this.dialogRef.close(false),
+    },
+  );
+
   constructor(
     public dialogRef: MatDialogRef<IntakeAfrondenDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
     public data: {
       zaak: GeneratedType<"RestZaak">;
-      planItem: GeneratedType<"RESTPlanItem">;
+      planItem: GeneratedType<"RestPlanItem">;
     },
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
@@ -151,7 +161,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
       });
   }
 
-  protected getError(fc: AbstractControl, label: string) {
+  protected getError(fc: AbstractControl | null, label: string) {
     return CustomValidators.getErrorMessage(fc, label, this.translateService);
   }
 
@@ -165,38 +175,30 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
 
   protected afronden(): void {
     this.dialogRef.disableClose = true;
-    this.loading = true;
     const values = this.formGroup.value;
     const mailtemplate = values.ontvankelijk
       ? this.zaakOntvankelijkMail
       : this.zaakNietOntvankelijkMail;
 
-    this.planItemsService
-      .doUserEventListenerPlanItem({
-        actie: "INTAKE_AFRONDEN",
-        planItemInstanceId: this.data.planItem.id,
-        zaakUuid: this.data.zaak.uuid,
-        zaakOntvankelijk: values.ontvankelijk,
-        resultaatToelichting: values.reden,
-        restMailGegevens:
-          values.sendMail && mailtemplate
-            ? {
-                verzender: values.verzender.mail,
-                replyTo: values.verzender.replyTo,
-                ontvanger: values.ontvanger,
-                onderwerp: mailtemplate.onderwerp,
-                body: mailtemplate.body,
-                createDocumentFromMail: true,
-                vertrouwelijkheidaanduiding: "OPENBAAR",
-              }
-            : null,
-      })
-      .subscribe({
-        next: () => {
-          this.dialogRef.close(true);
-        },
-        error: () => this.dialogRef.close(false),
-      });
+    this.afrondenMutation.mutate({
+      actie: "INTAKE_AFRONDEN",
+      planItemInstanceId: this.data.planItem.id,
+      zaakUuid: this.data.zaak.uuid,
+      isZaakOntvankelijk: values.ontvankelijk,
+      resultaatToelichting: values.reden,
+      restMailGegevens:
+        values.sendMail && mailtemplate
+          ? {
+              verzender: values.verzender.mail,
+              replyTo: values.verzender.replyTo,
+              ontvanger: values.ontvanger,
+              onderwerp: mailtemplate.onderwerp,
+              body: mailtemplate.body,
+              shouldCreateDocumentFromMail: true,
+              vertrouwelijkheidaanduiding: "OPENBAAR",
+            }
+          : null,
+    });
   }
 
   ngOnDestroy(): void {

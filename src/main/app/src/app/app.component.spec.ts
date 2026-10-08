@@ -22,14 +22,13 @@ describe(AppComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [AppComponent],
+      imports: [AppComponent, TranslateModule.forRoot()],
       providers: [
         IdentityService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],
-      imports: [TranslateModule.forRoot()],
     });
 
     identityService = TestBed.inject(IdentityService);

@@ -5,6 +5,11 @@
 
 import { expect } from "@playwright/test";
 import { ENV } from "bdd/types";
+import {
+  currentDutchTimestamp,
+  describeCaseDescription,
+  describeTestOrigin,
+} from "../../utils/test-origin";
 import { Given, Then, When } from "./fixture";
 
 Given("the case type {string} exists", async ({ caseType }, type: string) => {
@@ -27,16 +32,22 @@ When(
     await page.getByRole("combobox", { name: "Communication channel" }).click();
     await page.getByRole("option", { name: "E-mail" }).click();
 
-    // A UTC timestamp with millisecond precision tells this case apart from every other one on a shared environment.
-    const timestampUtc = new Date().toISOString().replace(/[-:.]/g, "");
-    caseDescription.value = `E2E-BDD-test-${timestampUtc}`;
+    // A timestamp with millisecond precision tells this case apart from every other one on a shared environment.
+    const timestamp = currentDutchTimestamp();
+    caseDescription.value = describeCaseDescription("E2E BDD test", timestamp);
     await page
       .getByRole("textbox", { name: "Description" })
       .fill(caseDescription.value);
 
     await page
       .getByRole("textbox", { name: "Explanation" })
-      .fill(`This case is created by E2E test scenario: ${$testInfo.title}`);
+      .fill(
+        describeTestOrigin(
+          $testInfo.titlePath.slice(1).join(" - "),
+          page.context().browser(),
+          timestamp,
+        ),
+      );
 
     const response = page.waitForResponse(/zaken\/zaak/);
     await page.getByRole("button", { name: "Create" }).click();

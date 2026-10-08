@@ -14,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import kotlinx.coroutines.Dispatchers
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.brp.model.createPersoon
@@ -36,11 +37,13 @@ import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
+import nl.info.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -61,13 +64,14 @@ class KlantRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val klantRestService = KlantRestService(
-        brpClientService,
-        kvkClientService,
-        ztcClientService,
-        klantClientService,
-        identificationService,
-        policyService,
-        loggedInUserInstance
+        brpClientService = brpClientService,
+        kvkClientService = kvkClientService,
+        ztcClientService = ztcClientService,
+        klantClientService = klantClientService,
+        identificationService = identificationService,
+        policyService = policyService,
+        loggedInUserInstance = loggedInUserInstance,
+        dispatcher = Dispatchers.IO
     )
 
     afterEach {
@@ -102,7 +106,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.vestigingsnummer shouldBe vestigingsnummer
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             postcode shouldBe adres.binnenlandsAdres!!.postcode
                             volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
                                 "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
@@ -175,7 +179,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.vestigingsnummer shouldBe vestigingsnummer
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             postcode shouldBe adres.binnenlandsAdres!!.postcode
                             volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
                                 "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
@@ -359,7 +363,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.type shouldBe type
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             this.postcode shouldBe postcode
                         }
                     }
@@ -466,7 +470,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.emailadres shouldBe "fake@example.com"
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             this.postcode shouldBe postcode
                         }
                     }
@@ -506,7 +510,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.emailadres shouldBe null
                         with(this.adres!!) {
                             type shouldBe "bezoekadres"
-                            afgeschermd shouldBe false
+                            isAfgeschermd shouldBe false
                             this.postcode shouldBe postcode
                         }
                     }
@@ -632,12 +636,12 @@ class KlantRestServiceTest : BehaviorSpec({
                             size shouldBe 2
                             with(this[0]) {
                                 type shouldBe "fakeType1"
-                                afgeschermd shouldBe false
+                                isAfgeschermd shouldBe false
                                 volledigAdres shouldBe "fakeVolledigAdres1"
                             }
                             with(this[1]) {
                                 type shouldBe "fakeType2"
-                                afgeschermd shouldBe true
+                                isAfgeschermd shouldBe true
                                 volledigAdres shouldBe "fakeVolledigAdres2"
                             }
                         }
@@ -710,12 +714,12 @@ class KlantRestServiceTest : BehaviorSpec({
                             size shouldBe 2
                             with(this[0]) {
                                 type shouldBe "fakeType1"
-                                afgeschermd shouldBe false
+                                isAfgeschermd shouldBe false
                                 volledigAdres shouldBe "fakeAdres1"
                             }
                             with(this[1]) {
                                 type shouldBe "fakeType2"
-                                afgeschermd shouldBe true
+                                isAfgeschermd shouldBe true
                                 volledigAdres shouldBe "fakeAdres2"
                             }
                         }
@@ -1097,6 +1101,22 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 then("it should return an empty list") {
                     result shouldBe emptyList()
+                }
+            }
+        }
+    }
+    context("List contactmomenten") {
+        given("Parameters without a BSN and without a vestigingsnummer") {
+            val parameters = RestListContactmomentenParameters(page = 0)
+
+            `when`("listContactmomenten is called") {
+                val exception = shouldThrow<InputValidationFailedException> {
+                    klantRestService.listContactmomenten(parameters)
+                }
+
+                then("the request is rejected without calling the klanten client") {
+                    exception.message shouldBe "Either a BSN or a vestigingsnummer is required to list contactmomenten"
+                    verify(exactly = 0) { klantClientService.listExpandBetrokkenen(any(), any()) }
                 }
             }
         }

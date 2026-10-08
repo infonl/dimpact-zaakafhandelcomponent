@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,14 +10,22 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
+import { injectMutation } from "../../shared/http/inject-mutation";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenSettingsService } from "../signaleringen-settings.service";
+
+const SETTING_PER_COLUMN = {
+  dashboard: "isDashboardEnabled",
+  mail: "isMailEnabled",
+} as const;
 
 @Component({
   templateUrl: "./signaleringen-settings.component.html",
   styleUrls: ["./signaleringen-settings.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgClass,
     NgFor,
     NgIf,
@@ -35,9 +43,14 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
     "dashboard",
     "mail",
   ] as const;
+  protected readonly settingPerColumn = SETTING_PER_COLUMN;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestSignaleringInstellingen">
   >();
+
+  private readonly putMutation = injectMutation(() => this.service.put(), {
+    onSettled: () => this.utilService.setLoading(false),
+  });
 
   constructor(
     private readonly service: SignaleringenSettingsService,
@@ -57,16 +70,11 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
 
   protected changed(
     row: GeneratedType<"RestSignaleringInstellingen">,
-    column: keyof Pick<
-      GeneratedType<"RestSignaleringInstellingen">,
-      "dashboard" | "mail"
-    >,
+    column: keyof typeof SETTING_PER_COLUMN,
     checked: boolean,
   ) {
     this.utilService.setLoading(true);
-    row[column] = checked;
-    this.service.put(row).subscribe(() => {
-      this.utilService.setLoading(false);
-    });
+    row[this.settingPerColumn[column]] = checked;
+    this.putMutation.mutate(row);
   }
 }

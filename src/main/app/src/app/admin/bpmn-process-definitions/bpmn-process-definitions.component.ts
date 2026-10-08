@@ -4,19 +4,29 @@
  */
 
 import {
-  afterNextRender,
   Component,
-  computed,
   ElementRef,
-  inject,
   Injector,
   OnInit,
   QueryList,
   ViewChild,
   ViewChildren,
+  afterNextRender,
+  computed,
+  inject,
 } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { MatIconModule } from "@angular/material/icon";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatTreeModule } from "@angular/material/tree";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -27,7 +37,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../shared/directives/file-drag-and-drop.directive";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { SharedModule } from "../../shared/shared.module";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
@@ -50,7 +60,14 @@ type Node =
   templateUrl: "./bpmn-process-definitions.component.html",
   styleUrls: ["./bpmn-process-definitions.component.less"],
   imports: [
-    SharedModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatTooltipModule,
+    MatTreeModule,
+    SideNavComponent,
+    TranslateModule,
     BpmnNodeRowDirective,
     BpmnProcessDefinitionItemComponent,
     FileDragAndDropDirective,
@@ -191,7 +208,7 @@ export class BpmnProcessDefinitionsComponent
 
   protected hasAllFormsUploaded(node: BpmnProcessDefinitionGroupNode): boolean {
     const forms = node.definition.details?.forms ?? [];
-    return forms.length > 0 && forms.every((form) => form.uploaded);
+    return forms.length > 0 && forms.every((form) => form.isUploaded);
   }
 
   private buildTreeData(

@@ -6,8 +6,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog } from "@angular/material/dialog";
@@ -15,13 +13,12 @@ import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
@@ -47,7 +44,7 @@ describe(ParametersEditBpmnComponent.name, () => {
     zaaktypeOmschrijving: "omschrijving",
     bpmnProcessDefinitionKey: "bpmnProcessDefinitionKey",
     productaanvraagtype: null,
-    groepNaam: "test-group-bpmn",
+    groepNaam: "test-group-id",
     zaaktype: {
       uuid: "test-uuid",
       identificatie: "test-definitie",
@@ -63,7 +60,7 @@ describe(ParametersEditBpmnComponent.name, () => {
       name: "BPMN Process Definition - 2",
       version: 1,
       details: {
-        inUse: true,
+        isInUse: true,
       },
     },
     {
@@ -72,7 +69,7 @@ describe(ParametersEditBpmnComponent.name, () => {
       name: "BPMN Process Definition - 2",
       version: 1,
       details: {
-        inUse: true,
+        isInUse: true,
       },
     },
   ];
@@ -93,13 +90,9 @@ describe(ParametersEditBpmnComponent.name, () => {
         ParametersEditBpmnComponent,
         StaticTextComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -138,12 +131,14 @@ describe(ParametersEditBpmnComponent.name, () => {
       .mockReturnValue(of([]));
 
     identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listGroups").mockReturnValue(
-      of([
-        { id: "test-group-id", naam: "test-group" },
-        { id: "test-group-id-2", naam: "test-group-2" },
-      ]),
-    );
+    jest
+      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+      .mockReturnValue(
+        of([
+          { id: "test-group-id", naam: "test-group" },
+          { id: "test-group-id-2", naam: "test-group-2" },
+        ]),
+      );
     jest
       .spyOn(identityService, "listUsersInGroup")
       .mockReturnValueOnce(
@@ -161,25 +156,65 @@ describe(ParametersEditBpmnComponent.name, () => {
     jest
       .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
       .mockReturnValue(of(false));
+  });
 
+  async function createComponent(inputs: { selectedIndexStart?: number } = {}) {
     fixture = TestBed.createComponent(ParametersEditBpmnComponent);
     component = fixture.componentInstance;
+    Object.entries(inputs).forEach(([name, value]) =>
+      fixture.componentRef.setInput(name, value),
+    );
     fixture.detectChanges();
     await fixture.whenStable();
 
     loader = TestbedHarnessEnvironment.loader(fixture);
+  }
+
+  function selectedStep() {
+    return screen.getByRole("tab", { selected: true });
+  }
+
+  describe("selectedIndexStart", () => {
+    it("starts at the first step by default", async () => {
+      await createComponent();
+
+      expect(selectedStep()).toHaveAccessibleName(
+        /gegevens.proces-model-methode.bpmn/,
+      );
+    });
+
+    it("starts at the step it points to", async () => {
+      await createComponent({ selectedIndexStart: 1 });
+
+      expect(selectedStep()).toHaveAccessibleName(/gegevens.algemeen/);
+    });
+
+    it("moves back to the first step when it changes to 0", async () => {
+      await createComponent({ selectedIndexStart: 1 });
+
+      fixture.componentRef.setInput("selectedIndexStart", 0);
+      fixture.detectChanges();
+
+      expect(selectedStep()).toHaveAccessibleName(
+        /gegevens.proces-model-methode.bpmn/,
+      );
+    });
   });
 
   describe("Zaakspecifieke autorisatie", () => {
+    beforeEach(async () => {
+      await createComponent();
+    });
+
     it("should show 'nee' for a zaaktype without the eigenschap", () => {
       expect(fixture.nativeElement.textContent).toContain(
-        "zaakspecifiekAutoriseerbaar",
+        "zaakspecifiek-autoriseerbaar",
       );
       expect(fixture.nativeElement.textContent).toContain("actie.nee");
     });
 
     it("should show 'ja' for a zaaktype with the eigenschap", () => {
-      component["bpmnZaakafhandelParameters"].zaakspecifiekAutoriseerbaar =
+      component["bpmnZaakafhandelParameters"].isZaakspecifiekAutoriseerbaar =
         true;
       fixture.detectChanges();
 
@@ -188,13 +223,17 @@ describe(ParametersEditBpmnComponent.name, () => {
   });
 
   describe("Case handler", () => {
+    beforeEach(async () => {
+      await createComponent();
+    });
+
     it("should set the case handlers selected group", async () => {
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
       const processDefinitionField = selectFields[0];
 
       const processDefinitionFieldValue =
         await processDefinitionField.getValueText();
-      expect(processDefinitionFieldValue).toBe("-kies.generiek-");
+      expect(processDefinitionFieldValue).toBe("kies.generiek");
 
       const groupField = selectFields[1];
 
@@ -204,6 +243,10 @@ describe(ParametersEditBpmnComponent.name, () => {
   });
 
   describe("opslaan", () => {
+    beforeEach(async () => {
+      await createComponent();
+    });
+
     it("should disable opslaan when the form is invalid", async () => {
       expect(component["algemeenFormGroup"].controls.bpmnDefinition.value).toBe(
         null,
@@ -218,6 +261,10 @@ describe(ParametersEditBpmnComponent.name, () => {
   });
 
   describe("switchModellingMethod", () => {
+    beforeEach(async () => {
+      await createComponent();
+    });
+
     it("should emit CMMN when selected and form is not dirty", () => {
       const emitted: ProcessModelMethodSelection[] = [];
       fixture.componentInstance.switchModellingMethod.subscribe((v) =>

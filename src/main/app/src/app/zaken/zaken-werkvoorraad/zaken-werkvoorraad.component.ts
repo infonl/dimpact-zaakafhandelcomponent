@@ -51,6 +51,7 @@ import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werkli
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
@@ -70,13 +71,13 @@ import { ZakenService } from "../zaken.service";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { IndexingService } from "src/app/indexing/indexing.service";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { ZakenVerdelenDialogComponent } from "../zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "../zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
@@ -87,6 +88,7 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CdkDrag,
     CdkDropList,
     ColumnPickerComponent,
@@ -125,6 +127,12 @@ export class ZakenWerkvoorraadComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   protected readonly indicatiesLayout = IndicatiesLayout;
+  private readonly assignToMeMutation = injectMutation(() =>
+    this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+  );
+  private readonly commitPendingChangesToSearchIndexMutation = injectMutation(
+    () => this.indexService.commitPendingChangesToSearchIndex(),
+  );
   protected selection = new SelectionModel<ZaakZoekObject>(true, []);
   protected dataSource: ZakenWerkvoorraadDatasource;
   @ViewChild(MatPaginator) private paginator!: MatPaginator;
@@ -207,7 +215,7 @@ export class ZakenWerkvoorraadComponent
       [ZoekenColumn.INDICATIES, ColumnPickerValue.VISIBLE],
       [ZoekenColumn.URL, ColumnPickerValue.STICKY],
     ]);
-    if (!this.werklijstRechten.zakenTakenVerdelen) {
+    if (!this.werklijstRechten.canZakenTakenVerdelen) {
       columns.delete(ZoekenColumn.SELECT);
     }
     return columns;
@@ -280,26 +288,22 @@ export class ZakenWerkvoorraadComponent
 
   protected assignToMe(zaakZoekObject: ZaakZoekObject, $event: Event) {
     $event.stopPropagation();
-
-    this.zakenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst(
-        zaakZoekObject.id,
-        zaakZoekObject.groepId,
-      )
-      .subscribe((zaak) => {
-        if (!zaak.behandelaar) {
-          return;
-        }
-        zaakZoekObject.behandelaarNaam = zaak.behandelaar?.naam;
-        zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
-        this.utilService.openSnackbar("msg.zaak.toegekend", {
-          behandelaar: zaak.behandelaar.naam,
-        });
-      });
+    this.assignToMeMutation.mutate(
+      { zaakUUID: zaakZoekObject.id, groepId: zaakZoekObject.groepId },
+      {
+        onSuccess: (zaak) => {
+          // the row's columns are not nullable, so there is nothing to show
+          // until the response names the behandelaar it assigned
+          if (!zaak.behandelaar) return;
+          zaakZoekObject.behandelaarNaam = zaak.behandelaar.naam;
+          zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
+        },
+      },
+    );
   }
 
   protected showAssignToMe(zaakZoekObject: ZaakZoekObject) {
-    if (!zaakZoekObject.rechten.toekennen) return false;
+    if (!zaakZoekObject.rechten.canToekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
     if (loggedInUser.id === zaakZoekObject.behandelaarGebruikersnaam)
@@ -319,17 +323,20 @@ export class ZakenWerkvoorraadComponent
     dialogComponent: ComponentType<T>,
     release = false,
   ) {
-    const skippedBecauseGeautoriseerd = this.selection.selected.filter(
+    const geautoriseerdeZaken = this.selection.selected.filter(
       ({ isZaakspecifiekGeautoriseerd }) => isZaakspecifiekGeautoriseerd,
     );
-    const zaken = this.selection.selected.filter(
-      ({ isZaakspecifiekGeautoriseerd, behandelaarGebruikersnaam }) =>
-        !isZaakspecifiekGeautoriseerd &&
-        (!release || !!behandelaarGebruikersnaam),
-    );
+    // Verdelen only leaves a zaakspecifiek geautoriseerde zaak behind when the dialog returns no
+    // behandelaar, which is known once it closes; vrijgeven always leaves it behind.
+    const zaken = release
+      ? this.selection.selected.filter(
+          ({ isZaakspecifiekGeautoriseerd, behandelaarGebruikersnaam }) =>
+            !isZaakspecifiekGeautoriseerd && !!behandelaarGebruikersnaam,
+        )
+      : this.selection.selected;
 
     if (!zaken.length) {
-      this.showSkippedZakenMessage(release, skippedBecauseGeautoriseerd.length);
+      this.showSkippedZakenMessage(release, geautoriseerdeZaken.length);
       return;
     }
     this.batchProcessService.subscribe({
@@ -352,14 +359,14 @@ export class ZakenWerkvoorraadComponent
         },
       },
       finally: () =>
-        firstValueFrom(
-          this.indexService.commitPendingChangesToSearchIndex(),
-        ).then(() => {
-          this.selection.clear();
-          this.dataSource.load(5_000); // We need to give the indexing service some time to finish
-          this.zakenLoading.set(false);
-          this.batchProcessService.stop();
-        }),
+        this.commitPendingChangesToSearchIndexMutation
+          .mutateAsync(undefined as never)
+          .then(() => {
+            this.selection.clear();
+            this.dataSource.load(5_000); // We need to give the indexing service some time to finish
+            this.zakenLoading.set(false);
+            this.batchProcessService.stop();
+          }),
     });
 
     this.dialog
@@ -374,26 +381,34 @@ export class ZakenWerkvoorraadComponent
           return;
         }
 
+        const skippedZaken =
+          release || !this.toekenning?.medewerker ? geautoriseerdeZaken : [];
+        const verwerkteZaken = zaken.filter(
+          (zaak) => !skippedZaken.includes(zaak),
+        );
+
         if (!release) {
-          const notChanged = zaken
+          const notProcessed = zaken
             .filter(
               (x) =>
-                this.toekenning?.groep?.id === x.groepId &&
-                this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
+                skippedZaken.includes(x) ||
+                (this.toekenning?.groep?.id === x.groepId &&
+                  this.toekenning.medewerker?.id ===
+                    x.behandelaarGebruikersnaam),
             )
             .map(({ id }) => id);
-          this.batchProcessService.update(notChanged);
+          this.batchProcessService.update(notProcessed);
         }
         this.zakenLoading.set(true);
         const message =
-          zaken.length === 1
+          verwerkteZaken.length === 1
             ? this.translateService.instant(
                 release ? "msg.vrijgegeven.zaak" : "msg.verdeeld.zaak",
               )
             : this.translateService.instant(
                 release ? "msg.vrijgegeven.zaken" : "msg.verdeeld.zaken",
                 {
-                  aantal: zaken.length,
+                  aantal: verwerkteZaken.length,
                 },
               );
         this.batchProcessService.showProgress(message, {
@@ -401,10 +416,7 @@ export class ZakenWerkvoorraadComponent
             this.utilService.openSnackbar("msg.error.timeout");
           },
         });
-        this.showSkippedZakenMessage(
-          release,
-          skippedBecauseGeautoriseerd.length,
-        );
+        this.showSkippedZakenMessage(release, skippedZaken.length);
       });
   }
 

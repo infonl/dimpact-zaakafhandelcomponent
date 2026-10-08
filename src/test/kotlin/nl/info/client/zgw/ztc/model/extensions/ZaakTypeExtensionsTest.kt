@@ -18,10 +18,10 @@ class ZaakTypeExtensionsTest : BehaviorSpec({
             val zaakType = createZaakType(servicenorm = null)
 
             `when`("calling isServicenormAvailable") {
-                val result = zaakType.isServicenormAvailable()
+                val isServicenormAvailable = zaakType.isServicenormAvailable()
 
                 then("it should return false") {
-                    result shouldBe false
+                    isServicenormAvailable shouldBe false
                 }
             }
         }
@@ -30,10 +30,10 @@ class ZaakTypeExtensionsTest : BehaviorSpec({
             val zaakType = createZaakType(servicenorm = "P0Y0M0W0D")
 
             `when`("calling isServicenormAvailable") {
-                val result = zaakType.isServicenormAvailable()
+                val isServicenormAvailable = zaakType.isServicenormAvailable()
 
                 then("it should return false") {
-                    result shouldBe false
+                    isServicenormAvailable shouldBe false
                 }
             }
         }
@@ -42,10 +42,10 @@ class ZaakTypeExtensionsTest : BehaviorSpec({
             val zaakType = createZaakType(servicenorm = "P0Y0M0W30D")
 
             `when`("calling isServicenormAvailable") {
-                val result = zaakType.isServicenormAvailable()
+                val isServicenormAvailable = zaakType.isServicenormAvailable()
 
                 then("it should return true") {
-                    result shouldBe true
+                    isServicenormAvailable shouldBe true
                 }
             }
         }

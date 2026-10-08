@@ -22,8 +22,10 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { IdentityService } from "../../identity/identity.service";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
@@ -45,7 +47,9 @@ import { TakenService } from "../taken.service";
     MatButtonModule,
     MatError,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacAutoComplete,
+    ZacFormActions,
+    ZacInput,
   ],
 })
 export class TakenVerdelenDialogComponent {

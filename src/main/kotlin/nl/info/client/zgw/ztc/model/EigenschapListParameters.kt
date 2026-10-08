@@ -30,9 +30,7 @@ enum class EigenschapListParametersStatus(val value: String) {
             parser: JsonParser,
             ctx: DeserializationContext,
             rtType: Type
-        ): EigenschapListParametersStatus {
-            return fromValue(parser.string)
-        }
+        ): EigenschapListParametersStatus = fromValue(parser.string)
     }
 
     class Serializer : JsonbSerializer<EigenschapListParametersStatus> {

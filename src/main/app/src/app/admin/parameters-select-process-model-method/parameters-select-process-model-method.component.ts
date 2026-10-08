@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -11,7 +11,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
+import { ZacRadio } from "src/app/shared/form/radio/radio";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   ProcessModelMethod,
@@ -27,12 +27,11 @@ import {
     MatIconModule,
     MatButtonModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacRadio,
   ],
 })
 export class ParameterSelectProcessModelMethodComponent {
-  @Output() switchModellingMethod =
-    new EventEmitter<ProcessModelMethodSelection>();
+  readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 
   protected readonly modellingMethodOptions: Array<{
     label: string;

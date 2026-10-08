@@ -12,7 +12,7 @@ import jakarta.json.JsonString
 import jakarta.json.JsonValue
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.util.time.convertToDate
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.zgw.drc.DrcClientService
@@ -59,16 +59,16 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         }
 
     fun submit(restTask: RestTask, task: Task, zaak: Zaak): Task {
-        var task = task
-        taakVariabelenService.setTaskinformation(task, restTask.taakinformatie)
+        var submittedTask = task
+        taakVariabelenService.setTaskInformation(task, restTask.taakinformatie)
         taakVariabelenService.setTaskData(task, restTask.taakdata)
 
-        val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata ?: emptyMap())
+        val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata.orEmpty())
 
         if (bpmnTaskFormData.toelichting != null || bpmnTaskFormData.taakFataleDatum != null) {
             // Writing the task variables above bumped the task revision, so re-read it before updating.
             // Saving the instance we still hold would fail with an optimistic locking exception.
-            task = flowableTaskService.readOpenTask(task.id).apply {
+            submittedTask = flowableTaskService.readOpenTask(task.id).apply {
                 bpmnTaskFormData.toelichting?.let {
                     description = it
                 }
@@ -76,16 +76,16 @@ class BpmnTaskFormRuntimeService @Inject constructor(
                     dueDate = convertToDate(it)
                 }
             }
-            task = flowableTaskService.updateTask(task)
+            submittedTask = flowableTaskService.updateTask(submittedTask)
         }
-        if (bpmnTaskFormData.zaakOpschorten && !zaak.isOpgeschort()) {
+        if (bpmnTaskFormData.shouldZaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
-                ChronoUnit.DAYS.between(LocalDate.now(), convertToLocalDate(task.dueDate!!)),
+                ChronoUnit.DAYS.between(LocalDate.now(), convertToLocalDate(submittedTask.dueDate!!)),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }
-        if (bpmnTaskFormData.zaakHervatten && zaak.isOpgeschort()) {
+        if (bpmnTaskFormData.shouldZaakHervatten && zaak.isOpgeschort()) {
             suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         markDocumentAsSent(bpmnTaskFormData)
@@ -96,7 +96,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
             zaakVariabelenService.readProcessZaakdata(zaak.uuid) + bpmnTaskFormData.zaakVariabelen
         )
 
-        return task
+        return submittedTask
     }
 
     private fun copyJsonObject(jsonObject: JsonObject, resolveDefaultValueContext: ResolveDefaultValueContext) =

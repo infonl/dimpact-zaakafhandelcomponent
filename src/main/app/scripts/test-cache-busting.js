@@ -87,7 +87,6 @@ function testCacheBusting() {
     // 5. Test font files
     console.log("5. Testing font files...");
     const fontFiles = [
-      "src/assets/MaterialSymbolsOutlined.woff2",
       "src/assets/fonts/Roboto/300.woff2",
       "src/assets/fonts/Roboto/400.woff2",
       "src/assets/fonts/Roboto/500.woff2",

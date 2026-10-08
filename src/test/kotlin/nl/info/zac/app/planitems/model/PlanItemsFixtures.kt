@@ -13,30 +13,20 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LongParameterList")
-fun createRESTHumanTaskData(
+fun createRestHumanTaskData(
     planItemInstanceId: String = "fakePlanItemInstanceId",
     groep: RestGroup = createRestGroup(),
     medewerker: RestUser? = null,
     fataledatum: LocalDate? = null,
     toelichting: String? = null,
-    taakdata: Map<String, String>? = null,
-    taakStuurGegevens: RESTTaakStuurGegevens? = createRESTTaakStuurGegevens()
-) = RESTHumanTaskData(
+    taakdata: Map<String, String>? = null
+) = RestHumanTaskData(
     planItemInstanceId = planItemInstanceId,
     groep = groep,
     medewerker = medewerker,
     fataledatum = fataledatum,
     toelichting = toelichting,
-    taakdata = taakdata,
-    taakStuurGegevens = taakStuurGegevens
-)
-
-fun createRESTTaakStuurGegevens(
-    sendMail: Boolean = false,
-    mail: String? = null
-) = RESTTaakStuurGegevens(
-    sendMail = sendMail,
-    mail = mail
+    taakdata = taakdata?.toMutableMap()
 )
 
 fun createRestUserEventListenerData(

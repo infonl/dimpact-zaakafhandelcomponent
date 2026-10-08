@@ -3,16 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -26,13 +21,13 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { IntakeAfrondenDialogComponent } from "./intake-afronden-dialog.component";
 
-const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
   id: "fakePlanItemId",
   userEventListenerActie: "INTAKE_AFRONDEN",
 });
 
 const afzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
-  defaultMail: true,
+  isDefaultMail: true,
   mail: "fakeAfzender@example.com",
   replyTo: "fakeReplyTo@example.com",
 });
@@ -99,12 +94,9 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       );
     }
 
-    await render(IntakeAfrondenDialogComponent, {
+    const rendered = await render(IntakeAfrondenDialogComponent, {
       imports: [TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
         { provide: MAT_DIALOG_DATA, useValue: { zaak, planItem } },
         { provide: MatDialogRef, useValue: dialogRef },
         {
@@ -132,14 +124,15 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     });
 
     httpTestingController = TestBed.inject(HttpTestingController);
+    return rendered;
   }
 
   function afrondenButton() {
-    return screen.getByRole("button", { name: "planitem.INTAKE_AFRONDEN" });
+    return screen.getByRole("button", { name: "planitem.intake-afronden" });
   }
 
   function sendMailCheckbox() {
-    return screen.queryByRole("checkbox", { name: "sendMail" });
+    return screen.queryByRole("checkbox", { name: "send-mail" });
   }
 
   function contactEmailButton() {
@@ -244,7 +237,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       expect(afrondenButton()).toBeDisabled();
 
       await user.type(
-        screen.getByLabelText("redenNietOntvankelijk"),
+        screen.getByLabelText("reden-niet-ontvankelijk"),
         "fakeReden",
       );
 
@@ -257,7 +250,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await answerOntvankelijk("actie.nee");
       await answerOntvankelijk("actie.ja");
 
-      expect(screen.queryByLabelText("redenNietOntvankelijk")).toBeNull();
+      expect(screen.queryByLabelText("reden-niet-ontvankelijk")).toBeNull();
       expect(afrondenButton()).toBeEnabled();
     });
   });
@@ -267,7 +260,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await setup(createZaak("BESCHIKBAAR_UIT"));
       await answerOntvankelijk("actie.ja");
 
-      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+      await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
 
       expect(afrondenButton()).toBeDisabled();
     });
@@ -276,8 +269,8 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await setup(createZaak("BESCHIKBAAR_UIT"));
       await answerOntvankelijk("actie.ja");
 
-      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
-      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+      await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
+      await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
 
       expect(afrondenButton()).toBeEnabled();
     });
@@ -325,14 +318,14 @@ describe(IntakeAfrondenDialogComponent.name, () => {
           actie: "INTAKE_AFRONDEN",
           planItemInstanceId: "fakePlanItemId",
           zaakUuid: "fakeZaakUuid",
-          zaakOntvankelijk: true,
+          isZaakOntvankelijk: true,
           restMailGegevens: expect.objectContaining({
             verzender: afzender.mail,
             replyTo: afzender.replyTo,
             ontvanger: "fakeOntvanger@example.com",
             onderwerp: mailtemplateOntvankelijk.onderwerp,
             body: mailtemplateOntvankelijk.body,
-            createDocumentFromMail: true,
+            shouldCreateDocumentFromMail: true,
           }),
         }),
       );
@@ -360,10 +353,10 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await setup(createZaak("BESCHIKBAAR_UIT"));
       await answerOntvankelijk("actie.nee");
       await user.type(
-        screen.getByLabelText("redenNietOntvankelijk"),
+        screen.getByLabelText("reden-niet-ontvankelijk"),
         "fakeReden",
       );
-      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+      await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
       await user.type(
         screen.getByLabelText("ontvanger"),
         "fakeOntvanger@example.com",
@@ -373,7 +366,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
       expect(request.request.body).toEqual(
         expect.objectContaining({
-          zaakOntvankelijk: false,
+          isZaakOntvankelijk: false,
           resultaatToelichting: "fakeReden",
           restMailGegevens: expect.objectContaining({
             onderwerp: mailtemplateNietOntvankelijk.onderwerp,
@@ -393,6 +386,20 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       expect(request.request.body).toEqual(
         expect.objectContaining({ restMailGegevens: null }),
       );
+      request.flush(null);
+    });
+
+    it("disables afronden and annuleren while the intake is being afgerond", async () => {
+      const { fixture } = await setup(createZaak("BESCHIKBAAR_UIT"));
+      await answerOntvankelijk("actie.ja");
+
+      const request = await afronden();
+      fixture.detectChanges();
+
+      expect(afrondenButton()).toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: "actie.annuleren" }),
+      ).toBeDisabled();
       request.flush(null);
     });
 

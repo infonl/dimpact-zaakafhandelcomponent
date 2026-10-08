@@ -4,11 +4,11 @@
  */
 package nl.info.zac.app.informatieobjecten
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -80,7 +80,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
             }
 
             and("the samenvatting.txt references the zaak, richting and bestandsnaam") {
-                val samenvatting = entries["samenvatting.txt"]!!
+                val samenvatting = entries.getValue("samenvatting.txt")
                 samenvatting shouldContain "ZAAK-2024-001"
                 samenvatting shouldContain "inkomend"
                 samenvatting shouldContain "report-DOC-001.pdf"
@@ -185,7 +185,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
             }
 
             and("the samenvatting.txt references both zaken") {
-                val samenvatting = entries["samenvatting.txt"]!!
+                val samenvatting = entries.getValue("samenvatting.txt")
                 samenvatting shouldContain "ZAAK-A"
                 samenvatting shouldContain "ZAAK-B"
             }
@@ -212,12 +212,13 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns failingStream
 
         `when`("getZipStreamOutput is called and the stream is written") {
-            val thrownException = runCatching {
+            val enkelvoudigInformatieObjectDownloadException = shouldThrow<EnkelvoudigInformatieObjectDownloadException> {
                 service.getZipStreamOutput(listOf(informatieobject)).write(ByteArrayOutputStream())
-            }.exceptionOrNull()
+            }
 
-            then("an EnkelvoudigInformatieObjectDownloadException is thrown") {
-                thrownException.shouldBeInstanceOf<EnkelvoudigInformatieObjectDownloadException>()
+            then("an EnkelvoudigInformatieObjectDownloadException names the document that could not be added") {
+                enkelvoudigInformatieObjectDownloadException.message shouldBe
+                    "Failed to add enkelvoudiginformatieobject with identification 'DOC-FAIL' to zip outputStream"
             }
         }
     }

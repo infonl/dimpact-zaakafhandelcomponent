@@ -87,6 +87,14 @@
     {
       "id": "2b3c4d5e-6f78-4901-ab0c-d1e2f3a4b5c6",
       "name": "zaakspecifiek_autorisatie_behandelaar_test_1"
+    },
+    {
+      "id": "1f22df8b-ddc4-4d3b-907d-166651a00e62",
+      "name": "brp_zoeker_domein_test_2"
+    },
+    {
+      "id": "1ef5ac54-5b75-4fda-841f-89a0a541fb04",
+      "name": "zonder_leesrol_domein_test_1"
     }
   ],
   "entityTypes": [
@@ -316,6 +324,27 @@
     {
       "id": "8a1d3f2e-6b4c-4d9a-9e77-1c0f5b7a2d43",
       "functionalRoleId": "3c2b877f-75f9-4275-86d9-81f9a779ce30",
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
+      "applicationRoleId": "1a2b3c4d-5e6f-4708-9a0b-c1d2e3f4a5b6",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "5c3452d8-38d6-4c1c-88d6-1f2b59afa1be",
+      "functionalRoleId": "1f22df8b-ddc4-4d3b-907d-166651a00e62",
+      "domainId": "d3e4f5a6-b7c8-9d0e-1f2a-b3c4d5e6f7a8",
+      "applicationRoleId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "387bff30-884b-4f58-b2dc-fc7c6a563868",
+      "functionalRoleId": "1ef5ac54-5b75-4fda-841f-89a0a541fb04",
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
+      "applicationRoleId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "9acb3b54-6822-4723-8f1f-08675cb744ac",
+      "functionalRoleId": "1ef5ac54-5b75-4fda-841f-89a0a541fb04",
       "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
       "applicationRoleId": "1a2b3c4d-5e6f-4708-9a0b-c1d2e3f4a5b6",
       "isAllEntityTypes": false

@@ -61,7 +61,7 @@ data class TestPlanItemInstance(
     private val startUserId: String? = null,
     private val referenceId: String? = null,
     private val referenceType: String? = null,
-    private val completable: Boolean = false,
+    private val isCompletable: Boolean = false,
     private val entryCriterionId: String? = null,
     private val exitCriterionId: String? = null,
     private val formKey: String? = null,
@@ -103,7 +103,7 @@ data class TestPlanItemInstance(
     override fun getState() = state
     override fun getTenantId() = tenantId
     override fun getTerminatedTime() = terminatedTime
-    override fun isCompletable() = completable
+    override fun isCompletable() = isCompletable
     override fun isStage() = isStage
     override fun setLocalizedName(localizedName: String) {
         this.localizedName = localizedName

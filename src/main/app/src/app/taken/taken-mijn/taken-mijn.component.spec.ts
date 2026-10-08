@@ -34,10 +34,12 @@ describe(TakenMijnComponent.name, () => {
 
   const user = userEvent.setup();
 
-  beforeEach(async () => {
+  beforeEach(() => {
     sessionStorage.clear();
     setTitle = jest.spyOn(UtilService.prototype, "setTitle");
+  });
 
+  async function renderTakenMijn() {
     const { fixture: renderedFixture } = await render(TakenMijnComponent, {
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
@@ -65,7 +67,7 @@ describe(TakenMijnComponent.name, () => {
 
     fixture = renderedFixture;
     httpTestingController = TestBed.inject(HttpTestingController);
-  });
+  }
 
   async function showTaken(taken: Partial<TaakZoekObject>[]) {
     await sleep();
@@ -90,31 +92,37 @@ describe(TakenMijnComponent.name, () => {
       .map((header) => header.textContent?.trim());
   }
 
-  it("sets the page title", () => {
+  it("sets the page title", async () => {
+    await renderTakenMijn();
+
     expect(setTitle).toHaveBeenCalledWith("title.taken.mijn");
   });
 
   it("shows the default set of columns", async () => {
+    await renderTakenMijn();
+
     await showTaken([]);
 
     const headers = columnHeaderNames();
     expect(headers).toEqual(
       expect.arrayContaining([
         "naam",
-        "zaakIdentificatie",
-        "zaakOmschrijving",
+        "zaak-identificatie",
+        "zaak-omschrijving",
         "zaaktype",
         "creatiedatum",
         "fataledatum",
-        "dagenTotFataledatum",
+        "dagen-tot-fataledatum",
         "groep",
       ]),
     );
-    expect(headers).not.toContain("zaakToelichting");
+    expect(headers).not.toContain("zaak-toelichting");
     expect(headers).not.toContain("toelichting");
   });
 
   it("keeps the column actions pinned in their own column", async () => {
+    await renderTakenMijn();
+
     await showTaken([]);
 
     expect(
@@ -126,12 +134,16 @@ describe(TakenMijnComponent.name, () => {
   });
 
   it("tells you there are no taken when the search comes back empty", async () => {
+    await renderTakenMijn();
+
     await showTaken([]);
 
     expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });
 
   it("flags a taak whose fatale datum has passed", async () => {
+    await renderTakenMijn();
+
     await showTaken([
       fromPartial<TaakZoekObject>({
         id: "fakeTaakId",
@@ -144,6 +156,8 @@ describe(TakenMijnComponent.name, () => {
   });
 
   it("does not flag a taak whose fatale datum lies ahead", async () => {
+    await renderTakenMijn();
+
     await showTaken([
       fromPartial<TaakZoekObject>({
         id: "fakeTaakId",
@@ -156,6 +170,8 @@ describe(TakenMijnComponent.name, () => {
   });
 
   it("searches again when a column filter is changed", async () => {
+    await renderTakenMijn();
+
     await showTaken([]);
 
     const zaakIdentificatieFilter =
@@ -179,6 +195,8 @@ describe(TakenMijnComponent.name, () => {
   });
 
   it("brings a column hidden through the column picker back", async () => {
+    await renderTakenMijn();
+
     await showTaken([]);
 
     const columnPicker = screen.getByRole("button", {
@@ -202,6 +220,8 @@ describe(TakenMijnComponent.name, () => {
   });
 
   it("stores the new page size for this werklijst", async () => {
+    await renderTakenMijn();
+
     await showTaken([]);
 
     await user.click(screen.getByRole("combobox", { name: /Items per page/i }));

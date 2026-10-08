@@ -7,6 +7,30 @@
 @import "variables";
 @import "bootstrap/dist/css/bootstrap-grid.min.css";
 
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("./generated/fonts/material-symbols-outlined.woff2") format("woff2");
+}
+
+.roboto-font-face(@weight) {
+  @font-face {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: @weight;
+    font-display: swap;
+    src: url("./assets/fonts/Roboto/@{weight}.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+      U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+      U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+}
+.roboto-font-face(300);
+.roboto-font-face(400);
+.roboto-font-face(500);
+
 html,
 body {
   height: 100%;
@@ -502,4 +526,11 @@ mat-drawer form .mat-action-row.mat-action-row {
   &:not([inert]) {
     transition-delay: 350ms;
   }
+}
+
+.inactive-label {
+  display: inline-block;
+  margin-inline-start: 0.25em;
+  white-space: nowrap;
+  word-break: normal;
 }

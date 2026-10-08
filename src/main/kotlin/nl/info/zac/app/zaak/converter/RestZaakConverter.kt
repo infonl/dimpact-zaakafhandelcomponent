@@ -48,6 +48,7 @@ import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
+import nl.info.zac.zaak.ZaakService
 import java.time.Period
 import java.util.EnumSet.noneOf
 
@@ -66,7 +67,8 @@ class RestZaakConverter @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BpmnService,
     private val identificationService: IdentificationService,
-    private val klantClientService: KlantClientService
+    private val klantClientService: KlantClientService,
+    private val zaakService: ZaakService
 ) {
     fun toRestZaak(
         zaak: Zaak,
@@ -97,14 +99,15 @@ class RestZaakConverter @Inject constructor(
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
-            ?.betrokkeneIdentificatie
-            ?.let { restUserConverter.convertUserId(it.identificatie) }
+            ?.identificatienummer
+            ?.let(restUserConverter::convertUserId)
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
         val initiatorIdentificatie = initiator?.let {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)
         }
         val zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid)
         val zaakData = zaakVariabelenService.readZaakdata(zaak.uuid)
+        val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
         val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
         val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
@@ -119,12 +122,12 @@ class RestZaakConverter @Inject constructor(
             // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
             // so we use [Period.parse] to convert the duration string to a [Period] object
             duurVerlenging = if (zaak.isVerlengd()) PeriodUtil.format(Period.parse(zaak.verlenging.duur)) else null,
-            eerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
+            hasEerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
             einddatum = zaak.einddatum,
             einddatumGepland = zaak.einddatumGepland,
             gerelateerdeZaken = toRestGerelateerdeZaken(zaakRechten, zaak, loggedInUser),
             groep = groep,
-            heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
+            isOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
             identificatie = zaak.identificatie,
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
                 if (zaak.isHoofdzaak()) add(HOOFDZAAK)
@@ -159,13 +162,14 @@ class RestZaakConverter @Inject constructor(
             },
             startdatum = zaak.startdatum,
             startdatumBewaartermijn = zaak.startdatumBewaartermijn,
-            status = status?.takeIf { statustype != null }?.let { toRestZaakStatus(statustype!!, it) },
+            status = statustype?.let { type -> status?.let { toRestZaakStatus(type, it) } },
             toelichting = zaak.toelichting,
             uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
             uuid = zaak.uuid,
             verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding?.toRestVertrouwelijkheidaanduiding(),
             zaakdata = zaakData,
+            isZaakdataGearchiveerd = isZaakdataGearchiveerd,
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             zaakSpecificContactDetails = zaakSpecificContactDetails,
             zaaktype = restZaaktypeConverter.convert(zaakType)
@@ -192,11 +196,24 @@ class RestZaakConverter @Inject constructor(
         zaak.deelzaken
             ?.map(zrcClientService::readZaak)
             ?.map {
-                restGerelateerdeZaakConverter.convert(zaak, fromZaakRechten, it, loggedInUser, RelatieType.DEELZAAK)
+                restGerelateerdeZaakConverter.convert(
+                    fromZaak = zaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = it,
+                    loggedInUser = loggedInUser,
+                    relatieType = RelatieType.DEELZAAK
+                )
             }
             ?.forEach(gerelateerdeZaken::add)
         zaak.gerelateerdeZaken
-            ?.map { restGerelateerdeZaakConverter.convert(zaak, fromZaakRechten, it, loggedInUser) }
+            ?.map {
+                restGerelateerdeZaakConverter.convert(
+                    fromZaak = zaak,
+                    fromZaakRechten = fromZaakRechten,
+                    gerelateerdeZaak = it,
+                    loggedInUser = loggedInUser
+                )
+            }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }

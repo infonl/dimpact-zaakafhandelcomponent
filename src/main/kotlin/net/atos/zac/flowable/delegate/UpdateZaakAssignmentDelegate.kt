@@ -40,7 +40,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
             loggedInUser
         )
         assertPolicy(
-            zaakRechten.toekennen,
+            zaakRechten.canToekennen,
             LOG,
             "User '${loggedInUser.id}' is not authorised to assign zaak '${zaak.identificatie}'"
         )
@@ -50,6 +50,6 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         val reason = reden?.resolveValueAsString(execution)
 
         LOG.fine { "Updating zaak ${zaak.identificatie} assignment with group '$groupId', user '$userId', reason '$reason'" }
-        flowableHelper.zaakService.assignZaak(zaak, groupId, userId, reason)
+        flowableHelper.zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = userId, reason = reason)
     }
 }

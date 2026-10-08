@@ -4,28 +4,35 @@
  */
 
 import { Component, inject } from "@angular/core";
+import { MatProgressBar } from "@angular/material/progress-bar";
+import { MatSidenavModule } from "@angular/material/sidenav";
 import { Title } from "@angular/platform-browser";
+import { RouterOutlet } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { FontLoaderService } from "./core/font-loader.service";
-import { FontPreloadInjectorService } from "./core/font-preload-injector.service";
+import { LoadingComponent } from "./core/loading/loading.component";
+import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { IdentityService } from "./identity/identity.service";
+import { ZoekComponent } from "./zoeken/zoek/zoek.component";
 
 @Component({
   selector: "zac-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.less"],
-  standalone: false,
+  imports: [
+    MatProgressBar,
+    MatSidenavModule,
+    ToolbarComponent,
+    ZoekComponent,
+    LoadingComponent,
+    RouterOutlet,
+  ],
 })
 export class AppComponent {
   private readonly queryClient = inject(QueryClient);
   private readonly identityService = inject(IdentityService);
   private readonly translateService = inject(TranslateService);
   private readonly titleService = inject(Title);
-  private readonly fontLoaderService = inject(FontLoaderService);
-  private readonly fontPreloadInjectorService = inject(
-    FontPreloadInjectorService,
-  );
 
   constructor() {
     this.titleService.setTitle("Zaakafhandelcomponent");
@@ -39,9 +46,5 @@ export class AppComponent {
     void this.queryClient.removeQueries({
       queryKey: this.identityService.readLoggedInUser().queryKey,
     });
-
-    // Inject font preloads and load fonts with cache busting
-    this.fontPreloadInjectorService.injectFontPreloads();
-    this.fontLoaderService.loadFonts();
   }
 }

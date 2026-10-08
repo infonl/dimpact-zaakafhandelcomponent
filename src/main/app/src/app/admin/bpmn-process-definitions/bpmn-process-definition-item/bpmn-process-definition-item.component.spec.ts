@@ -7,16 +7,14 @@ import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { fireEvent, render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { from, of, throwError } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../../setupJest";
+import { sleep } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
-import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
@@ -47,19 +45,19 @@ const zipResponse = new HttpResponse({
 const uploadedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-uploaded",
   title: "Uploaded Form",
-  uploaded: true,
+  isUploaded: true,
 };
 
 const missingForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-missing",
   title: "Missing Form",
-  uploaded: false,
+  isUploaded: false,
 };
 
 const orphanedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-orphaned",
   title: "Orphaned Form",
-  uploaded: true,
+  isUploaded: true,
 };
 
 const baseProcessDefinition = fromPartial<
@@ -70,7 +68,7 @@ const baseProcessDefinition = fromPartial<
   name: "Test Process",
   version: 2,
   details: {
-    inUse: false,
+    isInUse: false,
     uploadDate: "2026-01-15T10:00:00Z",
     modificationDate: "2026-02-20T14:30:00Z",
     documentation: "Test documentation",
@@ -103,6 +101,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   >;
   let foutAfhandelingService: Pick<FoutAfhandelingService, "foutAfhandelen">;
   let bpmnFormListChanged: jest.Mock;
+  let uploadProcessDefinitionFormMutation: ReturnType<
+    typeof createMutationOptions<object, { filename: string; content: string }>
+  >;
   let deleteProcessDefinitionFormMutation: ReturnType<
     typeof createMutationOptions<
       object,
@@ -119,9 +120,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     const rendered = await render(BpmnProcessDefinitionItemComponent, {
       inputs: { processDefinition },
       on: { bpmnFormListChanged },
-      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideQueryClient(testQueryClient),
         { provide: BpmnService, useValue: bpmnService },
         { provide: UtilService, useValue: utilService },
         { provide: FoutAfhandelingService, useValue: foutAfhandelingService },
@@ -158,20 +158,24 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   }
 
   beforeEach(() => {
-    // the component imports SharedModule, so it injects MatDialog from its own
-    // standalone injector rather than the one the TestBed hands out
     dialogOpen = jest
       .spyOn(MatDialog.prototype, "open")
       .mockReturnValue(
         fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
       );
     bpmnFormListChanged = jest.fn();
+    uploadProcessDefinitionFormMutation = createMutationOptions<
+      object,
+      { filename: string; content: string }
+    >({});
     deleteProcessDefinitionFormMutation = createMutationOptions<
       object,
       { processDefinitionKey: string; name: string }
     >({});
     bpmnService = {
-      uploadProcessDefinitionForm: jest.fn().mockReturnValue(of(null)),
+      uploadProcessDefinitionForm: jest
+        .fn()
+        .mockReturnValue(uploadProcessDefinitionFormMutation),
       deleteProcessDefinitionForm: jest
         .fn()
         .mockReturnValue(deleteProcessDefinitionFormMutation),
@@ -370,7 +374,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   });
 
   it("tells the user when the process definition is in use", async () => {
-    await setup(withDetails({ inUse: true }));
+    await setup(withDetails({ isInUse: true }));
 
     expect(
       screen.getByText("bpmn.process-definition.card.details.in-use"),
@@ -435,7 +439,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   });
 
   it("does not allow deleting task forms of a process definition that is in use", async () => {
-    await setup(withDetails({ inUse: true }));
+    await setup(withDetails({ isInUse: true }));
 
     expect(
       within(rowOf("form-uploaded")).getByRole("button", {
@@ -464,13 +468,14 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     await setup();
 
     await user.upload(fileInput(), new File([fileContent], "test-form.json"));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await jest.advanceTimersByTimeAsync(0);
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
+    );
+    expect(uploadProcessDefinitionFormMutation.mutationFn).toHaveBeenCalledWith(
       { filename: "test-form.json", content: fileContent },
+      expect.anything(),
     );
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.bpmn.task-forms.upload.success",
@@ -479,6 +484,20 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     jest.runAllTimers();
     expect(bpmnFormListChanged).toHaveBeenCalled();
+  });
+
+  it("announces nothing and leaves the task form list as it is when the upload fails", async () => {
+    (readFileContent as jest.Mock).mockResolvedValue("{}");
+    uploadProcessDefinitionFormMutation.mutationFn.mockRejectedValue(
+      new Error("fakeUploadFailure"),
+    );
+    await setup();
+
+    await user.upload(fileInput(), new File(["{}"], "test-form.json"));
+    await sleep(450);
+
+    expect(utilService.openSnackbar).not.toHaveBeenCalled();
+    expect(bpmnFormListChanged).not.toHaveBeenCalled();
   });
 
   it("lets the same task form be chosen again after uploading it", async () => {
@@ -508,13 +527,14 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     await setup();
 
     dropFiles(new File([fileContent], "dropped-form.json"));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await jest.advanceTimersByTimeAsync(0);
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
+    );
+    expect(uploadProcessDefinitionFormMutation.mutationFn).toHaveBeenCalledWith(
       { filename: "dropped-form.json", content: fileContent },
+      expect.anything(),
     );
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.bpmn.task-forms.upload.success",
@@ -535,7 +555,10 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
+    );
+    expect(uploadProcessDefinitionFormMutation.mutationFn).toHaveBeenCalledWith(
       { filename: "form.JSON", content: fileContent },
+      expect.anything(),
     );
   });
 
@@ -545,7 +568,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     dropFiles(new File(["<bpmn/>"], "process.bpmn"));
     await sleep();
 
-    expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
+    expect(
+      uploadProcessDefinitionFormMutation.mutationFn,
+    ).not.toHaveBeenCalled();
   });
 
   it("reports a dropped task form that cannot be read", async () => {

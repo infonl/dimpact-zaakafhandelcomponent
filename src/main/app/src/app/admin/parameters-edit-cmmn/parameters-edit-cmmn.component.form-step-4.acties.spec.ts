@@ -52,8 +52,8 @@ describe("Acties form step", () => {
     },
     zaakAfzenders: [
       {
-        speciaal: false,
-        defaultMail: true,
+        isSpeciaal: false,
+        isDefaultMail: true,
         mail: "test@example.com",
         replyTo: undefined,
       },
@@ -61,9 +61,12 @@ describe("Acties form step", () => {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+    smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
     userEventListenerParameters,
-    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+    betrokkeneKoppelingen: {
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
+    },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -71,7 +74,7 @@ describe("Acties form step", () => {
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
-      enabled: false,
+      isEnabled: false,
       templateName: null,
       emailSender: null,
       emailReply: null,
@@ -121,7 +124,8 @@ describe("Acties form step", () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listGroups: () => of([{ id: "test-group-id", naam: "test-group" }]),
+            listBehandelaarGroupsForZaaktype: () =>
+              of([{ id: "test-group-id", naam: "test-group" }]),
             listUsersInGroup: () =>
               of([{ id: "test-user-id", naam: "test-user" }]),
           }),

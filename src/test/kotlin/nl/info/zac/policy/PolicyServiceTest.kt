@@ -5,6 +5,7 @@
 
 package nl.info.zac.policy
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -15,6 +16,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import nl.info.client.opa.model.RoleNamesResponse
 import nl.info.client.opa.model.RuleQuery
 import nl.info.client.opa.model.RuleResponse
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -26,7 +28,6 @@ import nl.info.client.zgw.model.createVerlenging
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakStatus
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
@@ -40,6 +41,7 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.TaakInput
 import nl.info.zac.policy.input.UserInput
@@ -53,9 +55,20 @@ import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.createZaakToewijzing
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
+
+private fun createZaakToewijzingForBehandelaar(behandelaarId: String) = createZaakToewijzing(
+    behandelaarRollen = listOf(
+        createRolMedewerker(
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = behandelaarId)
+        )
+    ),
+    isZaakspecifiekGeautoriseerd = true
+)
 
 @Suppress("LargeClass")
 class PolicyServiceTest : BehaviorSpec({
@@ -64,15 +77,15 @@ class PolicyServiceTest : BehaviorSpec({
     val opaEvaluationClient = mockk<OpaEvaluationClient>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZgwApiService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val loggedInUser = createLoggedInUser()
     val policyService = PolicyService(
-        loggedInUserInstance,
-        opaEvaluationClient,
-        ztcClientService,
-        enkelvoudigInformatieObjectLockService,
-        zrcClientService,
-        zgwApiService
+        loggedInUserInstance = loggedInUserInstance,
+        evaluationClient = opaEvaluationClient,
+        ztcClientService = ztcClientService,
+        lockService = enkelvoudigInformatieObjectLockService,
+        zrcClientService = zrcClientService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
     )
 
     afterEach {
@@ -125,15 +138,15 @@ class PolicyServiceTest : BehaviorSpec({
                     }
                     val zaakInput = ruleQuerySlot.captured.input
                     with(zaakInput.zaakData) {
-                        open shouldBe true
+                        isOpen shouldBe true
                         zaaktype shouldBe zaakType.omschrijving
-                        opgeschort shouldBe zaak.isOpgeschort()
-                        verlengd shouldBe zaak.isVerlengd()
-                        besloten shouldBe false
-                        intake shouldBe false
-                        heropend shouldBe false
-                        brondatumBepaald shouldBe false
-                        zaakspecifiekGeautoriseerd shouldBe false
+                        isOpgeschort shouldBe zaak.isOpgeschort()
+                        isVerlengd shouldBe zaak.isVerlengd()
+                        isBesloten shouldBe false
+                        isIntake shouldBe false
+                        isHeropend shouldBe false
+                        isBrondatumBepaald shouldBe false
+                        isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(zaakInput.user) {
                         id shouldBe loggedInUser.id
@@ -173,7 +186,7 @@ class PolicyServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
-                    ruleQuerySlot.captured.input.zaakData.brondatumBepaald shouldBe true
+                    ruleQuerySlot.captured.input.zaakData.isBrondatumBepaald shouldBe true
                 }
             }
         }
@@ -204,15 +217,15 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.zaakData) {
-                        open shouldBe true
+                        isOpen shouldBe true
                         zaaktype shouldBe zaakType.omschrijving
-                        opgeschort shouldBe zaak.isOpgeschort()
-                        verlengd shouldBe zaak.isVerlengd()
-                        besloten shouldBe false
-                        intake shouldBe true
-                        heropend shouldBe false
-                        brondatumBepaald shouldBe false
-                        zaakspecifiekGeautoriseerd shouldBe false
+                        isOpgeschort shouldBe zaak.isOpgeschort()
+                        isVerlengd shouldBe zaak.isVerlengd()
+                        isBesloten shouldBe false
+                        isIntake shouldBe true
+                        isHeropend shouldBe false
+                        isBrondatumBepaald shouldBe false
+                        isZaakspecifiekGeautoriseerd shouldBe false
                     }
                 }
             }
@@ -244,15 +257,15 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.zaakData) {
-                        open shouldBe true
+                        isOpen shouldBe true
                         zaaktype shouldBe zaakType.omschrijving
-                        opgeschort shouldBe zaak.isOpgeschort()
-                        verlengd shouldBe zaak.isVerlengd()
-                        besloten shouldBe false
-                        intake shouldBe false
-                        heropend shouldBe true
-                        brondatumBepaald shouldBe false
-                        zaakspecifiekGeautoriseerd shouldBe false
+                        isOpgeschort shouldBe zaak.isOpgeschort()
+                        isVerlengd shouldBe zaak.isVerlengd()
+                        isBesloten shouldBe false
+                        isIntake shouldBe false
+                        isHeropend shouldBe true
+                        isBrondatumBepaald shouldBe false
+                        isZaakspecifiekGeautoriseerd shouldBe false
                     }
                 }
             }
@@ -274,9 +287,9 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeOtherUserId")
-            )
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            } returns createZaakToewijzingForBehandelaar("fakeOtherUserId")
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
 
             `when`("policy rights are requested by someone who is not its behandelaar") {
@@ -284,8 +297,8 @@ class PolicyServiceTest : BehaviorSpec({
 
                 then("zaakspecifiekGeautoriseerd is true and loggedInUserIsGeautoriseerdeMedewerker is false in the ZaakData sent to OPA") {
                     with(ruleQuerySlot.captured.input.zaakData) {
-                        zaakspecifiekGeautoriseerd shouldBe true
-                        loggedInUserIsGeautoriseerdeMedewerker shouldBe false
+                        isZaakspecifiekGeautoriseerd shouldBe true
+                        isLoggedInUserGeautoriseerdeMedewerker shouldBe false
                     }
                 }
             }
@@ -305,8 +318,53 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
+            every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
+
+            `when`("policy rights are requested") {
+                policyService.readZaakRechten(zaak, loggedInUser)
+
+                then("loggedInUserIsGeautoriseerdeMedewerker is true in the ZaakData sent to OPA") {
+                    ruleQuerySlot.captured.input.zaakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe true
+                }
+            }
+        }
+
+        given(
+            """
+            a zaak marked as zaakspecifiek geautoriseerd, handed over to another behandelaar, of which the
+            logged-in user is a zaakspecifiek geautoriseerde medewerker
+            """
+        ) {
+            val zaak = createZaak(status = URI("https://example.com/status/${UUID.randomUUID()}"))
+            val zaakType = createZaakType()
+            val zaakStatus = createZaakStatus()
+            val statusType = createStatusType()
+            val expectedZaakRechten = createZaakRechten()
+            val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
+            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
+            )
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            } returns createZaakToewijzing(
+                behandelaarRollen = listOf(
+                    createRolMedewerker(
+                        medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeOtherUserId")
+                    )
+                ),
+                zaakspecifiekGeautoriseerdeMedewerkers = listOf(
+                    createRolMedewerker(
+                        medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
+                    )
+                ),
+                isZaakspecifiekGeautoriseerd = true
             )
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
 
@@ -314,7 +372,7 @@ class PolicyServiceTest : BehaviorSpec({
                 policyService.readZaakRechten(zaak, loggedInUser)
 
                 then("loggedInUserIsGeautoriseerdeMedewerker is true in the ZaakData sent to OPA") {
-                    ruleQuerySlot.captured.input.zaakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe true
+                    ruleQuerySlot.captured.input.zaakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe true
                 }
             }
         }
@@ -337,9 +395,9 @@ class PolicyServiceTest : BehaviorSpec({
                 policyService.readZaakRechten(zaak, loggedInUser)
 
                 then("loggedInUserIsGeautoriseerdeMedewerker is false and the zaak's rollen are never read") {
-                    ruleQuerySlot.captured.input.zaakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe false
+                    ruleQuerySlot.captured.input.zaakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe false
                     verify(exactly = 0) {
-                        zgwApiService.findBehandelaarMedewerkerRoleForZaak(any(), any())
+                        zaakspecifiekeAutorisatieService.readZaakToewijzing(any(), any(), any())
                     }
                 }
             }
@@ -367,16 +425,16 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.zaakData) {
-                        open shouldBe true
+                        isOpen shouldBe true
                         zaaktype shouldBe zaakZoekObject.zaaktypeOmschrijving
-                        opgeschort shouldBe true
-                        verlengd shouldBe true
-                        heropend shouldBe true
+                        isOpgeschort shouldBe true
+                        isVerlengd shouldBe true
+                        isHeropend shouldBe true
                         // We don't set these three
-                        besloten shouldBe null
-                        intake shouldBe null
-                        brondatumBepaald shouldBe null
-                        zaakspecifiekGeautoriseerd shouldBe false
+                        isBesloten shouldBe null
+                        isIntake shouldBe null
+                        isBrondatumBepaald shouldBe null
+                        isZaakspecifiekGeautoriseerd shouldBe false
                     }
                 }
             }
@@ -393,7 +451,7 @@ class PolicyServiceTest : BehaviorSpec({
                 policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
 
                 then("zaakspecifiekGeautoriseerd is true in the ZaakData sent to OPA") {
-                    ruleQuerySlot.captured.input.zaakData.zaakspecifiekGeautoriseerd shouldBe true
+                    ruleQuerySlot.captured.input.zaakData.isZaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }
@@ -433,10 +491,10 @@ class PolicyServiceTest : BehaviorSpec({
                 policyService.readDocumentRechten(documentZoekObject)
 
                 then("OPA is told the logged-in user is not a geautoriseerde medewerker") {
-                    zaakRuleQuerySlot.captured.input.zaakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe false
-                    taakRuleQuerySlot.captured.input.taakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe false
+                    zaakRuleQuerySlot.captured.input.zaakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe false
+                    taakRuleQuerySlot.captured.input.taakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe false
                     documentRuleQuerySlot.captured.input.documentData
-                        .loggedInUserIsGeautoriseerdeMedewerker shouldBe false
+                        .isLoggedInUserGeautoriseerdeMedewerker shouldBe false
                 }
             }
         }
@@ -457,7 +515,7 @@ class PolicyServiceTest : BehaviorSpec({
                 policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
 
                 then("OPA is told the logged-in user is a geautoriseerde medewerker of the zaak") {
-                    ruleQuerySlot.captured.input.zaakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe true
+                    ruleQuerySlot.captured.input.zaakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe true
                 }
             }
 
@@ -466,7 +524,7 @@ class PolicyServiceTest : BehaviorSpec({
                 policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
 
                 then("OPA is told the logged-in user is not a geautoriseerde medewerker of the zaak") {
-                    ruleQuerySlot.captured.input.zaakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe false
+                    ruleQuerySlot.captured.input.zaakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe false
                 }
             }
         }
@@ -512,9 +570,9 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readTaakRechten(any<RuleQuery<TaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.taakData) {
-                        open shouldBe true
+                        isOpen shouldBe true
                         zaaktype shouldBe zaakType.omschrijving
-                        zaakspecifiekGeautoriseerd shouldBe false
+                        isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
                         id shouldBe loggedInUser.id
@@ -548,9 +606,9 @@ class PolicyServiceTest : BehaviorSpec({
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
-            )
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
             every { opaEvaluationClient.readTaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(
                 expectedTaakRechten
             )
@@ -561,8 +619,8 @@ class PolicyServiceTest : BehaviorSpec({
 
                 then("zaakspecifiekGeautoriseerd and loggedInUserIsGeautoriseerdeMedewerker are true in the TaakData sent to OPA") {
                     with(ruleQuerySlot.captured.input.taakData) {
-                        zaakspecifiekGeautoriseerd shouldBe true
-                        loggedInUserIsGeautoriseerdeMedewerker shouldBe true
+                        isZaakspecifiekGeautoriseerd shouldBe true
+                        isLoggedInUserGeautoriseerdeMedewerker shouldBe true
                     }
                 }
             }
@@ -605,9 +663,9 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readTaakRechten(any<RuleQuery<TaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.taakData) {
-                        open shouldBe true
+                        isOpen shouldBe true
                         zaaktype shouldBe zaakType.omschrijving
-                        zaakspecifiekGeautoriseerd shouldBe false
+                        isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
                         id shouldBe loggedInUser.id
@@ -632,7 +690,7 @@ class PolicyServiceTest : BehaviorSpec({
                 policyService.readTaakRechten(taakZoekObject)
 
                 then("zaakspecifiekGeautoriseerd is true in the TaakData sent to OPA") {
-                    ruleQuerySlot.captured.input.taakData.zaakspecifiekGeautoriseerd shouldBe true
+                    ruleQuerySlot.captured.input.taakData.isZaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }
@@ -679,6 +737,59 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
+    context("An OPA rule path that returns no result") {
+        given("A missing or undefined werklijst_rechten rule") {
+            every {
+                opaEvaluationClient.readWerklijstRechten(any())
+            } returns RuleResponse(null)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the werklijst rechten are requested") {
+                val opaRuleNotConfiguredException = shouldThrow<OpaRuleNotConfiguredException> {
+                    policyService.readWerklijstRechten()
+                }
+
+                then("it should throw OpaRuleNotConfiguredException naming the rule path") {
+                    opaRuleNotConfiguredException.message shouldBe
+                        "OPA returned no result for rule path 'werklijst/werklijst_rechten'. " +
+                        "The rule may be missing from the policy bundle."
+                }
+            }
+        }
+    }
+
+    context("Reading leesrollen") {
+        given("An OPA policy bundle that defines the leesrollen") {
+            every {
+                opaEvaluationClient.readLeesrollen()
+            } returns RoleNamesResponse(setOf("fakeLeesrol1", "fakeLeesrol2"))
+
+            `when`("the leesrollen are requested") {
+                val leesrollen = policyService.readLeesrollen()
+
+                then("the role names defined in OPA are returned") {
+                    leesrollen shouldContainExactlyInAnyOrder listOf("fakeLeesrol1", "fakeLeesrol2")
+                }
+            }
+        }
+
+        given("An OPA policy bundle without the leesrollen") {
+            every { opaEvaluationClient.readLeesrollen() } returns RoleNamesResponse(null)
+
+            `when`("the leesrollen are requested") {
+                val opaRuleNotConfiguredException = shouldThrow<OpaRuleNotConfiguredException> {
+                    policyService.readLeesrollen()
+                }
+
+                then("it should throw OpaRuleNotConfiguredException naming the rule path") {
+                    opaRuleNotConfiguredException.message shouldBe
+                        "OPA returned no result for rule path 'rol/leesrollen'. " +
+                        "The rule may be missing from the policy bundle."
+                }
+            }
+        }
+    }
+
     context("Reading documentrechten") {
         given("An unsigned information object") {
             val zaak = createZaak()
@@ -715,13 +826,13 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readDocumentRechten(any<RuleQuery<DocumentInput>>())
                     }
                     with(ruleQuerySlot.captured.input.documentData) {
-                        definitief shouldBe false
-                        vergrendeld shouldBe false
-                        ondertekend shouldBe false
+                        isDefinitief shouldBe false
+                        isVergrendeld shouldBe false
+                        isOndertekend shouldBe false
                         vergrendeldDoor shouldBe null
                         zaaktype shouldBe zaakType.omschrijving
-                        zaakOpen shouldBe true
-                        zaakspecifiekGeautoriseerd shouldBe false
+                        isZaakOpen shouldBe true
+                        isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
                         id shouldBe loggedInUser.id
@@ -772,13 +883,13 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readDocumentRechten(any<RuleQuery<DocumentInput>>())
                     }
                     with(ruleQuerySlot.captured.input.documentData) {
-                        definitief shouldBe false
-                        vergrendeld shouldBe true
-                        ondertekend shouldBe true
+                        isDefinitief shouldBe false
+                        isVergrendeld shouldBe true
+                        isOndertekend shouldBe true
                         vergrendeldDoor shouldBe null
                         zaaktype shouldBe zaakType.omschrijving
-                        zaakOpen shouldBe true
-                        zaakspecifiekGeautoriseerd shouldBe false
+                        isZaakOpen shouldBe true
+                        isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
                         id shouldBe loggedInUser.id
@@ -806,9 +917,9 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
-            )
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
             every { opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot)) } returns RuleResponse(
                 expectedDocumentRights
             )
@@ -823,8 +934,8 @@ class PolicyServiceTest : BehaviorSpec({
 
                 then("zaakspecifiekGeautoriseerd and loggedInUserIsGeautoriseerdeMedewerker are true in the DocumentData sent to OPA") {
                     with(ruleQuerySlot.captured.input.documentData) {
-                        zaakspecifiekGeautoriseerd shouldBe true
-                        loggedInUserIsGeautoriseerdeMedewerker shouldBe true
+                        isZaakspecifiekGeautoriseerd shouldBe true
+                        isLoggedInUserGeautoriseerdeMedewerker shouldBe true
                     }
                 }
             }
@@ -850,7 +961,7 @@ class PolicyServiceTest : BehaviorSpec({
                 )
 
                 then("zaakspecifiekGeautoriseerd is false in the DocumentData sent to OPA") {
-                    ruleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe false
+                    ruleQuerySlot.captured.input.documentData.isZaakspecifiekGeautoriseerd shouldBe false
                 }
             }
         }
@@ -872,7 +983,7 @@ class PolicyServiceTest : BehaviorSpec({
 
                 then("zaakspecifiekGeautoriseerd is false in the DocumentData sent to OPA") {
                     documentRights shouldBe expectedDocumentRights
-                    ruleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe false
+                    ruleQuerySlot.captured.input.documentData.isZaakspecifiekGeautoriseerd shouldBe false
                 }
             }
         }
@@ -891,7 +1002,7 @@ class PolicyServiceTest : BehaviorSpec({
                 policyService.readDocumentRechten(documentZoekObject)
 
                 then("zaakspecifiekGeautoriseerd is true in the DocumentData sent to OPA") {
-                    ruleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe true
+                    ruleQuerySlot.captured.input.documentData.isZaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }
@@ -979,12 +1090,12 @@ class PolicyServiceTest : BehaviorSpec({
                     // intake, besloten and brondatumBepaald are deliberately excluded: not tracked for
                     // a ZaakZoekObject, unlike a Zaak
                     zaakZoekObjectData.zaaktype shouldBe zaakData.zaaktype
-                    zaakZoekObjectData.open shouldBe zaakData.open
-                    zaakZoekObjectData.opgeschort shouldBe zaakData.opgeschort
-                    zaakZoekObjectData.verlengd shouldBe zaakData.verlengd
-                    zaakZoekObjectData.heropend shouldBe zaakData.heropend
-                    zaakZoekObjectData.zaakspecifiekGeautoriseerd shouldBe zaakData.zaakspecifiekGeautoriseerd
-                    zaakZoekObjectData.zaakspecifiekGeautoriseerd shouldBe false
+                    zaakZoekObjectData.isOpen shouldBe zaakData.isOpen
+                    zaakZoekObjectData.isOpgeschort shouldBe zaakData.isOpgeschort
+                    zaakZoekObjectData.isVerlengd shouldBe zaakData.isVerlengd
+                    zaakZoekObjectData.isHeropend shouldBe zaakData.isHeropend
+                    zaakZoekObjectData.isZaakspecifiekGeautoriseerd shouldBe zaakData.isZaakspecifiekGeautoriseerd
+                    zaakZoekObjectData.isZaakspecifiekGeautoriseerd shouldBe false
                 }
             }
         }
@@ -1010,9 +1121,9 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
-            )
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("zaakrechten are read for the zaak and for the equivalent zaak zoek object") {
@@ -1028,13 +1139,13 @@ class PolicyServiceTest : BehaviorSpec({
 
                 then("both paths send OPA zaakspecifiekGeautoriseerd = true and return the same rechten") {
                     zaakZoekObjectRechten shouldBe zaakRechten
-                    zaakRuleQuerySlot.captured.input.zaakData.zaakspecifiekGeautoriseerd shouldBe true
-                    zaakZoekObjectRuleQuerySlot.captured.input.zaakData.zaakspecifiekGeautoriseerd shouldBe true
+                    zaakRuleQuerySlot.captured.input.zaakData.isZaakspecifiekGeautoriseerd shouldBe true
+                    zaakZoekObjectRuleQuerySlot.captured.input.zaakData.isZaakspecifiekGeautoriseerd shouldBe true
                 }
 
                 and("both paths agree that the logged-in user is the zaak's behandelaar") {
-                    zaakRuleQuerySlot.captured.input.zaakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe true
-                    zaakZoekObjectRuleQuerySlot.captured.input.zaakData.loggedInUserIsGeautoriseerdeMedewerker shouldBe true
+                    zaakRuleQuerySlot.captured.input.zaakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe true
+                    zaakZoekObjectRuleQuerySlot.captured.input.zaakData.isLoggedInUserGeautoriseerdeMedewerker shouldBe true
                 }
             }
         }
@@ -1076,8 +1187,8 @@ class PolicyServiceTest : BehaviorSpec({
                     val taskInfoData = taskInfoRuleQuerySlot.captured.input.taakData
                     val taakZoekObjectData = taakZoekObjectRuleQuerySlot.captured.input.taakData
                     taakZoekObjectData shouldBe taskInfoData
-                    taakZoekObjectData.open shouldBe true
-                    taakZoekObjectData.zaakspecifiekGeautoriseerd shouldBe false
+                    taakZoekObjectData.isOpen shouldBe true
+                    taakZoekObjectData.isZaakspecifiekGeautoriseerd shouldBe false
                 }
             }
         }
@@ -1106,9 +1217,9 @@ class PolicyServiceTest : BehaviorSpec({
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
-            )
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("taakrechten are read for the task and for the equivalent taak zoek object") {
@@ -1126,7 +1237,7 @@ class PolicyServiceTest : BehaviorSpec({
                     taakZoekObjectRechten shouldBe taskInfoRechten
                     taakZoekObjectRuleQuerySlot.captured.input.taakData shouldBe
                         taskInfoRuleQuerySlot.captured.input.taakData
-                    taakZoekObjectRuleQuerySlot.captured.input.taakData.zaakspecifiekGeautoriseerd shouldBe true
+                    taakZoekObjectRuleQuerySlot.captured.input.taakData.isZaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }
@@ -1169,13 +1280,13 @@ class PolicyServiceTest : BehaviorSpec({
                     val documentData = enkelvoudigInformatieobjectRuleQuerySlot.captured.input.documentData
                     val documentZoekObjectData = documentZoekObjectRuleQuerySlot.captured.input.documentData
                     documentZoekObjectData.zaaktype shouldBe documentData.zaaktype
-                    documentZoekObjectData.zaakOpen shouldBe documentData.zaakOpen
-                    documentZoekObjectData.definitief shouldBe documentData.definitief
-                    documentZoekObjectData.vergrendeld shouldBe documentData.vergrendeld
+                    documentZoekObjectData.isZaakOpen shouldBe documentData.isZaakOpen
+                    documentZoekObjectData.isDefinitief shouldBe documentData.isDefinitief
+                    documentZoekObjectData.isVergrendeld shouldBe documentData.isVergrendeld
                     documentZoekObjectData.vergrendeldDoor shouldBe documentData.vergrendeldDoor
-                    documentZoekObjectData.ondertekend shouldBe documentData.ondertekend
-                    documentZoekObjectData.zaakspecifiekGeautoriseerd shouldBe documentData.zaakspecifiekGeautoriseerd
-                    documentZoekObjectData.zaakspecifiekGeautoriseerd shouldBe false
+                    documentZoekObjectData.isOndertekend shouldBe documentData.isOndertekend
+                    documentZoekObjectData.isZaakspecifiekGeautoriseerd shouldBe documentData.isZaakspecifiekGeautoriseerd
+                    documentZoekObjectData.isZaakspecifiekGeautoriseerd shouldBe false
                 }
             }
         }
@@ -1201,9 +1312,9 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
-            )
+            every {
+                zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("documentrechten are read for the document and for the equivalent document zoek object") {
@@ -1223,8 +1334,8 @@ class PolicyServiceTest : BehaviorSpec({
 
                 then("both paths send OPA zaakspecifiekGeautoriseerd = true and return the same rechten") {
                     documentZoekObjectRechten shouldBe enkelvoudigInformatieobjectRechten
-                    enkelvoudigInformatieobjectRuleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe true
-                    documentZoekObjectRuleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe true
+                    enkelvoudigInformatieobjectRuleQuerySlot.captured.input.documentData.isZaakspecifiekGeautoriseerd shouldBe true
+                    documentZoekObjectRuleQuerySlot.captured.input.documentData.isZaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }

@@ -10,8 +10,8 @@ import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RelatieType
@@ -21,8 +21,7 @@ import nl.info.zac.app.zaak.model.toRestZaaktypeRelatie
 
 class RestZaaktypeConverter @Inject constructor(
     private val restZaaktypeConfigurationConverter: RestZaaktypeConfigurationConverter,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
 ) {
     fun convert(zaaktype: ZaakType): RestZaaktype {
         val zaaktypeUuid = zaaktype.url.extractUuid()
@@ -35,25 +34,23 @@ class RestZaaktypeConverter @Inject constructor(
             identificatie = zaaktype.identificatie,
             doel = zaaktype.doel,
             omschrijving = zaaktype.omschrijving,
-            servicenorm = zaaktype.isServicenormAvailable(),
+            hasServicenorm = zaaktype.isServicenormAvailable(),
             versiedatum = zaaktype.versiedatum,
-            nuGeldig = zaaktype.isNuGeldig(),
+            isNuGeldig = zaaktype.isNuGeldig(),
             beginGeldigheid = zaaktype.beginGeldigheid,
             eindeGeldigheid = zaaktype.eindeGeldigheid,
             vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding?.toRestVertrouwelijkheidaanduiding(),
-            opschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk,
-            verlengingMogelijk = zaaktype.verlengingMogelijk,
+            isOpschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk,
+            isVerlengingMogelijk = zaaktype.verlengingMogelijk,
             verlengingstermijn = zaaktype.extensionPeriodDays(),
             zaaktypeRelaties = zaaktypeRelaties,
             informatieobjecttypes = zaaktype.informatieobjecttypen.map { it.extractUuid() },
             referentieproces = zaaktype.referentieproces?.naam,
-            zaakafhandelparameters = zaaktypeUuid.let { uuid ->
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(uuid)?.let {
-                    restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it)
-                } ?: zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(uuid).let {
-                    restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, true)
-                }
-            }
+            zaakafhandelparameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
+                zaaktypeConfiguration = zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
+                    ?: ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid },
+                inclusiefRelaties = true
+            )
         )
     }
 }

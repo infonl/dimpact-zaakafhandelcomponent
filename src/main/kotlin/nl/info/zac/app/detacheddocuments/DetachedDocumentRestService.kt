@@ -56,7 +56,7 @@ class DetachedDocumentRestService @Inject constructor(
     fun listDetachedDocuments(
         restListParameters: RestDetachedDocumentListParameters
     ): RESTResultaat<RestDetachedDocument> {
-        assertPolicy(policyService.readWerklijstRechten().inbox)
+        assertPolicy(policyService.readWerklijstRechten().canInbox)
         val listParameters = restListParameters.toDetachedDocumentListParameters()
         val resultaat = detachedDocumentService.getDetachedDocumentResult(listParameters)
         val ontkoppeldeDocumenten = resultaat.items
@@ -84,7 +84,7 @@ class DetachedDocumentRestService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteDetachedDocument(@PathParam("id") id: Long) {
-        assertPolicy(policyService.readWerklijstRechten().ontkoppeldeDocumentenVerwijderen)
+        assertPolicy(policyService.readWerklijstRechten().canOntkoppeldeDocumentenVerwijderen)
         val detachedDocument = detachedDocumentService.find(id) ?: return
         var enkelvoudigInformatieobject: EnkelvoudigInformatieObject? = null
         val documentUUID = detachedDocument.documentUUID
@@ -104,6 +104,6 @@ class DetachedDocumentRestService @Inject constructor(
             }
             drcClientService.deleteEnkelvoudigInformatieobject(documentUUID)
         }
-        detachedDocumentService.deleteIfExists(detachedDocument.id!!)
+        detachedDocumentService.deleteIfExists(id)
     }
 }

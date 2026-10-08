@@ -9,7 +9,7 @@ import {
   computed,
   effect,
   inject,
-  Input,
+  input,
   OnDestroy,
   OnInit,
 } from "@angular/core";
@@ -91,7 +91,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   protected readonly createZaakMutationKey =
     this.zakenService.createZaak().mutationKey;
 
-  @Input({ required: true }) zoekenSideNav!: MatSidenav;
+  readonly zoekenSideNav = input.required<MatSidenav>();
   protected zoekenFormControl = new FormControl<string>("");
 
   protected headerTitle$?: Observable<string>;

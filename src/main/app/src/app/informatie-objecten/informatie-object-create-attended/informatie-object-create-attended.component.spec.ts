@@ -21,13 +21,12 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { render, screen } from "@testing-library/angular";
+import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectCreateAttendedComponent } from "./informatie-object-create-attended.component";
 
@@ -53,11 +52,10 @@ const templateGroup = fromPartial<
       name: "Template One",
       informatieObjectTypeUUID: "fakeInformatieobjectTypeUuid",
     },
-    {
+    fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
       id: "fakeTemplateId2",
       name: "Template Two",
-      informatieObjectTypeUUID: undefined,
-    },
+    }),
   ],
   groups: null,
 });
@@ -97,6 +95,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
   async function setup(
     inputs: {
+      taak?: GeneratedType<"RestTask">;
       smartDocumentsGroupId?: string;
       smartDocumentsTemplateId?: string;
     } = {},
@@ -120,7 +119,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
           provideMomentDateAdapter(),
           provideTanStackQuery(testQueryClient),
           provideQueryClient(testQueryClient),
-          VertrouwelijkaanduidingToTranslationKeyPipe,
         ],
       },
     );
@@ -157,7 +155,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   }
 
   async function fillInValidForm() {
-    await choose("sjabloonGroep", "Group One");
+    await choose("sjabloon-groep", "Group One");
     await choose("sjabloon", "Template One");
     await user.type(field("titel"), "Aanvraag formulier");
   }
@@ -171,7 +169,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("offers the template groups configured for the zaaktype", async () => {
     await setup();
 
-    await user.click(field("sjabloonGroep"));
+    await user.click(field("sjabloon-groep"));
 
     expect(screen.getByRole("option", { name: "Group One" })).toBeVisible();
     expect(screen.getByRole("option", { name: "Group Two" })).toBeVisible();
@@ -195,7 +193,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
           provideMomentDateAdapter(),
           provideTanStackQuery(testQueryClient),
           provideQueryClient(testQueryClient),
-          VertrouwelijkaanduidingToTranslationKeyPipe,
         ],
       },
     );
@@ -207,7 +204,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       .flush([informatieobjecttype]);
 
     // Deliberately not flushed yet: the SmartDocuments fetch for the template groups is still in flight.
-    await user.click(field("sjabloonGroep"));
+    await user.click(field("sjabloon-groep"));
 
     expect(
       screen.queryByRole("option", { name: "Group One" }),
@@ -226,7 +223,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("offers the templates of the chosen template group", async () => {
     await setup();
 
-    await choose("sjabloonGroep", "Group One");
+    await choose("sjabloon-groep", "Group One");
     await user.click(field("sjabloon"));
 
     expect(screen.getByRole("option", { name: "Template One" })).toBeVisible();
@@ -236,7 +233,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("chooses the only template of a group without asking", async () => {
     await setup();
 
-    await choose("sjabloonGroep", "Group Two");
+    await choose("sjabloon-groep", "Group Two");
 
     expect(field("sjabloon")).toHaveValue("Template Three");
     expect(field("sjabloon")).toBeDisabled();
@@ -245,8 +242,8 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("locks the template group it was opened for", async () => {
     await setup({ smartDocumentsGroupId: "fakeGroupId1" });
 
-    expect(field("sjabloonGroep")).toHaveValue("Group One");
-    expect(field("sjabloonGroep")).toBeDisabled();
+    expect(field("sjabloon-groep")).toHaveValue("Group One");
+    expect(field("sjabloon-groep")).toBeDisabled();
     expect(field("sjabloon")).toHaveValue("");
   });
 
@@ -256,7 +253,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       smartDocumentsTemplateId: "fakeTemplateId1",
     });
 
-    expect(field("sjabloonGroep")).toHaveValue("Group One");
+    expect(field("sjabloon-groep")).toHaveValue("Group One");
     expect(field("sjabloon")).toHaveValue("Template One");
     expect(field("sjabloon")).toBeDisabled();
   });
@@ -264,12 +261,12 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   it("fills in the informatieobjecttype and vertrouwelijkheid of the template", async () => {
     await setup();
 
-    await choose("sjabloonGroep", "Group One");
+    await choose("sjabloon-groep", "Group One");
     await choose("sjabloon", "Template One");
 
-    expect(field("informatieobjectType")).toHaveValue("Bijlage");
+    expect(field("informatieobject-type")).toHaveValue("Bijlage");
     expect(field("vertrouwelijkheidaanduiding")).toHaveValue(
-      "vertrouwelijkheidaanduiding.OPENBAAR",
+      "vertrouwelijkheidaanduiding.openbaar",
     );
   });
 
@@ -311,6 +308,43 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
     expect(documentCreated).toHaveBeenCalled();
     expect(windowOpen).toHaveBeenCalledWith("https://example.com/doc");
+  });
+
+  it("creates the document for the taak it was opened from", async () => {
+    jest.spyOn(window, "open").mockReturnValue(null);
+    await setup({
+      taak: fromPartial<GeneratedType<"RestTask">>({ id: "fakeTaskId" }),
+    });
+    await fillInValidForm();
+
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(CREATE_URL);
+    expect(request.request.body).toMatchObject({
+      zaakUuid: "fakeZaakUuid",
+      taskId: "fakeTaskId",
+    });
+    request.flush({ redirectURL: "https://example.com/doc", message: null });
+    await sleep();
+
+    expect(documentCreated).toHaveBeenCalledWith(
+      expect.objectContaining({ taskId: "fakeTaskId" }),
+    );
+  });
+
+  it("creates the document without a taak when it was opened from a zaak", async () => {
+    jest.spyOn(window, "open").mockReturnValue(null);
+    await setup();
+    await fillInValidForm();
+
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(CREATE_URL);
+    expect(request.request.body.taskId).toBeUndefined();
+    request.flush({ redirectURL: "https://example.com/doc", message: null });
+    await sleep();
   });
 
   it("reports the message when there is no document to open", async () => {
@@ -356,6 +390,18 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     httpTestingController
       .expectOne(CREATE_URL)
       .flush({ redirectURL: null, message: "done" });
+  });
+
+  it("closes the drawer from its toolbar", async () => {
+    await setup();
+
+    await user.click(
+      within(
+        screen.getByRole("heading", { name: /actie.document.maken/ }),
+      ).getByRole("button"),
+    );
+
+    expect(sideNav.close).toHaveBeenCalled();
   });
 
   it("closes the drawer when the creation is cancelled", async () => {

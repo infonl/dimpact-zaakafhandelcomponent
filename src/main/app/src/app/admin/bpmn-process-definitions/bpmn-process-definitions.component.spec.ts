@@ -6,7 +6,6 @@
 import { ComponentFixture } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideAngularQuery,
@@ -21,7 +20,6 @@ import { sleep } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BpmnService } from "../bpmn.service";
 import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions.component";
@@ -45,8 +43,8 @@ const processDefinition = fromPartial<
   name: "Process A",
   version: 1,
   details: {
-    inUse: false,
-    forms: [{ formKey: "f1", title: "Form 1", uploaded: true }],
+    isInUse: false,
+    forms: [{ formKey: "f1", title: "Form 1", isUploaded: true }],
     orphanedForms: [],
   },
 });
@@ -90,9 +88,8 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     });
 
     const rendered = await render(BpmnProcessDefinitionsComponent, {
-      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideRouter([]),
         provideAngularQuery(
           new QueryClient({ defaultOptions: { queries: { retry: false } } }),
         ),
@@ -141,8 +138,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     Element.prototype.scrollIntoView = jest.fn();
     notifyManager.setScheduler((fn) => fn());
 
-    // the component imports SharedModule, so it injects MatDialog from its own
-    // standalone injector rather than the one the TestBed hands out
     dialogOpen = jest
       .spyOn(MatDialog.prototype, "open")
       .mockReturnValue(
@@ -161,7 +156,9 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       deleteProcessDefinition: jest
         .fn()
         .mockReturnValue(deleteProcessDefinitionMutation),
-      uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
+      uploadProcessDefinitionForm: jest
+        .fn()
+        .mockReturnValue(createMutationOptions({})),
       deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
     };
     utilService = {
@@ -210,7 +207,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
         ...processDefinition,
         details: {
           ...processDefinition.details,
-          forms: [{ formKey: "f1", title: "Form 1", uploaded: false }],
+          forms: [{ formKey: "f1", title: "Form 1", isUploaded: false }],
         },
       }),
     ]);

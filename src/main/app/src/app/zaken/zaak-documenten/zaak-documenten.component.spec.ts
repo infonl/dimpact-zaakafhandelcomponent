@@ -3,18 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, RenderResult, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
@@ -55,7 +49,7 @@ const fakeDocument = fromPartial<
   bestandsnaam: "test.pdf",
   formaat: "application/pdf",
   vertrouwelijkheidaanduiding: "OPENBAAR",
-  rechten: { lezen: true, wijzigen: false },
+  rechten: { canLezen: true, canWijzigen: false },
   isBesluitDocument: false,
 });
 
@@ -68,7 +62,7 @@ const fakeEditableDocument = fromPartial<
   formaat:
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   vertrouwelijkheidaanduiding: "OPENBAAR",
-  rechten: { lezen: true, wijzigen: true },
+  rechten: { canLezen: true, canWijzigen: true },
   isBesluitDocument: false,
 });
 
@@ -106,13 +100,7 @@ describe(ZaakDocumentenComponent.name, () => {
       inputs: { zaak },
       on: { documentMoveToCase },
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [provideZonelessChangeDetection()],
     });
 
     fixture = rendered.fixture;
@@ -165,7 +153,7 @@ describe(ZaakDocumentenComponent.name, () => {
   };
 
   const linkedDocumentsToggle = () =>
-    screen.queryByRole("switch", { name: "toonGekoppeldeZaakDocumenten" });
+    screen.queryByRole("switch", { name: "toon-gekoppelde-zaak-documenten" });
 
   const openRowMenu = async (titel: string) => {
     await user.click(
@@ -313,7 +301,7 @@ describe(ZaakDocumentenComponent.name, () => {
     const { listRequest } = await setup(fakeZaakMetRelaties);
 
     expect(listRequest.request.body).toEqual(
-      expect.objectContaining({ gekoppeldeZaakDocumenten: true }),
+      expect.objectContaining({ shouldIncludeGekoppeldeZaakDocumenten: true }),
     );
   });
 
@@ -321,7 +309,7 @@ describe(ZaakDocumentenComponent.name, () => {
     const { listRequest } = await setup();
 
     expect(listRequest.request.body).toEqual(
-      expect.objectContaining({ gekoppeldeZaakDocumenten: false }),
+      expect.objectContaining({ shouldIncludeGekoppeldeZaakDocumenten: false }),
     );
   });
 
@@ -406,10 +394,10 @@ describe(ZaakDocumentenComponent.name, () => {
     await setup(fakeZaakMetRelaties);
 
     expect(
-      screen.getByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.getByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeVisible();
     expect(
-      screen.getByRole("columnheader", { name: "relatieType" }),
+      screen.getByRole("columnheader", { name: "relatie-type" }),
     ).toBeVisible();
   });
 
@@ -420,10 +408,10 @@ describe(ZaakDocumentenComponent.name, () => {
     await flushList([fakeDocument]);
 
     expect(
-      screen.queryByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.queryByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeNull();
     expect(
-      screen.queryByRole("columnheader", { name: "relatieType" }),
+      screen.queryByRole("columnheader", { name: "relatie-type" }),
     ).toBeNull();
   });
 
@@ -431,7 +419,7 @@ describe(ZaakDocumentenComponent.name, () => {
     await setup();
 
     expect(
-      screen.queryByRole("columnheader", { name: "zaakIdentificatie" }),
+      screen.queryByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeNull();
   });
 
@@ -443,6 +431,32 @@ describe(ZaakDocumentenComponent.name, () => {
 
     httpTestingController.expectOne(LIST_URL).flush([fakeDocument]);
     await settle();
+  });
+
+  it("reloads the documents of the zaak with and without related documents, but not those of another zaak", async () => {
+    await setup();
+    const withRelatedDocumentsKey = [
+      LIST_URL,
+      { zaakUUID: fakeZaak.uuid, shouldIncludeGekoppeldeZaakDocumenten: true },
+    ];
+    const otherZaakKey = [
+      LIST_URL,
+      { zaakUUID: "zaak-uuid-2", shouldIncludeGekoppeldeZaakDocumenten: false },
+    ];
+    testQueryClient.setQueryData(withRelatedDocumentsKey, [fakeDocument]);
+    testQueryClient.setQueryData(otherZaakKey, [fakeDocument]);
+
+    fixture.componentInstance.updateDocumentList();
+    await settle();
+    httpTestingController.expectOne(LIST_URL).flush([fakeDocument]);
+    await settle();
+
+    expect(
+      testQueryClient.getQueryState(withRelatedDocumentsKey)?.isInvalidated,
+    ).toBe(true);
+    expect(testQueryClient.getQueryState(otherZaakKey)?.isInvalidated).toBe(
+      false,
+    );
   });
 
   describe("selecting documents for a zip download", () => {
@@ -505,18 +519,23 @@ describe(ZaakDocumentenComponent.name, () => {
 
     it("downloads the selected documents as a zip and clears the selection", async () => {
       const { utilService } = await setup();
-      const getZIPDownload = jest
-        .spyOn(InformatieObjectenService.prototype, "getZIPDownload")
-        .mockReturnValue(of({}) as never);
+      const zip = new Blob(["zip"], { type: "application/zip" });
 
       await user.click(
         within(documentRow("Test document")).getByRole("checkbox"),
       );
       await user.click(zipButton());
+      await sleep();
 
-      expect(getZIPDownload).toHaveBeenCalledWith(["doc-uuid-1"]);
+      const request = httpTestingController.expectOne(
+        "/rest/informatieobjecten/download/zip",
+      );
+      expect(request.request.body).toEqual(["doc-uuid-1"]);
+      request.flush(zip);
+      await sleep();
+
       expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
-        {},
+        zip,
         "ZAAK-2024-001",
       );
       expect(zipButton()).toBeDisabled();
@@ -548,7 +567,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await setup(fakeZaak, [
         fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
           ...fakeEditableDocument,
-          rechten: { lezen: true, wijzigen: false },
+          rechten: { canLezen: true, canWijzigen: false },
         }),
       ]);
 
@@ -563,7 +582,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await setup(fakeZaak, [
         fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
           ...fakeDocument,
-          rechten: { lezen: true, wijzigen: true },
+          rechten: { canLezen: true, canWijzigen: true },
         }),
       ]);
 

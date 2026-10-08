@@ -46,7 +46,7 @@ class InboxProductaanvraagRestService @Inject constructor(
     fun listInboxProductaanvragen(
         restListParameters: RestInboxProductaanvraagListParameters
     ): RestInboxProductaanvraagResultaat {
-        assertPolicy(policyService.readWerklijstRechten().inbox)
+        assertPolicy(policyService.readWerklijstRechten().canInbox)
         val resultaat = inboxProductaanvraagService.list(restListParameters.toInboxProductaanvraagListParameters())
         val restResultaat = RestInboxProductaanvraagResultaat(
             resultaat.items.toRestInboxProductaanvragen(),
@@ -54,7 +54,7 @@ class InboxProductaanvraagRestService @Inject constructor(
         )
         val types = resultaat.typeFilter
         restResultaat.filterType = types.ifEmpty {
-            restListParameters.type?.let { listOf(it) } ?: emptyList()
+            restListParameters.type?.let { listOf(it) }.orEmpty()
         }
         return restResultaat
     }
@@ -62,7 +62,7 @@ class InboxProductaanvraagRestService @Inject constructor(
     @GET
     @Path("/{uuid}/pdfPreview")
     fun pdfPreview(@PathParam("uuid") uuid: UUID): Response {
-        assertPolicy(policyService.readWerklijstRechten().inbox)
+        assertPolicy(policyService.readWerklijstRechten().canInbox)
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         return Response.ok(
             StreamingOutput { outputStream ->
@@ -79,7 +79,7 @@ class InboxProductaanvraagRestService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteInboxProductaanvraag(@PathParam("id") id: Long) {
-        assertPolicy(policyService.readWerklijstRechten().inboxProductaanvragenVerwijderen)
+        assertPolicy(policyService.readWerklijstRechten().canInboxProductaanvragenVerwijderen)
         inboxProductaanvraagService.delete(id)
     }
 }

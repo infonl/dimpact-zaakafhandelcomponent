@@ -67,12 +67,18 @@ class ZaakHelper(
             code shouldBe HTTP_OK
             JSONObject(bodyAsString).getString("identificatie")
         }
-        val zaakUuid = zacClient.retrieveZaak(zaakIdentification, testUser).run {
+        val zaak = zacClient.retrieveZaak(zaakIdentification, testUser).run {
             code shouldBe HTTP_OK
-            JSONObject(bodyAsString).getString("uuid").run(UUID::fromString)
+            JSONObject(bodyAsString)
         }
+        val zaakUuid = zaak.getString("uuid").run(UUID::fromString)
         if (indexZaak) {
-            indexZaak(zaakUuid, zaakIdentification, testUser)
+            indexZaak(
+                zaakUuid = zaakUuid,
+                zaakIdentification = zaakIdentification,
+                statustypeOmschrijving = zaak.optJSONObject("status")?.getString("naam"),
+                testUser = testUser
+            )
         }
         return Pair(zaakIdentification, zaakUuid)
     }
@@ -151,10 +157,16 @@ class ZaakHelper(
      * The zaak identification must be unique in the context of the integration test suite,
      * or else zaken indexed by previously run tests may interfere with the indexing check.
      */
-    private suspend fun indexZaak(zaakUuid: UUID, zaakIdentification: String, testUser: TestUser) {
+    private suspend fun indexZaak(
+        zaakUuid: UUID,
+        zaakIdentification: String,
+        statustypeOmschrijving: String?,
+        testUser: TestUser
+    ) {
         sendZaakCreateNotification(zaakUuid)
-        // wait for the indexing to complete by searching for the newly created zaak
-        // until we get the expected result
+        // Creating a zaak with a group already indexes it, before its initial status is set, and Solr only shows
+        // the reindex triggered by the notification after its next soft commit. So wait until the indexed zaak
+        // has the status of the zaak instead of only waiting until the zaak can be found.
         eventually(30.seconds) {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
@@ -174,7 +186,10 @@ class ZaakHelper(
                 """.trimIndent(),
                 testUser = testUser,
             )
-            JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
+            val searchResult = JSONObject(response.bodyAsString)
+            searchResult.getInt("totaal") shouldBe 1
+            searchResult.getJSONArray("resultaten").getJSONObject(0)
+                .optString("statustypeOmschrijving", null) shouldBe statustypeOmschrijving
         }
     }
 

@@ -14,13 +14,12 @@ import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
@@ -38,7 +37,7 @@ import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DE
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
-import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
@@ -46,14 +45,16 @@ import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.ZacApplicationRole.BEHANDELAAR
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.log.log
 import nl.info.zac.util.AllOpen
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
+import nl.info.zac.zaak.model.ZaakAssignment
+import nl.info.zac.zaak.model.ZaakToewijzing
 import java.net.URI
 import java.util.Locale
 import java.util.UUID
-import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.concurrent.withLock
@@ -70,17 +71,10 @@ class ZaakService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private val identityService: IdentityService,
     private val indexingService: IndexingService,
-    private val bpmnService: BpmnService,
+    private val zaakProcessService: ZaakProcessService,
     private val pabcClientService: PabcClientService,
     private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
 ) {
-    companion object {
-        private val zaakAssignmentLocks = Array(64) { ReentrantLock() }
-
-        private fun lockForZaak(uuid: UUID) =
-            zaakAssignmentLocks[Math.floorMod(uuid.hashCode(), zaakAssignmentLocks.size)]
-    }
-
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
         identificationType: IdentificatieType,
@@ -150,36 +144,11 @@ class ZaakService @Inject constructor(
             return
         }
 
-        val (zakenAssignedList, zakenToSkip) = zaakUUIDs
+        val numberOfAssignedZaken = zaakUUIDs
             .map(zrcClientService::readZaak)
-            .partition {
-                isZaakOpen(it) && !zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(it) &&
-                    group.isAuthorisedForApplicationRoleAndZaaktype(
-                        // you are only allowed to assign zaken to 'behandelaren'
-                        zacApplicationRole = BEHANDELAAR,
-                        zaaktypeUuid = it.zaaktype.extractUuid()
-                    )
-            }
-        zakenToSkip
-            .forEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
-        zakenAssignedList
-            .forEach { zaak ->
-                zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), explanation)
-                user?.let {
-                    zrcClientService.updateRol(zaak, bepaalRolMedewerker(it, zaak), explanation)
-                } ?: run {
-                    val behandelaarRoltype = ztcClientService.readRoltype(
-                        zaak.zaaktype,
-                        OmschrijvingGeneriekEnum.BEHANDELAAR,
-                        ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
-                    )
-                    zrcClientService.listRollen(zaak)
-                        .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER && it.roltype == behandelaarRoltype.url }
-                        .forEach { zrcClientService.deleteRol(it, explanation) }
-                }
-            }
+            .count { assignZaakFromBatch(zaak = it, group = group, user = user, explanation = explanation) }
 
-        LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
+        LOG.fine { "Successfully assigned $numberOfAssignedZaken zaken." }
 
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
@@ -194,48 +163,52 @@ class ZaakService @Inject constructor(
      * Assign a single zaak to a group and/or user.
      *
      * @param zaak The zaak to assign.
-     * @param groupId The ID of the group to assign the zaak to.
+     * @param groupId The ID of the group to assign the zaak to. If null, the group of the zaak is left as it is.
      * @param userName The username of the user to assign the zaak to. If null, the user will be removed from the zaak.
      * @param reason The reason for the assignment.
+     * @throws nl.info.zac.identity.exception.UserNotInGroupException when the user is not a member of the group,
+     * before anything of the zaak is changed
      */
-    fun assignZaak(zaak: Zaak, groupId: String, userName: String?, reason: String?) {
+    fun assignZaak(zaak: Zaak, groupId: String?, userName: String?, reason: String?) =
+        assignZaak(zaak = zaak, zaakAssignment = readZaakAssignment(groupId, userName), reason = reason)
+
+    /**
+     * Validates that the user is a member of the group and reads both, without changing any zaak.
+     *
+     * @param groupId The ID of the group. If null, the group of the zaak will be left as it is.
+     * @param userName The username of the user. If null or empty, the user will be removed from the zaak.
+     * @throws nl.info.zac.identity.exception.UserNotInGroupException when the user is not a member of the group
+     */
+    fun readZaakAssignment(groupId: String?, userName: String?): ZaakAssignment {
+        val user = userName?.takeIf { it.isNotEmpty() }?.let { userNameToAssign ->
+            groupId?.let { identityService.validateIfUserIsInGroup(userNameToAssign, it) }
+            identityService.readUser(userNameToAssign)
+        }
+        return ZaakAssignment(group = groupId?.let(identityService::readGroup), user = user)
+    }
+
+    /**
+     * Assign a single zaak to a validated [ZaakAssignment]. This is the only place where the groep and behandelaar
+     * rollen of a zaak are written.
+     *
+     * When the zaak is zaakspecifiek geautoriseerd, the behandelaar that is replaced keeps access to the zaak
+     * as a zaakspecifiek geautoriseerde medewerker.
+     */
+    fun assignZaak(zaak: Zaak, zaakAssignment: ZaakAssignment, reason: String?) {
+        val (group, user) = zaakAssignment
         // lock for the given zaak so that it is impossible to assign the zaak to multiple users on quick subsequent calls
-        lockForZaak(zaak.uuid).withLock {
-            zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaak, userName)
-            userName?.let {
-                identityService.validateIfUserIsInGroup(it, groupId)
-            }
+        zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).withLock {
+            val zaakToewijzing = zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak)
+            zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user?.id)
 
-            var userAssigned = false
-            val user: User? = userName?.takeIf { it.isNotEmpty() }?.let {
-                identityService.readUser(userName).let {
-                    userAssigned = assignUser(zaak, it, reason)
-                    it
-                }
-            }
-
-            // No user should be assigned - delete any existing behandelaar roles
-            var userDeleted = false
-            if (user == null) {
-                val behandelaarRoltype = ztcClientService.readRoltype(
-                    zaak.zaaktype,
-                    OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
-                )
-                val behandelaarRoles = zrcClientService.listRollen(zaak)
-                    .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER && it.roltype == behandelaarRoltype.url }
-                behandelaarRoles.forEach { zrcClientService.deleteRol(it, reason) }
-                userDeleted = behandelaarRoles.isNotEmpty()
-            }
-
-            val group = identityService.readGroup(groupId)
-            val groupAssigned = assignGroup(zaak, group, reason)
+            val isBehandelaarChanged = changeBehandelaar(zaak, zaakToewijzing, user, reason)
+            val isGroupAssigned = group != null && assignGroup(zaak, zaakToewijzing, group, reason)
 
             changeZaakDataAssignment(zaak.uuid, group, user)
 
-            if (userAssigned || userDeleted || groupAssigned) {
+            if (isBehandelaarChanged || isGroupAssigned) {
                 indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
-                if (userAssigned || userDeleted) {
+                if (isBehandelaarChanged) {
                     zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak)
                 }
             }
@@ -263,14 +236,10 @@ class ZaakService @Inject constructor(
 
     fun bepaalRolGroep(group: Group, zaak: Zaak) =
         RolOrganisatorischeEenheid(
-            zaak.url,
-            ztcClientService.readRoltype(
-                zaak.zaaktype,
-                OmschrijvingGeneriekEnum.BEHANDELAAR,
-                ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
-            ),
-            "Behandelend groep van de zaak",
-            OrganisatorischeEenheidIdentificatie().apply {
+            zaak = zaak.url,
+            roltype = zgwApiService.readBehandelaarRoltype(zaak.zaaktype),
+            roltoelichting = "Behandelend groep van de zaak",
+            organisatorischeEenheid = OrganisatorischeEenheidIdentificatie().apply {
                 identificatie = group.name
                 naam = group.description
             }
@@ -278,14 +247,10 @@ class ZaakService @Inject constructor(
 
     fun bepaalRolMedewerker(user: User, zaak: Zaak) =
         RolMedewerker(
-            zaak.url,
-            ztcClientService.readRoltype(
-                zaak.zaaktype,
-                OmschrijvingGeneriekEnum.BEHANDELAAR,
-                ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
-            ),
-            "Behandelaar van de zaak",
-            MedewerkerIdentificatie().apply {
+            zaak = zaak.url,
+            roltype = zgwApiService.readBehandelaarRoltype(zaak.zaaktype),
+            roltoelichting = "Behandelaar van de zaak",
+            medewerkerIdentificatie = MedewerkerIdentificatie().apply {
                 identificatie = user.id
                 voorletters = user.firstName
                 achternaam = user.lastName
@@ -318,15 +283,7 @@ class ZaakService @Inject constructor(
         }
         zaakUUIDs
             .map(zrcClientService::readZaak)
-            .filter {
-                val canBeReleased = it.isOpen() && !zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(it)
-                if (!canBeReleased) {
-                    LOG.fine("Zaak with UUID '${it.uuid} cannot be released. Therefore it is not released.")
-                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it))
-                }
-                canBeReleased
-            }
-            .forEach { zrcClientService.deleteRol(it, BetrokkeneTypeEnum.MEDEWERKER, explanation) }
+            .forEach { releaseZaakFromBatch(it, explanation) }
         LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }
 
         // if a screen event resource ID was specified, send a screen event
@@ -359,19 +316,19 @@ class ZaakService @Inject constructor(
         val role = when (identificationType) {
             IdentificatieType.BSN ->
                 RolNatuurlijkPersoon(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    NatuurlijkPersoonIdentificatie().apply { inpBsn = identification }
+                    zaak = zaak.url,
+                    roltype = roleType,
+                    roltoelichting = explanation,
+                    betrokkeneIdentificatie = NatuurlijkPersoonIdentificatie().apply { inpBsn = identification }
                 )
 
             IdentificatieType.VN -> {
                 val (kvkNummer, vestigingsnummer) = identification.split(VESTIGING_IDENTIFICATIE_DELIMITER)
                 RolNietNatuurlijkPersoon(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    NietNatuurlijkPersoonIdentificatie().apply {
+                    zaak = zaak.url,
+                    roltype = roleType,
+                    roltoelichting = explanation,
+                    betrokkeneIdentificatie = NietNatuurlijkPersoonIdentificatie().apply {
                         this.kvkNummer = kvkNummer
                         this.vestigingsNummer = vestigingsnummer
                     }
@@ -380,79 +337,143 @@ class ZaakService @Inject constructor(
 
             IdentificatieType.RSIN ->
                 RolNietNatuurlijkPersoon(
-                    zaak.url,
-                    roleType,
-                    explanation,
-                    NietNatuurlijkPersoonIdentificatie().apply { this.kvkNummer = identification }
+                    zaak = zaak.url,
+                    roltype = roleType,
+                    roltoelichting = explanation,
+                    betrokkeneIdentificatie = NietNatuurlijkPersoonIdentificatie().apply { this.kvkNummer = identification }
                 )
         }
         zrcClientService.createRol(role, explanation)
     }
 
-    private fun assignGroup(
-        zaak: Zaak,
-        group: Group,
-        reason: String?
-    ): Boolean =
-        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
-            if (currentGroupId == null || currentGroupId != group.name) {
-                // if the zaak is not already assigned to the requested group, assign it to this group
-                zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), reason)
-                true
-            } else {
-                false
-            }
-        }
-
-    private fun assignUser(
-        zaak: Zaak,
-        user: User,
-        reason: String?,
-    ): Boolean {
-        val behandelaarRoltype = ztcClientService.readRoltype(
-            zaak.zaaktype,
-            OmschrijvingGeneriekEnum.BEHANDELAAR,
-            ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
-        )
-        val behandelaarRoles = zrcClientService.listRollen(zaak)
-            .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER && it.roltype == behandelaarRoltype.url }
-
-        if (behandelaarRoles.size > 1) {
-            log(
-                LOG,
-                Level.WARNING,
-                "Zaak ${zaak.uuid} has ${behandelaarRoles.size} duplicate behandelaar roles; purging all before reassignment"
+    private fun assignZaakFromBatch(zaak: Zaak, group: Group, user: User?, explanation: String?): Boolean {
+        if (!isZaakOpen(zaak) ||
+            !group.isAuthorisedForApplicationRoleAndZaaktype(
+                // you are only allowed to assign zaken to 'behandelaren'
+                zacApplicationRole = BEHANDELAAR,
+                zaaktypeUuid = zaak.zaaktype.extractUuid()
             )
+        ) {
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+            return false
         }
-
-        val currentBehandelaarId = (behandelaarRoles.singleOrNull() as? RolMedewerker)
-            ?.betrokkeneIdentificatie?.identificatie
-
-        return if (behandelaarRoles.size != 1 || currentBehandelaarId != user.id) {
-            behandelaarRoles.forEach { zrcClientService.deleteRol(it, reason) }
-            zrcClientService.createRol(bepaalRolMedewerker(user, zaak), reason)
+        return try {
+            assignZaak(zaak = zaak, zaakAssignment = ZaakAssignment(group = group, user = user), reason = explanation)
             true
-        } else {
+        } catch (
+            zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+        ) {
+            LOG.log(Level.FINE, zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
+                "Zaak with UUID '${zaak.uuid}' is zaakspecifiek geautoriseerd and cannot be left without a " +
+                    "behandelaar. Therefore it is skipped and not assigned."
+            }
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+            false
+        } catch (
+            zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException: ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+        ) {
+            LOG.log(Level.WARNING, zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException) {
+                "Zaak with UUID '${zaak.uuid}' is zaakspecifiek geautoriseerd but its zaaktype cannot keep the " +
+                    "previous behandelaar authorised. Therefore it is skipped and not assigned."
+            }
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+            false
+        } catch (multipleBehandelaarRolesException: MultipleBehandelaarRolesException) {
+            LOG.log(Level.WARNING, multipleBehandelaarRolesException) {
+                "Zaak with UUID '${zaak.uuid}' has more than one groep or behandelaar rol. " +
+                    "Therefore it is skipped and not assigned."
+            }
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             false
         }
     }
 
-    private fun changeZaakDataAssignment(
-        zaakUuid: UUID,
-        group: Group,
-        user: User?
-    ) {
-        if (bpmnService.isZaakProcessDriven(zaakUuid)) {
-            try {
-                zaakVariabelenService.setGroup(zaakUuid, group.name)
-                user?.let {
-                    zaakVariabelenService.setUser(zaakUuid, it.id)
-                } ?: zaakVariabelenService.removeUser(zaakUuid)
-            } catch (exception: CaseOrProcessNotFoundException) {
-                LOG.warning { exception.message }
+    private fun releaseZaakFromBatch(zaak: Zaak, explanation: String?) {
+        if (!zaak.isOpen()) {
+            LOG.fine { "Zaak with UUID '${zaak.uuid}' cannot be released. Therefore it is not released." }
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+            return
+        }
+        try {
+            assignZaak(zaak = zaak, zaakAssignment = ZaakAssignment(group = null, user = null), reason = explanation)
+        } catch (
+            zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+        ) {
+            LOG.log(Level.FINE, zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
+                "Zaak with UUID '${zaak.uuid}' cannot be released. Therefore it is not released."
             }
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+        } catch (multipleBehandelaarRolesException: MultipleBehandelaarRolesException) {
+            LOG.log(Level.WARNING, multipleBehandelaarRolesException) {
+                "Zaak with UUID '${zaak.uuid}' has more than one groep or behandelaar rol. " +
+                    "Therefore it is not released."
+            }
+            eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
         }
     }
+
+    private fun assignGroup(
+        zaak: Zaak,
+        zaakToewijzing: ZaakToewijzing,
+        group: Group,
+        reason: String?
+    ) =
+        if (zaakToewijzing.groepId != group.name) {
+            // if the zaak is not already assigned to the requested group, assign it to this group
+            zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), reason)
+            true
+        } else {
+            false
+        }
+
+    /**
+     * Replaces the behandelaar rol(len) of the zaak with [user], or removes them when [user] is null.
+     * A replaced behandelaar of a zaakspecifiek geautoriseerde zaak is granted an individual authorisation
+     * first, so that they never lose access to the zaak. A medewerker holds at most one of both rollen, so a new
+     * behandelaar gives up their individual authorisation once their behandelaar rol exists.
+     *
+     * @return true when the behandelaar of the zaak changed
+     */
+    private fun changeBehandelaar(
+        zaak: Zaak,
+        zaakToewijzing: ZaakToewijzing,
+        user: User?,
+        reason: String?
+    ): Boolean {
+        val behandelaarRollen = zaakToewijzing.behandelaarRollen
+        val isBehandelaarUnchanged = if (user == null) {
+            behandelaarRollen.isEmpty()
+        } else {
+            behandelaarRollen.size == 1 && zaakToewijzing.behandelaarId == user.id
+        }
+        if (isBehandelaarUnchanged) return false
+
+        if (zaakToewijzing.isZaakspecifiekGeautoriseerd) {
+            behandelaarRollen
+                .mapNotNull { it.betrokkeneIdentificatie }
+                .distinctBy { it.identificatie }
+                .filter { it.identificatie != user?.id }
+                .forEach {
+                    zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
+                        zaak = zaak,
+                        medewerker = it,
+                        reason = reason,
+                        zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
+                    )
+                }
+        }
+        behandelaarRollen.forEach { zrcClientService.deleteRol(it, reason) }
+        user?.let { newBehandelaar ->
+            zrcClientService.createRol(bepaalRolMedewerker(newBehandelaar, zaak), reason)
+            zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
+                .filter { it.identificatienummer == newBehandelaar.id }
+                .forEach { zrcClientService.deleteRol(it, reason) }
+        }
+        return true
+    }
+
+    private fun changeZaakDataAssignment(zaakUuid: UUID, group: Group?, user: User?) =
+        zaakProcessService.updateAssignment(zaakUuid, groupId = group?.name, behandelaarId = user?.id)
 
     fun listStatusTypes(zaaktypeUUID: UUID) =
         ztcClientService.readStatustypen(
@@ -482,17 +503,17 @@ class ZaakService @Inject constructor(
         zaakUUIDs: List<UUID>
     ) =
         user?.let {
-            val inGroup = identityService.isUserInGroup(user.id, group.name)
-            if (!inGroup) {
+            val isInGroup = identityService.isUserInGroup(user.id, group.name)
+            if (!isInGroup) {
                 LOG.warning(
                     "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.description}'. " +
                         "Skipping all zaken."
                 )
                 zaakUUIDs
                     .map(zrcClientService::readZaak)
-                    .forEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
+                    .forEach { zaak -> eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak)) }
             }
-            inGroup
+            isInGroup
         } ?: true
 
     private fun isZaakOpen(zaak: Zaak) =
@@ -520,4 +541,6 @@ class ZaakService @Inject constructor(
             zaaktypeDescription = zaaktype.omschrijving
         ).map { it.name }.contains(this.name)
     }
+
+    fun setIsZaakdataGearchiveerd(zaak: Zaak) = !zaakProcessService.hasActiveProcess(zaak.uuid)
 }

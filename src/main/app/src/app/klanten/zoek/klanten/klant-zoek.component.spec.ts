@@ -11,7 +11,7 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { Component, EventEmitter, Output } from "@angular/core";
+import { booleanAttribute, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
@@ -32,7 +32,8 @@ import { KlantZoekComponent } from "./klant-zoek.component";
   standalone: true,
 })
 class PersoonZoekStubComponent {
-  @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
+  readonly persoon = output<GeneratedType<"RestPersoon">>();
 }
 
 @Component({
@@ -41,7 +42,8 @@ class PersoonZoekStubComponent {
   standalone: true,
 })
 class BedrijfZoekStubComponent {
-  @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
+  readonly bedrijf = output<GeneratedType<"RestBedrijf">>();
 }
 
 const makePersoon = (
@@ -95,7 +97,7 @@ describe(KlantZoekComponent.name, () => {
     testQueryClient.setQueryData(
       policyService.readBrpRechten().queryKey,
       fromPartial<GeneratedType<"RestBrpRechten">>({
-        zoeken: true,
+        canZoeken: true,
       }),
     );
 
@@ -188,6 +190,29 @@ describe(KlantZoekComponent.name, () => {
     });
   });
 
+  describe("selecting a klant", () => {
+    it("makes the persoon search selectable", () => {
+      const persoonStub = fixture.debugElement.query(
+        By.directive(PersoonZoekStubComponent),
+      ).componentInstance as PersoonZoekStubComponent;
+
+      expect(persoonStub.isSelectable()).toBe(true);
+    });
+
+    it("makes the bedrijf search selectable", async () => {
+      const tabGroup = await loader.getHarness(MatTabGroupHarness);
+      const [, bedrijfTab] = await tabGroup.getTabs();
+      await bedrijfTab.select();
+      fixture.detectChanges();
+
+      const bedrijfStub = fixture.debugElement.query(
+        By.directive(BedrijfZoekStubComponent),
+      ).componentInstance as BedrijfZoekStubComponent;
+
+      expect(bedrijfStub.isSelectable()).toBe(true);
+    });
+  });
+
   describe("brpZoeken recht", () => {
     describe("when brpZoeken is true", () => {
       it("should show the persoon tab", async () => {
@@ -203,7 +228,7 @@ describe(KlantZoekComponent.name, () => {
         testQueryClient.setQueryData(
           policyService.readBrpRechten().queryKey,
           fromPartial<GeneratedType<"RestBrpRechten">>({
-            zoeken: false,
+            canZoeken: false,
           }),
         );
         fixture = TestBed.createComponent(KlantZoekComponent);

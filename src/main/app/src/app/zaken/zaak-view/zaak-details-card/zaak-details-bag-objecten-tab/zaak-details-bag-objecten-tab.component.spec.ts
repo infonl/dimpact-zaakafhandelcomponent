@@ -16,10 +16,10 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
   let fixture: ComponentFixture<ZaakDetailsBagObjectenTabComponent>;
 
   const bagObjectGegevens = (
-    overrides: Partial<GeneratedType<"RESTBAGObject">> = {},
+    overrides: Partial<GeneratedType<"RestBagObject">> = {},
   ) =>
-    fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
-      bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
+    fromPartial<GeneratedType<"RestBagObjectGegevens">>({
+      bagObject: fromPartial<GeneratedType<"RestBagObject">>({
         identificatie: "fakeBagIdentificatie",
         bagObjectType: "ADRES",
         omschrijving: "fakeBagOmschrijving",
@@ -30,7 +30,7 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
   const screen = () => within(fixture.nativeElement as HTMLElement);
 
   const renderBagObjecten = (
-    bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[],
+    bagObjecten: GeneratedType<"RestBagObjectGegevens">[],
     isOntkoppelenToegestaan = true,
   ) => {
     fixture.componentRef.setInput("bagObjecten", bagObjecten);
@@ -89,14 +89,14 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
     renderBagObjecten([bagObjectGegevens()]);
 
     expect(screen().getByText("fakeBagOmschrijving")).toBeInTheDocument();
-    expect(screen().getByText("objecttype.ADRES")).toBeInTheDocument();
+    expect(screen().getByText("objecttype.adres")).toBeInTheDocument();
   });
 
   it("links to the bag object by its lowercased type and identificatie", () => {
     renderBagObjecten([bagObjectGegevens()]);
 
     expect(
-      screen().getByRole("link", { name: "actie.bagObject.bekijken" }),
+      screen().getByRole("link", { name: "actie.bag-object.bekijken" }),
     ).toHaveAttribute("href", "/bag-objecten/adres/fakeBagIdentificatie");
   });
 
@@ -109,7 +109,7 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
     );
 
     screen()
-      .getByRole("button", { name: "actie.bagObject.ontkoppelen" })
+      .getByRole("button", { name: "actie.bag-object.ontkoppelen" })
       .click();
 
     expect(bagObjectVerwijderen).toHaveBeenCalledWith(gekoppeldBagObject);
@@ -119,7 +119,7 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
     renderBagObjecten([bagObjectGegevens()], false);
 
     expect(
-      screen().queryByRole("button", { name: "actie.bagObject.ontkoppelen" }),
+      screen().queryByRole("button", { name: "actie.bag-object.ontkoppelen" }),
     ).toBeNull();
   });
 });

@@ -1,17 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
+import { NgClass, NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
+  input,
   OnDestroy,
-  Output,
+  output,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -53,9 +53,15 @@ import {
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { SharedModule } from "../../shared/shared.module";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacRadio } from "../../shared/form/radio/radio";
+import { ZacSelect } from "../../shared/form/select/select";
+import { ZacToggle } from "../../shared/form/toggle/toggle";
+import { injectMutation } from "../../shared/http/inject-mutation";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import {
@@ -89,6 +95,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   styleUrls: ["./parameters-edit-cmmn.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
@@ -105,15 +112,20 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     MatStepperModule,
     MatTableModule,
     TranslateModule,
-    MaterialFormBuilderModule,
-    SharedModule,
+    ZacSelect,
+    ZacToggle,
+    ZacRadio,
+    ZacInput,
+    NgClass,
+    NgFor,
+    NgIf,
+    StaticTextComponent,
     SmartDocumentsFormComponent,
   ],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
-  @Input({ required: false }) selectedIndexStart: number = 0;
-  @Output() switchModellingMethod =
-    new EventEmitter<ProcessModelMethodSelection>();
+  readonly selectedIndexStart = input<number>(0);
+  readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocumentsFormComponent!: SmartDocumentsFormComponent;
@@ -127,8 +139,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
     smartDocuments: {
-      enabledGlobally: false,
-      enabledForZaaktype: false,
+      isEnabledGlobally: false,
+      isEnabledForZaaktype: false,
     },
     zaakAfzenders: [],
     userEventListenerParameters: [],
@@ -136,8 +148,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       uuid: "",
     },
     betrokkeneKoppelingen: {
-      brpKoppelen: false,
-      kvkKoppelen: false,
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
     },
     brpDoelbindingen: {
       zoekWaarde: "",
@@ -146,7 +158,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
-      enabled: false,
+      isEnabled: false,
       templateName: null,
       emailSender: null,
       emailReply: null,
@@ -230,7 +242,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-  protected filteredMedewerkerMail: GeneratedType<"RESTReplyTo">[] = [];
+  protected filteredMedewerkerMail: GeneratedType<"RestReplyTo">[] = [];
   protected ontvangstBevestigingsMailtemplates: GeneratedType<"RestMailtemplate">[] =
     [];
 
@@ -238,26 +250,35 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     enabled: this.formBuilder.control(false),
     templateName:
       this.formBuilder.control<GeneratedType<"RestMailtemplate"> | null>(null),
-    emailSender: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+    emailSender: this.formBuilder.control<GeneratedType<"RestReplyTo"> | null>(
       null,
     ),
-    emailReply: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+    emailReply: this.formBuilder.control<GeneratedType<"RestReplyTo"> | null>(
       null,
     ),
   });
 
   mailOpties: {
-    label: `statusmail.optie.${GeneratedType<"ZaakafhandelparametersStatusMailOption">}`;
+    label: string;
     value: GeneratedType<"ZaakafhandelparametersStatusMailOption">;
   }[] = [
-    { label: "statusmail.optie.BESCHIKBAAR_AAN", value: "BESCHIKBAAR_AAN" },
-    { label: "statusmail.optie.BESCHIKBAAR_UIT", value: "BESCHIKBAAR_UIT" },
-    { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
+    { label: "statusmail.optie.beschikbaar-aan", value: "BESCHIKBAAR_AAN" },
+    { label: "statusmail.optie.beschikbaar-uit", value: "BESCHIKBAAR_UIT" },
+    { label: "statusmail.optie.niet-beschikbaar", value: "NIET_BESCHIKBAAR" },
   ];
+
+  private readonly updateZaakafhandelparametersMutation = injectMutation(
+    () => this.zaakafhandelParametersService.updateZaakafhandelparameters(),
+    {
+      onSettled: () => {
+        this.isLoading = false;
+      },
+    },
+  );
 
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
-  protected groepen = this.identityService.listGroups();
+  protected groepen: GeneratedType<"RestGroup">[] = [];
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   protected formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] =
@@ -265,7 +286,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
   protected zaakbeeindigRedenen: GeneratedType<"RestZaakbeeindigReden">[] = [];
   protected mailtemplates: GeneratedType<"RestMailtemplate">[] = [];
-  protected replyTos: GeneratedType<"RESTReplyTo">[] = [];
+  protected replyTos: GeneratedType<"RestReplyTo">[] = [];
   protected isLoading = false;
   protected subscriptions$: Subscription[] = [];
   protected brpConsultingValues: string[] = [];
@@ -323,6 +344,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
         configuratieService.readBrpDoelbindingSetupEnabled(),
+        identityService.listBehandelaarGroupsForZaaktype(
+          this.parameters.zaaktype.omschrijving!,
+        ),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -336,6 +360,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           brpViewValues,
           brpProcessingValues,
           brpDoelbindingSetupEnabled,
+          groepen,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -348,6 +373,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
           this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
+          this.groepen = groepen;
           await this.createForm();
         },
       );
@@ -364,9 +390,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.cdr.detectChanges();
-    if (this.smartDocumentsFormComponent) {
-      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
-    }
   }
 
   private async readHumanTaskParameters(
@@ -458,8 +481,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       });
 
     if (defaultGroepId) {
-      const groups = await this.groepen.toPromise();
-      const defaultGroup = groups?.find(({ id }) => id === defaultGroepId);
+      const defaultGroup = this.groepen?.find(
+        ({ id }) => id === defaultGroepId,
+      );
       this.algemeenFormGroup.controls.defaultGroep.setValue(
         defaultGroup ?? null,
       );
@@ -611,8 +635,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
     }
     this.filteredMedewerkerMail = this.replyTos.filter(
-      (replyTo: GeneratedType<"RESTReplyTo">) =>
-        !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"),
+      (replyTo: GeneratedType<"RestReplyTo">) =>
+        !(replyTo.isSpeciaal && replyTo.mail === "MEDEWERKER"),
     );
     this.ontvangstBevestigingsMailtemplates = this.getAvailableMailtemplates(
       "TAAK_ONTVANGSTBEVESTIGING",
@@ -622,29 +646,24 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private createBetrokkeneKoppelingenForm() {
     this.betrokkeneKoppelingen = this.formBuilder.group({
       kvkKoppelen: [
-        this.parameters.betrokkeneKoppelingen?.kvkKoppelen ?? false,
+        this.parameters.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false,
       ],
       brpKoppelen: [
-        this.parameters.betrokkeneKoppelingen?.brpKoppelen ?? false,
+        this.parameters.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false,
       ],
     });
 
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-        this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-        this.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
+        for (const control of Object.values(
+          this.brpProtocoleringFormGroup.controls,
+        )) {
+          control.setValidators(value ? [Validators.required] : []);
+          // revalidating the group alone leaves each field on its previous status
+          control.updateValueAndValidity({ emitEvent: false });
+        }
 
-        this.brpProtocoleringFormGroup.updateValueAndValidity({
-          emitEvent: false,
-        });
         if (value) return;
 
         this.brpProtocoleringFormGroup.reset();
@@ -681,13 +700,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((enabled) => {
         const validators = enabled ? [Validators.required] : [];
-        this.automatischeOntvangstbevestigingFormGroup.controls.templateName.setValidators(
-          validators,
-        );
-        this.automatischeOntvangstbevestigingFormGroup.controls.emailSender.setValidators(
-          validators,
-        );
-        this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity();
+        const { templateName, emailSender } =
+          this.automatischeOntvangstbevestigingFormGroup.controls;
+        for (const control of [templateName, emailSender]) {
+          control.setValidators(validators);
+          // revalidating the group alone leaves each field on its previous status
+          control.updateValueAndValidity({ emitEvent: false });
+        }
       });
 
     this.automatischeOntvangstbevestigingFormGroup.patchValue({
@@ -703,7 +722,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       emailReply: this.replyTos.find(
         ({ mail }) => mail === automaticEmailConfirmation!.emailReply,
       ),
-      enabled: automaticEmailConfirmation!.enabled ?? false,
+      enabled: automaticEmailConfirmation!.isEnabled ?? false,
     });
   }
 
@@ -788,8 +807,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.zaakAfzendersDataSource.data = this.parameters
       .zaakAfzenders!.slice()
       .sort((a, b) => {
-        return a.speciaal !== b.speciaal
-          ? a.speciaal
+        return a.isSpeciaal !== b.isSpeciaal
+          ? a.isSpeciaal
             ? -1
             : 1
           : (a.mail?.localeCompare(b.mail ?? "") ?? 0);
@@ -799,8 +818,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected addZaakAfzender(afzender: string): void {
     const zaakAfzender: GeneratedType<"RestZaakAfzender"> & { index: number } =
       {
-        speciaal: false,
-        defaultMail: false,
+        isSpeciaal: false,
+        isDefaultMail: false,
         mail: afzender,
         replyTo: undefined,
         index: 0,
@@ -820,7 +839,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected updateZaakAfzenders(afzender: string): void {
     for (const zaakAfzender of this.parameters.zaakAfzenders!) {
-      zaakAfzender.defaultMail = zaakAfzender.mail === afzender;
+      zaakAfzender.isDefaultMail = zaakAfzender.mail === afzender;
     }
     this.mailFormGroup.updateValueAndValidity({ emitEvent: false });
   }
@@ -1021,14 +1040,14 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       )?.value;
     }
 
-    this.parameters.smartDocuments.enabledForZaaktype =
+    this.parameters.smartDocuments.isEnabledForZaaktype =
       this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false;
 
     this.parameters.betrokkeneKoppelingen = {
-      kvkKoppelen: Boolean(
+      isKvkKoppelenEnabled: Boolean(
         this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
       ),
-      brpKoppelen: Boolean(
+      isBrpKoppelenEnabled: Boolean(
         this.betrokkeneKoppelingen.controls.brpKoppelen.value,
       ),
     };
@@ -1041,46 +1060,36 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       templateName: templateName?.mailTemplateNaam,
       emailReply: emailReply?.mail,
       emailSender: emailSender?.mail,
-      enabled: Boolean(enabled),
+      isEnabled: Boolean(enabled),
     };
 
-    this.zaakafhandelParametersService
-      .updateZaakafhandelparameters(this.parameters)
-      .subscribe({
-        next: (data) => {
-          this.isLoading = false;
-          this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
-
-          this.utilService.openSnackbar(
-            "msg.zaakafhandelparameters.opgeslagen",
-          );
-          this.parameters = data;
-          for (const afzender of this.parameters.zaakAfzenders!) {
-            for (let i = 0; i < index.length; i++) {
-              if (index[i] === afzender.mail) {
-                (
-                  afzender as GeneratedType<"RestZaakAfzender"> & {
-                    index: number;
-                  }
-                ).index = i;
-                break;
-              }
+    this.updateZaakafhandelparametersMutation.mutate(this.parameters, {
+      onSuccess: (savedParameters) => {
+        this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
+        this.parameters = savedParameters;
+        for (const afzender of this.parameters.zaakAfzenders!) {
+          for (let i = 0; i < index.length; i++) {
+            if (index[i] === afzender.mail) {
+              (
+                afzender as GeneratedType<"RestZaakAfzender"> & {
+                  index: number;
+                }
+              ).index = i;
+              break;
             }
           }
-        },
-        error: () => {
-          this.isLoading = false;
-        },
-      });
+        }
+      },
+    });
 
     if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
-      this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();
+      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
     }
   }
 
   private afzenderValidator: ValidatorFn = (): ValidationErrors | null => {
     const hasDefaultAfzender = this.parameters.zaakAfzenders?.some(
-      (afzender) => afzender.defaultMail,
+      (afzender) => afzender.isDefaultMail,
     );
     return hasDefaultAfzender ? null : { noDefaultAfzender: true };
   };
@@ -1118,9 +1127,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     return parseInt(value?.toString(), 10);
   }
 
-  protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">) {
-    return replyTo.speciaal
-      ? "gegevens.mail.afzender." + replyTo.mail
+  protected replyToDisplayValue(replyTo: GeneratedType<"RestReplyTo">) {
+    return replyTo.isSpeciaal
+      ? toI18nKey("gegevens.mail.afzender." + replyTo.mail)
       : (replyTo.mail ?? "");
   }
 

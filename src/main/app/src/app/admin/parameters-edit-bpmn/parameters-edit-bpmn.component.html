@@ -7,14 +7,14 @@
   *ngIf="algemeenFormGroup"
   orientation="horizontal"
   [linear]="!algemeenFormGroup.valid"
-  [selectedIndex]="selectedIndexStart"
+  [selectedIndex]="selectedIndexStart()"
 >
   <!--
     Step below is skipped on load when parameters are already saved
   -->
   <mat-step [stepControl]="cmmnBpmnFormGroup">
     <ng-template matStepLabel>{{
-      "gegevens.proces-model-methode.BPMN" | translate
+      "gegevens.proces-model-methode.bpmn" | translate
     }}</ng-template>
 
     <header>
@@ -48,7 +48,10 @@
       <button
         mat-raised-button
         color="primary"
-        [disabled]="!isValid() || isLoading"
+        [disabled]="
+          !isValid() ||
+          createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+        "
         (click)="opslaan()"
       >
         {{ "actie.opslaan" | translate }}
@@ -66,7 +69,7 @@
         <section class="row">
           <zac-static-text
             class="col-12 col-lg-6"
-            label="zaaktypeOmschrijving"
+            label="zaaktype-omschrijving"
             [value]="bpmnZaakafhandelParameters.zaaktype.omschrijving"
           />
           <zac-static-text
@@ -90,9 +93,9 @@
         <section class="row">
           <zac-static-text
             class="col-12 col-lg-6"
-            label="zaakspecifiekAutoriseerbaar"
+            label="zaakspecifiek-autoriseerbaar"
             [value]="
-              (bpmnZaakafhandelParameters.zaakspecifiekAutoriseerbaar
+              (bpmnZaakafhandelParameters.isZaakspecifiekAutoriseerbaar
                 ? 'actie.ja'
                 : 'actie.nee'
               ) | translate
@@ -116,7 +119,7 @@
           <zac-select
             class="col-12 col-lg-6"
             key="defaultGroep"
-            label="groep"
+            label="groep.standaard"
             optionDisplayValue="naam"
             [form]="algemeenFormGroup"
             [options]="groepen"
@@ -126,7 +129,7 @@
           <zac-select
             class="col-12 col-lg-6"
             key="defaultBehandelaar"
-            label="behandelaar"
+            label="behandelaar.standaard"
             optionDisplayValue="naam"
             [form]="algemeenFormGroup"
             [options]="medewerkers"
@@ -163,7 +166,10 @@
           mat-raised-button
           color="primary"
           (click)="opslaan()"
-          [disabled]="!isValid() || isLoading"
+          [disabled]="
+            !isValid() ||
+            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+          "
         >
           {{ "actie.opslaan" | translate }}
         </button>
@@ -200,7 +206,7 @@
                   <td mat-cell *matCellDef="let parameter">
                     {{
                       parameter.zaakbeeindigReden?.naam ??
-                        "zaakIsNietOntvankelijk" | translate
+                        "zaak-is-niet-ontvankelijk" | translate
                     }}
                   </td>
                 </ng-container>
@@ -212,7 +218,7 @@
                   ></th>
                   <td mat-cell *matCellDef="let parameter">
                     <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      placeholder="{{ 'resultaat.kies' | translate }}"
                       [formControl]="
                         getZaakbeeindigControl(parameter, 'beeindigResultaat')
                       "
@@ -255,7 +261,10 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!isValid() || isLoading"
+          [disabled]="
+            !isValid() ||
+            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+          "
           (click)="opslaan()"
         >
           {{ "actie.opslaan" | translate }}
@@ -296,7 +305,9 @@
             >
               <form [formGroup]="brpDoelbindingenFormGroup">
                 <p>
-                  {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+                  {{
+                    "title.admin.parameters.step.brp-doelbinding" | translate
+                  }}
                 </p>
                 <section class="flex-col">
                   <mat-form-field
@@ -304,10 +315,10 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.zoekWaarde" | translate
+                      "brp-doelbinding.zoek-waarde" | translate
                     }}</mat-label>
                     <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      placeholder="{{ 'resultaat.kies' | translate }}"
                       [formControl]="
                         brpDoelbindingenFormGroup.controls.zoekWaarde
                       "
@@ -324,10 +335,10 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.raadpleegWaarde" | translate
+                      "brp-doelbinding.raadpleeg-waarde" | translate
                     }}</mat-label>
                     <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      placeholder="{{ 'resultaat.kies' | translate }}"
                       [formControl]="
                         brpDoelbindingenFormGroup.controls.raadpleegWaarde
                       "
@@ -344,10 +355,10 @@
                     floatLabel="always"
                   >
                     <mat-label>{{
-                      "brpDoelbinding.verwerkingregisterWaarde" | translate
+                      "brp-doelbinding.verwerkingregister-waarde" | translate
                     }}</mat-label>
                     <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      placeholder="{{ 'resultaat.kies' | translate }}"
                       [formControl]="
                         brpDoelbindingenFormGroup.controls
                           .verwerkingregisterWaarde
@@ -375,12 +386,13 @@
         </mat-card-content>
       </mat-card>
       <smart-documents-form
-        [zaakTypeUuid]="bpmnZaakafhandelParameters.zaaktype.uuid ?? ''"
+        [zaakTypeUuid]="bpmnZaakafhandelParameters.zaaktype.uuid"
         [enabledGlobally]="
-          bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ?? false
+          bpmnZaakafhandelParameters.smartDocuments?.isEnabledGlobally ?? false
         "
         [enabledForZaaktype]="
-          bpmnZaakafhandelParameters.smartDocuments?.enabledForZaaktype ?? false
+          bpmnZaakafhandelParameters.smartDocuments?.isEnabledForZaaktype ??
+          false
         "
         #smartDocumentsFormRef
       ></smart-documents-form>
@@ -391,7 +403,10 @@
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!isValid() || isLoading"
+          [disabled]="
+            !isValid() ||
+            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+          "
           (click)="opslaan()"
         >
           {{ "actie.opslaan" | translate }}

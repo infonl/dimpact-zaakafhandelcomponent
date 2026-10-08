@@ -13,6 +13,7 @@ import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.BEHANDELAAR_INACTIVE_GROUP_1
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
@@ -21,6 +22,7 @@ import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.COORDINATOR_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_BRP_ZOEKERS_TEST_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_2
 import nl.info.zac.itest.config.GROUP_BEHEERDERS_ELK_DOMEIN
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
@@ -41,6 +43,7 @@ import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
 import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
+import nl.info.zac.itest.config.USER_WITHOUT_READ_ROLE
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
@@ -51,57 +54,62 @@ val TEST_GROUPS_ACTIVE =
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
                     "naam": "${GROUP_RAADPLEGERS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_2.name}",
                     "naam": "${GROUP_RAADPLEGERS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
                     "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BEHANDELAARS_TEST_2.name}",
                     "naam": "${GROUP_BEHANDELAARS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_COORDINATORS_TEST_1.name}",
                     "naam": "${GROUP_COORDINATORS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_COORDINATORS_TEST_2.name}",
                     "naam": "${GROUP_COORDINATORS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
                     "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_RECORDMANAGERS_TEST_2.name}",
                     "naam": "${GROUP_RECORDMANAGERS_TEST_2.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
                     "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
                     "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}",
-                    "active": true
+                    "isActive": true
                 },
                 {
                     "id": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
                     "naam": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.description}",
-                    "active": true
+                    "isActive": true
+                },
+                {
+                    "id": "${GROUP_BRP_ZOEKERS_TEST_2.name}",
+                    "naam": "${GROUP_BRP_ZOEKERS_TEST_2.description}",
+                    "isActive": true
                 }
             ]
         """
@@ -156,15 +164,15 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
                                     "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
-                                    "active": true
+                                    "isActive": true
                                 },
                                 {
-                                    "active": true,
+                                    "isActive": true,
                                     "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
                                     "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
                                 },
                                 {
-                                    "active": true,
+                                    "isActive": true,
                                     "id": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
                                     "naam": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.description}"
                                 }
@@ -248,6 +256,14 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
                                     "naam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.displayName}"
+                                },
+                                {
+                                    "id": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
+                                    "naam": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName}"
+                                },
+                                {
+                                    "id": "${USER_WITHOUT_READ_ROLE.username}",
+                                    "naam": "${USER_WITHOUT_READ_ROLE.displayName}"
                                 }
                             ]
                     """.trimIndent()
@@ -272,6 +288,10 @@ class IdentityServiceTest : BehaviorSpec({
                             {
                                 "id": "${BEHANDELAAR_1.username}",
                                 "naam": "${BEHANDELAAR_1.displayName}"
+                            },
+                            {
+                                "id": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
+                                "naam": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName}"
                             }
                         ]
                     """.trimIndent()

@@ -22,13 +22,9 @@ enum class ObjectStatusFilter(private val value: String) : AbstractEnum {
      */
     ALLES("alles");
 
-    override fun toValue(): String {
-        return value
-    }
+    override fun toValue(): String = value
 
     companion object {
-        fun fromValue(value: String): ObjectStatusFilter {
-            return AbstractEnum.fromValue(entries.toTypedArray(), value)
-        }
+        fun fromValue(value: String): ObjectStatusFilter = AbstractEnum.fromValue(entries.toTypedArray(), value)
     }
 }

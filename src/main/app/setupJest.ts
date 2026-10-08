@@ -4,14 +4,20 @@
  *
  */
 
-import { HttpTestingController } from "@angular/common/http/testing";
+import { provideHttpClient } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import "@angular/compiler";
 import { TestBed } from "@angular/core/testing";
+import { provideRouter } from "@angular/router";
 import {
-  provideTanStackQuery,
+  provideQueryClient,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
+import { provideZacDateAdapter } from "./src/app/shared/form/date/provide-zac-date-adapter";
 
 const cryptoPolyfill = {
   randomUUID: () => {
@@ -153,17 +159,21 @@ export const testQueryClient = new QueryClient({
 export const mockMutationFn = (timeout = MUTATION_TIMEOUT) =>
   new Promise((resolve) => sleep(timeout).then(resolve));
 
-// Every shared form field reads the pending mutations to lock itself, so any
-// spec that renders one needs a query client, whether or not it mutates.
+// A spec that needs other values for these, provides its own; those override these.
 beforeEach(() => {
   TestBed.configureTestingModule({
-    providers: [provideTanStackQuery(testQueryClient)],
+    providers: [
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      provideRouter([]),
+      provideZacDateAdapter(),
+      provideQueryClient(testQueryClient),
+    ],
   });
 });
 
 afterEach(() => {
-  // Only the specs that provide `provideHttpClientTesting()` have one to verify.
-  // Asking for it instantiates the test module, so hand it back reset — this hook
+  // Asking for the controller instantiates the test module, so hand it back reset — this hook
   // runs after the one the Angular preset uses to do that itself.
   try {
     TestBed.inject(HttpTestingController, null, { optional: true })?.verify();

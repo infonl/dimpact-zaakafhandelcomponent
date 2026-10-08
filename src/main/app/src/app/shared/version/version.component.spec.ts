@@ -56,12 +56,37 @@ describe(VersionComponent.name, () => {
     expect(await loader.getAllHarnesses(MatChipHarness)).toHaveLength(0);
   });
 
+  it("shows the chip and not the card in NORMAL layout", async () => {
+    fixture.componentRef.setInput("layout", VersionLayout.NORMAL);
+    fixture.detectChanges();
+
+    await loader.getHarness(MatChipHarness);
+    expect(await loader.getAllHarnesses(MatCardHarness)).toHaveLength(0);
+  });
+
+  it("switches from the card back to the chip once the layout changes from VERBOSE to NORMAL", async () => {
+    fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
+    fixture.detectChanges();
+    fixture.componentRef.setInput("layout", VersionLayout.NORMAL);
+    fixture.detectChanges();
+
+    await loader.getHarness(MatChipHarness);
+    expect(await loader.getAllHarnesses(MatCardHarness)).toHaveLength(0);
+  });
+
+  it("does not read the build information again when the layout changes", () => {
+    fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
+    fixture.detectChanges();
+
+    expect(healthCheckService.readBuildInformatie).toHaveBeenCalledTimes(1);
+  });
+
   it("should call readBuildInformatie on init", () => {
     expect(healthCheckService.readBuildInformatie).toHaveBeenCalledTimes(1);
   });
 
   describe("with build information", () => {
-    const buildInfo: GeneratedType<"RESTBuildInformation"> = {
+    const buildInfo: GeneratedType<"RestBuildInformation"> = {
       versienummer: "1.2.3",
       buildId: "build-42",
       buildDatumTijd: "2024-01-15T12:00:00",
@@ -84,9 +109,9 @@ describe(VersionComponent.name, () => {
 
       const card = await loader.getHarness(MatCardHarness);
       const text = await card.getText();
-      expect(text).toContain("healthCheck.build_informatie.version");
-      expect(text).toContain("healthCheck.build_informatie.build");
-      expect(text).toContain("healthCheck.build_informatie.commit");
+      expect(text).toContain("health-check.build-informatie.version");
+      expect(text).toContain("health-check.build-informatie.build");
+      expect(text).toContain("health-check.build-informatie.commit");
     });
 
     it("should hide build info in verbose layout when buildId is absent", async () => {
@@ -101,9 +126,9 @@ describe(VersionComponent.name, () => {
 
       const card = await loader.getHarness(MatCardHarness);
       const text = await card.getText();
-      expect(text).toContain("healthCheck.build_informatie.version");
-      expect(text).not.toContain("healthCheck.build_informatie.build");
-      expect(text).toContain("healthCheck.build_informatie.commit");
+      expect(text).toContain("health-check.build-informatie.version");
+      expect(text).not.toContain("health-check.build-informatie.build");
+      expect(text).toContain("health-check.build-informatie.commit");
     });
 
     it("should hide commit info in verbose layout when commit is absent", async () => {
@@ -118,9 +143,9 @@ describe(VersionComponent.name, () => {
 
       const card = await loader.getHarness(MatCardHarness);
       const text = await card.getText();
-      expect(text).toContain("healthCheck.build_informatie.version");
-      expect(text).toContain("healthCheck.build_informatie.build");
-      expect(text).not.toContain("healthCheck.build_informatie.commit");
+      expect(text).toContain("health-check.build-informatie.version");
+      expect(text).toContain("health-check.build-informatie.build");
+      expect(text).not.toContain("health-check.build-informatie.commit");
     });
 
     it("should render chip in normal layout when build info is loaded", async () => {

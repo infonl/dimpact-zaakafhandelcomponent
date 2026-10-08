@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -19,7 +19,7 @@
         *matHeaderCellDef
         mat-sort-header="registratiedatumTijd"
       >
-        {{ "registratiedatumTijd" | translate }}
+        {{ "registratiedatum-tijd" | translate }}
       </th>
       <td mat-cell *matCellDef="let informatieobject">
         {{ informatieobject.registratiedatumTijd | datum | empty }}
@@ -31,7 +31,7 @@
         *matHeaderCellDef
         mat-sort-header="informatieobjectTypeOmschrijving"
       >
-        {{ "informatieobjectTypeOmschrijving" | translate }}
+        {{ "informatieobject-type-omschrijving" | translate }}
       </th>
       <td mat-cell *matCellDef="let informatieobject">
         {{ informatieobject.informatieobjectTypeOmschrijving | empty }}

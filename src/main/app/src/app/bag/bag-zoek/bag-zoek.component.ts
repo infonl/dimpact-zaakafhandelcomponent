@@ -5,10 +5,11 @@
 
 import { CommonModule } from "@angular/common";
 import {
+  booleanAttribute,
   Component,
-  EventEmitter,
-  Input,
-  Output,
+  inject,
+  input,
+  output,
   ViewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -28,8 +29,11 @@ import {
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
+import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 
@@ -39,6 +43,7 @@ import { BAGService } from "../bag.service";
   styleUrls: ["./bag-zoek.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     CommonModule,
     EmptyPipe,
     MatButtonModule,
@@ -55,15 +60,17 @@ import { BAGService } from "../bag.service";
   ],
 })
 export class BagZoekComponent {
-  @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();
-  @Input() gekoppeldeBagObjecten:
-    | GeneratedType<"RESTBAGObject">[]
-    | FormControl<GeneratedType<"RESTBAGObject">[] | null> = [];
-  @Input({ required: true }) sideNav!: MatSidenav | MatDrawer;
-  @ViewChild(MatTable) private table!: MatTable<GeneratedType<"RESTBAGObject">>;
+  readonly bagObject = output<GeneratedType<"RestBagObject">>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
+  readonly gekoppeldeBagObjecten = input<
+    | GeneratedType<"RestBagObject">[]
+    | FormControl<GeneratedType<"RestBagObject">[] | null>
+  >([]);
+  readonly sideNav = input.required<MatSidenav | MatDrawer>();
+  @ViewChild(MatTable) private table!: MatTable<GeneratedType<"RestBagObject">>;
   protected trefwoorden = new FormControl("", [Validators.maxLength(255)]);
   protected bagObjecten = new MatTableDataSource<
-    GeneratedType<"RESTBAGObject"> | GeneratedType<"RESTBAGAdres">
+    GeneratedType<"RestBagObject"> | GeneratedType<"RestBagAdres">
   >();
   protected loading = false;
   protected columns: string[] = [
@@ -73,6 +80,8 @@ export class BagZoekComponent {
     "omschrijving",
     "acties",
   ];
+
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private bagService: BAGService,
@@ -85,37 +94,38 @@ export class BagZoekComponent {
     if (this.trefwoorden.value) {
       this.loading = true;
       this.utilService.setLoading(true);
-      this.bagService
-        .listAdressen({
+      runQuery(
+        this.queryClient,
+        this.bagService.listAdressen({
           trefwoorden: this.trefwoorden.value,
-        })
-
-        .subscribe((adressen) => {
-          this.bagObjecten.data = adressen.resultaten ?? [];
-          this.loading = false;
-          this.utilService.setLoading(false);
-        });
+        }),
+      ).subscribe((adressen) => {
+        this.bagObjecten.data = adressen.resultaten ?? [];
+        this.loading = false;
+        this.utilService.setLoading(false);
+      });
     }
   }
 
-  protected selectBagObject(bagObject: GeneratedType<"RESTBAGObject">) {
-    if (this.gekoppeldeBagObjecten instanceof FormControl) {
-      this.gekoppeldeBagObjecten.setValue([
-        ...(this.gekoppeldeBagObjecten.value ?? []),
+  protected selectBagObject(bagObject: GeneratedType<"RestBagObject">) {
+    const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
+    if (gekoppeldeBagObjecten instanceof FormControl) {
+      gekoppeldeBagObjecten.setValue([
+        ...(gekoppeldeBagObjecten.value ?? []),
         bagObject,
       ]);
     } else {
-      this.gekoppeldeBagObjecten.push(bagObject);
+      gekoppeldeBagObjecten.push(bagObject);
     }
     this.bagObject.emit(bagObject);
   }
 
-  protected expandable(bagObject: GeneratedType<"RESTBAGObject">) {
+  protected expandable(bagObject: GeneratedType<"RestBagObject">) {
     if (bagObject.bagObjectType !== "ADRES") {
       return false;
     }
 
-    const adres: GeneratedType<"RESTBAGAdres"> = bagObject;
+    const adres: GeneratedType<"RestBagAdres"> = bagObject;
     return (
       adres.openbareRuimte ||
       adres.nummeraanduiding ||
@@ -125,7 +135,7 @@ export class BagZoekComponent {
   }
 
   protected expand(
-    bagObject: GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
+    bagObject: GeneratedType<"RestBagObject" | "RestBagAdres"> & {
       expanded: boolean;
     },
   ) {
@@ -142,12 +152,12 @@ export class BagZoekComponent {
     );
     bagObject.expanded = true;
 
-    const children: (GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
+    const children: (GeneratedType<"RestBagObject" | "RestBagAdres"> & {
       expanded?: boolean;
       child?: boolean;
     })[] = [];
     if (bagObject.bagObjectType === "ADRES") {
-      const adres: GeneratedType<"RESTBAGAdres"> = bagObject;
+      const adres: GeneratedType<"RestBagAdres"> = bagObject;
       if (adres.nummeraanduiding) {
         children.push(adres.nummeraanduiding);
       }
@@ -170,11 +180,12 @@ export class BagZoekComponent {
     this.table.renderRows();
   }
 
-  protected reedsGekoppeld(row: GeneratedType<"RESTBAGObject">): boolean {
+  protected reedsGekoppeld(row: GeneratedType<"RestBagObject">): boolean {
+    const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
     const objects =
-      this.gekoppeldeBagObjecten instanceof FormControl
-        ? (this.gekoppeldeBagObjecten.value ?? [])
-        : this.gekoppeldeBagObjecten;
+      gekoppeldeBagObjecten instanceof FormControl
+        ? (gekoppeldeBagObjecten.value ?? [])
+        : gekoppeldeBagObjecten;
     return objects.some(
       (b) =>
         b.identificatie === row.identificatie &&
@@ -182,8 +193,8 @@ export class BagZoekComponent {
     );
   }
 
-  protected openBagTonenPagina(bagObject: GeneratedType<"RESTBAGObject">) {
-    this.sideNav?.close();
+  protected openBagTonenPagina(bagObject: GeneratedType<"RestBagObject">) {
+    this.sideNav().close();
     this.router.navigate([
       "/bag-objecten",
       bagObject.bagObjectType?.toLowerCase(),

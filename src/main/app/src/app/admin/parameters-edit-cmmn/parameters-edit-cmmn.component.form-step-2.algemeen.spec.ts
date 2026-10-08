@@ -48,15 +48,18 @@ describe("Algemeen form step", () => {
       caseDefinition,
       defaultGroepId: "test-group-id",
       defaultBehandelaarId: "test-user-id",
-      zaaktype: { uuid: "test-uuid" },
+      zaaktype: {
+        uuid: "test-uuid",
+        omschrijving: "fakeZaaktypeOmschrijving",
+      },
       zaakNietOntvankelijkResultaattype: {
         id: "resultaat-1",
         naam: "Afgehandeld",
       },
       zaakAfzenders: [
         {
-          speciaal: false,
-          defaultMail: true,
+          isSpeciaal: false,
+          isDefaultMail: true,
           mail: "test@example.com",
           replyTo: undefined,
         },
@@ -64,9 +67,12 @@ describe("Algemeen form step", () => {
       humanTaskParameters: [],
       mailtemplateKoppelingen: [],
       zaakbeeindigParameters: [],
-      smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+      smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
       userEventListenerParameters: [],
-      betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+      betrokkeneKoppelingen: {
+        isBrpKoppelenEnabled: false,
+        isKvkKoppelenEnabled: false,
+      },
       brpDoelbindingen: {
         zoekWaarde: "",
         raadpleegWaarde: "",
@@ -74,7 +80,7 @@ describe("Algemeen form step", () => {
       },
       productaanvraagtype: null,
       automaticEmailConfirmation: {
-        enabled: false,
+        isEnabled: false,
         templateName: null,
         emailSender: null,
         emailReply: null,
@@ -126,7 +132,12 @@ describe("Algemeen form step", () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listGroups: () => of(groups),
+            listBehandelaarGroupsForZaaktype: (zaaktypeDescription: string) =>
+              of(
+                zaaktypeDescription === "fakeZaaktypeOmschrijving"
+                  ? groups
+                  : [],
+              ),
             listUsersInGroup: (groupId: string) =>
               of(groupId === "test-group-id" ? usersOfDefaultGroup : []),
           }),
@@ -177,25 +188,37 @@ describe("Algemeen form step", () => {
       "Case Definition 1",
     );
     await chooseOption(
-      within(algemeen).getByRole("combobox", { name: /^groep$/i }),
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
       "test-group",
     );
 
     expect(opslaan).toBeEnabled();
   });
 
+  it("offers only the behandelaar groepen of the zaaktype as groep", async () => {
+    const algemeen = await setup();
+
+    await user.click(
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
+    );
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
+    ).toEqual(["test-group", "test-group-2"]);
+  });
+
   it("shows a zaaktype without zaakspecifieke autorisatie as such", async () => {
     const algemeen = await setup();
 
     expect(
-      within(algemeen).getByText("zaakspecifiekAutoriseerbaar"),
+      within(algemeen).getByText("zaakspecifiek-autoriseerbaar"),
     ).toBeVisible();
     expect(within(algemeen).getByText("actie.nee")).toBeVisible();
   });
 
   it("shows a zaaktype with zaakspecifieke autorisatie as such", async () => {
     const algemeen = await setup(
-      createParameters({ zaakspecifiekAutoriseerbaar: true }),
+      createParameters({ isZaakspecifiekAutoriseerbaar: true }),
     );
 
     expect(within(algemeen).getByText("actie.ja")).toBeVisible();
@@ -218,19 +241,19 @@ describe("Algemeen form step", () => {
 
     expect(
       screen.getAllByRole("option").map((option) => option.textContent?.trim()),
-    ).toEqual(["-geen.generiek-", "test-user", "test-user-2"]);
+    ).toEqual(["geen.generiek", "test-user", "test-user-2"]);
   });
 
   it("forgets the behandelaar when another groep is chosen", async () => {
     const algemeen = await setup();
 
     await chooseOption(
-      within(algemeen).getByRole("combobox", { name: /^groep$/i }),
+      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
       "test-group-2",
     );
 
     const behandelaar = within(algemeen).getByRole("combobox", {
-      name: /behandelaar/i,
+      name: /behandelaar.standaard/i,
     });
     expect(behandelaar).not.toHaveTextContent("test-user");
 
@@ -238,6 +261,6 @@ describe("Algemeen form step", () => {
 
     expect(
       screen.getAllByRole("option").map((option) => option.textContent?.trim()),
-    ).toEqual(["-geen.generiek-"]);
+    ).toEqual(["geen.generiek"]);
   });
 });

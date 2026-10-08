@@ -1,3 +1,61 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+complexity:
+  NamedArguments:
+    active: true
+    # an argument already named after its parameter, such as `toRestZaak(zaak, zaakType)`, is clear without a name
+    ignoreArgumentsMatchingNames: true
+  LongParameterList:
+    # constructor injection lists a bean's dependencies; the container calls it, not a developer
+    ignoreAnnotated: ['Inject']
+coroutines:
+  InjectDispatcher:
+    # the dispatcher is injected so that tests can choose one
+    excludes: ['**/test/**', '**/itest/**']
+comments:
+  AbsentOrWrongFileLicense:
+    active: true
+    licenseTemplate: '/\*[ *\n]*SPDX-FileCopyrightText: [^\n]+\n[ *]*SPDX-License-Identifier: EUPL-1\.2\+[ *\n]*\*/'
+    licenseTemplateIsRegex: true
+naming:
+  BooleanPropertyNaming:
+    active: true
+    allowedPattern: '^(is|has|are|can|should)'
+  ClassNaming:
+    # rejects all-caps acronyms of three or more letters (RESTZaak, ZAC); a regex cannot see where an acronym ends,
+    # so a wrongly cased two-letter acronym (IoStream) or a lowercase word after an acronym (XMLformatter) still passes
+    classPattern: '(?!.*[A-Z]{4})(?!.*[A-Z]{3}(?![a-z]))[A-Z][a-zA-Z0-9]*'
+potential-bugs:
+  DoubleMutabilityForCollection:
+    # Hibernate replaces an entity's collections with its own persistent collections
+    ignoreAnnotated: ['Entity']
 style:
+  AbstractClassCanBeConcreteClass:
+    # an abstract base class without abstract members still must not be instantiated on its own
+    active: false
+  VarCouldBeVal:
+    # Hibernate and CDI assign these properties by reflection
+    ignoreAnnotated: ['Entity']
+    ignoreLateinitVar: true
   MaxLineLength:
     maxLineLength: 140
+  ExpressionBodySyntax:
+    active: true
+  ForbiddenMethodCall:
+    active: true
+    methods:
+      - reason: 'Make the value non-nullable, or handle the null case explicitly.'
+        value: 'kotlin.requireNotNull'
+      - reason: 'runCatching catches every Throwable. Catch the specific exceptions that the code can throw.'
+        value: 'kotlin.runCatching'
+  ForbiddenComment:
+    comments:
+      - reason: 'Forbidden FIXME todo marker in comment, please fix the problem.'
+        value: 'FIXME:'
+      - reason: 'Forbidden STOPSHIP todo marker in comment, please address the problem before shipping the code.'
+        value: 'STOPSHIP:'
+      - reason: 'Forbidden TODO todo marker in comment, please do the changes.'
+        value: 'TODO:'
+      - reason: 'Jira ticket references belong in commit messages and pull request descriptions, not in code.'
+        value: '\b(PZ|DRT)-'

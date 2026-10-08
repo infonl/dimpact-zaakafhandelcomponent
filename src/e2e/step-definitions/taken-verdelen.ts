@@ -6,6 +6,7 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "support/worlds/world";
 import { ONE_MINUTE_IN_MS } from "../support/time-constants";
+import { describeTestOriginShort } from "../utils/test-origin";
 
 let _noOfTaken = 0;
 
@@ -41,7 +42,9 @@ When(
     await this.page.getByLabel(/medewerker/i).isEnabled();
     await this.page.getByLabel(/medewerker/i).click();
     await this.page.getByRole("option").first().click();
-    await this.page.getByLabel(/reden/i).fill("Fake reason");
+    await this.page
+      .getByLabel(/reden/i)
+      .fill(describeTestOriginShort(this.browser));
     await this.page.getByRole("button", { name: "Verdelen" }).click();
   },
 );
@@ -50,7 +53,9 @@ When(
   "{string} releases the taken",
   async function (this: CustomWorld, s: string) {
     await this.page.getByRole("button", { name: "Vrijgeven" }).click();
-    await this.page.getByLabel("Reden").fill("Fake reason");
+    await this.page
+      .getByLabel("Reden")
+      .fill(describeTestOriginShort(this.browser));
     await this.page
       .getByRole("button", { name: /Vrijgeven/ })
       .nth(1)

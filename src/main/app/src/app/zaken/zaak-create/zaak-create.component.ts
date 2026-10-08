@@ -114,7 +114,7 @@ export class ZaakCreateComponent {
       GeneratedType<"BetrokkeneIdentificatie"> | null | undefined
     >(null),
     startdatum: this.formBuilder.control(moment(), [Validators.required]),
-    bagObjecten: this.formBuilder.control<GeneratedType<"RESTBAGObject">[]>([]),
+    bagObjecten: this.formBuilder.control<GeneratedType<"RestBagObject">[]>([]),
     groep: this.formBuilder.control<
       GeneratedType<"RestGroup"> | null | undefined
     >(null, [Validators.required]),
@@ -263,8 +263,10 @@ export class ZaakCreateComponent {
     );
 
     if (
-      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
-      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.brpKoppelen
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.isKvkKoppelenEnabled &&
+      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.isBrpKoppelenEnabled
     ) {
       this.form.controls.initiatorIdentificatie.setValue(null);
     }
@@ -314,7 +316,7 @@ export class ZaakCreateComponent {
     }
   }
 
-  protected bagDisplayValue(bagObjects: GeneratedType<"RESTBAGObject">[]) {
+  protected bagDisplayValue(bagObjects: GeneratedType<"RestBagObject">[]) {
     const value = bagObjects
       .map(({ omschrijving }) => omschrijving)
       .join(" | ");
@@ -322,7 +324,7 @@ export class ZaakCreateComponent {
     if (value.length <= 100) return value;
 
     return this.translateService.instant(
-      "msg.aantal.bagObjecten.geselecteerd",
+      "msg.aantal.bag-objecten.geselecteerd",
       {
         aantal: bagObjects.length,
       },
@@ -338,9 +340,10 @@ export class ZaakCreateComponent {
         ?.betrokkeneKoppelingen;
     if (!betrokkeneKoppelingen) return false;
 
-    const { brpKoppelen, kvkKoppelen } = betrokkeneKoppelingen;
+    const { isBrpKoppelenEnabled, isKvkKoppelenEnabled } =
+      betrokkeneKoppelingen;
 
-    return Boolean(brpKoppelen || kvkKoppelen);
+    return Boolean(isBrpKoppelenEnabled || isKvkKoppelenEnabled);
   }
 
   hasInitiator(): boolean {

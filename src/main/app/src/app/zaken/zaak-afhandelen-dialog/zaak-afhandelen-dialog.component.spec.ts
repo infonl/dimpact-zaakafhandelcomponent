@@ -44,7 +44,7 @@ const zaak = fromPartial<GeneratedType<"RestZaak">>({
   besluiten: [],
 });
 
-const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
   id: "fakePlanItemId",
   userEventListenerActie: "ZAAK_AFHANDELEN",
   toelichting: "fakePlanItemToelichting",
@@ -55,16 +55,16 @@ const resultaattypeMetBrondatum = fromPartial<
 >({
   id: "fakeResultaattypeId1",
   naam: "fakeResultaatMetBrondatum",
-  besluitVerplicht: false,
-  datumKenmerkVerplicht: true,
+  isBesluitVerplicht: false,
+  isDatumKenmerkVerplicht: true,
 });
 
 const resultaattypeMetBesluit = fromPartial<GeneratedType<"RestResultaattype">>(
   {
     id: "fakeResultaattypeId2",
     naam: "fakeResultaatMetBesluit",
-    besluitVerplicht: true,
-    datumKenmerkVerplicht: false,
+    isBesluitVerplicht: true,
+    isDatumKenmerkVerplicht: false,
   },
 );
 
@@ -73,8 +73,8 @@ const resultaattypeZonderVerplichtingen = fromPartial<
 >({
   id: "fakeResultaattypeId3",
   naam: "fakeResultaatZonderVerplichtingen",
-  besluitVerplicht: false,
-  datumKenmerkVerplicht: false,
+  isBesluitVerplicht: false,
+  isDatumKenmerkVerplicht: false,
 });
 
 const resultaattypes = [
@@ -86,7 +86,7 @@ const resultaattypes = [
 const afzenders = [
   fromPartial<GeneratedType<"RestZaakAfzender">>({
     mail: "fakeAfzender@example.com",
-    suffix: "fakeAfzenderSuffix",
+    suffix: "gegevens.mail.afzender.GEMEENTE",
     replyTo: "fakeReplyTo@example.com",
   }),
 ];
@@ -113,7 +113,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     planItemToHandle = planItem,
   }: {
     zaakToHandle?: GeneratedType<"RestZaak">;
-    planItemToHandle?: GeneratedType<"RESTPlanItem"> | null;
+    planItemToHandle?: GeneratedType<"RestPlanItem"> | null;
   } = {}) {
     dialogRef = fromPartial<MatDialogRef<ZaakAfhandelenDialogComponent>>({
       close: jest.fn(),
@@ -186,7 +186,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   }
 
   function sendMailCheckbox() {
-    return screen.queryByRole("checkbox", { name: "sendMail" });
+    return screen.queryByRole("checkbox", { name: "send-mail" });
   }
 
   function verzenderSelect() {
@@ -207,7 +207,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   }
 
   async function toggleSendMail() {
-    await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+    await user.click(screen.getByRole("checkbox", { name: "send-mail" }));
   }
 
   async function openVerzenderOptions() {
@@ -260,8 +260,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await openVerzenderOptions();
 
       expect(
-        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
-      ).toHaveTextContent("fakeAfzender@example.com fakeAfzenderSuffix");
+        screen.getByRole("option", {
+          name: /gegevens\.mail\.afzender\.gemeente/,
+        }),
+      ).toHaveTextContent(
+        "fakeAfzender@example.com gegevens.mail.afzender.gemeente",
+      );
     });
 
     it("shows only the mail address of the afzender once it is selected", async () => {
@@ -271,11 +275,13 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await toggleSendMail();
       await openVerzenderOptions();
       await user.click(
-        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
+        screen.getByRole("option", {
+          name: /gegevens\.mail\.afzender\.gemeente/,
+        }),
       );
 
       expect(verzenderSelect()).toHaveTextContent("fakeAfzender@example.com");
-      expect(verzenderSelect()).not.toHaveTextContent("fakeAfzenderSuffix");
+      expect(verzenderSelect()).not.toHaveTextContent("gegevens.mail.afzender");
     });
   });
 
@@ -375,7 +381,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await toggleSendMail();
       await openVerzenderOptions();
       await user.click(
-        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
+        screen.getByRole("option", {
+          name: /gegevens\.mail\.afzender\.gemeente/,
+        }),
       );
       await user.type(
         screen.getByRole("textbox", { name: /Ontvanger/ }),
@@ -393,7 +401,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         ontvanger: "recipient@example.com",
         onderwerp: mailtemplate.onderwerp,
         body: mailtemplate.body,
-        createDocumentFromMail: true,
+        shouldCreateDocumentFromMail: true,
         vertrouwelijkheidaanduiding: "OPENBAAR",
       });
 

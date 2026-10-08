@@ -5,6 +5,7 @@
 package net.atos.zac.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createHumanTaskReferentieTabel
@@ -16,10 +17,10 @@ class HumanTaskParametersTest : BehaviorSpec({
         val humanTaskParameters2 = createHumanTaskParameters(referenceTables = listOf(createHumanTaskReferentieTabel()))
 
         `when`("The values of the two objects are compared") {
-            val equalityResult = humanTaskParameters1 == humanTaskParameters2
+            val isEqual = humanTaskParameters1 == humanTaskParameters2
 
             then("The objects should be considered equal") {
-                equalityResult shouldBe true
+                isEqual shouldBe true
             }
         }
     }
@@ -29,15 +30,15 @@ class HumanTaskParametersTest : BehaviorSpec({
         val humanTaskParameters2 = createHumanTaskParameters(
             referenceTables = listOf(createHumanTaskReferentieTabel())
         ).apply {
-            val tabel = requireNotNull(getReferentieTabellen()[0].tabel) { "tabel must not be null" }
+            val tabel = getReferentieTabellen()[0].tabel.shouldNotBeNull()
             tabel.values[0].name = "different name"
         }
 
         `when`("The values of the two objects are compared") {
-            val equalityResult = humanTaskParameters1 == humanTaskParameters2
+            val isEqual = humanTaskParameters1 == humanTaskParameters2
 
             then("The objects should be considered different") {
-                equalityResult shouldBe false
+                isEqual shouldBe false
             }
         }
     }

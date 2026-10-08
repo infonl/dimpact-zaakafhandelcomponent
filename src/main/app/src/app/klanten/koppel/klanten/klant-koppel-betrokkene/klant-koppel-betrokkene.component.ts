@@ -3,18 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
-} from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { NgIf } from "@angular/common";
+import { Component, input, OnInit, output, ViewChild } from "@angular/core";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { SharedModule } from "src/app/shared/shared.module";
+import { ZacInput } from "src/app/shared/form/input/input";
+import { ZacSelect } from "src/app/shared/form/select/select";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantenService } from "../../../klanten.service";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
@@ -24,11 +18,13 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
 @Component({
   selector: "zac-klant-koppel-betrokkene-persoon",
   imports: [
-    SharedModule,
+    NgIf,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ReactiveFormsModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,
+    ZacSelect,
+    ZacInput,
   ],
   template: `
     <div>
@@ -47,27 +43,29 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
         </fieldset>
       </form>
       <zac-persoon-zoek
-        *ngIf="type === 'persoon'"
+        *ngIf="type() === 'persoon'"
         #zoek
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
+        isSelectable
         (persoon)="klantGeselecteerd($event)"
-        [zaaktypeUUID]="zaaktypeUUID"
+        [zaaktypeUUID]="zaaktypeUUID()"
       ></zac-persoon-zoek>
       <zac-bedrijf-zoek
-        *ngIf="type === 'bedrijf'"
+        *ngIf="type() === 'bedrijf'"
         #zoek
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
+        isSelectable
         (bedrijf)="klantGeselecteerd($event)"
       ></zac-bedrijf-zoek>
     </div>
   `,
 })
 export class KlantKoppelBetrokkeneComponent implements OnInit {
-  @Input({ required: true }) type!: "persoon" | "bedrijf";
-  @Input() zaaktypeUUID?: string | null = null;
-  @Output() klantGegevens = new EventEmitter<KlantGegevens>();
+  readonly type = input.required<"persoon" | "bedrijf">();
+  readonly zaaktypeUUID = input<string | null | undefined>(null);
+  readonly klantGegevens = output<KlantGegevens>();
   @ViewChild("zoek") zoek!: PersoonZoekComponent | BedrijfZoekComponent;
 
   protected readonly form = this.formBuilder.group({
@@ -88,10 +86,11 @@ export class KlantKoppelBetrokkeneComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (!this.zaaktypeUUID) return;
+    const zaaktypeUUID = this.zaaktypeUUID();
+    if (!zaaktypeUUID) return;
 
     this.klantenService
-      .listBetrokkeneRoltypen(this.zaaktypeUUID)
+      .listBetrokkeneRoltypen(zaaktypeUUID)
       .subscribe((betrokkeneRoltypen) => {
         this.betrokkeneRoltypen = betrokkeneRoltypen;
       });

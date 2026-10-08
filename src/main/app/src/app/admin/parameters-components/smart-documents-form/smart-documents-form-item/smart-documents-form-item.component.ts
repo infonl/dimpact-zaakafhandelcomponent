@@ -5,14 +5,16 @@
  */
 
 import { NgFor } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, input, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../../shared/utils/i18n-key";
 
 @Component({
   selector: "smart-documents-form-item",
@@ -20,6 +22,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styleUrls: ["./smart-documents-form-item.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgFor,
     ReactiveFormsModule,
     MatCheckboxModule,
@@ -30,13 +33,12 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   ],
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
-  @Input({ required: true })
-  node!: GeneratedType<"RestMappedSmartDocumentsTemplate">;
-  @Input({ required: true })
-  informationObjectTypes!: GeneratedType<"RestInformatieobjecttype">[];
-  @Output() selectionChange = new EventEmitter<
-    GeneratedType<"RestMappedSmartDocumentsTemplate">
-  >();
+  readonly node =
+    input.required<GeneratedType<"RestMappedSmartDocumentsTemplate">>();
+  readonly informationObjectTypes =
+    input.required<GeneratedType<"RestInformatieobjecttype">[]>();
+  readonly selectionChange =
+    output<GeneratedType<"RestMappedSmartDocumentsTemplate">>();
 
   protected confidentiality = new FormControl({ value: "", disabled: true });
   protected checkbox = new FormControl({ value: false, disabled: false });
@@ -46,26 +48,32 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
-    this.previousInformatieObjectTypeUUID = this.node?.informatieObjectTypeUUID;
+    this.previousInformatieObjectTypeUUID =
+      this.node().informatieObjectTypeUUID;
     this.updateFormControls();
   }
 
   protected clearSelectedDocumentType() {
-    this.node.informatieObjectTypeUUID = "";
+    this.selectDocumentType("");
+  }
+
+  protected selectDocumentType(informatieObjectTypeUUID: string) {
+    this.node().informatieObjectTypeUUID = informatieObjectTypeUUID;
     this.updateFormControls();
   }
 
   updateFormControls() {
-    const { informatieObjectTypeUUID } = this.node;
+    const node = this.node();
+    const { informatieObjectTypeUUID } = node;
 
-    const confidentiality = this.informationObjectTypes.find(
+    const confidentiality = this.informationObjectTypes().find(
       ({ uuid }) => informatieObjectTypeUUID === uuid,
     )?.vertrouwelijkheidaanduiding;
 
     this.confidentiality.setValue(
       confidentiality
         ? this.translateService.instant(
-            `vertrouwelijkheidaanduiding.${confidentiality}`,
+            toI18nKey(`vertrouwelijkheidaanduiding.${confidentiality}`),
           )
         : null,
     );
@@ -74,13 +82,9 @@ export class SmartDocumentsFormItemComponent implements OnInit {
       Boolean(informatieObjectTypeUUID && informatieObjectTypeUUID !== ""),
     );
 
-    if (
-      this.node.informatieObjectTypeUUID !==
-      this.previousInformatieObjectTypeUUID
-    ) {
-      this.selectionChange.emit({ ...this.node });
-      this.previousInformatieObjectTypeUUID =
-        this.node.informatieObjectTypeUUID;
+    if (informatieObjectTypeUUID !== this.previousInformatieObjectTypeUUID) {
+      this.selectionChange.emit({ ...node });
+      this.previousInformatieObjectTypeUUID = informatieObjectTypeUUID;
     }
   }
 

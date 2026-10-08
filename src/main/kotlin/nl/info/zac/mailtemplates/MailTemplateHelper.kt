@@ -7,8 +7,8 @@ package nl.info.zac.mailtemplates
 import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
@@ -231,10 +231,10 @@ class MailTemplateHelper @Inject constructor(
         val identificatie = zaak.getIdentificatie()
         val zaaktypeOmschrijving = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving()
         return MailLink(
-            identificatie,
-            configurationService.zaakTonenUrl(identificatie),
-            "de zaak",
-            "($zaaktypeOmschrijving)"
+            identificatie = identificatie,
+            url = configurationService.zaakTonenUrl(identificatie),
+            prefix = "de zaak",
+            suffix = "($zaaktypeOmschrijving)"
         )
     }
 
@@ -242,19 +242,19 @@ class MailTemplateHelper @Inject constructor(
         val zaakIdentificatie = readZaakIdentificatie(taskInfo)
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         return MailLink(
-            taskInfo.name,
-            configurationService.taakTonenUrl(taskInfo.id),
-            "de taak",
-            "voor zaak $zaakIdentificatie ($zaaktypeOmschrijving)"
+            identificatie = taskInfo.name,
+            url = configurationService.taakTonenUrl(taskInfo.id),
+            prefix = "de taak",
+            suffix = "voor zaak $zaakIdentificatie ($zaaktypeOmschrijving)"
         )
     }
 
     private fun createMailLinkFromDocument(document: EnkelvoudigInformatieObject): MailLink =
         MailLink(
-            document.getTitel(),
-            configurationService.informatieobjectTonenUrl(document.getUrl().extractUuid()),
-            "het document",
-            null
+            identificatie = document.getTitel(),
+            url = configurationService.informatieobjectTonenUrl(document.getUrl().extractUuid()),
+            prefix = "het document",
+            suffix = null
         )
 
     @Suppress("NestedBlockDepth")
@@ -272,7 +272,7 @@ class MailTemplateHelper @Inject constructor(
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
                 brpClientService.retrievePersoon(identificatie, zaaktypeUuid, userName)?.let {
                     replaceInitiatorVariablesPersoon(resolvedText, it)
-                } ?: ""
+                }.orEmpty()
 
             BetrokkeneTypeEnum.VESTIGING ->
                 replaceInitiatorVariablesResultaatItem(
@@ -349,12 +349,6 @@ class MailTemplateHelper @Inject constructor(
         value = address
     )
 
-    private fun <T> replaceVariable(
-        targetString: String,
-        mailTemplateVariable: MailTemplateVariables,
-        value: T
-    ) = replaceVariable(targetString, mailTemplateVariable, value.toString())
-
     private fun replaceVariable(
         targetString: String,
         mailTemplateVariable: MailTemplateVariables,
@@ -373,7 +367,7 @@ class MailTemplateHelper @Inject constructor(
         mailTemplateVariable: MailTemplateVariables,
         htmlEscapedValue: String?
     ): String {
-        val replacement = if (htmlEscapedValue.isNullOrBlank() && mailTemplateVariable.resolveVariableAsEmptyString) {
+        val replacement = if (htmlEscapedValue.isNullOrBlank() && mailTemplateVariable.shouldResolveVariableAsEmptyString) {
             ""
         } else {
             htmlEscapedValue

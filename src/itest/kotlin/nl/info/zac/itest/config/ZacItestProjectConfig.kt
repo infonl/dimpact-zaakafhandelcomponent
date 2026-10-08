@@ -134,8 +134,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private val itestHttpClient = ItestHttpClient()
         private val zacClient = ZacClient()
         private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
-        private val skipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
-        private val skipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
+        private val shouldSkipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
+        private val shouldSkipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
         private val specConcurrency = System.getProperty(SPEC_CONCURRENCY_SYSTEM_PROPERTY)?.toInt() ?: DEFAULT_SPEC_CONCURRENCY
 
         // All variables below have to be overridable in the docker-compose.yaml file
@@ -216,58 +216,59 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         logger.info {
             "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
         }
-        try {
-            if (!skipDockerComposeStart) {
-                dockerComposeContainer = createDockerComposeContainer()
+        if (!shouldSkipDockerComposeStart) {
+            dockerComposeContainer = createDockerComposeContainer()
+            try {
                 dockerComposeContainer.start()
-                ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
-                logger.info { "Started ZAC Docker Compose containers" }
-            } else {
-                logger.warn {
-                    "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
-                }
+            } catch (exception: ContainerLaunchException) {
+                logger.error(exception) { "Failed to start Docker Compose containers" }
+                dockerComposeContainer.stop()
+                throw exception
             }
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
+            logger.info { "Started ZAC Docker Compose containers" }
+        } else {
+            logger.warn {
+                "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
+            }
+        }
 
-            logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
-            eventually(
-                eventuallyConfig {
-                    duration = 30.seconds
-                    expectedExceptions = setOf(SocketException::class)
-                }
-            ) {
-                itestHttpClient.performGetRequest(
-                    headers = Headers.headersOf("Content-Type", "application/json"),
-                    url = KEYCLOAK_HEALTH_READY_URL
-                ).code shouldBe HTTP_OK
+        logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
+        eventually(
+            eventuallyConfig {
+                duration = 30.seconds
+                expectedExceptions = setOf(SocketException::class)
             }
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_KEYCLOAK_HEALTHY)
-            logger.info { "Keycloak is healthy" }
-            logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            eventually(60.seconds) {
-                itestHttpClient.performGetRequest(
-                    headers = Headers.headersOf("Content-Type", "application/json"),
-                    url = ZAC_HEALTH_READY_URL
-                ).let { response ->
-                    response.code shouldBe HTTP_OK
-                    JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
-                }
+        ) {
+            itestHttpClient.performGetRequest(
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                url = KEYCLOAK_HEALTH_READY_URL
+            ).code shouldBe HTTP_OK
+        }
+        ItestTimingReport.markPhase(ItestTimingReport.PHASE_KEYCLOAK_HEALTHY)
+        logger.info { "Keycloak is healthy" }
+        logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
+        eventually(60.seconds) {
+            itestHttpClient.performGetRequest(
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                url = ZAC_HEALTH_READY_URL
+            ).let { response ->
+                response.code shouldBe HTTP_OK
+                JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
             }
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
-            logger.info { "ZAC is healthy" }
-            if (!skipDockerComposeStart) {
-                createTestSetupData()
-                ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
-            }
-        } catch (exception: ContainerLaunchException) {
-            logger.error(exception) { "Failed to start Docker Compose containers" }
-            dockerComposeContainer.stop()
+        }
+        ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
+        logger.info { "ZAC is healthy" }
+        if (!shouldSkipDockerComposeStart) {
+            createTestSetupData()
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
         }
     }
 
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
         try {
-            if (skipDockerComposeStart) {
+            if (shouldSkipDockerComposeStart) {
                 logger.warn {
                     "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
                 }
@@ -275,7 +276,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             }
             val composeProjectName = findComposeProjectName()
             composeProjectName?.let { ItestTimingReport.collectContainerTimings(dockerClient, it) }
-            if (skipContainerCleanup) {
+            if (shouldSkipContainerCleanup) {
                 logger.warn {
                     "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
                 }
@@ -481,11 +482,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     }
 
     private fun readResourceFile(resourcePath: String): String =
-        Thread.currentThread().contextClassLoader.getResource(
-            resourcePath
-        )?.let {
-            File(it.path)
-        }!!.readText(Charsets.UTF_8)
+        checkNotNull(Thread.currentThread().contextClassLoader.getResource(resourcePath)) {
+            "Resource '$resourcePath' not found"
+        }.let { File(it.path) }.readText(Charsets.UTF_8)
             .replace("\\", "\\\\")
             .replace("\"", "\\\"")
             .replace("\n", "\\n")

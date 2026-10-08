@@ -5,7 +5,9 @@
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>thumbs_up_down</mat-icon>
   <span class="flex-grow-1">
-    {{ "planitem." + data.planItem.userEventListenerActie | translate }}
+    {{
+      "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
+    }}
   </span>
   <button
     mat-icon-button
@@ -24,7 +26,7 @@
       class="readonly"
       [innerHTML]="data.planItem.toelichting"
     ></p>
-    <label>{{ "zaakOntvankelijk" | translate }}</label>
+    <label>{{ "zaak-ontvankelijk" | translate }}</label>
     <mat-radio-group id="ontvankelijk" formControlName="ontvankelijk">
       <mat-radio-button [value]="true">{{
         "actie.ja" | translate
@@ -39,17 +41,17 @@
       <p
         *ngIf="this.data.zaak.isOpgeschort"
         [innerHTML]="
-          'planitem.INTAKE_AFRONDEN.toelichting.opgeshort' | translate
+          'planitem.intake-afronden.toelichting.opgeshort' | translate
         "
         class="readonly"
       ></p>
       <ng-container *ngIf="!this.data.zaak.isOpgeschort">
         <p
-          [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"
+          [innerHTML]="'planitem.intake-afronden.toelichting' | translate"
           class="readonly"
         ></p>
         <mat-form-field appearance="fill" class="full-width">
-          <mat-label>{{ "redenNietOntvankelijk" | translate }}</mat-label>
+          <mat-label>{{ "reden-niet-ontvankelijk" | translate }}</mat-label>
           <textarea
             id="redenNietOntvankelijk"
             formControlName="reden"
@@ -60,7 +62,7 @@
             >{{ formGroup.get("reden")?.value.length }}/100</mat-hint
           >
           <mat-error>{{
-            getError(formGroup.get("reden"), "redenNietOntvankelijk")
+            getError(formGroup.get("reden"), "reden-niet-ontvankelijk")
           }}</mat-error>
         </mat-form-field>
       </ng-container>
@@ -75,7 +77,7 @@
         *ngIf="mailBeschikbaar"
         id="sendMail"
         formControlName="sendMail"
-        >{{ "sendMail" | translate }}</mat-checkbox
+        >{{ "send-mail" | translate }}</mat-checkbox
       >
       <mat-form-field
         *ngIf="formGroup.get('sendMail')?.value"
@@ -84,7 +86,7 @@
       >
         <mat-label>{{ "verzender" | translate }}</mat-label>
         <mat-select
-          placeholder="{{ 'verzender.-kies-' | translate }}"
+          placeholder="{{ 'verzender.kies' | translate }}"
           formControlName="verzender"
           [compareWith]="compareObject"
         >
@@ -160,15 +162,19 @@
     mat-raised-button
     color="primary"
     id="intakeAfronden_button"
-    [disabled]="loading || formGroup.invalid"
+    [disabled]="afrondenMutation.isPending() || formGroup.invalid"
     (click)="afronden()"
   >
-    <mat-icon *ngIf="loading">
+    <mat-icon *ngIf="afrondenMutation.isPending()">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{ "planitem.INTAKE_AFRONDEN" | translate }}
+    {{ "planitem.intake-afronden" | translate }}
   </button>
-  <button mat-raised-button [disabled]="loading" (click)="close()">
+  <button
+    mat-raised-button
+    [disabled]="afrondenMutation.isPending()"
+    (click)="close()"
+  >
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>

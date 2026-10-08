@@ -55,7 +55,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 "Content-Type",
                 "application/json"
             ),
-            requestBodyAsString = """{ "mail": true, "subjecttype": "TAAK", "type": "TAAK_VERLOPEN" }""",
+            requestBodyAsString = """{ "isMailEnabled": true, "subjecttype": "TAAK", "type": "TAAK_VERLOPEN" }""",
             testUser = BEHANDELAAR_1
         )
         response.code shouldBe HTTP_OK
@@ -95,7 +95,6 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 {
                     "planItemInstanceId": "$humanTaskItemId",
                     "fataledatum": "$fataleDatum",
-                    "taakStuurGegevens": { "sendMail": false },
                     "medewerker": {
                         "id": "${BEHANDELAAR_1.username}",
                         "naam": "${BEHANDELAAR_1.displayName}"

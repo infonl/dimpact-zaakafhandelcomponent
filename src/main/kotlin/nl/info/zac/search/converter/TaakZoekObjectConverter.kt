@@ -6,20 +6,19 @@ package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
+import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.flowable.task.readTaskData
+import nl.info.zac.flowable.task.readTaskInformation
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.flowable.util.taakStatus
-import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -33,21 +32,11 @@ class TaakZoekObjectConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
-    private val zgwApiService: ZgwApiService
-) : AbstractZoekObjectConverter<TaakZoekObject>() {
+    private val reindexSupportService: ReindexSupportService
+) : ZoekObjectConverter<TaakZoekObject> {
 
     override fun convert(id: String): TaakZoekObject =
-        convert(id) { zaakUUID ->
-            ZaakAutorisatieGegevens(
-                isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
-            ) {
-                listOfNotNull(
-                    zgwApiService.findBehandelaarMedewerkerRoleForZaak(zrcClientService.readZaak(zaakUUID))
-                        ?.betrokkeneIdentificatie
-                        ?.identificatie
-                )
-            }
-        }
+        convert(id, reindexSupportService::zaakAutorisatieGegevens)
 
     /**
      * Converts [id], looking up the zaak-level data through [zaakAutorisatieGegevens] instead of always
@@ -56,7 +45,7 @@ class TaakZoekObjectConverter @Inject constructor(
      */
     override fun convert(id: String, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens): TaakZoekObject {
         val taskInfo = flowableTaskService.readTask(id)
-        val zaak = zrcClientService.readZaak(TaakVariabelenService.readZaakUUID(taskInfo))
+        val zaak = zrcClientService.readZaak(readZaakUUID(taskInfo))
         return convert(id, taskInfo, zaak, zaakAutorisatieGegevens)
     }
 
@@ -67,7 +56,12 @@ class TaakZoekObjectConverter @Inject constructor(
      * conversion.
      */
     fun convert(id: String, zaak: Zaak, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens): TaakZoekObject =
-        convert(id, flowableTaskService.readTask(id), zaak, zaakAutorisatieGegevens)
+        convert(
+            id = id,
+            taskInfo = flowableTaskService.readTask(id),
+            zaak = zaak,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
 
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.TAAK
 
@@ -79,7 +73,7 @@ class TaakZoekObjectConverter @Inject constructor(
     ): TaakZoekObject {
         // read from the task's own zaakUUID variable, not zaak.uuid, so that a taak's zaak reference
         // is always taken from the taak itself, even if [zaak] were ever supplied for a different zaak
-        val zaakUUID = TaakVariabelenService.readZaakUUID(taskInfo)
+        val zaakUUID = readZaakUUID(taskInfo)
         val zaaktype = ztcClientService.readZaaktype(readZaaktypeUUID(taskInfo))
         return TaakZoekObject(
             id = id,

@@ -6,7 +6,7 @@
 <section [formGroup]="form()" class="flex-col gap-5">
   <mat-label style="font-weight: bold" class="mb-2">
     <ng-content select="mat-label">
-      {{ label() ?? key() | translate | capitalizeFirstLetter }}
+      {{ labelKey() | translate | capitalizeFirstLetter }}
       {{ isRequired() ? "*" : "" }}
     </ng-content>
   </mat-label>

@@ -5,11 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { Component, input, LOCALE_ID, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -33,7 +29,7 @@ import { notifyManager } from "@tanstack/query-core";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
@@ -41,12 +37,12 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
-import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { MenuItemType } from "../../shared/side-nav/menu-item/menu-item";
@@ -64,7 +60,7 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
-const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+const planItemsQuery = (planItems: GeneratedType<"RestPlanItem">[]) =>
   queryOptions({
     queryKey: ["fakePlanItems", planItems],
     queryFn: () => planItems,
@@ -130,7 +126,7 @@ describe(ZaakViewComponent.name, () => {
     }),
     indicaties: [],
     rechten: {
-      behandelen: true,
+      canBehandelen: true,
     },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
@@ -164,14 +160,11 @@ describe(ZaakViewComponent.name, () => {
         StaticTextComponent,
         ZaakProcessFlowComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         PlanItemsService,
         {
@@ -223,7 +216,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -234,7 +227,7 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
         planItemsQuery([
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
@@ -313,15 +306,15 @@ describe(ZaakViewComponent.name, () => {
       isOpen: true,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
+        canBehandelen: true,
       },
       zaaktype: {
         ...zaak.zaaktype,
-        opschortingMogelijk: true,
+        isOpschortingMogelijk: true,
       },
       isHeropend: false,
       isOpgeschort: false,
-      eerdereOpschorting: false,
+      hasEerdereOpschorting: false,
       isProcesGestuurd: false,
     } satisfies GeneratedType<"RestZaak">;
 
@@ -341,7 +334,7 @@ describe(ZaakViewComponent.name, () => {
         mockActivatedRoute.data.next({
           zaak: {
             ...opschortenZaak,
-            eerdereOpschorting: true,
+            hasEerdereOpschorting: true,
           },
         });
       });
@@ -361,7 +354,7 @@ describe(ZaakViewComponent.name, () => {
       isOpgeschort: true,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
+        canBehandelen: true,
       },
       isProcesGestuurd: false,
     } satisfies GeneratedType<"RestZaak">;
@@ -384,7 +377,7 @@ describe(ZaakViewComponent.name, () => {
             ...hervattenZaak,
             rechten: {
               ...hervattenZaak.rechten,
-              behandelen: false,
+              canBehandelen: false,
             },
           },
         });
@@ -438,11 +431,11 @@ describe(ZaakViewComponent.name, () => {
   describe("actie.ontvangstbevestiging.versturen", () => {
     const baseZaak = {
       ...zaak,
-      heeftOntvangstbevestigingVerstuurd: false,
+      isOntvangstbevestigingVerstuurd: false,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
-        versturenOntvangstbevestiging: true,
+        canBehandelen: true,
+        canVersturenOntvangstbevestiging: true,
       },
       isProcesGestuurd: false,
       indicaties: ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
@@ -467,10 +460,10 @@ describe(ZaakViewComponent.name, () => {
         mockActivatedRoute.data.next({
           zaak: {
             ...baseZaak,
-            heeftOntvangstbevestigingVerstuurd: false,
+            isOntvangstbevestigingVerstuurd: false,
             rechten: {
               ...baseZaak.rechten,
-              behandelen: false,
+              canBehandelen: false,
             },
           },
         });
@@ -515,7 +508,7 @@ describe(ZaakViewComponent.name, () => {
             ...baseZaak,
             rechten: {
               ...baseZaak.rechten,
-              versturenOntvangstbevestiging: false,
+              canVersturenOntvangstbevestiging: false,
             },
           },
         });
@@ -537,7 +530,7 @@ describe(ZaakViewComponent.name, () => {
         mockActivatedRoute.data.next({
           zaak: {
             ...baseZaak,
-            heeftOntvangstbevestigingVerstuurd: true,
+            isOntvangstbevestigingVerstuurd: true,
           },
         });
         fixture.detectChanges();
@@ -554,7 +547,7 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-  describe("planitem.INTAKE_AFRONDEN menu item", () => {
+  describe("planitem.intake-afronden menu item", () => {
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
@@ -570,7 +563,7 @@ describe(ZaakViewComponent.name, () => {
         .mockReturnValue(of("openBesluitVastleggen"));
 
       const listItem = await loader.getHarnessOrNull(
-        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
+        MatNavListItemHarness.with({ text: /planitem.intake-afronden/ }),
       );
 
       await listItem?.click();
@@ -584,24 +577,24 @@ describe(ZaakViewComponent.name, () => {
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of("otherValue"));
 
       const listItem = await loader.getHarnessOrNull(
-        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
+        MatNavListItemHarness.with({ text: /planitem.intake-afronden/ }),
       );
 
       await listItem?.click();
 
       expect(spy).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
+        "msg.planitem.uitgevoerd.intake-afronden",
       );
       expect(sideActions.activeAction()).toBe(null);
     });
   });
 
-  describe("actie.zaak.brondatumZetten", () => {
+  describe("actie.zaak.brondatum-zetten", () => {
     const brondatumZettenZaak = {
       ...zaak,
       rechten: {
         ...zaak.rechten,
-        brondatumZetten: true,
+        canBrondatumZetten: true,
       },
       resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
         resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
@@ -622,7 +615,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       expect(button).toBeTruthy();
@@ -632,13 +625,16 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...brondatumZettenZaak,
-          rechten: { ...brondatumZettenZaak.rechten, brondatumZetten: false },
+          rechten: {
+            ...brondatumZettenZaak.rechten,
+            canBrondatumZetten: false,
+          },
         },
       });
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       expect(button).toBeNull();
@@ -662,7 +658,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       expect(button).toBeNull();
@@ -675,7 +671,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       expect(button).toBeNull();
@@ -687,7 +683,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       await button.click();
@@ -705,7 +701,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
@@ -728,7 +724,7 @@ describe(ZaakViewComponent.name, () => {
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
-          title: "actie.zaak.brondatumZetten",
+          title: "actie.zaak.brondatum-zetten",
         }),
       );
       await button.click();
@@ -743,16 +739,16 @@ describe(ZaakViewComponent.name, () => {
       isOpen: true,
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
+        canBehandelen: true,
       },
       isProcesGestuurd: false,
       isHeropend: false,
       isOpgeschort: false,
-      eerdereOpschorting: false,
+      hasEerdereOpschorting: false,
       zaaktype: {
         ...zaak.zaaktype,
-        opschortingMogelijk: false,
-        verlengingMogelijk: false,
+        isOpschortingMogelijk: false,
+        isVerlengingMogelijk: false,
       },
     } satisfies GeneratedType<"RestZaak">;
 
@@ -767,7 +763,7 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
         .mockReturnValue(
           planItemsQuery([
-            fromPartial<GeneratedType<"RESTPlanItem">>({
+            fromPartial<GeneratedType<"RestPlanItem">>({
               userEventListenerActie: "INTAKE_AFRONDEN",
             }),
           ]),
@@ -792,7 +788,7 @@ describe(ZaakViewComponent.name, () => {
           isOpen: false,
           rechten: {
             ...baseZaak.rechten,
-            heropenen: true,
+            canHeropenen: true,
           },
         },
       });
@@ -900,7 +896,7 @@ describe(ZaakViewComponent.name, () => {
               "Document verzenden",
               "Advies intern",
             ].map((naam) =>
-              fromPartial<GeneratedType<"RESTPlanItem">>({ naam }),
+              fromPartial<GeneratedType<"RestPlanItem">>({ naam }),
             ),
           ),
         );
@@ -910,7 +906,7 @@ describe(ZaakViewComponent.name, () => {
           ...zaak,
           rechten: {
             ...zaak.rechten,
-            behandelen: true,
+            canBehandelen: true,
           },
         },
       });
@@ -943,7 +939,7 @@ describe(ZaakViewComponent.name, () => {
 
     let httpTestingController: HttpTestingController;
 
-    const flushPlanItems = (humanTasks: GeneratedType<"RESTPlanItem">[]) => {
+    const flushPlanItems = (humanTasks: GeneratedType<"RestPlanItem">[]) => {
       httpTestingController
         .match((request) => request.url === humanTaskPlanItemsUrl)
         .forEach((request) => request.flush(humanTasks));
@@ -960,7 +956,7 @@ describe(ZaakViewComponent.name, () => {
       testQueryClient.setQueryData(
         planItemsService.listHumanTaskPlanItemsQuery(zaak.uuid).queryKey,
         [
-          fromPartial<GeneratedType<"RESTPlanItem">>({
+          fromPartial<GeneratedType<"RestPlanItem">>({
             id: "fakeStalePlanItemId",
             naam: "verouderdeTaakNaam",
           }),
@@ -979,7 +975,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       flushPlanItems([
-        fromPartial<GeneratedType<"RESTPlanItem">>({
+        fromPartial<GeneratedType<"RestPlanItem">>({
           id: "fakeFreshPlanItemId",
           naam: "verseTaakNaam",
         }),
@@ -1006,7 +1002,7 @@ describe(ZaakViewComponent.name, () => {
       isOpen: true,
       isInIntakeFase: false,
       isBesluittypeAanwezig: true,
-      heeftOntvangstbevestigingVerstuurd: false,
+      isOntvangstbevestigingVerstuurd: false,
       zaakdata: { fakeZaakdataKey: "fakeZaakdataValue" },
       zaakgeometrie: undefined,
       bpmnProcessDefinition: fromPartial<
@@ -1014,23 +1010,29 @@ describe(ZaakViewComponent.name, () => {
       >({ processDefinitionKey: "fakeProcessDefinitionKey" }),
       rechten: {
         ...zaak.rechten,
-        behandelen: true,
-        wijzigen: true,
-        wijzigenLocatie: true,
-        creerenDocument: true,
-        versturenEmail: true,
-        versturenOntvangstbevestiging: true,
-        bekijkenZaakdata: true,
-        toevoegenBagObject: true,
-        toevoegenInitiatorBedrijf: true,
+        canBehandelen: true,
+        canWijzigen: true,
+        canWijzigenLocatie: true,
+        canCreerenDocument: true,
+        canVersturenEmail: true,
+        canVersturenOntvangstbevestiging: true,
+        canBekijkenZaakdata: true,
+        canToevoegenBagObject: true,
+        canToevoegenInitiatorBedrijf: true,
       },
       zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
         ...zaak.zaaktype,
         zaakafhandelparameters: fromPartial<
           GeneratedType<"RestZaaktypeConfiguration">
         >({
-          smartDocuments: { enabledForZaaktype: true, enabledGlobally: true },
-          betrokkeneKoppelingen: { kvkKoppelen: true },
+          caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
+            key: "fakeCaseDefinitionKey",
+          }),
+          smartDocuments: {
+            isEnabledForZaaktype: true,
+            isEnabledGlobally: true,
+          },
+          betrokkeneKoppelingen: { isKvkKoppelenEnabled: true },
         }),
       }),
     });
@@ -1045,7 +1047,7 @@ describe(ZaakViewComponent.name, () => {
       ["actie.zaakdata.bekijken", "zac-zaakdata"],
       ["actie.procesverloop.bekijken", "zac-zaak-process-flow"],
       ["actie.betrokkene.koppelen", "zac-klant-koppel"],
-      ["actie.bagObject.koppelen", "zac-bag-zoek"],
+      ["actie.bag-object.koppelen", "zac-bag-zoek"],
       ["actie.zaak.koppelen", "zac-zaak-link"],
       ["actie.zaak.locatie.koppelen", "zac-case-location-edit"],
     ] as const;
@@ -1056,6 +1058,12 @@ describe(ZaakViewComponent.name, () => {
         configuratieService.readAllowedFileTypesQuery().queryKey,
         [],
       );
+      jest
+        .spyOn(
+          TestBed.inject(InformatieObjectenService),
+          "listEnkelvoudigInformatieobjecten",
+        )
+        .mockReturnValue(createQueryOptions([]) as never);
 
       mockActivatedRoute.data.next({ zaak: zaakWithEveryPanel });
       fixture.detectChanges();

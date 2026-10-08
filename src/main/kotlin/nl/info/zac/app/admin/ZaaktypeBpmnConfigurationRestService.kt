@@ -17,20 +17,20 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
-import nl.info.zac.app.admin.model.toZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
 import nl.info.zac.app.admin.model.toZaaktypeCompletionParametersList
+import nl.info.zac.app.admin.model.toZaaktypeConfiguration
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -47,9 +47,8 @@ import java.util.UUID
 @Suppress("LongParameterList")
 @NoArgConstructor
 class ZaaktypeBpmnConfigurationRestService @Inject constructor(
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
-    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
+    private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
     private val policyService: PolicyService,
     private val ztcClientService: ZtcClientService,
     private val restZaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
@@ -57,8 +56,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
-        assertPolicy(policyService.readOverigeRechten().startenZaak || policyService.readOverigeRechten().beheren)
-        return zaaktypeBpmnConfigurationBeheerService.listConfigurations().map {
+        assertPolicy(policyService.readOverigeRechten().canStartenZaak || policyService.readOverigeRechten().canBeheren)
+        return zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN).map {
             it.toRestZaaktypeBpmnConfiguration()
         }
     }
@@ -68,10 +67,10 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     fun getZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String
     ): RestZaaktypeBpmnConfiguration {
-        assertPolicy(policyService.readOverigeRechten().startenZaak || policyService.readOverigeRechten().beheren)
-        val processDefinitions = zaaktypeBpmnConfigurationBeheerService
-            .listConfigurations()
-            .filter { it.bpmnProcessDefinitionKey == processDefinitionKey }
+        assertPolicy(policyService.readOverigeRechten().canStartenZaak || policyService.readOverigeRechten().canBeheren)
+        val processDefinitions = zaaktypeConfigurationService
+            .listConfigurationsBoundTo(ProcessEngine.BPMN)
+            .filter { it.processBinding?.definitionKey == processDefinitionKey }
         if (processDefinitions.isEmpty()) {
             throw NotFoundException(
                 "No zaaktype configuration found for process definition key '$processDefinitionKey'"
@@ -95,53 +94,39 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     fun createOrUpdateZaaktypeBpmnConfiguration(
         @Valid restZaaktypeBpmnConfiguration: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         checkNotNull(restZaaktypeBpmnConfiguration.groepNaam) { "groepNaam must not be null" }
         restZaaktypeBpmnConfiguration.productaanvraagtype?.let {
-            checkIfProductaanvraagtypeIsNotAlreadyInUse(
+            zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
                 productaanvraagtype = it,
-                zaaktypeDescription = restZaaktypeBpmnConfiguration.zaaktypeOmschrijving,
-                zaaktypeUuid = restZaaktypeBpmnConfiguration.zaaktypeUuid
+                zaaktypeOmschrijving = restZaaktypeBpmnConfiguration.zaaktypeOmschrijving
             )
         }
-        val zaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationBeheerService.findConfiguration(
+        val zaaktypeConfiguration = zaaktypeConfigurationBeheerService.findConfiguration(
             restZaaktypeBpmnConfiguration.zaaktypeUuid
         )?.apply {
-            // update existing zaaktype BPMN configuration with values from REST object
-            bpmnProcessDefinitionKey = restZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
+            // update the existing configuration with the values of the REST object, and keep the settings that it
+            // does not carry
+            bindTo(ProcessEngine.BPMN, restZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey)
             groepID = restZaaktypeBpmnConfiguration.groepNaam
             defaultBehandelaarId = restZaaktypeBpmnConfiguration.defaultBehandelaarId
             productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
             zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
             zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
             nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
-            smartDocumentsEnabled = restZaaktypeBpmnConfiguration.smartDocuments?.enabledForZaaktype ?: false
+            isSmartDocumentsEnabled = restZaaktypeBpmnConfiguration.smartDocuments?.isEnabledForZaaktype ?: false
             setZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList())
-        } ?: restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
-        return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(
-            zaaktypeBpmnConfiguration
-        ).toRestZaaktypeBpmnConfiguration()
+        } ?: restZaaktypeBpmnConfiguration.toZaaktypeConfiguration()
+        return zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
+            .toRestZaaktypeBpmnConfiguration()
     }
 
-    private fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
-        productaanvraagtype: String,
-        zaaktypeDescription: String,
-        zaaktypeUuid: UUID
-    ) {
-        zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
-            productaanvraagtype = productaanvraagtype,
-            zaaktypeOmschrijving = zaaktypeDescription
-        )
-        zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
-            productaanvraagtype = productaanvraagtype,
-            zaaktypeUuid = zaaktypeUuid
-        )
-    }
-
-    private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() = RestZaaktypeBpmnConfiguration(
+    private fun ZaaktypeConfiguration.toRestZaaktypeBpmnConfiguration() = RestZaaktypeBpmnConfiguration(
         id = this.id,
         zaaktypeUuid = this.zaaktypeUuid,
-        bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
+        bpmnProcessDefinitionKey = checkNotNull(this.processBinding) {
+            "Zaaktype configuration for zaaktype '$zaaktypeUuid' is not bound to a process"
+        }.definitionKey,
         zaaktypeOmschrijving = this.zaaktypeOmschrijving,
         groepNaam = this.groepID,
         defaultBehandelaarId = this.defaultBehandelaarId,

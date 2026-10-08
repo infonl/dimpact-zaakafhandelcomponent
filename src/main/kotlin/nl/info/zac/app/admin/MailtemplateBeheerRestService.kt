@@ -45,13 +45,13 @@ class MailtemplateBeheerRestService @Inject constructor(
     @GET
     @Path("{id}")
     fun readMailtemplate(@PathParam("id") @Positive id: Long): RestMailtemplate {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        return mailTemplateService.readMailtemplate(id).toRestMailtemplate()
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
+        return mailTemplateService.readMailTemplate(id).toRestMailtemplate()
     }
 
     @GET
     fun listMailtemplates(): List<RestMailtemplate> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         val mailTemplates = mailTemplateService.listMailtemplates()
         return mailTemplates.map(MailTemplate::toRestMailtemplate)
     }
@@ -59,7 +59,7 @@ class MailtemplateBeheerRestService @Inject constructor(
     @GET
     @Path("/koppelbaar")
     fun listkoppelbareMailtemplates(): List<RestMailtemplate> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         val mailTemplates = mailTemplateService.listKoppelbareMailtemplates()
         return mailTemplates.map(MailTemplate::toRestMailtemplate)
     }
@@ -67,14 +67,14 @@ class MailtemplateBeheerRestService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteMailtemplate(@PathParam("id") @Positive id: Long) {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         mailTemplateService.delete(id)
     }
 
     @POST
     @Path("")
     fun createMailtemplate(@Valid mailtemplate: RestMailtemplate): Response {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         if (mailtemplate.id != null) {
             mailtemplate.id = null // Ignore provided ID
         }
@@ -91,7 +91,7 @@ class MailtemplateBeheerRestService @Inject constructor(
         @PathParam("id") @Positive id: Long,
         @Valid mailtemplate: RestMailtemplate
     ): RestMailtemplate {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().canBeheren)
         val updatedTemplate = mailTemplateService.updateMailtemplate(
             id,
             mailtemplate.toMailTemplate()
@@ -101,7 +101,5 @@ class MailtemplateBeheerRestService @Inject constructor(
 
     @GET
     @Path("variabelen/{mail}")
-    fun getMailTemplateVariables(@PathParam("mail") mail: Mail): Set<MailTemplateVariables> {
-        return mail.mailTemplateVariables
-    }
+    fun getMailTemplateVariables(@PathParam("mail") mail: Mail): Set<MailTemplateVariables> = mail.mailTemplateVariables
 }

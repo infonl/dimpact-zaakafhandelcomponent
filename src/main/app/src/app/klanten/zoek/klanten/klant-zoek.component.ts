@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, inject, Output } from "@angular/core";
+import { Component, inject, output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { TranslateModule } from "@ngx-translate/core";
@@ -29,9 +29,7 @@ import { PersoonZoekComponent } from "../personen/persoon-zoek.component";
   ],
 })
 export class KlantZoekComponent {
-  @Output() klant = new EventEmitter<
-    GeneratedType<"RestBedrijf" | "RestPersoon">
-  >();
+  readonly klant = output<GeneratedType<"RestBedrijf" | "RestPersoon">>();
 
   private readonly policyService = inject(PolicyService);
   protected readonly brpRechtenQuery = injectQuery(() =>

@@ -25,7 +25,7 @@ export class BAGResolverService {
     }
 
     return this.bagService.read(
-      type.toUpperCase() as GeneratedType<"BAGObjectType">,
+      type.toUpperCase() as GeneratedType<"BagObjectType">,
       id,
     );
   }

@@ -5,8 +5,8 @@
 package nl.info.zac.app.policy.model
 
 fun createRestTaakRechten() = RestTaakRechten(
-    lezen = true,
-    wijzigen = true,
-    toekennen = true,
-    toevoegenDocument = true
+    canLezen = true,
+    canWijzigen = true,
+    canToekennen = true,
+    canToevoegenDocument = true
 )

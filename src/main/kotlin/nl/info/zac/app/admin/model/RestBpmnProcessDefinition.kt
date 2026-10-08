@@ -1,9 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -21,7 +22,10 @@ data class RestBpmnProcessDefinition(
 @AllOpen
 @NoArgConstructor
 data class RestBpmnProcessDefinitionDetails(
-    var inUse: Boolean = false,
+    @get:JsonbProperty("isInUse")
+    @set:JsonbProperty("isInUse")
+    var isInUse: Boolean = false,
+
     var documentation: String? = null,
     var modificationDate: ZonedDateTime? = null,
     var uploadDate: ZonedDateTime? = null,
@@ -34,5 +38,8 @@ data class RestBpmnProcessDefinitionDetails(
 data class RestBpmnProcessDefinitionForm(
     var formKey: String,
     var title: String? = null,
-    var uploaded: Boolean = false,
+
+    @get:JsonbProperty("isUploaded")
+    @set:JsonbProperty("isUploaded")
+    var isUploaded: Boolean = false,
 )

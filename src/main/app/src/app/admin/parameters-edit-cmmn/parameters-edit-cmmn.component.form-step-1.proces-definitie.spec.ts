@@ -40,8 +40,8 @@ describe("Proces-definitie step", () => {
     zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
       {
-        speciaal: false,
-        defaultMail: true,
+        isSpeciaal: false,
+        isDefaultMail: true,
         mail: "test@example.com",
         replyTo: undefined,
       },
@@ -49,9 +49,12 @@ describe("Proces-definitie step", () => {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+    smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
     userEventListenerParameters: [],
-    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+    betrokkeneKoppelingen: {
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
+    },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -59,7 +62,7 @@ describe("Proces-definitie step", () => {
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
-      enabled: false,
+      isEnabled: false,
       templateName: null,
       emailSender: null,
       emailReply: null,
@@ -109,7 +112,8 @@ describe("Proces-definitie step", () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listGroups: () => of([{ id: "test-group-id", naam: "test-group" }]),
+            listBehandelaarGroupsForZaaktype: () =>
+              of([{ id: "test-group-id", naam: "test-group" }]),
             listUsersInGroup: () =>
               of([{ id: "test-user-id", naam: "test-user" }]),
           }),
@@ -135,7 +139,7 @@ describe("Proces-definitie step", () => {
     return {
       fixture,
       procesModel: screen.getByRole("tabpanel", {
-        name: /gegevens.proces-model-methode.CMMN/,
+        name: /gegevens.proces-model-methode.cmmn/,
       }),
     };
   }
@@ -173,9 +177,9 @@ describe("Proces-definitie step", () => {
 
     expect(
       within(mail).getByRole("combobox", { name: "statusmail.type.intake" }),
-    ).toHaveTextContent("statusmail.optie.BESCHIKBAAR_UIT");
+    ).toHaveTextContent("statusmail.optie.beschikbaar-uit");
     expect(
       within(mail).getByRole("combobox", { name: "statusmail.type.afronden" }),
-    ).toHaveTextContent("statusmail.optie.BESCHIKBAAR_UIT");
+    ).toHaveTextContent("statusmail.optie.beschikbaar-uit");
   });
 });

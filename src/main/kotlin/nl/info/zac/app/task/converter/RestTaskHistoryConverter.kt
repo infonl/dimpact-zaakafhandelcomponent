@@ -9,11 +9,13 @@ import jakarta.json.bind.annotation.JsonbDateFormat
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.model.ValueChangeData
 import net.atos.zac.util.JsonbUtil
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.util.time.convertToZonedDateTime
 import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.task.TaskHistoryService
 import org.flowable.task.api.history.HistoricTaskLogEntry
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import java.util.Date
@@ -50,6 +52,10 @@ class RestTaskHistoryConverter @Inject constructor(
                 GROEP_ATTRIBUUT_LABEL,
                 historicTaskLogEntry.data
             )
+            TaskHistoryService.USER_TASK_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ADDED -> convertValueChangeData(
+                ZgwApiService.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                historicTaskLogEntry.data
+            )
             else -> historicTaskLogEntry.data?.let {
                 convertData(
                     HistoricTaskLogEntryType.valueOf(historicTaskLogEntry.type),
@@ -64,16 +70,16 @@ class RestTaskHistoryConverter @Inject constructor(
     private fun convertData(historicTaskLogEntryType: HistoricTaskLogEntryType, data: String): RestTaskHistoryLine? =
         when (historicTaskLogEntryType) {
             HistoricTaskLogEntryType.USER_TASK_CREATED -> RestTaskHistoryLine(
-                STATUS_ATTRIBUUT_LABEL,
-                null,
-                CREATED_ATTRIBUUT_LABEL,
-                null
+                attribuutLabel = STATUS_ATTRIBUUT_LABEL,
+                oudeWaarde = null,
+                nieuweWaarde = CREATED_ATTRIBUUT_LABEL,
+                toelichting = null
             )
             HistoricTaskLogEntryType.USER_TASK_COMPLETED -> RestTaskHistoryLine(
-                STATUS_ATTRIBUUT_LABEL,
-                CREATED_ATTRIBUUT_LABEL,
-                COMPLETED_ATTRIBUUT_LABEL,
-                null
+                attribuutLabel = STATUS_ATTRIBUUT_LABEL,
+                oudeWaarde = CREATED_ATTRIBUUT_LABEL,
+                nieuweWaarde = COMPLETED_ATTRIBUUT_LABEL,
+                toelichting = null
             )
             HistoricTaskLogEntryType.USER_TASK_OWNER_CHANGED -> convertOwnerChanged(data)
             HistoricTaskLogEntryType.USER_TASK_DUEDATE_CHANGED -> convertDueDateChanged(data)
@@ -84,10 +90,10 @@ class RestTaskHistoryConverter @Inject constructor(
     private fun convertValueChangeData(attribuutLabel: String, data: String): RestTaskHistoryLine {
         JsonbUtil.JSONB.fromJson(data, ValueChangeData::class.java).let {
             return RestTaskHistoryLine(
-                attribuutLabel,
-                it.oldValue,
-                it.newValue,
-                it.explanation
+                attribuutLabel = attribuutLabel,
+                oudeWaarde = it.oldValue,
+                nieuweWaarde = it.newValue,
+                toelichting = it.explanation
             )
         }
     }
@@ -100,10 +106,10 @@ class RestTaskHistoryConverter @Inject constructor(
     private fun convertOwnerChanged(data: String): RestTaskHistoryLine {
         JsonbUtil.JSONB.fromJson(data, AssigneeChangedData::class.java).let {
             return RestTaskHistoryLine(
-                AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
-                it.previousAssigneeId?.let(::getMedewerkerFullName),
-                it.newAssigneeId?.let(::getMedewerkerFullName),
-                null
+                attribuutLabel = AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
+                oudeWaarde = it.previousAssigneeId?.let(::getMedewerkerFullName),
+                nieuweWaarde = it.newAssigneeId?.let(::getMedewerkerFullName),
+                toelichting = null
             )
         }
     }
@@ -122,10 +128,10 @@ class RestTaskHistoryConverter @Inject constructor(
     private fun convertDueDateChanged(data: String): RestTaskHistoryLine {
         JsonbUtil.JSONB.fromJson(data, DuedateChangedData::class.java).let {
             return RestTaskHistoryLine(
-                FATALEDATUM_ATTRIBUUT_LABEL,
-                it.previousDueDate?.let(::convertToLocalDate),
-                it.newDueDate?.let(::convertToLocalDate),
-                null
+                attribuutLabel = FATALEDATUM_ATTRIBUUT_LABEL,
+                oudeWaarde = it.previousDueDate?.let(::convertToLocalDate),
+                nieuweWaarde = it.newDueDate?.let(::convertToLocalDate),
+                toelichting = null
             )
         }
     }

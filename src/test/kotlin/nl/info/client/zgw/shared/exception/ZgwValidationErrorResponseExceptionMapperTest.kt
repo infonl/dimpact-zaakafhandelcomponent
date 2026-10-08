@@ -24,10 +24,10 @@ class ZgwValidationErrorResponseExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val returnValue = zgwValidationErrorResponseExceptionMapper.handles(400, headers)
+            val isHandled = zgwValidationErrorResponseExceptionMapper.handles(400, headers)
 
             then("The status code should be mapped") {
-                returnValue shouldBe true
+                isHandled shouldBe true
             }
         }
     }
@@ -36,10 +36,10 @@ class ZgwValidationErrorResponseExceptionMapperTest : BehaviorSpec({
         val headers = MultivaluedHashMap<String, Any>()
 
         `when`("the status code is handled") {
-            val returnValue = zgwValidationErrorResponseExceptionMapper.handles(402, headers)
+            val isHandled = zgwValidationErrorResponseExceptionMapper.handles(402, headers)
 
             then("The status code should not be mapped") {
-                returnValue shouldBe false
+                isHandled shouldBe false
             }
         }
     }

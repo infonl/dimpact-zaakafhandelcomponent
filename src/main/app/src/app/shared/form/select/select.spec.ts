@@ -12,8 +12,8 @@ import {
 } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../material/material.module";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { ZacSelect } from "./select";
 
 interface TestOption {
@@ -48,9 +48,7 @@ describe(ZacSelect.name, () => {
       imports: [
         ZacSelect,
         ReactiveFormsModule,
-        MaterialModule,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [TranslateService],
@@ -78,7 +76,7 @@ describe(ZacSelect.name, () => {
     beforeEach(() => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "option");
-      componentRef.setInput("availableOptions", [testOption]);
+      componentRef.setInput("options", [testOption]);
       fixture.detectChanges();
     });
 
@@ -144,6 +142,35 @@ describe(ZacSelect.name, () => {
       const result = component["displaySuffix"](testOption);
       expect(result).toBe(1);
       expect(typeof result).toBe("number");
+    });
+  });
+  describe("the suffix of an option", () => {
+    it("should translate a suffix that the backend sends as a key with a SNAKE_CASE constant", async () => {
+      const user = userEvent.setup();
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "option");
+      componentRef.setInput("optionDisplayValue", "name");
+      componentRef.setInput("suffix", "suffix");
+      componentRef.setInput("options", [
+        {
+          id: 1,
+          name: "gemeente@example.com",
+          suffix: "gegevens.mail.afzender.GEMEENTE",
+        },
+      ]);
+      const translateService = TestBed.inject(TranslateService);
+      translateService.setTranslation("nl", {
+        "gegevens.mail.afzender.gemeente": "E-mailadres van de gemeente",
+      });
+      translateService.use("nl");
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await user.click(screen.getByRole("combobox"));
+
+      expect(
+        screen.getByRole("option", { name: /gemeente@example.com/ }),
+      ).toHaveTextContent("E-mailadres van de gemeente");
     });
   });
 });

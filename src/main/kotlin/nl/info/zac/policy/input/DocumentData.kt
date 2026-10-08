@@ -7,14 +7,14 @@ package nl.info.zac.policy.input
 import jakarta.json.bind.annotation.JsonbProperty
 
 data class DocumentData(
-    @field:JsonbProperty("definitief")
-    val definitief: Boolean = false,
+    @get:JsonbProperty("definitief")
+    val isDefinitief: Boolean = false,
 
-    @field:JsonbProperty("vergrendeld")
-    val vergrendeld: Boolean = false,
+    @get:JsonbProperty("vergrendeld")
+    val isVergrendeld: Boolean = false,
 
-    @field:JsonbProperty("ondertekend")
-    val ondertekend: Boolean = false,
+    @get:JsonbProperty("ondertekend")
+    val isOndertekend: Boolean = false,
 
     @field:JsonbProperty("vergrendeld_door")
     val vergrendeldDoor: String? = null,
@@ -22,12 +22,12 @@ data class DocumentData(
     @field:JsonbProperty("zaaktype")
     val zaaktype: String? = null,
 
-    @field:JsonbProperty("zaak_open")
-    val zaakOpen: Boolean = false,
+    @get:JsonbProperty("zaak_open")
+    val isZaakOpen: Boolean = false,
 
-    @field:JsonbProperty("zaakspecifiekGeautoriseerd")
-    val zaakspecifiekGeautoriseerd: Boolean = false,
+    @get:JsonbProperty("zaakspecifiekGeautoriseerd")
+    val isZaakspecifiekGeautoriseerd: Boolean = false,
 
-    @field:JsonbProperty("loggedInUserIsGeautoriseerdeMedewerker")
-    val loggedInUserIsGeautoriseerdeMedewerker: Boolean = false
+    @get:JsonbProperty("loggedInUserIsGeautoriseerdeMedewerker")
+    val isLoggedInUserGeautoriseerdeMedewerker: Boolean = false
 )

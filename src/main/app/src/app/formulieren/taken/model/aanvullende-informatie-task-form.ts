@@ -6,12 +6,14 @@
 import { DestroyRef, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Validators } from "@angular/forms";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
+import { runQuery } from "../../../shared/http/run-query";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { OptionValue } from "../taak.utils";
@@ -28,10 +30,11 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
   );
   private readonly klantenService = inject(KlantenService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly queryClient = inject(QueryClient);
 
   async requestForm(
     zaak: GeneratedType<"RestZaak">,
-    planItem?: GeneratedType<"RESTPlanItem">,
+    planItem?: GeneratedType<"RestPlanItem">,
   ): Promise<FormField[]> {
     const replyToControl = this.formBuilder.control<string | null>(null);
     replyToControl.disable();
@@ -57,7 +60,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       });
 
     const defaultAfzender = afzendersVoorZaakOptions.find(
-      ({ defaultMail }) => defaultMail,
+      ({ isDefaultMail }) => isDefaultMail,
     );
 
     verzenderControl.setValue(defaultAfzender ?? null);
@@ -160,10 +163,12 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       {
         type: "documents",
         key: "bijlagen",
-        options:
+        options: runQuery(
+          this.queryClient,
           this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
             zaakUUID: zaak.uuid,
           }),
+        ),
       },
       {
         type: "date",
@@ -283,11 +288,11 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
   }
 
   private isZaakSuspendable(zaak: GeneratedType<"RestZaak">) {
-    if (!zaak.zaaktype.opschortingMogelijk) return false;
+    if (!zaak.zaaktype.isOpschortingMogelijk) return false;
     if (zaak.redenOpschorting) return false;
     if (zaak.isHeropend) return false;
-    if (!zaak.rechten.behandelen) return false;
-    if (zaak.eerdereOpschorting) return false;
+    if (!zaak.rechten.canBehandelen) return false;
+    if (zaak.hasEerdereOpschorting) return false;
 
     return true;
   }
@@ -301,7 +306,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       moment(zaak.uiterlijkeEinddatumAfdoening);
 
     if (!fatalZaakDate) {
-      return `msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg`;
+      return `msg.taak.aanvullende-informatie.fatale-datum-zaak.leeg`;
     }
 
     const suspendedTextSuffix = this.isZaakSuspendable(zaak)
@@ -309,23 +314,23 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       : ".opgeschort";
 
     if (!humanTaskDataFatalDate) {
-      return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
+      return `msg.taak.aanvullende-informatie.fatale-datum-taak.overig${suspendedTextSuffix}`;
     }
 
     if (moment(humanTaskDataFatalDate).isAfter(fatalZaakDate)) {
-      return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden${suspendedTextSuffix}`;
+      return `msg.taak.aanvullende-informatie.fatale-datum-taak.overschreden${suspendedTextSuffix}`;
     }
 
-    return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
+    return `msg.taak.aanvullende-informatie.fatale-datum-taak.overig${suspendedTextSuffix}`;
   }
 
   private toonHervatten(
     zaak: GeneratedType<"RestZaak">,
     taak: GeneratedType<"RestTask">,
   ) {
-    if (taak?.status === "AFGEROND" || !taak?.rechten.wijzigen) {
+    if (taak?.status === "AFGEROND" || !taak?.rechten.canWijzigen) {
       return taak.taakdata?.["zaakHervatten"] === "true";
     }
-    return Boolean(zaak.isOpgeschort && zaak.rechten.behandelen);
+    return Boolean(zaak.isOpgeschort && zaak.rechten.canBehandelen);
   }
 }

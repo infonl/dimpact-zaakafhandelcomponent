@@ -8,6 +8,7 @@ import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 import { fromPartial } from "../../../test-helpers";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { HttpParamsError } from "./http-client";
 import { QUERY_CLIENT } from "./query-client";
 
 describe("QUERY_CLIENT", () => {
@@ -15,11 +16,14 @@ describe("QUERY_CLIENT", () => {
   const error = new HttpErrorResponse({ status: 500 });
 
   beforeEach(() => {
+    jest.clearAllMocks();
     TestBed.configureTestingModule({
       providers: [
         {
           provide: FoutAfhandelingService,
-          useValue: fromPartial<FoutAfhandelingService>({ foutAfhandelen }),
+          useValue: fromPartial<FoutAfhandelingService>({
+            foutAfhandelen,
+          }),
         },
       ],
     });
@@ -78,5 +82,83 @@ describe("QUERY_CLIENT", () => {
     });
 
     expect(foutAfhandelen).not.toHaveBeenCalled();
+  });
+
+  it("reports nothing for a missing path parameter, since that is a programming error the user cannot act on", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+    const httpParamsError = new HttpParamsError("fakeMissingParameter");
+
+    await expect(
+      queryClient.fetchQuery({
+        queryKey: ["fakeEndpoint"],
+        queryFn: () => Promise.reject(httpParamsError),
+        retry: false,
+      }),
+    ).rejects.toBe(httpParamsError);
+
+    expect(foutAfhandelen).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it("reports nothing for a read that says it handles its own failure", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+
+    await expect(
+      queryClient.fetchQuery({
+        queryKey: ["fakeEndpoint"],
+        queryFn: () => Promise.reject(error),
+        retry: false,
+        meta: { reportErrors: false },
+      }),
+    ).rejects.toBe(error);
+
+    expect(foutAfhandelen).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it("only logs a failed refetch to the console, so a background poll neither closes a dialog the user is in nor interrupts them", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+    const queryKey = ["fakeEndpoint"];
+
+    await queryClient.fetchQuery({
+      queryKey,
+      queryFn: () => Promise.resolve("fakeResponse"),
+    });
+    await expect(
+      queryClient.fetchQuery({
+        queryKey,
+        queryFn: () => Promise.reject(error),
+        retry: false,
+        staleTime: 0,
+      }),
+    ).rejects.toBe(error);
+
+    expect(foutAfhandelen).not.toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith(error);
+  });
+
+  it("reports a refetch that fails because the session expired through the error handling, so the user is sent to log in", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+    const queryKey = ["fakeEndpoint"];
+    const loggedOut = new HttpErrorResponse({
+      status: 0,
+      url: "https://example.com/rest/fakeEndpoint",
+    });
+
+    await queryClient.fetchQuery({
+      queryKey,
+      queryFn: () => Promise.resolve("fakeResponse"),
+    });
+    await expect(
+      queryClient.fetchQuery({
+        queryKey,
+        queryFn: () => Promise.reject(loggedOut),
+        retry: false,
+        staleTime: 0,
+      }),
+    ).rejects.toBe(loggedOut);
+
+    expect(foutAfhandelen).toHaveBeenCalledWith(loggedOut);
+    expect(console.error).not.toHaveBeenCalled();
   });
 });

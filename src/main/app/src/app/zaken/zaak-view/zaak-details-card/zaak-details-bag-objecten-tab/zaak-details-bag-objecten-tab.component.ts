@@ -22,6 +22,7 @@ import {
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { ReadMoreComponent } from "../../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
@@ -32,6 +33,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styles: [":host { display: block; }"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     RouterLink,
     MatIcon,
     MatIconAnchor,
@@ -54,11 +56,11 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
 })
 export class ZaakDetailsBagObjectenTabComponent {
   readonly bagObjecten =
-    input.required<GeneratedType<"RESTBAGObjectGegevens">[]>();
+    input.required<GeneratedType<"RestBagObjectGegevens">[]>();
   readonly isOntkoppelenToegestaan = input(false);
 
   readonly bagObjectVerwijderen =
-    output<GeneratedType<"RESTBAGObjectGegevens">>();
+    output<GeneratedType<"RestBagObjectGegevens">>();
 
   protected bagObjectenColumns = [
     "identificatie",
@@ -68,7 +70,7 @@ export class ZaakDetailsBagObjectenTabComponent {
   ] as const;
 
   protected readonly dataSource = new MatTableDataSource<
-    GeneratedType<"RESTBAGObjectGegevens">
+    GeneratedType<"RestBagObjectGegevens">
   >([]);
 
   private readonly sort = viewChild.required(MatSort);
@@ -76,7 +78,7 @@ export class ZaakDetailsBagObjectenTabComponent {
   constructor() {
     this.dataSource.sortingDataAccessor = ({ bagObject }, sortHeaderId) =>
       String(
-        bagObject?.[sortHeaderId as keyof GeneratedType<"RESTBAGObject">] ?? "",
+        bagObject?.[sortHeaderId as keyof GeneratedType<"RestBagObject">] ?? "",
       );
 
     effect(() => {

@@ -36,6 +36,7 @@ class TaskHelper(
      * @param group the group under which to start the task.
      * @param waitForTaskToBeIndexed whether to wait until the created task is indexed and findable
      * before retrieving its ID.
+     * @param medewerker the medewerker to assign the task to, or null to assign it to the group only.
      * @param testUser the user performing the operation.
      * @return the ID of the created 'Aanvullende informatie' task.
      */
@@ -46,12 +47,14 @@ class TaskHelper(
         fatalDate: LocalDate,
         group: TestGroup,
         waitForTaskToBeIndexed: Boolean = false,
+        medewerker: TestUser? = null,
         testUser: TestUser
     ): String {
         val response = zacClient.startAanvullendeInformatieTaskForZaak(
             zaakUUID = zaakUuid,
             fatalDate = fatalDate,
             group = group,
+            medewerker = medewerker,
             testUser = testUser
         )
         response.code shouldBe HTTP_NO_CONTENT

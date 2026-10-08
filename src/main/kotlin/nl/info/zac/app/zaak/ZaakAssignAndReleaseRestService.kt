@@ -62,20 +62,14 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     fun assignFromList(@Valid restZakenVerdeelGegevens: RestZakenVerdeelGegevens) {
         // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
         // Checking the user's authorization for each task's zaaktype could improve this in the future.
-        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
+        assertPolicy(policyService.readWerklijstRechten().canZakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
         dispatcher.launchAsLoggedInUser(loggedInUserInstance) {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
-                group = restZakenVerdeelGegevens.groepId.let {
-                    identityService.readGroup(
-                        restZakenVerdeelGegevens.groepId
-                    )
-                },
-                user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let {
-                    identityService.readUser(it)
-                },
+                group = identityService.readGroup(restZakenVerdeelGegevens.groepId),
+                user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let(identityService::readUser),
                 screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
             )
         }
@@ -87,12 +81,12 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.toekennen)
+        assertPolicy(zaakRechten.canToekennen)
         zaakService.assignZaak(
-            zaak,
-            restZaakAssignmentData.groupId,
-            restZaakAssignmentData.assigneeUserName,
-            restZaakAssignmentData.reason
+            zaak = zaak,
+            groupId = restZaakAssignmentData.groupId,
+            userName = restZaakAssignmentData.assigneeUserName,
+            reason = restZaakAssignmentData.reason
         )
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
     }
@@ -105,12 +99,12 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.toekennen)
+        assertPolicy(zaakRechten.canToekennen)
         zaakService.assignZaak(
-            zaak,
-            restZaakAssignmentToLoggedInUserData.groupId,
-            loggedInUser.id,
-            restZaakAssignmentToLoggedInUserData.reason
+            zaak = zaak,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId,
+            userName = loggedInUser.id,
+            reason = restZaakAssignmentToLoggedInUserData.reason
         )
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
     }
@@ -122,10 +116,10 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     ): RestZaakOverzicht {
         val loggedInUser = loggedInUserInstance.get()
         // Checking the user's authorization for the zaak's zaaktype could improve this in the future.
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken)
+        assertPolicy(policyService.readWerklijstRechten().canZakenTaken)
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
+        assertPolicy(zaak.isOpen() && zaakRechten.canToekennen)
 
         zaakService.assignZaak(
             zaak = zaak,
@@ -144,7 +138,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     @PUT
     @Path("lijst/vrijgeven")
     fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RestZakenVrijgevenGegevens) {
-        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
+        assertPolicy(policyService.readWerklijstRechten().canZakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
         dispatcher.launchAsLoggedInUser(loggedInUserInstance) {
             zaakService.releaseZaken(

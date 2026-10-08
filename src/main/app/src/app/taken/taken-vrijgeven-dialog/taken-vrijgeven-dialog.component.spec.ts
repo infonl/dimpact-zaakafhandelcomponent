@@ -108,6 +108,14 @@ describe(TakenVrijgevenDialogComponent.name, () => {
     expect(vrijgevenButton()).toBeEnabled();
   });
 
+  it("renders the close button as a Material icon button", async () => {
+    await setup();
+
+    expect(screen.getByRole("button", { name: "actie.sluiten" })).toHaveClass(
+      "mat-mdc-icon-button",
+    );
+  });
+
   it("closes the dialog without releasing when the close button is used", async () => {
     await setup();
 

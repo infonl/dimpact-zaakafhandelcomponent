@@ -11,7 +11,7 @@ Feature: Zaken verdelen / vrijgeven
     And the page is done searching
     And there are at least 3 zaken
     When "Bob" selects that number of zaken
-    And "Bob" assigns the zaken to 'Test groep A' and Bob
+    And "Bob" assigns the zaken to group "Test groep A" and user "Bob"
     Then "Bob" gets a message confirming that the assigning of zaken is starting
     And after a while the snackbar disappears
 

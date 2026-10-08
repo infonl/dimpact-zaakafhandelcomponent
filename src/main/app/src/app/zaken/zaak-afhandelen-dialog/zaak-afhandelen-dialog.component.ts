@@ -33,10 +33,14 @@ import moment, { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { ZacQueryClient } from "../../shared/http/zac-query-client";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
@@ -47,6 +51,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-afhandelen-dialog.component.less"],
   standalone: true,
   imports: [
+    I18nKeyPipe,
     NgIf,
     NgFor,
     ReactiveFormsModule,
@@ -61,7 +66,10 @@ import { ZakenService } from "../zaken.service";
     MatProgressSpinnerModule,
     TranslateModule,
     StaticTextComponent,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    EmptyPipe,
+    ZacInput,
+    ZacDate,
   ],
 })
 export class ZaakAfhandelenDialogComponent {
@@ -70,12 +78,12 @@ export class ZaakAfhandelenDialogComponent {
   );
   public readonly data = inject(MAT_DIALOG_DATA) as {
     zaak: GeneratedType<"RestZaak">;
-    planItem?: GeneratedType<"RESTPlanItem">;
+    planItem?: GeneratedType<"RestPlanItem">;
   };
   private readonly formBuilder = inject(FormBuilder);
   private readonly zakenService = inject(ZakenService);
   private readonly mailtemplateService = inject(MailtemplateService);
-  private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly planItemsService = inject(PlanItemsService);
   private readonly translateService = inject(TranslateService);
 
   private sendMailDefault: boolean;
@@ -135,8 +143,7 @@ export class ZaakAfhandelenDialogComponent {
   );
 
   protected readonly planItemAfhandelenMutation = injectMutation(
-    () =>
-      this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
+    () => this.planItemsService.doUserEventListenerPlanItem(),
     {
       onSuccess: () => this.dialogRef.close(true),
       onError: () => this.dialogRef.close(false),
@@ -147,7 +154,7 @@ export class ZaakAfhandelenDialogComponent {
     effect(() => {
       const afzenders = this.afzendersQuery.data();
       this.form.controls.verzender.setValue(
-        afzenders?.find((afzender) => afzender.defaultMail) ?? null,
+        afzenders?.find((afzender) => afzender.isDefaultMail) ?? null,
       );
     });
 
@@ -188,7 +195,7 @@ export class ZaakAfhandelenDialogComponent {
     this.form.controls.resultaattype.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (value?.besluitVerplicht && !this.data.zaak.besluiten?.length) {
+        if (value?.isBesluitVerplicht && !this.data.zaak.besluiten?.length) {
           this.form.controls.toelichting.disable();
           this.form.controls.sendMail.disable();
           this.form.controls.verzender.disable();
@@ -200,7 +207,7 @@ export class ZaakAfhandelenDialogComponent {
           this.form.controls.ontvanger.enable();
         }
 
-        if (value?.datumKenmerkVerplicht) {
+        if (value?.isDatumKenmerkVerplicht) {
           this.brondatumLabel = value?.datumKenmerkOmschrijving;
         }
         this.form.controls.brondatum.updateValueAndValidity();
@@ -247,7 +254,7 @@ export class ZaakAfhandelenDialogComponent {
     });
   }
 
-  private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
+  private planItemAfhandelen(planItem: GeneratedType<"RestPlanItem">) {
     const { value } = this.form;
     const mailtemplate = this.mailtemplateQuery.data();
 
@@ -259,7 +266,7 @@ export class ZaakAfhandelenDialogComponent {
             ontvanger: value.ontvanger!,
             onderwerp: mailtemplate.onderwerp,
             body: mailtemplate.body,
-            createDocumentFromMail: true,
+            shouldCreateDocumentFromMail: true,
             vertrouwelijkheidaanduiding: "OPENBAAR",
           } satisfies GeneratedType<"RestMailGegevens">)
         : undefined;

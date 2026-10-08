@@ -51,7 +51,7 @@ class IndexingService @Inject constructor(
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
      * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
      */
-    private val dispatcher: CoroutineDispatcher
+    dispatcher: CoroutineDispatcher
 ) {
     companion object {
         const val SOLR_CORE = "zac"
@@ -201,10 +201,10 @@ class IndexingService @Inject constructor(
      */
     private fun reindexCombined(objectTypes: Set<ZoekObjectType>) {
         val reserved = mutableSetOf<ZoekObjectType>()
-        val allReserved = objectTypes.all { objectType ->
+        val areAllReserved = objectTypes.all { objectType ->
             reindexingViewfinder.add(objectType).also { added -> if (added) reserved += objectType }
         }
-        if (!allReserved) {
+        if (!areAllReserved) {
             reserved.forEach(reindexingViewfinder::remove)
             objectTypes.sorted().forEach(::reindexOrLogFailure)
             return
@@ -213,8 +213,8 @@ class IndexingService @Inject constructor(
             runAsSystemUser {
                 zaakGedrevenReindexService.reindex(
                     ReindexScope(
-                        includeTaken = ZoekObjectType.TAAK in objectTypes,
-                        includeDocumenten = ZoekObjectType.DOCUMENT in objectTypes
+                        shouldIncludeTaken = ZoekObjectType.TAAK in objectTypes,
+                        shouldIncludeDocumenten = ZoekObjectType.DOCUMENT in objectTypes
                     )
                 )
             }
@@ -284,7 +284,7 @@ class IndexingService @Inject constructor(
      */
     fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean): Boolean {
         val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
-        val zaakIndexed = reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
+        val isZaakIndexed = reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
             reindexSupportService.addToSolrIndex(
                 listOf(
                     reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
@@ -299,7 +299,7 @@ class IndexingService @Inject constructor(
                 .map { it.id }
                 .forEach { addOrUpdateTaak(it, zaakAutorisatieGegevens) }
         }
-        return zaakIndexed
+        return isZaakIndexed
     }
 
     /**

@@ -8,14 +8,14 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./vertrouwelijkaand
 describe("Vertrouwelijkaanduiding-to-translation-pipe", () => {
   it("should create the correct key values for all expected strings", () => {
     const results = [
-      "vertrouwelijkheidaanduiding.OPENBAAR",
-      "vertrouwelijkheidaanduiding.BEPERKT_OPENBAAR",
-      "vertrouwelijkheidaanduiding.INTERN",
-      "vertrouwelijkheidaanduiding.ZAAKVERTROUWELIJK",
-      "vertrouwelijkheidaanduiding.VERTROUWELIJK",
-      "vertrouwelijkheidaanduiding.CONFIDENTIEEL",
-      "vertrouwelijkheidaanduiding.GEHEIM",
-      "vertrouwelijkheidaanduiding.ZEER_GEHEIM",
+      "vertrouwelijkheidaanduiding.openbaar",
+      "vertrouwelijkheidaanduiding.beperkt-openbaar",
+      "vertrouwelijkheidaanduiding.intern",
+      "vertrouwelijkheidaanduiding.zaakvertrouwelijk",
+      "vertrouwelijkheidaanduiding.vertrouwelijk",
+      "vertrouwelijkheidaanduiding.confidentieel",
+      "vertrouwelijkheidaanduiding.geheim",
+      "vertrouwelijkheidaanduiding.zeer-geheim",
     ];
     const pipe = new VertrouwelijkaanduidingToTranslationKeyPipe();
 

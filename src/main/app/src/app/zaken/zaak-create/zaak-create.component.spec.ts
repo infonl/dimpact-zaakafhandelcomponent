@@ -6,7 +6,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -22,6 +21,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -29,7 +29,6 @@ import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-paramete
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -66,7 +65,6 @@ describe(ZaakCreateComponent.name, () => {
         ReferentieTabelService,
         UtilService,
         IdentityService,
-        provideHttpClient(),
         provideQueryClient(new QueryClient()),
       ],
       imports: [
@@ -74,7 +72,6 @@ describe(ZaakCreateComponent.name, () => {
         RouterModule.forRoot(routes),
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MaterialFormBuilderModule,
         MatHint,
         MatIcon,
         MatLabel,
@@ -342,7 +339,7 @@ describe(ZaakCreateComponent.name, () => {
         const selectFields = await loader.getAllHarnesses(MatSelectHarness);
         expect(selectFields.length).toEqual(2);
         expect(await selectFields[1].getValueText()).toBe(
-          "vertrouwelijkheidaanduiding.OPENBAAR",
+          "vertrouwelijkheidaanduiding.openbaar",
         );
       });
 
@@ -463,7 +460,7 @@ describe(ZaakCreateComponent.name, () => {
 
     it("hasBagObject() returns true when BAG objects are linked", () => {
       fixture.componentInstance["form"].controls.bagObjecten.setValue([
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: "Teststraat 1",
         }),
       ]);
@@ -472,7 +469,7 @@ describe(ZaakCreateComponent.name, () => {
 
     it("clears BAG objects when clearBagObjecten() is called", () => {
       fixture.componentInstance["form"].controls.bagObjecten.setValue([
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: "Teststraat 1",
         }),
       ]);
@@ -484,10 +481,10 @@ describe(ZaakCreateComponent.name, () => {
 
     it("bagDisplayValue() joins omschrijving values when total length ≤ 100", () => {
       const result = fixture.componentInstance["bagDisplayValue"]([
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: "Straat 1",
         }),
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: "Straat 2",
         }),
       ]);
@@ -497,10 +494,10 @@ describe(ZaakCreateComponent.name, () => {
     it("bagDisplayValue() returns translated count label when total length > 100", () => {
       const longOmschrijving = "A".repeat(60);
       const result = fixture.componentInstance["bagDisplayValue"]([
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: longOmschrijving,
         }),
-        fromPartial<GeneratedType<"RESTBAGObject">>({
+        fromPartial<GeneratedType<"RestBagObject">>({
           omschrijving: longOmschrijving,
         }),
       ]);
@@ -522,11 +519,11 @@ describe(ZaakCreateComponent.name, () => {
 
     it("sets activeSideAction and opens sidenav for BAG action", async () => {
       await fixture.componentInstance["openSideNav"](
-        "actie.bagObject.koppelen",
+        "actie.bag-object.koppelen",
       );
       fixture.detectChanges();
       expect(fixture.componentInstance["activeSideAction"]).toBe(
-        "actie.bagObject.koppelen",
+        "actie.bag-object.koppelen",
       );
       expect(fixture.componentInstance["actionsSidenav"].opened).toBe(true);
     });
@@ -535,18 +532,14 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["activeSideAction"] =
         "actie.initiator.koppelen";
       fixture.detectChanges();
-      expect(
-        fixture.nativeElement.querySelector("zac-klant-koppel"),
-      ).not.toBeNull();
+      expect(screen.getByText("actie.initiator.koppelen")).toBeInTheDocument();
     });
 
     it("renders zac-bag-zoek for BAG action", () => {
       fixture.componentInstance["activeSideAction"] =
-        "actie.bagObject.koppelen";
+        "actie.bag-object.koppelen";
       fixture.detectChanges();
-      expect(
-        fixture.nativeElement.querySelector("zac-bag-zoek"),
-      ).not.toBeNull();
+      expect(screen.getByText("actie.bag-object.koppelen")).toBeInTheDocument();
     });
   });
 
@@ -555,7 +548,7 @@ describe(ZaakCreateComponent.name, () => {
     afterEach(() => notifyManager.setScheduler((fn) => setTimeout(fn, 0)));
 
     it("includes selected BAG objects in the submit payload", () => {
-      const bagObject = fromPartial<GeneratedType<"RESTBAGObject">>({
+      const bagObject = fromPartial<GeneratedType<"RestBagObject">>({
         omschrijving: "Teststraat 1",
       });
 
@@ -596,7 +589,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: false,
+              isKvkKoppelenEnabled: false,
+            },
           },
         }),
       );
@@ -616,7 +612,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: true, kvkKoppelen: false },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: true,
+              isKvkKoppelenEnabled: false,
+            },
           },
         }),
       );
@@ -627,7 +626,10 @@ describe(ZaakCreateComponent.name, () => {
       fixture.componentInstance["form"].controls.zaaktype.setValue(
         fromPartial<GeneratedType<"RestZaaktype">>({
           zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: true },
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: false,
+              isKvkKoppelenEnabled: true,
+            },
           },
         }),
       );

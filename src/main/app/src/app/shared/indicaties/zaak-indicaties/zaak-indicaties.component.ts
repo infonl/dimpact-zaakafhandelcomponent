@@ -4,11 +4,14 @@
  */
 
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
-import { MaterialModule } from "../../material/material.module";
 import { IndicatieItem } from "../../model/indicatie-item";
+import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
@@ -17,33 +20,31 @@ import { IndicatiesComponent } from "../indicaties.component";
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
   standalone: true,
-  imports: [CommonModule, MaterialModule, TranslateModule],
+  imports: [
+    I18nKeyPipe,
+    CommonModule,
+    MatChipsModule,
+    MatIconModule,
+    MatTooltipModule,
+    TranslateModule,
+  ],
 })
-export class ZaakIndicatiesComponent
-  extends IndicatiesComponent
-  implements OnChanges
-{
-  @Input() zaakZoekObject?: ZaakZoekObject;
-  @Input() zaak?: GeneratedType<"RestZaak">;
+export class ZaakIndicatiesComponent extends IndicatiesComponent {
+  private readonly translateService = inject(TranslateService);
 
-  constructor(private translateService: TranslateService) {
-    super();
-  }
+  readonly zaakZoekObject = input<ZaakZoekObject>();
+  readonly zaak = input<GeneratedType<"RestZaak">>();
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.zaak = changes.zaak?.currentValue;
-    this.zaakZoekObject = changes.zaakZoekObject?.currentValue;
-    this.loadIndicaties();
-  }
+  protected readonly indicaties = computed(() => this.createIndicaties());
 
-  private loadIndicaties(): void {
-    this.indicaties = [];
+  private createIndicaties(): IndicatieItem[] {
+    const indicatieItems: IndicatieItem[] = [];
     const indicaties =
-      this.zaak?.indicaties ?? this.zaakZoekObject?.indicaties ?? [];
+      this.zaak()?.indicaties ?? this.zaakZoekObject()?.indicaties ?? [];
     indicaties.forEach((indicatie) => {
       switch (indicatie) {
         case "OPSCHORTING":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "pause",
@@ -52,7 +53,7 @@ export class ZaakIndicatiesComponent
           );
           break;
         case "HEROPEND":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "restart_alt",
@@ -61,7 +62,7 @@ export class ZaakIndicatiesComponent
           );
           break;
         case "HOOFDZAAK":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "account_tree",
@@ -70,7 +71,7 @@ export class ZaakIndicatiesComponent
           );
           break;
         case "DEELZAAK":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "account_tree",
@@ -79,7 +80,7 @@ export class ZaakIndicatiesComponent
           );
           break;
         case "VERLENGD":
-          this.indicaties.push(
+          indicatieItems.push(
             new IndicatieItem(
               indicatie,
               "update",
@@ -88,32 +89,37 @@ export class ZaakIndicatiesComponent
           );
           break;
         case "ONTVANGSTBEVESTIGING_NIET_VERSTUURD":
-          this.indicaties.push(new IndicatieItem(indicatie, "unsubscribe"));
+          indicatieItems.push(new IndicatieItem(indicatie, "unsubscribe"));
           break;
       }
     });
+
+    return indicatieItems;
   }
 
   private getRedenOpschorting() {
     return (
-      this.zaakZoekObject?.redenOpschorting ?? this.zaak?.redenOpschorting ?? ""
+      this.zaakZoekObject()?.redenOpschorting ??
+      this.zaak()?.redenOpschorting ??
+      ""
     );
   }
 
   private getStatusToelichting() {
     return (
-      this.zaakZoekObject?.statusToelichting ??
-      this.zaak?.status?.toelichting ??
+      this.zaakZoekObject()?.statusToelichting ??
+      this.zaak()?.status?.toelichting ??
       ""
     );
   }
 
   private getDeelZaakToelichting(): string {
-    if (!this.zaak?.gerelateerdeZaken?.length) {
+    const gerelateerdeZaken = this.zaak()?.gerelateerdeZaken;
+    if (!gerelateerdeZaken?.length) {
       return "";
     }
 
-    const hoofdzaakID = this.zaak.gerelateerdeZaken.find(
+    const hoofdzaakID = gerelateerdeZaken.find(
       ({ relatieType }) => relatieType === "HOOFDZAAK",
     )?.identificatie;
 
@@ -123,11 +129,12 @@ export class ZaakIndicatiesComponent
   }
 
   private getHoofdzaakToelichting(): string {
-    if (!this.zaak?.gerelateerdeZaken?.length) {
+    const gerelateerdeZaken = this.zaak()?.gerelateerdeZaken;
+    if (!gerelateerdeZaken?.length) {
       return "";
     }
 
-    const deelzaken = this.zaak.gerelateerdeZaken.filter(
+    const deelzaken = gerelateerdeZaken.filter(
       ({ relatieType }) => relatieType === "DEELZAAK",
     );
 
@@ -141,6 +148,8 @@ export class ZaakIndicatiesComponent
   }
 
   private getRedenVerlenging() {
-    return this.zaakZoekObject?.redenVerlenging ?? this.zaak?.redenVerlenging;
+    return (
+      this.zaakZoekObject()?.redenVerlenging ?? this.zaak()?.redenVerlenging
+    );
   }
 }

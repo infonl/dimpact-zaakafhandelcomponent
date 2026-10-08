@@ -5,13 +5,13 @@
 
 import { NgIf, TitleCasePipe } from "@angular/common";
 import {
+  booleanAttribute,
   Component,
-  EventEmitter,
+  inject,
   input,
-  Input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -23,9 +23,13 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
-import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
+import { ZacInput } from "../../../shared/form/input/input";
+import { ZacSelect } from "../../../shared/form/select/select";
+import { runQuery } from "../../../shared/http/run-query";
+import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import {
   BSN_LENGTH,
   KVK_LENGTH,
@@ -33,6 +37,7 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { toI18nKey } from "../../../shared/utils/i18n-key";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { buildBedrijfRouteLink } from "../../bedrijf-route-link";
 import { KlantenService } from "../../klanten.service";
@@ -44,7 +49,9 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   styleUrls: ["./bedrijf-zoek.component.less"],
   standalone: true,
   imports: [
-    MaterialFormBuilderModule,
+    ZacSelect,
+    EmptyPipe,
+    ZacInput,
     ReactiveFormsModule,
     MatTableModule,
     MatSortModule,
@@ -57,9 +64,10 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   ],
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
-  @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
-  @Input() sideNav?: MatSidenav;
-  @Input() syncEnabled = false;
+  readonly bedrijf = output<GeneratedType<"RestBedrijf">>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
+  readonly sideNav = input<MatSidenav>();
+  readonly syncEnabled = input(false);
 
   protected blockSearch = input<boolean>(false);
 
@@ -79,6 +87,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     "NEVENVESTIGING",
     "RECHTSPERSOON",
   ] satisfies GeneratedType<"BedrijfType">[];
+  protected readonly typeLabel = toI18nKey;
   uuid = crypto.randomUUID();
   private readonly destroy$ = new Subject<void>();
 
@@ -113,6 +122,8 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     ]),
     type: this.formBuilder.control<GeneratedType<"BedrijfType"> | null>(null),
   });
+
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly klantenService: KlantenService,
@@ -158,7 +169,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (!this.syncEnabled) return;
+    if (!this.syncEnabled()) return;
 
     this.formCommunicationService.itemSelected$
       .pipe(takeUntil(this.destroy$))
@@ -174,21 +185,22 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     this.utilService.setLoading(true);
     this.bedrijven.data = [];
     const data = this.formGroup.value;
-    this.klantenService
-      .listBedrijven({
+    runQuery(
+      this.queryClient,
+      this.klantenService.listBedrijven({
         ...data,
         kvkNummer: data.kvkNummer ? String(data.kvkNummer) : null,
-      })
-      .subscribe((bedrijven) => {
-        this.bedrijven.data = bedrijven.resultaten ?? [];
-        this.foutmelding = bedrijven.foutmelding ?? undefined;
-        this.loading = false;
-        this.utilService.setLoading(false);
-      });
+      }),
+    ).subscribe((bedrijven) => {
+      this.bedrijven.data = bedrijven.resultaten ?? [];
+      this.foutmelding = bedrijven.foutmelding ?? undefined;
+      this.loading = false;
+      this.utilService.setLoading(false);
+    });
   }
 
   openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">) {
-    this.sideNav?.close();
+    this.sideNav()?.close();
     const link = buildBedrijfRouteLink(bedrijf);
     if (link) {
       void this.router.navigate(link);
@@ -199,7 +211,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     this.bedrijf.emit(bedrijf);
     this.wissen();
 
-    if (!this.syncEnabled) return;
+    if (!this.syncEnabled()) return;
     this.formCommunicationService.notifyItemSelected(this.uuid);
   }
 

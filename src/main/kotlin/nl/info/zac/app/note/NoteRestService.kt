@@ -42,14 +42,14 @@ class NoteRestService @Inject constructor(
     @GET
     @Path("/zaken/{uuid}")
     fun listNotes(@PathParam("uuid") zaakUUID: UUID): List<RestNote> {
-        assertPolicy(policyService.readNotitieRechten().lezen)
+        assertPolicy(policyService.readNotitieRechten().canLezen)
         return noteService.listNotesForZaak(zaakUUID)
             .map(noteConverter::toRestNote)
     }
 
     @POST
     fun createNote(restNote: RestNote): RestNote {
-        assertPolicy(policyService.readNotitieRechten().wijzigen)
+        assertPolicy(policyService.readNotitieRechten().canWijzigen)
         val notitie = noteService.createNote(restNote.toNote())
         eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(notitie.zaakUUID))
         return noteConverter.toRestNote(notitie)
@@ -57,7 +57,7 @@ class NoteRestService @Inject constructor(
 
     @PATCH
     fun updateNote(restNote: RestNote): RestNote {
-        assertPolicy(policyService.readNotitieRechten().wijzigen)
+        assertPolicy(policyService.readNotitieRechten().canWijzigen)
         val updatedNotitie = noteService.updateNote(restNote.toNote())
         eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(updatedNotitie.zaakUUID))
         return noteConverter.toRestNote(updatedNotitie)
@@ -66,7 +66,7 @@ class NoteRestService @Inject constructor(
     @DELETE
     @Path("{id}")
     fun deleteNote(@PathParam("id") id: Long) {
-        assertPolicy(policyService.readNotitieRechten().wijzigen)
+        assertPolicy(policyService.readNotitieRechten().canWijzigen)
         noteService.deleteNote(id)?.let {
             eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(it.zaakUUID))
         }

@@ -29,10 +29,12 @@ enum class ErrorCode(val value: String) {
     ),
     ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS("msg.error.reference.table.with.same.code.already.exists"),
     ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION(
-        "msg.error.reference.table.is.in.use.by.zaaktypeCmmnConfiguration"
+        "msg.error.reference.table.is.in.use.by.zaaktype-cmmn-configuration"
     ),
     ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED("msg.error.system.reference.table.cannot.be.deleted"),
+    ERROR_CODE_SYSTEM_REFERENCE_TABLE_NOT_CONFIGURED("msg.error.system.reference.table.not.configured"),
     ERROR_CODE_ZRC_CLIENT("msg.error.zrc.client.exception"),
+    ERROR_CODE_ZAAK_GEOMETRIE_NOT_SUPPORTED("msg.error.zaak.geometrie.not-supported"),
     ERROR_CODE_ZTC_CLIENT("msg.error.ztc.client.exception"),
     ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED("msg.error.smartdocuments.not.configured"),
     ERROR_CODE_SMARTDOCUMENTS_DISABLED("msg.error.smartdocuments.disabled"),
@@ -50,6 +52,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_CASE_CANNOT_HAVE_DUE_DATE("msg.error.case.cannot.have.due.date"),
     ERROR_CODE_ZAAK_WITH_BESLUIT_CANNOT_BE_TERMINATED("msg.error.zaak.has.besluit.cannot.be.terminated"),
     ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED("msg.error.case.betrokkene.not.allowed"),
+    ERROR_CODE_CASE_BETROKKENE_CANNOT_BE_DELETED("msg.error.case.betrokkene.cannot.be.deleted"),
     ERROR_CODE_CASE_EXPLANATION_REQUIRED("msg.error.case.explanation.required"),
     ERROR_CODE_SEARCH_INDEXING("msg.error.search.indexing.exception"),
     ERROR_CODE_SEARCH_SEARCH("msg.error.search.search.exception"),
@@ -73,7 +76,10 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_RELEASED(
         "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released"
     ),
-    ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED(
-        "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.reassigned"
+    ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND(
+        "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found"
     ),
+    ERROR_CODE_MAIL_TEMPLATE_NOT_CONFIGURED("msg.error.mailtemplate.not.configured"),
+    ERROR_CODE_CATALOGUS_NOT_CONFIGURED("msg.error.catalogus.not.configured"),
+    ERROR_CODE_OPA_RULE_NOT_CONFIGURED("msg.error.opa.rule.not.configured"),
 }

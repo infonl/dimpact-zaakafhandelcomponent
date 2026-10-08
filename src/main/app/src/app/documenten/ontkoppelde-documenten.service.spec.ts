@@ -17,6 +17,7 @@ import {
 import { testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
+import { PutBody } from "../shared/http/http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { OntkoppeldeDocumentenService } from "./ontkoppelde-documenten.service";
 
@@ -71,6 +72,22 @@ describe(OntkoppeldeDocumentenService.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.document.verwijderen.uitgevoerd",
         { document: "fakeDocumentTitel" },
+      );
+    });
+
+    it("marks every cached read of the detached documents stale, so that the werklijst re-reads instead of showing the deleted row", async () => {
+      const listQueryKey = service.list(
+        fromPartial<PutBody<"/rest/ontkoppeldedocumenten">>({ page: 0 }),
+      ).queryKey;
+      testQueryClient.setQueryData(listQueryKey, {});
+
+      await runMutationOnSuccess(
+        service.delete(),
+        fromPartial<GeneratedType<"RestDetachedDocument">>({ id: 42 }),
+      );
+
+      expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
+        true,
       );
     });
   });

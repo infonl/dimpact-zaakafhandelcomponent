@@ -11,9 +11,9 @@ import nl.info.client.klant.KlantClientService
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.ZaaktypeEmailParameters
+import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.app.klant.model.contactdetails.getPreferredDigitaalAdres
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService
@@ -47,18 +47,18 @@ class ProductaanvraagEmailService @Inject constructor(
         zaak: Zaak,
         betrokkene: Betrokkene?,
         productaanvraagSpecificEmailAddress: String?,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+        zaaktypeConfiguration: ZaaktypeConfiguration
     ) {
         LOG.fine {
             "Attempting to send automatic confirmation of receipt email for zaak with identification '${zaak.identificatie}' " +
                 "and zaaktype '${zaak.zaaktype}'."
         }
-        zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
+        zaaktypeConfiguration.zaaktypeEmailParameters?.takeIf { it.isEnabled }?.let { zaaktypeEmailParameters ->
             productaanvraagSpecificEmailAddress?.let { to ->
-                sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
+                sendConfirmationOfReceiptMail(zaaktypeEmailParameters, to, zaak)
             } ?: betrokkene?.let {
                 extractBetrokkeneEmail(it)?.let { to ->
-                    sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
+                    sendConfirmationOfReceiptMail(zaaktypeEmailParameters, to, zaak)
                 }
             } ?: {
                 LOG.fine {
@@ -96,13 +96,13 @@ class ProductaanvraagEmailService @Inject constructor(
     }
 
     private fun sendConfirmationOfReceiptMail(
-        zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
+        zaaktypeEmailParameters: ZaaktypeEmailParameters,
         to: String,
         zaakFromProductaanvraag: Zaak
     ) {
-        zaaktypeCmmnEmailParameters.templateName?.let { templateName ->
+        zaaktypeEmailParameters.templateName?.let { templateName ->
             mailTemplateService.findMailtemplateByName(templateName)?.let { mailTemplate ->
-                configureEmail(zaaktypeCmmnEmailParameters, to, mailTemplate)?.let { mailGegevens ->
+                configureEmail(zaaktypeEmailParameters, to, mailTemplate)?.let { mailGegevens ->
                     mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())?.also {
                         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
                     }
@@ -111,7 +111,7 @@ class ProductaanvraagEmailService @Inject constructor(
                         "Skipping automatic email confirmation."
                 )
             } ?: LOG.warning(
-                "No mail template found with name: '${zaaktypeCmmnEmailParameters.templateName}'. " +
+                "No mail template found with name: '${zaaktypeEmailParameters.templateName}'. " +
                     "Skipping automatic email confirmation."
             )
         } ?: LOG.warning(
@@ -121,14 +121,14 @@ class ProductaanvraagEmailService @Inject constructor(
     }
 
     private fun configureEmail(
-        zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
+        zaaktypeEmailParameters: ZaaktypeEmailParameters,
         to: String,
         mailTemplate: MailTemplate
-    ) = zaaktypeCmmnEmailParameters.emailSender?.let { emailSender ->
+    ) = zaaktypeEmailParameters.emailSender?.let { emailSender ->
         MailGegevens(
             from = emailSender.generateMailAddress(configurationService),
             to = MailAdres(email = to, name = null),
-            replyTo = zaaktypeCmmnEmailParameters.emailReply?.generateMailAddress(configurationService),
+            replyTo = zaaktypeEmailParameters.emailReply?.generateMailAddress(configurationService),
             subject = mailTemplate.onderwerp,
             body = mailTemplate.body,
             attachments = null,
@@ -139,7 +139,7 @@ class ProductaanvraagEmailService @Inject constructor(
 
     private fun String.generateMailAddress(configurationService: ConfigurationService) =
         when (this) {
-            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE.toString() -> MailAdres(
+            ZaaktypeZaakafzenderParameters.SpecialMail.GEMEENTE.toString() -> MailAdres(
                 email = configurationService.readGemeenteMail(),
                 name = configurationService.readGemeenteNaam()
             )

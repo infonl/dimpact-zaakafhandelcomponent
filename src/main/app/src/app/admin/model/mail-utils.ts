@@ -4,6 +4,7 @@
  */
 
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { toI18nKey } from "../../shared/utils/i18n-key";
 
 export function getBeschikbareMailtemplateKoppelingen() {
   return [
@@ -19,7 +20,7 @@ export function getBeschikbareMailtemplateKoppelingen() {
 
 export function mailSelectList() {
   return getBeschikbareMailtemplateKoppelingen().map((koppeling) => ({
-    label: `mail.${koppeling}`,
+    label: toI18nKey(`mail.${koppeling}`),
     value: koppeling,
   }));
 }

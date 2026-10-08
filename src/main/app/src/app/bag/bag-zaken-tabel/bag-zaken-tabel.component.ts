@@ -8,11 +8,12 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  Input,
-  OnChanges,
   OnInit,
   ViewChild,
+  effect,
   inject,
+  input,
+  untracked,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -64,10 +65,8 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
     EmptyPipe,
   ],
 })
-export class BagZakenTabelComponent
-  implements OnInit, AfterViewInit, OnChanges
-{
-  @Input({ required: true }) BagObjectIdentificatie!: string;
+export class BagZakenTabelComponent implements OnInit, AfterViewInit {
+  readonly BagObjectIdentificatie = input.required<string>();
   @ViewChild(MatPaginator) private paginator!: MatPaginator;
   @ViewChild(MatSort) private sort!: MatSort;
   protected dataSource = new MatTableDataSource<ZaakZoekObject>();
@@ -94,15 +93,24 @@ export class BagZakenTabelComponent
   constructor(
     private readonly utilService: UtilService,
     private readonly zoekenService: ZoekenService,
-  ) {}
+  ) {
+    effect(() => {
+      this.BagObjectIdentificatie();
+      untracked(() => {
+        if (this.init) {
+          this.filtersChanged();
+        }
+      });
+    });
+  }
 
   ngOnInit() {
     this.zoekParameters.type = "ZAAK";
-    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
+    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie();
   }
 
   private loadZaken() {
-    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
+    this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie();
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.sorteerRichting = this.sort.direction;
     this.zoekParameters.sorteerVeld = this.sort
@@ -115,6 +123,8 @@ export class BagZakenTabelComponent
       this.zoekenService.list(this.zoekParameters),
     ) as Observable<ZoekResultaat<ZaakZoekObject>>;
   }
+
+  private lastLoadedPageIndex = 0;
 
   ngAfterViewInit() {
     this.init = true;
@@ -135,8 +145,12 @@ export class BagZakenTabelComponent
         }),
       )
       .subscribe((zoekResultaat) => {
-        if (!zoekResultaat) return;
+        if (!zoekResultaat) {
+          this.paginator.pageIndex = this.lastLoadedPageIndex;
+          return;
+        }
 
+        this.lastLoadedPageIndex = this.paginator.pageIndex;
         this.zoekResultaat = zoekResultaat;
         this.paginator.length = zoekResultaat.totaal;
         this.dataSource.data = zoekResultaat.resultaten;
@@ -146,11 +160,5 @@ export class BagZakenTabelComponent
   protected filtersChanged() {
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
-  }
-
-  ngOnChanges() {
-    if (this.init) {
-      this.filtersChanged();
-    }
   }
 }

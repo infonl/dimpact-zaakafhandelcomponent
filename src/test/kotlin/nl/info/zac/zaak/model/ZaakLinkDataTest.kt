@@ -7,6 +7,8 @@ package nl.info.zac.zaak.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import java.util.UUID
 
 class ZaakLinkDataTest : BehaviorSpec({
@@ -17,10 +19,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = true)
 
             `when`("canBeRelated is called") {
-                val result = from.canBeRelatedTo(to)
+                val canBeRelated = from.canBeRelatedTo(to)
 
                 then("it should return true") {
-                    result shouldBe true
+                    canBeRelated shouldBe true
                 }
             }
         }
@@ -30,10 +32,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = true)
 
             `when`("canBeRelated is called") {
-                val result = from.canBeRelatedTo(to)
+                val canBeRelated = from.canBeRelatedTo(to)
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeRelated shouldBe false
                 }
             }
         }
@@ -43,10 +45,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = false)
 
             `when`("canBeRelated is called") {
-                val result = from.canBeRelatedTo(to)
+                val canBeRelated = from.canBeRelatedTo(to)
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeRelated shouldBe false
                 }
             }
         }
@@ -60,10 +62,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID)
 
             `when`("canBeHoofdAndDeelzaak is called") {
-                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
+                val canBeHoofdzaak = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 then("it should return true") {
-                    result shouldBe true
+                    canBeHoofdzaak shouldBe true
                 }
             }
         }
@@ -73,10 +75,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID)
 
             `when`("canBeHoofdAndDeelzaak is called") {
-                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
+                val canBeHoofdzaak = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeHoofdzaak shouldBe false
                 }
             }
         }
@@ -86,10 +88,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID)
 
             `when`("canBeHoofdAndDeelzaak is called") {
-                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
+                val canBeHoofdzaak = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeHoofdzaak shouldBe false
                 }
             }
         }
@@ -99,10 +101,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID, koppelen = false)
 
             `when`("canBeHoofdAndDeelzaak is called") {
-                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
+                val canBeHoofdzaak = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeHoofdzaak shouldBe false
                 }
             }
         }
@@ -112,10 +114,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID, isHoofdzaak = true)
 
             `when`("canBeHoofdAndDeelzaak is called") {
-                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
+                val canBeHoofdzaak = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeHoofdzaak shouldBe false
                 }
             }
         }
@@ -125,10 +127,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID, isDeelzaak = true)
 
             `when`("canBeHoofdAndDeelzaak is called") {
-                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
+                val canBeHoofdzaak = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeHoofdzaak shouldBe false
                 }
             }
         }
@@ -138,10 +140,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID, isOpen = false)
 
             `when`("canBeHoofdAndDeelzaak is called") {
-                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
+                val canBeHoofdzaak = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeHoofdzaak shouldBe false
                 }
             }
         }
@@ -151,10 +153,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData()
 
             `when`("canBeHoofdAndDeelzaak is called") {
-                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
+                val canBeHoofdzaak = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeHoofdzaak shouldBe false
                 }
             }
         }
@@ -166,10 +168,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(koppelen = true)
 
             `when`("hoofdAndDeelzaakCanBeOntkoppeld is called") {
-                val result = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
+                val canBeUnlinked = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
 
                 then("it should return true") {
-                    result shouldBe true
+                    canBeUnlinked shouldBe true
                 }
             }
         }
@@ -179,10 +181,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(koppelen = true)
 
             `when`("hoofdAndDeelzaakCanBeOntkoppeld is called") {
-                val result = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
+                val canBeUnlinked = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeUnlinked shouldBe false
                 }
             }
         }
@@ -192,10 +194,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(koppelen = false)
 
             `when`("hoofdAndDeelzaakCanBeOntkoppeld is called") {
-                val result = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
+                val canBeUnlinked = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeUnlinked shouldBe false
                 }
             }
         }
@@ -207,10 +209,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = true)
 
             `when`("relatedZakenCanBeOntkoppeld is called") {
-                val result = from.canBeUnlinkedFromRelatedZaak(to)
+                val canBeUnlinked = from.canBeUnlinkedFromRelatedZaak(to)
 
                 then("it should return true") {
-                    result shouldBe true
+                    canBeUnlinked shouldBe true
                 }
             }
         }
@@ -220,10 +222,10 @@ class ZaakLinkDataTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = true)
 
             `when`("relatedZakenCanBeOntkoppeld is called") {
-                val result = from.canBeUnlinkedFromRelatedZaak(to)
+                val canBeUnlinked = from.canBeUnlinkedFromRelatedZaak(to)
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeUnlinked shouldBe false
                 }
             }
         }
@@ -233,10 +235,253 @@ class ZaakLinkDataTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = false)
 
             `when`("relatedZakenCanBeOntkoppeld is called") {
-                val result = from.canBeUnlinkedFromRelatedZaak(to)
+                val canBeUnlinked = from.canBeUnlinkedFromRelatedZaak(to)
 
                 then("it should return false") {
-                    result shouldBe false
+                    canBeUnlinked shouldBe false
+                }
+            }
+        }
+    }
+    context("statusNotLinkableReason") {
+        given("a zaak that is open and a found zaak that is closed") {
+            val zaak = createZaakLinkData(isOpen = true)
+            val foundZaak = createZaakLinkData(isOpen = false)
+
+            `when`("the status reason is determined") {
+                val reason = zaak.statusNotLinkableReason(foundZaak)
+
+                then("a closed zaak cannot be linked to an open zaak") {
+                    reason shouldBe ZaakNotLinkableReason.AFGEHANDELD
+                }
+            }
+        }
+
+        given("a zaak that is closed and a found zaak that is open") {
+            val zaak = createZaakLinkData(isOpen = false)
+            val foundZaak = createZaakLinkData(isOpen = true)
+
+            `when`("the status reason is determined") {
+                val reason = zaak.statusNotLinkableReason(foundZaak)
+
+                then("an open zaak cannot be linked to a closed zaak") {
+                    reason shouldBe ZaakNotLinkableReason.OPEN
+                }
+            }
+        }
+
+        given("two zaken that are both open") {
+            val zaak = createZaakLinkData(isOpen = true)
+            val foundZaak = createZaakLinkData(isOpen = true)
+
+            `when`("the status reason is determined") {
+                val reason = zaak.statusNotLinkableReason(foundZaak)
+
+                then("the status does not block the link") {
+                    reason shouldBe null
+                }
+            }
+        }
+
+        given("two zaken that are both closed") {
+            val zaak = createZaakLinkData(isOpen = false)
+            val foundZaak = createZaakLinkData(isOpen = false)
+
+            `when`("the status reason is determined") {
+                val reason = zaak.statusNotLinkableReason(foundZaak)
+
+                then("the status does not block the link") {
+                    reason shouldBe null
+                }
+            }
+        }
+    }
+
+    context("hoofdzaakDeelzaakNotLinkableReason") {
+        val deelzaaktypeUUID = UUID.randomUUID()
+
+        given("a hoofdzaak that is a deelzaak itself") {
+            val hoofdzaak = createZaakLinkData(isDeelzaak = true)
+            val deelzaak = createZaakLinkData(zaaktypeUUID = deelzaaktypeUUID)
+
+            `when`("the reason is determined") {
+                val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
+
+                then("a deelzaak cannot be a hoofdzaak") {
+                    reason shouldBe ZaakNotLinkableReason.IS_DEELZAAK
+                }
+            }
+        }
+
+        given("a deelzaak that is already a deelzaak of another zaak") {
+            val hoofdzaak = createZaakLinkData()
+            val deelzaak = createZaakLinkData(zaaktypeUUID = deelzaaktypeUUID, isDeelzaak = true)
+
+            `when`("the reason is determined") {
+                val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
+
+                then("a zaak cannot be a deelzaak of two hoofdzaken") {
+                    reason shouldBe ZaakNotLinkableReason.ALREADY_DEELZAAK
+                }
+            }
+        }
+
+        given("a deelzaak that has deelzaken of its own") {
+            val hoofdzaak = createZaakLinkData()
+            val deelzaak = createZaakLinkData(zaaktypeUUID = deelzaaktypeUUID, isHoofdzaak = true)
+
+            `when`("the reason is determined") {
+                val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
+
+                then("a hoofdzaak cannot become a deelzaak") {
+                    reason shouldBe ZaakNotLinkableReason.HAS_DEELZAKEN
+                }
+            }
+        }
+
+        given("a deelzaak whose zaaktype is not allowed by the hoofdzaak zaaktype") {
+            val hoofdzaak = createZaakLinkData()
+            val deelzaak = createZaakLinkData(zaaktypeUUID = UUID.randomUUID())
+
+            `when`("the reason is determined") {
+                val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
+
+                then("the zaaktype blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK
+                }
+            }
+        }
+
+        given("a deelzaak the user has no koppelen rights on") {
+            val hoofdzaak = createZaakLinkData()
+            val deelzaak = createZaakLinkData(zaaktypeUUID = deelzaaktypeUUID, koppelen = false)
+
+            `when`("the reason is determined") {
+                val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
+
+                then("the missing koppelen right blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
+                }
+            }
+        }
+
+        given("a deelzaak that has deelzaken of its own and whose zaaktype is not allowed either") {
+            val hoofdzaak = createZaakLinkData()
+            val deelzaak = createZaakLinkData(zaaktypeUUID = UUID.randomUUID(), isHoofdzaak = true)
+
+            `when`("the reason is determined") {
+                val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
+
+                then("the relation structure reason is reported before the zaaktype reason") {
+                    reason shouldBe ZaakNotLinkableReason.HAS_DEELZAKEN
+                }
+            }
+        }
+
+        given("a deelzaak whose zaaktype is not allowed and on which the user has no koppelen rights either") {
+            val hoofdzaak = createZaakLinkData()
+            val deelzaak = createZaakLinkData(zaaktypeUUID = UUID.randomUUID(), koppelen = false)
+
+            `when`("the reason is determined") {
+                val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
+
+                then("the zaaktype reason is reported before the authorisation reason") {
+                    reason shouldBe ZaakNotLinkableReason.ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK
+                }
+            }
+        }
+
+        given("a hoofdzaak and a deelzaak that can be linked") {
+            val hoofdzaak = createZaakLinkData()
+            val deelzaak = createZaakLinkData(zaaktypeUUID = deelzaaktypeUUID)
+
+            `when`("the reason is determined") {
+                val reason = hoofdzaak.hoofdzaakDeelzaakNotLinkableReason(deelzaak, setOf(deelzaaktypeUUID))
+
+                then("nothing blocks the link") {
+                    reason shouldBe null
+                }
+            }
+        }
+    }
+
+    context("gerelateerdNotLinkableReason") {
+        given("a current zaak the user has no koppelen rights on") {
+            val zaak = createZaakLinkData(koppelen = false)
+
+            `when`("the reason is determined") {
+                val reason = zaak.gerelateerdNotLinkableReason()
+
+                then("the missing koppelen right on the current zaak blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
+                }
+            }
+        }
+
+        given("a current zaak the user has koppelen rights on") {
+            val zaak = createZaakLinkData(koppelen = true)
+
+            `when`("the reason is determined") {
+                val reason = zaak.gerelateerdNotLinkableReason()
+
+                then("nothing blocks relating the zaken") {
+                    reason shouldBe null
+                }
+            }
+        }
+    }
+
+    context("alreadyGerelateerdReason") {
+        val foundZaak = createZaak()
+
+        given("a zaak that has the found zaak as gerelateerde zaak") {
+            val zaak = createZaak().apply {
+                addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = foundZaak.url })
+            }
+
+            `when`("the reason is determined") {
+                val reason = zaak.alreadyGerelateerdReason(foundZaak.uuid)
+
+                then("the existing relation blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.ALREADY_GERELATEERD
+                }
+            }
+        }
+
+        given("a zaak that has the found zaak as hoofdzaak") {
+            val zaak = createZaak(hoofdzaakUri = foundZaak.url)
+
+            `when`("the reason is determined") {
+                val reason = zaak.alreadyGerelateerdReason(foundZaak.uuid)
+
+                then("the existing relation blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.ALREADY_GERELATEERD
+                }
+            }
+        }
+
+        given("a zaak that has the found zaak as deelzaak") {
+            val zaak = createZaak(deelzaken = listOf(foundZaak.url))
+
+            `when`("the reason is determined") {
+                val reason = zaak.alreadyGerelateerdReason(foundZaak.uuid)
+
+                then("the existing relation blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.ALREADY_GERELATEERD
+                }
+            }
+        }
+
+        given("a zaak that is only related to other zaken") {
+            val zaak = createZaak(hoofdzaakUri = createZaak().url, deelzaken = listOf(createZaak().url)).apply {
+                addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = createZaak().url })
+            }
+
+            `when`("the reason is determined") {
+                val reason = zaak.alreadyGerelateerdReason(foundZaak.uuid)
+
+                then("nothing blocks the link") {
+                    reason shouldBe null
                 }
             }
         }

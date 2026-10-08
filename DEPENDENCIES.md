@@ -5,17 +5,17 @@ This document lists the Docker images and versions that the corresponding versio
 ## Core Dependencies
 
 - **postgres**: 17.11
-- **keycloak**: 26.7.4
+- **keycloak**: 26.7.5
 - **postgis**: 17-3.4
 - **redis**: 8.6.7
-- **solr**: 9.10.1-slim
-- **openpolicyagent/opa**: 1.20.2-static
-- **brp-api/personen-mock**: 2.7.0-202609211606
+- **solr**: 9.11.0-slim
+- **openpolicyagent/opa**: 1.21.1-static
+- **brp-api/personen-mock**: 2.7.0-202610011328
 - **gotenberg**: 8.37.0
-- **otel/opentelemetry-collector-contrib**: 0.161.0
-- **grafana/tempo**: 3.0.3
-- **prom/prometheus**: v3.14.0
-- **grafana/grafana**: 13.2.2
+- **otel/opentelemetry-collector-contrib**: 0.162.0
+- **grafana/tempo**: 3.1.0
+- **prom/prometheus**: v3.15.0
+- **grafana/grafana**: 13.2.3
 - **greenmail/standalone**: 2.1.14
 - **nginxinc/nginx-unprivileged**: 1.31.6
 
@@ -27,8 +27,8 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-forms**: 3.5.9
 - **open-notificaties**: 1.16.2
 - **open-archiefbeheer**: 2.0.0
-- **pabc-migrations**: 2.0.0-prerelease
-- **pabc-api**: 2.0.0-prerelease
+- **pabc-migrations**: 2.1.0-prerelease
+- **pabc-api**: 2.1.0-prerelease
 
 ## Update Process
 

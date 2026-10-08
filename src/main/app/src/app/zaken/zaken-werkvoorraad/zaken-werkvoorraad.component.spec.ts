@@ -3,27 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Data, provideRouter } from "@angular/router";
+import { ActivatedRoute, Data } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { TabelGegevens } from "../../shared/dynamic-table/model/tabel-gegevens";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
@@ -41,8 +34,8 @@ describe(ZakenWerkvoorraadComponent.name, () => {
     aantalPerPagina: 10,
     pageSizeOptions: [10, 25, 50],
     werklijstRechten: fromPartial<GeneratedType<"RestWerklijstRechten">>({
-      zakenTakenVerdelen: true,
-      zakenTakenExporteren: true,
+      canZakenTakenVerdelen: true,
+      canZakenTakenExporteren: true,
     }),
   };
 
@@ -60,15 +53,11 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       {
         imports: [NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
-          provideRouter([]),
           {
             provide: ActivatedRoute,
             useValue: mockActivatedRoute,
           },
-          provideHttpClient(withInterceptorsFromDi()),
-          provideHttpClientTesting(),
           provideNativeDateAdapter(),
-          provideQueryClient(testQueryClient),
         ],
       },
     );
@@ -97,7 +86,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         await setup();
         const zaakZoekObject = fromPartial<ZaakZoekObject>({
           id: "zaak1",
-          rechten: { toekennen: true },
+          rechten: { canToekennen: true },
           groepId: "groupA",
           behandelaarGebruikersnaam: user,
         });
@@ -110,7 +99,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       await setup();
       const zaakZoekObject = fromPartial<ZaakZoekObject>({
         id: "zaak-no-assign",
-        rechten: { toekennen: false },
+        rechten: { canToekennen: false },
         groepId: "groupA",
         behandelaarGebruikersnaam: "user2",
       });
@@ -125,7 +114,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       );
       const zaakZoekObject = fromPartial<ZaakZoekObject>({
         id: "zaak-no-user",
-        rechten: { toekennen: true },
+        rechten: { canToekennen: true },
         groepId: "groupA",
         behandelaarGebruikersnaam: "user2",
       });
@@ -136,7 +125,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       await setup();
       const zaakZoekObject = fromPartial<ZaakZoekObject>({
         id: "zaak-other-group",
-        rechten: { toekennen: true },
+        rechten: { canToekennen: true },
         groepId: "groupC",
         behandelaarGebruikersnaam: "user2",
       });
@@ -152,7 +141,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         groepId: "groupA",
         behandelaarNaam: "",
         behandelaarGebruikersnaam: "",
-        rechten: { toekennen: true },
+        rechten: { canToekennen: true },
       });
 
     async function showZaak(zaak: ZaakZoekObject) {
@@ -232,13 +221,13 @@ describe(ZakenWerkvoorraadComponent.name, () => {
   describe("selection", () => {
     const mockZaak1 = fromPartial<ZaakZoekObject>({
       id: "zaak1",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
     });
 
     const mockZaak2 = fromPartial<ZaakZoekObject>({
       id: "zaak2",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
       behandelaarNaam: "Other User",
       behandelaarGebruikersnaam: "user2",
@@ -362,29 +351,38 @@ describe(ZakenWerkvoorraadComponent.name, () => {
   describe("skipped zaken in a batch verdelen or vrijgeven", () => {
     const geautoriseerdeZaak = fromPartial<ZaakZoekObject>({
       id: "zaak-geautoriseerd",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
       behandelaarGebruikersnaam: "user2",
       isZaakspecifiekGeautoriseerd: true,
     });
     const tweedeGeautoriseerdeZaak = fromPartial<ZaakZoekObject>({
       id: "zaak-geautoriseerd-2",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
       behandelaarGebruikersnaam: "user2",
       isZaakspecifiekGeautoriseerd: true,
     });
     const gewoneZaak = fromPartial<ZaakZoekObject>({
       id: "zaak-gewoon",
-      rechten: { toekennen: true },
+      rechten: { canToekennen: true },
       groepId: "groupA",
       behandelaarGebruikersnaam: "user2",
     });
 
+    const groepZonderBehandelaar = { groep: { id: "groupA" } };
+    const groepMetBehandelaar = {
+      groep: { id: "groupA" },
+      medewerker: { id: "user3", naam: "Derde Gebruiker" },
+    };
+
     let openSnackbar: jest.SpyInstance;
+    let showProgress: jest.SpyInstance;
     let dialogData: ZaakZoekObject[] | undefined;
 
-    async function setupWithMockedBatchProcess() {
+    async function setupWithMockedBatchProcess(
+      dialogResult: unknown = groepZonderBehandelaar,
+    ) {
       await setup();
       openSnackbar = jest
         .spyOn(TestBed.inject(UtilService), "openSnackbar")
@@ -395,7 +393,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       jest
         .spyOn(component["batchProcessService"], "update")
         .mockImplementation(() => undefined);
-      jest
+      showProgress = jest
         .spyOn(component["batchProcessService"], "showProgress")
         .mockImplementation(() => undefined);
       jest
@@ -403,18 +401,27 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         .mockImplementation((_component, config) => {
           dialogData = config?.data as ZaakZoekObject[];
           return fromPartial<MatDialogRef<unknown>>({
-            beforeClosed: () => of({ groep: { id: "groupA" } }),
+            beforeClosed: () => of(dialogResult),
           });
         });
     }
 
-    it("names only the zaakspecifiek geautoriseerde reason when that is the only one", async () => {
+    it("hands a zaakspecifiek geautoriseerde zaak over when the dialog returns a behandelaar", async () => {
+      await setupWithMockedBatchProcess(groepMetBehandelaar);
+      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
+
+      component["openVerdelenScherm"]();
+
+      expect(dialogData).toEqual([geautoriseerdeZaak, gewoneZaak]);
+      expect(openSnackbar).not.toHaveBeenCalled();
+    });
+
+    it("names only the zaakspecifiek geautoriseerde reason when the dialog returns no behandelaar", async () => {
       await setupWithMockedBatchProcess();
       component["selection"].select(geautoriseerdeZaak, gewoneZaak);
 
       component["openVerdelenScherm"]();
 
-      expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
         "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud",
         { aantal: 1 },
@@ -432,11 +439,34 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
       component["openVerdelenScherm"]();
 
-      expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).toHaveBeenCalledWith(
         "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.meervoud",
         { aantal: 2 },
         8,
+      );
+    });
+
+    it("counts a handed-over zaakspecifiek geautoriseerde zaak in the progress message", async () => {
+      await setupWithMockedBatchProcess(groepMetBehandelaar);
+      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
+
+      component["openVerdelenScherm"]();
+
+      expect(showProgress).toHaveBeenCalledWith(
+        "msg.verdeeld.zaken",
+        expect.anything(),
+      );
+    });
+
+    it("leaves a skipped zaakspecifiek geautoriseerde zaak out of the progress message", async () => {
+      await setupWithMockedBatchProcess();
+      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
+
+      component["openVerdelenScherm"]();
+
+      expect(showProgress).toHaveBeenCalledWith(
+        "msg.verdeeld.zaak",
+        expect.anything(),
       );
     });
 
@@ -462,6 +492,64 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
       expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).not.toHaveBeenCalled();
+    });
+
+    describe("when the batch has finished", () => {
+      const commitUrl =
+        "/rest/indexeren/commit-pending-changes-to-search-index";
+
+      async function finishBatch() {
+        await setupWithMockedBatchProcess();
+        const stop = jest
+          .spyOn(component["batchProcessService"], "stop")
+          .mockImplementation(() => undefined);
+        const load = jest
+          .spyOn(component["dataSource"], "load")
+          .mockImplementation(() => undefined);
+        component["selection"].select(gewoneZaak);
+        component["openVerdelenScherm"]();
+
+        const [{ finally: onBatchFinished }] = jest.mocked(
+          component["batchProcessService"].subscribe,
+        ).mock.calls[0];
+        const finished = Promise.resolve(onBatchFinished());
+        await sleep();
+
+        return { stop, load, finished };
+      }
+
+      it("reloads the zaken only after the pending changes are committed to the search index", async () => {
+        const { stop, load, finished } = await finishBatch();
+
+        const request = httpTestingController.expectOne(commitUrl);
+        expect(request.request.method).toBe("POST");
+        expect(load).not.toHaveBeenCalled();
+        expect(stop).not.toHaveBeenCalled();
+
+        request.flush(null);
+        await finished;
+
+        expect(load).toHaveBeenCalledWith(5_000);
+        expect(stop).toHaveBeenCalled();
+        expect(component["selection"].isEmpty()).toBe(true);
+        expect(component["zakenLoading"]()).toBe(false);
+      });
+
+      it("leaves the zaken as they are when the commit to the search index fails", async () => {
+        const { stop, load, finished } = await finishBatch();
+        jest
+          .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+          .mockReturnValue(EMPTY);
+
+        httpTestingController
+          .expectOne(commitUrl)
+          .flush(null, { status: 500, statusText: "Server Error" });
+
+        await expect(finished).rejects.toBeDefined();
+        expect(load).not.toHaveBeenCalled();
+        expect(stop).not.toHaveBeenCalled();
+        expect(component["selection"].isEmpty()).toBe(false);
+      });
     });
   });
 });

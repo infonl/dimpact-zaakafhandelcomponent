@@ -49,7 +49,7 @@ fun <T> createAuditTrailRegel(
 )
 
 @Suppress("LongParameterList")
-fun createZRCAuditTrailRegel(
+fun createZrcAuditTrailRegel(
     uri: URI = URI("https://example.com/resource"),
     uuid: UUID = UUID.randomUUID(),
     bron: Bron,
@@ -67,22 +67,22 @@ fun createZRCAuditTrailRegel(
     resourceWeergave: String = "123443210 - ZAAK-2024-0000000003",
     aanmaakdatum: ZonedDateTime = ZonedDateTime.now(),
     wijzigingen: Wijzigingen
-) = ZRCAuditTrailRegel(
-    uri,
-    uuid,
-    bron,
-    applicatieId,
-    applicatieWeergave,
-    gebruikersId,
-    gebruikersWeergave,
-    actie,
-    actieWeergave,
-    resultaat,
-    hoofdObject,
-    resource,
-    resourceUrl,
-    toelichting,
-    resourceWeergave,
-    aanmaakdatum,
-    wijzigingen
+) = ZrcAuditTrailRegel(
+    url = uri,
+    uuid = uuid,
+    bron = bron,
+    applicatieId = applicatieId,
+    applicatieWeergave = applicatieWeergave,
+    gebruikersId = gebruikersId,
+    gebruikersWeergave = gebruikersWeergave,
+    actie = actie,
+    actieWeergave = actieWeergave,
+    resultaat = resultaat,
+    hoofdObject = hoofdObject,
+    resource = resource,
+    resourceUrl = resourceUrl,
+    toelichting = toelichting,
+    resourceWeergave = resourceWeergave,
+    aanmaakdatum = aanmaakdatum,
+    wijzigingen = wijzigingen
 )

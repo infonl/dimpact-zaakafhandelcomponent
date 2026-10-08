@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -19,15 +19,16 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
+import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -49,13 +50,19 @@ import { ZakenService } from "../zaken.service";
     ZacDate,
     ZacTextarea,
     ZacFormActions,
-    MaterialFormBuilderModule,
+    ZacDocuments,
   ],
 })
 export class BesluitCreateComponent implements OnInit {
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() besluitVastgelegd = new EventEmitter<boolean>();
+  readonly zaak = input.required<GeneratedType<"RestZaak">>();
+  readonly sideNav = input.required<MatDrawer>();
+  readonly besluitVastgelegd = output<boolean>();
+
+  private readonly zakenService = inject(ZakenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly formBuilder = inject(FormBuilder);
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   protected besluittypes: GeneratedType<"RestBesluitType">[] = [];
@@ -93,12 +100,9 @@ export class BesluitCreateComponent implements OnInit {
     },
   );
 
-  constructor(
-    private readonly zakenService: ZakenService,
-    private readonly utilService: UtilService,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly formBuilder: FormBuilder,
-  ) {
+  private readonly queryClient = inject(QueryClient);
+
+  constructor() {
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -125,19 +129,20 @@ export class BesluitCreateComponent implements OnInit {
       .subscribe((value) => {
         if (!value) return;
 
-        this.informatieObjectenService
-          .listEnkelvoudigInformatieobjecten({
-            zaakUUID: this.zaak.uuid,
+        runQuery(
+          this.queryClient,
+          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+            zaakUUID: this.zaak().uuid,
             besluittypeUUID: value.id,
-          })
-          .subscribe((documents) => {
-            this.documents = documents;
-          });
+          }),
+        ).subscribe((documents) => {
+          this.documents = documents;
+        });
 
         this.form.controls.publicationEnabled.setValue(
-          value.publication.enabled ?? null,
+          value.publication.isEnabled ?? null,
         );
-        if (!value.publication.enabled) return;
+        if (!value.publication.isEnabled) return;
         this.setUiterlijkereactiedatum(
           moment(),
           value.publication.responseTermDays,
@@ -184,13 +189,13 @@ export class BesluitCreateComponent implements OnInit {
 
   ngOnInit() {
     this.zakenService
-      .listResultaattypes(this.zaak.zaaktype.uuid)
+      .listResultaattypes(this.zaak().zaaktype.uuid)
       .subscribe((resultaattypes) => {
         this.resultaattypes = resultaattypes;
       });
 
     this.zakenService
-      .listBesluittypes(this.zaak.zaaktype.uuid)
+      .listBesluittypes(this.zaak().zaaktype.uuid)
       .subscribe((besluittypes) => {
         this.besluittypes = besluittypes;
       });
@@ -201,7 +206,7 @@ export class BesluitCreateComponent implements OnInit {
 
     this.createBesluitMutation.mutate({
       ...value,
-      zaakUuid: this.zaak.uuid,
+      zaakUuid: this.zaak().uuid,
       besluittypeUuid: value.besluit!.id,
       ingangsdatum: value.ingangsdatum?.toISOString(),
       vervaldatum: value.vervaldatum?.toISOString(),

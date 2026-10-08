@@ -327,6 +327,8 @@ testing {
                         // mirror previous behavior
                         useJUnitPlatform()
                         systemProperty("zacDockerImage", zacDockerImage)
+                        // the migration tests run Flyway in a container with the Flyway version that ZAC uses
+                        systemProperty("flywayVersion", libs.versions.flyway.get())
                         // write the (very verbose) integration test log to a file instead of the console
                         // when the 'itestLogFile' Gradle property is set, as is done in CI
                         providers.gradleProperty("itestLogFile").orNull?.let { itestLogFile ->
@@ -651,9 +653,20 @@ tasks {
 
     withType<Detekt>().configureEach {
         config.setFrom("$rootDir/config/detekt.yml")
-        setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
         // our Detekt configuration build builds upon the default configuration
         buildUponDefaultConfig = true
+    }
+
+    // detektMain, detektTest and detektItest analyse the Kotlin source sets with type resolution, which rules such as
+    // UnsafeCallOnNullableType need to fire at all. The plain detekt task has no classpath, so it only covers the
+    // build script and runs the type resolution tasks for everything else.
+    named<Detekt>("detekt") {
+        setSource(files("build.gradle.kts"))
+        dependsOn("detektMain", "detektTest", "detektItest")
+    }
+
+    named<Detekt>("detektApply") {
+        setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
     }
 
     getByName("spotlessApply").finalizedBy(listOf("detektApply"))
@@ -903,6 +916,8 @@ tasks {
 
         inputs.files(fileTree("$appPath/node_modules"))
         inputs.files(fileTree("$appPath/src"))
+        inputs.files(fileTree("$appPath/fonts"))
+        inputs.files(fileTree("$appPath/scripts"))
         outputs.files(fileTree("$appPath/dist/zaakafhandelcomponent"))
         outputs.files(fileTree("$appPath/src/generated/types"))
         outputs.cacheIf { true }
