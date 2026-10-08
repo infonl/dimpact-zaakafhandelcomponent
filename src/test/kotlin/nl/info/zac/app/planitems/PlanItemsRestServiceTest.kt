@@ -28,6 +28,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.createResultaatType
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.FormulierDefinitie
@@ -72,6 +74,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val cmmnService = mockk<CmmnService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+    val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
     val planItemConverter = mockk<RestPlanItemConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val indexingService = mockk<IndexingService>()
@@ -89,6 +92,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         cmmnService,
         zrcClientService,
         zaaktypeConfigurationService,
+        resultaattypeReferenceService,
         planItemConverter,
         zgwApiService,
         indexingService,
@@ -862,6 +866,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns intakeAfrondenZaaktypeCmmnConfiguration
+            every {
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(intakeAfrondenZaaktypeCmmnConfiguration)
+            } returns createResultaatType(url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid"))
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every {
                 zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, resultaatToelichting)
@@ -945,6 +952,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns geenResultaattypeZaaktypeCmmnConfiguration
+            every {
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(geenResultaattypeZaaktypeCmmnConfiguration)
+            } returns null
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser

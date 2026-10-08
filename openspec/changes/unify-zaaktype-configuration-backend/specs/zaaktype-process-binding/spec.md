@@ -95,22 +95,20 @@ recently created one and SHALL log a warning.
 - **WHEN** ZAC receives a productaanvraag of type `P`
 - **THEN** no zaak is created, the productaanvraag is registered in the inbox, and a warning is logged
 
-### Requirement: BPMN confirmation email falls back to the configuration
+### Requirement: The automatic confirmation of receipt is CMMN only
 
-When a BPMN process sends a confirmation email, the system SHALL use the template, the sender, and the
-reply-to address that the process definition sets. For each of these values that the process definition does
-not set, the system SHALL use the confirmation email parameters of the zaaktype configuration. When neither
-source sets a template, or the configured confirmation email is disabled and the process definition sets no
-template, the system SHALL send no email.
+When ZAC creates a zaak from a productaanvraag, the system SHALL send the automatic confirmation of receipt only
+for a zaak of a CMMN zaaktype, as the confirmation email parameters of its configuration set. For a zaak of a BPMN
+zaaktype the system SHALL NOT send it; a BPMN process sends a confirmation email itself when it needs one, with
+the template and sender that its process definition sets.
 
-#### Scenario: Process definition sets the template
-- **GIVEN** a BPMN process definition whose confirmation email task sets template `T1`, and a zaaktype
-  configuration with confirmation template `T2`
-- **WHEN** the task runs
-- **THEN** the email uses template `T1`
+#### Scenario: Productaanvraag for a CMMN zaaktype with an enabled confirmation email
+- **GIVEN** a CMMN zaaktype configuration with productaanvraagtype `P` and an enabled confirmation email
+- **WHEN** ZAC receives a productaanvraag of type `P` whose initiator has an email address
+- **THEN** ZAC sends the confirmation of receipt to that address
 
-#### Scenario: Process definition sets no template
-- **GIVEN** a BPMN process definition whose confirmation email task sets no template, and a zaaktype
-  configuration with an enabled confirmation email that uses template `T2`
-- **WHEN** the task runs
-- **THEN** the email uses template `T2` and the configured sender and reply-to address
+#### Scenario: Productaanvraag for a BPMN zaaktype
+- **GIVEN** a BPMN zaaktype configuration with productaanvraagtype `P` and a process definition without a
+  confirmation email task
+- **WHEN** ZAC receives a productaanvraag of type `P` whose initiator has an email address
+- **THEN** no confirmation email is sent

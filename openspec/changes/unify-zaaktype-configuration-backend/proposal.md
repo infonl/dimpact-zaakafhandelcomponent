@@ -31,17 +31,15 @@ attached to the ticket. The REST contract and the frontend stay unchanged. PZ-12
   omschrijving for existing rows. Dropping the UUID columns is a later release.
 - Make the versioning of a configuration a pure function that returns the new configuration. Rename
   `ZaaktypeHelperService` to `ZaaktypeConfigurationVersioning`.
-- Let the BPMN confirmation email delegate fall back to the configured email parameters when the process
-  definition does not set them.
 - Behaviour changes that the unification brings about:
   - one productaanvraagtype check for both engines, which excludes by zaaktype omschrijving
   - BPMN process instances are deleted when their zaak is deleted
-  - BPMN zaken use their BRP doelbindingen, deadline warnings, and zaakafzenders
+  - BPMN zaken use their BRP doelbindingen and deadline warnings
   - BPMN configurations get the same bean validation as CMMN configurations
 - **No REST contract change.** Both `/zaakafhandelparameters` and `/zaaktype-bpmn-configuration` keep their
   paths, verbs, keys, and payloads.
 
-Delivery: one stacked GitHub pull request per RFC chunk (A1, A2, A3, B1, B2, B3, B4). Each pull request is based
+Delivery: one stacked GitHub pull request per RFC chunk (A1, A2, A3, B1, B2, B3). Each pull request is based
 on the branch of the previous chunk.
 
 ## Capabilities
@@ -51,8 +49,7 @@ on the branch of the previous chunk.
 - `zaaktype-configuration`: storage, validation, versioning, and the engine-agnostic behaviour of the
   configuration of a zaaktype, for both CMMN and BPMN, behind an unchanged REST contract.
 - `zaaktype-process-binding`: how ZAC starts, terminates, and cleans up the process of a zaak for the engine
-  that the zaaktype is bound to, how productaanvraag intake selects the engine, and the confirmation email of
-  a BPMN zaak.
+  that the zaaktype is bound to, and how productaanvraag intake selects the engine.
 
 ### Modified Capabilities
 
@@ -71,7 +68,7 @@ changes, and that is specified in `zaaktype-process-binding`.
     `RestZaaktypeConverter`, `MailtemplateRESTService`, `MailtemplateKoppelingRestService`
   - `ProductaanvraagService`, `ProductaanvraagEmailService`, `NotificationReceiver`, `BrpClientService`,
     `HealthCheckService`, `ZaakTaskDueDateEmailNotificationService`, `SmartDocumentsTemplatesService`,
-    `CMMNService`, `BpmnService`, `SendConfirmationEmailDelegate`
+    `CMMNService`, `BpmnService`
   - About 30 call sites are typed to `ZaaktypeCmmnConfiguration` today.
 - **REST API**: none. The generated OpenAPI spec must not change. Each PR compares the output of
   `./gradlew generateOpenApiSpec` with a baseline taken on `main`.
@@ -83,3 +80,7 @@ changes, and that is specified in `zaaktype-process-binding`.
   - the task form configuration question (RFC section 7)
   - zaaktype identity by omschrijving (RFC section 10)
   - dropping the resultaattype UUID columns
+  - the automatic confirmation of receipt (automatische ontvangstbevestiging) for BPMN zaken. It stays CMMN only;
+    a BPMN process sends a confirmation email itself when it needs one.
+  - using zaakafzenders and mailtemplate koppelingen for BPMN zaken. The engine-agnostic configuration stores them
+    for both engines, so a later change can add this.

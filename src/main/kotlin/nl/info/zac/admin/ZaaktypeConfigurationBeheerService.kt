@@ -36,7 +36,8 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val ztcClientService: ZtcClientService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
-    private val zaaktypeHelperService: ZaaktypeHelperService
+    private val zaaktypeHelperService: ZaaktypeHelperService,
+    private val resultaattypeReferenceService: ResultaattypeReferenceService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeConfigurationBeheerService::class.java.name)
@@ -52,6 +53,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     @Transactional(REQUIRED)
     fun storeConfiguration(zaaktypeConfiguration: ZaaktypeConfiguration): ZaaktypeConfiguration {
         zaaktypeConfiguration.validate()
+        resultaattypeReferenceService.fillOmschrijvingen(zaaktypeConfiguration)
         zaaktypeConfiguration.id = zaaktypeConfigurationRepository.findByZaaktypeUuid(
             zaaktypeConfiguration.zaaktypeUuid
         )?.id

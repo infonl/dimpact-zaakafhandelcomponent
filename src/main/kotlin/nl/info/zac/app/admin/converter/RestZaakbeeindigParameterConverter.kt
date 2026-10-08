@@ -6,13 +6,13 @@ package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden
-import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.app.admin.model.RestZaakbeeindigParameter
 import nl.info.zac.app.zaak.model.toRestResultaatType
 
 class RestZaakbeeindigParameterConverter @Inject constructor(
-    private val ztcClientService: ZtcClientService
+    private val resultaattypeReferenceService: ResultaattypeReferenceService
 ) {
     fun convertZaakbeeindigParameters(
         zaakbeeindigRedenen: Set<ZaaktypeCompletionParameters>
@@ -26,8 +26,6 @@ class RestZaakbeeindigParameterConverter @Inject constructor(
         zaakbeeindigReden = convertZaakbeeindigReden(
             zaaktypeCompletionParameters.zaakbeeindigReden
         ),
-        resultaattype = ztcClientService.readResultaattype(
-            zaaktypeCompletionParameters.resultaattype
-        ).toRestResultaatType()
+        resultaattype = resultaattypeReferenceService.readResultaattype(zaaktypeCompletionParameters).toRestResultaatType()
     )
 }

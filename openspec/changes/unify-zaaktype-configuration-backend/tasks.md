@@ -153,27 +153,28 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 - [x] 4.6 Verify `./gradlew spotlessApply detektApply detekt build itest`, the contract diff, and that
       `grep -rn "ProcessEngine\.\(CMMN\|BPMN\)" src/main` shows hits only in the adapters, the entity, the BPMN admin
       REST service and the configuration converter (REST contract, PZ-12754), `BpmnService`, and the flow choice in
-      `ProductaanvraagService` (B4). Then open the PR
+      `ProductaanvraagService`. Then open the PR
       `refactor(flowable): start, terminate and delete zaak processes through one process binding interface`,
       with body footer `Solves PZ-12669`.
 
 ## 5. PR B2: resultaattype by omschrijving, expand step (branch `feature/PZ-12669-b2-resultaattype-omschrijving`, base B1)
 
-- [ ] 5.1 Write `V103__add_resultaattype_omschrijving.sql`, which adds the two nullable omschrijving columns
+- [x] 5.1 Write `V103__add_resultaattype_omschrijving.sql`, which adds the two nullable omschrijving columns
       (design D7). Verify on the itest stack.
-- [ ] 5.2 Write both columns on store: the converter resolves the omschrijving from the UUID through ZTC. Verify with
-      converter unit tests.
-- [ ] 5.3 Resolve the UUID per zaaktype version by omschrijving on read, with the stored UUID as fallback, in
+- [x] 5.2 Write both columns on store: `ZaaktypeConfigurationBeheerService` resolves the omschrijving from the UUID
+      through ZTC. Verify with unit tests.
+- [x] 5.3 Resolve the UUID per zaaktype version by omschrijving on read, with the stored UUID as fallback, in
       `terminateZaak`, `PlanItemsRestService.handleIntakeAfronden`, and the REST converters. Verify with unit tests
       for a match, a fallback, and a missing omschrijving.
-- [ ] 5.4 Add `ResultaattypeOmschrijvingBackfill`, which runs on application start, is idempotent, and logs a
+- [x] 5.4 Add `ResultaattypeOmschrijvingBackfill`, which runs on application start, is idempotent, and logs a
       summary of filled and unresolved rows. Verify with unit tests for success, a ZTC failure, and a second run.
-- [ ] 5.5 Add a second version of one CMMN and one BPMN zaaktype to the Open Zaak seed data
-      (`scripts/docker-compose/imports/openzaak-database/database/`). Rework
-      `NotificationZaaktypeCompletionParametersTest` to publish that version, then verify that it passes for both engines. Add an itest
-      that stores the configuration of the second BPMN version with the productaanvraagtype of the first, and verify
-      that it is accepted.
-- [ ] 5.6 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
+- [x] 5.5 Add a second version of one CMMN and one BPMN zaaktype to the Open Zaak seed data
+      (`scripts/docker-compose/imports/openzaak-database/database/`), valid from 2099 so that the first version stays
+      the one for creating zaken. Rework `NotificationZaaktypeCompletionParametersTest` to publish that version, then
+      verify that it passes for both engines. In the same test, store the configuration of the second BPMN version with
+      the productaanvraagtype of the first, and verify that it is accepted. The test deletes the configurations of the
+      second versions afterwards, because ZAC would otherwise use them as the current ones.
+- [x] 5.6 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
       `feat(admin): reference resultaattypen by omschrijving in the zaaktype configuration`, with body footer `Solves PZ-12669`.
 - [ ] 5.7 After merge, deploy the chunk to the TEST environment with real data. Verify that ZAC starts, that the
       startup log shows the migration and any quarantine warnings, and that the quarantine table holds only expected rows.
@@ -191,22 +192,12 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 - [ ] 6.4 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
       `refactor(admin): make zaaktype configuration versioning a pure function`, with body footer `Solves PZ-12669`.
 
-## 7. PR B4: confirmation email fallback (branch `feature/PZ-12669-b4-confirmation-email-fallback`, base B3)
+## 7. Wrap-up
 
-- [ ] 7.1 Make `template` and `from` on `SendConfirmationEmailDelegate` optional. Fall back to the configuration's
-      email parameters for each missing value, and send nothing when no template results (design D9). Verify with unit
-      tests for: process wins, configuration fallback, disabled, and no template.
-- [ ] 7.2 Verify that the existing BPMN itest process definitions with the delegate still send their email
-      (`./gradlew itest`).
-- [ ] 7.3 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
-      `feat(flowable): fall back to the zaaktype configuration for the BPMN confirmation email`, with body footer `Solves PZ-12669`.
-
-## 8. Wrap-up
-
-- [ ] 8.1 Run `openspec validate unify-zaaktype-configuration-backend --strict` and verify that it reports the change as valid.
-- [ ] 8.2 Create a follow-up Jira ticket for the contract step of B2: drop the resultaattype UUID columns and the
+- [ ] 7.1 Run `openspec validate unify-zaaktype-configuration-backend --strict` and verify that it reports the change as valid.
+- [ ] 7.2 Create a follow-up Jira ticket for the contract step of B2: drop the resultaattype UUID columns and the
       fallback. Verify that the ticket links PZ-12637.
-- [ ] 8.3 Create a follow-up Jira ticket for the manual quarantine check (design Migration Plan, step 2). After the
+- [ ] 7.3 Create a follow-up Jira ticket for the manual quarantine check (design Migration Plan, step 2). After the
       release with A1–A3, it covers these steps on every environment, production included:
       - inspect `zaaktype_configuration_migration_quarantine`
       - restore the needed rows with `jsonb_populate_record`

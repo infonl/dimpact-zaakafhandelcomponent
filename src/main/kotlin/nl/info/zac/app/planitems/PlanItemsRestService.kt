@@ -33,6 +33,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ZaaktypeCmmnExtension
@@ -84,6 +85,7 @@ class PlanItemsRestService @Inject constructor(
     private val cmmnService: CmmnService,
     private val zrcClientService: ZrcClientService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
+    private val resultaattypeReferenceService: ResultaattypeReferenceService,
     private val planItemConverter: RestPlanItemConverter,
     private val zgwApiService: ZgwApiService,
     private val indexingService: IndexingService,
@@ -258,12 +260,11 @@ class PlanItemsRestService @Inject constructor(
 
         if (userEventListenerData.isZaakOntvankelijk) return
 
-        zaaktypeConfigurationService.readConfiguration(
-            zaak.zaaktype.extractUuid()
-        ).nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
+        val zaaktypeConfiguration = zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
+        resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)?.let { resultaattype ->
             zgwApiService.closeZaak(
                 zaak = zaak,
-                resultaatTypeUUID = resultaattypeUUID,
+                resultaatTypeUUID = resultaattype.url.extractUuid(),
                 description = userEventListenerData.resultaatToelichting
             )
         }

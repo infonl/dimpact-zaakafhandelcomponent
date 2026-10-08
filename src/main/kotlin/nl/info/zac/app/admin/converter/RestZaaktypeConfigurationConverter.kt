@@ -10,6 +10,7 @@ import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ProcessEngine
@@ -43,6 +44,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     val zaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
+    val resultaattypeReferenceService: ResultaattypeReferenceService,
     val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
     val smartDocumentsService: SmartDocumentsService,
     val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
@@ -157,8 +159,8 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
                     caseDefinition.userEventListenerDefinitions
                 )
         }
-        zaaktypeConfiguration.nietOntvankelijkResultaattype?.let {
-            this.zaakNietOntvankelijkResultaattype = ztcClientService.readResultaattype(it).toRestResultaatType()
+        resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)?.let {
+            this.zaakNietOntvankelijkResultaattype = it.toRestResultaatType()
         }
         this.zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
             zaaktypeConfiguration.getZaakbeeindigParameters()

@@ -17,7 +17,7 @@ import io.mockk.just
 import io.mockk.slot
 import jakarta.ws.rs.NotFoundException
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeConfigurationService
@@ -51,7 +51,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val policyService = mockk<PolicyService>()
-    val ztcClientService = mockk<ZtcClientService>()
+    val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
     val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val zaaktypeBpmnConfigurationRestService =
@@ -59,7 +59,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             zaaktypeConfigurationService = zaaktypeConfigurationService,
             zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
             policyService = policyService,
-            ztcClientService = ztcClientService,
+            resultaattypeReferenceService = resultaattypeReferenceService,
             restZaakbeeindigParameterConverter = zaakbeeindigParameterConverter,
             smartDocumentsService = smartDocumentsService
         )
@@ -80,7 +80,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any())
             } returns listOf(restZaakbeeindigParameter)
-            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
+            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns createResultaatType()
             every { smartDocumentsService.isEnabled() } returns true
 
             `when`("reading BPMN zaaktypes") {
@@ -161,7 +161,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(any())
             } returns savedConfiguration
-            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
+            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
             every { smartDocumentsService.isEnabled() } returns true
 
@@ -222,7 +222,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationBeheerService.storeConfiguration(any())
             } returns updatedZaaktypeBpmnConfiguration
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
-            every { ztcClientService.readResultaattype(any<UUID>()) } returns resultaatType
+            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns resultaatType
             every { smartDocumentsService.isEnabled() } returns true
 
             `when`("updating an existing zaaktype BPMN configuration") {
@@ -285,6 +285,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationBeheerService.storeConfiguration(capture(storedZaaktypeBpmnConfiguration))
             } answers { storedZaaktypeBpmnConfiguration.captured }
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
+            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns null
             every { smartDocumentsService.isEnabled() } returns true
 
             `when`("a beheerder changes its groep through the BPMN REST resource") {
@@ -322,7 +323,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(capture(capturedConfiguration))
             } returns savedConfiguration
-            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
+            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
             every { smartDocumentsService.isEnabled() } returns true
 
@@ -366,7 +367,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
             } returns listOf(bpmnConfig)
-            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
+            every { resultaattypeReferenceService.readNietOntvankelijkResultaattype(any()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
             every { smartDocumentsService.isEnabled() } returns true
 

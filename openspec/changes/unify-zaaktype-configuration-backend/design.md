@@ -1,7 +1,7 @@
 ## Context
 
 See proposal.md for the motivation. The RFC attached to PZ-12637 (`rfc-unify-bpmn-cmmn-zaaktype-configuration.md`)
-is the source design. This document records the decisions for its backend chunks A1–A3 and B1–B4, and the
+is the source design. This document records the decisions for its backend chunks A1–A3 and B1–B3, and the
 places where it deviates from the RFC after reading the code at `9e5c88f570`.
 
 Current state:
@@ -46,7 +46,9 @@ Current state:
 - A shared task form configuration (RFC section 7).
 - Using the zaaktype `identificatie` in place of the omschrijving as zaaktype identity (RFC section 10).
 - Dropping the resultaattype UUID columns. This is the contract step of B2 in a later release.
-- Admin input for the moved settings on a BPMN zaaktype. The BPMN payload does not carry them, so a beheerder
+- Using zaakafzenders and mailtemplate koppelingen for BPMN zaken. The engine-agnostic configuration stores them
+  for both engines, so a later change can add this.
+- Admin input for the other moved settings on a BPMN zaaktype. The BPMN payload does not carry them, so a beheerder
   sets them after PZ-12754. Until then a BPMN configuration gets them only from a predecessor version or from
   data.
 
@@ -65,7 +67,6 @@ Each chunk is a branch based on the branch of the previous chunk:
 | B1 | `feature/PZ-12669-b1-process-binding` | A3 | — |
 | B2 | `feature/PZ-12669-b2-resultaattype-omschrijving` | B1 | V103 |
 | B3 | `feature/PZ-12669-b3-configuration-versioning` | B2 | — |
-| B4 | `feature/PZ-12669-b4-confirmation-email-fallback` | B3 | — |
 
 A1 carries the openspec change directory. When a chunk has to change Java code, the conversion of that code to
 Kotlin is a PR of its own, stacked directly below the chunk (A2-java below A2). That PR changes no behaviour, so
@@ -329,7 +330,7 @@ the groep, behandelaar and communicatiekanaal zaak variables only while the proc
 nothing, because a CMMN case reads the rollen of the zaak.
 
 `ProductaanvraagService` keeps its choice between the CMMN and the BPMN flow. The two flows differ in their order and
-in the confirmation email, which B4 changes; only the process start inside each flow goes through the dispatcher.
+in the confirmation email; only the process start inside each flow goes through the dispatcher.
 
 `delete` serves `NotificationReceiver` on zaak delete. The zaak no longer exists in Open Zaak, so ZAC cannot
 resolve its zaaktype. The receiver therefore calls `delete` on every binding. Each binding deletes the running
@@ -339,19 +340,35 @@ has already ended. Each binding is a no-op when it has neither. `BpmnService` ge
 
 ### D7. B2: resultaattype by omschrijving, expand only
 
+A configuration references a resultaattype twice: in the niet-ontvankelijk setting and in each zaakbeeindig
+parameter. It stores the UUID. In Open Zaak a resultaattype belongs to one zaaktype version, and each new
+zaaktype version gets new resultaattypen with new UUIDs. Only the omschrijving stays the same, and Open Zaak
+keeps it unique within a zaaktype version. A stored UUID is therefore valid for one zaaktype version only:
+
+- When a new zaaktype version inherits a configuration, every UUID must be remapped by omschrijving
+  (`updateZaakbeeindigGegevens`). A missed remap leaves references to the previous version, as in PZ-12241.
+- When ZAC ends a zaak, the resultaattype must belong to the zaaktype version of that zaak.
+
+B2 makes the omschrijving the reference and resolves the UUID per zaaktype version. Versioning then copies the
+omschrijving without a remap (D8).
+
 V103 adds `niet_ontvankelijk_resultaattype_omschrijving` to `zaaktype_configuration` and
 `resultaattype_omschrijving` to `zaaktype_completion_parameters`. Both columns are nullable.
 
-- **Write path.** It writes both columns. The REST payload carries the UUID, and the converter resolves the
-  omschrijving through `ZtcClientService.readResultaattype(uuid)`.
-- **Read path.** The UUID that the REST API and the callers see is resolved per zaaktype version: list
-  `readResultaattypen(zaaktypeUri)` and match the omschrijving, with the stored UUID as fallback while the
-  omschrijving is null. Open Zaak guarantees that the omschrijving is unique within a zaaktype version, so no
+- **Write path.** It writes both columns. The REST payload carries the UUID. `ZaaktypeConfigurationBeheerService`
+  fills the omschrijving through `ZtcClientService.readResultaattype(uuid)` on every store, so the REST resources and
+  the copy for a new zaaktype version share one write path.
+- **Read path.** `ResultaattypeReferenceService` resolves the resultaattype that the REST API and the callers see
+  per zaaktype version: list `readResultaattypen(zaaktypeUri)` and match the omschrijving. The stored UUID is the
+  fallback while the omschrijving is null, and when the zaaktype version has no resultaattype with the omschrijving;
+  the latter logs a warning. Open Zaak guarantees that the omschrijving is unique within a zaaktype version, so no
   ambiguity check exists.
 - **Backfill.** `ResultaattypeOmschrijvingBackfill` observes `@Initialized(ApplicationScoped.class)`, as
-  `SolrDeployerService` does. It fills every null omschrijving through ZTC, row by row. It is idempotent and
-  logs one summary line with the number of rows filled and the number left unresolved. A row stays null when
-  ZTC fails or the resultaattype is gone, and the next start retries it. A Flyway Java migration is rejected,
+  `SolrDeployerService` does, with a `@Priority` after the default one (`APPLICATION + 500`) of
+  `FlywayIntegrator.onStartup`, which adds the columns. It fills every null omschrijving through ZTC, row by row.
+  It is idempotent and logs one summary line with the number of rows filled and the number left unresolved. A row
+  stays null when ZTC fails or the resultaattype is gone, and the next start retries it. Any other failure of the
+  backfill is logged and does not stop the start; the next start retries it too. A Flyway Java migration is rejected,
   because it has no CDI access to the ZTC client and its credentials.
 
 Dropping the UUID columns and the fallback is the contract step. It ships in a later release, after ops has
@@ -384,14 +401,12 @@ A reflection unit test fills every `ZaaktypeConfiguration` member property with 
 asserts that `createNextVersion` leaves none of them at its default. Identity fields are excluded. A new
 field then fails the build until versioning copies it.
 
-### D9. B4: confirmation email fallback
+### D9. Confirmation of receipt stays CMMN only
 
-`SendConfirmationEmailDelegate.template` and `.from` become nullable `Expression?`. When an expression is
-missing or resolves blank, the delegate uses the configuration's email parameters. If those are not
-enabled, or name no template, it sends nothing and logs at FINE. The class keeps its name and package, because
-deployed process definitions reference it. `ProductaanvraagService` does not start sending confirmation emails
-for BPMN zaken. A BPMN process that wants the email already models the delegate, and a second email would be
-a duplicate.
+`ProductaanvraagService` sends the automatic confirmation of receipt only in the CMMN flow. A BPMN process that
+wants a confirmation email models `SendConfirmationEmailDelegate`, which takes its template and sender from the
+process definition only. The delegate does not read the confirmation email parameters of the zaaktype
+configuration.
 
 ### D10. Tests
 
@@ -445,7 +460,7 @@ a duplicate.
 
 ## Migration Plan
 
-1. Merge A1 to B4 in order. Each release that contains A1–A3 runs V100–V102 at startup through
+1. Merge A1 to B3 in order. Each release that contains A1–A3 runs V100–V102 at startup through
    `FlywayIntegrator`. After each migration chunk (A1, A2, A3, B2) merges, deploy it to the TEST environment
    with real data. Check the startup log, the quarantine table, and the configuration screens of a CMMN and a
    BPMN zaaktype before the next chunk merges.

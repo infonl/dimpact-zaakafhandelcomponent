@@ -69,6 +69,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
+import nl.info.client.zgw.ztc.model.createResultaatType
+import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
@@ -165,6 +167,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+    val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService = mockk<ZaakService>()
     val zgwApiService = mockk<ZgwApiService>()
@@ -196,6 +199,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         zaakService = zaakService,
         zaakVariabelenService = zaakVariabelenService,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
+        resultaattypeReferenceService = resultaattypeReferenceService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
@@ -1729,6 +1733,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)
+            } returns createResultaatType(
+                url = URI("https://example.com/resultaattypen/${zaaktypeConfiguration.nietOntvankelijkResultaattype}")
+            )
+            every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
@@ -1779,6 +1788,11 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
+            every {
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)
+            } returns createResultaatType(
+                url = URI("https://example.com/resultaattypen/${zaaktypeConfiguration.nietOntvankelijkResultaattype}")
+            )
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
@@ -1864,6 +1878,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
                 } returns zaaktypeCmmnConfiguration
+                every {
+                    resultaattypeReferenceService.readResultaattype(zaaktypeCmmnConfiguration.getZaakbeeindigParameters().single())
+                } returns createResultaatType(url = URI("https://example.com/resultaattypen/$resultTypeUUID"))
                 every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
                 every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
                 every { loggedInUserInstance.get() } returns loggedInUser
@@ -1913,6 +1930,11 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
+            every {
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(zaaktypeConfiguration)
+            } returns createResultaatType(
+                url = URI("https://example.com/resultaattypen/${zaaktypeConfiguration.nietOntvankelijkResultaattype}")
+            )
             every {
                 zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
