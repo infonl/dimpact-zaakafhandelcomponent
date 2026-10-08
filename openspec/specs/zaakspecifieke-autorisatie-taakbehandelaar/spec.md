@@ -27,7 +27,7 @@ requires access to the zaak. The completer therefore already has access, and kee
 For an assignment through a REST endpoint, the rol SHALL exist before the request returns. The rol SHALL be
 identical to the one a previous zaakbehandelaar receives on handover: same roltype, same `roltoelichting`. The
 audit toelichting that ZAC sends to Open Zaak when it creates the rol, and that shows in the zaakhistorie,
-SHALL be the fixed text "Zaakspecifiek geautoriseerd medewerker van zaak {zaaknummer}". A
+SHALL be the fixed text "Zaakspecifiek geautoriseerde medewerker van de zaak". A
 taakbehandelaar's rol SHALL NOT be distinguishable from a previous zaakbehandelaar's or a manually added
 medewerker's.
 
@@ -171,7 +171,7 @@ show an extra line:
 - **gegeven**: *Zaakspecifiek geautoriseerde medewerker*;
 - **oude waarde**: empty;
 - **nieuwe waarde**: the full name of the medewerker;
-- **toelichting**: the fixed, untranslated text "Zaakspecifiek geautoriseerd medewerker van zaak {zaaknummer}".
+- **toelichting**: the fixed, untranslated text "Zaakspecifiek geautoriseerde medewerker van de zaak".
 
 The line SHALL only appear when ZAC actually added a rol. The gegeven label SHALL be the omschrijving of the
 roltype, exactly as the zaakhistorie shows it for the same rol. Neither the label nor the toelichting is
@@ -182,7 +182,7 @@ translated.
 - **WHEN** an employee opens the taakhistorie of the taak
 - **THEN** a line with gegeven *behandelaar* shows B as the new value
 - **AND** a line with gegeven *Zaakspecifiek geautoriseerde medewerker* shows B as the new value
-- **AND** that line's toelichting is "Zaakspecifiek geautoriseerd medewerker van zaak ZAAK-2026-0000000001"
+- **AND** that line's toelichting is "Zaakspecifiek geautoriseerde medewerker van de zaak"
 
 #### Scenario: No line when the medewerker already had the rol
 - **WHEN** a taak of a zaakspecifiek geautoriseerde zaak is assigned to a medewerker who already holds the
