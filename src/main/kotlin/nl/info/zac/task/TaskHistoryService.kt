@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.zac.flowable.task.model.ValueChangeData
 import net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY
-import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.util.AllOpen
@@ -29,7 +28,7 @@ class TaskHistoryService @Inject constructor(
             "USER_TASK_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ADDED"
     }
 
-    fun addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task: TaskInfo, zaak: Zaak, medewerkerId: String) {
+    fun addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task: TaskInfo, medewerkerId: String) {
         historyService.createHistoricTaskLogEntryBuilder(task)
             .type(USER_TASK_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ADDED)
             .data(
@@ -37,7 +36,7 @@ class TaskHistoryService @Inject constructor(
                     ValueChangeData(
                         "",
                         identityService.readUser(medewerkerId).getFullName(),
-                        ZaakspecifiekeAutorisatieService.taakbehandelaarToelichting(zaak)
+                        ZaakspecifiekeAutorisatieService.ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
                     )
                 )
             )
