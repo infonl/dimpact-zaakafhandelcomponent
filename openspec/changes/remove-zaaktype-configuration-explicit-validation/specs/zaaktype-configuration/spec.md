@@ -16,14 +16,14 @@ configuration, whichever part breaks the constraint.
 - **THEN** the request fails with a validation error and no configuration is stored
 
 #### Scenario: CMMN configuration without groep is rejected
-- **GIVEN** a CMMN zaaktype without a configuration
-- **WHEN** a beheerder stores a CMMN zaaktype configuration for it without a default groep
-- **THEN** the request fails and the zaaktype still has no configuration
+- **GIVEN** a CMMN zaaktype with a stored configuration
+- **WHEN** a beheerder stores a configuration for it without a default groep
+- **THEN** the request fails and the stored configuration keeps its default groep
 
 #### Scenario: CMMN configuration with a zaakafzender without e-mail address is rejected
 - **GIVEN** a CMMN zaaktype with a stored configuration
 - **WHEN** a beheerder stores a configuration for it with a zaakafzender whose e-mail address is blank
-- **THEN** the request fails and the stored configuration is unchanged
+- **THEN** the request fails with a validation error and the stored configuration is unchanged
 
 #### Scenario: Update with an unknown id does not create a duplicate
 - **GIVEN** a stored configuration for zaaktype UUID `U`

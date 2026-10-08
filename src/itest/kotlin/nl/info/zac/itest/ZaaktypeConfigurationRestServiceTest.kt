@@ -10,10 +10,15 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_RESULTAATTYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
@@ -30,11 +35,27 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_ZAAK_IS_EEN_DUP
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
+import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_OK
 
 class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient(itestHttpClient)
+
+    fun readZaaktypeCmmnTest1Configuration() = JSONObject(
+        itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_1_UUID",
+            testUser = BEHEERDER_1
+        ).bodyAsString
+    )
+
+    fun JSONObject.defaultZaakafzenderMail() = getJSONArray("zaakAfzenders")
+        .map { it as JSONObject }
+        .single { it.getBoolean("isDefaultMail") }
+        .getString("mail")
 
     given(
         """
@@ -401,6 +422,43 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                       "veldDefinities" : [ ]
                     } ]
                 """.trimIndent()
+            }
+        }
+    }
+
+    given("A CMMN zaaktype with a stored configuration with a default groep and a default zaakafzender") {
+        `when`("a beheerder stores a configuration for it without a default groep") {
+            val response = zacClient.createZaaktypeCmmnConfiguration(
+                zaakTypeIdentificatie = ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE,
+                zaakTypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
+                zaakTypeDescription = ZAAKTYPE_CMMN_TEST_1_DESCRIPTION,
+                productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
+                defaultGroepId = null,
+                testUser = BEHEERDER_1
+            )
+
+            then("the request fails with a server error and the stored configuration keeps its default groep") {
+                logger.info { "Response: ${response.bodyAsString}" }
+                response.code shouldBe HTTP_INTERNAL_ERROR
+                readZaaktypeCmmnTest1Configuration().getString("defaultGroepId") shouldBe
+                    GROUP_BEHANDELAARS_TEST_1.name
+            }
+        }
+
+        `when`("a beheerder stores a configuration for it with a default zaakafzender with a blank e-mail address") {
+            val response = zacClient.createZaaktypeCmmnConfiguration(
+                zaakTypeIdentificatie = ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE,
+                zaakTypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
+                zaakTypeDescription = ZAAKTYPE_CMMN_TEST_1_DESCRIPTION,
+                productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
+                defaultZaakafzenderMail = " ",
+                testUser = BEHEERDER_1
+            )
+
+            then("the request fails with a validation error and the stored configuration keeps its default zaakafzender") {
+                logger.info { "Response: ${response.bodyAsString}" }
+                response.code shouldBe HTTP_BAD_REQUEST
+                readZaaktypeCmmnTest1Configuration().defaultZaakafzenderMail() shouldBe "GEMEENTE"
             }
         }
     }

@@ -15,7 +15,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import io.mockk.verifyOrder
-import jakarta.validation.ConstraintViolationException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -77,58 +76,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                             zaaktypeConfigurationRepository.store(zaaktypeConfiguration)
                             zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid)
                         }
-                    }
-                }
-            }
-
-            given("a $configurationType configuration without groep") {
-                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply { groepID = null }
-
-                `when`("it is stored") {
-                    shouldThrow<ConstraintViolationException> {
-                        zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
-                    }
-
-                    then("nothing is stored") {
-                        verify(exactly = 0) { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) }
-                    }
-                }
-            }
-
-            given("a $configurationType configuration with a blank definition key") {
-                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
-                    groepID = "fakeGroup"
-                    processBinding!!.definitionKey = " "
-                }
-
-                `when`("it is stored") {
-                    val constraintViolationException = shouldThrow<ConstraintViolationException> {
-                        zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
-                    }
-
-                    then("it is rejected for its definition key, and nothing is stored") {
-                        constraintViolationException.constraintViolations.map { it.propertyPath.toString() } shouldBe
-                            listOf("definitionKey")
-                        verify(exactly = 0) { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) }
-                    }
-                }
-            }
-
-            given("a $configurationType configuration with a blank zaaktype omschrijving") {
-                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
-                    groepID = "fakeGroup"
-                    zaaktypeOmschrijving = " "
-                }
-
-                `when`("it is stored") {
-                    val constraintViolationException = shouldThrow<ConstraintViolationException> {
-                        zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration)
-                    }
-
-                    then("it is rejected for its zaaktype omschrijving, and nothing is stored") {
-                        constraintViolationException.constraintViolations.map { it.propertyPath.toString() } shouldBe
-                            listOf("zaaktypeOmschrijving")
-                        verify(exactly = 0) { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) }
                     }
                 }
             }

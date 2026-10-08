@@ -20,7 +20,6 @@ import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
-import nl.info.zac.util.validateObject
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -232,12 +231,4 @@ class ZaaktypeConfiguration {
         desired.forEach { it.zaaktypeConfiguration = this }
         zaakAfzenders.mergeWith(desired) { it.mail }
     }
-}
-
-fun ZaaktypeConfiguration.validate() {
-    validateObject(this)
-    processBinding?.let { validateObject(it) }
-    getMailtemplateKoppelingen().forEach { validateObject(it) }
-    cmmnExtension?.getHumanTaskParametersCollection()?.forEach { validateObject(it) }
-    cmmnExtension?.getUserEventListenerParametersCollection()?.forEach { validateObject(it) }
 }

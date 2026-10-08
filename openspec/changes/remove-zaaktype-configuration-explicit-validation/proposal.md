@@ -7,10 +7,10 @@ Hibernate Validator. Every child collection uses `CascadeType.ALL`, so Hibernate
 `validate()` skips: completion parameters, zaakafzenders, e-mail parameters and BRP/betrokkene parameters. The manual
 list is incomplete and must be kept in step with the entity model by hand.
 
-The explicit check does not give a beheerder a clean 400 either. A `jakarta.validation.ConstraintViolationException`
-thrown from a service is handled by the RESTEasy `ValidationException` mapper, not by `RestExceptionMapper`. RESTEasy
-returns a 500 for such an exception unless it is a `ResteasyViolationException` from resource method validation.
-Input errors that the beheerder can fix already get a 400 from `@Valid` on the REST models.
+The explicit check does not give a beheerder a better response either. When Hibernate's validation rejects a
+configuration at commit, the `jakarta.validation.ConstraintViolationException` reaches the RESTEasy
+`ValidationException` mapper, which returns a 400 with a violation report. This is the same exception type that
+`validate()` throws.
 
 ## What Changes
 
@@ -22,7 +22,9 @@ Input errors that the beheerder can fix already get a 400 from `@Valid` on the R
   omschrijving).
 - Add integration tests that store an invalid CMMN configuration through the REST API. They assert the HTTP status and
   that nothing is stored. They are written and run against the current code first, so that the status before the
-  removal is known and kept.
+  removal is known and kept. Against the current code, a configuration without groep fails with a 500 in the REST
+  converter, before `validate()` runs. A blank zaakafzender e-mail address, which `validate()` does not check, is
+  rejected by Hibernate's validation with a 400.
 - `validateObject` in `ValidationUtil.kt` stays: `MailTemplateKoppelingenService` still uses it.
 
 ## Capabilities
