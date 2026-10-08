@@ -87,6 +87,10 @@ import java.io.IOException
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.slot
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 
 @Suppress("LargeClass")
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
@@ -607,6 +611,47 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 with(returnedRestEnkelvoudigInformatieobjecten) {
                     size shouldBe 1
                     this[0] shouldBe restEnkelvoudigInformatieobjecten[0]
+                }
+            }
+        }
+    }
+
+    given("a zaak with two documenten") {
+        val zaak = createZaak()
+        val restInformatieobjectZoekParameters = RestInformatieobjectZoekParameters(zaakUUID = zaak.uuid)
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForReads(),
+            createZaakInformatieobjectForReads()
+        )
+        val loggedInUser = createLoggedInUser()
+        val zaakAutorisatieGegevensForPolicy = slot<ZaakAutorisatieGegevens>()
+        val zaakAutorisatieGegevensForConverter = mutableListOf<ZaakAutorisatieGegevens>()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every {
+            policyService.readZaakRechten(zaak, loggedInUser, capture(zaakAutorisatieGegevensForPolicy))
+        } returns createZaakRechten()
+        every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        every {
+            restInformatieobjectConverter.convertToREST(
+                any<ZaakInformatieObject>(),
+                zaak,
+                capture(zaakAutorisatieGegevensForConverter)
+            )
+        } returns createRestEnkelvoudigInformatieobject()
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        `when`("the documenten of the zaak are listed") {
+            enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjecten(restInformatieobjectZoekParameters)
+
+            then("Open Zaak is asked only once whether the zaak is zaakspecifiek geautoriseerd") {
+                verify(exactly = 1) { zrcClientService.listZaakeigenschappen(zaak.uuid) }
+            }
+
+            and("the policy check and the conversion of every document use the same zaakspecifieke autorisatie data") {
+                zaakAutorisatieGegevensForConverter.size shouldBe 2
+                zaakAutorisatieGegevensForConverter.forEach {
+                    it shouldBeSameInstanceAs zaakAutorisatieGegevensForPolicy.captured
                 }
             }
         }

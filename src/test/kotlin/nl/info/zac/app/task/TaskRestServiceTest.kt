@@ -74,6 +74,10 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.io.reader
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.slot
+import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 
 @Suppress("LargeClass")
 class TaskRestServiceTest : BehaviorSpec({
@@ -587,6 +591,42 @@ class TaskRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         taskService.listTasksForZaak(zaak.uuid)
                     }
+                }
+            }
+        }
+
+        given("a zaak with two taken") {
+            val zaak = createZaak()
+            val tasks = listOf(
+                createTestTask(id = "fakeId1"),
+                createTestTask(id = "fakeId2")
+            )
+            val restTasks = listOf(
+                createRestTask(id = "fakeId1"),
+                createRestTask(id = "fakeId2")
+            )
+            val loggedInUser = createLoggedInUser()
+            val zaakAutorisatieGegevensForPolicy = slot<ZaakAutorisatieGegevens>()
+            val zaakAutorisatieGegevensForConverter = slot<ZaakAutorisatieGegevens>()
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every {
+                policyService.readZaakRechten(zaak, loggedInUser, capture(zaakAutorisatieGegevensForPolicy))
+            } returns createZaakRechten(lezen = true)
+            every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
+            every { restTaskConverter.convert(tasks, capture(zaakAutorisatieGegevensForConverter)) } returns restTasks
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the taken of the zaak are listed") {
+                taskRestService.listTasksForZaak(zaak.uuid)
+
+                then("Open Zaak is asked only once whether the zaak is zaakspecifiek geautoriseerd") {
+                    verify(exactly = 1) { zrcClientService.listZaakeigenschappen(zaak.uuid) }
+                }
+
+                and("the policy check and the conversion of the taken use the same zaakspecifieke autorisatie data") {
+                    zaakAutorisatieGegevensForConverter.captured shouldBeSameInstanceAs
+                        zaakAutorisatieGegevensForPolicy.captured
                 }
             }
         }

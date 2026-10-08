@@ -37,13 +37,13 @@
 
 ## 4. Tests (start only after the developer's explicit OK)
 
-- [ ] 4.1 `ZaakAutorisatieGegevens`: `isGeautoriseerdeMedewerker` covers a zsa zaak with and without the user, and a
+- [x] 4.1 `ZaakAutorisatieGegevens`: `isGeautoriseerdeMedewerker` covers a zsa zaak with and without the user, and a
       zaak that is not zsa, for which the medewerkers are not read.
 - [ ] 4.2 `ZaakspecifiekeAutorisatieServiceTest`: `readZaakAutorisatieGegevens` reads the rollen only when
       `geautoriseerdeMedewerkers` is used on a zsa zaak. Move or adapt the existing `ReindexSupportService` tests.
 - [ ] 4.3 `PolicyServiceTest`: with and without passed-in data, the OPA input is identical to today, and passed-in
       data causes no zsa call.
-- [ ] 4.4 `ZaakRestServiceTest`, `TaskRestServiceTest` and `EnkelvoudigInformatieObjectRestServiceTest`: the zsa
+- [x] 4.4 `ZaakRestServiceTest`, `TaskRestServiceTest` and `EnkelvoudigInformatieObjectRestServiceTest`: the zsa
       marking is read once per request on the listed paths, and `updateZaak` returns the marking read after the
       write.
 - [x] 4.5 Adjust the setup (constructors and stubs, not the assertions) of the existing tests on the changed paths:

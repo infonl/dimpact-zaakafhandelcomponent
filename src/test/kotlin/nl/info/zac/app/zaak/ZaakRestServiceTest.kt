@@ -145,6 +145,8 @@ import nl.info.zac.zaak.model.createZaakAssignment
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 
 @Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({
@@ -1730,6 +1732,50 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        given("a zaak that a medewerker opens") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten(lezen = true)
+            val restZaak = createRestZaak(uuid = zaak.uuid)
+            val loggedInUser = createLoggedInUser()
+            val zaakAutorisatieGegevensForPolicy = slot<ZaakAutorisatieGegevens>()
+            val zaakAutorisatieGegevensForConverter = slot<ZaakAutorisatieGegevens>()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every {
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = capture(zaakAutorisatieGegevensForPolicy)
+                )
+            } returns zaakRechten
+            every {
+                restZaakConverter.toRestZaak(
+                    zaak = zaak,
+                    zaakType = zaakType,
+                    zaakRechten = zaakRechten,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = capture(zaakAutorisatieGegevensForConverter)
+                )
+            } returns restZaak
+            every { signaleringService.deleteSignaleringenForZaak(zaak) } returns 0
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the zaak is read") {
+                zaakRestService.readZaak(zaak.uuid)
+
+                then("Open Zaak is asked only once whether the zaak is zaakspecifiek geautoriseerd") {
+                    verify(exactly = 1) { zrcClientService.listZaakeigenschappen(zaak.uuid) }
+                }
+
+                and("the policy check and the conversion of the zaak use the same zaakspecifieke autorisatie data") {
+                    zaakAutorisatieGegevensForConverter.captured shouldBeSameInstanceAs
+                        zaakAutorisatieGegevensForPolicy.captured
+                }
+            }
+        }
     }
 
     context("Terminating a zaak") {
@@ -2350,6 +2396,106 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zrcClientService.patchZaak(zaak.uuid, any(), changeDescription)
                         zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
                         zaakService.assignZaak(zaak, zaakAssignment, changeDescription)
+                    }
+                }
+            }
+        }
+
+        given("an unmarked zaak that is marked as zaakspecifiek geautoriseerd in the same update that returns it") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeNewBehandelaarId")
+            val restGroup = createRestGroup(id = "fakeNewGroupId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeNewBehandelaarId"),
+                restGroup = restGroup,
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+            val patchedZaak = createZaak()
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                )
+            } returns zaakRechten
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zgwApiService.findGroepForZaak(zaak) } returns null
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every {
+                zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
+                    zaakType = zaakType,
+                    requestedMarking = true,
+                    isAlreadyZaakspecifiekGeautoriseerd = false,
+                    currentAndRequestedBehandelaarIds = setOf("fakeNewBehandelaarId"),
+                    loggedInUser = loggedInUser
+                )
+            } returns true
+            val zaakAssignment = createZaakAssignment(
+                group = createGroup(id = restGroup.id),
+                user = createUser(id = "fakeNewBehandelaarId")
+            )
+            every {
+                zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                    zaak = any(),
+                    isZaakspecifiekGeautoriseerd = any(),
+                    currentBehandelaarId = any(),
+                    requestedBehandelaarId = any()
+                )
+            } just runs
+            every {
+                zaakService.readZaakAssignment(groupId = restGroup.id, userName = "fakeNewBehandelaarId")
+            } returns zaakAssignment
+            every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) } just runs
+            every {
+                restZaakConverter.toRestZaak(
+                    zaak = patchedZaak,
+                    zaakType = zaakType,
+                    zaakRechten = zaakRechten,
+                    loggedInUser = loggedInUser
+                )
+            } returns createRestZaak()
+            every {
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
+
+            `when`("the update is requested") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the returned zaak is converted only after the zaak is marked") {
+                    verifyOrder {
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+                        restZaakConverter.toRestZaak(
+                            zaak = patchedZaak,
+                            zaakType = zaakType,
+                            zaakRechten = zaakRechten,
+                            loggedInUser = loggedInUser,
+                            zaakAutorisatieGegevens = null
+                        )
+                    }
+                }
+
+                and("the zaakspecifieke autorisatie data read before the marking is not reused for the returned zaak") {
+                    verify(exactly = 0) {
+                        restZaakConverter.toRestZaak(
+                            zaak = any(),
+                            zaakType = any(),
+                            zaakRechten = any(),
+                            loggedInUser = any(),
+                            zaakAutorisatieGegevens = isNull(inverse = true)
+                        )
                     }
                 }
             }
