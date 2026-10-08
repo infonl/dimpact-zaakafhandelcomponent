@@ -65,6 +65,7 @@ import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakLinkComponent } from "../zaak-link/zaak-link.component";
 import { CaseLocationEditComponent } from "../zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
+import { ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent } from "../zaakspecifiek-geautoriseerde-medewerker-toevoegen/zaakspecifiek-geautoriseerde-medewerker-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
 import { ZaakdataComponent } from "../zaakdata/zaakdata.component";
@@ -97,6 +98,7 @@ import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiat
     BesluitViewComponent,
     CaseDetailsEditComponent,
     CaseLocationEditComponent,
+    ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent,
     HumanTaskDoComponent,
     InformatieObjectAddComponent,
     InformatieObjectCreateAttendedComponent,

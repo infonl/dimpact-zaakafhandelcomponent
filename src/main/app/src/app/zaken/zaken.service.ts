@@ -280,6 +280,37 @@ export class ZakenService {
     );
   }
 
+  listZaakspecifiekGeautoriseerdeMedewerkerKandidatenQuery(
+    uuid: string,
+    groepId: string,
+  ) {
+    return queryOptions({
+      ...this.zacQueryClient.GET(
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+        { path: { uuid }, query: { groepId } },
+      ),
+    });
+  }
+
+  addZaakspecifiekGeautoriseerdeMedewerker(uuid: string) {
+    return mergeMutationOptions(
+      this.zacQueryClient.POST(
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers",
+        { path: { uuid } },
+      ),
+      {
+        onSuccess: () => {
+          this.queryClient.invalidateQueries({
+            queryKey: [
+              "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+            ],
+          });
+          this.invalidateHistorie(uuid);
+        },
+      },
+    );
+  }
+
   listBetrokkenenVoorZaakQuery(uuid: string) {
     return queryOptions({
       ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/betrokkene", {

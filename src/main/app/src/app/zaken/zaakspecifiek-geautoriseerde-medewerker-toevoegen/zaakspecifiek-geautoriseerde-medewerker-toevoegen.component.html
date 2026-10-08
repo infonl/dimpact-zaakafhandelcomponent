@@ -1,0 +1,52 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>person_add</mat-icon>
+  <span class="flex-grow-1">{{
+    "actie.zaakspecifiek-geautoriseerde-medewerker.toevoegen" | translate
+  }}</span>
+  <button
+    mat-icon-button
+    [attr.aria-label]="'actie.paneel.sluiten' | translate"
+    (click)="sideNav().close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
+
+<mat-drawer-container>
+  <form [formGroup]="form" (submit)="toevoegen()" (cancel)="sideNav().close()">
+    <fieldset>
+      <section class="row">
+        <zac-select
+          class="col-12"
+          [form]="form"
+          key="groep"
+          [options]="groupsQuery.data() ?? []"
+          optionDisplayValue="naam"
+        ></zac-select>
+        <zac-select
+          class="col-12"
+          [form]="form"
+          key="medewerker"
+          [options]="kandidatenQuery.data() ?? []"
+          optionDisplayValue="naam"
+        ></zac-select>
+      </section>
+    </fieldset>
+    <fieldset>
+      <mat-action-row>
+        <zac-form-actions
+          [form]="form"
+          [mutation]="mutation"
+          disableAfterSuccess
+          submitLabel="actie.toevoegen"
+        />
+      </mat-action-row>
+    </fieldset>
+  </form>
+</mat-drawer-container>

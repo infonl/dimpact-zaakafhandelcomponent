@@ -4,6 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 
 import { Observable } from "rxjs";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
@@ -23,6 +24,15 @@ export class IdentityService {
 
   listBehandelaarGroupsForZaaktypesQuery() {
     return this.zacQueryClient.POST("/rest/identity/behandelaar-groups");
+  }
+
+  listBehandelaarGroupsForZaaktypeQuery(zaaktypeDescription: string) {
+    return queryOptions({
+      ...this.zacQueryClient.GET(
+        "/rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups",
+        { path: { zaaktypeDescription } },
+      ),
+    });
   }
 
   listBehandelaarGroupsForZaaktype(
