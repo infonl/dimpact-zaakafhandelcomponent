@@ -237,7 +237,11 @@ class ZaakKoppelenRestService @Inject constructor(
         }
 
     private fun Zaak.toZaakLinkData(user: LoggedInUser, zaaktype: ZaakType) =
-        policyService.readZaakRechten(this, zaaktype, user).let{ rechten -> this.toZaakLinkData(rechten) }
+        policyService.readZaakRechten(
+            zaak = this,
+            zaaktype = zaaktype,
+            loggedInUser = user
+        ).let{ rechten -> this.toZaakLinkData(rechten) }
 
     private fun buildZoekParameters(
         zaak: Zaak,

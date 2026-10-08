@@ -1765,7 +1765,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
+        every {
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        } returns createZaakRechten(lezen = true)
 
         `when`("listZaakInformatieobjecten is called") {
             val restZaakInformatieobjects = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
@@ -1804,7 +1806,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny()
+        every {
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        } returns createZaakRechtenAllDeny()
 
         `when`("listZaakInformatieobjecten is called") {
             val restZaakInformatieobjects = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)

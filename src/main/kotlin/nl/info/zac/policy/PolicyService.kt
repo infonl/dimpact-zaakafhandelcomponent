@@ -88,12 +88,17 @@ class PolicyService @Inject constructor(
             )
         ).requireResult(OpaEvaluationClient.OVERIGE_RECHTEN_PATH)
 
-    fun readZaakRechten(zaak: Zaak, loggedInUser: LoggedInUser): ZaakRechten {
-        val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        return readZaakRechten(zaak, zaakType, loggedInUser)
-    }
-
-    fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType, loggedInUser: LoggedInUser): ZaakRechten {
+    /**
+     * @param zaaktype The zaaktype of the zaak; read from the ZTC when not given. The default is `null` and not
+     * the ZTC call itself, because a default expression that uses a class member fails with a
+     * NullPointerException when the function is called on a MockK mock.
+     */
+    fun readZaakRechten(
+        zaak: Zaak,
+        loggedInUser: LoggedInUser,
+        zaaktype: ZaakType? = null
+    ): ZaakRechten {
+        val resolvedZaaktype = zaaktype ?: ztcClientService.readZaaktype(zaak.zaaktype)
         val statusType = zaak.status?.let {
             zrcClientService.readStatus(it).statustype
                 .let(ztcClientService::readStatustype)
@@ -101,10 +106,10 @@ class PolicyService @Inject constructor(
         val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
         val zaakData = ZaakData(
             isOpen = zaak.isOpen(),
-            zaaktype = zaaktype.getOmschrijving(),
+            zaaktype = resolvedZaaktype.getOmschrijving(),
             isOpgeschort = zaak.isOpgeschort(),
             isVerlengd = zaak.isVerlengd(),
-            isBesloten = zaaktype.getBesluittypen()?.isNotEmpty() == true,
+            isBesloten = resolvedZaaktype.getBesluittypen()?.isNotEmpty() == true,
             isIntake = statusType?.isIntake(),
             isHeropend = statusType?.isHeropend(),
             isBrondatumBepaald = zaak.startdatumBewaartermijn != null,

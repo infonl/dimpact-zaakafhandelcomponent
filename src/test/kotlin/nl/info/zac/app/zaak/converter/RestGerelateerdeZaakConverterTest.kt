@@ -52,7 +52,9 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten()
             every { zrcClientService.readZaak(gerelateerdeZaak.url) } returns zaak
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
 
             `when`("convert is called with the GerelateerdeZaak and loggedInUser") {
                 val result = converter.convert(fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser)
@@ -77,7 +79,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = true)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(lezen = true)
 
             `when`("convert is called") {
@@ -103,7 +105,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = false)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(lezen = true)
 
             `when`("convert is called") {
@@ -129,7 +131,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = true)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(lezen = false)
 
             `when`("convert is called") {
@@ -155,7 +157,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = true)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
             `when`("convert is called") {
@@ -181,7 +183,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = false)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
             `when`("convert is called") {
@@ -207,7 +209,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = true)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = false)
 
             `when`("convert is called") {
@@ -233,7 +235,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = true)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
             `when`("convert is called") {
@@ -259,7 +261,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = true)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
             `when`("convert is called") {
@@ -285,7 +287,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = true)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
             `when`("convert is called") {
@@ -311,7 +313,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val fromZaakRechten = createZaakRechten(koppelen = true)
             every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
             every {
-                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = gerelateerdeZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
             `when`("convert is called with relatieType VERVOLG") {

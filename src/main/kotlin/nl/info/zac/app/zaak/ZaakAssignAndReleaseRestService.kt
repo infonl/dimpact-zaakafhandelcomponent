@@ -80,7 +80,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     fun assignZaak(@Valid restZaakAssignmentData: RestZaakAssignmentData): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canToekennen)
         zaakService.assignZaak(
             zaak = zaak,
@@ -98,7 +98,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canToekennen)
         zaakService.assignZaak(
             zaak = zaak,
@@ -118,7 +118,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         // Checking the user's authorization for the zaak's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().canZakenTaken)
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaak.isOpen() && zaakRechten.canToekennen)
 
         zaakService.assignZaak(

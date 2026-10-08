@@ -86,7 +86,9 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         given("user has vastleggenBesluit zaak permission and zaaktype has besluittypen") {
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
             every { besluitService.createBesluit(zaak, createData) } returns besluit
             every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
             every { eventingService.send(any<ScreenEvent>()) } just runs
@@ -105,7 +107,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechtenAllDeny()
 
             `when`("besluit creation is attempted") {
@@ -198,7 +200,9 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         given("user has zaak lezen permission") {
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
             every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
             every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
 
@@ -216,7 +220,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechtenAllDeny()
 
             `when`("besluiten are requested for a zaak") {
@@ -244,7 +248,9 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(besluit.zaak) } returns zaak
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
             every { brcClientService.listAuditTrail(besluitUUID) } returns emptyList()
             every { zaakHistoryLineConverter.convert(emptyList()) } returns historyLines
 
@@ -263,7 +269,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
             every { loggedInUserInstance.get() } returns loggedInUser
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechtenAllDeny()
 
             `when`("besluit history is requested") {

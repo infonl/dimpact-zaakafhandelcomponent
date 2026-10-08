@@ -104,7 +104,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.search(any()) } returns zoekResultaat
         every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
-        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every {
+            policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         `when`("findLinkableZaken with GERELATEERD is called") {
@@ -137,7 +139,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.search(any())
                     zaakService.readZaakTypeByZaak(sourceZaak)
-                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
+                    policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
                 }
             }
 
@@ -181,7 +183,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.search(any())
                     zaakService.readZaakTypeByZaak(sourceZaak)
-                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
+                    policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
                 verify(exactly = 1) {
@@ -222,7 +224,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.search(any())
                     zaakService.readZaakTypeByZaak(sourceZaak)
-                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
+                    policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -244,7 +246,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.search(any()) } returns zoekResultaat
         every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
-        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every {
+            policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         `when`("findLinkableZaken with DEELZAAK is called") {
@@ -298,7 +302,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.search(any()) } returns ZoekResultaat(listOf(zaakZoekObject), 1)
         every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
-        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every {
+            policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         listOf(RelatieType.HOOFDZAAK, RelatieType.DEELZAAK, RelatieType.GERELATEERD).forEach { relationType ->
@@ -332,7 +338,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.search(any()) } returns ZoekResultaat(listOf(zaakZoekObject), 1)
         every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
-        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every {
+            policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        } returns createZaakRechten()
         every {
             policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
         } returns createZaakRechten(koppelen = false)
@@ -370,7 +378,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.search(any()) } returns ZoekResultaat(listOf(zaakZoekObject), 1)
         every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
-        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every {
+            policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        } returns createZaakRechten()
         every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -437,8 +447,16 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.teKoppelenZaakUuid)
             } returns Pair(teKoppelenZaak, teKoppelenZaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
-            every { policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(
+                    zaak = teKoppelenZaak,
+                    zaaktype = teKoppelenZaakType,
+                    loggedInUser = loggedInUser
+                )
+            } returns createZaakRechten()
             every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
             every { indexingService.addOrUpdateZaakOrThrow(teKoppelenZaak.uuid, false) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
@@ -476,9 +494,15 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.teKoppelenZaakUuid)
             } returns Pair(teKoppelenZaak, teKoppelenZaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every {
-                policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(
+                    zaak = teKoppelenZaak,
+                    zaaktype = teKoppelenZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten()
             every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
@@ -547,9 +571,15 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.teKoppelenZaakUuid)
             } returns Pair(teKoppelenZaak, teKoppelenZaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every {
-                policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(
+                    zaak = teKoppelenZaak,
+                    zaaktype = teKoppelenZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten()
             every {
                 zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
@@ -588,9 +618,15 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(teKoppelenZaak.uuid)
             } returns Pair(teKoppelenZaak, teKoppelenZaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every {
-                policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(
+                    zaak = teKoppelenZaak,
+                    zaaktype = teKoppelenZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten(lezen = false)
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -629,9 +665,15 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every {
                 zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
             } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every {
-                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(
+                    zaak = gekoppeldeZaak,
+                    zaaktype = gekoppeldeZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten()
             every {
                 zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
@@ -674,10 +716,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
             } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = false)
             every {
-                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+                policyService.readZaakRechten(
+                    zaak = gekoppeldeZaak,
+                    zaaktype = gekoppeldeZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten()
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -710,10 +756,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
             } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
             every {
-                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+                policyService.readZaakRechten(
+                    zaak = gekoppeldeZaak,
+                    zaaktype = gekoppeldeZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten(lezen = false)
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -746,10 +796,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
             } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
             every {
-                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+                policyService.readZaakRechten(
+                    zaak = gekoppeldeZaak,
+                    zaaktype = gekoppeldeZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten(koppelen = false)
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -784,10 +838,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
             } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
             every {
-                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+                policyService.readZaakRechten(
+                    zaak = gekoppeldeZaak,
+                    zaaktype = gekoppeldeZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten(koppelen = true)
             every {
                 zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
@@ -857,10 +915,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
             } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(koppelen = true)
             every {
-                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+                policyService.readZaakRechten(
+                    zaak = gekoppeldeZaak,
+                    zaaktype = gekoppeldeZaakType,
+                    loggedInUser = loggedInUser
+                )
             } returns createZaakRechten(lezen = true, koppelen = false)
             every { zrcClientService.patchZaak(any(), any(), "fakeReden") } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -896,7 +958,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
             every { searchService.search(capture(zoekParametersSlot)) } returns zoekResultaat
             every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
-            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(zaak = sourceZaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns createZaakRechten()
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("all search fields are set") {
