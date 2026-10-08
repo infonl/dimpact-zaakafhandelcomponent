@@ -36,3 +36,16 @@
   the same asserted statuses.
 - [x] 3.2 Run `./gradlew spotlessApply detektApply` and then `./gradlew detekt`, and verify detekt reports no issues.
 - [x] 3.3 Run `openspec validate remove-zaaktype-configuration-explicit-validation --strict` and verify it passes.
+
+## 4. Reject a CMMN configuration without groep with a validation error
+
+- [x] 4.1 Add `@field:NotBlank` to `defaultGroepId` in `RestZaaktypeConfiguration`.
+- [x] 4.2 Regenerate the OpenAPI types (`./gradlew generateOpenApiSpec`, then `npm run generate:types:zac-openapi`)
+  and make `parameters-edit-cmmn.component.ts` compile against the now required `defaultGroepId`.
+- [x] 4.3 In `ZaaktypeConfigurationRestServiceTest`, assert a 400 with a violation on `defaultGroepId` for the CMMN
+  configuration without groep, and a violation on the zaakafzender `mail` for the blank e-mail address case, so that
+  a 400 for another reason, such as a productaanvraagtype in use, fails the test.
+- [x] 4.4 In `ZaaktypeConfigurationBeheerServiceTest`, remove the `groepID` setup that only served `validate()` and
+  the word "valid" from the remaining `storeConfiguration` case.
+- [x] 4.5 Rebuild the Docker image, run `ZaaktypeConfigurationRestServiceTest`, the frontend tests of
+  `parameters-edit-cmmn` and `./gradlew spotlessApply detektApply detekt`, and verify they pass.

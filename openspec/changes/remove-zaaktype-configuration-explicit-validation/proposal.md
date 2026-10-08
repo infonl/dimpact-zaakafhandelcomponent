@@ -19,12 +19,15 @@ configuration at commit, the `jakarta.validation.ConstraintViolationException` r
   entity-level check.
 - Remove the three unit test cases in `ZaaktypeConfigurationBeheerServiceTest` that expect a
   `ConstraintViolationException` from `storeConfiguration` (no groep, blank definition key, blank zaaktype
-  omschrijving).
-- Add integration tests that store an invalid CMMN configuration through the REST API. They assert the HTTP status and
-  that nothing is stored. They are written and run against the current code first, so that the status before the
-  removal is known and kept. Against the current code, a configuration without groep fails with a 500 in the REST
-  converter, before `validate()` runs. A blank zaakafzender e-mail address, which `validate()` does not check, is
-  rejected by Hibernate's validation with a 400.
+  omschrijving), and the setup that only served `validate()`.
+- Add `@NotBlank` to `RestZaaktypeConfiguration.defaultGroepId`. A CMMN configuration without groep then gets a 400
+  with a violation report, like a BPMN configuration without groep, instead of a 500 from a `NullPointerException` in
+  `RestZaaktypeConfigurationConverter`. The CMMN edit component sends `null` instead of `undefined` for a missing
+  groep, to match the generated type.
+- Add integration tests that store an invalid CMMN configuration through the REST API. They assert the HTTP status,
+  the violation in the response and that nothing is stored: a configuration without groep is rejected by the REST
+  validation, and a blank zaakafzender e-mail address, which `validate()` does not check, is rejected by Hibernate's
+  validation.
 - `validateObject` in `ValidationUtil.kt` stays: `MailTemplateKoppelingenService` still uses it.
 
 ## Capabilities
@@ -36,16 +39,21 @@ None.
 ### Modified Capabilities
 
 - `zaaktype-configuration`: the requirement "Both engines are validated the same way" gets scenarios for a CMMN
-  configuration that passes REST validation but breaks an entity constraint. It is rejected, nothing is stored, and the
-  HTTP status stays what it is today.
+  configuration without groep and for one that passes REST validation but breaks an entity constraint. Both are
+  rejected with a validation error and nothing is stored. The requirement "The configuration REST contract stays
+  unchanged" allows the one OpenAPI change: `defaultGroepId` of `RestZaaktypeConfiguration` becomes required.
 
 ## Impact
 
 - Code: `src/main/kotlin/nl/info/zac/admin/model/ZaaktypeConfiguration.kt`,
-  `src/main/kotlin/nl/info/zac/admin/ZaaktypeConfigurationBeheerService.kt`.
+  `src/main/kotlin/nl/info/zac/admin/ZaaktypeConfigurationBeheerService.kt`,
+  `src/main/kotlin/nl/info/zac/app/admin/model/RestZaaktypeConfiguration.kt`,
+  `src/main/app/src/app/admin/parameters-edit-cmmn/parameters-edit-cmmn.component.ts`.
 - Tests: `src/test/kotlin/nl/info/zac/admin/ZaaktypeConfigurationBeheerServiceTest.kt`,
   `src/itest/kotlin/nl/info/zac/itest/ZaaktypeConfigurationRestServiceTest.kt`.
-- REST API and OpenAPI specification: unchanged.
+- REST API: `PUT /zaakafhandelparameters` without `defaultGroepId` returns a 400 instead of a 500. Paths and payloads
+  are unchanged. The OpenAPI specification marks `defaultGroepId` of `RestZaaktypeConfiguration` as required, so the
+  generated frontend type changes from `defaultGroepId?: string | null` to `defaultGroepId: string | null`.
 - Callers of `storeConfiguration`: the CMMN and BPMN REST services and `upsertConfiguration` (zaaktype notification).
   An invalid configuration now fails at flush or commit instead of before the repository call. The transaction still
   rolls back and nothing is stored.

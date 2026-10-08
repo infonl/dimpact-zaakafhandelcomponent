@@ -10,8 +10,8 @@ See proposal.md - Why. The current state that matters for the approach:
   The integration test run against the current code shows that this also happens when Hibernate's validation fails at
   commit (`ARJUNA012125 ... beforeCompletion - failed`, caused by "Validation failed for classes
   [ZaaktypeZaakafzenderParameters] during persist time"): the response is a 400 with a RESTEasy violation report.
-- `RestZaaktypeConfigurationConverter` throws a `NullPointerException` for a CMMN configuration without
-  `defaultGroepId`, before `storeConfiguration` runs. `RestExceptionMapper` turns it into a 500.
+- Before this change, `RestZaaktypeConfigurationConverter` threw a `NullPointerException` for a CMMN configuration
+  without `defaultGroepId`, before `storeConfiguration` ran. `RestExceptionMapper` turned it into a 500.
 - The REST models are validated with `@Valid`. `RestZaaktypeBpmnConfiguration.groepNaam` is `@NotBlank`, so a BPMN
   configuration without groep gets a 400 before it reaches the service.
   `RestZaakAfzender.mail` has no constraint, so a CMMN configuration with a blank zaakafzender e-mail address reaches
@@ -25,15 +25,12 @@ See proposal.md - Why. The current state that matters for the approach:
 **Goals:**
 
 - One entity-level validation mechanism: Hibernate's, which covers every cascaded child.
-- Integration tests that fix the observable result of an invalid CMMN configuration (HTTP status and nothing stored),
-  measured before and after the removal.
+- Integration tests that fix the observable result of an invalid CMMN configuration (HTTP status, the violation in
+  the response and nothing stored).
+- A 400 instead of a 500 for a CMMN configuration without groep, so that CMMN and BPMN reject it the same way.
 
 **Non-Goals:**
 
-- Returning a 400 instead of a 500 for a CMMN configuration without groep. That needs a constraint on the REST
-  model. SmallRye OpenAPI turns Bean Validation constraints into schema properties, so this changes the OpenAPI
-  specification and the generated frontend types. The "configuration REST contract stays unchanged" requirement
-  forbids that here, so it belongs in its own change.
 - Changing `RestExceptionMapper` to map `ConstraintViolationException` or rollback exceptions.
 - Removing `validateObject`; other code still uses it.
 
@@ -54,6 +51,15 @@ it, so only Hibernate's validation can reject it. If it is accepted today, Hiber
 removal is unsafe. The missing groep case alone cannot show this, because the `NOT NULL` column on `groep_id` would
 reject it anyway.
 
+**Reject a CMMN configuration without groep in the REST model.** `@NotBlank` on
+`RestZaaktypeConfiguration.defaultGroepId` matches `@NotBlank` on `RestZaaktypeBpmnConfiguration.groepNaam`. The
+`@Valid` request is then rejected with a 400 and a violation report before the converter runs, and the converter's
+`NullPointerException` is no longer reachable from the REST API. SmallRye OpenAPI turns the constraint into a
+required property, so the generated frontend type makes `defaultGroepId` required. The CMMN edit component already
+requires a groep in its form; it only needs to send `null` instead of `undefined`. `RestZaaktypeConfiguration` is
+also a response model, and JSON-B leaves out a `null` value, but every stored configuration has a groep (`NOT NULL`
+column), so a response for a stored configuration always contains it.
+
 **Do not flush in `storeConfiguration` to fail earlier.** An explicit `flush` would move the failure into the method,
 but the response is the same 400 and the transaction rolls back in both cases. It adds a database round trip for no
 observable gain.
@@ -62,7 +68,10 @@ observable gain.
 
 - [The current code returns a 400 for a CMMN configuration without groep, so the removal would turn it into a 500]
   → The first task group measures this. If the current status is 400, stop and report to the user before removing
-  anything. Measured: the current code returns a 500 from the REST converter, so the removal does not affect it.
+  anything. Measured: the code before this change returns a 500 from the REST converter, so the removal does not
+  affect it. The `@NotBlank` on `defaultGroepId` then turns that 500 into a 400.
+- [A client sends a CMMN configuration without `defaultGroepId` and relied on the 500] → No client can store such a
+  configuration, so a 400 only changes the error status.
 - [Hibernate's validation is not active in the WildFly deployment (for example because the validation provider is not
   visible to the persistence unit)] → The blank zaakafzender test is accepted today in that case. Stop and report to
   the user; the fix is then to set `validation-mode` or the provider, not to remove the check.

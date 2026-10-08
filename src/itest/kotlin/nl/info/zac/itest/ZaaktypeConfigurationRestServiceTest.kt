@@ -37,7 +37,6 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
-import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_OK
 
 class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
@@ -437,9 +436,27 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 testUser = BEHEERDER_1
             )
 
-            then("the request fails with a server error and the stored configuration keeps its default groep") {
-                logger.info { "Response: ${response.bodyAsString}" }
-                response.code shouldBe HTTP_INTERNAL_ERROR
+            then(
+                "the request fails with a validation error on the default groep and the stored configuration keeps its default groep"
+            ) {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
+                responseBody shouldEqualJson """
+                    {
+                      "classViolations": [],
+                      "parameterViolations": [
+                        {
+                          "constraintType": "PARAMETER",
+                          "message": "must not be blank",
+                          "path": "createOrUpdateZaaktypeCmmnConfiguration.arg0.defaultGroepId",
+                          "value": ""
+                        }
+                      ],
+                      "propertyViolations": [],
+                      "returnValueViolations": []
+                    }
+                """.trimIndent()
                 readZaaktypeCmmnTest1Configuration().getString("defaultGroepId") shouldBe
                     GROUP_BEHANDELAARS_TEST_1.name
             }
@@ -455,9 +472,30 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 testUser = BEHEERDER_1
             )
 
-            then("the request fails with a validation error and the stored configuration keeps its default zaakafzender") {
-                logger.info { "Response: ${response.bodyAsString}" }
+            then(
+                """
+                the request fails with a validation error on the zaakafzender e-mail address
+                and the stored configuration keeps its default zaakafzender
+                """
+            ) {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_BAD_REQUEST
+                responseBody shouldEqualJson """
+                    {
+                      "classViolations": [],
+                      "parameterViolations": [],
+                      "propertyViolations": [
+                        {
+                          "constraintType": "PROPERTY",
+                          "message": "must not be blank",
+                          "path": "mail",
+                          "value": " "
+                        }
+                      ],
+                      "returnValueViolations": []
+                    }
+                """.trimIndent()
                 readZaaktypeCmmnTest1Configuration().defaultZaakafzenderMail() shouldBe "GEMEENTE"
             }
         }

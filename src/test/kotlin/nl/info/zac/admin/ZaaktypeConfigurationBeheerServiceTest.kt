@@ -55,11 +55,8 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         context("storing a $configurationType configuration") {
-            given("a valid $configurationType configuration for a zaaktype version that already has a configuration") {
-                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
-                    id = 999L
-                    groepID = "fakeGroup"
-                }
+            given("a $configurationType configuration for a zaaktype version that already has a configuration") {
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply { id = 999L }
                 val storedZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply { id = 42L }
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
@@ -132,7 +129,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
             given("an existing $configurationType configuration of the zaaktype version itself") {
                 val existingZaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype").apply {
-                    groepID = "fakeGroup"
                     zaaktypeOmschrijving = "fakeExistingZaaktype$configurationType"
                 }
                 val zaaktype = createZaakType(
@@ -327,7 +323,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             val existingConfig = ZaaktypeConfiguration().apply {
                 this.zaaktypeUuid = zaaktypeUuid
                 zaaktypeOmschrijving = "fakeOriginalOmschrijving"
-                groepID = "fakeGroup"
                 einddatumGeplandWaarschuwing = 5
                 creatiedatum = ZonedDateTime.now()
             }
