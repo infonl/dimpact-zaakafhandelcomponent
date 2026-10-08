@@ -339,6 +339,18 @@ has already ended. Each binding is a no-op when it has neither. `BpmnService` ge
 
 ### D7. B2: resultaattype by omschrijving, expand only
 
+A configuration references a resultaattype twice: in the niet-ontvankelijk setting and in each zaakbeeindig
+parameter. It stores the UUID. In Open Zaak a resultaattype belongs to one zaaktype version, and each new
+zaaktype version gets new resultaattypen with new UUIDs. Only the omschrijving stays the same, and Open Zaak
+keeps it unique within a zaaktype version. A stored UUID is therefore valid for one zaaktype version only:
+
+- When a new zaaktype version inherits a configuration, every UUID must be remapped by omschrijving
+  (`updateZaakbeeindigGegevens`). A missed remap leaves references to the previous version, as in PZ-12241.
+- When ZAC ends a zaak, the resultaattype must belong to the zaaktype version of that zaak.
+
+B2 makes the omschrijving the reference and resolves the UUID per zaaktype version. Versioning then copies the
+omschrijving without a remap (D8).
+
 V103 adds `niet_ontvankelijk_resultaattype_omschrijving` to `zaaktype_configuration` and
 `resultaattype_omschrijving` to `zaaktype_completion_parameters`. Both columns are nullable.
 
