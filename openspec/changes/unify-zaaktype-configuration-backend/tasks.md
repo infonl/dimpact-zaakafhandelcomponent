@@ -196,7 +196,7 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 
 PR B4: branch `feature/PZ-12669-b4-drop-resultaattype-uuid`, base B3.
 
-- [ ] 7.1 Write `V104__drop_resultaattype_uuid.sql` (design D11):
+- [x] 7.1 Write `V104__drop_resultaattype_uuid.sql` (design D11):
       - move zaakbeeindig parameters without an omschrijving to quarantine
       - copy configurations with a niet-ontvankelijk UUID but no omschrijving to quarantine, and keep them
       - report both counts with `RAISE WARNING`
@@ -205,17 +205,17 @@ PR B4: branch `feature/PZ-12669-b4-drop-resultaattype-uuid`, base B3.
       Verify on the itest stack that ZAC starts and that Flyway reports V104 as applied. Also verify with a migration
       test from V103 (as in 1.3) that resolved references keep their omschrijving and that every unresolved reference
       is in the quarantine table with its UUID.
-- [ ] 7.2 Remove the UUID fields from `ZaaktypeConfiguration` and `ZaaktypeCompletionParameters`. Make the REST
+- [x] 7.2 Remove the UUID fields from `ZaaktypeConfiguration` and `ZaaktypeCompletionParameters`. Make the REST
       converters read the omschrijving of the UUID in the payload through `ResultaattypeReferenceService`, and stop
       filling omschrijvingen in `ZaaktypeConfigurationBeheerService`. Verify with unit tests of both REST resources.
-- [ ] 7.3 Make `ResultaattypeReferenceService` resolve only by omschrijving, and return no resultaattype with a
+- [x] 7.3 Make `ResultaattypeReferenceService` resolve only by omschrijving, and return no resultaattype with a
       warning when the zaaktype version has none with the omschrijving. Leave such a reference out of the REST
       responses, and fail zaak termination for a zaakbeeindig reden whose resultaattype cannot be resolved. Verify
       with unit tests for a match and a missing omschrijving.
-- [ ] 7.4 Make `ZaaktypeConfigurationVersioning.createNextVersion` match the stored omschrijving only. Remove
+- [x] 7.4 Make `ZaaktypeConfigurationVersioning.createNextVersion` match the stored omschrijving only. Remove
       `ResultaattypeOmschrijvingBackfill`, its repository queries, and its tests. Verify with
       `./gradlew test` and the itest `NotificationZaaktypeCompletionParametersTest`.
-- [ ] 7.5 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the draft PR
+- [x] 7.5 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the draft PR
       `refactor(admin): drop the resultaattype UUID columns from the zaaktype configuration`, with body footer
       `Solves PZ-12669`.
 - [ ] 7.6 Merge only after the release that contains B2 has run on every environment and the backfill summary log
