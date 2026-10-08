@@ -1734,7 +1734,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(
+                    zaaktypeConfiguration.zaaktypeUuid,
+                    "fakeNietOntvankelijkResultaattype"
+                )
             } returns createResultaatType(
                 url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )
@@ -1778,7 +1781,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakType.url.extractUuid())
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(
+                    zaaktypeConfiguration.zaaktypeUuid,
+                    "fakeNietOntvankelijkResultaattype"
+                )
             } throws IllegalStateException("fakeMessage")
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -1826,7 +1832,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(
+                    zaaktypeConfiguration.zaaktypeUuid,
+                    "fakeNietOntvankelijkResultaattype"
+                )
             } returns createResultaatType(
                 url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )
@@ -2012,7 +2021,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(
+                    zaaktypeConfiguration.zaaktypeUuid,
+                    "fakeNietOntvankelijkResultaattype"
+                )
             } returns createResultaatType(
                 url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid")
             )

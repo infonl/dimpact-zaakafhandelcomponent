@@ -536,8 +536,13 @@ class ZaakRestService @Inject constructor(
             // Abort the case in OpenZaak
             if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
                 // Use the hardcoded "niet ontvankelijk" reden that we don't manage via the zaaktype configuration
-                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(it)?.let { resultaattype ->
-                    terminateZaak(zaak, resultaattype.url.extractUuid(), INADMISSIBLE_TERMINATION_REASON)
+                it.nietOntvankelijkResultaattypeOmschrijving?.let { omschrijving ->
+                    terminateZaak(
+                        zaak,
+                        resultaattypeReferenceService.readNietOntvankelijkResultaattype(it.zaaktypeUuid, omschrijving)
+                            .url.extractUuid(),
+                        INADMISSIBLE_TERMINATION_REASON
+                    )
                 }
             } else {
                 afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->

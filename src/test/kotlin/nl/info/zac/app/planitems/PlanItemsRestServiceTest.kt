@@ -866,7 +866,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns intakeAfrondenZaaktypeCmmnConfiguration
             every {
-                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(intakeAfrondenZaaktypeCmmnConfiguration)
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(
+                    intakeAfrondenZaaktypeCmmnConfiguration.zaaktypeUuid,
+                    "fakeNietOntvankelijkResultaattype"
+                )
             } returns createResultaatType(url = URI("https://example.com/resultaattypen/$nietOntvankelijkResultaattypeUuid"))
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every {
@@ -950,9 +953,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns geenResultaattypeZaaktypeCmmnConfiguration
-            every {
-                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(geenResultaattypeZaaktypeCmmnConfiguration)
-            } returns null
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1025,7 +1025,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.readConfiguration(zaak.zaaktype.extractUuid())
             } returns zaaktypeConfiguration
             every {
-                resultaattypeReferenceService.readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration)
+                resultaattypeReferenceService.readNietOntvankelijkResultaattype(
+                    zaaktypeConfiguration.zaaktypeUuid,
+                    "fakeNietOntvankelijkResultaattype"
+                )
             } throws IllegalStateException("fakeMessage")
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser

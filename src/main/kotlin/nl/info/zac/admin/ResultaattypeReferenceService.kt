@@ -36,12 +36,10 @@ class ResultaattypeReferenceService @Inject constructor(
             find(zaaktypeConfiguration.zaaktypeUuid, it)
         }
 
-    fun readConfiguredNietOntvankelijkResultaattype(zaaktypeConfiguration: ZaaktypeConfiguration): ResultaatType? =
-        zaaktypeConfiguration.nietOntvankelijkResultaattypeOmschrijving?.let {
-            checkNotNull(find(zaaktypeConfiguration.zaaktypeUuid, it)) {
-                "Zaaktype with UUID '${zaaktypeConfiguration.zaaktypeUuid}' has no niet-ontvankelijk resultaattype with " +
-                    "omschrijving '$it'"
-            }
+    fun readNietOntvankelijkResultaattype(zaaktypeUuid: UUID, resultaattypeOmschrijving: String): ResultaatType =
+        checkNotNull(find(zaaktypeUuid, resultaattypeOmschrijving)) {
+            "Zaaktype with UUID '$zaaktypeUuid' has no niet-ontvankelijk resultaattype with " +
+                "omschrijving '$resultaattypeOmschrijving'"
         }
 
     fun findResultaattype(zaaktypeCompletionParameters: ZaaktypeCompletionParameters): ResultaatType? =
