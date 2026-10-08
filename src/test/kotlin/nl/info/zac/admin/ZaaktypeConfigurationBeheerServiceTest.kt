@@ -13,7 +13,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
-import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.validation.ConstraintViolationException
@@ -34,14 +33,14 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val ztcClientService = mockk<ZtcClientService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
-    val zaaktypeHelperService = mockk<ZaaktypeHelperService>()
+    val zaaktypeConfigurationVersioning = mockk<ZaaktypeConfigurationVersioning>()
     val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
     val zaaktypeConfigurationBeheerService = ZaaktypeConfigurationBeheerService(
         zaaktypeConfigurationRepository = zaaktypeConfigurationRepository,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         ztcClientService = ztcClientService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeHelperService = zaaktypeHelperService,
+        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning,
         resultaattypeReferenceService = resultaattypeReferenceService
     )
 
@@ -112,7 +111,11 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                     uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"),
                     omschrijving = previousZaaktypeConfiguration.zaaktypeOmschrijving
                 )
-                val newZaaktypeConfiguration = slot<ZaaktypeConfiguration>()
+                val nextZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    id = null
+                    zaaktypeUuid = newZaaktypeUuid
+                    groepID = "fakeCopiedGroup"
+                }
                 clearZtcCachesJustRuns()
                 every { ztcClientService.readZaaktype(newZaaktype.url) } returns newZaaktype
                 every { zaaktypeConfigurationRepository.findByZaaktypeUuid(newZaaktypeUuid) } returns null
@@ -120,15 +123,10 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                     zaaktypeConfigurationRepository.findCurrentByZaaktypeOmschrijving(newZaaktype.omschrijving)
                 } returns previousZaaktypeConfiguration
                 every {
-                    zaaktypeHelperService.copyConfigurationData(previousZaaktypeConfiguration, any(), newZaaktype)
-                } answers {
-                    secondArg<ZaaktypeConfiguration>().apply {
-                        groepID = "fakeCopiedGroup"
-                        creatiedatum = ZonedDateTime.now()
-                    }
-                }
-                every { resultaattypeReferenceService.fillOmschrijvingen(any()) } just runs
-                every { zaaktypeConfigurationRepository.store(capture(newZaaktypeConfiguration)) } answers { firstArg() }
+                    zaaktypeConfigurationVersioning.createNextVersion(previousZaaktypeConfiguration, newZaaktype)
+                } returns nextZaaktypeConfiguration
+                every { resultaattypeReferenceService.fillOmschrijvingen(nextZaaktypeConfiguration) } just runs
+                every { zaaktypeConfigurationRepository.store(nextZaaktypeConfiguration) } returns nextZaaktypeConfiguration
                 every { zaaktypeConfigurationService.evict(newZaaktypeUuid) } just runs
                 every {
                     smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
@@ -140,12 +138,8 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 `when`("the notification is handled") {
                     zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(newZaaktype.url)
 
-                    then("a configuration for the new version is created from the previous one and stored") {
-                        with(newZaaktypeConfiguration.captured) {
-                            zaaktypeUuid shouldBe newZaaktypeUuid
-                            zaaktypeOmschrijving shouldBe newZaaktype.omschrijving
-                            groepID shouldBe "fakeCopiedGroup"
-                        }
+                    then("the next version of the previous configuration is stored") {
+                        verify(exactly = 1) { zaaktypeConfigurationRepository.store(nextZaaktypeConfiguration) }
                     }
 
                     and("the SmartDocuments template mappings are copied onto the new version") {
@@ -173,9 +167,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(existingZaaktypeConfiguration.zaaktypeUuid)
                 } returns existingZaaktypeConfiguration
-                every {
-                    zaaktypeHelperService.updateZaakbeeindigGegevens(existingZaaktypeConfiguration, zaaktype)
-                } just runs
                 every { resultaattypeReferenceService.fillOmschrijvingen(existingZaaktypeConfiguration) } just runs
                 every {
                     zaaktypeConfigurationRepository.store(existingZaaktypeConfiguration)
@@ -185,19 +176,56 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 `when`("a notification for that zaaktype version is handled") {
                     zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktype.url)
 
-                    then("only that configuration is updated, and no SmartDocuments template mappings are copied") {
+                    then(
+                        "only that configuration is stored, without a next version or SmartDocuments template mappings"
+                    ) {
                         verify(exactly = 1) {
-                            zaaktypeHelperService.updateZaakbeeindigGegevens(existingZaaktypeConfiguration, zaaktype)
                             zaaktypeConfigurationRepository.store(existingZaaktypeConfiguration)
                         }
                         verify(exactly = 0) {
                             zaaktypeConfigurationRepository.findCurrentByZaaktypeOmschrijving(
                                 existingZaaktypeConfiguration.zaaktypeOmschrijving
                             )
+                            zaaktypeConfigurationVersioning.createNextVersion(any(), any())
                             smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
                                 any(),
                                 existingZaaktypeConfiguration.zaaktypeUuid
                             )
+                        }
+                    }
+                }
+            }
+
+            given("$configurationType configurations of an older and a newer version of the same zaaktype") {
+                val olderZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    groepID = "fakeOlderGroup"
+                }
+                val newerZaaktypeConfiguration = createZaaktypeConfiguration(UUID.randomUUID()).apply {
+                    groepID = "fakeNewerGroup"
+                }
+                val olderZaaktype = createZaakType(
+                    uri = URI("https://example.com/zaaktypes/${olderZaaktypeConfiguration.zaaktypeUuid}"),
+                    omschrijving = olderZaaktypeConfiguration.zaaktypeOmschrijving
+                )
+                clearZtcCachesJustRuns()
+                every { ztcClientService.readZaaktype(olderZaaktype.url) } returns olderZaaktype
+                every {
+                    zaaktypeConfigurationRepository.findByZaaktypeUuid(olderZaaktypeConfiguration.zaaktypeUuid)
+                } returns olderZaaktypeConfiguration
+                every { resultaattypeReferenceService.fillOmschrijvingen(olderZaaktypeConfiguration) } just runs
+                every {
+                    zaaktypeConfigurationRepository.store(olderZaaktypeConfiguration)
+                } returns olderZaaktypeConfiguration
+                every { zaaktypeConfigurationService.evict(olderZaaktypeConfiguration.zaaktypeUuid) } just runs
+
+                `when`("a notification for the older version is handled") {
+                    zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(olderZaaktype.url)
+
+                    then("the configuration of the newer version is neither stored nor replaced by a next version") {
+                        newerZaaktypeConfiguration.groepID shouldBe "fakeNewerGroup"
+                        verify(exactly = 0) {
+                            zaaktypeConfigurationRepository.store(newerZaaktypeConfiguration)
+                            zaaktypeConfigurationVersioning.createNextVersion(any(), any())
                         }
                     }
                 }
@@ -334,7 +362,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 servicenorm = null
             )
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns existingConfig
-            every { zaaktypeHelperService.updateZaakbeeindigGegevens(existingConfig, updatedZaaktype) } just runs
             every { resultaattypeReferenceService.fillOmschrijvingen(existingConfig) } just runs
             every { zaaktypeConfigurationRepository.store(existingConfig) } returns existingConfig
             every { zaaktypeConfigurationService.evict(zaaktypeUuid) } just runs

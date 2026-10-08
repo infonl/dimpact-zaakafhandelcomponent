@@ -182,12 +182,12 @@ PR A2: branch `feature/PZ-12669-a2-zaak-settings-to-base`, base A2-java.
 
 ## 6. PR B3: configuration versioning (branch `feature/PZ-12669-b3-configuration-versioning`, base B2)
 
-- [ ] 6.1 Rename `ZaaktypeHelperService` to `ZaaktypeConfigurationVersioning`, add
+- [x] 6.1 Rename `ZaaktypeHelperService` to `ZaaktypeConfigurationVersioning`, add
       `createNextVersion(previous, newZaaktype): ZaaktypeConfiguration`, and remove `updateZaakbeeindigGegevens`
       (design D8). Verify with unit tests, parameterised by engine.
-- [ ] 6.2 Rewrite `ZaaktypeConfigurationBeheerService.upsertConfiguration` on top of `createNextVersion`. Verify
+- [x] 6.2 Rewrite `ZaaktypeConfigurationBeheerService.upsertConfiguration` on top of `createNextVersion`. Verify
       with unit tests for: no previous, existing version, and a notification for an older version.
-- [ ] 6.3 Add the reflection test that asserts that `createNextVersion` copies every non-identity property of
+- [x] 6.3 Add the reflection test that asserts that `createNextVersion` copies every non-identity property of
       `ZaaktypeConfiguration`. Verify that it fails when one copied line is removed, then restore the line.
 - [ ] 6.4 Verify `./gradlew spotlessApply detektApply detekt build itest` and the contract diff. Then open the PR
       `refactor(admin): make zaaktype configuration versioning a pure function`, with body footer `Solves PZ-12669`.

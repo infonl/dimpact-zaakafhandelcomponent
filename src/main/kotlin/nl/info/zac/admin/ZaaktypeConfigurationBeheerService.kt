@@ -36,7 +36,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val ztcClientService: ZtcClientService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
-    private val zaaktypeHelperService: ZaaktypeHelperService,
+    private val zaaktypeConfigurationVersioning: ZaaktypeConfigurationVersioning,
     private val resultaattypeReferenceService: ResultaattypeReferenceService
 ) {
     companion object {
@@ -106,7 +106,6 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing.takeIf { zaaktype.isServicenormAvailable() }
             }
-            zaaktypeHelperService.updateZaakbeeindigGegevens(existingConfiguration, zaaktype)
             storeConfiguration(existingConfiguration)
             return
         }
@@ -116,11 +115,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
             LOG.info { "Zaaktype '${zaaktype.omschrijving}' with UUID $zaaktypeUuid has no known configuration. Ignoring" }
             return
         }
-        ZaaktypeConfiguration().apply {
-            this.zaaktypeUuid = zaaktypeUuid
-            zaaktypeOmschrijving = zaaktype.omschrijving
-            zaaktypeHelperService.copyConfigurationData(previousConfiguration, this, zaaktype)
-        }.let(::storeConfiguration)
+        storeConfiguration(zaaktypeConfigurationVersioning.createNextVersion(previousConfiguration, zaaktype))
         smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(previousConfiguration.zaaktypeUuid, zaaktypeUuid)
     }
 }
