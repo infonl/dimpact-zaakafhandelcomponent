@@ -15,7 +15,7 @@ import io.mockk.verify
 import jakarta.json.Json
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
@@ -68,7 +68,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         val task = createTestTask()
         val restTask = createRestTask(zaakUuid = zaakUuid, taakData = mutableMapOf())
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
@@ -78,7 +78,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
 
             then("sets task info and data, updates zaak variables, and returns the original task") {
                 result shouldBe task
-                verify(exactly = 1) { taakVariabelenService.setTaskinformation(task, restTask.taakinformatie) }
+                verify(exactly = 1) { taakVariabelenService.setTaskInformation(task, restTask.taakinformatie) }
                 verify(exactly = 1) { taakVariabelenService.setTaskData(task, restTask.taakdata) }
                 verify(exactly = 1) { zaakVariabelenService.setZaakdata(zaakUuid, any()) }
                 verify(exactly = 0) { flowableTaskService.updateTask(any()) }
@@ -99,7 +99,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             taakData = mutableMapOf("toelichting" to "updated description")
         )
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
@@ -130,7 +130,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             taakData = mutableMapOf("zaak-opschorten" to "true")
         )
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
@@ -155,7 +155,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             taakData = mutableMapOf("zaak-opschorten" to "true")
         )
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
@@ -178,7 +178,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             taakData = mutableMapOf("zaak-hervatten" to "true")
         )
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
@@ -202,7 +202,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             taakData = mutableMapOf("zaak-hervatten" to "true")
         )
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
@@ -230,7 +230,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             taakData = mutableMapOf("documenten-verzenden" to documentUuid.toString())
         )
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
@@ -269,7 +269,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             taakData = mutableMapOf("documenten-onderteken" to documentUuid.toString())
         )
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
@@ -302,7 +302,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             taakData = mutableMapOf("documenten-onderteken" to documentUuid.toString())
         )
 
-        every { taakVariabelenService.setTaskinformation(any(), any()) } just runs
+        every { taakVariabelenService.setTaskInformation(any(), any()) } just runs
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs

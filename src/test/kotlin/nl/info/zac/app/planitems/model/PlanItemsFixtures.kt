@@ -26,7 +26,7 @@ fun createRestHumanTaskData(
     medewerker = medewerker,
     fataledatum = fataledatum,
     toelichting = toelichting,
-    taakdata = taakdata
+    taakdata = taakdata?.toMutableMap()
 )
 
 fun createRestUserEventListenerData(

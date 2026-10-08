@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService

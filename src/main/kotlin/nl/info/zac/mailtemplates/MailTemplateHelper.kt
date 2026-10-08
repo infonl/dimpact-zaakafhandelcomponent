@@ -7,8 +7,8 @@ package nl.info.zac.mailtemplates
 import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon

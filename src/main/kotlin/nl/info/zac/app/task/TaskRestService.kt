@@ -25,13 +25,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
-import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_TOELICHTING
-import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
-import net.atos.zac.flowable.task.TaakVariabelenService.isZaakHervatten
-import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
+import nl.info.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_TOELICHTING
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_VERZENDDATUM
+import nl.info.zac.flowable.task.isZaakHervatten
+import nl.info.zac.flowable.task.readSignatures
+import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.flowable.util.isOpen
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
@@ -156,7 +157,7 @@ class TaskRestService @Inject constructor(
         flowableTaskService.readOpenTask(restTask.id).let {
             assertPolicy(it.isOpen() && policyService.readTaakRechten(it).canWijzigen)
             taakVariabelenService.setTaskData(it, restTask.taakdata)
-            taakVariabelenService.setTaskinformation(it, restTask.taakinformatie)
+            taakVariabelenService.setTaskInformation(it, restTask.taakinformatie)
             val updatedTask = updateDescriptionAndDueDate(restTask)
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
@@ -275,7 +276,7 @@ class TaskRestService @Inject constructor(
     private fun processHardCodedFormTask(restTask: RestTask, zaak: Zaak): Task {
         val updatedTask = updateDescriptionAndDueDate(restTask)
         createDocuments(restTask, zaak)
-        if (isZaakHervatten(restTask.taakdata)) {
+        if (restTask.taakdata?.let(::isZaakHervatten) == true) {
             suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         restTask.taakdata?.let { taakdata ->
@@ -290,7 +291,7 @@ class TaskRestService @Inject constructor(
             signEnkelvoudigInformatieobjecten(taakdata, zaak)
         }
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
-        taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
+        taakVariabelenService.setTaskInformation(updatedTask, restTask.taakinformatie)
         return updatedTask
     }
 
@@ -379,9 +380,9 @@ class TaskRestService @Inject constructor(
     }
 
     private fun signEnkelvoudigInformatieobjecten(taakdata: Map<String, Any>, zaak: Zaak) {
-        readSignatures(taakdata).ifPresent { signature ->
+        readSignatures(taakdata)?.let { signature ->
             signature.split(
-                TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
+                TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
             ).dropLastWhile { it.isEmpty() }.toTypedArray()
                 .filter { it.isNotEmpty() }
                 .map(UUID::fromString)
@@ -425,7 +426,7 @@ class TaskRestService @Inject constructor(
     ) {
         val verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate()
         documenten.split(
-            TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
+            TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
         ).dropLastWhile { it.isEmpty() }.toTypedArray()
             .forEach { documentUUID ->
                 setVerzenddatumEnkelvoudigInformatieObject(

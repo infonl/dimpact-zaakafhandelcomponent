@@ -9,7 +9,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
@@ -21,6 +20,7 @@ import nl.info.zac.app.task.model.RestTaskDistributeTask
 import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
@@ -259,7 +259,7 @@ class TaskService @Inject constructor(
 
     private fun grantZaakspecifiekeAutorisatieToNewAssignee(task: Task, assignee: String) {
         if (task.assignee == assignee) return
-        val zaak = zrcClientService.readZaak(TaakVariabelenService.readZaakUUID(task))
+        val zaak = zrcClientService.readZaak(readZaakUUID(task))
         if (zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, assignee)) {
             taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, assignee)
         }

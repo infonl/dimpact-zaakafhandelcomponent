@@ -18,7 +18,15 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.mail.model.toMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CmmnService
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.isSendDataSendMail
+import nl.info.zac.flowable.task.isZaakOpschorten
+import nl.info.zac.flowable.task.readMailAttachments
+import nl.info.zac.flowable.task.readMailBody
+import nl.info.zac.flowable.task.readMailFrom
+import nl.info.zac.flowable.task.readMailReplyTo
+import nl.info.zac.flowable.task.readMailTo
+import nl.info.zac.flowable.task.readSendDataMail
+import nl.info.zac.flowable.task.setMailBody
 import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZgwApiService
@@ -58,7 +66,6 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 private val LOG = Logger.getLogger(PlanItemsRestService::class.java.name)
 
@@ -138,8 +145,8 @@ class PlanItemsRestService @Inject constructor(
         val planItem = cmmnService.readOpenPlanItem(humanTaskData.planItemInstanceId)
         val zaakUUID = zaakVariabelenService.readZaakUUID(planItem)
         val zaak = zrcClientService.readZaak(zaakUUID)
-        val taakdata = humanTaskData.taakdata
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canStartenTaak)
+        val taakdata = checkNotNull(humanTaskData.taakdata) { "No task data found for plan item '${humanTaskData.planItemInstanceId}'" }
         val assignee = humanTaskData.medewerker?.id?.takeIf { it.isNotBlank() }
         val zaakspecifiekGeautoriseerdeTaakbehandelaar = assignee?.takeIf {
             zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, it)
@@ -152,7 +159,7 @@ class PlanItemsRestService @Inject constructor(
             planItem = planItem,
             zaak = zaak
         )?.also {
-            if (TaakVariabelenService.isZaakOpschorten(taakdata)) {
+            if (isZaakOpschorten(taakdata)) {
                 val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), it)
                 suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING)
             } else if (it.isAfter(zaak.uiterlijkeEinddatumAfdoening)) {
@@ -161,8 +168,8 @@ class PlanItemsRestService @Inject constructor(
             }
         }
 
-        val shouldSendMail = TaakVariabelenService.isSendDataSendMail(taakdata)
-        val sendDataMail = TaakVariabelenService.readSendDataMail(taakdata).getOrNull()
+        val shouldSendMail = isSendDataSendMail(taakdata)
+        val sendDataMail = readSendDataMail(taakdata)
         if (shouldSendMail && sendDataMail != null) {
             val mail = Mail.valueOf(sendDataMail)
 
@@ -172,22 +179,17 @@ class PlanItemsRestService @Inject constructor(
                 ?: mailTemplateService.readDefaultMailTemplate(mail)
 
             val afzender = configurationService.readGemeenteNaam()
-            TaakVariabelenService.setMailBody(
+            setMailBody(
                 taakdata,
                 mailService.sendMail(
                     MailGegevens(
-                        from = TaakVariabelenService.readMailFrom(taakdata)
-                            .map { MailAdres(it, afzender) }
-                            .orElseGet { mailService.getGemeenteMailAdres() },
-                        to = TaakVariabelenService.readMailTo(taakdata)
-                            .map { MailAdres(it, null) }
-                            .get(),
-                        replyTo = TaakVariabelenService.readMailReplyTo(taakdata)
-                            .map { MailAdres(it, afzender) }
-                            .getOrNull(),
+                        from = readMailFrom(taakdata)?.let { MailAdres(it, afzender) }
+                            ?: mailService.getGemeenteMailAdres(),
+                        to = MailAdres(checkNotNull(readMailTo(taakdata)) { "No mail recipient found in task data" }, null),
+                        replyTo = readMailReplyTo(taakdata)?.let { MailAdres(it, afzender) },
                         subject = mailTemplate.onderwerp,
-                        body = TaakVariabelenService.readMailBody(taakdata).orElse(null),
-                        attachments = TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
+                        body = checkNotNull(readMailBody(taakdata)) { "No mail body found in task data" },
+                        attachments = readMailAttachments(taakdata),
                         isCreateDocumentFromMail = true,
                         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
                     ),

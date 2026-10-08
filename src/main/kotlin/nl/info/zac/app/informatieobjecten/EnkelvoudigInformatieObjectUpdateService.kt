@@ -11,8 +11,8 @@ import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
+import nl.info.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.readTaskDocuments
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -153,7 +153,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
                 addAll(readTaskDocuments(task))
                 add(zaakInformatieobject.informatieobject.extractUuid())
             }.let {
-                taakVariabelenService.setTaakdocumenten(task, it)
+                taakVariabelenService.setTaskDocuments(task, it)
             }
         } finally {
             lock.unlock()

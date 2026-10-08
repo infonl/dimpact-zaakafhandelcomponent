@@ -258,7 +258,8 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         ) {
             val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
-                medewerker = createRestUser(id = "fakeTaakbehandelaarId")
+                medewerker = createRestUser(id = "fakeTaakbehandelaarId"),
+                taakdata = mapOf("fakeKey" to "fakeValue")
             )
             val zaak = createZaak()
             val loggedInUser = createLoggedInUser()
