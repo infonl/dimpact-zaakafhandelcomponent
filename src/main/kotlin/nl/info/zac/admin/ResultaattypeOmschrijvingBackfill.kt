@@ -23,6 +23,8 @@ import java.util.logging.Logger
 /**
  * Fills the omschrijving of the resultaattype references that were stored before the omschrijving existed.
  * A reference whose resultaattype cannot be read stays empty, and the next start of ZAC tries it again.
+ *
+ * Temporary: the contract step that drops the resultaattype UUID columns removes this class.
  */
 @ApplicationScoped
 @NoArgConstructor
