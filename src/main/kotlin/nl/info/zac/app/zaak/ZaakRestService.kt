@@ -469,7 +469,13 @@ class ZaakRestService @Inject constructor(
             zaakAutorisatieGegevens = zaakAutorisatieGegevens
         )
         assertPolicy(zaakRechten.canLezen)
-        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, zaakAutorisatieGegevens).also {
+        return restZaakConverter.toRestZaak(
+            zaak = zaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser,
+            isZaakSpecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd
+        ).also {
             signaleringService.deleteSignaleringenForZaak(zaak)
         }
     }
@@ -487,7 +493,13 @@ class ZaakRestService @Inject constructor(
             zaakAutorisatieGegevens = zaakAutorisatieGegevens
         )
         assertPolicy(zaakRechten.canLezen)
-        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, zaakAutorisatieGegevens).also {
+        return restZaakConverter.toRestZaak(
+            zaak = zaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser,
+            isZaakSpecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd
+        ).also {
             signaleringService.deleteSignaleringenForZaak(zaak)
         }
     }

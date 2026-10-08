@@ -145,7 +145,6 @@ import nl.info.zac.zaak.model.createZaakAssignment
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 
 @Suppress("LongParameterList", "LargeClass")
@@ -1715,7 +1714,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     zaakRechten = zaakRechten,
                     loggedInUser = loggedInUser,
-                    zaakAutorisatieGegevens = any()
+                    isZaakSpecifiekGeautoriseerd = any()
                 )
             } returns restZaak
             every { signaleringService.deleteSignaleringenForZaak(zaak) } returns 1
@@ -1740,7 +1739,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val restZaak = createRestZaak(uuid = zaak.uuid)
             val loggedInUser = createLoggedInUser()
             val zaakAutorisatieGegevensForPolicy = slot<ZaakAutorisatieGegevens>()
-            val zaakAutorisatieGegevensForConverter = slot<ZaakAutorisatieGegevens>()
+            val isZaakSpecifiekGeautoriseerdForConverter = slot<Boolean>()
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
             every {
@@ -1757,7 +1756,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     zaakRechten = zaakRechten,
                     loggedInUser = loggedInUser,
-                    zaakAutorisatieGegevens = capture(zaakAutorisatieGegevensForConverter)
+                    isZaakSpecifiekGeautoriseerd = capture(isZaakSpecifiekGeautoriseerdForConverter)
                 )
             } returns restZaak
             every { signaleringService.deleteSignaleringenForZaak(zaak) } returns 0
@@ -1770,9 +1769,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) { zrcClientService.listZaakeigenschappen(zaak.uuid) }
                 }
 
-                and("the policy check and the conversion of the zaak use the same zaakspecifieke autorisatie data") {
-                    zaakAutorisatieGegevensForConverter.captured shouldBeSameInstanceAs
-                        zaakAutorisatieGegevensForPolicy.captured
+                and("the conversion of the zaak uses the zaakspecifieke autorisatie marking read for the policy check") {
+                    isZaakSpecifiekGeautoriseerdForConverter.captured shouldBe
+                        zaakAutorisatieGegevensForPolicy.captured.isZaakspecifiekGeautoriseerd
                 }
             }
         }
@@ -2482,7 +2481,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaakType = zaakType,
                             zaakRechten = zaakRechten,
                             loggedInUser = loggedInUser,
-                            zaakAutorisatieGegevens = null
+                            isZaakSpecifiekGeautoriseerd = null
                         )
                     }
                 }
@@ -2494,7 +2493,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaakType = any(),
                             zaakRechten = any(),
                             loggedInUser = any(),
-                            zaakAutorisatieGegevens = isNull(inverse = true)
+                            isZaakSpecifiekGeautoriseerd = isNull(inverse = true)
                         )
                     }
                 }
