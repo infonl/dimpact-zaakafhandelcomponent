@@ -10,8 +10,10 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
+import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
@@ -19,7 +21,9 @@ import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
@@ -30,6 +34,7 @@ import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -37,6 +42,8 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
     val zaakHelper = ZaakHelper(zacClient)
+    val taskHelper = TaskHelper(zacClient)
+    val documentHelper = DocumentHelper(zacClient)
     val openZaakClient = OpenZaakClient(itestHttpClient)
 
     fun zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid: UUID): List<String> =
@@ -67,6 +74,29 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             testUser = testUser
         )
 
+    fun searchTotalForAddedMedewerker(type: String, zoekveld: String, zoekwaarde: String) =
+        itestHttpClient.performPutRequest(
+            url = "$ZAC_API_URI/zoeken/list",
+            requestBodyAsString = """
+                {
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": false,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": { "$zoekveld": "$zoekwaarde" },
+                    "filters": {},
+                    "datums": {},
+                    "rows": 10,
+                    "page": 0,
+                    "type": "$type"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1_EN_BRP_ZOEKER_2
+        ).let {
+            it.code shouldBe HTTP_OK
+            JSONObject(it.bodyAsString).getInt("totaal")
+        }
+
     fun readZaak(zaakUuid: UUID, testUser: TestUser) =
         itestHttpClient.performGetRequest(url = "$ZAC_API_URI/zaken/zaak/$zaakUuid", testUser = testUser)
 
@@ -82,6 +112,23 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             testUser = BEHANDELAAR_1,
             behandelaarId = BEHANDELAAR_1.username,
             behandelaarName = BEHANDELAAR_1.displayName
+        )
+        val documentTitle = "itestZaakspecifiekDocument-${System.currentTimeMillis()}"
+        taskHelper.startAanvullendeInformatieTaskForZaak(
+            zaakUuid = zaakUuid,
+            zaakIdentificatie = zaakIdentificatie,
+            fatalDate = LocalDate.now().plusWeeks(1),
+            group = GROUP_BEHANDELAARS_TEST_1,
+            waitForTaskToBeIndexed = true,
+            testUser = BEHANDELAAR_1
+        )
+        documentHelper.uploadDocumentToZaak(
+            zaakUuid = zaakUuid,
+            fileName = TEST_PDF_FILE_NAME,
+            documentTitle = documentTitle,
+            authorName = FAKE_AUTHOR_NAME,
+            indexDocument = true,
+            testUser = BEHANDELAAR_1
         )
         itestHttpClient.performPatchRequest(
             url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
@@ -131,30 +178,12 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                     listOf(BEHANDELAAR_1_EN_BRP_ZOEKER_2.username)
             }
 
-            and("the medewerker can read the zaak and finds it in the zoekresultaten") {
+            and("the medewerker can read the zaak and finds the zaak, its taak and its document in the werkvoorraden") {
                 readZaak(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2).code shouldBe HTTP_OK
                 eventually(30.seconds) {
-                    itestHttpClient.performPutRequest(
-                        url = "$ZAC_API_URI/zoeken/list",
-                        requestBodyAsString = """
-                            {
-                                "alleenMijnZaken": false,
-                                "alleenOpenstaandeZaken": false,
-                                "alleenAfgeslotenZaken": false,
-                                "alleenMijnTaken": false,
-                                "zoeken": { "ZAAK_IDENTIFICATIE": "$zaakIdentificatie" },
-                                "filters": {},
-                                "datums": {},
-                                "rows": 10,
-                                "page": 0,
-                                "type": "ZAAK"
-                            }
-                        """.trimIndent(),
-                        testUser = BEHANDELAAR_1_EN_BRP_ZOEKER_2
-                    ).let {
-                        it.code shouldBe HTTP_OK
-                        JSONObject(it.bodyAsString).getInt("totaal") shouldBe 1
-                    }
+                    searchTotalForAddedMedewerker("ZAAK", "ZAAK_IDENTIFICATIE", zaakIdentificatie) shouldBe 1
+                    searchTotalForAddedMedewerker("TAAK", "TAAK_ZAAK_ID", zaakIdentificatie) shouldBe 1
+                    searchTotalForAddedMedewerker("DOCUMENT", "DOCUMENT_TITEL", documentTitle) shouldBe 1
                 }
             }
 
