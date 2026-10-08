@@ -363,9 +363,11 @@ V103 adds `niet_ontvankelijk_resultaattype_omschrijving` to `zaaktype_configurat
   the latter logs a warning. Open Zaak guarantees that the omschrijving is unique within a zaaktype version, so no
   ambiguity check exists.
 - **Backfill.** `ResultaattypeOmschrijvingBackfill` observes `@Initialized(ApplicationScoped.class)`, as
-  `SolrDeployerService` does, with a `@Priority` after the default one of the Flyway observer that adds the columns. It fills every null omschrijving through ZTC, row by row. It is idempotent and
-  logs one summary line with the number of rows filled and the number left unresolved. A row stays null when
-  ZTC fails or the resultaattype is gone, and the next start retries it. A Flyway Java migration is rejected,
+  `SolrDeployerService` does, with a `@Priority` after the default one (`APPLICATION + 500`) of
+  `FlywayIntegrator.onStartup`, which adds the columns. It fills every null omschrijving through ZTC, row by row.
+  It is idempotent and logs one summary line with the number of rows filled and the number left unresolved. A row
+  stays null when ZTC fails or the resultaattype is gone, and the next start retries it. Any other failure of the
+  backfill is logged and does not stop the start; the next start retries it too. A Flyway Java migration is rejected,
   because it has no CDI access to the ZTC client and its credentials.
 
 Dropping the UUID columns and the fallback is the contract step. It ships in a later release, after ops has

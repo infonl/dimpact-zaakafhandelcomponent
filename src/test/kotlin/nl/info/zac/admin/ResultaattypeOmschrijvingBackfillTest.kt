@@ -4,12 +4,14 @@
  */
 package nl.info.zac.admin
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.persistence.PersistenceException
 import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.ProcessingException
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -81,6 +83,22 @@ class ResultaattypeOmschrijvingBackfillTest : BehaviorSpec({
                     ztcClientService.readResultaattype(any<UUID>())
                     zaaktypeConfigurationRepository.fillResultaattypeOmschrijving(any(), any())
                     zaaktypeConfigurationService.clearManagedCache()
+                }
+            }
+        }
+    }
+
+    given("a database that fails when the backfill lists the resultaattype references without omschrijving") {
+        clearAllMocks()
+        every {
+            zaaktypeConfigurationRepository.listResultaattypenWithoutOmschrijving()
+        } throws PersistenceException("fakeDatabaseFailure")
+
+        `when`("ZAC starts") {
+            then("the startup continues, so that the next start retries the backfill") {
+                shouldNotThrowAny { resultaattypeOmschrijvingBackfill.onStartup(Any()) }
+                verify(exactly = 0) {
+                    zaaktypeConfigurationRepository.fillResultaattypeOmschrijving(any(), any())
                 }
             }
         }

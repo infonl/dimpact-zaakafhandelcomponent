@@ -17,6 +17,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 
 /**
@@ -34,14 +35,20 @@ class ResultaattypeOmschrijvingBackfill @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(ResultaattypeOmschrijvingBackfill::class.java.name)
 
-        // After the default priority of the Flyway migration observer, which adds the omschrijving columns.
+        // After FlywayIntegrator.onStartup, which observes the same event with the default priority
+        // (APPLICATION + 500) and adds the omschrijving columns.
         private const val PRIORITY = Interceptor.Priority.APPLICATION + 1000
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun onStartup(
         @Observes @Priority(PRIORITY) @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any
     ) {
-        backfill()
+        try {
+            backfill()
+        } catch (runtimeException: RuntimeException) {
+            LOG.log(Level.SEVERE, "Resultaattype omschrijving backfill failed; the next start retries it", runtimeException)
+        }
     }
 
     fun backfill() {
