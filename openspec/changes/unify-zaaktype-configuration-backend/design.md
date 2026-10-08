@@ -1,7 +1,7 @@
 ## Context
 
 See proposal.md for the motivation. The RFC attached to PZ-12637 (`rfc-unify-bpmn-cmmn-zaaktype-configuration.md`)
-is the source design. This document records the decisions for its backend chunks A1–A3 and B1–B4, and the
+is the source design. This document records the decisions for its backend chunks A1–A3 and B1–B3, and the
 places where it deviates from the RFC after reading the code at `9e5c88f570`.
 
 Current state:
@@ -67,7 +67,6 @@ Each chunk is a branch based on the branch of the previous chunk:
 | B1 | `feature/PZ-12669-b1-process-binding` | A3 | — |
 | B2 | `feature/PZ-12669-b2-resultaattype-omschrijving` | B1 | V103 |
 | B3 | `feature/PZ-12669-b3-configuration-versioning` | B2 | — |
-| B4 | `feature/PZ-12669-b4-confirmation-email-fallback` | B3 | — |
 
 A1 carries the openspec change directory. When a chunk has to change Java code, the conversion of that code to
 Kotlin is a PR of its own, stacked directly below the chunk (A2-java below A2). That PR changes no behaviour, so
@@ -331,7 +330,7 @@ the groep, behandelaar and communicatiekanaal zaak variables only while the proc
 nothing, because a CMMN case reads the rollen of the zaak.
 
 `ProductaanvraagService` keeps its choice between the CMMN and the BPMN flow. The two flows differ in their order and
-in the confirmation email, which B4 changes; only the process start inside each flow goes through the dispatcher.
+in the confirmation email; only the process start inside each flow goes through the dispatcher.
 
 `delete` serves `NotificationReceiver` on zaak delete. The zaak no longer exists in Open Zaak, so ZAC cannot
 resolve its zaaktype. The receiver therefore calls `delete` on every binding. Each binding deletes the running
@@ -402,14 +401,12 @@ A reflection unit test fills every `ZaaktypeConfiguration` member property with 
 asserts that `createNextVersion` leaves none of them at its default. Identity fields are excluded. A new
 field then fails the build until versioning copies it.
 
-### D9. B4: confirmation email fallback
+### D9. Confirmation of receipt stays CMMN only
 
-`SendConfirmationEmailDelegate.template` and `.from` become nullable `Expression?`. When an expression is
-missing or resolves blank, the delegate uses the configuration's email parameters. If those are not
-enabled, or name no template, it sends nothing and logs at FINE. The class keeps its name and package, because
-deployed process definitions reference it. `ProductaanvraagService` does not start sending confirmation emails
-for BPMN zaken. A BPMN process that wants the email already models the delegate, and a second email would be
-a duplicate.
+`ProductaanvraagService` sends the automatic confirmation of receipt only in the CMMN flow. A BPMN process that
+wants a confirmation email models `SendConfirmationEmailDelegate`, which takes its template and sender from the
+process definition only. The delegate does not read the confirmation email parameters of the zaaktype
+configuration.
 
 ### D10. Tests
 
@@ -463,7 +460,7 @@ a duplicate.
 
 ## Migration Plan
 
-1. Merge A1 to B4 in order. Each release that contains A1–A3 runs V100–V102 at startup through
+1. Merge A1 to B3 in order. Each release that contains A1–A3 runs V100–V102 at startup through
    `FlywayIntegrator`. After each migration chunk (A1, A2, A3, B2) merges, deploy it to the TEST environment
    with real data. Check the startup log, the quarantine table, and the configuration screens of a CMMN and a
    BPMN zaaktype before the next chunk merges.
