@@ -154,23 +154,23 @@ class PolicyService @Inject constructor(
         ).requireResult(OpaEvaluationClient.ZAAK_RECHTEN_PATH)
     }
 
-    fun readDocumentRechten(enkelvoudigInformatieobject: EnkelvoudigInformatieObject, zaak: Zaak?) =
-        readDocumentRechten(
-            enkelvoudigInformatieobject = enkelvoudigInformatieobject,
-            lock = lockService.findLock(enkelvoudigInformatieobject.getUrl().extractUuid()),
-            zaak = zaak
-        )
-
+    /**
+     * @param lock The lock of the document; read from the database when not given and the document is locked.
+     * The default is `null` and not the database call itself, for the same reason as in [readZaakRechten].
+     */
     fun readDocumentRechten(
         enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
-        lock: EnkelvoudigInformatieObjectLock?,
-        zaak: Zaak?
+        zaak: Zaak?,
+        lock: EnkelvoudigInformatieObjectLock? = null
     ): DocumentRechten {
+        val resolvedLock = lock ?: enkelvoudigInformatieobject.takeIf { it.getLocked() }?.let {
+            lockService.findLock(it.getUrl().extractUuid())
+        }
         val isZaakspecifiekGeautoriseerd = zaak?.let { zrcClientService.isZaakspecifiekGeautoriseerd(it.uuid) } == true
         val documentData = DocumentData(
             isDefinitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF,
             isVergrendeld = enkelvoudigInformatieobject.getLocked(),
-            vergrendeldDoor = lock?.userId,
+            vergrendeldDoor = resolvedLock?.userId,
             isOndertekend = enkelvoudigInformatieobject.isSigned(),
             isZaakOpen = zaak?.isOpen() ?: false,
             zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() },
@@ -210,20 +210,19 @@ class PolicyService @Inject constructor(
         ).requireResult(OpaEvaluationClient.DOCUMENT_RECHTEN_PATH)
     }
 
-    fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
-        val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
-        return readTaakRechten(taskInfo, zaaktypeOmschrijving)
-    }
-
+    /**
+     * @param zaaktypeOmschrijving The zaaktype description of the task; read from the task variables when not
+     * given. The default is `null` and not the variable lookup itself, for the same reason as in [readZaakRechten].
+     */
     fun readTaakRechten(
         taskInfo: TaskInfo,
-        zaaktypeOmschrijving: String
+        zaaktypeOmschrijving: String? = null
     ): TaakRechten {
         val zaakUUID = readZaakUUID(taskInfo)
         val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
         val taakData = TaakData(
             isOpen = taskInfo.isOpen(),
-            zaaktype = zaaktypeOmschrijving,
+            zaaktype = zaaktypeOmschrijving ?: readZaaktypeOmschrijving(taskInfo),
             isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
             isLoggedInUserGeautoriseerdeMedewerker = isZaakspecifiekGeautoriseerd &&
                 zrcClientService.readZaak(zaakUUID).isGeautoriseerdeMedewerkerOf(loggedInUserInstance.get().id)
@@ -256,11 +255,6 @@ class PolicyService @Inject constructor(
         ).requireResult(OpaEvaluationClient.TAAK_RECHTEN_PATH)
     }
 
-    private fun Zaak.isGeautoriseerdeMedewerkerOf(userId: String) =
-        zaakspecifiekeAutorisatieService
-            .readZaakToewijzing(zaak = this, isZaakspecifiekGeautoriseerd = true)
-            .isGeautoriseerdeMedewerker(userId)
-
     fun readNotitieRechten(): NotitieRechten =
         evaluationClient.readNotitieRechten(
             RuleQuery(
@@ -292,6 +286,11 @@ class PolicyService @Inject constructor(
     fun readLeesrollen(): Set<String> =
         evaluationClient.readLeesrollen().result
             ?: throw OpaRuleNotConfiguredException(OpaEvaluationClient.LEESROLLEN_PATH)
+
+    private fun Zaak.isGeautoriseerdeMedewerkerOf(userId: String) =
+        zaakspecifiekeAutorisatieService
+            .readZaakToewijzing(zaak = this, isZaakspecifiekGeautoriseerd = true)
+            .isGeautoriseerdeMedewerker(userId)
 
     private fun <T : OpaRuleResult> RuleResponse<T>.requireResult(rulePath: String): T =
         result ?: throw OpaRuleNotConfiguredException(rulePath)

@@ -814,9 +814,9 @@ class PolicyServiceTest : BehaviorSpec({
 
             `when`("document policy rights are requested") {
                 val documentRights = policyService.readDocumentRechten(
-                    enkelvoudigInformatieobject,
-                    enkelvoudigInformatieObjectLock,
-                    zaak
+                    enkelvoudigInformatieobject = enkelvoudigInformatieobject,
+                    zaak = zaak,
+                    lock = enkelvoudigInformatieObjectLock
                 )
 
                 then("the correct data is sent to OPA") {
@@ -871,9 +871,9 @@ class PolicyServiceTest : BehaviorSpec({
 
             `when`("document policy rights are requested") {
                 val documentRights = policyService.readDocumentRechten(
-                    enkelvoudigInformatieobject,
-                    enkelvoudigInformatieObjectLock,
-                    zaak
+                    enkelvoudigInformatieobject = enkelvoudigInformatieobject,
+                    zaak = zaak,
+                    lock = enkelvoudigInformatieObjectLock
                 )
 
                 then("the correct data is sent to OPA") {
@@ -927,9 +927,9 @@ class PolicyServiceTest : BehaviorSpec({
 
             `when`("document policy rights are requested") {
                 policyService.readDocumentRechten(
-                    enkelvoudigInformatieobject,
-                    enkelvoudigInformatieObjectLock,
-                    zaak
+                    enkelvoudigInformatieobject = enkelvoudigInformatieobject,
+                    zaak = zaak,
+                    lock = enkelvoudigInformatieObjectLock
                 )
 
                 then("zaakspecifiekGeautoriseerd and loggedInUserIsGeautoriseerdeMedewerker are true in the DocumentData sent to OPA") {
@@ -955,9 +955,9 @@ class PolicyServiceTest : BehaviorSpec({
 
             `when`("document policy rights are requested with no zaak") {
                 policyService.readDocumentRechten(
-                    enkelvoudigInformatieobject,
-                    enkelvoudigInformatieObjectLock,
-                    null
+                    enkelvoudigInformatieobject = enkelvoudigInformatieobject,
+                    zaak = null,
+                    lock = enkelvoudigInformatieObjectLock
                 )
 
                 then("zaakspecifiekGeautoriseerd is false in the DocumentData sent to OPA") {

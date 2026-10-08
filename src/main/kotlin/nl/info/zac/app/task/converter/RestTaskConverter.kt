@@ -42,7 +42,10 @@ class RestTaskConverter @Inject constructor(
     @Suppress("LongMethod", "ComplexMethod")
     fun convert(taskInfo: TaskInfo): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
-        val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).toRestTaakRechten()
+        val restTaakRechten = policyService.readTaakRechten(
+            taskInfo = taskInfo,
+            zaaktypeOmschrijving = zaaktypeOmschrijving
+        ).toRestTaakRechten()
         val restTask = RestTask(
             id = taskInfo.id,
             naam = taskInfo.name,
