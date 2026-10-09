@@ -44,7 +44,7 @@
     </button>
   }
 
-  @if (werklijstRechten?.canZakenTaken) {
+  @if (werklijstRechtenQuery.data()?.canZakenTaken) {
     <button
       [matMenuTriggerFor]="zakenMenu"
       mat-flat-button
@@ -71,7 +71,7 @@
     </button>
   }
 
-  @if (werklijstRechten?.canZakenTaken) {
+  @if (werklijstRechtenQuery.data()?.canZakenTaken) {
     <button
       [matMenuTriggerFor]="takenMenu"
       mat-flat-button
@@ -94,7 +94,7 @@
     </button>
   }
 
-  @if (werklijstRechten?.canInbox) {
+  @if (werklijstRechtenQuery.data()?.canInbox) {
     <button
       [matMenuTriggerFor]="inboxMenu"
       mat-flat-button

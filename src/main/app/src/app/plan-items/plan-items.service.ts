@@ -5,7 +5,6 @@
 
 import { inject, Injectable } from "@angular/core";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { TakenService } from "../taken/taken.service";
 
@@ -13,12 +12,11 @@ import { TakenService } from "../taken/taken.service";
   providedIn: "root",
 })
 export class PlanItemsService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly takenService = inject(TakenService);
 
   readHumanTaskPlanItem(planItemId: string) {
-    return this.zacHttpClient.GET("/rest/planitems/humanTaskPlanItem/{id}", {
+    return this.zacQueryClient.GET("/rest/planitems/humanTaskPlanItem/{id}", {
       path: { id: planItemId },
     });
   }

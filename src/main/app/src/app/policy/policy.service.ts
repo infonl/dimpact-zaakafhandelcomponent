@@ -1,23 +1,19 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { inject, Injectable } from "@angular/core";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class PolicyService {
-  constructor(
-    private readonly zacHttpClient: ZacHttpClient,
-    private readonly zacQueryClient: ZacQueryClient,
-  ) {}
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   readWerklijstRechten() {
-    return this.zacHttpClient.GET(`/rest/policy/werklijstRechten`);
+    return this.zacQueryClient.GET(`/rest/policy/werklijstRechten`);
   }
 
   readOverigeRechten() {
@@ -25,7 +21,7 @@ export class PolicyService {
   }
 
   readNotitieRechten() {
-    return this.zacHttpClient.GET(`/rest/policy/notitieRechten`);
+    return this.zacQueryClient.GET(`/rest/policy/notitieRechten`);
   }
 
   readBrpRechten() {
