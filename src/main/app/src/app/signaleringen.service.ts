@@ -4,10 +4,8 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
-import { switchMap } from "rxjs/operators";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { PutBody } from "./shared/http/http-client";
-import { ZacHttpClient } from "./shared/http/zac-http-client";
 import { ZacQueryClient } from "./shared/http/zac-query-client";
 import { GeneratedType } from "./shared/utils/generated-types";
 
@@ -15,20 +13,27 @@ import { GeneratedType } from "./shared/utils/generated-types";
   providedIn: "root",
 })
 export class SignaleringenService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
 
-  private latestSignaleringSubject = new BehaviorSubject<null>(null);
-  latestSignalering$ = this.latestSignaleringSubject.pipe(
-    switchMap(() => this.zacHttpClient.GET("/rest/signaleringen/latest")),
-  );
+  readLatestSignalering() {
+    return this.zacQueryClient.GET("/rest/signaleringen/latest");
+  }
 
-  updateSignaleringen() {
-    this.latestSignaleringSubject.next(null);
+  invalidateLatestSignalering() {
+    return this.queryClient.invalidateQueries({
+      queryKey: this.readLatestSignalering().queryKey,
+    });
   }
 
   listDashboardSignaleringTypen() {
-    return this.zacHttpClient.GET("/rest/signaleringen/typen/dashboard");
+    return this.zacQueryClient.GET("/rest/signaleringen/typen/dashboard");
+  }
+
+  invalidateDashboardSignaleringTypen() {
+    return this.queryClient.invalidateQueries({
+      queryKey: this.listDashboardSignaleringTypen().queryKey,
+    });
   }
 
   listZakenSignalering(
@@ -45,7 +50,7 @@ export class SignaleringenService {
   listTakenSignalering(
     signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
   ) {
-    return this.zacHttpClient.GET("/rest/signaleringen/taken/{type}", {
+    return this.zacQueryClient.GET("/rest/signaleringen/taken/{type}", {
       path: { type: signaleringType },
     });
   }
@@ -53,11 +58,9 @@ export class SignaleringenService {
   listInformatieobjectenSignalering(
     signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
   ) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/signaleringen/informatieobjecten/{type}",
-      {
-        path: { type: signaleringType },
-      },
+      { path: { type: signaleringType } },
     );
   }
 }

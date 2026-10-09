@@ -21,6 +21,7 @@ import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { SignaleringenService } from "../../signaleringen.service";
 import { SignaleringenSettingsComponent } from "./signaleringen-settings.component";
 
 const INSTELLINGEN_URL = "/rest/signaleringen/instellingen";
@@ -63,6 +64,7 @@ describe(SignaleringenSettingsComponent.name, () => {
     instellingen: GeneratedType<"RestSignaleringInstellingen">[],
   ) {
     httpTestingController.expectOne(INSTELLINGEN_URL).flush(instellingen);
+    await sleep();
     await sleep();
     fixture.detectChanges();
   }
@@ -185,9 +187,10 @@ describe(SignaleringenSettingsComponent.name, () => {
 
     request.flush({ ...zaakOpNaam, isDashboardEnabled: true });
     await sleep();
+    await respondWith([{ ...zaakOpNaam, isDashboardEnabled: true }]);
   });
 
-  it("shows the application as loading until the setting is saved", async () => {
+  it("shows the application as loading until the saved settings have been read again", async () => {
     await renderComponent();
     await respondWith([zaakOpNaam]);
 
@@ -201,6 +204,51 @@ describe(SignaleringenSettingsComponent.name, () => {
       .flush({ ...zaakOpNaam, isMailEnabled: true });
     await sleep();
 
+    expect(utilService.setLoading).not.toHaveBeenCalledWith(false);
+
+    await respondWith([{ ...zaakOpNaam, isMailEnabled: true }]);
+
     expect(utilService.setLoading).toHaveBeenCalledWith(false);
+  });
+
+  it("re-reads the settings once a setting is saved", async () => {
+    await renderComponent();
+    await respondWith([zaakOpNaam]);
+
+    await user.click(checkbox("actie.signalering.mail"));
+    await sleep();
+    httpTestingController
+      .expectOne(INSTELLINGEN_URL)
+      .flush({ ...zaakOpNaam, isMailEnabled: true });
+    await sleep();
+
+    const reread = httpTestingController.expectOne(INSTELLINGEN_URL);
+    expect(reread.request.method).toBe("GET");
+    reread.flush([{ ...zaakOpNaam, isMailEnabled: true }]);
+    await sleep();
+  });
+
+  it("has the dashboard read its signalering types again once a setting is saved", async () => {
+    await renderComponent();
+    const dashboardSignaleringTypenQueryKey =
+      TestBed.inject(SignaleringenService).listDashboardSignaleringTypen()
+        .queryKey;
+    testQueryClient.setQueryData(dashboardSignaleringTypenQueryKey, [
+      "ZAAK_OP_NAAM",
+    ]);
+    await respondWith([zaakOpNaam]);
+
+    await user.click(checkbox("actie.signalering.dashboard"));
+    await sleep();
+    httpTestingController
+      .expectOne(INSTELLINGEN_URL)
+      .flush({ ...zaakOpNaam, isDashboardEnabled: true });
+    await sleep();
+    await respondWith([{ ...zaakOpNaam, isDashboardEnabled: true }]);
+
+    expect(
+      testQueryClient.getQueryState(dashboardSignaleringTypenQueryKey)
+        ?.isInvalidated,
+    ).toBe(true);
   });
 });
