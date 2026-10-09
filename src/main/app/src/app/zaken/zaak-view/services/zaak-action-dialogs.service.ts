@@ -6,16 +6,17 @@
 import { ComponentType } from "@angular/cdk/portal";
 import { inject, Injectable, signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
+import { runMutation } from "../../../shared/http/run-mutation";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { toI18nKey } from "../../../shared/utils/i18n-key";
 import { TakenService } from "../../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../../intake-afronden-dialog/intake-afronden-dialog.component";
-import { isRestZaak } from "../../is-rest-zaak";
 import { ZaakAfhandelenDialogComponent } from "../../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakBrondatumZettenDialogComponent } from "../../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
 import { ZaakDialogService } from "../../zaak-dialog.service";
@@ -35,6 +36,7 @@ type PlanItem = GeneratedType<"RestPlanItem">;
 @Injectable()
 export class ZaakActionDialogsService {
   private readonly dialog = inject(MatDialog);
+  private readonly queryClient = inject(QueryClient);
   private readonly takenService = inject(TakenService);
   private readonly utilService = inject(UtilService);
   private readonly zaakDialogService = inject(ZaakDialogService);
@@ -63,19 +65,10 @@ export class ZaakActionDialogsService {
       .subscribe((opschorting) => this.opschorting.set(opschorting));
   }
 
-  /**
-   * A dialog that ends in a zaak returns the new state directly; one that ends
-   * in a bare confirmation leaves us to refetch it.
-   */
-  private cacheOrRefetch(zaak: Zaak, result: unknown) {
-    if (isRestZaak(result)) {
-      this.zakenService.cacheZaak(result);
-      return;
-    }
-    this.zakenService.invalidateZaak(zaak.uuid);
-  }
-
-  private onClosed<T>(closed: Observable<T>, handle: (result: T) => void) {
+  private onClosed<T>(
+    closed: Observable<T>,
+    handle: (result: T) => void = () => {},
+  ) {
     closed.subscribe((result) => {
       this.sideActions.clear();
       handle(result);
@@ -150,16 +143,16 @@ export class ZaakActionDialogsService {
             zaak.zaaktype.uuid,
           ),
           (reden) =>
-            this.zakenService.afbreken(zaak.uuid, {
-              zaakbeeindigRedenId: reden.id!,
-            }),
+            runMutation(
+              this.queryClient,
+              this.zakenService.afbreken(zaak.uuid),
+              { zaakbeeindigRedenId: reden.id! },
+            ),
         )
         .afterClosed(),
       (result) => {
         if (!result) return;
-        this.cacheOrRefetch(zaak, result);
         void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
-        this.utilService.openSnackbar("msg.zaak.afgebroken");
       },
     );
   }
@@ -168,14 +161,18 @@ export class ZaakActionDialogsService {
     this.onClosed(
       this.zaakDialogService
         .openHeropenen((reden) =>
-          this.zakenService.heropenen(zaak.uuid, { reden }),
+          runMutation(
+            this.queryClient,
+            this.zakenService.heropenen(zaak.uuid),
+            {
+              reden,
+            },
+          ),
         )
         .afterClosed(),
       (result) => {
         if (!result) return;
-        this.cacheOrRefetch(zaak, result);
         void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
-        this.utilService.openSnackbar("msg.zaak.heropend");
       },
     );
   }
@@ -219,11 +216,6 @@ export class ZaakActionDialogsService {
       this.dialog
         .open(ZaakOpschortenDialogComponent, { data: { zaak } })
         .afterClosed(),
-      (result) => {
-        if (!result) return;
-        this.zakenService.cacheZaak(result);
-        this.utilService.openSnackbar("msg.zaak.opgeschort");
-      },
     );
   }
 
@@ -258,13 +250,16 @@ export class ZaakActionDialogsService {
             duur: werkelijkeOpschortDuur,
             verwachteDuur: opschorting?.duurDagen,
           },
-          (reden) => this.zakenService.resumeZaak(zaak.uuid, { reason: reden }),
+          (reden) =>
+            runMutation(
+              this.queryClient,
+              this.zakenService.resumeZaak(zaak.uuid),
+              { reason: reden },
+            ),
         )
         .afterClosed(),
       (result) => {
         if (!result) return;
-        this.utilService.openSnackbar("msg.zaak.hervat");
-        this.zakenService.invalidateZaak(zaak.uuid);
         this.opschorting.set(undefined);
       },
     );
@@ -284,11 +279,6 @@ export class ZaakActionDialogsService {
           },
         })
         .afterClosed(),
-      (result) => {
-        if (!result) return;
-        this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
-        this.zakenService.invalidateZaak(zaak.uuid);
-      },
     );
   }
 }

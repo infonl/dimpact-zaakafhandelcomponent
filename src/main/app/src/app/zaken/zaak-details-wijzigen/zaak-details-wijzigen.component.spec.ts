@@ -677,7 +677,6 @@ describe(CaseDetailsEditComponent.name, () => {
 
     it("sends a changed behandelaar in the same request as the rest of the zaakgegevens", async () => {
       renderComponent();
-      jest.spyOn(zakenService, "toekennen");
       jest.spyOn(zakenService, "toekennenAanIngelogdeMedewerker");
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
@@ -698,7 +697,6 @@ describe(CaseDetailsEditComponent.name, () => {
           behandelaar: expect.objectContaining({ id: "other-user" }),
         }),
       );
-      expect(zakenService.toekennen).not.toHaveBeenCalled();
       expect(
         zakenService.toekennenAanIngelogdeMedewerker,
       ).not.toHaveBeenCalled();
@@ -707,7 +705,6 @@ describe(CaseDetailsEditComponent.name, () => {
 
     it("sends a single request when behandelaar and groep are unchanged", async () => {
       renderComponent();
-      jest.spyOn(zakenService, "toekennen");
       jest.spyOn(zakenService, "toekennenAanIngelogdeMedewerker");
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
@@ -715,7 +712,6 @@ describe(CaseDetailsEditComponent.name, () => {
       component["onSubmit"]();
       await new Promise(requestAnimationFrame);
 
-      expect(zakenService.toekennen).not.toHaveBeenCalled();
       expect(
         zakenService.toekennenAanIngelogdeMedewerker,
       ).not.toHaveBeenCalled();
