@@ -10,7 +10,7 @@ import { UtilService } from "../core/service/util.service";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { NavigationService } from "../shared/navigation/navigation.service";
+import { findOrigin } from "../shared/navigation/navigation-origin";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -22,7 +22,6 @@ export class TakenService {
   private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
   private readonly router = inject(Router);
-  private readonly navigationService = inject(NavigationService);
 
   readTaak(taskId: string) {
     return this.zacHttpClient.GET("/rest/taken/{taskId}", {
@@ -89,22 +88,19 @@ export class TakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PATCH("/rest/taken/complete"),
       {
-        onSuccess: (taak) => {
+        onSuccess: () => {
           this.utilService.openSnackbar("msg.taak.afgerond");
-          void this.leaveCompletedTaak(taak);
+          void this.leaveCompletedTaak();
         },
       },
     );
   }
 
-  private leaveCompletedTaak({ id }: GeneratedType<"RestTask">) {
+  private leaveCompletedTaak() {
     if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
       return;
 
-    return this.navigationService.returnToOrigin(
-      (path) => path === `/taken/${id}`,
-      "/",
-    );
+    return this.router.navigateByUrl(findOrigin(this.router) ?? "/");
   }
 
   verdelenVanuitLijst() {
