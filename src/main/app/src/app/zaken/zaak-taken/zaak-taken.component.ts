@@ -210,6 +210,15 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
       onMutate: () => {
         this.websocketService.suspendListener(this.zaakTakenListener);
       },
+      onSuccess: ({ behandelaar, status }, { taakId }) => {
+        const taak = this.takenDataSource.data.find(
+          ({ data }) => data.id === taakId,
+        )?.data;
+        if (!taak) return;
+
+        taak.behandelaar = behandelaar;
+        taak.status = status;
+      },
     },
   );
 
@@ -237,15 +246,11 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     $event.stopPropagation();
     if (!taak.id || this.isAssigningTaakToMe(taak)) return;
 
-    this.assignToMeMutation.mutate(
-      { taakId: taak.id, zaakUuid: taak.zaakUuid, groepId: taak.groep!.id! },
-      {
-        onSuccess: ({ behandelaar, status }) => {
-          taak.behandelaar = behandelaar;
-          taak.status = status;
-        },
-      },
-    );
+    this.assignToMeMutation.mutate({
+      taakId: taak.id,
+      zaakUuid: taak.zaakUuid,
+      groepId: taak.groep!.id!,
+    });
   }
 
   protected filterTakenOpStatus() {

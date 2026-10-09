@@ -167,13 +167,15 @@ describe(TakenWerkvoorraadComponent.name, () => {
         .mockImplementation();
     });
 
-    async function showTaak(taak: TaakZoekObject) {
+    async function showTaken(...taken: TaakZoekObject[]) {
       await sleep();
-      httpTestingController
-        .match("/rest/zoeken/list")
-        .forEach((request) =>
-          request.flush({ totaal: 1, resultaten: [taak], filters: {} }),
-        );
+      httpTestingController.match("/rest/zoeken/list").forEach((request) =>
+        request.flush({
+          totaal: taken.length,
+          resultaten: taken,
+          filters: {},
+        }),
+      );
       await sleep();
       // the table creates the row views in one pass and binds their cells in the next
       fixture.detectChanges();
@@ -192,7 +194,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
     }
 
     it("assigns the taak of the row it was clicked on", async () => {
-      await showTaak(taakZoekObject());
+      await showTaken(taakZoekObject());
 
       await clickAssignToMe();
 
@@ -208,7 +210,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
     });
 
     it("shows the assigned behandelaar on the row it was clicked on", async () => {
-      await showTaak(taakZoekObject());
+      await showTaken(taakZoekObject());
 
       await clickAssignToMe();
       httpTestingController.expectOne("/rest/taken/lijst/toekennen/mij").flush(
@@ -226,8 +228,40 @@ describe(TakenWerkvoorraadComponent.name, () => {
       expect(assignToMeButton()).toBeNull();
     });
 
+    it("shows the assigned behandelaar on every row that was assigned before the first response arrived", async () => {
+      await showTaken(
+        { ...taakZoekObject(), id: "taakIdA", identificatie: "TAAK-A" },
+        { ...taakZoekObject(), id: "taakIdB", identificatie: "TAAK-B" },
+      );
+
+      const user = userEvent.setup();
+      for (const button of screen.getAllByRole("button", {
+        name: "actie.mij.toekennen",
+      })) {
+        await user.click(button);
+        await sleep();
+      }
+      httpTestingController
+        .match("/rest/taken/lijst/toekennen/mij")
+        .forEach((request) =>
+          request.flush(
+            fromPartial<GeneratedType<"RestTask">>({
+              behandelaar: {
+                id: "behandelaarIdVan" + request.request.body.taakId,
+                naam: "behandelaarVan" + request.request.body.taakId,
+              },
+            }),
+          ),
+        );
+      await sleep();
+      fixture.detectChanges();
+
+      expect(screen.getByText("behandelaarVantaakIdA")).toBeVisible();
+      expect(screen.getByText("behandelaarVantaakIdB")).toBeVisible();
+    });
+
     it("leaves the row alone when the response names no behandelaar", async () => {
-      await showTaak(taakZoekObject());
+      await showTaken(taakZoekObject());
 
       await clickAssignToMe();
       httpTestingController

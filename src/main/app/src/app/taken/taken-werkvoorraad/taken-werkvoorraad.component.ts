@@ -140,8 +140,21 @@ export class TakenWerkvoorraadComponent
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
-  private readonly assignToMeMutation = injectMutation(() =>
-    this.takenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+  private readonly assignToMeMutation = injectMutation(
+    () => this.takenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+    {
+      onSuccess: ({ behandelaar }, { taakId }) => {
+        if (!behandelaar) return;
+
+        const taakZoekObject = this.dataSource.data.find(
+          ({ id }) => id === taakId,
+        );
+        if (!taakZoekObject) return;
+
+        taakZoekObject.behandelaarNaam = behandelaar.naam;
+        taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
+      },
+    },
   );
 
   constructor(
@@ -184,21 +197,11 @@ export class TakenWerkvoorraadComponent
 
   protected assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
     event.stopPropagation();
-    this.assignToMeMutation.mutate(
-      {
-        taakId: taakZoekObject.id,
-        zaakUuid: taakZoekObject.zaakUuid,
-        groepId: null as unknown as string,
-      },
-      {
-        onSuccess: ({ behandelaar }) => {
-          if (!behandelaar) return;
-
-          taakZoekObject.behandelaarNaam = behandelaar.naam;
-          taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
-        },
-      },
-    );
+    this.assignToMeMutation.mutate({
+      taakId: taakZoekObject.id,
+      zaakUuid: taakZoekObject.zaakUuid,
+      groepId: null as unknown as string,
+    });
   }
 
   protected isAllSelected(): boolean {
