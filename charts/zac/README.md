@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.343](https://img.shields.io/badge/Version-1.0.343-informational?style=flat-square) ![AppVersion: 5.9](https://img.shields.io/badge/AppVersion-5.9-informational?style=flat-square)
+![Version: 1.0.344](https://img.shields.io/badge/Version-1.0.344-informational?style=flat-square) ![AppVersion: 5.9](https://img.shields.io/badge/AppVersion-5.9-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -129,6 +129,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
 | initContainer.enabled | bool | `true` |  |
+| initContainer.resources.limits.memory | string | `"256Mi"` |  |
 | initContainer.resources.requests.cpu | string | `"50m"` |  |
 | initContainer.resources.requests.memory | string | `"256Mi"` |  |
 | initContainer.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsGroup":10001,"runAsNonRoot":true,"runAsUser":10001}` | Security context for the curl-based init containers (read-only root filesystem is safe here) |
@@ -221,7 +222,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.readinessProbe.successThreshold | int | `1` |  |
 | nginx.readinessProbe.timeoutSeconds | int | `5` |  |
 | nginx.replicaCount | int | `1` |  |
-| nginx.resources | object | `{}` |  |
+| nginx.resources.limits.memory | string | `"128Mi"` |  |
+| nginx.resources.requests.cpu | string | `"10m"` |  |
+| nginx.resources.requests.memory | string | `"32Mi"` |  |
 | nginx.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | nginx.securityContext.readOnlyRootFilesystem | bool | `false` |  |
 | nginx.securityContext.runAsNonRoot | bool | `true` |  |
@@ -250,6 +253,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.podAnnotations | object | `{}` |  |
 | office_converter.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | office_converter.replicas | int | `1` |  |
+| office_converter.resources.limits.memory | string | `"1Gi"` |  |
 | office_converter.resources.requests.cpu | string | `"100m"` |  |
 | office_converter.resources.requests.memory | string | `"512Mi"` |  |
 | office_converter.securityContext.allowPrivilegeEscalation | bool | `false` |  |
@@ -276,6 +280,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.podAnnotations | object | `{}` |  |
 | opa.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | opa.replicas | int | `1` |  |
+| opa.resources.limits.memory | string | `"128Mi"` |  |
 | opa.resources.requests.cpu | string | `"10m"` |  |
 | opa.resources.requests.memory | string | `"20Mi"` |  |
 | opa.securityContext.allowPrivilegeEscalation | bool | `false` |  |
