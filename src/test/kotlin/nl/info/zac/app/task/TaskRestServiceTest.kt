@@ -187,7 +187,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every {
                 taskService.assignTask(
                     task = task,
-                    groupId = null,
+                    groupId = restTaakToekennenGegevens.groepId,
                     userId = loggedInUser.id,
                     reason = restTaakToekennenGegevens.reden,
                     loggedInUser = loggedInUser
@@ -205,7 +205,7 @@ class TaskRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         taskService.assignTask(
                             task = task,
-                            groupId = null,
+                            groupId = restTaakToekennenGegevens.groepId,
                             userId = loggedInUser.id,
                             reason = restTaakToekennenGegevens.reden,
                             loggedInUser = loggedInUser
@@ -476,6 +476,17 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
                 and("the completed task is returned") {
                     restTaskReturned shouldBe restTaskConverted
+                }
+                and("no zaakspecifieke autorisatie is granted, since completing already requires access to the zaak") {
+                    verify(exactly = 0) {
+                        taskService.assignTask(
+                            task = any(),
+                            groupId = any(),
+                            userId = any(),
+                            reason = any(),
+                            loggedInUser = any()
+                        )
+                    }
                 }
             }
         }
