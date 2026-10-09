@@ -20,6 +20,7 @@ import nl.info.zac.identity.model.toUser
 import nl.info.zac.log.log
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.keycloak.admin.client.resource.GroupResource
 import org.keycloak.admin.client.resource.RealmResource
 import org.keycloak.representations.idm.UserRepresentation
 import java.util.logging.Level
@@ -129,13 +130,8 @@ class IdentityService @Inject constructor(
             .groups(groupId, true, 0, 1, true)
             .firstOrNull()?.id
             ?: throw GroupNotFoundException()
-        val groupResource = keycloakZacRealmResource.groups().group(keycloakGroupId)
-        val members = mutableListOf<UserRepresentation>()
-        do {
-            val page = groupResource.members(members.size, GROUP_MEMBERS_PAGE_SIZE)
-            members += page
-        } while (page.size == GROUP_MEMBERS_PAGE_SIZE)
-        return members
+        return keycloakZacRealmResource.groups().group(keycloakGroupId)
+            .listAllMembers()
             .map { it.toUser() }
             .sortedBy { it.getFullName() }
     }
@@ -157,5 +153,14 @@ class IdentityService @Inject constructor(
         if (!isUserInGroup(userId, groupId)) {
             throw UserNotInGroupException()
         }
+    }
+
+    private fun GroupResource.listAllMembers(): List<UserRepresentation> {
+        val members = mutableListOf<UserRepresentation>()
+        do {
+            val page = members(members.size, GROUP_MEMBERS_PAGE_SIZE)
+            members += page
+        } while (page.size == GROUP_MEMBERS_PAGE_SIZE)
+        return members
     }
 }
