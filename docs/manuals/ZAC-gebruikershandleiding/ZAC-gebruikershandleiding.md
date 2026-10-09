@@ -507,7 +507,7 @@ De datums, de groep, de behandelaar, het communicatiekanaal, de vertwouwelijkhei
 
 ## Zaak zaakspecifiek autoriseren
 
-Een zaak kan gevoelige informatie bevatten, bijvoorbeeld een zaak over een collega.
+Een zaak kan gevoelige informatie bevatten.
 Autoriseer zo'n zaak zaakspecifiek. Dan heeft alleen een beperkte groep medewerkers toegang tot de zaak.
 Andere medewerkers zien de zaak, de taken en de documenten van de zaak nergens in ZAC. Ook niet in de werklijsten en de zoekresultaten.
 
@@ -516,9 +516,6 @@ Deze medewerkers hebben toegang tot een zaakspecifiek geautoriseerde zaak:
 - de behandelaar van de zaak
 - de vorige behandelaars van de zaak, vanaf het moment van de zaakspecifieke autorisatie
 - medewerkers met de rol Zaakspecifiek geautoriseerd voor het zaaktype. De beheerder richt deze rol in.
-
-<!-- TODO PZ-12035: voeg de huidige en vorige taakbehandelaars van de zaak toe aan deze lijst. -->
-<!-- TODO PZ-12023: voeg de medewerkers toe die een medewerker handmatig aan de zaak toevoegt. Verwijs naar de sectie 'Medewerker toevoegen'. -->
 
 Ook deze medewerkers hebben altijd een andere rol voor het zaaktype nodig, bijvoorbeeld Raadpleger of Behandelaar.
 Die rol bepaalt wat de medewerker met de zaak mag doen.
@@ -553,29 +550,6 @@ Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. 
 - Een zaakspecifiek geautoriseerde zaak heeft altijd een behandelaar. Je kunt de zaak niet vrijgeven.
 - Je kunt de zaak aan een andere behandelaar toekennen. De vorige behandelaar houdt dan toegang tot de zaak. ZAC registreert de vorige behandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak.
 - Zaakspecifiek geautoriseerde medewerkers staan niet in het tabblad ‘Betrokkenen’ van de zaak.
-
-<!-- TODO PZ-12035: beschrijf de toegang van taakbehandelaars.
-- Als je een taak start en een medewerker als taakbehandelaar kiest, dan krijgt deze medewerker toegang tot de zaak.
-- Als je een taak aan een andere medewerker toekent, dan krijgt de nieuwe taakbehandelaar toegang. De vorige taakbehandelaar houdt toegang.
-- Een taakbehandelaar houdt toegang als de taak is vrijgegeven of afgerond.
-- De taakhistorie toont dat de nieuwe taakbehandelaar is toegevoegd, en dat de rol van de vorige taakbehandelaar is gewijzigd naar Zaakspecifiek geautoriseerde medewerker.
-- Als een zaak met een taakbehandelaar zaakspecifiek geautoriseerd wordt, dan krijgt de taakbehandelaar de rol Zaakspecifiek geautoriseerde medewerker.
-Screenshot: images/taak-toekennen-zaakspecifiek-geautoriseerd.png -->
-
-<!-- TODO PZ-12023: voeg de sectie 'Medewerkers' toe.
-### Medewerkers
-Het tabblad ‘Medewerkers’ toont welke medewerkers specifiek toegang hebben tot de zaak, met het betrokkene type van elke medewerker. Het tabblad toont de huidige en vorige zaak- en taakbehandelaars, en de handmatig toegevoegde medewerkers. Het tabblad toont geen medewerkers die toegang hebben via de rol Zaakspecifiek geautoriseerd.
-Screenshot: images/zaak-tabblad-medewerkers.png
-
-### Medewerker toevoegen
-De optie ‘Medewerker toevoegen’ is alleen beschikbaar bij een zaakspecifiek geautoriseerde zaak.
-Stappen:
-1 Kies in het actiemenu ‘Medewerker toevoegen’
-2 Kies een groep. De lijst toont alleen groepen met de rol Behandelaar voor het zaaktype.
-3 Kies een medewerker uit de groep. Medewerkers die al toegang hebben, kun je niet kiezen.
-4 Klik op ‘Toevoegen’
-De zaakhistorie toont dat de medewerker is toegevoegd als Zaakspecifiek geautoriseerde medewerker. Een toegevoegde medewerker kan ook zelf medewerkers toevoegen.
-Screenshot: images/medewerker-toevoegen.png -->
 
 ## Locatie koppelen
 

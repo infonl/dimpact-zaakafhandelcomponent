@@ -626,17 +626,16 @@ Richt de drie referentietabellen als volgt in:
 Een behandelaar kan een zaak zaakspecifiek autoriseren.
 Alleen een beperkte groep medewerkers heeft toegang tot een zaakspecifiek geautoriseerde zaak.
 Andere medewerkers met een applicatierol voor het zaaktype hebben geen toegang.
-Gebruik dit bijvoorbeeld voor een zaak over een collega, of voor een zaak met gevoelige informatie.
+Gebruik dit bijvoorbeeld voor een zaak met gevoelige informatie.
 De gebruikershandleiding beschrijft hoe een medewerker een zaak zaakspecifiek autoriseert.
 Deze sectie beschrijft wat een beheerder moet inrichten.
 
-Drie componenten bepalen samen of een medewerker een zaakspecifiek geautoriseerde zaak mag zien:
+Twee componenten bepalen samen of een medewerker een zaakspecifiek geautoriseerde zaak mag zien:
 
 | Component                  | Wat wordt ingericht                                                                                    | Door wie                |
 |----------------------------|--------------------------------------------------------------------------------------------------------|-------------------------|
 | Zaaktypecatalogus (Open Zaak) | De zaakeigenschap `ZAAK_GEAUTORISEERD` en het roltype 'Zaakspecifiek geautoriseerde medewerker' per zaaktype | Functioneel beheerder |
 | Keycloak en de PABC        | Welke medewerkers de applicatierol `zaakspecifiek_geautoriseerd` hebben, en voor welke zaaktypen        | Functioneel beheerder   |
-| Solr                       | De zoekindex bevat per zaak, taak en document of deze zaakspecifiek geautoriseerd is                   | Technisch beheerder     |
 
 #### Wie heeft toegang tot een zaakspecifiek geautoriseerde zaak
 
@@ -647,9 +646,6 @@ Een medewerker heeft toegang tot een zaakspecifiek geautoriseerde zaak als minim
 2. De medewerker is de huidige behandelaar van de zaak.
 3. De medewerker heeft op de zaak de rol 'Zaakspecifiek geautoriseerde medewerker'.
    ZAC geeft deze rol aan de vorige behandelaar als een zaakspecifiek geautoriseerde zaak een andere behandelaar krijgt.
-
-<!-- TODO PZ-12035: voeg een voorwaarde toe voor de (vorige) taakbehandelaar. Een medewerker die een taak van een zaakspecifiek geautoriseerde zaak toegekend krijgt, krijgt de rol 'Zaakspecifiek geautoriseerde medewerker' op de zaak. Een vorige taakbehandelaar houdt deze rol, ook na het vrijgeven of afronden van de taak. -->
-<!-- TODO PZ-12023: voeg een voorwaarde toe voor medewerkers die een medewerker met bewerkrechten handmatig aan de zaak toevoegt. Ook zij krijgen de rol 'Zaakspecifiek geautoriseerde medewerker' op de zaak. -->
 
 De voorwaarden 2 en 3 gelden alleen voor die ene zaak, niet voor andere zaakspecifiek geautoriseerde zaken van hetzelfde zaaktype.
 
@@ -712,13 +708,6 @@ Zonder deze koppeling hebben alleen de behandelaar en de medewerkers met de rol 
 
 > Let op! Een medewerker die alleen de applicatierol `zaakspecifiek_geautoriseerd` heeft, en geen basis-applicatierol, kan zich niet aanmelden in ZAC.
 
-#### Zoekindex bijwerken
-
-Werklijsten en zoekresultaten gebruiken de zoekindex (Solr) om zaakspecifiek geautoriseerde zaken, taken en documenten te filteren.
-Bouw de zoekindex opnieuw op voor zaken, taken en documenten na de upgrade naar de ZAC-versie met zaakspecifieke autorisatie.
-De technisch beheerder doet dit.
-Zie [Managing Solr](../../development/managingSolr.md).
-
 #### Problemen oplossen
 
 | Probleem                                                                                   | Mogelijke oorzaak                                                                                                                  |
@@ -726,7 +715,6 @@ Zie [Managing Solr](../../development/managingSolr.md).
 | De medewerker ziet het vinkje 'Zaak zaakspecifiek autoriseren' niet.                        | Het zaaktype heeft niet zowel de eigenschap `ZAAK_GEAUTORISEERD` als het roltype 'Zaakspecifiek geautoriseerde medewerker', of de catalogus is niet gesynchroniseerd. |
 | De medewerker kan een zaak niet aan een andere behandelaar overdragen.                     | Het roltype 'Zaakspecifiek geautoriseerde medewerker' ontbreekt in de catalogus van het zaaktype.                                  |
 | Een medewerker met de applicatierol `zaakspecifiek_geautoriseerd` ziet de zaak niet.        | De medewerker heeft geen basis-applicatierol voor het zaaktype, de koppeling geldt voor een ander domein, of de medewerker meldde zich niet opnieuw aan na de wijziging. |
-| Zaakspecifiek geautoriseerde zaken zijn zichtbaar in werklijsten voor alle medewerkers.     | De zoekindex is niet opnieuw opgebouwd na de upgrade.                                                                              |
 
 ### Migratie van de oude naar de nieuwe IAM-architectuur
 
