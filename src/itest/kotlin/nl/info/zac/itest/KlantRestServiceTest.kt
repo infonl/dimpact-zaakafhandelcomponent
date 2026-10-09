@@ -85,6 +85,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_RECHTSPERSOON_TELEPHONE_
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON
@@ -263,6 +265,52 @@ class KlantRestServiceTest : BehaviorSpec({
                               },
                               "X-VERWERKING": {
                                 "matches": "Algemeen@$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
+                              },
+                              "X-GEBRUIKER": {
+                                "matches": ".+"
+                              }
+                            }
+                          }
+                        """.trimIndent(),
+                        testUser = RAADPLEGER_1
+                    )
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 1 }"""
+                }
+            }
+
+            `when`("the uuid of a zaaktype with a BPMN zaaktype configuration is provided and the person is retrieved") {
+                val headers = Headers.Builder()
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_BPMN_TEST_4_UUID")
+                    .build()
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/person/$temporaryPersonId",
+                    headers = headers,
+                    testUser = RAADPLEGER_1
+                )
+                then(
+                    "the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases"
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson expectedResponse
+                }
+                and("the BRP request carries the doelbinding and verwerking of the BPMN zaaktype configuration") {
+                    val response = itestHttpClient.performJSONPostRequest(
+                        url = "$BRP_WIREMOCK_API/requests/count",
+                        requestBodyAsString = """
+                          {
+                            "method": "POST",
+                            "url": "/haalcentraal/api/brp/personen",
+                            "headers": {
+                              "X-DOELBINDING": {
+                                "matches": "BRPACT-AlgemeneTaken"
+                              },
+                              "X-VERWERKING": {
+                                "matches": "Algemeen@$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
                               },
                               "X-GEBRUIKER": {
                                 "matches": ".+"

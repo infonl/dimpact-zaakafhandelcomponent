@@ -132,9 +132,10 @@ export class ZakenCardComponent
 
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    if (!this.sort) return;
+    const sort = this.sort();
+    if (!sort) return;
 
-    this.sort.sortChange
+    sort.sortChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ active, direction }: Sort) => {
         this.pageNumber.set(0);

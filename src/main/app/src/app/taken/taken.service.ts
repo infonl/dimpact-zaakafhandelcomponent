@@ -6,10 +6,10 @@
 import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
-import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -54,16 +54,24 @@ export class TakenService {
     return this.zacQueryClient.PATCH("/rest/taken/toekennen");
   }
 
-  toekennenAanIngelogdeMedewerker(
-    body: PatchBody<"/rest/taken/lijst/toekennen/mij">,
-  ) {
-    return this.zacHttpClient.PATCH("/rest/taken/toekennen/mij", body);
+  toekennenAanIngelogdeMedewerker() {
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/taken/toekennen/mij"),
+      { onSuccess: (taak) => this.reportToegekend(taak) },
+    );
   }
 
-  toekennenAanIngelogdeMedewerkerVanuitLijst(
-    body: PatchBody<"/rest/taken/lijst/toekennen/mij">,
-  ) {
-    return this.zacHttpClient.PATCH("/rest/taken/lijst/toekennen/mij", body);
+  toekennenAanIngelogdeMedewerkerVanuitLijst() {
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/taken/lijst/toekennen/mij"),
+      { onSuccess: (taak) => this.reportToegekend(taak) },
+    );
+  }
+
+  private reportToegekend({ behandelaar }: GeneratedType<"RestTask">) {
+    this.utilService.openSnackbar("msg.taak.toegekend", {
+      behandelaar: behandelaar?.naam,
+    });
   }
 
   updateTaakdata() {

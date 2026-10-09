@@ -3,14 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import {
   type CreateMutationOptions,
+  type MutationFunctionContext,
   mutationOptions,
   QueryClient,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
-import { lastValueFrom, map } from "rxjs";
+import { map } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -40,6 +42,11 @@ type ZaakDetailsUpdate = Partial<
     | "isZaakspecifiekGeautoriseerd"
   >
 >;
+
+type ZaakDetailsUpdateVariables = {
+  zaak: ZaakDetailsUpdate;
+  reden: string;
+};
 
 @Injectable({
   providedIn: "root",
@@ -99,27 +106,31 @@ export class ZakenService {
     return this.zacQueryClient.POST("/rest/zaken/zaak");
   }
 
-  updateMutation() {
+  updateZaak(uuid: string) {
+    const patch = this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}", {
+      path: { uuid },
+    });
+    // Endpoint accepts a partial zaak; the generated body type requires the
+    // full RestZaakCreateData, so assert the partial here (one spot).
+    const toBody = ({ zaak, reden }: ZaakDetailsUpdateVariables) => ({
+      zaak: zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
+      reden,
+    });
+
     return this.zaakMutation(
-      mutationOptions({
-        mutationKey: ["/rest/zaken/zaak/{uuid}"],
-        mutationFn: (variables: {
-          uuid: string;
-          zaak: ZaakDetailsUpdate;
-          reden: string;
-        }) =>
-          lastValueFrom(
-            this.zacHttpClient.PATCH(
-              "/rest/zaken/zaak/{uuid}",
-              // Endpoint accepts a partial zaak; the generated body type requires
-              // the full RestZaakCreateData, so assert the partial here (one spot).
-              {
-                zaak: variables.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
-                reden: variables.reden,
-              },
-              { path: { uuid: variables.uuid } },
-            ),
-          ),
+      mutationOptions<
+        GeneratedType<"RestZaak">,
+        HttpErrorResponse,
+        ZaakDetailsUpdateVariables,
+        void
+      >({
+        mutationKey: patch.mutationKey,
+        mutationFn: (
+          variables: ZaakDetailsUpdateVariables,
+          context: MutationFunctionContext,
+        ) => patch.mutationFn!(toBody(variables), context),
+        onError: (error, variables, onMutateResult, context) =>
+          patch.onError?.(error, toBody(variables), onMutateResult, context),
       }),
     );
   }
@@ -130,19 +141,26 @@ export class ZakenService {
     });
   }
 
-  suspendZaak(
-    uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/suspend">,
-  ) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/suspend", body, {
-      path: { uuid },
-    });
+  suspendZaak(uuid: string) {
+    return mergeMutationOptions(
+      this.zaakMutation(
+        this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/suspend", {
+          path: { uuid },
+        }),
+      ),
+      { onSuccess: () => this.utilService.openSnackbar("msg.zaak.opgeschort") },
+    );
   }
 
-  resumeZaak(uuid: string, body: PatchBody<"/rest/zaken/zaak/{uuid}/resume">) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/resume", body, {
-      path: { uuid },
-    });
+  resumeZaak(uuid: string) {
+    return mergeMutationOptions(
+      this.zaakMutation(
+        this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/resume", {
+          path: { uuid },
+        }),
+      ),
+      { onSuccess: () => this.utilService.openSnackbar("msg.zaak.hervat") },
+    );
   }
 
   verlengenZaak(uuid: string) {
@@ -163,10 +181,6 @@ export class ZakenService {
 
   listZaaktypesToLinkQuery() {
     return this.zacQueryClient.GET("/rest/zaken/gekoppelde-zaken/zaaktypen");
-  }
-
-  toekennen(body: PatchBody<"/rest/zaken/toekennen">) {
-    return this.zacHttpClient.PATCH("/rest/zaken/toekennen", body);
   }
 
   verdelenVanuitLijst() {
@@ -286,19 +300,26 @@ export class ZakenService {
       .pipe(map(withI18nKeySuffix));
   }
 
-  afbreken(uuid: string, body: PatchBody<"/rest/zaken/zaak/{uuid}/afbreken">) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/afbreken", body, {
-      path: { uuid },
-    });
+  afbreken(uuid: string) {
+    return mergeMutationOptions(
+      this.zaakMutation(
+        this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afbreken", {
+          path: { uuid },
+        }),
+      ),
+      { onSuccess: () => this.utilService.openSnackbar("msg.zaak.afgebroken") },
+    );
   }
 
-  heropenen(
-    uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/heropenen">,
-  ) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/heropenen", body, {
-      path: { uuid },
-    });
+  heropenen(uuid: string) {
+    return mergeMutationOptions(
+      this.zaakMutation(
+        this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/heropenen", {
+          path: { uuid },
+        }),
+      ),
+      { onSuccess: () => this.utilService.openSnackbar("msg.zaak.heropend") },
+    );
   }
 
   afsluitenMutation(uuid: string) {
@@ -307,15 +328,6 @@ export class ZakenService {
         path: { uuid },
       }),
     );
-  }
-
-  afsluiten(
-    uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/afsluiten">,
-  ) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", body, {
-      path: { uuid },
-    });
   }
 
   createBesluit() {
@@ -369,8 +381,16 @@ export class ZakenService {
     return this.zacQueryClient.PATCH("/rest/zaken/zaak/koppel");
   }
 
-  ontkoppelZaak(body: PatchBody<"/rest/zaken/zaak/ontkoppel">) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/ontkoppel", body);
+  ontkoppelZaak() {
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/zaken/zaak/ontkoppel"),
+      {
+        onSuccess: (_data, { zaakUuid }) => {
+          this.invalidateZaak(zaakUuid);
+          this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
+        },
+      },
+    );
   }
 
   listBesluitenForZaak(zaakUuid: string) {

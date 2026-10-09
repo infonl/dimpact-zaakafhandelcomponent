@@ -16,8 +16,8 @@ import {
   Component,
   DestroyRef,
   OnInit,
-  ViewChild,
   inject,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatButtonModule } from "@angular/material/button";
@@ -87,9 +87,10 @@ export class MailtemplatesComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer")
-  protected sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
+  protected readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  protected readonly menuSidenav =
+    viewChild.required<MatSidenav>("menuSidenav");
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly deleteMailtemplateMutation = injectMutation(

@@ -10,7 +10,7 @@ import {
   input,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
@@ -39,8 +39,8 @@ export abstract class DashboardCardComponent<
 {
   readonly data = input.required<DashboardCard>();
 
-  @ViewChild(MatPaginator) paginator?: MatPaginator;
-  @ViewChild(MatSort) sort?: MatSort;
+  readonly paginator = viewChild(MatPaginator);
+  readonly sort = viewChild(MatSort);
   dataSource: MatTableDataSource<T> = new MatTableDataSource<T>();
 
   protected reload: Observable<unknown> | null = null;
@@ -65,8 +65,10 @@ export abstract class DashboardCardComponent<
 
   ngAfterViewInit(): void {
     if (!this.serverSidePagination) {
-      if (this.paginator) this.dataSource.paginator = this.paginator;
-      if (this.sort) this.dataSource.sort = this.sort;
+      const paginator = this.paginator();
+      if (paginator) this.dataSource.paginator = paginator;
+      const sort = this.sort();
+      if (sort) this.dataSource.sort = sort;
     }
 
     const data = this.data();

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -16,6 +16,7 @@ import {
   MatSidenavContainer,
 } from "@angular/material/sidenav";
 import { Subject, Subscription } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { ViewComponent } from "./view-component";
 
 @Component({ template: "", standalone: true })
@@ -23,14 +24,18 @@ class TestViewComponent extends ViewComponent {
   private readonly openedStart = new Subject<void>();
   readonly updateContentMarginsMock = jest.fn();
 
-  readonly sideNavContainer = {
-    hasBackdrop: true,
-    updateContentMargins: this.updateContentMarginsMock,
-  } as unknown as MatSidenavContainer;
+  readonly sideNavContainer = signal(
+    fromPartial<MatSidenavContainer>({
+      hasBackdrop: true,
+      updateContentMargins: this.updateContentMarginsMock,
+    }),
+  );
 
-  readonly menuSidenav = {
-    openedStart: this.openedStart.asObservable(),
-  } as unknown as MatSidenav;
+  readonly menuSidenav = signal(
+    fromPartial<MatSidenav>({
+      openedStart: this.openedStart.asObservable(),
+    }),
+  );
 
   public constructor() {
     super();
@@ -41,7 +46,7 @@ class TestViewComponent extends ViewComponent {
   }
 
   get containerHasBackdrop(): boolean {
-    return this.sideNavContainer.hasBackdrop;
+    return this.sideNavContainer().hasBackdrop;
   }
 
   triggerModeChange(mode: string): void {

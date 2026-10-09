@@ -9,7 +9,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
@@ -135,9 +135,9 @@ export class ZakenWerkvoorraadComponent
   );
   protected selection = new SelectionModel<ZaakZoekObject>(true, []);
   protected dataSource: ZakenWerkvoorraadDatasource;
-  @ViewChild(MatPaginator) private paginator!: MatPaginator;
-  @ViewChild(MatSort) private sort!: MatSort;
-  @ViewChild(MatTable) private table!: MatTable<ZaakZoekObject>;
+  private readonly paginator = viewChild.required(MatPaginator);
+  private readonly sort = viewChild.required(MatSort);
+  private readonly table = viewChild.required(MatTable);
   protected expandedRow: ZaakZoekObject | null = null;
   protected readonly zoekenColumn = ZoekenColumn;
 
@@ -226,8 +226,8 @@ export class ZakenWerkvoorraadComponent
   }
 
   ngAfterViewInit() {
-    this.dataSource.setViewChilds(this.paginator, this.sort);
-    this.table.dataSource = this.dataSource;
+    this.dataSource.setViewChilds(this.paginator(), this.sort());
+    this.table().dataSource = this.dataSource;
   }
 
   protected isAllSelected() {

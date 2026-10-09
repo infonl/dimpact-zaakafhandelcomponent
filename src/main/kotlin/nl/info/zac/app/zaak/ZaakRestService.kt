@@ -110,6 +110,7 @@ import nl.info.zac.util.toLocalDate
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
+import nl.info.zac.zaak.readZaakAutorisatieGegevens
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -482,9 +483,21 @@ class ZaakRestService @Inject constructor(
     fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
+        val zaakRechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
         assertPolicy(zaakRechten.canLezen)
-        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser).also {
+        return restZaakConverter.toRestZaak(
+            zaak = zaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser,
+            isZaakSpecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd
+        ).also {
             signaleringService.deleteSignaleringenForZaak(zaak)
         }
     }
@@ -494,9 +507,21 @@ class ZaakRestService @Inject constructor(
     fun readZaakById(@PathParam("identificatie") zaakIdentification: String): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakID(zaakIdentification)
-        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
+        val zaakRechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
         assertPolicy(zaakRechten.canLezen)
-        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser).also {
+        return restZaakConverter.toRestZaak(
+            zaak = zaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser,
+            isZaakSpecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd
+        ).also {
             signaleringService.deleteSignaleringenForZaak(zaak)
         }
     }
@@ -560,8 +585,13 @@ class ZaakRestService @Inject constructor(
             // Abort the case in OpenZaak
             if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
                 // Use the hardcoded "niet ontvankelijk" reden that we don't manage via the zaaktype configuration
-                resultaattypeReferenceService.findNietOntvankelijkResultaattype(it)?.let { resultaattype ->
-                    terminateZaak(zaak, resultaattype.url.extractUuid(), INADMISSIBLE_TERMINATION_REASON)
+                it.nietOntvankelijkResultaattypeOmschrijving?.let { omschrijving ->
+                    terminateZaak(
+                        zaak,
+                        resultaattypeReferenceService.readNietOntvankelijkResultaattype(it.zaaktypeUuid, omschrijving)
+                            .url.extractUuid(),
+                        INADMISSIBLE_TERMINATION_REASON
+                    )
                 }
             } else {
                 afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
@@ -628,11 +658,16 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
+        val zaakRechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
         checkZaakUpdatePermissions(zaakRechten, restZaakEditMetRedenGegevens, zaak)
         assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
         assertZaakUpdateDataIsValid(zaakType, restZaakEditMetRedenGegevens.zaak)
-        val isAlreadyZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.isZaakspecifiekGeautoriseerd(zaak)
         val currentBehandelaarId = currentBehandelaarId(zaak)
         val requestedAssignment = resolveRequestedAssignment(
             zaak = zaak,
@@ -643,7 +678,7 @@ class ZaakRestService @Inject constructor(
             assertPolicy(zaakRechten.canToekennen)
             zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                 zaak = zaak,
-                isZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
+                isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
                 currentBehandelaarId = currentBehandelaarId,
                 requestedBehandelaarId = it.behandelaarId
             )
@@ -652,7 +687,7 @@ class ZaakRestService @Inject constructor(
         val shouldBeMarkedZaakspecifiekGeautoriseerd = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
             zaakType = zaakType,
             requestedMarking = restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd,
-            isAlreadyZaakspecifiekGeautoriseerd = isAlreadyZaakspecifiekGeautoriseerd,
+            isAlreadyZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
             currentAndRequestedBehandelaarIds = setOfNotNull(currentBehandelaarId, requestedAssignment?.behandelaarId),
             loggedInUser = loggedInUser
         )

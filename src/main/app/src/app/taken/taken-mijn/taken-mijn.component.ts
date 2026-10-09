@@ -16,7 +16,7 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
@@ -92,9 +92,9 @@ export class TakenMijnComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   dataSource: TakenMijnDatasource;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatTable) table!: MatTable<TaakZoekObject>;
+  readonly paginator = viewChild.required(MatPaginator);
+  readonly sort = viewChild.required(MatSort);
+  readonly table = viewChild.required(MatTable);
   expandedRow: TaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
 
@@ -126,8 +126,8 @@ export class TakenMijnComponent
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.setViewChilds(this.paginator, this.sort);
-    this.table.dataSource = this.dataSource;
+    this.dataSource.setViewChilds(this.paginator(), this.sort());
+    this.table().dataSource = this.dataSource;
   }
 
   protected isAfterDate(datum: Date | string | null): boolean {

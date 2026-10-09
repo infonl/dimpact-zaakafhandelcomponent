@@ -12,7 +12,7 @@ import {
   NgSwitchDefault,
   SlicePipe,
 } from "@angular/common";
-import { AfterViewInit, Component, OnDestroy, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, OnDestroy, viewChild } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -93,9 +93,9 @@ export class ZakenMijnComponent
 {
   readonly indicatiesLayout = IndicatiesLayout;
   dataSource: ZakenMijnDatasource;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatTable) table!: MatTable<ZaakZoekObject>;
+  readonly paginator = viewChild.required(MatPaginator);
+  readonly sort = viewChild.required(MatSort);
+  readonly table = viewChild.required(MatTable);
   expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
 
@@ -153,8 +153,8 @@ export class ZakenMijnComponent
   }
 
   ngAfterViewInit() {
-    this.dataSource.setViewChilds(this.paginator, this.sort);
-    this.table.dataSource = this.dataSource;
+    this.dataSource.setViewChilds(this.paginator(), this.sort());
+    this.table().dataSource = this.dataSource;
   }
 
   isAfterDate(datum: Date | moment.Moment | string) {

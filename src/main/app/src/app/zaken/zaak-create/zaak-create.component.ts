@@ -4,7 +4,7 @@
  */
 
 import { NgSwitch, NgSwitchCase } from "@angular/common";
-import { Component, inject, ViewChild } from "@angular/core";
+import { Component, inject, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -81,7 +81,7 @@ export class ZaakCreateComponent {
   private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
 
-  @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
+  protected readonly actionsSidenav = viewChild.required(MatSidenav);
 
   protected activeSideAction: string | null = null;
 
@@ -230,7 +230,7 @@ export class ZaakCreateComponent {
       ...user,
       type: user.identificatieType!,
     });
-    await this.actionsSidenav.close();
+    await this.actionsSidenav().close();
   }
 
   caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
@@ -274,7 +274,7 @@ export class ZaakCreateComponent {
 
   protected async openSideNav(action: string) {
     this.activeSideAction = action;
-    await this.actionsSidenav.open();
+    await this.actionsSidenav().open();
   }
 
   private async handleProductRequest(

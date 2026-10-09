@@ -24,6 +24,7 @@ import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.RestTask
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -37,14 +38,22 @@ class RestTaskConverter @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
 ) {
-    fun convert(tasks: List<TaskInfo>) = tasks.map(::convert)
+    fun toRestTasks(tasks: List<TaskInfo>) = tasks.map { toRestTask(it) }
+
+
+    fun toRestTasks(tasks: List<TaskInfo>, zaakAutorisatieGegevens: ZaakAutorisatieGegevens) =
+        tasks.map { toRestTask(it, zaakAutorisatieGegevens) }
 
     @Suppress("LongMethod", "ComplexMethod")
-    fun convert(taskInfo: TaskInfo): RestTask {
+    fun toRestTask(
+        taskInfo: TaskInfo,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
+    ): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         val restTaakRechten = policyService.readTaakRechten(
             taskInfo = taskInfo,
-            zaaktypeOmschrijving = zaaktypeOmschrijving
+            zaaktypeOmschrijving = zaaktypeOmschrijving,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
         ).toRestTaakRechten()
         val restTask = RestTask(
             id = taskInfo.id,

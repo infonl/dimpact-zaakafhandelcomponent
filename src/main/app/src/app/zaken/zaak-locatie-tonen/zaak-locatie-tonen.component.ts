@@ -11,7 +11,7 @@ import {
   inject,
   input,
   untracked,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import * as style from "ol/style.js";
 import { LocationUtil } from "../../shared/location/location-util";
@@ -33,7 +33,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 export class LocatieTonenComponent implements AfterViewInit {
   readonly currentLocation = input.required<GeneratedType<"RestGeometry">>();
 
-  @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
+  readonly openLayersMapRef = viewChild.required<ElementRef>("openLayersMap");
 
   private readonly locationService = inject(LocationService);
 
@@ -67,7 +67,7 @@ export class LocatieTonenComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.locationMap.setTarget(this.openLayersMapRef.nativeElement);
+      this.locationMap.setTarget(this.openLayersMapRef().nativeElement);
       this.viewInitialized = true;
       const currentLocation = this.currentLocation();
       if (currentLocation) {

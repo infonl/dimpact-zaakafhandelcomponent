@@ -231,7 +231,6 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
@@ -241,7 +240,8 @@ class RestZaakConverterTest : BehaviorSpec({
                 zaakRechten = zaakRechten,
                 loggedInUser = loggedInUser,
                 status = status,
-                statustype = statusType
+                statustype = statusType,
+                isZaakSpecifiekGeautoriseerd = false
             )
 
             then("the zaak should be converted correctly") {
@@ -304,7 +304,6 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak to a rest zaak") {
@@ -314,7 +313,8 @@ class RestZaakConverterTest : BehaviorSpec({
                 zaakRechten = zaakRechten,
                 loggedInUser = loggedInUser,
                 status = status,
-                statustype = statusType
+                statustype = statusType,
+                isZaakSpecifiekGeautoriseerd = false
             )
 
             then("the zaak should be converted correctly") {
@@ -539,7 +539,6 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every { zaakService.setIsZaakdataGearchiveerd(zaak) } returns false
 
         `when`("converting a zaak with the 'Intake' status") {
@@ -550,7 +549,8 @@ class RestZaakConverterTest : BehaviorSpec({
                 zaakRechten = zaakRechten,
                 loggedInUser = loggedInUser,
                 status = status,
-                statustype = statusType
+                statustype = statusType,
+                isZaakSpecifiekGeautoriseerd = false
             )
 
             then("isInIntakeFase should be true") {
@@ -568,7 +568,8 @@ class RestZaakConverterTest : BehaviorSpec({
                 zaakRechten = zaakRechten,
                 loggedInUser = loggedInUser,
                 status = status,
-                statustype = statusType
+                statustype = statusType,
+                isZaakSpecifiekGeautoriseerd = false
             )
 
             then("isInIntakeFase should be true") {

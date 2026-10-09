@@ -99,7 +99,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { medewerkerConverter.convertUserId("fakeAssigneeId") } returns createRestUser(id = "fakeAssigneeId")
 
             `when`("convert is called") {
-                val restTask = restTaskConverter.convert(taskInfo)
+                val restTask = restTaskConverter.toRestTask(taskInfo)
 
                 then("basic fields are mapped correctly, including the assigned status") {
                     restTask.id shouldBe "fakeTaskId"
@@ -151,7 +151,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { bpmnProcessDefinitionTaskFormService.readForm(processDefinitionId, formKey) } returns fakeFormioFormulier
 
             `when`("convert is called") {
-                val restTask = restTaskConverter.convert(taskInfo)
+                val restTask = restTaskConverter.toRestTask(taskInfo)
 
                 then("formio formulier is set and formulierDefinitieId is null") {
                     restTask.formioFormulier shouldBe fakeFormioFormulier
@@ -213,7 +213,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
 
             `when`("convert is called") {
-                val restTask = restTaskConverter.convert(taskInfo)
+                val restTask = restTaskConverter.toRestTask(taskInfo)
 
                 then("the advies options of the reference table are offered on the task") {
                     restTask.tabellen["ADVIES"] shouldBe listOf("Positief", "Negatief")
@@ -244,7 +244,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { bpmnProcessDefinitionTaskFormService.readForm(any(), any()) } returns mockk()
 
             `when`("convert is called") {
-                val restTask = restTaskConverter.convert(taskInfo)
+                val restTask = restTaskConverter.toRestTask(taskInfo)
 
                 then("the status is derived as AFGEROND and sensitive fields are null") {
                     restTask.status shouldBe TaakStatus.AFGEROND
@@ -301,7 +301,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
 
             `when`("convert is called with the list") {
-                val restTasks = restTaskConverter.convert(listOf(taskInfo1, taskInfo2))
+                val restTasks = restTaskConverter.toRestTasks(listOf(taskInfo1, taskInfo2))
 
                 then("both tasks are converted") {
                     restTasks.size shouldBe 2
