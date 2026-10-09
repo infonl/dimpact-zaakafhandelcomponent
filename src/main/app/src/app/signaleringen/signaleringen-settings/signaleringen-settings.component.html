@@ -7,12 +7,12 @@
   <mat-card-content>
     <div
       class="table-wrapper"
-      [ngClass]="{ 'table-loading-shade': isLoadingResults }"
+      [ngClass]="{ 'table-loading-shade': instellingenQuery.isLoading() }"
     >
       <table
         mat-table
         [dataSource]="dataSource"
-        [attr.aria-busy]="isLoadingResults"
+        [attr.aria-busy]="instellingenQuery.isLoading()"
       >
         <ng-container [matColumnDef]="column" *ngFor="let column of columns">
           <th mat-header-cell *matHeaderCellDef>

@@ -37,7 +37,7 @@ import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable, Subscription } from "rxjs";
+import { Observable } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
 import { BackButtonDirective } from "../../shared/navigation/back-button.directive";
@@ -95,10 +95,8 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   protected zoekenFormControl = new FormControl<string>("");
 
   protected headerTitle$?: Observable<string>;
-  protected hasNewSignaleringen = false;
   protected werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
 
-  private subscription$?: Subscription;
   private signaleringListener?: WebsocketListener;
 
   protected readonly loggedInUserQuery = injectQuery(() =>
@@ -107,6 +105,25 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   protected readonly overigeRechtenQuery = injectQuery(() =>
     this.policyService.readOverigeRechten(),
   );
+  private readonly latestSignaleringQuery = injectQuery(() =>
+    this.signaleringenService.readLatestSignalering(),
+  );
+  protected readonly hasNewSignaleringen = computed(() => {
+    // Opening the dashboard re-reads an often unchanged latest signalering. Depending on when it was
+    // read, not only on what was read, makes that re-read compare it with the new dashboardOpened.
+    this.latestSignaleringQuery.dataUpdatedAt();
+    const latestSignalering = this.latestSignaleringQuery.data();
+    if (!latestSignalering) return false;
+
+    // TODO instead of session storage use userpreferences in a db
+    const dashboardLastOpened: string | null =
+      SessionStorageUtil.getItem("dashboardOpened");
+    if (!dashboardLastOpened) return true;
+
+    return moment(latestSignalering, moment.ISO_8601).isAfter(
+      moment(dashboardLastOpened, moment.ISO_8601),
+    );
+  });
   protected readonly medewerkerNaamToolbar = computed(() =>
     this.loggedInUserQuery
       .data()
@@ -135,7 +152,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         Opcode.UPDATED,
         ObjectType.SIGNALERINGEN,
         loggedInUser.id,
-        () => this.signaleringenService.updateSignaleringen(),
+        () => void this.signaleringenService.invalidateLatestSignalering(),
       );
     });
 
@@ -162,41 +179,12 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.policyService
       .readWerklijstRechten()
       .subscribe((rechten) => (this.werklijstRechten = rechten));
-    this.setSignaleringen();
   }
 
   ngOnDestroy() {
-    this.subscription$?.unsubscribe();
-
     if (this.signaleringListener) {
       this.websocketService.removeListener(this.signaleringListener);
     }
-  }
-
-  protected setSignaleringen() {
-    this.subscription$ = this.signaleringenService.latestSignalering$.subscribe(
-      (value) => {
-        // TODO instead of session storage use userpreferences in a db
-        const dashboardLastOpenendStorage: string =
-          SessionStorageUtil.getItem("dashboardOpened");
-        if (!dashboardLastOpenendStorage) {
-          this.hasNewSignaleringen = !!value;
-        } else {
-          const dashboardLastOpenendMoment: moment.Moment = moment(
-            dashboardLastOpenendStorage,
-            moment.ISO_8601,
-          );
-
-          const newestSignalering: moment.Moment = moment(
-            value,
-            moment.ISO_8601,
-          );
-          this.hasNewSignaleringen = newestSignalering.isAfter(
-            dashboardLastOpenendMoment,
-          );
-        }
-      },
-    );
   }
 
   protected resetSearch() {

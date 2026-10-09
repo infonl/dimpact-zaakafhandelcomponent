@@ -26,7 +26,6 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -84,14 +83,10 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
   }));
 
   ioQuery = injectQuery(() => ({
-    queryKey: ["informatieobjecten signaleringen dashboard", this.parameters()],
-    enabled: !!this.parameters().signaleringType,
-    queryFn: () =>
-      firstValueFrom(
-        this.signaleringenService.listInformatieobjectenSignalering(
-          this.parameters().signaleringType!,
-        ),
-      ),
+    ...this.signaleringenService.listInformatieobjectenSignalering(
+      this.parameters().signaleringType!,
+    ),
+    enabled: this.parameters().signaleringType != null,
   }));
 
   constructor(

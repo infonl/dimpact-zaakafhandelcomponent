@@ -4,27 +4,36 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class SignaleringenSettingsBeheerService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
 
   list(groupId: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/signaleringen/group/{groupId}/instellingen",
       { path: { groupId } },
     );
   }
 
   put(groupId: string) {
-    return this.zacQueryClient.PUT(
-      "/rest/signaleringen/group/{groupId}/instellingen",
-      { path: { groupId } },
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT(
+        "/rest/signaleringen/group/{groupId}/instellingen",
+        { path: { groupId } },
+      ),
+      {
+        onSuccess: () =>
+          this.queryClient.invalidateQueries({
+            queryKey: this.list(groupId).queryKey,
+          }),
+      },
     );
   }
 }

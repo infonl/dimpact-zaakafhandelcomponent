@@ -4,21 +4,35 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { SignaleringenService } from "../signaleringen.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class SignaleringenSettingsService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
+  private readonly signaleringenService = inject(SignaleringenService);
 
   list() {
-    return this.zacHttpClient.GET("/rest/signaleringen/instellingen");
+    return this.zacQueryClient.GET("/rest/signaleringen/instellingen");
   }
 
   put() {
-    return this.zacQueryClient.PUT("/rest/signaleringen/instellingen");
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/signaleringen/instellingen"),
+      {
+        onSuccess: () =>
+          Promise.all([
+            this.queryClient.invalidateQueries({
+              queryKey: this.list().queryKey,
+            }),
+            this.signaleringenService.invalidateDashboardSignaleringTypen(),
+          ]),
+      },
+    );
   }
 }

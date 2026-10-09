@@ -3,220 +3,176 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatSortHeaderHarness } from "@angular/material/sort/testing";
-import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { of, Subject } from "rxjs";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { sleep } from "../../../../setupJest";
+import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCard } from "../model/dashboard-card";
 import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
 import { TakenCardComponent } from "./taken-card.component";
 
-const makeTaak = (
+const TAKEN_URL = "/rest/signaleringen/taken/TAAK_OP_NAAM";
+
+const taak = (
   fields: Partial<GeneratedType<"RestSignaleringTaskSummary">> = {},
-): GeneratedType<"RestSignaleringTaskSummary"> =>
-  ({
+) =>
+  fromPartial<GeneratedType<"RestSignaleringTaskSummary">>({
     naam: "Test taak",
     zaakIdentificatie: "ZAAK-001",
     zaaktypeOmschrijving: "Testtype",
     ...fields,
-  }) as Partial<
-    GeneratedType<"RestSignaleringTaskSummary">
-  > as unknown as GeneratedType<"RestSignaleringTaskSummary">;
+  });
 
-const makeDashboardCard = (): DashboardCard =>
-  new DashboardCard(
-    DashboardCardId.MIJN_TAKEN,
-    DashboardCardType.TAKEN,
-    "TAAK_OP_NAAM" as GeneratedType<"Type">,
-  );
+const signaleringChangedEvent = (signaleringType: GeneratedType<"Type">) =>
+  fromPartial<ScreenEvent>({ objectId: { detail: signaleringType } });
 
 describe(TakenCardComponent.name, () => {
   let fixture: ComponentFixture<TakenCardComponent>;
-  let component: TakenCardComponent;
-  let loader: HarnessLoader;
-  let signaleringenService: SignaleringenService;
+  let httpTestingController: HttpTestingController;
+  let websocketService: WebsocketService;
+  let signaleringenChanged: (event: ScreenEvent) => void;
 
-  const defaultParameters = {
-    signaleringType: "TAAK_OP_NAAM" as GeneratedType<"Type">,
-  };
+  const user = userEvent.setup();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-        TakenCardComponent,
-      ],
-      providers: [
-        provideHttpClient(),
-        provideRouter([]),
-        provideTanStackQuery(testQueryClient),
-        { provide: WebsocketService, useValue: { addListener: jest.fn() } },
-      ],
-    }).compileComponents();
-
-    signaleringenService = TestBed.inject(SignaleringenService);
-    jest
-      .spyOn(signaleringenService, "listTakenSignalering")
-      .mockReturnValue(of([]));
-
-    const identityService = TestBed.inject(IdentityService);
-    testQueryClient.setQueryData(
-      identityService.readLoggedInUser().queryKey,
-      fromPartial<GeneratedType<"RestUser">>({ id: "user", naam: "Test" }),
-    );
-
-    fixture = TestBed.createComponent(TakenCardComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    fixture.componentRef.setInput("data", makeDashboardCard());
-    fixture.detectChanges();
-  });
-
-  it("calls listTakenSignalering with the card's signaleringType on load", async () => {
-    component["onLoad"]();
-    await sleep();
-    expect(signaleringenService.listTakenSignalering).toHaveBeenCalledWith(
+  async function setup(
+    card = new DashboardCard(
+      DashboardCardId.MIJN_TAKEN,
+      DashboardCardType.TAKEN,
       "TAAK_OP_NAAM",
-    );
-  });
+    ),
+  ) {
+    websocketService = fromPartial<WebsocketService>({
+      addListener: jest.fn((_opcode, _objectType, _objectId, callback) => {
+        signaleringenChanged = callback as (event: ScreenEvent) => void;
+        return fromPartial<WebsocketListener>({});
+      }),
+    });
 
-  it("populates dataSource with tasks returned by the service", async () => {
-    const taken = [makeTaak({ naam: "Taak A" }), makeTaak({ naam: "Taak B" })];
-    testQueryClient.setQueryData(
-      ["taken signaleringen dashboard", defaultParameters],
-      taken,
-    );
-    jest
-      .spyOn(signaleringenService, "listTakenSignalering")
-      .mockReturnValue(of(taken));
+    ({ fixture } = await render(TakenCardComponent, {
+      inputs: { data: card },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [{ provide: WebsocketService, useValue: websocketService }],
+    }));
 
-    component["onLoad"]();
+    httpTestingController = TestBed.inject(HttpTestingController);
+    if (card.signaleringType == null) return;
+
+    httpTestingController
+      .expectOne("/rest/identity/loggedInUser")
+      .flush(fromPartial<GeneratedType<"RestLoggedInUser">>({ id: "user" }));
+    await sleep();
+  }
+
+  async function respondWithTaken(
+    taken: GeneratedType<"RestSignaleringTaskSummary">[],
+  ) {
+    httpTestingController.expectOne(TAKEN_URL).flush(taken);
+    await sleep();
     await sleep();
     fixture.detectChanges();
+  }
 
-    expect(component.dataSource.data).toEqual(taken);
+  function takenNamen() {
+    const [, ...rows] = screen.getAllByRole("row");
+    return rows.map(
+      (row) => within(row).getAllByRole("cell")[0].textContent?.trim() ?? "",
+    );
+  }
+
+  it("shows the taken of the card's signaleringType", async () => {
+    await setup();
+
+    await respondWithTaken([
+      taak({ naam: "Taak A" }),
+      taak({ naam: "Taak B" }),
+    ]);
+
+    expect(takenNamen()).toEqual(["Taak A", "Taak B"]);
   });
 
-  it("skips the service call and clears dataSource when signaleringType is missing", async () => {
-    const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
-    spy.mockClear();
-    fixture.componentRef.setInput(
-      "data",
+  it("shows a loading indicator until the taken have arrived", async () => {
+    await setup();
+
+    expect(
+      screen.getByRole("progressbar", { name: "msg.loading" }),
+    ).toBeInTheDocument();
+
+    await respondWithTaken([]);
+
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeInTheDocument();
+  });
+
+  it("reads no taken for a card without a signaleringType", async () => {
+    await setup(
       new DashboardCard(DashboardCardId.MIJN_TAKEN, DashboardCardType.TAKEN),
     );
-    testQueryClient.removeQueries({
-      queryKey: ["taken signaleringen dashboard"],
-    });
-    fixture.detectChanges();
 
-    component["onLoad"]();
+    httpTestingController.expectNone((request) =>
+      request.url.startsWith("/rest/signaleringen/taken/"),
+    );
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeInTheDocument();
+  });
+
+  it("listens for changes to the signaleringen of the logged-in user", async () => {
+    await setup();
+    await respondWithTaken([]);
+
+    expect(websocketService.addListener).toHaveBeenCalledWith(
+      Opcode.UPDATED,
+      ObjectType.SIGNALERINGEN,
+      "user",
+      expect.any(Function),
+    );
+  });
+
+  it("reads the taken again when a signalering of the card's type changes", async () => {
+    await setup();
+    await respondWithTaken([taak({ naam: "Taak A" })]);
+
+    signaleringenChanged(signaleringChangedEvent("TAAK_OP_NAAM"));
+    await respondWithTaken([taak({ naam: "Taak B" })]);
+
+    expect(takenNamen()).toEqual(["Taak B"]);
+  });
+
+  it("does not read the taken again when a signalering of another type changes", async () => {
+    await setup();
+    await respondWithTaken([]);
+
+    signaleringenChanged(signaleringChangedEvent("ZAAK_OP_NAAM"));
     await sleep();
-    fixture.detectChanges();
 
-    expect(spy).not.toHaveBeenCalled();
-    expect(component.dataSource.data).toEqual([]);
+    httpTestingController.expectNone(TAKEN_URL);
   });
 
-  it("wires up sort and paginator on the dataSource after view init", () => {
-    expect(component.dataSource.sort).toBe(component.sort);
-    expect(component.dataSource.paginator).toBe(component.paginator);
-  });
-
-  it("re-runs onLoad when the reload observable emits", async () => {
-    const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
-    spy.mockClear();
-    (component["reload"] as Subject<void>).next();
-    await sleep();
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it("reorders rows ascending then descending when the naam sort header is clicked", async () => {
-    const taken = [
-      makeTaak({ naam: "Charlie" }),
-      makeTaak({ naam: "Alpha" }),
-      makeTaak({ naam: "Bravo" }),
-    ];
-    testQueryClient.setQueryData(
-      ["taken signaleringen dashboard", defaultParameters],
-      taken,
-    );
-    fixture.detectChanges();
-    await sleep();
-    fixture.detectChanges();
-
-    const sortHeader = await loader.getHarness(
-      MatSortHeaderHarness.with({ label: "naam" }),
-    );
-    const table = await loader.getHarness(MatTableHarness);
-
-    await sortHeader.click();
-    const ascending = await Promise.all(
-      (await table.getRows()).map(
-        async (row) => (await row.getCellTextByColumnName()).naam,
-      ),
-    );
-    expect(ascending).toEqual(["Alpha", "Bravo", "Charlie"]);
-
-    await sortHeader.click();
-    const descending = await Promise.all(
-      (await table.getRows()).map(
-        async (row) => (await row.getCellTextByColumnName()).naam,
-      ),
-    );
-    expect(descending).toEqual(["Charlie", "Bravo", "Alpha"]);
-  });
-
-  it("exposes the expected column definitions", () => {
-    expect(component.columns).toEqual([
-      "naam",
-      "creatiedatumTijd",
-      "zaakIdentificatie",
-      "zaaktypeOmschrijving",
-      "url",
+  it("sorts the taken ascending and then descending by naam", async () => {
+    await setup();
+    await respondWithTaken([
+      taak({ naam: "Charlie" }),
+      taak({ naam: "Alpha" }),
+      taak({ naam: "Bravo" }),
     ]);
-  });
 
-  it("renders a table row for each task in dataSource", async () => {
-    const taken = [makeTaak({ naam: "Taak X" }), makeTaak({ naam: "Taak Y" })];
-    testQueryClient.setQueryData(
-      ["taken signaleringen dashboard", defaultParameters],
-      taken,
-    );
-    fixture.detectChanges();
-    await sleep();
+    await user.click(screen.getByRole("columnheader", { name: "naam" }));
     fixture.detectChanges();
 
-    const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows();
-    expect(rows.length).toBe(2);
-  });
+    expect(takenNamen()).toEqual(["Alpha", "Bravo", "Charlie"]);
 
-  it("renders empty state row when dataSource is empty", async () => {
-    testQueryClient.setQueryData(
-      ["taken signaleringen dashboard", defaultParameters],
-      [],
-    );
-    fixture.detectChanges();
-    await sleep();
+    await user.click(screen.getByRole("columnheader", { name: "naam" }));
     fixture.detectChanges();
 
-    const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows();
-    expect(rows.length).toBe(0);
+    expect(takenNamen()).toEqual(["Charlie", "Bravo", "Alpha"]);
   });
 });
