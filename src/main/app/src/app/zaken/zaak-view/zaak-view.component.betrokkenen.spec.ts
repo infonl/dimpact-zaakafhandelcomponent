@@ -7,7 +7,6 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
@@ -217,16 +216,6 @@ describe(ZaakViewComponent.name, () => {
 
     fixture = TestBed.createComponent(ZaakViewComponent);
     sideActions = fixture.debugElement.injector.get(ZaakSideActionService);
-
-    fixture.componentInstance.actionsSidenav = fromPartial<MatSidenav>({
-      close: jest.fn(),
-      open: jest.fn(),
-    });
-    fixture.componentInstance.sideNavContainer =
-      fromPartial<MatSidenavContainer>({
-        hasBackdrop: false,
-        updateContentMargins: jest.fn(),
-      });
   });
 
   describe("allowPersoon", () => {
@@ -490,7 +479,7 @@ describe(ZaakViewComponent.name, () => {
       httpTestingController.match(() => true);
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
       const closeSideNav = jest
-        .spyOn(fixture.componentInstance.actionsSidenav, "close")
+        .spyOn(fixture.componentInstance.actionsSidenav(), "close")
         .mockResolvedValue("close");
 
       const klantGegevens = new KlantGegevens(

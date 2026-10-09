@@ -193,7 +193,7 @@ describe(InformatieObjectViewComponent.name, () => {
       );
       await button.click();
 
-      const sidebar = component.actionsSidenav;
+      const sidebar = component.actionsSidenav();
       expect(sidebar.opened).toBe(true);
     });
   });

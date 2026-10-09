@@ -10,7 +10,7 @@ import {
   inject,
   input,
   output,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -67,7 +67,7 @@ export class BagZoekComponent {
     | FormControl<GeneratedType<"RestBagObject">[] | null>
   >([]);
   readonly sideNav = input.required<MatSidenav | MatDrawer>();
-  @ViewChild(MatTable) private table!: MatTable<GeneratedType<"RestBagObject">>;
+  private readonly table = viewChild.required(MatTable);
   protected trefwoorden = new FormControl("", [Validators.maxLength(255)]);
   protected bagObjecten = new MatTableDataSource<
     GeneratedType<"RestBagObject"> | GeneratedType<"RestBagAdres">
@@ -177,7 +177,7 @@ export class BagZoekComponent {
       0,
       ...children,
     );
-    this.table.renderRows();
+    this.table().renderRows();
   }
 
   protected reedsGekoppeld(row: GeneratedType<"RestBagObject">): boolean {

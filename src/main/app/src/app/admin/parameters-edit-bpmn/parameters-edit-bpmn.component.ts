@@ -13,7 +13,7 @@ import {
   input,
   OnDestroy,
   output,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -108,8 +108,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   readonly selectedIndexStart = input<number>(0);
   readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 
-  @ViewChild("smartDocumentsFormRef")
-  smartDocumentsFormComponent!: SmartDocumentsFormComponent;
+  readonly smartDocumentsFormComponent = viewChild<SmartDocumentsFormComponent>(
+    "smartDocumentsFormRef",
+  );
 
   private readonly destroy$ = new Subject<void>();
   private readonly dialog = inject(MatDialog);
@@ -540,7 +541,8 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
             this.bpmnZaakafhandelParameters.smartDocuments?.isEnabledGlobally ??
             false,
           isEnabledForZaaktype:
-            this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false,
+            this.smartDocumentsFormComponent()?.enabledForZaaktypeValue ??
+            false,
         },
       },
       {
@@ -548,8 +550,10 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           this.bpmnZaakafhandelParameters.id = data.id; // needed for next save
           this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
 
-          if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
-            this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
+          const smartDocumentsFormComponent =
+            this.smartDocumentsFormComponent();
+          if (smartDocumentsFormComponent?.enabledForZaaktypeValue) {
+            smartDocumentsFormComponent.saveSmartDocumentsMapping();
           }
         },
       },

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -23,14 +23,14 @@ class TestViewComponent extends ViewComponent {
   private readonly openedStart = new Subject<void>();
   readonly updateContentMarginsMock = jest.fn();
 
-  readonly sideNavContainer = {
+  readonly sideNavContainer = signal({
     hasBackdrop: true,
     updateContentMargins: this.updateContentMarginsMock,
-  } as unknown as MatSidenavContainer;
+  } as unknown as MatSidenavContainer);
 
-  readonly menuSidenav = {
+  readonly menuSidenav = signal({
     openedStart: this.openedStart.asObservable(),
-  } as unknown as MatSidenav;
+  } as unknown as MatSidenav);
 
   public constructor() {
     super();
@@ -41,7 +41,7 @@ class TestViewComponent extends ViewComponent {
   }
 
   get containerHasBackdrop(): boolean {
-    return this.sideNavContainer.hasBackdrop;
+    return this.sideNavContainer().hasBackdrop;
   }
 
   triggerModeChange(mode: string): void {

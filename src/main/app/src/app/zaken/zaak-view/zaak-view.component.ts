@@ -13,7 +13,7 @@ import {
   OnDestroy,
   signal,
   untracked,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatDialog } from "@angular/material/dialog";
@@ -200,12 +200,13 @@ export class ZaakViewComponent
   private zaakBesluitenListener!: WebsocketListener;
   private zaakTakenListener!: WebsocketListener;
 
-  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  readonly actionsSidenav = viewChild.required<MatSidenav>("actionsSidenav");
+  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
+  readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
 
-  @ViewChild("zaakDocumentenComponent")
-  zaakDocumentenComponent!: ZaakDocumentenComponent;
+  readonly zaakDocumentenComponent =
+    viewChild.required<ZaakDocumentenComponent>("zaakDocumentenComponent");
 
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -325,7 +326,7 @@ export class ZaakViewComponent
   }
 
   ngAfterViewInit() {
-    this.sideActions.register(this.actionsSidenav);
+    this.sideActions.register(this.actionsSidenav());
     this.viewInitialized.set(true);
     super.ngAfterViewInit();
   }
@@ -557,7 +558,7 @@ export class ZaakViewComponent
   }
 
   protected updateDocumentList() {
-    this.zaakDocumentenComponent.updateDocumentList();
+    this.zaakDocumentenComponent().updateDocumentList();
     this.invalidateZaakHistorie();
   }
 

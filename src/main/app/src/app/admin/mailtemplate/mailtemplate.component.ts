@@ -8,7 +8,7 @@ import {
   Component,
   computed,
   effect,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -57,9 +57,10 @@ export class MailtemplateComponent
   extends AdminComponent
   implements AfterViewInit
 {
-  @ViewChild("sideNavContainer")
-  protected sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
+  protected readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  protected readonly menuSidenav =
+    viewChild.required<MatSidenav>("menuSidenav");
 
   protected form = this.formBuilder.group({
     mailTemplateNaam: this.formBuilder.control("", [Validators.required]),

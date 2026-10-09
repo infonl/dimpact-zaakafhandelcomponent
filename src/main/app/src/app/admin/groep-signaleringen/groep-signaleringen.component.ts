@@ -4,7 +4,7 @@
  */
 
 import { AsyncPipe, NgClass, NgFor, NgIf } from "@angular/common";
-import { Component, inject, OnInit, ViewChild } from "@angular/core";
+import { Component, inject, OnInit, viewChild } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -52,9 +52,10 @@ export class GroepSignaleringenComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer")
-  protected sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
+  protected readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  protected readonly menuSidenav =
+    viewChild.required<MatSidenav>("menuSidenav");
 
   protected isLoadingResults = false;
   protected groepen!: Observable<GeneratedType<"RestGroup">[]>;

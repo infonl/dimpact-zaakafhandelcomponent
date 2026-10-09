@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component } from "@angular/core";
+import { AfterViewInit, Component, Signal } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { ViewComponent } from "./view-component";
 
@@ -15,7 +15,7 @@ export abstract class ActionsViewComponent
   extends ViewComponent
   implements AfterViewInit
 {
-  abstract actionsSidenav: MatDrawer;
+  abstract readonly actionsSidenav: Signal<MatDrawer>;
 
   protected constructor() {
     super();
@@ -23,11 +23,11 @@ export abstract class ActionsViewComponent
 
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    this.actionsSidenav.closedStart.subscribe(() => {
-      this.sideNavContainer.hasBackdrop = false;
+    this.actionsSidenav().closedStart.subscribe(() => {
+      this.sideNavContainer().hasBackdrop = false;
     });
-    this.actionsSidenav.openedStart.subscribe(() => {
-      this.sideNavContainer.hasBackdrop = true;
+    this.actionsSidenav().openedStart.subscribe(() => {
+      this.sideNavContainer().hasBackdrop = true;
     });
   }
 }

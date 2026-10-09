@@ -13,7 +13,7 @@ import {
   OnDestroy,
   OnInit,
   output,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import {
@@ -81,7 +81,7 @@ export class CaseLocationEditComponent
   readonly sideNav = input.required<MatDrawer>();
   readonly locatie = output<void>();
 
-  @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
+  readonly openLayersMapRef = viewChild.required<ElementRef>("openLayersMap");
 
   private readonly zakenService = inject(ZakenService);
   private readonly locationService = inject(LocationService);
@@ -146,7 +146,7 @@ export class CaseLocationEditComponent
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.locationMap.setTarget(this.openLayersMapRef.nativeElement);
+      this.locationMap.setTarget(this.openLayersMapRef().nativeElement);
     }, 0);
 
     if (!this.readonly) {
@@ -161,11 +161,11 @@ export class CaseLocationEditComponent
     }
 
     this.locationMap.map.on("click", () => {
-      this.openLayersMapRef.nativeElement.focus();
+      this.openLayersMapRef().nativeElement.focus();
     });
 
     this.locationMap.map.on("pointerdrag", () => {
-      this.openLayersMapRef.nativeElement.focus();
+      this.openLayersMapRef().nativeElement.focus();
     });
 
     const zaak = this.zaak();

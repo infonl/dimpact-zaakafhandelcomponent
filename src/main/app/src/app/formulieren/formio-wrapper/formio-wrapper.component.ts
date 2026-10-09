@@ -18,7 +18,7 @@ import {
   OnInit,
   output,
   untracked,
-  ViewChild,
+  viewChild,
   ViewEncapsulation,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -84,8 +84,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
     }
   }
 
-  @ViewChild(FormioComponent, { static: false })
-  formioComponent!: FormioComponent;
+  readonly formioComponent = viewChild(FormioComponent);
 
   private elementRef = inject(ElementRef);
   private bootstrapLoader = inject(FormioBootstrapLoaderService);
@@ -207,7 +206,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
       taak: this.customFunctions.asContextValue(this.taak(), "taak"),
     };
 
-    const webform = this.formioComponent?.formio as FormioWebform | undefined;
+    const webform = this.formioComponent()?.formio as FormioWebform | undefined;
     if (!webform) return;
     // Form.io captured the context when it built the form, hence the webform's own copy.
     webform.options.evalContext = this.evalContext;
@@ -222,7 +221,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
 
   // Form.io reads `readOnly` while building only, and its components render from `disabled` - hence both.
   private applyReadOnly() {
-    const webform = this.formioComponent?.formio as FormioWebform | undefined;
+    const webform = this.formioComponent()?.formio as FormioWebform | undefined;
     if (!webform) return;
 
     webform.options.readOnly = this.readOnly();
@@ -251,7 +250,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
     if (!submitPending && this.redrawDeferred) {
       this.redrawDeferred = false;
       void (
-        this.formioComponent?.formio as FormioWebform | undefined
+        this.formioComponent()?.formio as FormioWebform | undefined
       )?.redraw();
     }
   }
@@ -261,7 +260,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
    * the submit button and throws away the spinner Form.io is showing for this very submit.
    */
   private applySubmitPending() {
-    const webform = this.formioComponent?.formio as FormioWebform | undefined;
+    const webform = this.formioComponent()?.formio as FormioWebform | undefined;
     if (!webform) return;
 
     const disabled = this.readOnly() || this.submitPending();

@@ -10,7 +10,7 @@ import {
   inject,
   OnInit,
   signal,
-  ViewChild,
+  viewChild,
   viewChildren,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
@@ -63,9 +63,10 @@ export class ReferentieTabellenComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer")
-  protected sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
+  protected readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  protected readonly menuSidenav =
+    viewChild.required<MatSidenav>("menuSidenav");
 
   protected readonly expandedId = signal<number | null>(null);
 

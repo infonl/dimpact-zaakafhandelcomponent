@@ -13,11 +13,7 @@ import {
   MatNavListItemHarness,
   MatSubheaderHarness,
 } from "@angular/material/list/testing";
-import {
-  MatDrawer,
-  MatSidenav,
-  MatSidenavContainer,
-} from "@angular/material/sidenav";
+import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -288,16 +284,6 @@ describe(ZaakViewComponent.name, () => {
     fixture = TestBed.createComponent(ZaakViewComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     sideActions = fixture.debugElement.injector.get(ZaakSideActionService);
-
-    fixture.componentInstance.actionsSidenav = fromPartial<MatSidenav>({
-      close: jest.fn(),
-      open: jest.fn(),
-    });
-    fixture.componentInstance.sideNavContainer =
-      fromPartial<MatSidenavContainer>({
-        hasBackdrop: false,
-        updateContentMargins: jest.fn(),
-      });
   });
 
   describe("actie.zaak.opschorten", () => {
@@ -555,7 +541,7 @@ describe(ZaakViewComponent.name, () => {
 
     it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", async () => {
       const openSpy = jest.spyOn(
-        fixture.componentInstance.actionsSidenav,
+        fixture.componentInstance.actionsSidenav(),
         "open",
       );
       jest
@@ -842,7 +828,7 @@ describe(ZaakViewComponent.name, () => {
 
       it("should open the sidenav and set the active action when clicked", async () => {
         const openSpy = jest.spyOn(
-          fixture.componentInstance.actionsSidenav,
+          fixture.componentInstance.actionsSidenav(),
           "open",
         );
 

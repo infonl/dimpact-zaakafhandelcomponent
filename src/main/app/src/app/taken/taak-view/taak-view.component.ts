@@ -8,10 +8,10 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  ViewChild,
   computed,
   inject,
   signal,
+  viewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -123,12 +123,13 @@ export class TaakViewComponent
   extends ActionsViewComponent
   implements OnInit, OnDestroy
 {
-  @ViewChild("actionsSidenav") actionsSidenav!: MatDrawer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("historieSort") historieSort!: MatSort;
-  @ViewChild("zaakDocumentenComponent")
-  zaakDocumentenComponent!: ZaakDocumentenComponent;
+  readonly actionsSidenav = viewChild.required<MatDrawer>("actionsSidenav");
+  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
+  readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  readonly historieSort = viewChild<MatSort>("historieSort");
+  readonly zaakDocumentenComponent =
+    viewChild.required<ZaakDocumentenComponent>("zaakDocumentenComponent");
 
   protected taak?: GeneratedType<"RestTask">;
   protected zaak?: GeneratedType<"RestZaak">;
@@ -233,7 +234,7 @@ export class TaakViewComponent
             return item[property as keyof typeof item] as string;
         }
       };
-      this.historieSrc.sort = this.historieSort;
+      this.historieSrc.sort = this.historieSort() ?? null;
 
       this.changeDetectorRef.detectChanges();
 
@@ -373,7 +374,7 @@ export class TaakViewComponent
       this.menu.push(
         new ButtonMenuItem(
           "actie.document.toevoegen",
-          () => this.actionsSidenav.open(),
+          () => this.actionsSidenav().open(),
           "upload_file",
         ),
       );
@@ -390,7 +391,7 @@ export class TaakViewComponent
             () => {
               this.smartDocumentsGroupId = undefined;
               this.smartDocumentsTemplateId = undefined;
-              this.actionsSidenav.open();
+              this.actionsSidenav().open();
             },
             "note_add",
           ),
@@ -411,7 +412,7 @@ export class TaakViewComponent
 
   editTaak() {
     this.activeSideAction = "actie.taak.wijzigen";
-    this.actionsSidenav.open();
+    this.actionsSidenav().open();
   }
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
@@ -501,7 +502,7 @@ export class TaakViewComponent
     }
 
     this.activeSideAction = "actie.document.maken";
-    void this.actionsSidenav.open();
+    void this.actionsSidenav().open();
   }
 
   updateTaakdocumenten(
@@ -527,7 +528,7 @@ export class TaakViewComponent
   }
 
   documentCreated() {
-    void this.actionsSidenav.close();
+    void this.actionsSidenav().close();
 
     if (!this.taak) return;
     const listener = this.websocketService.addListener(
@@ -546,11 +547,11 @@ export class TaakViewComponent
   ) {
     this.activeSideAction = "actie.document.verplaatsen";
     this.documentToMove = $event;
-    void this.actionsSidenav.open();
+    void this.actionsSidenav().open();
   }
 
   updateZaakDocumentList() {
-    this.zaakDocumentenComponent.updateDocumentList();
+    this.zaakDocumentenComponent().updateDocumentList();
   }
 
   protected updateZaak() {

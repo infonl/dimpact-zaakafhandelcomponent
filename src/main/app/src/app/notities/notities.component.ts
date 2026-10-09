@@ -12,7 +12,7 @@ import {
   input,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";
@@ -59,10 +59,10 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   readonly zaakUuid = input.required<string>();
   readonly notitieRechten = input<GeneratedType<"RestNotitieRechten">>();
 
-  @ViewChild("notitieTekst") notitieTekst!: {
+  readonly notitieTekst = viewChild.required<{
     nativeElement: HTMLTextAreaElement;
-  };
-  @ViewChild("scrollTarget") scrollTarget!: ElementRef;
+  }>("notitieTekst");
+  readonly scrollTarget = viewChild.required<ElementRef>("scrollTarget");
 
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -72,8 +72,8 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     {
       onSuccess: (notitie) => {
         this.notities.splice(0, 0, notitie);
-        this.notitieTekst.nativeElement.value = "";
-        this.scrollTarget.nativeElement.scrollIntoView({
+        this.notitieTekst().nativeElement.value = "";
+        this.scrollTarget().nativeElement.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
@@ -169,7 +169,7 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   }
 
   protected annuleerUpdateNotitie() {
-    this.notitieTekst.nativeElement.value = "";
+    this.notitieTekst().nativeElement.value = "";
     this.geselecteerdeNotitieId = null;
   }
 

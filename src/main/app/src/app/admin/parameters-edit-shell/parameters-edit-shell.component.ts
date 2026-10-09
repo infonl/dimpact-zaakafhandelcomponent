@@ -4,7 +4,7 @@
  */
 
 import { NgSwitch, NgSwitchCase, NgSwitchDefault } from "@angular/common";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, viewChild } from "@angular/core";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import {
   MatSidenav,
@@ -40,8 +40,9 @@ export class ParametersEditShellComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
 
   protected isLoading: boolean = true; // wait for data since mat-stepper cannot load its steps dynamically
   protected modellingMethodSelection!: ProcessModelMethodSelection;

@@ -14,7 +14,7 @@ import {
   input,
   output,
   signal,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -179,8 +179,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   protected selectAll = false;
 
-  @ViewChild("documentenTable", { read: MatSort, static: true })
-  docSort!: MatSort;
+  readonly docSort = viewChild.required("documentenTable", { read: MatSort });
 
   enkelvoudigInformatieObjecten = new MatTableDataSource<
     GeneratedType<"RestEnkelvoudigInformatieobject">
@@ -252,7 +251,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.enkelvoudigInformatieObjecten.sort = this.docSort;
+    this.enkelvoudigInformatieObjecten.sort = this.docSort();
   }
 
   updateDocumentList() {

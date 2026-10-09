@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { Subject } from "rxjs";
@@ -18,14 +18,14 @@ import { AdminComponent } from "./admin.component";
 class TestAdminComponent extends AdminComponent {
   private readonly openedStart = new Subject<void>();
 
-  readonly sideNavContainer = {
+  readonly sideNavContainer = signal({
     hasBackdrop: true,
     updateContentMargins: jest.fn(),
-  } as unknown as MatSidenavContainer;
+  } as unknown as MatSidenavContainer);
 
-  readonly menuSidenav = {
+  readonly menuSidenav = signal({
     openedStart: this.openedStart.asObservable(),
-  } as unknown as MatSidenav;
+  } as unknown as MatSidenav);
 
   public constructor(
     utilService: UtilService,

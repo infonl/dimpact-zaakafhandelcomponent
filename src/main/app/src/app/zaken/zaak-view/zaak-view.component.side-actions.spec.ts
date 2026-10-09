@@ -6,7 +6,6 @@
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
@@ -226,16 +225,6 @@ describe(ZaakViewComponent.name, () => {
 
     fixture = TestBed.createComponent(ZaakViewComponent);
     sideActions = fixture.debugElement.injector.get(ZaakSideActionService);
-
-    fixture.componentInstance.actionsSidenav = fromPartial<MatSidenav>({
-      close: jest.fn(),
-      open: jest.fn(),
-    });
-    fixture.componentInstance.sideNavContainer =
-      fromPartial<MatSidenavContainer>({
-        hasBackdrop: false,
-        updateContentMargins: jest.fn(),
-      });
   });
 
   describe("closing the side action panel after an action finished", () => {
@@ -245,7 +234,7 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
       closeSideNav = jest
-        .spyOn(fixture.componentInstance.actionsSidenav, "close")
+        .spyOn(fixture.componentInstance.actionsSidenav(), "close")
         .mockResolvedValue("close");
       sideActions.activeAction.set("actie.mail.versturen");
       sideActions.actiefPlanItem.set(
@@ -324,7 +313,7 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
       openSideNav = jest
-        .spyOn(fixture.componentInstance.actionsSidenav, "open")
+        .spyOn(fixture.componentInstance.actionsSidenav(), "open")
         .mockResolvedValue("open");
     });
 
@@ -385,7 +374,7 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
       openSideNav = jest
-        .spyOn(fixture.componentInstance.actionsSidenav, "open")
+        .spyOn(fixture.componentInstance.actionsSidenav(), "open")
         .mockResolvedValue("open");
     });
 
@@ -416,7 +405,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
       const reloadDocumenten = jest
         .spyOn(
-          fixture.componentInstance.zaakDocumentenComponent,
+          fixture.componentInstance.zaakDocumentenComponent(),
           "updateDocumentList",
         )
         .mockResolvedValue(undefined);
@@ -457,7 +446,7 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
       openSideNav = jest
-        .spyOn(fixture.componentInstance.actionsSidenav, "open")
+        .spyOn(fixture.componentInstance.actionsSidenav(), "open")
         .mockResolvedValue("open");
     });
 
