@@ -17,7 +17,7 @@ import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { toI18nKey } from "../shared/utils/i18n-key";
 
@@ -289,7 +289,7 @@ export class ZakenService {
         "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
         { path: { uuid }, query: { groepId } },
       ),
-      staleTime: 0,
+      staleTime: StaleTimes.Instant,
     };
   }
 
