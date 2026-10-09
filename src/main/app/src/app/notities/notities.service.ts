@@ -4,7 +4,6 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { PatchBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
@@ -25,8 +24,8 @@ export class NotitieService {
     return this.zacQueryClient.POST("/rest/notities");
   }
 
-  updateNotitie(body: PatchBody<"/rest/notities">) {
-    return this.zacHttpClient.PATCH("/rest/notities", body);
+  updateNotitie() {
+    return this.zacQueryClient.PATCH("/rest/notities");
   }
 
   deleteNotitie() {

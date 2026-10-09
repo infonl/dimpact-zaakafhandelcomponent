@@ -4,14 +4,17 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatSidenav } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, Subject } from "rxjs";
-import { testQueryClient } from "../../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { fromPartial } from "../../../../test-helpers";
 import { UtilService } from "../../../core/service/util.service";
 import { ActieOnmogelijkDialogComponent } from "../../../fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
@@ -38,6 +41,7 @@ describe(ZaakActionDialogsService.name, () => {
   let openDialog: jest.SpyInstance;
   let sidenav: { open: jest.Mock; close: jest.Mock };
   let closed: Subject<unknown>;
+  let httpTestingController: HttpTestingController;
 
   const zaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "fakeZaakUuid",
@@ -80,6 +84,7 @@ describe(ZaakActionDialogsService.name, () => {
     takenService = TestBed.inject(TakenService);
     utilService = TestBed.inject(UtilService);
     zaakDialogService = TestBed.inject(ZaakDialogService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     sidenav = { open: jest.fn(), close: jest.fn() };
     sideActions.register(fromPartial<MatSidenav>(sidenav));
@@ -139,37 +144,36 @@ describe(ZaakActionDialogsService.name, () => {
       expect(afbrekenSpy).not.toHaveBeenCalled();
     });
 
-    it("caches the zaak the dialog returns rather than refetching it", () => {
-      const returnedZaak = fromPartial<GeneratedType<"RestZaak">>({
-        uuid: zaak.uuid,
-      });
-      jest
+    it("aborts the zaak with the reden picked in the dialog", async () => {
+      const afbrekenSpy = jest
         .spyOn(zaakDialogService, "openAfbreken")
         .mockReturnValue(dialogRefClosingWith());
 
       service.openAfbreken(zaak);
-      closedWith(returnedZaak);
+      const [, callback] = afbrekenSpy.mock.calls[0];
+      callback(fromPartial({ id: "fakeRedenId" })).subscribe();
+      await sleep();
 
-      expect(zakenService.cacheZaak).toHaveBeenCalledWith(returnedZaak);
-      expect(invalidateSpy).not.toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      const request = httpTestingController.expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/afbreken",
+      );
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body).toEqual({
+        zaakbeeindigRedenId: "fakeRedenId",
       });
     });
 
-    it("refetches the zaak when the dialog only confirms", () => {
+    it("refreshes the taken when the dialog confirms", () => {
       jest
         .spyOn(zaakDialogService, "openAfbreken")
         .mockReturnValue(dialogRefClosingWith());
 
       service.openAfbreken(zaak);
-      closedWith(true);
+      closedWith(zaak);
 
       expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+        queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
       });
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.zaak.afgebroken",
-      );
     });
   });
 
@@ -242,8 +246,24 @@ describe(ZaakActionDialogsService.name, () => {
       service.openHervatten(opgeschorteZaak);
       closedWith(true);
 
-      expect(utilService.openSnackbar).toHaveBeenCalledWith("msg.zaak.hervat");
       expect(service.opschorting()).toBeUndefined();
+    });
+
+    it("resumes the zaak with the reden given in the dialog", async () => {
+      const hervattenSpy = jest
+        .spyOn(zaakDialogService, "openHervatten")
+        .mockReturnValue(dialogRefClosingWith());
+
+      service.openHervatten(zaak);
+      const [, callback] = hervattenSpy.mock.calls[0];
+      callback("fakeReden").subscribe();
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/resume",
+      );
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body).toEqual({ reason: "fakeReden" });
     });
 
     it("does not read the opschorting of a zaak it has just resumed", () => {
@@ -263,19 +283,13 @@ describe(ZaakActionDialogsService.name, () => {
   });
 
   describe("openOpschorten", () => {
-    it("caches the returned zaak without refreshing the taken", () => {
-      const returnedZaak = fromPartial<GeneratedType<"RestZaak">>({
-        uuid: zaak.uuid,
-      });
+    it("forgets the active panel once the dialog closes", () => {
+      sideActions.activeAction.set("actie.zaak.opschorten");
 
       service.openOpschorten(zaak);
-      closedWith(returnedZaak);
+      closedWith(zaak);
 
-      expect(zakenService.cacheZaak).toHaveBeenCalledWith(returnedZaak);
-      expect(invalidateSpy).not.toHaveBeenCalled();
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.zaak.opgeschort",
-      );
+      expect(sideActions.activeAction()).toBeNull();
     });
   });
 
@@ -317,40 +331,34 @@ describe(ZaakActionDialogsService.name, () => {
   });
 
   describe("openHeropenen", () => {
-    it("caches the zaak the dialog returns rather than refetching it", () => {
-      const returnedZaak = fromPartial<GeneratedType<"RestZaak">>({
-        uuid: zaak.uuid,
-      });
-      jest
+    it("reopens the zaak with the reden given in the dialog", async () => {
+      const heropenenSpy = jest
         .spyOn(zaakDialogService, "openHeropenen")
         .mockReturnValue(dialogRefClosingWith());
 
       service.openHeropenen(zaak);
-      closedWith(returnedZaak);
+      const [callback] = heropenenSpy.mock.calls[0];
+      callback("fakeReden").subscribe();
+      await sleep();
 
-      expect(zakenService.cacheZaak).toHaveBeenCalledWith(returnedZaak);
-      expect(invalidateSpy).not.toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
+      const request = httpTestingController.expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/heropenen",
+      );
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body).toEqual({ reden: "fakeReden" });
     });
 
-    it("refreshes the taken and reports success when the dialog confirms", () => {
+    it("refreshes the taken when the dialog confirms", () => {
       jest
         .spyOn(zaakDialogService, "openHeropenen")
         .mockReturnValue(dialogRefClosingWith());
 
       service.openHeropenen(zaak);
-      closedWith(true);
+      closedWith(zaak);
 
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
       });
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.zaak.heropend",
-      );
     });
   });
 
@@ -465,17 +473,13 @@ describe(ZaakActionDialogsService.name, () => {
       });
     });
 
-    it("refetches the zaak and reports success when confirmed", () => {
-      service.openZaakOntkoppelen(zaak, gerelateerdeZaak);
+    it("forgets the active panel once the dialog closes", () => {
+      sideActions.activeAction.set("actie.zaak.ontkoppelen");
 
+      service.openZaakOntkoppelen(zaak, gerelateerdeZaak);
       closedWith(true);
 
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.zaak.ontkoppelen.uitgevoerd",
-      );
+      expect(sideActions.activeAction()).toBeNull();
     });
   });
 });

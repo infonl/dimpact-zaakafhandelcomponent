@@ -3,49 +3,76 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { screen } from "@testing-library/angular";
+import { render, screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
-import { of } from "rxjs";
-import { sleep, testQueryClient } from "../../../setupJest";
-import { createMutationOptions, fromPartial } from "../../test-helpers";
+import { sleep } from "../../../setupJest";
+import { fromPartial } from "../../test-helpers";
 import { ObjectType } from "../core/websocket/model/object-type";
 import { Opcode } from "../core/websocket/model/opcode";
 import { WebsocketListener } from "../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../core/websocket/websocket.service";
-import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
-import { NotitieService } from "./notities.service";
 
-const currentUser: GeneratedType<"RestLoggedInUser"> = {
+const loggedInUser = fromPartial<GeneratedType<"RestLoggedInUser">>({
   id: "currentUser",
   naam: "test",
-};
+});
 
-describe(NotitiesComponent.name, () => {
-  let component: NotitiesComponent;
-  let fixture: ComponentFixture<NotitiesComponent>;
-  let notitieService: NotitieService;
-  let websocketService: WebsocketService;
-  let deleteNotitieMutation: ReturnType<
-    typeof createMutationOptions<undefined, number>
-  >;
-  let createNotitieMutation: ReturnType<
-    typeof createMutationOptions<
-      GeneratedType<"RestNote">,
-      GeneratedType<"RestNote">
-    >
-  >;
-  let notitiesChangedCallback: () => void;
-
-  const editableNotitie = fromPartial<GeneratedType<"RestNote">>({
+const notitie = (fields: Partial<GeneratedType<"RestNote">> = {}) =>
+  fromPartial<GeneratedType<"RestNote">>({
     id: 1,
+    zaakUUID: "fakeZaakUuid",
     tekst: "fakeTekst1",
     isBewerkenToegestaan: true,
+    ...fields,
   });
+
+describe(NotitiesComponent.name, () => {
+  let fixture: ComponentFixture<NotitiesComponent>;
+  let httpTestingController: HttpTestingController;
+  let websocketService: WebsocketService;
+  let notitiesChangedCallback: () => void;
+
+  async function setup({
+    notities = [],
+    notitieRechten,
+  }: {
+    notities?: GeneratedType<"RestNote">[];
+    notitieRechten?: GeneratedType<"RestNotitieRechten">;
+  } = {}) {
+    websocketService = fromPartial<WebsocketService>({
+      addListener: jest.fn((_opcode, _objectType, _objectId, callback) => {
+        notitiesChangedCallback = callback as () => void;
+        return fromPartial<WebsocketListener>({});
+      }),
+      removeListener: jest.fn(),
+    });
+
+    ({ fixture } = await render(NotitiesComponent, {
+      inputs: { zaakUuid: "fakeZaakUuid", notitieRechten },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [{ provide: WebsocketService, useValue: websocketService }],
+    }));
+
+    httpTestingController = TestBed.inject(HttpTestingController);
+    httpTestingController
+      .expectOne("/rest/identity/loggedInUser")
+      .flush(loggedInUser);
+    await respondWithNotities(notities);
+  }
+
+  async function respondWithNotities(notities: GeneratedType<"RestNote">[]) {
+    httpTestingController
+      .expectOne("/rest/notities/zaken/fakeZaakUuid")
+      .flush(notities);
+    await sleep();
+    fixture.detectChanges();
+  }
 
   async function openNotities() {
     await userEvent
@@ -54,79 +81,20 @@ describe(NotitiesComponent.name, () => {
     fixture.detectChanges();
   }
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        NotitiesComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [],
-    }).compileComponents();
-
-    const identityService = TestBed.inject(IdentityService);
-    testQueryClient.setQueryData(
-      identityService.readLoggedInUser().queryKey,
-      currentUser,
-    );
-
-    websocketService = TestBed.inject(WebsocketService);
-    jest
-      .spyOn(websocketService, "addListener")
-      .mockImplementation((_opcode, _objectType, _objectId, callback) => {
-        notitiesChangedCallback = callback as () => void;
-        return fromPartial<WebsocketListener>({});
-      });
-    jest.spyOn(websocketService, "removeListener").mockImplementation();
-
-    notitieService = TestBed.inject(NotitieService);
-    jest.spyOn(notitieService, "listNotities").mockReturnValue(of([]));
-    jest
-      .spyOn(notitieService, "updateNotitie")
-      .mockImplementation((notitie) => of(notitie));
-    createNotitieMutation = createMutationOptions<
-      GeneratedType<"RestNote">,
-      GeneratedType<"RestNote">
-    >(fromPartial<GeneratedType<"RestNote">>({}));
-    createNotitieMutation.mutationFn.mockImplementation(async (notitie) => ({
-      ...notitie,
-      id: 2,
-    }));
-    jest
-      .spyOn(notitieService, "createNotitie")
-      .mockReturnValue(createNotitieMutation as never);
-    deleteNotitieMutation = createMutationOptions<undefined, number>(undefined);
-    jest
-      .spyOn(notitieService, "deleteNotitie")
-      .mockReturnValue(deleteNotitieMutation as never);
-
-    fixture = TestBed.createComponent(NotitiesComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput("zaakUuid", "fakeZaakUuid");
-  });
-
   describe("for a user who may change notities", () => {
-    beforeEach(() => {
-      fixture.componentRef.setInput("notitieRechten", {
-        canLezen: true,
-        canWijzigen: true,
-      });
-      fixture.detectChanges();
+    const notitieRechten = { canLezen: true, canWijzigen: true };
+
+    it("should show the notities of the zaak", async () => {
+      await setup({ notities: [notitie()], notitieRechten });
+
+      await openNotities();
+
+      expect(screen.getByText("fakeTekst1")).toBeInTheDocument();
     });
 
-    it("should reload the notities when someone else adds one", () => {
-      jest.mocked(notitieService.listNotities).mockClear();
+    it("should listen for changes to the notities of the zaak", async () => {
+      await setup({ notitieRechten });
 
-      notitiesChangedCallback();
-
-      expect(notitieService.listNotities).toHaveBeenCalledWith("fakeZaakUuid");
-    });
-
-    it("should load notities on init", () => {
-      expect(notitieService.listNotities).toHaveBeenCalledWith("fakeZaakUuid");
-    });
-
-    it("should listen for changes to the notities of the zaak", () => {
       expect(websocketService.addListener).toHaveBeenCalledWith(
         Opcode.UPDATED,
         ObjectType.ZAAK_NOTITIES,
@@ -135,15 +103,29 @@ describe(NotitiesComponent.name, () => {
       );
     });
 
-    it("should neither reload the notities nor listen to the new zaak when the zaakUuid changes", () => {
+    it("should reload the notities when someone else adds one", async () => {
+      await setup({ notitieRechten });
+
+      notitiesChangedCallback();
+      await respondWithNotities([notitie({ tekst: "fakeNieuweTekst" })]);
+      await openNotities();
+
+      expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
+    });
+
+    it("should neither reload the notities nor listen to the new zaak when the zaakUuid changes", async () => {
+      await setup({ notitieRechten });
+
       fixture.componentRef.setInput("zaakUuid", "fakeZaakUuid2");
       fixture.detectChanges();
 
-      expect(notitieService.listNotities).toHaveBeenCalledTimes(1);
+      httpTestingController.expectNone("/rest/notities/zaken/fakeZaakUuid2");
       expect(websocketService.addListener).toHaveBeenCalledTimes(1);
     });
 
     it("should offer to add a notitie", async () => {
+      await setup({ notitieRechten });
+
       await openNotities();
 
       expect(
@@ -152,10 +134,8 @@ describe(NotitiesComponent.name, () => {
     });
 
     it("should offer to edit and to delete a notitie the user may edit", async () => {
-      jest
-        .mocked(notitieService.listNotities)
-        .mockReturnValue(of([editableNotitie]));
-      notitiesChangedCallback();
+      await setup({ notities: [notitie()], notitieRechten });
+
       await openNotities();
 
       expect(
@@ -181,6 +161,7 @@ describe(NotitiesComponent.name, () => {
 
       it("should add the notitie to the zaak, in the name of the current user", async () => {
         const user = userEvent.setup();
+        await setup({ notitieRechten });
         await openNotities();
 
         await user.type(
@@ -190,74 +171,100 @@ describe(NotitiesComponent.name, () => {
         fixture.detectChanges();
         await user.click(screen.getByRole("button", { name: "actie.opslaan" }));
         await sleep();
+
+        const request = httpTestingController.expectOne("/rest/notities");
+        expect(request.request.method).toBe("POST");
+        expect(request.request.body).toEqual({
+          zaakUUID: "fakeZaakUuid",
+          tekst: "fakeNieuweTekst",
+          gebruikersnaamMedewerker: "currentUser",
+        });
+        request.flush({ ...request.request.body, id: 2 });
+        await sleep();
         fixture.detectChanges();
 
-        expect(createNotitieMutation.mutationFn).toHaveBeenCalledWith(
-          {
-            zaakUUID: "fakeZaakUuid",
-            tekst: "fakeNieuweTekst",
-            gebruikersnaamMedewerker: "currentUser",
-          },
-          expect.anything(),
-        );
         expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
       });
     });
 
-    it("should set new text and current username on notitie edit", () => {
-      const notitie: GeneratedType<"RestNote"> = {
-        zaakUUID: "some-uuid",
-        tekst: "some text",
-        gebruikersnaamMedewerker: "some other user",
-      };
-      component["updateNotitie"](notitie, "some other text");
-      expect(notitie.gebruikersnaamMedewerker).toEqual(currentUser.id);
-      expect(notitie.tekst).toEqual("some other text");
-    });
+    describe("editing a notitie", () => {
+      async function editNotitie(tekst: string) {
+        const user = userEvent.setup();
+        await setup({ notities: [notitie()], notitieRechten });
+        await openNotities();
 
-    it("should not call updateNotitie service when tekst is empty", () => {
-      const notitie: GeneratedType<"RestNote"> = {
-        zaakUUID: "some-uuid",
-        tekst: "some text",
-        gebruikersnaamMedewerker: "some user",
-      };
-      component["updateNotitie"](notitie, "");
-      expect(notitieService.updateNotitie).not.toHaveBeenCalled();
+        await user.click(
+          screen.getByRole("button", { name: "actie.bewerken" }),
+        );
+        fixture.detectChanges();
+        const textbox = screen.getByRole("textbox", {
+          name: "actie.notitie.wijzigen",
+        });
+        await user.clear(textbox);
+        if (tekst) await user.type(textbox, tekst);
+        fixture.detectChanges();
+        const [opslaanButton] = screen.getAllByRole("button", {
+          name: "actie.opslaan",
+        });
+        await user.click(opslaanButton);
+        await sleep();
+      }
+
+      it("should save the new text in the name of the current user and show it", async () => {
+        await editNotitie("fakeGewijzigdeTekst");
+
+        const request = httpTestingController.expectOne("/rest/notities");
+        expect(request.request.method).toBe("PATCH");
+        expect(request.request.body).toEqual({
+          ...notitie(),
+          tekst: "fakeGewijzigdeTekst",
+          gebruikersnaamMedewerker: "currentUser",
+        });
+        request.flush(request.request.body);
+        await sleep();
+        fixture.detectChanges();
+
+        expect(screen.getByText("fakeGewijzigdeTekst")).toBeInTheDocument();
+      });
+
+      it("should not save an empty text", async () => {
+        await editNotitie("");
+
+        httpTestingController.expectNone("/rest/notities");
+      });
     });
 
     it("should delete the selected notitie and remove it from the list", async () => {
-      component["notities"] = [
-        { id: 1, tekst: "een" } as GeneratedType<"RestNote">,
-        { id: 2, tekst: "twee" } as GeneratedType<"RestNote">,
-      ];
+      await setup({
+        notities: [
+          notitie({ id: 1, tekst: "een", isBewerkenToegestaan: false }),
+          notitie({ id: 2, tekst: "twee" }),
+        ],
+        notitieRechten,
+      });
+      await openNotities();
 
-      component["verwijderNotitie"](2);
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "actie.verwijderen" }));
+      await sleep();
+      const request = httpTestingController.expectOne("/rest/notities/2");
+      expect(request.request.method).toBe("DELETE");
+      request.flush(null);
       await sleep();
       fixture.detectChanges();
 
-      expect(deleteNotitieMutation.mutationFn).toHaveBeenCalledWith(
-        2,
-        expect.anything(),
-      );
-      expect(component["notities"]).toEqual([
-        { id: 1, tekst: "een" } as GeneratedType<"RestNote">,
-      ]);
+      expect(screen.getByText("een")).toBeInTheDocument();
+      expect(screen.queryByText("twee")).not.toBeInTheDocument();
     });
   });
 
   describe("for a user who may only read notities", () => {
-    beforeEach(() => {
-      jest
-        .mocked(notitieService.listNotities)
-        .mockReturnValue(of([editableNotitie]));
-      fixture.componentRef.setInput("notitieRechten", {
-        canLezen: true,
-        canWijzigen: false,
-      });
-      fixture.detectChanges();
-    });
+    const notitieRechten = { canLezen: true, canWijzigen: false };
 
     it("should show the notities, without offering to add, edit or delete one", async () => {
+      await setup({ notities: [notitie()], notitieRechten });
+
       await openNotities();
 
       expect(screen.getByText("fakeTekst1")).toBeInTheDocument();
@@ -271,6 +278,7 @@ describe(NotitiesComponent.name, () => {
     });
 
     it("should offer to add a notitie once the user may change notities", async () => {
+      await setup({ notities: [notitie()], notitieRechten });
       await openNotities();
 
       fixture.componentRef.setInput("notitieRechten", {
@@ -287,7 +295,7 @@ describe(NotitiesComponent.name, () => {
 
   describe("without notitie rights", () => {
     it("should not offer to add a notitie", async () => {
-      fixture.detectChanges();
+      await setup();
 
       await openNotities();
 
