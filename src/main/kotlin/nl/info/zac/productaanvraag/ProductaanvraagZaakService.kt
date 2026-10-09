@@ -54,7 +54,7 @@ class ProductaanvraagZaakService @Inject constructor(
         zaaktype: ZaakType,
         productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
-) = Zaak().apply {
+    ) = Zaak().apply {
         this.zaaktype = zaaktype.url
         startdatum = productaanvraagObject.record.startAt
         bronorganisatie = configurationService.readBronOrganisatie()
@@ -179,7 +179,7 @@ class ProductaanvraagZaakService @Inject constructor(
         exception
     )
 
-    private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =
+    private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact) =
         (
             "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'." +
                 productaanvraag.zaakgegevens?.toelichting?.let { " $it" }.orEmpty()
