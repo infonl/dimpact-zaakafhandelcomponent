@@ -98,8 +98,9 @@ class ProductaanvraagBpmnServiceTest : BehaviorSpec({
                 then(
                     """
                     the zaak is created, the zaak is set up from the productaanvraag before the BPMN process is
-                    started with the default group and behandelaar, and the productaanvraag is marked as done once
-                    the process is started
+                    started with the default group and behandelaar, so that the process can use the initiator and
+                    the klantcontact of the zaak, and the productaanvraag is marked as done once the process is
+                    started
                     """
                 ) {
                     verifyOrder {

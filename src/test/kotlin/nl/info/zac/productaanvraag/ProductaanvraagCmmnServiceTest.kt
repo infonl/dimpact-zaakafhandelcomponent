@@ -110,20 +110,13 @@ class ProductaanvraagCmmnServiceTest : BehaviorSpec({
 
                 then(
                     """
-                    the zaak is created, the zaak is set up from the productaanvraag before the CMMN case is started,
-                    the productaanvraag is marked as done once the case is started, and only then the confirmation
-                    of receipt is sent
+                    the zaak is created, the CMMN case is started and the productaanvraag is marked as done before the
+                    zaak is set up from the productaanvraag, so that an interrupted handling is unlikely to create a
+                    second zaak, and only then the confirmation of receipt is sent
                     """
                 ) {
                     verifyOrder {
                         productaanvraagZaakService.createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
-                        productaanvraagZaakService.setUpZaakFromProductaanvraag(
-                            zaak = zaak,
-                            zaaktypeConfiguration = zaaktypeConfiguration,
-                            behandelaarId = "fakeBehandelaarId",
-                            productaanvraagDimpact = productaanvraagDimpact,
-                            productaanvraagObject = productaanvraagObject
-                        )
                         zaakProcessService.start(
                             zaaktypeConfiguration = zaaktypeConfiguration,
                             zaak = zaak,
@@ -131,6 +124,13 @@ class ProductaanvraagCmmnServiceTest : BehaviorSpec({
                             processStartData = ProcessStartData(zaakData = mapOf("fakeKey" to "fakeValue"))
                         )
                         productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
+                        productaanvraagZaakService.setUpZaakFromProductaanvraag(
+                            zaak = zaak,
+                            zaaktypeConfiguration = zaaktypeConfiguration,
+                            behandelaarId = "fakeBehandelaarId",
+                            productaanvraagDimpact = productaanvraagDimpact,
+                            productaanvraagObject = productaanvraagObject
+                        )
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             zaak = zaak,
                             betrokkene = productaanvraagInitiator.betrokkene,
@@ -215,18 +215,6 @@ class ProductaanvraagCmmnServiceTest : BehaviorSpec({
                 productaanvraagZaakService.createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
             } returns zaak
             every {
-                productaanvraagZaakService.findValidDefaultBehandelaarId(zaaktypeConfiguration, zaak)
-            } returns "fakeBehandelaarId"
-            every {
-                productaanvraagZaakService.setUpZaakFromProductaanvraag(
-                    zaak = zaak,
-                    zaaktypeConfiguration = zaaktypeConfiguration,
-                    behandelaarId = "fakeBehandelaarId",
-                    productaanvraagDimpact = productaanvraagDimpact,
-                    productaanvraagObject = productaanvraagObject
-                )
-            } returns productaanvraagInitiator
-            every {
                 zaakProcessService.start(
                     zaaktypeConfiguration = zaaktypeConfiguration,
                     zaak = zaak,
@@ -246,22 +234,20 @@ class ProductaanvraagCmmnServiceTest : BehaviorSpec({
 
                 then(
                     """
-                    the zaak is already set up from the productaanvraag, but the productaanvraag is not marked as done
-                    and no confirmation of receipt is sent
+                    the productaanvraag is not marked as done, the zaak is not set up from the productaanvraag and no
+                    confirmation of receipt is sent
                     """
                 ) {
                     illegalStateException.message shouldBe "fakeCaseStartFailure"
-                    verify(exactly = 1) {
-                        productaanvraagZaakService.setUpZaakFromProductaanvraag(
-                            zaak = zaak,
-                            zaaktypeConfiguration = zaaktypeConfiguration,
-                            behandelaarId = "fakeBehandelaarId",
-                            productaanvraagDimpact = productaanvraagDimpact,
-                            productaanvraagObject = productaanvraagObject
-                        )
-                    }
                     verify(exactly = 0) {
                         productaanvraagClaimRepository.markDone(any())
+                        productaanvraagZaakService.setUpZaakFromProductaanvraag(
+                            zaak = any(),
+                            zaaktypeConfiguration = any(),
+                            behandelaarId = any(),
+                            productaanvraagDimpact = any(),
+                            productaanvraagObject = any()
+                        )
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             zaak = any(),
                             betrokkene = any(),

@@ -32,6 +32,16 @@ class ProductaanvraagCmmnService @Inject constructor(
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeConfiguration.zaaktypeUuid)
         val zaak = productaanvraagZaakService.createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
+        // Unlike a BPMN process, a CMMN case does not use the result of setting up the zaak, so ZAC starts the case
+        // and marks the productaanvraag as done first. This keeps the window in which an interrupted handling creates
+        // a second zaak as small as possible. See docs/solution-architecture/productRequestSupport.md.
+        zaakProcessService.start(
+            zaaktypeConfiguration = zaaktypeConfiguration,
+            zaak = zaak,
+            zaaktype = zaaktype,
+            processStartData = ProcessStartData(zaakData = productaanvraagObject.extractAanvraaggegevens())
+        )
+        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
         val productaanvraagInitiator = productaanvraagZaakService.setUpZaakFromProductaanvraag(
             zaak = zaak,
             zaaktypeConfiguration = zaaktypeConfiguration,
@@ -39,15 +49,6 @@ class ProductaanvraagCmmnService @Inject constructor(
             productaanvraagDimpact = productaanvraagDimpact,
             productaanvraagObject = productaanvraagObject
         )
-        zaakProcessService.start(
-            zaaktypeConfiguration = zaaktypeConfiguration,
-            zaak = zaak,
-            zaaktype = zaaktype,
-            processStartData = ProcessStartData(zaakData = productaanvraagObject.extractAanvraaggegevens())
-        )
-        // The claim boundary of docs/solution-architecture/productRequestSupport.md: only a productaanvraag whose
-        // process has started is done, so that an interrupted handling is handled again after its claim times out.
-        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
             zaak = zaak,
             betrokkene = productaanvraagInitiator.betrokkene,

@@ -67,17 +67,24 @@ sequenceDiagram
     Objecten->>-OpenNotificaties: Send notification "product request created"
     OpenNotificaties->>+ZAC: Send notification "product request created"
     ZAC->>+Objecten: Retrieve product request
-    ZAC->>+OpenZaak: Create case
-    ZAC->>+OpenZaak: Link product request to case
-    ZAC->>+OpenZaak: Link submitted form PDF document to case
-    ZAC->>+OpenZaak: Link any uploaded attachments (documents) to case
-    ZAC->>+OpenZaak: Link any stakeholders ('betrokkenen') to case, including the initiator
-    ZAC->>+OpenKlant: Retrieve request specific contact details
-    ZAC->>+OpenKlant: Link request specific contact details to newly created zaak
     alt CMMN configured (or both CMMN & BPMN)
+        ZAC->>+OpenZaak: Create case
         ZAC->>+ZAC: Start CMMN case
+        ZAC->>+OpenZaak: Link product request to case
+        ZAC->>+OpenZaak: Link submitted form PDF document to case
+        ZAC->>+OpenZaak: Link any uploaded attachments (documents) to case
+        ZAC->>+OpenZaak: Link any stakeholders ('betrokkenen') to case, including the initiator
+        ZAC->>+OpenKlant: Retrieve request specific contact details
+        ZAC->>+OpenKlant: Link request specific contact details to newly created zaak
         ZAC->>+ZAC: Send confirmation mail
     else BPMN configured only
+        ZAC->>+OpenZaak: Create case
+        ZAC->>+OpenZaak: Link product request to case
+        ZAC->>+OpenZaak: Link submitted form PDF document to case
+        ZAC->>+OpenZaak: Link any uploaded attachments (documents) to case
+        ZAC->>+OpenZaak: Link any stakeholders ('betrokkenen') to case, including the initiator
+        ZAC->>+OpenKlant: Retrieve request specific contact details
+        ZAC->>+OpenKlant: Link request specific contact details to newly created zaak
         ZAC->>+ZAC: Start BPMN process
     else no mapping
         ZAC->>+ZAC: Register inbox product request (no case started)
@@ -99,9 +106,17 @@ To prevent this, ZAC keeps a claim per Product Request object in its own databas
    redelivering.
 2. The claim is set to `DONE` as soon as the zaak has been created and its CMMN case or BPMN process has been started,
    and for Product Requests without a zaaktype mapping as soon as the inbox product request has been registered.
-   For both CMMN and BPMN, ZAC sets up the zaak - document pairing, role assignment, linking stakeholders and contact
-   details - before it starts the case or process, so these steps run before the claim is set to `DONE`. Only the
-   confirmation email runs after that point and does not affect the claim.
+   Setting up the zaak - document pairing, role assignment, linking stakeholders and contact details - runs at a
+   different point for each process engine:
+   - **CMMN**: create zaak → start case → set claim to `DONE` → set up zaak → send confirmation email.
+     A CMMN case does not use the result of setting up the zaak, so ZAC starts the case and sets the claim to `DONE`
+     first. This keeps the window in which an interrupted handling creates a second zaak as small as possible. The
+     set-up and the confirmation email run after that point and do not affect the claim, so if they are interrupted,
+     ZAC does not handle the Product Request again.
+   - **BPMN**: create zaak → set up zaak → start process → set claim to `DONE`.
+     A BPMN process can use the initiator and the request specific contact details of the zaak, for example to send
+     the confirmation email that ZAC itself sends for a CMMN case. So ZAC sets up the zaak before it starts the
+     process, and the set-up runs before the claim is set to `DONE`.
 3. A claim that was taken but never set to `DONE`, for example because ZAC was restarted halfway through, is reclaimed
    by a later notification once it is older than `PRODUCTAANVRAAG_CLAIM_TIMEOUT_MINUTES` (10 minutes by default,
    configurable through the ZAC Helm chart). Handling then simply starts over, without manual intervention.

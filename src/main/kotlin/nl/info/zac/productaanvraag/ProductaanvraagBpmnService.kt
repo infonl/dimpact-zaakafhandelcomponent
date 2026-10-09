@@ -31,6 +31,10 @@ class ProductaanvraagBpmnService @Inject constructor(
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeConfiguration.zaaktypeUuid)
         val zaak = productaanvraagZaakService.createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
+        // Unlike a CMMN case, a BPMN process can use the initiator and the klantcontact of the zaak, for example to
+        // send the confirmation of receipt email that ZAC itself sends for a CMMN case. So ZAC sets up the zaak before
+        // it starts the process, and marks the productaanvraag as done only after that.
+        // See docs/solution-architecture/productRequestSupport.md.
         val behandelaarId = productaanvraagZaakService.findValidDefaultBehandelaarId(zaaktypeConfiguration, zaak)
         productaanvraagZaakService.setUpZaakFromProductaanvraag(
             zaak = zaak,
@@ -50,8 +54,6 @@ class ProductaanvraagBpmnService @Inject constructor(
                 communicatiekanaal = zaak.communicatiekanaalNaam
             )
         )
-        // The claim boundary of docs/solution-architecture/productRequestSupport.md: only a productaanvraag whose
-        // process has started is done, so that an interrupted handling is handled again after its claim times out.
         productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
     }
 }
