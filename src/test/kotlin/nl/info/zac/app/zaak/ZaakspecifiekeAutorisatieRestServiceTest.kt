@@ -15,6 +15,9 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.zaak.model.createRestZaakspecifiekGeautoriseerdeMedewerker
 import nl.info.zac.authentication.LoggedInUser
@@ -31,15 +34,18 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zaakService = mockk<ZaakService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val zaakspecifiekeAutorisatieRestService = ZaakspecifiekeAutorisatieRestService(
         loggedInUserInstance = loggedInUserInstance,
         policyService = policyService,
         zaakService = zaakService,
-        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
+        zrcClientService = zrcClientService
     )
     val zaakType = createZaakType()
     val zaak = createZaak(zaaktypeUri = zaakType.url)
     val loggedInUser = createLoggedInUser()
+    val geautoriseerdZaakEigenschap = createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
 
     afterEach {
         checkUnnecessaryStub()
@@ -49,10 +55,16 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
         given("a user with the 'wijzigen' right on the zaak") {
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
+            every { policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                ) } returns createZaakRechten()
             every {
                 zaakspecifiekeAutorisatieService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
-                    zaak,
+                    any(),
                     zaakType,
                     "fakeGroepId"
                 )
@@ -77,8 +89,14 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
         given("a user without the 'wijzigen' right on the zaak") {
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                )
             } returns createZaakRechten(wijzigen = false)
 
             `when`("the kandidaten of a groep are listed") {
@@ -106,11 +124,18 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
         given("a user with the 'wijzigen' right on the zaak") {
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
+            every { policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                ) } returns createZaakRechten()
             every {
                 zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                     zaak = zaak,
                     zaakType = zaakType,
+                    zaakAutorisatieGegevens = any(),
                     groepId = "fakeGroepId",
                     medewerkerId = "fakeMedewerkerId"
                 )
@@ -125,11 +150,16 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                     )
                 )
 
-                then("the medewerker is added to the zaak") {
+                then("whether the zaak is zaakspecifiek geautoriseerd is read only once for the whole request") {
+                    verify(exactly = 1) { zrcClientService.listZaakeigenschappen(zaak.uuid) }
+                }
+
+                and("the medewerker is added to the zaak") {
                     verify(exactly = 1) {
                         zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                             zaak = zaak,
                             zaakType = zaakType,
+                            zaakAutorisatieGegevens = any(),
                             groepId = "fakeGroepId",
                             medewerkerId = "fakeMedewerkerId"
                         )
@@ -141,8 +171,14 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
         given("a user without the 'wijzigen' right on the zaak") {
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                )
             } returns createZaakRechten(wijzigen = false)
 
             `when`("a medewerker is added") {
@@ -158,6 +194,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                         zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                             zaak = any(),
                             zaakType = any(),
+                            zaakAutorisatieGegevens = any(),
                             groepId = any(),
                             medewerkerId = any()
                         )

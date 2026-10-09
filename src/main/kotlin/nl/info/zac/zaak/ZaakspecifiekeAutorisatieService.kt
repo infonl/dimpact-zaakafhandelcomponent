@@ -238,11 +238,15 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
      * Lists the members of [groepId] who can still be added to the zaakspecifiek geautoriseerde [zaak], leaving out
      * everyone who already has access to it.
      */
-    fun listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(zaak: Zaak, zaakType: ZaakType, groepId: String): List<User> {
-        assertZaakspecifiekGeautoriseerd(zaak)
+    fun listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens,
+        zaakType: ZaakType,
+        groepId: String
+    ): List<User> {
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
         assertBehandelaarGroep(zaakType, groepId)
-        val medewerkerIdsWithAccess = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            .geautoriseerdeMedewerkerIds + listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)
+        val medewerkerIdsWithAccess = zaakAutorisatieGegevens.geautoriseerdeMedewerkers.toSet() +
+            listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)
         return identityService.listUsersInGroup(groepId).filter { it.id !in medewerkerIdsWithAccess }
     }
 
@@ -254,8 +258,14 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
      * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaaktype does not define
      * the roltype
      */
-    fun addZaakspecifiekGeautoriseerdeMedewerker(zaak: Zaak, zaakType: ZaakType, groepId: String, medewerkerId: String) {
-        assertZaakspecifiekGeautoriseerd(zaak)
+    fun addZaakspecifiekGeautoriseerdeMedewerker(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens,
+        groepId: String,
+        medewerkerId: String
+    ) {
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
         assertBehandelaarGroep(zaakType, groepId)
         identityService.validateIfUserIsInGroup(medewerkerId, groepId)
         if (medewerkerId in listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)) {
@@ -303,8 +313,8 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                     "for zaaktype '${zaak.zaaktype}' of zaak with UUID '${zaak.uuid}'"
             )
 
-    private fun assertZaakspecifiekGeautoriseerd(zaak: Zaak) {
-        if (!isZaakspecifiekGeautoriseerd(zaak)) throw ZaakNotZaakspecifiekGeautoriseerdException()
+    private fun assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens: ZaakAutorisatieGegevens) {
+        if (!zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd) throw ZaakNotZaakspecifiekGeautoriseerdException()
     }
 
     private fun assertBehandelaarGroep(zaakType: ZaakType, groepId: String) {

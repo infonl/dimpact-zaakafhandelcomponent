@@ -53,6 +53,7 @@ import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.zaak.model.createZaakToewijzing
 
@@ -75,6 +76,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         taskHistoryService = taskHistoryService
     )
     val geautoriseerdZaakEigenschap = createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+    val geautoriseerdeZaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true) { emptyList() }
 
     afterEach {
         checkUnnecessaryStub()
@@ -1022,13 +1024,11 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
 
     context("Listing the medewerkers of a groep who can be added to a zaakspecifiek geautoriseerde zaak") {
         given("a zaak that is not zaakspecifiek geautoriseerd") {
-            val zaak = createZaak()
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
             `when`("the kandidaten are listed") {
                 val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
                     zaakspecifiekeAutorisatieService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
-                        zaak = zaak,
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() },
                         zaakType = createZaakType(),
                         groepId = "fakeGroepId"
                     )
@@ -1042,9 +1042,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         }
 
         given("a zaakspecifiek geautoriseerde zaak and a groep without the behandelaar role for the zaaktype") {
-            val zaak = createZaak()
             val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeOtherGroepId"))
@@ -1052,7 +1050,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             `when`("the kandidaten of that groep are listed") {
                 val groupNotBehandelaarForZaaktypeException = shouldThrow<GroupNotBehandelaarForZaaktypeException> {
                     zaakspecifiekeAutorisatieService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
-                        zaak = zaak,
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true) { emptyList() },
                         zaakType = zaakType,
                         groepId = "fakeGroepId"
                     )
@@ -1070,28 +1068,11 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             |zaakspecifiek geautoriseerde medewerker rol, a medewerker with access through IAM and one without access
             """.trimMargin()
         ) {
-            val zaak = createZaak()
             val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
-            val behandelaarRol = createRolMedewerker(
-                zaakURI = zaak.url,
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeZaakbehandelaarId")
-            )
-            val geautoriseerdeMedewerkerRol = createRolMedewerker(
-                zaakURI = zaak.url,
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeGeautoriseerdeMedewerkerId")
-            )
-            val rollen = listOf<Rol<*>>(behandelaarRol, geautoriseerdeMedewerkerRol)
             val medewerkerWithoutAccess = createUser(id = "fakeMedewerkerWithoutAccessId")
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeGroepId"))
-            every { zrcClientService.listRollen(zaak) } returns rollen
-            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
-            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns listOf(behandelaarRol)
-            every {
-                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
-            } returns listOf(geautoriseerdeMedewerkerRol)
             every {
                 identityService.listUserIdsForApplicationRoleAndZaaktype(
                     ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
@@ -1107,7 +1088,9 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
 
             `when`("the kandidaten of that groep are listed") {
                 val kandidaten = zaakspecifiekeAutorisatieService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
-                    zaak = zaak,
+                    zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true) {
+                        listOf("fakeZaakbehandelaarId", "fakeGeautoriseerdeMedewerkerId")
+                    },
                     zaakType = zaakType,
                     groepId = "fakeGroepId"
                 )
@@ -1122,13 +1105,13 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
     context("Adding a medewerker to a zaakspecifiek geautoriseerde zaak") {
         given("a zaak that is not zaakspecifiek geautoriseerd") {
             val zaak = createZaak()
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
             `when`("a medewerker is added") {
                 val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
                     zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                         zaak = zaak,
                         zaakType = createZaakType(),
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() },
                         groepId = "fakeGroepId",
                         medewerkerId = "fakeMedewerkerId"
                     )
@@ -1145,7 +1128,6 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         given("a zaakspecifiek geautoriseerde zaak and a medewerker who is not in the chosen behandelaar groep") {
             val zaak = createZaak()
             val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeGroepId"))
@@ -1158,6 +1140,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                         zaak = zaak,
                         zaakType = zaakType,
+                        zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                         groepId = "fakeGroepId",
                         medewerkerId = "fakeMedewerkerId"
                     )
@@ -1172,7 +1155,6 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         given("a zaakspecifiek geautoriseerde zaak and a medewerker with access through IAM") {
             val zaak = createZaak()
             val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeGroepId"))
@@ -1190,6 +1172,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                             zaak = zaak,
                             zaakType = zaakType,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                             groepId = "fakeGroepId",
                             medewerkerId = "fakeIamMedewerkerId"
                         )
@@ -1211,7 +1194,6 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeZaakbehandelaarId")
             )
             val rollen = listOf<Rol<*>>(behandelaarRol)
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeGroepId"))
@@ -1235,6 +1217,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                             zaak = zaak,
                             zaakType = zaakType,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                             groepId = "fakeGroepId",
                             medewerkerId = "fakeZaakbehandelaarId"
                         )
@@ -1256,7 +1239,6 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId")
             )
             val rollen = listOf<Rol<*>>(geautoriseerdeMedewerkerRol)
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeGroepId"))
@@ -1280,6 +1262,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                             zaak = zaak,
                             zaakType = zaakType,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                             groepId = "fakeGroepId",
                             medewerkerId = "fakeMedewerkerId"
                         )
@@ -1297,7 +1280,6 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
             val rollen = emptyList<Rol<*>>()
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeGroepId"))
@@ -1323,6 +1305,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                             zaak = zaak,
                             zaakType = zaakType,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                             groepId = "fakeGroepId",
                             medewerkerId = "fakeMedewerkerId"
                         )
@@ -1346,7 +1329,6 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             val zaakspecifiekGeautoriseerdeMedewerkerRolType =
                 createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
             val rolSlot = slot<Rol<*>>()
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeGroepId"))
@@ -1385,6 +1367,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                     zaak = zaak,
                     zaakType = zaakType,
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                     groepId = "fakeGroepId",
                     medewerkerId = "fakeMedewerkerId"
                 )
