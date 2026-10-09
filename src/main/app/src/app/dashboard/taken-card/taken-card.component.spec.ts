@@ -133,8 +133,8 @@ describe(TakenCardComponent.name, () => {
   });
 
   it("wires up sort and paginator on the dataSource after view init", () => {
-    expect(component.dataSource.sort).toBe(component.sort);
-    expect(component.dataSource.paginator).toBe(component.paginator);
+    expect(component.dataSource.sort).toBe(component.sort());
+    expect(component.dataSource.paginator).toBe(component.paginator());
   });
 
   it("re-runs onLoad when the reload observable emits", async () => {

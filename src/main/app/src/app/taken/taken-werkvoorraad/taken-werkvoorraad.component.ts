@@ -20,7 +20,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatBadge } from "@angular/material/badge";
 import {
@@ -117,9 +117,9 @@ export class TakenWerkvoorraadComponent
 {
   protected selection = new SelectionModel<TaakZoekObject>(true, []);
   protected dataSource: TakenWerkvoorraadDatasource;
-  @ViewChild(MatPaginator) private paginator!: MatPaginator;
-  @ViewChild(MatSort) private sort!: MatSort;
-  @ViewChild(MatTable) private table!: MatTable<TaakZoekObject>;
+  private readonly paginator = viewChild.required(MatPaginator);
+  private readonly sort = viewChild.required(MatSort);
+  private readonly table = viewChild.required(MatTable);
   protected expandedRow: TaakZoekObject | null = null;
   protected readonly zoekenColumn = ZoekenColumn;
 
@@ -182,8 +182,8 @@ export class TakenWerkvoorraadComponent
   }
 
   ngAfterViewInit() {
-    this.dataSource.setViewChilds(this.paginator, this.sort);
-    this.table.dataSource = this.dataSource;
+    this.dataSource.setViewChilds(this.paginator(), this.sort());
+    this.table().dataSource = this.dataSource;
   }
 
   protected showAssignToMe(taakZoekObject: TaakZoekObject) {

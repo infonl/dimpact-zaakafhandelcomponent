@@ -12,7 +12,7 @@ import {
   input,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
@@ -111,7 +111,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     "id",
   ] as const;
 
-  @ViewChild("takenSort") private takenSort!: MatSort;
+  private readonly takenSort = viewChild.required<MatSort>("takenSort");
 
   private zaakTakenListener!: WebsocketListener;
 
@@ -170,7 +170,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
           return String(item.data[property as keyof typeof item.data]);
       }
     };
-    this.takenDataSource.sort = this.takenSort;
+    this.takenDataSource.sort = this.takenSort();
   }
 
   ngOnDestroy() {

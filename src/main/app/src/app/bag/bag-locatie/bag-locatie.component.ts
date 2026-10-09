@@ -11,7 +11,7 @@ import {
   input,
   OnInit,
   untracked,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { TranslateModule } from "@ngx-translate/core";
@@ -42,7 +42,7 @@ type Geometry = GeneratedType<"RestGeometry">;
 })
 export class BagLocatieComponent implements OnInit, AfterViewInit {
   readonly bagGeometrie = input<Geometry>();
-  @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
+  readonly openLayersMapRef = viewChild.required<ElementRef>("openLayersMap");
 
   private map?: ol.Map;
   private geometrieSource = new source.Vector();
@@ -158,7 +158,7 @@ export class BagLocatieComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.map?.setTarget(this.openLayersMapRef.nativeElement);
+      this.map?.setTarget(this.openLayersMapRef().nativeElement);
     }, 0);
   }
 

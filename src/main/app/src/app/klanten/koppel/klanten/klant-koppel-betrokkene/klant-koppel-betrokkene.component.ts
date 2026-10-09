@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, input, OnInit, output, ViewChild } from "@angular/core";
+import { Component, input, OnInit, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { ZacInput } from "src/app/shared/form/input/input";
@@ -44,7 +44,6 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
       </form>
       <zac-persoon-zoek
         *ngIf="type() === 'persoon'"
-        #zoek
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
         isSelectable
@@ -53,7 +52,6 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
       ></zac-persoon-zoek>
       <zac-bedrijf-zoek
         *ngIf="type() === 'bedrijf'"
-        #zoek
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
         isSelectable
@@ -66,7 +64,6 @@ export class KlantKoppelBetrokkeneComponent implements OnInit {
   readonly type = input.required<"persoon" | "bedrijf">();
   readonly zaaktypeUUID = input<string | null | undefined>(null);
   readonly klantGegevens = output<KlantGegevens>();
-  @ViewChild("zoek") zoek!: PersoonZoekComponent | BedrijfZoekComponent;
 
   protected readonly form = this.formBuilder.group({
     betrokkeneRoltype:

@@ -193,8 +193,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
       order: "desc",
       type: "type-B",
     });
-    expect(fixture.componentInstance["sort"].active).toBe("id");
-    expect(fixture.componentInstance["sort"].direction).toBe("desc");
+    expect(fixture.componentInstance["sort"]().active).toBe("id");
+    expect(fixture.componentInstance["sort"]().direction).toBe("desc");
   });
 
   it("restores the default order when a saved search omits only the order", async () => {
@@ -212,8 +212,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
       order: "desc",
       type: "type-B",
     });
-    expect(fixture.componentInstance["sort"].active).toBe("type");
-    expect(fixture.componentInstance["sort"].direction).toBe("desc");
+    expect(fixture.componentInstance["sort"]().active).toBe("type");
+    expect(fixture.componentInstance["sort"]().direction).toBe("desc");
   });
 
   it("forgets the remembered filters and asks for the default first page again", async () => {
@@ -233,8 +233,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
       page: 0,
       maxResults: 10,
     });
-    expect(fixture.componentInstance["sort"].active).toBe("id");
-    expect(fixture.componentInstance["sort"].direction).toBe("desc");
+    expect(fixture.componentInstance["sort"]().active).toBe("id");
+    expect(fixture.componentInstance["sort"]().direction).toBe("desc");
     expect(await lastListRequestBody()).toMatchObject({
       sort: "id",
       order: "desc",
@@ -310,7 +310,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
       sort: "id",
       order: "desc",
     });
-    expect(fixture.componentInstance["sort"].active).toBe("id");
+    expect(fixture.componentInstance["sort"]().active).toBe("id");
   });
 
   it("remembers the first page for the next visit when it is destroyed", async () => {

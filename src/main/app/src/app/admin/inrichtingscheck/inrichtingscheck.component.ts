@@ -11,7 +11,7 @@ import {
   trigger,
 } from "@angular/animations";
 import { NgIf } from "@angular/common";
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, OnInit, viewChild } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -80,9 +80,10 @@ export class InrichtingscheckComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer")
-  protected sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
+  protected readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  protected readonly menuSidenav =
+    viewChild.required<MatSidenav>("menuSidenav");
   protected readonly versionLayout = VersionLayout;
   protected readonly rowOf = rowOf;
   protected dataSource: MatTableDataSource<

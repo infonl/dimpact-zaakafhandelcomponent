@@ -10,7 +10,7 @@ import {
   EventEmitter,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -113,9 +113,9 @@ export class OntkoppeldeDocumentenListComponent
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestDetachedDocument">
   >();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild("actionsSidenav") actionsSidenav!: MatDrawer;
+  readonly paginator = viewChild.required(MatPaginator);
+  readonly sort = viewChild.required(MatSort);
+  readonly actionsSidenav = viewChild.required<MatDrawer>("actionsSidenav");
 
   protected readonly displayedColumns = [
     "titel",
@@ -178,8 +178,8 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   ngAfterViewInit() {
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
-    merge(this.sort.sortChange, this.paginator.page, this.filterChange)
+    this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
+    merge(this.sort().sortChange, this.paginator().page, this.filterChange)
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -201,7 +201,7 @@ export class OntkoppeldeDocumentenListComponent
         }),
       )
       .subscribe((data) => {
-        this.paginator.length = data.totaal ?? 0;
+        this.paginator().length = data.totaal ?? 0;
         this.filterOntkoppeldDoor =
           data.resultaten?.map(
             (result: GeneratedType<"RestDetachedDocument">) =>
@@ -215,14 +215,14 @@ export class OntkoppeldeDocumentenListComponent
     selectedInformationObject: GeneratedType<"RestDetachedDocument">,
   ) {
     this.selectedInformationObject = selectedInformationObject;
-    void this.actionsSidenav.open();
+    void this.actionsSidenav().open();
   }
 
   protected updateListParameters() {
-    this.listParameters.sort = this.sort.active;
-    this.listParameters.order = this.sort.direction;
-    this.listParameters.page = this.paginator.pageIndex;
-    this.listParameters.maxResults = this.paginator.pageSize;
+    this.listParameters.sort = this.sort().active;
+    this.listParameters.order = this.sort().direction;
+    this.listParameters.page = this.paginator().pageIndex;
+    this.listParameters.maxResults = this.paginator().pageSize;
     SessionStorageUtil.setItem(
       "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.listParameters,
@@ -255,7 +255,7 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   protected filtersChanged() {
-    this.paginator.pageIndex = 0;
+    this.paginator().pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
   }
@@ -265,9 +265,9 @@ export class OntkoppeldeDocumentenListComponent
       "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
-    this.sort.active = this.listParametersSort.sort;
-    this.sort.direction = this.listParametersSort.order;
-    this.paginator.pageIndex = 0;
+    this.sort().active = this.listParametersSort.sort;
+    this.sort().direction = this.listParametersSort.order;
+    this.paginator().pageIndex = 0;
     this.filterChange.emit();
   }
 
@@ -276,9 +276,9 @@ export class OntkoppeldeDocumentenListComponent
   ) {
     if (actieveZoekopdracht) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json || "{}");
-      this.sort.active = this.listParametersSort.sort;
-      this.sort.direction = this.listParametersSort.order;
-      this.paginator.pageIndex = 0;
+      this.sort().active = this.listParametersSort.sort;
+      this.sort().direction = this.listParametersSort.order;
+      this.paginator().pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
       this.resetSearch();

@@ -10,7 +10,7 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -134,10 +134,11 @@ export class InformatieObjectViewComponent
     "toelichting",
   ];
 
-  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild(MatSort) sort!: MatSort;
+  readonly actionsSidenav = viewChild.required<MatSidenav>("actionsSidenav");
+  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
+  readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  readonly sort = viewChild(MatSort);
   private documentListener?: WebsocketListener;
 
   constructor(
@@ -201,7 +202,7 @@ export class InformatieObjectViewComponent
           return item[property as keyof typeof item] ?? "";
       }
     };
-    this.historie.sort = this.sort;
+    this.historie.sort = this.sort() ?? null;
   }
 
   ngOnDestroy() {
@@ -238,7 +239,7 @@ export class InformatieObjectViewComponent
               )
               .subscribe((infoObject) => {
                 this.documentNieuweVersieGegevens = infoObject;
-                void this.actionsSidenav.open();
+                void this.actionsSidenav().open();
               });
           },
           "difference",

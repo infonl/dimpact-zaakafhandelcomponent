@@ -514,7 +514,7 @@ describe(ZaakCreateComponent.name, () => {
       expect(fixture.componentInstance["activeSideAction"]).toBe(
         "actie.initiator.koppelen",
       );
-      expect(fixture.componentInstance["actionsSidenav"].opened).toBe(true);
+      expect(fixture.componentInstance["actionsSidenav"]().opened).toBe(true);
     });
 
     it("sets activeSideAction and opens sidenav for BAG action", async () => {
@@ -525,7 +525,7 @@ describe(ZaakCreateComponent.name, () => {
       expect(fixture.componentInstance["activeSideAction"]).toBe(
         "actie.bag-object.koppelen",
       );
-      expect(fixture.componentInstance["actionsSidenav"].opened).toBe(true);
+      expect(fixture.componentInstance["actionsSidenav"]().opened).toBe(true);
     });
 
     it("renders zac-klant-koppel for initiator action", () => {
@@ -580,7 +580,7 @@ describe(ZaakCreateComponent.name, () => {
       expect(
         fixture.componentInstance["form"].controls.initiatorIdentificatie.value,
       ).toEqual(expect.objectContaining({ type: "BSN" }));
-      expect(fixture.componentInstance["actionsSidenav"].opened).toBe(false);
+      expect(fixture.componentInstance["actionsSidenav"]().opened).toBe(false);
     });
   });
 

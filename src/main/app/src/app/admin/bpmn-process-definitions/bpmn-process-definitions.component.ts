@@ -8,12 +8,11 @@ import {
   ElementRef,
   Injector,
   OnInit,
-  QueryList,
-  ViewChild,
-  ViewChildren,
   afterNextRender,
   computed,
   inject,
+  viewChild,
+  viewChildren,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -77,12 +76,13 @@ export class BpmnProcessDefinitionsComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChildren(BpmnNodeRowDirective)
-  nodeRows!: QueryList<BpmnNodeRowDirective>;
-  @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
-  bpmnProcessDefinitionFileInput!: ElementRef;
+  readonly sideNavContainer =
+    viewChild.required<MatSidenavContainer>("sideNavContainer");
+  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
+  readonly nodeRows = viewChildren(BpmnNodeRowDirective);
+  readonly bpmnProcessDefinitionFileInput = viewChild.required<ElementRef>(
+    "bpmnProcessDefinitionFileInput",
+  );
 
   protected readonly processDefinitionsQuery = injectQuery(() =>
     this.bpmnService.listProcessDefinitionsQuery(true),
@@ -128,7 +128,7 @@ export class BpmnProcessDefinitionsComponent
   }
 
   protected selectBpmnProcessDefinitionFile() {
-    this.bpmnProcessDefinitionFileInput.nativeElement.click();
+    this.bpmnProcessDefinitionFileInput().nativeElement.click();
   }
 
   protected bpmnProcessDefinitionFileSelected(event: Event) {
@@ -162,7 +162,7 @@ export class BpmnProcessDefinitionsComponent
               this.expandedKey = processKey;
               afterNextRender(
                 () =>
-                  this.nodeRows
+                  this.nodeRows()
                     .find((row) => row.key() === processKey)
                     ?.el.nativeElement.scrollIntoView({
                       behavior: "smooth",

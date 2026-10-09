@@ -12,7 +12,7 @@ import {
   input,
   OnInit,
   untracked,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
@@ -48,7 +48,7 @@ export class KlantContactmomentenTabelComponent
 {
   readonly bsn = input<string>();
   readonly vestigingsnummer = input<string>();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  readonly paginator = viewChild.required(MatPaginator);
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestContactmoment">
   >();
@@ -76,8 +76,8 @@ export class KlantContactmomentenTabelComponent
       this.vestigingsnummer();
       untracked(() => {
         if (this.init) {
-          this.paginator.pageIndex = 0;
-          this.paginator.page.emit();
+          this.paginator().pageIndex = 0;
+          this.paginator().page.emit();
         }
       });
     });
@@ -90,8 +90,8 @@ export class KlantContactmomentenTabelComponent
 
   ngAfterViewInit(): void {
     this.init = true;
-    this.paginator.page
-      .pipe(
+    this.paginator()
+      .page.pipe(
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
@@ -105,13 +105,13 @@ export class KlantContactmomentenTabelComponent
         }),
       )
       .subscribe((resultaat) => {
-        this.paginator.length = resultaat.totaal ?? 0;
+        this.paginator().length = resultaat.totaal ?? 0;
         this.dataSource.data = resultaat.resultaten ?? [];
       });
   }
 
   private loadContactmomenten() {
-    this.listParameters.page = this.paginator.pageIndex;
+    this.listParameters.page = this.paginator().pageIndex;
     return this.contactmomentenService.listContactmomenten(this.listParameters);
   }
 }

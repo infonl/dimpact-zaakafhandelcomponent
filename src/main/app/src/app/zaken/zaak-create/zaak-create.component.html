@@ -7,7 +7,7 @@
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.koppelen'"
       (klantGegevens)="initiatorSelected($event.klant)"
-      [sideNav]="actionsSidenav"
+      [sideNav]="actionsSidenav()"
       [initiator]="true"
       [allowBedrijf]="
         form.controls.zaaktype.value?.zaakafhandelparameters
@@ -25,7 +25,7 @@
       [gekoppeldeBagObjecten]="form.controls.bagObjecten"
       isSelectable
       (bagObject)="bagObjectSelected()"
-      [sideNav]="actionsSidenav"
+      [sideNav]="actionsSidenav()"
     ></zac-bag-zoek>
   </mat-sidenav>
   <form [formGroup]="form" (ngSubmit)="formSubmit()">
