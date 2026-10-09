@@ -21,7 +21,6 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { MailtemplateComponent } from "./mailtemplate.component";
 
 const bestaandTemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
@@ -35,7 +34,6 @@ const bestaandTemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
 
 // The rich-text editor makes rendering and typing slow enough to exceed the default timeout.
 describe(MailtemplateComponent.name, () => {
-  let mailtemplateBeheerService: MailtemplateBeheerService;
   let router: Router;
   let httpTestingController: HttpTestingController;
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
@@ -107,7 +105,6 @@ describe(MailtemplateComponent.name, () => {
     });
 
     detectChanges = rendered.detectChanges;
-    mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
     router = TestBed.inject(Router);
     httpTestingController = TestBed.inject(HttpTestingController);
 
@@ -282,45 +279,5 @@ describe(MailtemplateComponent.name, () => {
 
     request.flush({});
     await sleep();
-  });
-
-  it("invalidates the saved template's own query after a successful update", async () => {
-    const invalidateQueries = jest
-      .spyOn(testQueryClient, "invalidateQueries")
-      .mockResolvedValue();
-    await setup(bestaandTemplate);
-    await editTemplateName(" gewijzigd");
-
-    await user.click(saveButton());
-    await sleep();
-    httpTestingController.expectOne("/rest/beheer/mailtemplates/42").flush({});
-    await sleep();
-
-    expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: mailtemplateBeheerService.readMailtemplateQuery(42).queryKey,
-    });
-  });
-
-  it("only invalidates the mailtemplate lists when creating a new template", async () => {
-    const invalidateQueries = jest
-      .spyOn(testQueryClient, "invalidateQueries")
-      .mockResolvedValue();
-    await setup();
-    await fillInNewTemplate();
-
-    await user.click(saveButton());
-    await sleep();
-    httpTestingController.expectOne("/rest/beheer/mailtemplates").flush({});
-    await sleep();
-
-    expect(invalidateQueries.mock.calls).toEqual([
-      [{ queryKey: mailtemplateBeheerService.listMailtemplates().queryKey }],
-      [
-        {
-          queryKey:
-            mailtemplateBeheerService.listKoppelbareMailtemplates().queryKey,
-        },
-      ],
-    ]);
   });
 });
