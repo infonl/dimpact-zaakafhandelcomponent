@@ -65,9 +65,6 @@ describe("NotitiesComponent harness", () => {
 
     notitieService = TestBed.inject(NotitieService);
     jest.spyOn(notitieService, "listNotities").mockReturnValue(of([]));
-    jest
-      .spyOn(notitieService, "updateNotitie")
-      .mockImplementation((notitie) => of(notitie));
 
     fixture = TestBed.createComponent(TestHostComponent);
     fixture.detectChanges();
