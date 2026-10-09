@@ -5,6 +5,7 @@
 package nl.info.zac.mailtemplates
 
 import jakarta.inject.Inject
+import jakarta.ws.rs.core.UriBuilder
 import nl.info.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.readZaakIdentificatie
@@ -59,6 +60,10 @@ class MailTemplateHelper @Inject constructor(
         private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
         private val ZAAKDATA_VARIABLE_PATTERN = Regex("""\$ZAAKDATA_VARIABLE_PREFIX([^}]+)}""")
         private val HTML_TAG_PATTERN = Regex("<[^>]+>")
+
+        // The frontend reads this parameter to decide where to go after the task is completed
+        private const val TAAK_URL_SOURCE_PARAMETER = "bron"
+        private const val TAAK_URL_SOURCE_EMAIL = "email"
     }
 
     fun resolveGemeenteVariable(text: String): String =
@@ -243,7 +248,9 @@ class MailTemplateHelper @Inject constructor(
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         return MailLink(
             identificatie = taskInfo.name,
-            url = configurationService.taakTonenUrl(taskInfo.id),
+            url = UriBuilder.fromUri(configurationService.taakTonenUrl(taskInfo.id))
+                .queryParam(TAAK_URL_SOURCE_PARAMETER, TAAK_URL_SOURCE_EMAIL)
+                .build(),
             prefix = "de taak",
             suffix = "voor zaak $zaakIdentificatie ($zaaktypeOmschrijving)"
         )

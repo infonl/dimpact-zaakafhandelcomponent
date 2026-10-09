@@ -9,6 +9,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
 import nl.info.client.brp.model.createNaamPersoon
@@ -35,6 +37,8 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
+import org.flowable.common.engine.api.scope.ScopeTypes
+import org.flowable.task.api.Task
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -442,6 +446,30 @@ class MailTemplateHelperTest : BehaviorSpec({
                         "Link: Klik om naar het document " +
                         "<a href=\"$documentUriString\" " +
                         "title=\"de zaakafhandelcomponent...\">$documentTitle</a> te gaan."
+                }
+            }
+        }
+    }
+
+    context("Mail template variables can be resolved for a task") {
+        given("A task and a text with the task URL placeholder") {
+            val task = mockk<Task>()
+            every { task.id } returns "fakeTaskId"
+            every { task.name } returns "fakeTaskName"
+            every { task.dueDate } returns null
+            every { task.scopeType } returns ScopeTypes.CMMN
+            every { task.caseVariables } returns mapOf(
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_OMSCHRIJVING to "fakeZaaktypeOmschrijving"
+            )
+            every { configurationService.taakTonenUrl("fakeTaskId") } returns
+                URI("https://example.com/taken/fakeTaskId")
+
+            `when`("resolveTaskVariables is called") {
+                val resolvedText = mailTemplateHelper.resolveTaskVariables("URL: {TAAK_URL}", task)
+
+                then("the URL tells the frontend that the task was opened from an e-mail") {
+                    resolvedText shouldBe "URL: https://example.com/taken/fakeTaskId?bron=email"
                 }
             }
         }
