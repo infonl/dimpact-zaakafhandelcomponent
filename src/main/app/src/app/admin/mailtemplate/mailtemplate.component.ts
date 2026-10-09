@@ -10,7 +10,7 @@ import {
   effect,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -21,6 +21,7 @@ import {
 } from "@angular/material/sidenav";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -75,7 +76,19 @@ export class MailtemplateComponent
     defaultMailtemplate: this.formBuilder.control(false, []),
   });
 
-  protected variabelen: string[] = [];
+  private readonly selectedMail = toSignal(
+    this.form.controls.mail.valueChanges,
+  );
+  private readonly variabelenQuery = injectQuery(() => {
+    const mail = this.selectedMail()?.value;
+    return {
+      ...this.mailTemplateBeheerService.ophalenVariabelenVoorMail(mail!),
+      enabled: Boolean(mail),
+    };
+  });
+  protected readonly variabelen = computed(
+    () => this.variabelenQuery.data() ?? [],
+  );
   private mailControlLocked = false;
   private readonly data = toSignal(this.route.data);
   private readonly mailTemplate = computed(
@@ -105,17 +118,6 @@ export class MailtemplateComponent
     private readonly formBuilder: FormBuilder,
   ) {
     super(utilService, configuratieService);
-
-    this.form.controls.mail.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((value) => {
-        if (!value) return;
-        this.mailTemplateBeheerService
-          .ophalenVariabelenVoorMail(value.value)
-          .subscribe((variabelen) => {
-            this.variabelen = variabelen;
-          });
-      });
 
     effect(() => {
       const mailTemplate = this.mailTemplate();

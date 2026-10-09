@@ -11,7 +11,11 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import { of } from "rxjs";
-import { createMutationOptions, fromPartial } from "src/test-helpers";
+import {
+  createMutationOptions,
+  createQueryOptions,
+  fromPartial,
+} from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -111,7 +115,7 @@ describe(ParametersEditCmmnComponent.name, () => {
         {
           provide: MailtemplateBeheerService,
           useValue: fromPartial<MailtemplateBeheerService>({
-            listKoppelbareMailtemplates: () => of([]),
+            listKoppelbareMailtemplates: () => createQueryOptions([]) as never,
           }),
         },
         {

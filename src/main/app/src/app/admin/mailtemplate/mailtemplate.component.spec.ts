@@ -86,10 +86,7 @@ describe(MailtemplateComponent.name, () => {
     return screen.getByRole("button", { name: "actie.opslaan" });
   }
 
-  async function setup(
-    template?: GeneratedType<"RestMailtemplate">,
-    variabelen: GeneratedType<"MailTemplateVariables">[] = [],
-  ) {
+  async function setup(template?: GeneratedType<"RestMailtemplate">) {
     const rendered = await render(MailtemplateComponent, {
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
@@ -114,10 +111,21 @@ describe(MailtemplateComponent.name, () => {
     router = TestBed.inject(Router);
     httpTestingController = TestBed.inject(HttpTestingController);
 
-    jest
-      .spyOn(mailtemplateBeheerService, "ophalenVariabelenVoorMail")
-      .mockReturnValue(of(variabelen));
     jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    if (template?.mail) await respondWithVariabelen(template.mail, []);
+  }
+
+  async function respondWithVariabelen(
+    mail: GeneratedType<"Mail">,
+    variabelen: GeneratedType<"MailTemplateVariables">[],
+  ) {
+    await sleep();
+    httpTestingController
+      .expectOne(`/rest/beheer/mailtemplates/variabelen/${mail}`)
+      .flush(variabelen);
+    await sleep();
+    detectChanges();
   }
 
   async function editTemplateName(extra: string) {
@@ -127,15 +135,22 @@ describe(MailtemplateComponent.name, () => {
     );
   }
 
+  async function chooseMailType(
+    variabelen: GeneratedType<"MailTemplateVariables">[] = [],
+  ) {
+    await user.click(screen.getByRole("combobox"));
+    await user.click(
+      screen.getByRole("option", { name: "mail.taak-ontvangstbevestiging" }),
+    );
+    await respondWithVariabelen("TAAK_ONTVANGSTBEVESTIGING", variabelen);
+  }
+
   async function fillInNewTemplate() {
     await user.click(
       screen.getByRole("textbox", { name: "Mail-template-naam" }),
     );
     await user.paste("Nieuw template");
-    await user.click(screen.getByRole("combobox"));
-    await user.click(
-      screen.getByRole("option", { name: "mail.taak-ontvangstbevestiging" }),
-    );
+    await chooseMailType();
     await user.click(htmlEditor("Onderwerp"));
     await user.paste("Onderwerp");
     await user.click(htmlEditor("Body"));
@@ -193,19 +208,13 @@ describe(MailtemplateComponent.name, () => {
   });
 
   it("offers the variables of the chosen mail type", async () => {
-    await setup(undefined, ["GEMEENTE", "ZAAK_URL"]);
+    await setup();
 
-    await user.click(screen.getByRole("combobox"));
-    await user.click(
-      screen.getByRole("option", { name: "mail.taak-ontvangstbevestiging" }),
-    );
+    await chooseMailType(["GEMEENTE", "ZAAK_URL"]);
     await user.click(screen.getAllByRole("button", { name: "variabelen" })[0]);
 
     expect(
-      mailtemplateBeheerService.ophalenVariabelenVoorMail,
-    ).toHaveBeenCalledWith("TAAK_ONTVANGSTBEVESTIGING");
-    expect(
-      screen.getByRole("menuitem", {
+      await screen.findByRole("menuitem", {
         name: "GEMEENTE: mailtemplate.variabele.gemeente",
       }),
     ).toBeVisible();
@@ -292,7 +301,7 @@ describe(MailtemplateComponent.name, () => {
     });
   });
 
-  it("does not invalidate when creating a new template", async () => {
+  it("only invalidates the mailtemplate lists when creating a new template", async () => {
     const invalidateQueries = jest
       .spyOn(testQueryClient, "invalidateQueries")
       .mockResolvedValue();
@@ -304,6 +313,14 @@ describe(MailtemplateComponent.name, () => {
     httpTestingController.expectOne("/rest/beheer/mailtemplates").flush({});
     await sleep();
 
-    expect(invalidateQueries).not.toHaveBeenCalled();
+    expect(invalidateQueries.mock.calls).toEqual([
+      [{ queryKey: mailtemplateBeheerService.listMailtemplates().queryKey }],
+      [
+        {
+          queryKey:
+            mailtemplateBeheerService.listKoppelbareMailtemplates().queryKey,
+        },
+      ],
+    ]);
   });
 });

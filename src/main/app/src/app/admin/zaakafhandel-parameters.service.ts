@@ -4,11 +4,13 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
 
 @Injectable({
   providedIn: "root",
@@ -17,6 +19,10 @@ export class ZaakafhandelParametersService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
+  private readonly mailtemplateKoppelingService = inject(
+    MailtemplateKoppelingService,
+  );
+  private readonly queryClient = inject(QueryClient, { optional: true });
 
   listZaakafhandelParameters() {
     return this.zacHttpClient.GET("/rest/zaakafhandelparameters");
@@ -65,10 +71,16 @@ export class ZaakafhandelParametersService {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/zaakafhandelparameters"),
       {
-        onSuccess: () =>
+        onSuccess: () => {
+          void this.queryClient?.invalidateQueries({
+            queryKey:
+              this.mailtemplateKoppelingService.listMailtemplateKoppelingen()
+                .queryKey,
+          });
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
-          ),
+          );
+        },
       },
     );
   }

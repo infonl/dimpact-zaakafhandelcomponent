@@ -61,7 +61,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
     );
     verzenderControl.setValue(defaultAfzender ?? null);
 
-    const mailTemplate = await lastValueFrom(
+    const mailTemplate = await this.queryClient.fetchQuery(
       this.mailtemplateService.findMailtemplate(
         "TAAK_ADVIES_EXTERN",
         zaak.uuid,

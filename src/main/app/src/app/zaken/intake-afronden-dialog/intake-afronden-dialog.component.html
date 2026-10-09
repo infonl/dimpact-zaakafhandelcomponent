@@ -145,12 +145,12 @@
         <div
           *ngIf="formGroup.get('ontvankelijk')?.value"
           class="readonly"
-          [innerHTML]="zaakOntvankelijkMail?.body"
+          [innerHTML]="zaakOntvankelijkMailQuery.data()?.body"
         ></div>
         <div
           *ngIf="!formGroup.get('ontvankelijk')?.value"
           class="readonly"
-          [innerHTML]="zaakNietOntvankelijkMail?.body"
+          [innerHTML]="zaakNietOntvankelijkMailQuery.data()?.body"
         ></div>
       </mat-expansion-panel>
     </ng-container>

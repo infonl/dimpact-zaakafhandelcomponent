@@ -123,16 +123,12 @@ export class ZaakAfhandelenDialogComponent {
       ),
   }));
 
-  protected readonly mailtemplateQuery = injectQuery(() => ({
-    queryKey: ["mailtemplate", this.data.zaak.uuid],
-    queryFn: () =>
-      firstValueFrom(
-        this.mailtemplateService.findMailtemplate(
-          "ZAAK_AFGEHANDELD",
-          this.data.zaak.uuid,
-        ),
-      ),
-  }));
+  protected readonly mailtemplateQuery = injectQuery(() =>
+    this.mailtemplateService.findMailtemplate(
+      "ZAAK_AFGEHANDELD",
+      this.data.zaak.uuid,
+    ),
+  );
 
   protected readonly afsluitenMutation = injectMutation(
     () => this.zakenService.afsluitenMutation(this.data.zaak.uuid),

@@ -39,6 +39,7 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
+import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
@@ -1058,6 +1059,17 @@ describe(ZaakViewComponent.name, () => {
         configuratieService.readAllowedFileTypesQuery().queryKey,
         [],
       );
+      const mailtemplateService = TestBed.inject(MailtemplateService);
+      for (const mail of [
+        "ZAAK_ALGEMEEN",
+        "TAAK_ONTVANGSTBEVESTIGING",
+      ] as const) {
+        testQueryClient.setQueryData(
+          mailtemplateService.findMailtemplate(mail, zaakWithEveryPanel.uuid)
+            .queryKey,
+          fromPartial<GeneratedType<"RestMailtemplate">>({}),
+        );
+      }
       jest
         .spyOn(
           TestBed.inject(InformatieObjectenService),
