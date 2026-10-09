@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "dom-navigation"],
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "target": "ES2016",
     "isolatedModules": true

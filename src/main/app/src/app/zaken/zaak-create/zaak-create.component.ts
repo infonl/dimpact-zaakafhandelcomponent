@@ -32,7 +32,7 @@ import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { NavigationService } from "../../shared/navigation/navigation.service";
+import { BackButtonDirective } from "../../shared/navigation/back-button.directive";
 import {
   BSN_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
@@ -46,6 +46,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-create.component.less"],
   standalone: true,
   imports: [
+    BackButtonDirective,
     NgSwitch,
     NgSwitchCase,
     ReactiveFormsModule,
@@ -69,7 +70,6 @@ export class ZaakCreateComponent {
   private readonly utilService = inject(UtilService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
-  private readonly navigationService = inject(NavigationService);
   private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly klantenService = inject(KlantenService);
@@ -363,9 +363,5 @@ export class ZaakCreateComponent {
 
   clearBagObjecten() {
     this.form.controls.bagObjecten.setValue([]);
-  }
-
-  protected back() {
-    this.navigationService.back();
   }
 }

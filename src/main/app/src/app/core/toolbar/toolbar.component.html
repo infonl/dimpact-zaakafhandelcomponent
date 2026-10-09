@@ -8,7 +8,7 @@
     mat-mini-fab
     color="primary"
     class="hide-gt-sm"
-    [disabled]="navigation.backDisabled$ | async"
+    [disabled]="!canGoBack()"
     aria-label="Terug"
     title="{{ 'actie.terug' | translate }}"
     zacBackButton
