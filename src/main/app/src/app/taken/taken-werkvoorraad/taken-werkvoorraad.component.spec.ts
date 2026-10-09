@@ -205,7 +205,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
       expect(request.request.body).toEqual({
         taakId: "fakeTaakId",
         zaakUuid: "fakeZaakUuid",
-        groepId: null,
+        groepId: "groupA",
       });
     });
 
