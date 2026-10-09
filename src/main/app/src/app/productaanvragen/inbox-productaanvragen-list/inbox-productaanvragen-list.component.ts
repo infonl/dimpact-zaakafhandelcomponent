@@ -10,7 +10,7 @@ import {
   EventEmitter,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -113,8 +113,8 @@ export class InboxProductaanvragenListComponent
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestInboxProductaanvraag">
   >();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  readonly paginator = viewChild.required(MatPaginator);
+  readonly sort = viewChild.required(MatSort);
   protected readonly displayedColumns = [
     "expand",
     "type",
@@ -175,8 +175,8 @@ export class InboxProductaanvragenListComponent
   }
 
   ngAfterViewInit() {
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
-    merge(this.sort.sortChange, this.paginator.page, this.filterChange)
+    this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
+    merge(this.sort().sortChange, this.paginator().page, this.filterChange)
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -195,17 +195,17 @@ export class InboxProductaanvragenListComponent
         }),
       )
       .subscribe((data) => {
-        this.paginator.length = Number(data.totaal);
+        this.paginator().length = Number(data.totaal);
         this.filterType = (data as { filterType: string[] }).filterType;
         this.dataSource.data = data.resultaten ?? [];
       });
   }
 
   protected updateListParameters() {
-    this.listParameters.sort = this.sort.active;
-    this.listParameters.order = this.sort.direction;
-    this.listParameters.page = this.paginator.pageIndex;
-    this.listParameters.maxResults = this.paginator.pageSize;
+    this.listParameters.sort = this.sort().active;
+    this.listParameters.order = this.sort().direction;
+    this.listParameters.page = this.paginator().pageIndex;
+    this.listParameters.maxResults = this.paginator().pageSize;
     SessionStorageUtil.setItem(
       `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.listParameters,
@@ -224,7 +224,7 @@ export class InboxProductaanvragenListComponent
       typeof options.event === "object" && "value" in options.event
         ? (options.event.value as never)
         : (undefined as never);
-    this.paginator.pageIndex = 0;
+    this.paginator().pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
   }
@@ -234,9 +234,9 @@ export class InboxProductaanvragenListComponent
       `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
-    this.sort.active = this.listParameters.sort;
-    this.sort.direction = this.listParameters.order;
-    this.paginator.pageIndex = 0;
+    this.sort().active = this.listParameters.sort;
+    this.sort().direction = this.listParameters.order;
+    this.paginator().pageIndex = 0;
     this.filterChange.emit();
   }
 
@@ -248,9 +248,9 @@ export class InboxProductaanvragenListComponent
         ...this.createDefaultParameters(),
         ...JSON.parse(actieveZoekopdracht.json),
       });
-      this.sort.active = this.listParameters.sort;
-      this.sort.direction = this.listParameters.order;
-      this.paginator.pageIndex = 0;
+      this.sort().active = this.listParameters.sort;
+      this.sort().direction = this.listParameters.order;
+      this.paginator().pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
       this.resetSearch();

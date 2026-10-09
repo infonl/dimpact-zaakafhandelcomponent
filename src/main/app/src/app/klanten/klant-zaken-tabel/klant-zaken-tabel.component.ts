@@ -11,7 +11,7 @@ import {
   EventEmitter,
   inject,
   input,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -80,8 +80,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   protected readonly klant =
     input.required<GeneratedType<"RestBedrijf" | "RestPersoon">>();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  readonly paginator = viewChild.required(MatPaginator);
+  readonly sort = viewChild.required(MatSort);
 
   protected dataSource = new MatTableDataSource<ZaakZoekObject>();
   protected columns = [
@@ -139,11 +139,11 @@ export class KlantZakenTabelComponent implements AfterViewInit {
 
     this.updateActieveFilters();
 
-    this.zoekParameters.page = this.paginator.pageIndex;
-    this.zoekParameters.sorteerRichting = this.sort.direction;
-    this.zoekParameters.sorteerVeld = this.sort
+    this.zoekParameters.page = this.paginator().pageIndex;
+    this.zoekParameters.sorteerRichting = this.sort().direction;
+    this.zoekParameters.sorteerVeld = this.sort()
       .active as GeneratedType<"SorteerVeld">;
-    this.zoekParameters.rows = this.paginator.pageSize;
+    this.zoekParameters.rows = this.paginator().pageSize;
     this.zoekParameters.alleenOpenstaandeZaken =
       !this.inclusiefAfgerondeZaken.value;
     return runQuery(
@@ -184,8 +184,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.init = true;
     this.filtersChanged();
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
-    merge(this.sort.sortChange, this.paginator.page, this.filterChange)
+    this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
+    merge(this.sort().sortChange, this.paginator().page, this.filterChange)
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -201,13 +201,13 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       )
       .subscribe((zoekResultaat) => {
         if (!zoekResultaat) {
-          this.paginator.pageIndex = this.lastLoadedPageIndex;
+          this.paginator().pageIndex = this.lastLoadedPageIndex;
           return;
         }
 
-        this.lastLoadedPageIndex = this.paginator.pageIndex;
+        this.lastLoadedPageIndex = this.paginator().pageIndex;
         this.zoekResultaat = zoekResultaat;
-        this.paginator.length = zoekResultaat.totaal;
+        this.paginator().length = zoekResultaat.totaal;
         this.dataSource.data = zoekResultaat.resultaten;
       });
   }
@@ -253,12 +253,12 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   }
 
   protected filtersChanged() {
-    this.paginator.pageIndex = 0;
+    this.paginator().pageIndex = 0;
     this.filterChange.emit();
   }
 
   public clearFilters() {
-    this.sort.sort({ id: "", start: "asc", disableClear: false });
+    this.sort().sort({ id: "", start: "asc", disableClear: false });
     this.zoekParameters.zoeken = {};
     this.zoekParameters.filters = {};
     this.zoekParameters.datums = {};

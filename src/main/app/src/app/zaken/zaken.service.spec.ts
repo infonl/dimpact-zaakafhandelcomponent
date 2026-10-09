@@ -164,6 +164,73 @@ describe(ZakenService.name, () => {
     });
   });
 
+  describe("updateZaak", () => {
+    it("addresses the zaak by its uuid and sends only the changed zaakgegevens with the reden", async () => {
+      const request = service.updateZaak("fakeZaakUuid").mutationFn!(
+        { zaak: { omschrijving: "fakeOmschrijving" }, reden: "fakeReden" },
+        fromPartial<MutationFunctionContext>({}),
+      );
+      const httpRequest = httpTestingController.expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid",
+      );
+      httpRequest.flush({});
+
+      expect(httpRequest.request.method).toBe("PATCH");
+      expect(httpRequest.request.body).toEqual({
+        zaak: { omschrijving: "fakeOmschrijving" },
+        reden: "fakeReden",
+      });
+      await request;
+    });
+  });
+
+  describe.each([
+    [
+      "suspendZaak",
+      () => service.suspendZaak("fakeZaakUuid"),
+      "msg.zaak.opgeschort",
+    ],
+    ["resumeZaak", () => service.resumeZaak("fakeZaakUuid"), "msg.zaak.hervat"],
+    ["afbreken", () => service.afbreken("fakeZaakUuid"), "msg.zaak.afgebroken"],
+    ["heropenen", () => service.heropenen("fakeZaakUuid"), "msg.zaak.heropend"],
+  ])("%s", (_name, createMutation, message) => {
+    it(`confirms the change with ${message}`, async () => {
+      await createMutation().onSuccess?.(
+        fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid" }),
+        fromPartial({}),
+        undefined,
+        fromPartial<MutationFunctionContext>({}),
+      );
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(message);
+    });
+  });
+
+  describe("ontkoppelZaak", () => {
+    const unlinkData: GeneratedType<"RestZaakUnlinkData"> = {
+      zaakUuid: "fakeZaakUuid",
+      gekoppeldeZaakIdentificatie: "ZAAK-002",
+      relatieType: "GERELATEERD",
+      reden: "fakeReden",
+    };
+
+    it("refetches the zaak it unlinked from, because the server answers without it", async () => {
+      const invalidateZaak = jest.spyOn(service, "invalidateZaak");
+
+      await runMutationOnSuccess(service.ontkoppelZaak(), unlinkData);
+
+      expect(invalidateZaak).toHaveBeenCalledWith("fakeZaakUuid");
+    });
+
+    it("confirms the unlinking", async () => {
+      await runMutationOnSuccess(service.ontkoppelZaak(), unlinkData);
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.zaak.ontkoppelen.uitgevoerd",
+      );
+    });
+  });
+
   describe("deleteBetrokkene", () => {
     it("addresses the rol by its uuid and sends the reden as the body", async () => {
       const request = service.deleteBetrokkene().mutationFn!(
@@ -181,7 +248,11 @@ describe(ZakenService.name, () => {
   });
 
   describe.each([
-    ["updateMutation", () => service.updateMutation()],
+    ["updateZaak", () => service.updateZaak("fakeZaakUuid1")],
+    ["suspendZaak", () => service.suspendZaak("fakeZaakUuid1")],
+    ["resumeZaak", () => service.resumeZaak("fakeZaakUuid1")],
+    ["afbreken", () => service.afbreken("fakeZaakUuid1")],
+    ["heropenen", () => service.heropenen("fakeZaakUuid1")],
     ["verlengenZaak", () => service.verlengenZaak("fakeZaakUuid1")],
     ["updateZaakLocatie", () => service.updateZaakLocatie("fakeZaakUuid1")],
     ["afsluitenMutation", () => service.afsluitenMutation("fakeZaakUuid1")],

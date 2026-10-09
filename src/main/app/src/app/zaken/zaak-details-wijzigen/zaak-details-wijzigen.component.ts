@@ -123,7 +123,7 @@ export class CaseDetailsEditComponent implements OnInit {
   );
 
   protected readonly updateZaakMutation = injectMutation(
-    () => this.zakenService.updateMutation(),
+    () => this.zakenService.updateZaak(this.zaak().uuid),
     {
       onSuccess: () => {
         void this.sideNav().close();
@@ -353,7 +353,6 @@ export class CaseDetailsEditComponent implements OnInit {
 
     const value = this.form.getRawValue();
     this.updateZaakMutation.mutate({
-      uuid: this.zaak().uuid,
       reden: value.reden ?? "",
       zaak: {
         groep: value.groep ?? undefined,

@@ -70,15 +70,26 @@ class RestZaakConverter @Inject constructor(
     private val klantClientService: KlantClientService,
     private val zaakService: ZaakService
 ) {
+
     fun toRestZaak(
         zaak: Zaak,
         zaakType: ZaakType,
         zaakRechten: ZaakRechten,
-        loggedInUser: LoggedInUser
+        loggedInUser: LoggedInUser,
+        isZaakSpecifiekGeautoriseerd: Boolean? = null
     ): RestZaak {
         val status = zaak.status?.let { zrcClientService.readStatus(it) }
         val statustype = status?.let { ztcClientService.readStatustype(it.statustype) }
-        return toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statustype)
+
+        return toRestZaak(
+            zaak = zaak,
+            zaakType = zaakType,
+            zaakRechten = zaakRechten,
+            loggedInUser = loggedInUser,
+            status = status,
+            statustype = statustype,
+            isZaakSpecifiekGeautoriseerd = isZaakSpecifiekGeautoriseerd ?: zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
+        )
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
@@ -88,7 +99,8 @@ class RestZaakConverter @Inject constructor(
         zaakRechten: ZaakRechten,
         loggedInUser: LoggedInUser,
         status: Status?,
-        statustype: StatusType?
+        statustype: StatusType?,
+        isZaakSpecifiekGeautoriseerd: Boolean
     ): RestZaak {
         val roles = zrcClientService.listRollen(zaak)
         val groep = zgwApiService.findGroepForZaak(zaak, roles)?.let { rolOrganisatorischeEenheid ->
@@ -110,7 +122,6 @@ class RestZaakConverter @Inject constructor(
         val isZaakdataGearchiveerd = zaakService.setIsZaakdataGearchiveerd(zaak)
         val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
-        val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
         return RestZaak(
             archiefActiedatum = zaak.archiefactiedatum,
             archiefNominatie = zaak.archiefnominatie?.name,
@@ -149,7 +160,7 @@ class RestZaakConverter @Inject constructor(
             isOpgeschort = zaak.isOpgeschort(),
             isProcesGestuurd = bpmnProcessDefinition != null,
             isVerlengd = zaak.isVerlengd(),
-            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
+            isZaakspecifiekGeautoriseerd = isZaakSpecifiekGeautoriseerd,
             kenmerken = zaak.kenmerken?.map { RestZaakKenmerk(it.kenmerk, it.bron) },
             omschrijving = zaak.omschrijving,
             publicatiedatum = zaak.publicatiedatum,

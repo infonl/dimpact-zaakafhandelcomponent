@@ -130,11 +130,8 @@ describe(TaakViewComponent.name, () => {
       ],
     }).compileComponents();
 
-    const actionsSidenav =
-      TestBed.createComponent(MatSidenav).componentInstance;
     fixture = TestBed.createComponent(TaakViewComponent);
     component = fixture.componentRef;
-    component.instance.actionsSidenav = actionsSidenav;
     mockActivatedRoute.data.next({ taak });
     fixture.detectChanges();
 
@@ -332,7 +329,7 @@ describe(TaakViewComponent.name, () => {
       jest
         .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
         .mockReturnValue(undefined);
-      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+      const openSpy = jest.spyOn(component.instance.actionsSidenav(), "open");
 
       component.instance.onDocumentCreate(event);
 
@@ -346,7 +343,7 @@ describe(TaakViewComponent.name, () => {
       jest
         .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
         .mockReturnValue("template-id");
-      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+      const openSpy = jest.spyOn(component.instance.actionsSidenav(), "open");
 
       component.instance.onDocumentCreate(event);
 
@@ -361,7 +358,7 @@ describe(TaakViewComponent.name, () => {
 
   describe(TaakViewComponent.prototype.editTaak.name, () => {
     it("should open the actions sidenav with 'actie.taak.wijzigen'", () => {
-      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+      const openSpy = jest.spyOn(component.instance.actionsSidenav(), "open");
 
       component.instance.editTaak();
 

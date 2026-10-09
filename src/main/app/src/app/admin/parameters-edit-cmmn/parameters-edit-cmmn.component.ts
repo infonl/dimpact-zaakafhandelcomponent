@@ -12,7 +12,7 @@ import {
   input,
   OnDestroy,
   output,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -127,8 +127,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   readonly selectedIndexStart = input<number>(0);
   readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 
-  @ViewChild("smartDocumentsFormRef")
-  smartDocumentsFormComponent!: SmartDocumentsFormComponent;
+  readonly smartDocumentsFormComponent = viewChild<SmartDocumentsFormComponent>(
+    "smartDocumentsFormRef",
+  );
 
   private readonly destroy$ = new Subject<void>();
 
@@ -1042,7 +1043,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
 
     this.parameters.smartDocuments.isEnabledForZaaktype =
-      this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false;
+      this.smartDocumentsFormComponent()?.enabledForZaaktypeValue ?? false;
 
     this.parameters.betrokkeneKoppelingen = {
       isKvkKoppelenEnabled: Boolean(
@@ -1083,8 +1084,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       },
     });
 
-    if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
-      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
+    const smartDocumentsFormComponent = this.smartDocumentsFormComponent();
+    if (smartDocumentsFormComponent?.enabledForZaaktypeValue) {
+      smartDocumentsFormComponent.saveSmartDocumentsMapping();
     }
   }
 

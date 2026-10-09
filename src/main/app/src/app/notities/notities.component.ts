@@ -12,7 +12,7 @@ import {
   input,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";
@@ -59,10 +59,10 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   readonly zaakUuid = input.required<string>();
   readonly notitieRechten = input<GeneratedType<"RestNotitieRechten">>();
 
-  @ViewChild("notitieTekst") notitieTekst!: {
+  readonly notitieTekst = viewChild<{
     nativeElement: HTMLTextAreaElement;
-  };
-  @ViewChild("scrollTarget") scrollTarget!: ElementRef;
+  }>("notitieTekst");
+  readonly scrollTarget = viewChild<ElementRef>("scrollTarget");
 
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -72,11 +72,22 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     {
       onSuccess: (notitie) => {
         this.notities.splice(0, 0, notitie);
-        this.notitieTekst.nativeElement.value = "";
-        this.scrollTarget.nativeElement.scrollIntoView({
+        const notitieTekst = this.notitieTekst();
+        if (notitieTekst) notitieTekst.nativeElement.value = "";
+        this.scrollTarget()?.nativeElement.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
+      },
+    },
+  );
+  private readonly updateNotitieMutation = injectMutation(
+    () => this.notitieService.updateNotitie(),
+    {
+      onSuccess: (updatedNotitie, { id }) => {
+        const notitie = this.notities.find((candidate) => candidate.id === id);
+        if (notitie) Object.assign(notitie, updatedNotitie);
+        this.geselecteerdeNotitieId = null;
       },
     },
   );
@@ -156,20 +167,16 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
 
-    this.notitieService
-      .updateNotitie({
-        ...notitie,
-        tekst,
-        gebruikersnaamMedewerker: loggedInUser.id,
-      })
-      .subscribe((updatedNotitie) => {
-        Object.assign(notitie, updatedNotitie);
-        this.geselecteerdeNotitieId = null;
-      });
+    this.updateNotitieMutation.mutate({
+      ...notitie,
+      tekst,
+      gebruikersnaamMedewerker: loggedInUser.id,
+    });
   }
 
   protected annuleerUpdateNotitie() {
-    this.notitieTekst.nativeElement.value = "";
+    const notitieTekst = this.notitieTekst();
+    if (notitieTekst) notitieTekst.nativeElement.value = "";
     this.geselecteerdeNotitieId = null;
   }
 

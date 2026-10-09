@@ -20,9 +20,8 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
-  QueryList,
-  ViewChild,
-  ViewChildren,
+  viewChild,
+  viewChildren,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButton, MatIconButton } from "@angular/material/button";
@@ -40,7 +39,7 @@ import { MatSlideToggle } from "@angular/material/slide-toggle";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectIsFetching } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { forkJoin, Subscription } from "rxjs";
+import { forkJoin } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { injectMutation } from "../shared/http/inject-mutation";
@@ -97,14 +96,15 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   ],
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
-  @ViewChildren("cardElement", { read: ElementRef })
-  cardElements!: QueryList<ElementRef<HTMLElement>>;
+  readonly menuTrigger = viewChild(MatMenuTrigger);
+  readonly cardElements = viewChildren<string, ElementRef<HTMLElement>>(
+    "cardElement",
+    { read: ElementRef },
+  );
 
   private readonly fetchingCount = injectIsFetching();
 
   private resizeObserver?: ResizeObserver;
-  private cardElementsChangesSub?: Subscription;
   private syncScheduled = false;
   private suppressObserverUntil = 0;
   private pendingSyncTimer?: ReturnType<typeof setTimeout>;
@@ -184,6 +184,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
   ) {
     effect(() => {
+      this.cardElements();
+      this.observeCards();
+    });
+    effect(() => {
       if (this.fetchingCount() === 0) {
         this.scheduleRowSync();
       }
@@ -217,15 +221,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.scheduleRowSync();
     });
     this.observeCards();
-    this.cardElementsChangesSub = this.cardElements.changes.subscribe(() =>
-      this.observeCards(),
-    );
     window.addEventListener("resize", this.onWindowResize);
   }
 
   ngOnDestroy() {
     this.resizeObserver?.disconnect();
-    this.cardElementsChangesSub?.unsubscribe();
     if (this.pendingSyncTimer) clearTimeout(this.pendingSyncTimer);
     window.removeEventListener("resize", this.onWindowResize);
   }
@@ -233,7 +233,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private observeCards() {
     if (!this.resizeObserver) return;
     this.resizeObserver.disconnect();
-    this.cardElements.forEach((ref) =>
+    this.cardElements().forEach((ref) =>
       this.resizeObserver!.observe(ref.nativeElement),
     );
     this.scheduleRowSync();
@@ -254,15 +254,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private syncRowHeights() {
-    if (!this.cardElements) return;
-
     // Suppress row height synchronization while global loading is active.
     // This prevents the layout from prematurely measuring empty cards and jumping once data populates.
     if (this.fetchingCount() > 0) {
       return;
     }
 
-    const elements = this.cardElements.toArray().map((r) => r.nativeElement);
+    const elements = this.cardElements().map((r) => r.nativeElement);
 
     if (this.isStackedLayout()) {
       elements.forEach((element) => (element.style.minHeight = ""));
@@ -418,7 +416,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   hint() {
     this.editMode.setValue(true);
     setTimeout(() => {
-      this.menuTrigger.openMenu();
+      this.menuTrigger()?.openMenu();
     }, 666);
   }
 

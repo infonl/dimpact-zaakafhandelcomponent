@@ -98,15 +98,6 @@ class ZaaktypeConfigurationRestService @Inject constructor(
         return caseDefinitionConverter.convertToRestCaseDefinition(caseDefinitionKey, true)
     }
 
-    /**
-     * Retrieve all zaaktype configurations (=zaakafhandelparameters) for all available zaaktypes in the zaakregister.
-     * Note that the current implementation is very simplistic and will only retrieve the 100 most recently updated zaaktypes
-     * from the ZTC zaakregister (this is including zaaktype 'versions').
-     * This is a known limitation of the used ZGW ZTC API request.
-     * In future a completely different solution with pagination and possibly the use of Solr is required in ZAC.
-     *
-     * @return list of all zaaktype configurations with a maximum of 100
-     */
     @GET
     fun listZaaktypeConfigurations(): List<RestZaaktypeConfiguration> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
@@ -115,11 +106,6 @@ class ZaaktypeConfigurationRestService @Inject constructor(
             .map { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, false) }
     }
 
-    /**
-     * Retrieve the zaaktype configuration for a zaaktype by uuid.
-     *
-     * @return zaaktype configuration
-     */
     @GET
     @Path("{zaaktypeUUID}")
     fun readZaaktypeConfiguration(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaaktypeConfiguration {
@@ -143,7 +129,6 @@ class ZaaktypeConfigurationRestService @Inject constructor(
         @Valid restZaaktypeConfiguration: RestZaaktypeConfiguration
     ): RestZaaktypeConfiguration {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-
         restZaaktypeConfiguration.productaanvraagtype?.also { productaanvraagtype ->
             zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
                 productaanvraagtype = productaanvraagtype,

@@ -8,7 +8,6 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -221,16 +220,6 @@ describe(ZaakViewComponent.name, () => {
     TestBed.inject(MatDialog);
 
     fixture = TestBed.createComponent(ZaakViewComponent);
-
-    fixture.componentInstance.actionsSidenav = fromPartial<MatSidenav>({
-      close: jest.fn(),
-      open: jest.fn(),
-    });
-    fixture.componentInstance.sideNavContainer =
-      fromPartial<MatSidenavContainer>({
-        hasBackdrop: false,
-        updateContentMargins: jest.fn(),
-      });
   });
 
   describe("zaak historie invalidation", () => {

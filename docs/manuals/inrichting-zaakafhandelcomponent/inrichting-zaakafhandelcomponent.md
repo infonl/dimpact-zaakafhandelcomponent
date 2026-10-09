@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 24-09-2026 <br>
-> Versie :   1.16 <br>
-> Verandering : BRP-autorisatie <br>
+> Datum : 06-10-2026 <br>
+> Versie :   1.17 <br>
+> Verandering : Zaakspecifieke autorisatie <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -20,6 +20,7 @@ Versiegeschiedenis:
 | 1.14 | ZAC versie 5.0.0   |
 | 1.15 | ZAC versie 5.5.0   |
 | 1.16 | ZAC versie 5.9.0   |
+| 1.17 | Zaakspecifieke autorisatie |
 
 # Inhoud
 
@@ -39,6 +40,7 @@ Versiegeschiedenis:
   - [Identiteits- en toegangsbeheer](#identiteits--en-toegangsbeheer)
     - [IAM-architectuur](#iam-architectuur)
     - [BRP-autorisatie](#brp-autorisatie)
+    - [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie)
     - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
     - [Groepen](#groepen)
   - [Zaakdata bekijken](#zaakdata-bekijken)
@@ -238,6 +240,7 @@ Voor nu worden de volgende onderdelen gecheckt:
 - Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel 'Initiator' en 'Behandelaar' die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. ZAC vereist precies één roltype 'Initiator' en één roltype 'Behandelaar'. Het roltype 'Behandelaar' moet de volgende eigenschappen hebben: Betrokkene type 'Medewerker', Omschrijving generiek 'Behandelaar' én Omschrijving 'Behandelaar'. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan een zaak.
 - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
 - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
+- Zaakspecifieke autorisatie | ZAC controleert of het zaaktype de eigenschap `ZAAK_GEAUTORISEERD` en het roltype 'Zaakspecifiek geautoriseerde medewerker' heeft. Heeft het zaaktype maar één van de twee, dan toont de check een waarschuwing. Het zaaktype blijft dan bruikbaar. Zie sectie [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie).
 - BRP | ZAC controleert de referentietabellen BRP_DOELBINDING_ZOEK_WAARDE, BRP_DOELBINDING_RAADPLEEG_WAARDE en BRP_VERWERKINGSREGISTER_WAARDE. Elke tabel moet minimaal één waarde hebben. Elke waarde mag alleen ASCII-tekens bevatten. Anders toont de check 'Onjuiste BRP-headerwaarde' bij elk zaaktype. Zie sectie [Doelbinding en protocollering](#doelbinding-en-protocollering).
 
 #### Roltypen
@@ -247,6 +250,8 @@ ZAC zoekt naar een roltype met behulp van één van deze velden:
 ![OpenZaak roltype velden](images/90beb6d0-8b0e-4462-9f86-5cae079e602f.png)
 
 ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor een roltype zowel het `Omschrijving` als het `Omschrijving generiek` veld gevuld is dan wordt het `Omschrijving` veld gebruikt.
+
+Het roltype 'Zaakspecifiek geautoriseerde medewerker' heeft ook de omschrijving generiek 'Behandelaar'. ZAC beschouwt dit roltype echter niet als het roltype 'Behandelaar', omdat de omschrijving anders is. Zie sectie [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie).
 
 **Let op:** voor het roltype 'Behandelaar' vereist ZAC dat zowel het veld `Omschrijving generiek` op 'Behandelaar' staat als het veld `Omschrijving` de exacte waarde 'Behandelaar' heeft. Als een gemeente een andere omschrijving gebruikt (bijv. 'Behandelaar domein X'), dan moet dit aangepast worden naar 'Behandelaar'.
 
@@ -351,6 +356,10 @@ ZAC kent op dit moment de volgende applicatierollen:
 * `recordmanager`
 * `beheerder`
 * `brp_zoeken`
+* `zaakspecifiek_geautoriseerd`
+
+De applicatierollen `brp_zoeken` en `zaakspecifiek_geautoriseerd` geven geen toegang tot ZAC zonder (minstens) één van de andere basis applicatierollen.
+Zie de secties [BRP-autorisatie](#brp-autorisatie) en [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie).
 
 De PABC wordt gebruikt om functionele rollen te autoriseren door vanuit functionele rollen koppelingen
 te maken naar combinaties van entiteitstypes (zoals zaaktypen) en applicatierollen.
@@ -611,6 +620,101 @@ Richt de drie referentietabellen als volgt in:
 | ZAC vindt een persoon niet bij zoeken op BSN.                               | De medewerker zoekt binnengemeentelijk en de persoon is ingeschreven in een andere gemeente.                               |
 | De inrichtingscheck toont 'Onjuiste BRP-headerwaarde'.                      | Een van de drie BRP-referentietabellen is leeg, of een waarde bevat een teken dat geen ASCII-teken is.                     |
 | De zaakafhandelparameters tonen geen keuzes voor de doelbinding.            | De doelbinding per zaaktype staat uit, of 'Basisregistratie personen (persoonsgegevens) koppelen' staat uit bij het zaaktype. |
+
+### Zaakspecifieke autorisatie
+
+Een behandelaar kan een zaak zaakspecifiek autoriseren.
+Alleen een beperkte groep medewerkers heeft toegang tot een zaakspecifiek geautoriseerde zaak.
+Andere medewerkers met een applicatierol voor het zaaktype hebben geen toegang.
+Gebruik dit bijvoorbeeld voor een zaak met gevoelige informatie.
+De gebruikershandleiding beschrijft hoe een medewerker een zaak zaakspecifiek autoriseert.
+Deze sectie beschrijft wat een beheerder moet inrichten.
+
+Twee componenten bepalen samen of een medewerker een zaakspecifiek geautoriseerde zaak mag zien:
+
+| Component                  | Wat wordt ingericht                                                                                    | Door wie                |
+|----------------------------|--------------------------------------------------------------------------------------------------------|-------------------------|
+| Zaaktypecatalogus (Open Zaak) | De zaakeigenschap `ZAAK_GEAUTORISEERD` en het roltype 'Zaakspecifiek geautoriseerde medewerker' per zaaktype | Functioneel beheerder |
+| Keycloak en de PABC        | Welke medewerkers de applicatierol `zaakspecifiek_geautoriseerd` hebben, en voor welke zaaktypen        | Functioneel beheerder   |
+
+#### Wie heeft toegang tot een zaakspecifiek geautoriseerde zaak
+
+Een medewerker heeft toegang tot een zaakspecifiek geautoriseerde zaak als minimaal één van deze voorwaarden geldt:
+
+1. De medewerker heeft de applicatierol `zaakspecifiek_geautoriseerd` voor het zaaktype van de zaak.
+   Deze medewerker heeft toegang tot alle zaakspecifiek geautoriseerde zaken van dat zaaktype.
+2. De medewerker is de huidige behandelaar van de zaak.
+3. De medewerker heeft op de zaak de rol 'Zaakspecifiek geautoriseerde medewerker'.
+   ZAC geeft deze rol aan de vorige behandelaar als een zaakspecifiek geautoriseerde zaak een andere behandelaar krijgt.
+
+De voorwaarden 2 en 3 gelden alleen voor die ene zaak, niet voor andere zaakspecifiek geautoriseerde zaken van hetzelfde zaaktype.
+
+De toegang geeft zelf geen rechten.
+De medewerker heeft altijd ook een basis-applicatierol voor het zaaktype nodig: `raadpleger`, `behandelaar`, `coordinator`, `recordmanager` of `beheerder`.
+De rechten van die basisrol gelden dan ook voor de zaakspecifiek geautoriseerde zaak.
+Bijvoorbeeld: een medewerker met `raadpleger` en `zaakspecifiek_geautoriseerd` mag de zaak raadplegen, maar niet wijzigen.
+
+De toegang geldt ook voor de taken en documenten van de zaak, en voor de werklijsten en de zoekresultaten.
+Een medewerker zonder toegang ziet de zaak, de taken en de documenten van de zaak nergens in ZAC.
+
+> Let op! Ook een `beheerder` of `recordmanager` heeft de applicatierol `zaakspecifiek_geautoriseerd` nodig om zaakspecifiek geautoriseerde zaken te zien.
+
+#### Zaaktypecatalogus inrichten
+
+Een zaaktype is zaakspecifiek autoriseerbaar als het zaaktype in de zaaktypecatalogus beide onderdelen heeft:
+
+- Een eigenschap met de naam `ZAAK_GEAUTORISEERD`.
+  ZAC slaat bij een zaakspecifiek geautoriseerde zaak de waarde `true` op in deze zaakeigenschap.
+  Gebruik als formaat `tekst`, met lengte 5 en de waardenverzameling `true` en `false`.
+- Een roltype met deze eigenschappen:
+  - Omschrijving: exact 'Zaakspecifiek geautoriseerde medewerker'
+  - Omschrijving generiek: 'Behandelaar'
+  - Betrokkene type: 'Medewerker'
+
+ZAC gebruikt het roltype voor de medewerkers die toegang houden tot de zaak, zoals de vorige behandelaar.
+Medewerkers met dit roltype verschijnen niet in het tabblad 'Betrokkenen' van de zaak, en een medewerker kan ze daar niet ontkoppelen.
+
+Synchroniseer de zaaktypecatalogus na de wijziging. Zie sectie [Zaaktypecatalogus synchronisatie](#zaaktypecatalogus-synchronisatie).
+
+In de zaakafhandelparameters van het zaaktype toont het veld 'Zaakspecifiek autoriseerbaar' of het zaaktype zaakspecifiek autoriseerbaar is ('Ja' of 'Nee').
+De beheerder kan dit veld niet wijzigen. ZAC bepaalt de waarde uit de zaaktypecatalogus.
+
+![Zaakafhandelparameters zaakspecifiek autoriseerbaar](images/zaps_zaakspecifiek_autoriseerbaar.png)
+
+##### Waarschuwing in de inrichtingscheck
+
+Als het zaaktype maar één van de twee onderdelen heeft, dan toont de [inrichtingscheck](#zaaktype-inrichtingscheck) een waarschuwing.
+Het zaaktype blijft bruikbaar, maar de zaakspecifieke autorisatie werkt niet volledig:
+
+| Ontbreekt                                          | Gevolg                                                                                                   |
+|----------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| Roltype 'Zaakspecifiek geautoriseerde medewerker'  | Een medewerker kan een zaakspecifiek geautoriseerde zaak niet aan een andere behandelaar overdragen.     |
+| Eigenschap `ZAAK_GEAUTORISEERD`                    | Een medewerker kan zaken van dit zaaktype niet zaakspecifiek autoriseren.                                |
+
+![Inrichtingscheck waarschuwing zaakspecifieke autorisatie](images/inrichtingscheck_zaakspecifieke_autorisatie.png)
+
+#### Keycloak en PABC inrichten
+
+Richt de applicatierol `zaakspecifiek_geautoriseerd` in zoals de andere applicatierollen.
+Zie sectie [IAM-architectuur](#iam-architectuur).
+
+1. Voeg in de PABC de applicatierol `zaakspecifiek_geautoriseerd` toe aan de applicatie `zaakafhandelcomponent`, als deze nog niet bestaat.
+2. Maak in Keycloak een functionele rol aan, bijvoorbeeld 'zaakspecifiek_geautoriseerd_vergunningen'.
+   Ken de functionele rol toe aan de groep(en) van de medewerkers die alle zaakspecifiek geautoriseerde zaken mogen zien.
+3. Voeg in de PABC de functionele rol toe en maak een autorisatie-koppeling met de applicatierol `zaakspecifiek_geautoriseerd` voor het domein met de zaaktypen.
+4. Controleer dat de medewerkers ook een basis-applicatierol hebben voor dezelfde zaaktypen.
+
+Zonder deze koppeling hebben alleen de behandelaar en de medewerkers met de rol 'Zaakspecifiek geautoriseerde medewerker' toegang tot een zaakspecifiek geautoriseerde zaak.
+
+> Let op! Een medewerker die alleen de applicatierol `zaakspecifiek_geautoriseerd` heeft, en geen basis-applicatierol, kan zich niet aanmelden in ZAC.
+
+#### Problemen oplossen
+
+| Probleem                                                                                   | Mogelijke oorzaak                                                                                                                  |
+|--------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| De medewerker ziet het vinkje 'Zaak zaakspecifiek autoriseren' niet.                        | Het zaaktype heeft niet zowel de eigenschap `ZAAK_GEAUTORISEERD` als het roltype 'Zaakspecifiek geautoriseerde medewerker', of de catalogus is niet gesynchroniseerd. |
+| De medewerker kan een zaak niet aan een andere behandelaar overdragen.                     | Het roltype 'Zaakspecifiek geautoriseerde medewerker' ontbreekt in de catalogus van het zaaktype.                                  |
+| Een medewerker met de applicatierol `zaakspecifiek_geautoriseerd` ziet de zaak niet.        | De medewerker heeft geen basis-applicatierol voor het zaaktype, de koppeling geldt voor een ander domein, of de medewerker meldde zich niet opnieuw aan na de wijziging. |
 
 ### Migratie van de oude naar de nieuwe IAM-architectuur
 

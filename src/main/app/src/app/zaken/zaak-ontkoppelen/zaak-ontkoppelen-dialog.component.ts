@@ -18,6 +18,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -38,7 +39,6 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class ZaakOntkoppelenDialogComponent {
-  protected loading = false;
   protected readonly form = this.formBuilder.group({
     reden: this.formBuilder.control<string>("", [
       Validators.required,
@@ -54,16 +54,23 @@ export class ZaakOntkoppelenDialogComponent {
     private readonly formBuilder: FormBuilder,
   ) {}
 
+  protected readonly ontkoppelZaakMutation = injectMutation(
+    () => this.zakenService.ontkoppelZaak(),
+    {
+      onSuccess: () => {
+        this.dialogRef.close(true);
+      },
+      onError: () => {
+        this.dialogRef.disableClose = false;
+      },
+    },
+  );
+
   protected ontkoppel() {
     this.dialogRef.disableClose = true;
-    this.loading = true;
-    this.zakenService
-      .ontkoppelZaak({
-        ...this.data,
-        reden: this.form.value.reden!,
-      })
-      .subscribe(() => {
-        this.dialogRef.close(true);
-      });
+    this.ontkoppelZaakMutation.mutate({
+      ...this.data,
+      reden: this.form.value.reden!,
+    });
   }
 }

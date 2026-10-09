@@ -153,8 +153,8 @@ describe(InformatieobjectenCardComponent.name, () => {
   });
 
   it("wires up sort and paginator on the dataSource after view init", () => {
-    expect(component.dataSource.sort).toBe(component.sort);
-    expect(component.dataSource.paginator).toBe(component.paginator);
+    expect(component.dataSource.sort).toBe(component.sort());
+    expect(component.dataSource.paginator).toBe(component.paginator());
   });
 
   it("reorders rows ascending then descending when the titel sort header is clicked", async () => {

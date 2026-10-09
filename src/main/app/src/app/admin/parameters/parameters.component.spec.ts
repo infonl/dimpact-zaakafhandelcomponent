@@ -75,10 +75,13 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
         .spyOn(SessionStorageUtil, "setItem")
         .mockImplementation(jest.fn());
 
-      const component = new ParametersComponent(
-        fromPartial<UtilService>({}),
-        fromPartial<ConfiguratieService>({}),
-        fromPartial<ZaakafhandelParametersService>({}),
+      const component = TestBed.runInInjectionContext(
+        () =>
+          new ParametersComponent(
+            fromPartial<UtilService>({}),
+            fromPartial<ConfiguratieService>({}),
+            fromPartial<ZaakafhandelParametersService>({}),
+          ),
       );
 
       component["storedParameterFilters"] = "test-key";
@@ -111,10 +114,13 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
 
 describe(`${ParametersComponent.name} compare functions`, () => {
   const makeComponent = () =>
-    new ParametersComponent(
-      fromPartial<UtilService>({}),
-      fromPartial<ConfiguratieService>({}),
-      fromPartial<ZaakafhandelParametersService>({}),
+    TestBed.runInInjectionContext(
+      () =>
+        new ParametersComponent(
+          fromPartial<UtilService>({}),
+          fromPartial<ConfiguratieService>({}),
+          fromPartial<ZaakafhandelParametersService>({}),
+        ),
     );
 
   describe("compareZaaktype", () => {

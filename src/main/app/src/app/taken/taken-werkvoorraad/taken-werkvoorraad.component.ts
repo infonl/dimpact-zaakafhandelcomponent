@@ -20,7 +20,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { MatBadge } from "@angular/material/badge";
 import {
@@ -55,6 +55,7 @@ import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werkli
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -116,9 +117,9 @@ export class TakenWerkvoorraadComponent
 {
   protected selection = new SelectionModel<TaakZoekObject>(true, []);
   protected dataSource: TakenWerkvoorraadDatasource;
-  @ViewChild(MatPaginator) private paginator!: MatPaginator;
-  @ViewChild(MatSort) private sort!: MatSort;
-  @ViewChild(MatTable) private table!: MatTable<TaakZoekObject>;
+  private readonly paginator = viewChild.required(MatPaginator);
+  private readonly sort = viewChild.required(MatSort);
+  private readonly table = viewChild.required(MatTable);
   protected expandedRow: TaakZoekObject | null = null;
   protected readonly zoekenColumn = ZoekenColumn;
 
@@ -138,6 +139,22 @@ export class TakenWerkvoorraadComponent
 
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
+  );
+  private readonly assignToMeMutation = injectMutation(
+    () => this.takenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+    {
+      onSuccess: ({ behandelaar }, { taakId }) => {
+        if (!behandelaar) return;
+
+        const taakZoekObject = this.dataSource.data.find(
+          ({ id }) => id === taakId,
+        );
+        if (!taakZoekObject) return;
+
+        taakZoekObject.behandelaarNaam = behandelaar.naam;
+        taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
+      },
+    },
   );
 
   constructor(
@@ -165,8 +182,8 @@ export class TakenWerkvoorraadComponent
   }
 
   ngAfterViewInit() {
-    this.dataSource.setViewChilds(this.paginator, this.sort);
-    this.table.dataSource = this.dataSource;
+    this.dataSource.setViewChilds(this.paginator(), this.sort());
+    this.table().dataSource = this.dataSource;
   }
 
   protected showAssignToMe(taakZoekObject: TaakZoekObject) {
@@ -180,21 +197,11 @@ export class TakenWerkvoorraadComponent
 
   protected assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
     event.stopPropagation();
-    this.takenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst({
-        taakId: taakZoekObject.id,
-        zaakUuid: taakZoekObject.zaakUuid,
-        groepId: null as unknown as string,
-      })
-      .subscribe(({ behandelaar }) => {
-        if (!behandelaar) return;
-
-        taakZoekObject.behandelaarNaam = behandelaar.naam;
-        taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
-        this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: behandelaar.naam,
-        });
-      });
+    this.assignToMeMutation.mutate({
+      taakId: taakZoekObject.id,
+      zaakUuid: taakZoekObject.zaakUuid,
+      groepId: null as unknown as string,
+    });
   }
 
   protected isAllSelected(): boolean {

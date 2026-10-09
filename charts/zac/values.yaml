@@ -299,7 +299,8 @@ podSecurityContext:
 # -- generic security context
 securityContext:
   runAsNonRoot: true
-  runAsUser: 1001
+  runAsUser: 10001
+  runAsGroup: 10001
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   capabilities:
@@ -397,6 +398,9 @@ initContainer:
   enabled: true
    # -- Security context for the curl-based init containers (read-only root filesystem is safe here)
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
@@ -406,6 +410,8 @@ initContainer:
   resources:
     requests:
       cpu: 50m
+      memory: 256Mi
+    limits:
       memory: 256Mi
 
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
@@ -429,16 +435,11 @@ opa:
     enabled: false
   replicas: 1
   resources:
-     # We usually recommend not to specify default resources and to leave this as a conscious
-     # choice for the user. This also increases chances charts run on environments with little
-     # resources, such as Minikube. If you do want to specify resources, uncomment the following
-     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-     # limits:
-     #   cpu: 100m
-     #   memory: 128Mi
     requests:
       cpu: 10m
       memory: 20Mi
+    limits:
+      memory: 128Mi
   podAnnotations: {}
   imagePullSecrets: []
   podSecurityContext:
@@ -447,7 +448,8 @@ opa:
    # -- container security context applied to the OPA container in both sidecar and standalone modes
   securityContext:
     runAsNonRoot: true
-    runAsUser: 1000
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
@@ -680,16 +682,11 @@ office_converter:
     CHROMIUM_DISABLE_ROUTES: "true"
     API_ENABLE_BASIC_AUTH: "true"
   resources:
-     # We usually recommend not to specify default resources and to leave this as a conscious
-     # choice for the user. This also increases chances charts run on environments with little
-     # resources, such as Minikube. If you do want to specify resources, uncomment the following
-     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-     # limits:
-     #   cpu: 100m
-     #   memory: 128Mi
     requests:
       cpu: 100m
       memory: 512Mi
+    limits:
+      memory: 1Gi
    # -- Container port the office-converter listens on. Gotenberg default is 3000;
    # override to 8080 if using an alternative image (e.g. kontextwork-converter).
   containerPort: 3000
@@ -703,6 +700,9 @@ office_converter:
     seccompProfile:
       type: RuntimeDefault
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
@@ -785,7 +785,12 @@ nginx:
     timeoutSeconds: 5
     failureThreshold: 3
     successThreshold: 1
-  resources: {}
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
   useXForwardedHost: false
   allowedHosts: ""
    # -- Has to allow at least `maxFileSizeMB` plus multipart overhead.

@@ -3,21 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
-import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
-import { testQueryClient } from "../../../../setupJest";
+import { render, screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
+import { sleep } from "../../../../setupJest";
+import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../zaken.service";
 import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen-dialog.component";
 
 const dialogData: Omit<GeneratedType<"RestZaakUnlinkData">, "reden"> = {
@@ -26,115 +21,121 @@ const dialogData: Omit<GeneratedType<"RestZaakUnlinkData">, "reden"> = {
   relatieType: "GERELATEERD",
 };
 
-const setup = () => {
-  const dialogRefMock = { close: jest.fn(), disableClose: false };
-  TestBed.configureTestingModule({
-    imports: [
-      ZaakOntkoppelenDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
-    providers: [
-      provideHttpClient(),
-      provideRouter([]),
-      provideQueryClient(testQueryClient),
-      { provide: MAT_DIALOG_DATA, useValue: dialogData },
-      { provide: MatDialogRef, useValue: dialogRefMock },
-    ],
-  });
-  const zakenService = TestBed.inject(ZakenService);
-  const fixture: ComponentFixture<ZaakOntkoppelenDialogComponent> =
-    TestBed.createComponent(ZaakOntkoppelenDialogComponent);
-  fixture.detectChanges();
-  return {
-    fixture,
-    component: fixture.componentInstance,
-    zakenService,
-    dialogRefMock,
-  };
-};
-
 describe(ZaakOntkoppelenDialogComponent.name, () => {
-  it("renders the dialog title", async () => {
-    const { fixture } = setup();
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    const toolbar = await loader.getHarness(MatToolbarHarness);
-    expect(await (await toolbar.host()).text()).toContain(
-      "title.zaak.ontkoppelen",
-    );
-  });
+  let dialogRef: { close: jest.Mock; disableClose: boolean };
+  let httpTestingController: HttpTestingController;
+  let fixture: ComponentFixture<ZaakOntkoppelenDialogComponent>;
 
-  it("disables the submit button when the form is invalid", async () => {
-    const { fixture } = setup();
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    const button = await loader.getHarness(
-      MatButtonHarness.with({ selector: "button[type='submit']" }),
-    );
-    expect(await button.isDisabled()).toBe(true);
-  });
+  async function setup() {
+    dialogRef = { close: jest.fn(), disableClose: false };
 
-  it("enables the submit button when reden is filled in", async () => {
-    const { fixture, component } = setup();
-    component["form"].controls.reden.setValue("reden tekst");
-    fixture.detectChanges();
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    const button = await loader.getHarness(
-      MatButtonHarness.with({ selector: "button[type='submit']" }),
-    );
-    expect(await button.isDisabled()).toBe(false);
-  });
+    ({ fixture } = await render(ZaakOntkoppelenDialogComponent, {
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        { provide: MAT_DIALOG_DATA, useValue: dialogData },
+        { provide: MatDialogRef, useValue: dialogRef },
+      ],
+    }));
 
-  it("disables the submit button when loading", async () => {
-    const { fixture, component } = setup();
-    component["loading"] = true;
-    fixture.detectChanges();
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    const button = await loader.getHarness(
-      MatButtonHarness.with({ selector: "button[type='submit']" }),
-    );
-    expect(await button.isDisabled()).toBe(true);
-  });
-
-  it("shows spinner when loading", async () => {
-    const { fixture, component } = setup();
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    component["loading"] = true;
-    fixture.detectChanges();
-    const spinners = await loader.getAllHarnesses(MatProgressSpinnerHarness);
-    expect(spinners.length).toBeGreaterThan(0);
-  });
-
-  it("calls ontkoppelZaak and closes dialog on submit", () => {
-    const { component, zakenService, dialogRefMock } = setup();
+    httpTestingController = TestBed.inject(HttpTestingController);
     jest
-      .spyOn(zakenService, "ontkoppelZaak")
-      .mockReturnValue(of(undefined) as never);
-    component["form"].controls.reden.setValue("mijn reden");
-    component["ontkoppel"]();
-    expect(zakenService.ontkoppelZaak).toHaveBeenCalledWith({
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockImplementation();
+  }
+
+  function ontkoppelenButton() {
+    return screen.getByRole("button", { name: "actie.ontkoppelen" });
+  }
+
+  async function ontkoppel(reden: string) {
+    const user = userEvent.setup();
+    await user.type(screen.getByRole("textbox"), reden);
+    await user.click(ontkoppelenButton());
+    await sleep();
+    fixture.detectChanges();
+  }
+
+  it("renders the dialog title", async () => {
+    await setup();
+    expect(
+      screen.getByRole("heading", { name: /title.zaak.ontkoppelen/ }),
+    ).toBeVisible();
+  });
+
+  it("does not offer to unlink before a reden is given", async () => {
+    await setup();
+    expect(ontkoppelenButton()).toBeDisabled();
+  });
+
+  it("offers to unlink once a reden is given", async () => {
+    await setup();
+    await userEvent.setup().type(screen.getByRole("textbox"), "reden tekst");
+
+    expect(ontkoppelenButton()).toBeEnabled();
+  });
+
+  it("unlinks the zaak with the given reden", async () => {
+    await setup();
+    await ontkoppel("mijn reden");
+
+    const request = httpTestingController.expectOne(
+      "/rest/zaken/zaak/ontkoppel",
+    );
+    expect(request.request.method).toBe("PATCH");
+    expect(request.request.body).toEqual({
       ...dialogData,
       reden: "mijn reden",
     });
-    expect(dialogRefMock.close).toHaveBeenCalledWith(true);
+  });
+
+  it("refuses a second click while the unlinking is in flight", async () => {
+    await setup();
+    await ontkoppel("mijn reden");
+
+    expect(ontkoppelenButton()).toBeDisabled();
+    httpTestingController.expectOne("/rest/zaken/zaak/ontkoppel");
+  });
+
+  it("closes the dialog once the zaak is unlinked", async () => {
+    await setup();
+    await ontkoppel("mijn reden");
+
+    httpTestingController
+      .expectOne("/rest/zaken/zaak/ontkoppel")
+      .flush(null, { status: 204, statusText: "No Content" });
+    await sleep();
+
+    expect(dialogRef.close).toHaveBeenCalledWith(true);
+  });
+
+  it("lets the user close the dialog again when unlinking fails", async () => {
+    await setup();
+    await ontkoppel("mijn reden");
+
+    httpTestingController
+      .expectOne("/rest/zaken/zaak/ontkoppel")
+      .flush(null, { status: 500, statusText: "Server Error" });
+    await sleep();
+
+    expect(dialogRef.close).not.toHaveBeenCalled();
+    expect(dialogRef.disableClose).toBe(false);
   });
 
   it("closes the dialog when cancel is clicked", async () => {
-    const { fixture, dialogRefMock } = setup();
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    const cancelButton = await loader.getHarness(
-      MatButtonHarness.with({ text: /actie.annuleren/i }),
-    );
-    await cancelButton.click();
-    expect(dialogRefMock.close).toHaveBeenCalled();
+    await setup();
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+    expect(dialogRef.close).toHaveBeenCalled();
   });
 
-  it("closes the dialog when the X button is clicked", async () => {
-    const { fixture, dialogRefMock } = setup();
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    const closeButton = await loader.getHarness(
-      MatButtonHarness.with({ selector: "mat-toolbar button" }),
-    );
-    await closeButton.click();
-    expect(dialogRefMock.close).toHaveBeenCalled();
+  it("closes the dialog when the close button in the title is clicked", async () => {
+    await setup();
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "actie.sluiten" }));
+
+    expect(dialogRef.close).toHaveBeenCalled();
   });
 });
