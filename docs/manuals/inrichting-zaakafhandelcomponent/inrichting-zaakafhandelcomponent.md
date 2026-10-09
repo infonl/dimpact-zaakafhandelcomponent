@@ -646,6 +646,8 @@ Een medewerker heeft toegang tot een zaakspecifiek geautoriseerde zaak als minim
 2. De medewerker is de huidige behandelaar van de zaak.
 3. De medewerker heeft op de zaak de rol 'Zaakspecifiek geautoriseerde medewerker'.
    ZAC geeft deze rol aan de vorige behandelaar als een zaakspecifiek geautoriseerde zaak een andere behandelaar krijgt.
+   ZAC geeft deze rol ook aan een medewerker die een medewerker met bewerkrechten handmatig aan de zaak toevoegt.
+   De toegevoegde medewerker komt uit een groep met de applicatierol `behandelaar` voor het zaaktype.
 
 De voorwaarden 2 en 3 gelden alleen voor die ene zaak, niet voor andere zaakspecifiek geautoriseerde zaken van hetzelfde zaaktype.
 
