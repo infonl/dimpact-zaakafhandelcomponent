@@ -29,8 +29,7 @@
       <p>
         {{ "msg.vrijgeven.taak" | translate }}
       </p>
-    }
-    @if (data.taken.length !== 1) {
+    } @else {
       <p>
         {{ "msg.vrijgeven.taken" | translate: { aantal: data.taken.length } }}
       </p>

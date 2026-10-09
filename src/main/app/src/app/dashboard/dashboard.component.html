@@ -13,9 +13,6 @@
   >
     {{ "actie.dashboard.wijzigen" | translate }}
   </mat-slide-toggle>
-  @if (!editMode.value) {
-    <button [disabled]="true" id="spacer_button" mat-icon-button></button>
-  }
   @if (editMode.value) {
     <button
       [disabled]="this.available.length == 0"
@@ -27,6 +24,8 @@
     >
       <mat-icon>dashboard_customize</mat-icon>
     </button>
+  } @else {
+    <button [disabled]="true" id="spacer_button" mat-icon-button></button>
   }
   <mat-menu #cardsMenu="matMenu" class="cards-menu">
     <h4 class="menu-title hide-xs" translate="actie.card.toevoegen"></h4>

@@ -12,11 +12,10 @@
     <mat-card-title>{{
       "zoeken.filter." + (label() | lowercase) | i18nKey | translate
     }}</mat-card-title>
-    @if (!inverse) {
-      <mat-icon (click)="invert()" class="on">toggle_off</mat-icon>
-    }
     @if (inverse) {
       <mat-icon (click)="invert()" class="off">toggle_on</mat-icon>
+    } @else {
+      <mat-icon (click)="invert()" class="on">toggle_off</mat-icon>
     }
   </mat-card-title-group>
   <mat-card-content>
@@ -36,8 +35,7 @@
               "
               [maxLength]="30"
             ></read-more>
-          }
-          @if (!isVertaalbaar(label())) {
+          } @else {
             <read-more [text]="facetWaarde.naam" [maxLength]="30"></read-more>
           }
         </mat-checkbox>

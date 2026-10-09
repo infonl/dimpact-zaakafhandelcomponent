@@ -26,8 +26,7 @@
             <zac-static-text label="bedrijfsnaam" [value]="bedrijf?.naam" />
             @if (bedrijf?.kvkNummer) {
               <zac-static-text label="kvknummer" [value]="bedrijf?.kvkNummer" />
-            }
-            @if (!bedrijf?.kvkNummer) {
+            } @else {
               <zac-static-text
                 label="kvknummer"
                 [icon]="warningIcon"
@@ -46,8 +45,7 @@
             />
             @if (profiel) {
               <zac-static-text label="rsin" [value]="profiel.rsin" />
-            }
-            @if (!profiel) {
+            } @else {
               <zac-static-text
                 [label]="bedrijf?.adres?.type ?? 'adres'"
                 [value]="bedrijf?.adres?.volledigAdres"

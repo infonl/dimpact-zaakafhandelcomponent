@@ -11,8 +11,7 @@
         "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
       }}
     </span>
-  }
-  @if (!data.planItem) {
+  } @else {
     <span class="flex-grow-1">
       {{ "actie.zaak.afsluiten" | translate }}
     </span>
@@ -111,11 +110,18 @@
   </mat-dialog-content>
   <mat-dialog-actions>
     @if (
-      !(
-        form.controls.resultaattype.value?.isBesluitVerplicht &&
-        !data.zaak.besluiten?.length
-      )
+      form.controls.resultaattype.value?.isBesluitVerplicht &&
+      !data.zaak.besluiten?.length
     ) {
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="openBesluitVastleggen()"
+      >
+        {{ "actie.besluit.vastleggen" | translate }}
+      </button>
+    } @else {
       <button
         mat-raised-button
         color="primary"
@@ -137,19 +143,6 @@
           </mat-icon>
         }
         {{ "actie.zaak.afhandelen" | translate }}
-      </button>
-    }
-    @if (
-      form.controls.resultaattype.value?.isBesluitVerplicht &&
-      !data.zaak.besluiten?.length
-    ) {
-      <button
-        mat-raised-button
-        color="primary"
-        type="button"
-        (click)="openBesluitVastleggen()"
-      >
-        {{ "actie.besluit.vastleggen" | translate }}
       </button>
     }
     <button

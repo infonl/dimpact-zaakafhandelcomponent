@@ -66,8 +66,7 @@
             </mat-tree-node>
           </mat-tree>
         </form>
-      }
-      @if (!enabledForZaaktypeForm.get("enabledForZaaktype")?.value) {
+      } @else {
         <div class="form-disabled-feedback">
           {{ "msg.smartdocuments.form.disabled" | translate }}
         </div>

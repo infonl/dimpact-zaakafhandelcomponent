@@ -148,8 +148,7 @@
           >
             <mat-icon>add_home_work</mat-icon>
           </button>
-        }
-        @if (!isSelectable()) {
+        } @else {
           <button
             mat-icon-button
             (click)="openBagTonenPagina(row)"

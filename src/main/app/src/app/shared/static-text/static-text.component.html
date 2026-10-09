@@ -15,8 +15,7 @@
         [maxLength]="maxLength"
         text="{{ value() | empty }}"
       ></read-more>
-    }
-    @if (!maxLength()) {
+    } @else {
       {{ value() | empty }}
     }
     @if (icon(); as icon) {

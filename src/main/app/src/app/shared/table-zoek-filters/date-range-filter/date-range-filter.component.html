@@ -23,14 +23,13 @@
       [formControl]="dateTM"
     />
   </mat-date-range-input>
-  @if (!hasRange()) {
+  @if (hasRange()) {
+    <mat-icon matSuffix (click)="clearDate($event)">clear</mat-icon>
+  } @else {
     <mat-datepicker-toggle
       matSuffix
       [for]="datumPicker"
     ></mat-datepicker-toggle>
-  }
-  @if (hasRange()) {
-    <mat-icon matSuffix (click)="clearDate($event)">clear</mat-icon>
   }
   <mat-date-range-picker
     (closed)="change()"

@@ -100,8 +100,7 @@
           >
             <mat-icon>business</mat-icon>
           </button>
-        }
-        @if (!isSelectable()) {
+        } @else {
           <button
             mat-icon-button
             (click)="openBedrijfPagina(row)"

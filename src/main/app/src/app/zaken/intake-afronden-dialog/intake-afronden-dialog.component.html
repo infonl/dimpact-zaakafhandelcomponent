@@ -45,8 +45,7 @@
               "
               class="readonly"
             ></p>
-          }
-          @if (!this.data.zaak.isOpgeschort) {
+          } @else {
             <p
               [innerHTML]="'planitem.intake-afronden.toelichting' | translate"
               class="readonly"
@@ -142,8 +141,7 @@
                 class="readonly"
                 [innerHTML]="zaakOntvankelijkMail?.body"
               ></div>
-            }
-            @if (!formGroup.get("ontvankelijk")?.value) {
+            } @else {
               <div
                 class="readonly"
                 [innerHTML]="zaakNietOntvankelijkMail?.body"

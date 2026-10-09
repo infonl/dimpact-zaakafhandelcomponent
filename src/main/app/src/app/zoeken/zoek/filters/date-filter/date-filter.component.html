@@ -20,8 +20,7 @@
         <mat-icon matSuffix (click)="dateVan.setValue(null); change()"
           >clear</mat-icon
         >
-      }
-      @if (!dateVan.value) {
+      } @else {
         <mat-datepicker-toggle
           matSuffix
           [for]="pickerVan"
@@ -41,8 +40,7 @@
         <mat-icon matSuffix (click)="dateTM.setValue(null); change()"
           >clear</mat-icon
         >
-      }
-      @if (!dateTM.value) {
+      } @else {
         <mat-datepicker-toggle
           matSuffix
           [for]="pickerTM"

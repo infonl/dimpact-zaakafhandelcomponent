@@ -57,8 +57,7 @@
             diameter="32"
             [attr.aria-label]="'msg.loading' | translate"
           ></mat-progress-spinner>
-        }
-        @if (!zoekQuery.isLoading()) {
+        } @else {
           <p>
             {{ "msg.geen.gegevens.gevonden" | translate }}
           </p>

@@ -9,8 +9,7 @@
     <span class="flex-grow-1">
       {{ "msg.verdelen.taak" | translate }}
     </span>
-  }
-  @if (data.taken.length !== 1) {
+  } @else {
     <span class="flex-grow-1">
       {{ "msg.verdelen.taken" | translate: { aantal: data.taken.length } }}
     </span>

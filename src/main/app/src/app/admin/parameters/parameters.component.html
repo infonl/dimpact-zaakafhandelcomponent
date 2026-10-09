@@ -125,8 +125,7 @@
               <td mat-cell *matCellDef="let row">
                 @if (row.isValide) {
                   <mat-icon outlined color="primary">check_circle</mat-icon>
-                }
-                @if (!row.isValide) {
+                } @else {
                   <mat-icon outlined color="warn">error</mat-icon>
                 }
               </td>

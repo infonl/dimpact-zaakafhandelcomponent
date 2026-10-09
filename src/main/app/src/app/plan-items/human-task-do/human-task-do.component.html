@@ -14,13 +14,6 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-@if (!formFields.length) {
-  <section class="flex-fill flex-row justify-center items-center">
-    <mat-spinner diameter="30" />
-  </section>
-}
-
-<!-- form using Angular form builder -->
 @if (formFields.length) {
   <section class="mt-2">
     <zac-composed-form
@@ -33,5 +26,9 @@
       (formSubmitted)="onFormSubmit($event)"
       (formCancelled)="onFormCancel()"
     />
+  </section>
+} @else {
+  <section class="flex-fill flex-row justify-center items-center">
+    <mat-spinner diameter="30" />
   </section>
 }

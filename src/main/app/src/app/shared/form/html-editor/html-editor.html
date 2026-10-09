@@ -41,8 +41,7 @@
       <div class="mat-mdc-form-field-error-wrapper">
         <mat-error>{{ formError() }}</mat-error>
       </div>
-    }
-    @if (!formError()) {
+    } @else {
       <div class="mat-mdc-form-field-hint-wrapper">
         <mat-hint>
           <ng-content select="mat-hint"></ng-content>

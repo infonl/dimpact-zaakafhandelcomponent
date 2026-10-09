@@ -230,8 +230,7 @@
                       <mat-icon outlined color="primary">
                         check_circle
                       </mat-icon>
-                    }
-                    @if (!isHumanTaskParameterValid(humanTaskParameter)) {
+                    } @else {
                       <mat-icon outlined color="warn"> error </mat-icon>
                     }
                     <span

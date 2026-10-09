@@ -11,8 +11,7 @@
         "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
       }}
     </span>
-  }
-  @if (!data.planItem) {
+  } @else {
     <span class="flex-grow-1">
       {{ "actie.zaak.brondatum-zetten" | translate }}
     </span>

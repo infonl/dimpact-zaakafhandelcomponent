@@ -83,8 +83,7 @@
           label="kvknummer"
           [value]="initiatorIdentificatie().kvkNummer"
         />
-      }
-      @if (!initiatorIdentificatie().kvkNummer) {
+      } @else {
         <zac-static-text
           label="kvknummer"
           [icon]="warningIcon"
@@ -103,8 +102,7 @@
       />
       @if (profiel()) {
         <zac-static-text label="rsin" [value]="profiel()?.rsin" />
-      }
-      @if (!profiel()) {
+      } @else {
         <zac-static-text
           [label]="bedrijfQuery.data()?.adres?.type ?? 'adres'"
           [value]="bedrijfQuery.data()?.adres?.volledigAdres"

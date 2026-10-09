@@ -9,8 +9,7 @@
     <span class="flex-grow-1">
       {{ "title.zaak.vrijgeven" | translate }}
     </span>
-  }
-  @if (data.length !== 1) {
+  } @else {
     <span class="flex-grow-1">
       {{ "title.zaken.vrijgeven" | translate: { aantal: data.length } }}
     </span>
@@ -30,8 +29,7 @@
     </fieldset>
     @if (data.length === 1) {
       <p>{{ "msg.vrijgeven.zaak" | translate }}</p>
-    }
-    @if (data.length !== 1) {
+    } @else {
       <p>{{ "msg.vrijgeven.zaken" | translate }}</p>
     }
   </mat-dialog-content>

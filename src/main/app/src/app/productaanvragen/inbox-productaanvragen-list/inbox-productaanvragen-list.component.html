@@ -83,11 +83,10 @@
             aria-label="expand row"
             (click)="updateActive(row); $event.stopPropagation()"
           >
-            @if (expandedRow !== row) {
-              <mat-icon>keyboard_arrow_down</mat-icon>
-            }
             @if (expandedRow === row) {
               <mat-icon>keyboard_arrow_up</mat-icon>
+            } @else {
+              <mat-icon>keyboard_arrow_down</mat-icon>
             }
           </button>
         </td>

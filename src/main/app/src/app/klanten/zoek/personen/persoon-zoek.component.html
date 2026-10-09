@@ -21,7 +21,16 @@
     <section class="row">
       <zac-input class="col-6" [form]="formGroup" key="straat" />
       <!-- no gemeenten to choose from, type in the code yourself if required -->
-      @if (!brpGemeenten().length) {
+      @if (brpGemeenten().length) {
+        <zac-select
+          class="col-6"
+          key="gemeenteVanInschrijving"
+          label="Gemeente"
+          optionDisplayValue="naam"
+          [form]="formGroup"
+          [options]="brpGemeenten()"
+        />
+      } @else {
         <zac-input
           class="col-6"
           [form]="formGroup"
@@ -38,17 +47,6 @@
             <mat-icon>location_city</mat-icon>
           </button>
         </zac-input>
-      }
-      <!-- multiple gemeenten, pick one -->
-      @else {
-        <zac-select
-          class="col-6"
-          key="gemeenteVanInschrijving"
-          label="Gemeente"
-          optionDisplayValue="naam"
-          [form]="formGroup"
-          [options]="brpGemeenten()"
-        />
       }
     </section>
   </fieldset>
@@ -111,8 +109,7 @@
           >
             <mat-icon>emoji_people</mat-icon>
           </button>
-        }
-        @if (!isSelectable()) {
+        } @else {
           <button
             mat-icon-button
             (click)="openPersoonPagina(row)"

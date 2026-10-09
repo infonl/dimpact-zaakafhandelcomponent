@@ -58,9 +58,7 @@
                         | i18nKey
                         | translate
                     }}
-                  }
-                  @if (
-                    column != "type" &&
+                  } @else if (
                     column != "subjecttype" &&
                     row[settingPerColumn[column]] != null
                   ) {

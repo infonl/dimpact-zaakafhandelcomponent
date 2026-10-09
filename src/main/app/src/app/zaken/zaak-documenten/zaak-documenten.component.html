@@ -250,8 +250,7 @@
           <td class="mat-cell" [colSpan]="documentColumns().length + 2">
             @if (isLoadingResults()) {
               <p>{{ "msg.loading" | translate }}</p>
-            }
-            @if (!isLoadingResults()) {
+            } @else {
               <p>
                 {{ "msg.geen.gegevens.gevonden" | translate }}
               </p>

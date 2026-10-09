@@ -9,8 +9,7 @@
     <span class="flex-grow-1">
       {{ "title.zaak.verdelen" | translate }}
     </span>
-  }
-  @if (data.length !== 1) {
+  } @else {
     <span class="flex-grow-1">
       {{ "title.zaken.verdelen" | translate: { aantal: data.length } }}
     </span>

@@ -2,33 +2,6 @@
   ~ SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-@if (layout() !== versionLayout.VERBOSE) {
-  <div class="version">
-    <mat-chip
-      class="flex-row"
-      [matTooltip]="
-        buildInformatie?.buildId && buildInformatie?.buildDatumTijd
-          ? ('health-check.build-informatie.build'
-            | translate
-              : {
-                  build: buildInformatie?.buildId,
-                  timestamp: (buildInformatie?.buildDatumTijd | datum: 'short'),
-                })
-          : ''
-      "
-    >
-      <mat-icon>construction</mat-icon>
-      <span class="label">
-        {{
-          "health-check.build-informatie.version"
-            | translate
-              : { version: buildInformatie?.versienummer?.toUpperCase() }
-        }}</span
-      >
-    </mat-chip>
-  </div>
-}
-
 @if (layout() === versionLayout.VERBOSE) {
   <mat-card class="version">
     <mat-card-content>
@@ -63,4 +36,29 @@
       }
     </mat-card-content>
   </mat-card>
+} @else {
+  <div class="version">
+    <mat-chip
+      class="flex-row"
+      [matTooltip]="
+        buildInformatie?.buildId && buildInformatie?.buildDatumTijd
+          ? ('health-check.build-informatie.build'
+            | translate
+              : {
+                  build: buildInformatie?.buildId,
+                  timestamp: (buildInformatie?.buildDatumTijd | datum: 'short'),
+                })
+          : ''
+      "
+    >
+      <mat-icon>construction</mat-icon>
+      <span class="label">
+        {{
+          "health-check.build-informatie.version"
+            | translate
+              : { version: buildInformatie?.versienummer?.toUpperCase() }
+        }}</span
+      >
+    </mat-chip>
+  </div>
 }

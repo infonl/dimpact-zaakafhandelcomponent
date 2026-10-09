@@ -215,13 +215,8 @@
                             {{ "statustype" | translate }}
                           </div>
                         }
-                        @if (!row.isStatustypeAfgerondAanwezig) {
-                          <div>
-                            {{ "statustype" | translate }}
-                          </div>
-                        }
                         @if (
-                          row.isStatustypeAfgerondAanwezig &&
+                          !row.isStatustypeAfgerondAanwezig ||
                           !row.isStatustypeAfgerondLaatsteVolgnummer
                         ) {
                           <div>
@@ -345,9 +340,7 @@
                                 | translate
                             }}
                           </div>
-                        }
-                        @if (
-                          row.isStatustypeAfgerondAanwezig &&
+                        } @else if (
                           !row.isStatustypeAfgerondLaatsteVolgnummer
                         ) {
                           <div>
@@ -566,8 +559,7 @@
                       "health-check.communicatiekanaal.e-formulier.beschikbaar"
                         | translate
                     }}
-                  }
-                  @if (!bestaatCommunicatiekanaalEformulier) {
+                  } @else {
                     {{
                       "health-check.communicatiekanaal.e-formulier.niet.beschikbaar"
                         | translate

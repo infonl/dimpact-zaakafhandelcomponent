@@ -24,18 +24,17 @@
       >
         <ng-container matColumnDef="collapse">
           <th mat-header-cell *matHeaderCellDef>
-            @if (!allTakenExpanded) {
-              <mat-icon
-                [attr.aria-label]="'actie.alles.uitklappen' | translate"
-                (click)="expandTaken(true)"
-                >expand_more
-              </mat-icon>
-            }
             @if (allTakenExpanded) {
               <mat-icon
                 [attr.aria-label]="'actie.alles.inklappen' | translate"
                 (click)="expandTaken(false)"
                 >expand_less
+              </mat-icon>
+            } @else {
+              <mat-icon
+                [attr.aria-label]="'actie.alles.uitklappen' | translate"
+                (click)="expandTaken(true)"
+                >expand_more
               </mat-icon>
             }
           </th>
@@ -195,8 +194,7 @@
               <p>
                 {{ "msg.loading" | translate }}
               </p>
-            }
-            @if (!takenQuery.isPending()) {
+            } @else {
               <p>
                 {{ "msg.geen.gegevens.gevonden" | translate }}
               </p>
