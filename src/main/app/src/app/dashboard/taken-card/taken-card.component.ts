@@ -26,7 +26,6 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -84,14 +83,10 @@ export class TakenCardComponent extends DashboardCardComponent<
   }));
 
   takenQuery = injectQuery(() => ({
-    queryKey: ["taken signaleringen dashboard", this.parameters()],
-    enabled: !!this.parameters().signaleringType,
-    queryFn: () =>
-      firstValueFrom(
-        this.signaleringenService.listTakenSignalering(
-          this.parameters().signaleringType!,
-        ),
-      ),
+    ...this.signaleringenService.listTakenSignalering(
+      this.parameters().signaleringType!,
+    ),
+    enabled: this.parameters().signaleringType != null,
   }));
 
   constructor(

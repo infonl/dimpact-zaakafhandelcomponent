@@ -4,11 +4,12 @@
  */
 
 import { NgClass, NgFor, NgIf } from "@angular/common";
-import { AfterViewInit, Component, OnInit } from "@angular/core";
+import { Component, effect, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -35,8 +36,7 @@ const SETTING_PER_COLUMN = {
     TranslateModule,
   ],
 })
-export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
-  protected isLoadingResults = true;
+export class SignaleringenSettingsComponent implements OnInit {
   protected readonly columns = [
     "subjecttype",
     "type",
@@ -48,6 +48,8 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
     GeneratedType<"RestSignaleringInstellingen">
   >();
 
+  protected readonly instellingenQuery = injectQuery(() => this.service.list());
+
   private readonly putMutation = injectMutation(() => this.service.put(), {
     onSettled: () => this.utilService.setLoading(false),
   });
@@ -55,17 +57,14 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
   constructor(
     private readonly service: SignaleringenSettingsService,
     private readonly utilService: UtilService,
-  ) {}
+  ) {
+    effect(() => {
+      this.dataSource.data = this.instellingenQuery.data() ?? [];
+    });
+  }
 
   ngOnInit() {
     this.utilService.setTitle("title.signaleringen.settings");
-  }
-
-  ngAfterViewInit() {
-    this.service.list().subscribe((instellingen) => {
-      this.dataSource.data = instellingen;
-      this.isLoadingResults = false;
-    });
   }
 
   protected changed(

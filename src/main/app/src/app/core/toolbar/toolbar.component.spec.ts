@@ -10,7 +10,10 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { Injector, runInInjectionContext } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -28,13 +31,17 @@ import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { mockMutationFn, testQueryClient } from "../../../../setupJest";
+import { mockMutationFn, sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
+import { ObjectType } from "../websocket/model/object-type";
+import { Opcode } from "../websocket/model/opcode";
+import { WebsocketListener } from "../websocket/model/websocket-listener";
+import { WebsocketService } from "../websocket/websocket.service";
 import { ToolbarComponent } from "./toolbar.component";
 
 describe(ToolbarComponent.name, () => {
@@ -318,26 +325,131 @@ describe(ToolbarComponent.name, () => {
   });
 
   describe("Signaleringen badge", () => {
-    it("is hidden when hasNewSignaleringen is false", async () => {
-      createComponent();
+    const LATEST_SIGNALERING_URL = "/rest/signaleringen/latest";
 
-      const dashboardButton = await loader.getHarness(
-        MatButtonHarness.with({ selector: '[aria-label="Dashboard"]' }),
-      );
-      const host = await dashboardButton.host();
-      expect(await host.hasClass("mat-badge-hidden")).toBe(true);
+    let httpTestingController: HttpTestingController;
+    let signaleringenChanged: () => void;
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+      const websocketService = TestBed.inject(WebsocketService);
+      jest.spyOn(websocketService, "removeListener").mockImplementation();
+      jest
+        .spyOn(websocketService, "addListener")
+        .mockImplementation((_opcode, _objectType, _objectId, callback) => {
+          signaleringenChanged = callback as () => void;
+          return fromPartial<WebsocketListener>({});
+        });
     });
 
-    it("is visible when hasNewSignaleringen is true", async () => {
-      createComponent();
-      fixture.componentInstance["hasNewSignaleringen"] = true;
-      fixture.detectChanges();
+    afterEach(() => sessionStorage.removeItem("dashboardOpened"));
 
+    async function respondWithLatestSignalering(
+      latestSignalering: string | null,
+    ) {
+      httpTestingController
+        .expectOne(LATEST_SIGNALERING_URL)
+        .flush(latestSignalering);
+      await sleep();
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    async function isBadgeHidden() {
       const dashboardButton = await loader.getHarness(
         MatButtonHarness.with({ selector: '[aria-label="Dashboard"]' }),
       );
-      const host = await dashboardButton.host();
-      expect(await host.hasClass("mat-badge-hidden")).toBe(false);
+      return (await dashboardButton.host()).hasClass("mat-badge-hidden");
+    }
+
+    it("is hidden while the latest signalering is still being read", async () => {
+      createComponent();
+
+      expect(await isBadgeHidden()).toBe(true);
+
+      await respondWithLatestSignalering("2026-01-02T00:00:00Z");
+    });
+
+    it("is hidden when there is no signalering", async () => {
+      createComponent();
+
+      await respondWithLatestSignalering(null);
+
+      expect(await isBadgeHidden()).toBe(true);
+    });
+
+    it("is visible when there is a signalering and the dashboard has not been opened", async () => {
+      createComponent();
+
+      await respondWithLatestSignalering("2026-01-02T00:00:00Z");
+
+      expect(await isBadgeHidden()).toBe(false);
+    });
+
+    it("is visible when the latest signalering is newer than the last time the dashboard was opened", async () => {
+      sessionStorage.setItem(
+        "dashboardOpened",
+        JSON.stringify("2026-01-01T00:00:00Z"),
+      );
+      createComponent();
+
+      await respondWithLatestSignalering("2026-01-02T00:00:00Z");
+
+      expect(await isBadgeHidden()).toBe(false);
+    });
+
+    it("is hidden when the dashboard was opened after the latest signalering", async () => {
+      sessionStorage.setItem(
+        "dashboardOpened",
+        JSON.stringify("2026-01-03T00:00:00Z"),
+      );
+      createComponent();
+
+      await respondWithLatestSignalering("2026-01-02T00:00:00Z");
+
+      expect(await isBadgeHidden()).toBe(true);
+    });
+
+    it("listens for changes to the signaleringen of the logged-in user", async () => {
+      createComponent();
+      await respondWithLatestSignalering(null);
+
+      expect(TestBed.inject(WebsocketService).addListener).toHaveBeenCalledWith(
+        Opcode.UPDATED,
+        ObjectType.SIGNALERINGEN,
+        "user-id",
+        expect.any(Function),
+      );
+    });
+
+    it("appears when a new signalering arrives", async () => {
+      sessionStorage.setItem(
+        "dashboardOpened",
+        JSON.stringify("2026-01-03T00:00:00Z"),
+      );
+      createComponent();
+      await respondWithLatestSignalering("2026-01-02T00:00:00Z");
+
+      signaleringenChanged();
+      await respondWithLatestSignalering("2026-01-04T00:00:00Z");
+
+      expect(await isBadgeHidden()).toBe(false);
+    });
+
+    it("disappears when the dashboard is opened, even though the latest signalering stays the same", async () => {
+      createComponent();
+      await respondWithLatestSignalering("2026-01-02T00:00:00Z");
+
+      sessionStorage.setItem(
+        "dashboardOpened",
+        JSON.stringify("2026-01-03T00:00:00Z"),
+      );
+      void testQueryClient.invalidateQueries({
+        queryKey: [LATEST_SIGNALERING_URL],
+      });
+      await respondWithLatestSignalering("2026-01-02T00:00:00Z");
+
+      expect(await isBadgeHidden()).toBe(true);
     });
   });
 
