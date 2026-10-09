@@ -947,7 +947,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createRol(
                     capture(rolSlot),
-                    "Zaakspecifiek geautoriseerd medewerker van zaak fakeZaakIdentificatie"
+                    "Zaakspecifiek geautoriseerde medewerker van de zaak"
                 )
             } returns createRolMedewerker()
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
@@ -1088,7 +1088,6 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(
                     firstTaskOfTaakbehandelaar,
-                    zaak,
                     "fakeTaakbehandelaarId"
                 )
             } just runs
@@ -1103,14 +1102,14 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zrcClientService.createRol(
                             any(),
-                            "Zaakspecifiek geautoriseerd medewerker van zaak fakeZaakIdentificatie"
+                            "Zaakspecifiek geautoriseerde medewerker van de zaak"
                         )
                     }
                 }
 
                 and("the addition is recorded in the history of the first taak of that taakbehandelaar only") {
                     verify(exactly = 1) {
-                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any(), any())
+                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any())
                     }
                 }
             }

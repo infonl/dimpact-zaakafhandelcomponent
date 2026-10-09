@@ -212,7 +212,6 @@ class PlanItemsRestService @Inject constructor(
         zaakspecifiekGeautoriseerdeTaakbehandelaar?.let {
             taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(
                 task = cmmnService.readOpenTaskForPlanItem(humanTaskData.planItemInstanceId),
-                zaak = zaak,
                 medewerkerId = it
             )
         }
