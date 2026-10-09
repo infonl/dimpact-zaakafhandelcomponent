@@ -332,7 +332,7 @@ class TaskRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         return taskService.assignTask(
             task = task,
-            groupId = null,
+            groupId = restTaskAssignData.groepId,
             userId = loggedInUser.id,
             reason = restTaskAssignData.reden,
             loggedInUser = loggedInUser

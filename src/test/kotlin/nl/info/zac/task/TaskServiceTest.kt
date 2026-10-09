@@ -288,16 +288,14 @@ class TaskServiceTest : BehaviorSpec({
         every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
-        every { task1.assignee } returns "fakeAssignee1"
-        every { task2.assignee } returns "fakeAssignee2"
-        every { task1.scopeType } returns ScopeTypes.CMMN
-        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
-        every { task2.scopeType } returns ScopeTypes.CMMN
-        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { updatedTaskAfterRelease1.id } returns restTaakVerdelenTaken[0].taakId
         every { updatedTaskAfterRelease2.id } returns restTaakVerdelenTaken[1].taakId
         every { flowableTaskService.readOpenTask(taskId1) } returns task1
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[0].zaakUuid)
         every { flowableTaskService.readOpenTask(taskId2) } returns task2
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[1].zaakUuid)
         restTaakVrijgevenGegevens.let {
             every { flowableTaskService.releaseTask(task1, it.reden) } returns updatedTaskAfterRelease1
             every { flowableTaskService.releaseTask(task2, it.reden) } returns updatedTaskAfterRelease2
@@ -364,12 +362,12 @@ class TaskServiceTest : BehaviorSpec({
         every { task2.id } returns taskId2
         every { task1.assignee } returns null
         every { task2.assignee } returns null
-        every { task1.scopeType } returns ScopeTypes.CMMN
-        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
-        every { task2.scopeType } returns ScopeTypes.CMMN
-        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[0].zaakUuid)
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[1].zaakUuid)
         every {
             flowableTaskService.assignTaskToGroup(any(), any(), any())
         } returns task1 andThen task2
@@ -426,12 +424,12 @@ class TaskServiceTest : BehaviorSpec({
 
         every { task2.id } returns taskId2
         every { task2.assignee } returns null
-        every { task2.scopeType } returns ScopeTypes.CMMN
-        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
         } throws TaskNotFoundException("task not found!")
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[1].zaakUuid)
         every {
             flowableTaskService.assignTaskToGroup(any(), any(), any())
         } returns task2
@@ -487,12 +485,12 @@ class TaskServiceTest : BehaviorSpec({
         every { releasedTask2.id } returns taskId1
         every { task1.assignee } returns "fakeAssignee1"
         every { task2.assignee } returns "fakeAssignee2"
-        every { task1.scopeType } returns ScopeTypes.CMMN
-        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
-        every { task2.scopeType } returns ScopeTypes.CMMN
-        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[0].zaakUuid)
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[1].zaakUuid)
         every {
             flowableTaskService.assignTaskToGroup(any(), any(), any())
         } returns task1 andThen task2
@@ -554,9 +552,9 @@ class TaskServiceTest : BehaviorSpec({
         every { task1.id } returns taskId1
         every { releasedTask1.id } returns taskId1
         every { task1.assignee } returns "fakeAssignee1"
-        every { task1.scopeType } returns ScopeTypes.CMMN
-        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[0].zaakUuid)
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("fakeError")
         every {
             flowableTaskService.assignTaskToGroup(any(), any(), any())
@@ -625,13 +623,12 @@ class TaskServiceTest : BehaviorSpec({
 
         every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task2.id } returns taskId2
-        every { task2.assignee } returns "fakeAssignee2"
-        every { task2.scopeType } returns ScopeTypes.CMMN
-        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
         } throws TaskNotFoundException("task not found!")
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
+        every { task2.scopeType } returns ScopeTypes.CMMN
+        every { task2.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[1].zaakUuid)
         every {
             flowableTaskService.releaseTask(any(), any())
         } returns task2
@@ -686,11 +683,10 @@ class TaskServiceTest : BehaviorSpec({
 
         every { loggedInUser.id } returns "fakeLoggedInUserId"
         every { task1.id } returns taskId1
-        every { task1.assignee } returns "fakeAssignee1"
-        every { task1.scopeType } returns ScopeTypes.CMMN
-        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
         every { releasedTask1.id } returns taskId1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
+        every { task1.scopeType } returns ScopeTypes.CMMN
+        every { task1.caseVariables } returns mapOf(VAR_ZAAK_UUID to restTaakVerdelenTaken[0].zaakUuid)
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("fakeError")
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
@@ -752,13 +748,14 @@ class TaskServiceTest : BehaviorSpec({
             } just runs
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
 
             `when`("the task is assigned to a new medewerker") {
                 taskService.assignTask(
                     task = task,
-                    groupId = null,
+                    groupId = "fakeGroupId",
                     userId = "fakeNewAssignee",
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
@@ -787,13 +784,14 @@ class TaskServiceTest : BehaviorSpec({
             } returns false
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
 
             `when`("the task is assigned to the new assignee") {
                 taskService.assignTask(
                     task = task,
-                    groupId = null,
+                    groupId = "fakeGroupId",
                     userId = "fakeNewAssignee",
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
@@ -819,13 +817,14 @@ class TaskServiceTest : BehaviorSpec({
             every { loggedInUser.id } returns "fakeLoggedInUserId"
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
 
             `when`("the task is assigned to that same medewerker again") {
                 taskService.assignTask(
                     task = task,
-                    groupId = null,
+                    groupId = "fakeGroupId",
                     userId = "fakeAssignee",
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
