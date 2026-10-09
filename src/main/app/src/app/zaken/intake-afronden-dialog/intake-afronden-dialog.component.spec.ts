@@ -15,7 +15,6 @@ import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -106,17 +105,6 @@ describe(IntakeAfrondenDialogComponent.name, () => {
             readDefaultAfzenderVoorZaak: () => of(afzender),
           }),
         },
-        {
-          provide: MailtemplateService,
-          useValue: fromPartial<MailtemplateService>({
-            findMailtemplate: (key: GeneratedType<"Mail">) =>
-              of(
-                key === "ZAAK_ONTVANKELIJK"
-                  ? mailtemplateOntvankelijk
-                  : mailtemplateNietOntvankelijk,
-              ),
-          }),
-        },
         PlanItemsService,
         KlantenService,
         UtilService,
@@ -124,6 +112,14 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     });
 
     httpTestingController = TestBed.inject(HttpTestingController);
+    httpTestingController
+      .expectOne("/rest/mailtemplates/ZAAK_ONTVANKELIJK/fakeZaakUuid")
+      .flush(mailtemplateOntvankelijk);
+    httpTestingController
+      .expectOne("/rest/mailtemplates/ZAAK_NIET_ONTVANKELIJK/fakeZaakUuid")
+      .flush(mailtemplateNietOntvankelijk);
+    await sleep();
+    rendered.fixture.detectChanges();
     return rendered;
   }
 

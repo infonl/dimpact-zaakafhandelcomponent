@@ -14,12 +14,11 @@ import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
-  DestroyRef,
   OnInit,
   ViewChild,
-  inject,
+  computed,
+  effect,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -35,7 +34,7 @@ import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { finalize, forkJoin } from "rxjs";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import {
@@ -91,15 +90,21 @@ export class MailtemplatesComponent
   protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly deleteMailtemplateMutation = injectMutation(
-    () => this.mailtemplateBeheerService.deleteMailtemplate(),
-    {
-      onSuccess: () => this.laadMailtemplates(),
-    },
+  private readonly mailtemplatesQuery = injectQuery(() =>
+    this.mailtemplateBeheerService.listMailtemplates(),
+  );
+  private readonly mailtemplateKoppelingenQuery = injectQuery(() =>
+    this.mailtemplateKoppelingService.listMailtemplateKoppelingen(),
+  );
+  private readonly deleteMailtemplateMutation = injectMutation(() =>
+    this.mailtemplateBeheerService.deleteMailtemplate(),
   );
 
-  protected isLoadingResults = false;
+  protected readonly isLoadingResults = computed(
+    () =>
+      this.mailtemplatesQuery.isPending() ||
+      this.mailtemplateKoppelingenQuery.isPending(),
+  );
   protected columns = [
     "mailTemplateNaam",
     "mail",
@@ -116,7 +121,9 @@ export class MailtemplatesComponent
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestMailtemplate">
   >();
-  private mailKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] = [];
+  private readonly mailKoppelingen = computed(
+    () => this.mailtemplateKoppelingenQuery.data() ?? [],
+  );
   private filterValue = "";
   protected expandedRow: GeneratedType<"RestMailtemplate"> | null = null;
 
@@ -128,31 +135,15 @@ export class MailtemplatesComponent
     private mailtemplateKoppelingService: MailtemplateKoppelingService,
   ) {
     super(utilService, configuratieService);
+
+    effect(() => {
+      if (this.isLoadingResults()) return;
+      this.dataSource.data = this.mailtemplatesQuery.data() ?? [];
+    });
   }
 
   ngOnInit(): void {
     this.setupMenu("title.mailtemplates");
-    this.laadMailtemplates();
-  }
-
-  protected laadMailtemplates(): void {
-    this.isLoadingResults = true;
-    this.utilService.setLoading(true);
-    forkJoin([
-      this.mailtemplateBeheerService.listMailtemplates(),
-      this.mailtemplateKoppelingService.listMailtemplateKoppelingen(),
-    ])
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.isLoadingResults = false;
-          this.utilService.setLoading(false);
-        }),
-      )
-      .subscribe(([mailtemplates, koppelingen]) => {
-        this.dataSource.data = mailtemplates;
-        this.mailKoppelingen = koppelingen;
-      });
   }
 
   protected isDisabled(
@@ -177,7 +168,7 @@ export class MailtemplatesComponent
   }
 
   protected getKoppelingen(mailtemplate: GeneratedType<"RestMailtemplate">) {
-    return this.mailKoppelingen.reduce((acc, koppeling) => {
+    return this.mailKoppelingen().reduce((acc, koppeling) => {
       if (koppeling.mailtemplate?.id === mailtemplate.id) {
         acc.push(koppeling);
       }
@@ -188,7 +179,7 @@ export class MailtemplatesComponent
   private getMailtemplateKoppeling(
     mailtemplate: GeneratedType<"RestMailtemplate">,
   ) {
-    return this.mailKoppelingen.find(
+    return this.mailKoppelingen().find(
       (koppeling) => koppeling.mailtemplate?.id === mailtemplate.id,
     );
   }

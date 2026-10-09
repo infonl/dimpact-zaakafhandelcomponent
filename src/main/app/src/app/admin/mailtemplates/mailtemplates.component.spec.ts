@@ -3,371 +3,262 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatIconHarness } from "@angular/material/icon/testing";
-import { MatInputHarness } from "@angular/material/input/testing";
-import { MatTableHarness } from "@angular/material/table/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { RouterModule } from "@angular/router";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { Subject, config, of, throwError } from "rxjs";
-import { testQueryClient } from "../../../../setupJest";
-import { createMutationOptions } from "../../../test-helpers";
+import { render, screen, waitFor, within } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
+import { sleep } from "../../../../setupJest";
+import { fromPartial } from "../../../test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service";
 import { MailtemplatesComponent } from "./mailtemplates.component";
 
-describe(MailtemplatesComponent.name, () => {
-  let fixture: ComponentFixture<MailtemplatesComponent>;
-  let loader: HarnessLoader;
-  let component: MailtemplatesComponent;
-  let mailtemplateBeheerService: MailtemplateBeheerService;
-  let deleteMailtemplateMutation: ReturnType<
-    typeof createMutationOptions<undefined, number>
-  >;
-  let mailtemplateKoppelingService: MailtemplateKoppelingService;
-  let dialog: MatDialog;
-  let utilServiceMock: Pick<
-    UtilService,
-    "setTitle" | "openSnackbar" | "setLoading"
-  >;
-
-  const mailtemplate: GeneratedType<"RestMailtemplate"> = {
+const mailtemplate = (
+  fields: Partial<GeneratedType<"RestMailtemplate">> = {},
+) =>
+  fromPartial<GeneratedType<"RestMailtemplate">>({
     id: 1,
-    mailTemplateNaam: "Test Template",
+    mailTemplateNaam: "fakeTemplateNaam",
     mail: "TAAK_ONTVANGSTBEVESTIGING",
-    onderwerp: "Onderwerp",
-    body: "Body",
+    onderwerp: "fakeOnderwerp",
+    body: "fakeBody",
     defaultMailtemplate: false,
-  };
+    ...fields,
+  });
 
-  const koppeling: GeneratedType<"RESTMailtemplateKoppeling"> = {
-    id: 1,
-    mailtemplate: { id: 1 } as GeneratedType<"RestMailtemplate">,
-    zaakafhandelParameters: {
-      zaaktype: {
-        omschrijving: "Test zaaktype",
-        uuid: "uuid-1",
-      },
-    } as GeneratedType<"RestZaaktypeConfiguration">,
-  };
+const koppeling = fromPartial<GeneratedType<"RESTMailtemplateKoppeling">>({
+  id: 1,
+  mailtemplate: { id: 1 },
+  zaakafhandelParameters: {
+    zaaktype: { omschrijving: "fakeZaaktype", uuid: "fakeZaaktypeUuid" },
+  },
+});
 
-  beforeEach(async () => {
-    utilServiceMock = {
-      setTitle: jest.fn(),
-      openSnackbar: jest.fn(),
-      setLoading: jest.fn(),
-    };
+describe(MailtemplatesComponent.name, () => {
+  let httpTestingController: HttpTestingController;
+  let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
 
-    await TestBed.configureTestingModule({
-      imports: [
-        MailtemplatesComponent,
-        NoopAnimationsModule,
-        RouterModule.forRoot([]),
-        TranslateModule.forRoot(),
-      ],
+  const user = userEvent.setup();
+
+  async function renderMailtemplates() {
+    utilServiceMock = { setTitle: jest.fn(), openSnackbar: jest.fn() };
+
+    const rendered = await render(MailtemplatesComponent, {
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
+        provideRouter([]),
         { provide: UtilService, useValue: utilServiceMock },
         {
           provide: ConfiguratieService,
           useValue: {} satisfies Partial<ConfiguratieService>,
         },
       ],
-    }).compileComponents();
+    });
+    httpTestingController = TestBed.inject(HttpTestingController);
 
-    mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
-    mailtemplateKoppelingService = TestBed.inject(MailtemplateKoppelingService);
+    return rendered;
+  }
 
-    fixture = TestBed.createComponent(MailtemplatesComponent);
-    component = fixture.componentInstance;
-
-    dialog = fixture.debugElement.injector.get(MatDialog);
-
-    jest
-      .spyOn(mailtemplateBeheerService, "listMailtemplates")
-      .mockReturnValue(of([mailtemplate]));
-    deleteMailtemplateMutation = createMutationOptions<undefined, number>(
-      undefined,
+  async function setup({
+    mailtemplates = [mailtemplate()],
+    koppelingen = [],
+  }: {
+    mailtemplates?: GeneratedType<"RestMailtemplate">[];
+    koppelingen?: GeneratedType<"RESTMailtemplateKoppeling">[];
+  } = {}) {
+    const rendered = await renderMailtemplates();
+    await respondWithMailtemplates(mailtemplates);
+    httpTestingController
+      .expectOne("/rest/beheer/mailtemplatekoppeling")
+      .flush(koppelingen);
+    await waitFor(() =>
+      expect(screen.queryByText("msg.loading")).not.toBeInTheDocument(),
     );
-    jest
-      .spyOn(mailtemplateBeheerService, "deleteMailtemplate")
-      .mockReturnValue(deleteMailtemplateMutation as never);
-    jest
-      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
-      .mockReturnValue(of([]));
 
-    fixture.detectChanges();
-    loader = TestbedHarnessEnvironment.loader(fixture);
-  });
+    return rendered;
+  }
 
-  it("should call setTitle and load mailtemplates on init", () => {
+  async function respondWithMailtemplates(
+    mailtemplates: GeneratedType<"RestMailtemplate">[],
+  ) {
+    await sleep();
+    httpTestingController
+      .expectOne("/rest/beheer/mailtemplates")
+      .flush(mailtemplates);
+  }
+
+  function rowNames() {
+    return screen
+      .getAllByRole("row")
+      .map((row) => within(row).queryAllByRole("cell")[1]?.textContent?.trim())
+      .filter(Boolean);
+  }
+
+  it("sets the title", async () => {
+    await setup();
+
     expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
       "title.mailtemplates",
       undefined,
     );
-    expect(mailtemplateBeheerService.listMailtemplates).toHaveBeenCalled();
-    expect(
-      mailtemplateKoppelingService.listMailtemplateKoppelingen,
-    ).toHaveBeenCalled();
   });
 
-  it("should render a row for each mailtemplate", async () => {
-    const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows({ selector: ".main-row" });
-    expect(rows).toHaveLength(1);
-  });
-
-  it("should mark a mailtemplate as disabled when it has a koppeling", () => {
-    jest
-      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
-      .mockReturnValue(of([koppeling]));
-
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    expect(component["isDisabled"](mailtemplate)).toBe(true);
-  });
-
-  it("should open confirm dialog when verwijderMailtemplate is called", () => {
-    jest.spyOn(dialog, "open").mockReturnValue({
-      afterClosed: () => of(false),
-    } as MatDialogRef<unknown>);
-
-    component["verwijderMailtemplate"](mailtemplate);
-
-    expect(dialog.open).toHaveBeenCalled();
-  });
-
-  it("should reload mailtemplates after confirmed delete", async () => {
-    jest.spyOn(dialog, "open").mockReturnValue({
-      afterClosed: () => of(true),
-    } as MatDialogRef<unknown>);
-
-    component["verwijderMailtemplate"](mailtemplate);
-    await fixture.whenStable();
-
-    expect(deleteMailtemplateMutation.mutationFn).toHaveBeenCalledWith(
-      1,
-      expect.anything(),
-    );
-    expect(mailtemplateBeheerService.listMailtemplates).toHaveBeenCalledTimes(
-      2,
-    ); // once on init, once after delete
-  });
-
-  it("should show close icon for non-default mailtemplate", async () => {
-    await loader.getHarness(MatIconHarness.with({ name: "close" }));
-  });
-
-  it("should show done icon and hide delete button for default mailtemplate", async () => {
-    const defaultTemplate = { ...mailtemplate, defaultMailtemplate: true };
-    jest
-      .spyOn(mailtemplateBeheerService, "listMailtemplates")
-      .mockReturnValue(of([defaultTemplate]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    await loader.getHarness(MatIconHarness.with({ name: "done" }));
-    expect(
-      await loader.getAllHarnesses(
-        MatButtonHarness.with({ selector: "#verwijderen" }),
-      ),
-    ).toHaveLength(0);
-  });
-
-  it("should show expand arrow down when row is disabled and not expanded", async () => {
-    jest
-      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
-      .mockReturnValue(of([koppeling]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    await loader.getHarness(
-      MatIconHarness.with({ name: "keyboard_arrow_down" }),
-    );
-  });
-
-  it("should expand row and show arrow up icon on main-row click", async () => {
-    jest
-      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
-      .mockReturnValue(of([koppeling]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows();
-    await (await rows[0].host()).click();
-    fixture.detectChanges();
-
-    expect(component["expandedRow"]).toEqual(mailtemplate);
-
-    await loader.getHarness(MatIconHarness.with({ name: "keyboard_arrow_up" }));
-  });
-
-  it("should collapse row when clicked again", async () => {
-    jest
-      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
-      .mockReturnValue(of([koppeling]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows();
-    const firstRowHost = await rows[0].host();
-    await firstRowHost.click();
-    fixture.detectChanges();
-    await firstRowHost.click();
-    fixture.detectChanges();
-
-    expect(component["expandedRow"]).toBeNull();
-  });
-
-  it("should return koppelingen for the matching mailtemplate", () => {
-    jest
-      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
-      .mockReturnValue(of([koppeling]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    const koppelingen = component["getKoppelingen"](mailtemplate);
-    expect(koppelingen).toHaveLength(1);
-    expect(koppelingen[0]).toEqual(koppeling);
-  });
-
-  it("should return empty koppelingen for unrelated mailtemplate", () => {
-    const otherTemplate = { ...mailtemplate, id: 99 };
-    jest
-      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
-      .mockReturnValue(of([koppeling]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    expect(component["getKoppelingen"](otherTemplate)).toHaveLength(0);
-  });
-
-  it("should apply filter to data source on keyup", async () => {
-    const input = await loader.getHarness(MatInputHarness);
-    await input.setValue("Test");
-    await (await input.host()).dispatchEvent("keyup");
-    fixture.detectChanges();
-
-    expect(component["dataSource"].filter).toBe("Test");
-  });
-
-  it("should sort data ascending by mailTemplateNaam", () => {
-    const template2 = {
-      ...mailtemplate,
-      id: 2,
-      mailTemplateNaam: "A Template",
-    };
-    jest
-      .spyOn(mailtemplateBeheerService, "listMailtemplates")
-      .mockReturnValue(of([mailtemplate, template2]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    component["sortData"]({ active: "mailTemplateNaam", direction: "asc" });
-    fixture.detectChanges();
-
-    expect(component["dataSource"].data[0].mailTemplateNaam).toBe("A Template");
-  });
-
-  it("should sort data descending by mail", () => {
-    const template2 = {
-      ...mailtemplate,
-      id: 2,
-      mail: "ZAAK_ALGEMEEN",
-    } as GeneratedType<"RestMailtemplate">;
-    jest
-      .spyOn(mailtemplateBeheerService, "listMailtemplates")
-      .mockReturnValue(of([mailtemplate, template2]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    component["sortData"]({ active: "mail", direction: "desc" });
-    fixture.detectChanges();
-
-    expect(component["dataSource"].data[0].mail).toBe("ZAAK_ALGEMEEN");
-  });
-
-  it("should show empty state when data source is empty", async () => {
-    jest
-      .spyOn(mailtemplateBeheerService, "listMailtemplates")
-      .mockReturnValue(of([]));
-    component["laadMailtemplates"]();
-    fixture.detectChanges();
-
-    const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows();
-    expect(rows).toHaveLength(0);
-    expect(fixture.nativeElement.textContent).toContain(
-      "msg.geen.gegevens.gevonden",
-    );
-  });
-
-  it("should show the loading text in the empty table while results are loading", () => {
-    component["dataSource"].data = [];
-    component["isLoadingResults"] = true;
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain("msg.loading");
-  });
-
-  describe("loading state", () => {
-    // `UtilService.loading` is a shared boolean signal, not a ref-count: a late
-    // `setLoading(false)` would switch off the spinner of whichever page came next.
-    const originalOnUnhandledError = config.onUnhandledError;
-
-    afterEach(() => {
-      config.onUnhandledError = originalOnUnhandledError;
+  it("shows a row for each mailtemplate", async () => {
+    await setup({
+      mailtemplates: [
+        mailtemplate({ id: 1, mailTemplateNaam: "fakeEerste" }),
+        mailtemplate({ id: 2, mailTemplateNaam: "fakeTweede" }),
+      ],
     });
 
-    it("should reset the loading state when loading the mailtemplates fails", () => {
-      config.onUnhandledError = () => {};
-      jest
-        .spyOn(mailtemplateBeheerService, "listMailtemplates")
-        .mockReturnValue(throwError(() => new Error("fakeLoadingError")));
-      jest.mocked(utilServiceMock.setLoading).mockClear();
+    expect(screen.getByText("fakeEerste")).toBeInTheDocument();
+    expect(screen.getByText("fakeTweede")).toBeInTheDocument();
+  });
 
-      component["laadMailtemplates"]();
+  it("shows that the mailtemplates are loading", async () => {
+    await renderMailtemplates();
 
-      expect(component["isLoadingResults"]).toBe(false);
-      expect(utilServiceMock.setLoading).toHaveBeenLastCalledWith(false);
+    expect(screen.getByText("msg.loading")).toBeInTheDocument();
+
+    await respondWithMailtemplates([]);
+    httpTestingController
+      .expectOne("/rest/beheer/mailtemplatekoppeling")
+      .flush([]);
+  });
+
+  it("says so when there are no mailtemplates", async () => {
+    await setup({ mailtemplates: [] });
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeInTheDocument();
+  });
+
+  describe("deleting a mailtemplate", () => {
+    it("deletes the mailtemplate once the user confirms, and reloads the list", async () => {
+      await setup();
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.verwijderen" }),
+      );
+      await user.click(await screen.findByRole("button", { name: "actie.ja" }));
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/beheer/mailtemplates/1",
+      );
+      expect(request.request.method).toBe("DELETE");
+      request.flush(null);
+      await respondWithMailtemplates([]);
+
+      expect(
+        await screen.findByText("msg.geen.gegevens.gevonden"),
+      ).toBeInTheDocument();
+      expect(utilServiceMock.openSnackbar).toHaveBeenCalledWith(
+        "msg.mailtemplate.verwijderen.uitgevoerd",
+      );
     });
 
-    it("should not touch the loading state after the component is destroyed", () => {
-      const pendingMailtemplates = new Subject<
-        GeneratedType<"RestMailtemplate">[]
-      >();
-      jest
-        .spyOn(mailtemplateBeheerService, "listMailtemplates")
-        .mockReturnValue(pendingMailtemplates);
-      component["laadMailtemplates"]();
-      jest.mocked(utilServiceMock.setLoading).mockClear();
+    it("does not delete the mailtemplate when the user declines", async () => {
+      await setup();
 
-      fixture.destroy();
+      await user.click(
+        screen.getByRole("button", { name: "actie.verwijderen" }),
+      );
+      await user.click(
+        await screen.findByRole("button", { name: "actie.nee" }),
+      );
+      await sleep();
 
-      expect(utilServiceMock.setLoading).toHaveBeenCalledTimes(1);
-      expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
-
-      jest.mocked(utilServiceMock.setLoading).mockClear();
-      pendingMailtemplates.next([mailtemplate]);
-      pendingMailtemplates.complete();
-
-      expect(utilServiceMock.setLoading).not.toHaveBeenCalled();
+      httpTestingController.expectNone("/rest/beheer/mailtemplates/1");
     });
+
+    it("does not allow deleting a mailtemplate that a zaaktype uses", async () => {
+      await setup({ koppelingen: [koppeling] });
+
+      expect(
+        screen.getByRole("button", { name: "actie.verwijderen" }),
+      ).toBeDisabled();
+    });
+
+    it("does not offer to delete the default mailtemplate", async () => {
+      await setup({
+        mailtemplates: [mailtemplate({ defaultMailtemplate: true })],
+      });
+
+      expect(screen.getByText("done")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "actie.verwijderen" }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("the zaaktypes that use a mailtemplate", () => {
+    it("are listed with the mailtemplate", async () => {
+      await setup({ koppelingen: [koppeling] });
+
+      expect(
+        screen.getAllByText("msg.mailtemplate.verwijderen.gekoppeld"),
+      ).not.toHaveLength(0);
+      expect(
+        screen.getByRole("link", { name: "actie.zaakafhandelparameters" }),
+      ).toHaveAttribute("href", "/admin/parameters/fakeZaaktypeUuid");
+    });
+
+    it("are not listed with a mailtemplate that no zaaktype uses", async () => {
+      await setup({
+        mailtemplates: [mailtemplate({ id: 99 })],
+        koppelingen: [koppeling],
+      });
+
+      expect(
+        screen.queryByRole("link", { name: "actie.zaakafhandelparameters" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("can be expanded and collapsed by clicking the mailtemplate", async () => {
+      const { detectChanges } = await setup({ koppelingen: [koppeling] });
+
+      expect(screen.getByText("keyboard_arrow_down")).toBeInTheDocument();
+
+      await user.click(screen.getByText("fakeTemplateNaam"));
+      detectChanges();
+      expect(screen.getByText("keyboard_arrow_up")).toBeInTheDocument();
+
+      await user.click(screen.getByText("fakeTemplateNaam"));
+      detectChanges();
+      expect(screen.getByText("keyboard_arrow_down")).toBeInTheDocument();
+    });
+  });
+
+  it("filters the mailtemplates", async () => {
+    const { detectChanges } = await setup({
+      mailtemplates: [
+        mailtemplate({ id: 1, mailTemplateNaam: "fakeEerste" }),
+        mailtemplate({ id: 2, mailTemplateNaam: "fakeTweede" }),
+      ],
+    });
+
+    await user.type(screen.getByRole("textbox", { name: "filter" }), "tweede");
+    detectChanges();
+
+    expect(screen.queryByText("fakeEerste")).not.toBeInTheDocument();
+    expect(screen.getByText("fakeTweede")).toBeInTheDocument();
+  });
+
+  it("sorts the mailtemplates by name", async () => {
+    const { detectChanges } = await setup({
+      mailtemplates: [
+        mailtemplate({ id: 1, mailTemplateNaam: "fakeB" }),
+        mailtemplate({ id: 2, mailTemplateNaam: "fakeA" }),
+      ],
+    });
+
+    await user.click(screen.getByText("mail-template-naam"));
+    detectChanges();
+
+    expect(rowNames()).toEqual(["fakeA", "fakeB"]);
   });
 });

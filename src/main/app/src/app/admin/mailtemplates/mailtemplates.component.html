@@ -195,7 +195,7 @@
               style="text-align: center"
               [attr.colspan]="columnsToDisplay.length"
             >
-              @if (isLoadingResults) {
+              @if (isLoadingResults()) {
                 <p>{{ "msg.loading" | translate }}</p>
               } @else {
                 <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>

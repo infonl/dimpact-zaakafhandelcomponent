@@ -74,14 +74,35 @@ describe(MailtemplateBeheerService.name, () => {
       });
     });
 
-    it("has nothing to invalidate for a template it created", async () => {
+    it.each([
+      ["created", null],
+      ["updated", 1],
+    ])(
+      "invalidates the mailtemplate lists after a template is %s",
+      async (_, id) => {
+        const invalidateQueries = jest
+          .spyOn(testQueryClient, "invalidateQueries")
+          .mockResolvedValue(undefined);
+
+        await runMutationOnSuccess(service.saveMailtemplate(id));
+
+        expect(invalidateQueries).toHaveBeenCalledWith({
+          queryKey: service.listMailtemplates().queryKey,
+        });
+        expect(invalidateQueries).toHaveBeenCalledWith({
+          queryKey: service.listKoppelbareMailtemplates().queryKey,
+        });
+      },
+    );
+
+    it("invalidates only the lists for a template it created", async () => {
       const invalidateQueries = jest
         .spyOn(testQueryClient, "invalidateQueries")
         .mockResolvedValue(undefined);
 
       await runMutationOnSuccess(service.saveMailtemplate(null));
 
-      expect(invalidateQueries).not.toHaveBeenCalled();
+      expect(invalidateQueries).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -104,6 +125,21 @@ describe(MailtemplateBeheerService.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.mailtemplate.verwijderen.uitgevoerd",
       );
+    });
+
+    it("invalidates the mailtemplate lists", async () => {
+      const invalidateQueries = jest
+        .spyOn(testQueryClient, "invalidateQueries")
+        .mockResolvedValue(undefined);
+
+      await runMutationOnSuccess(service.deleteMailtemplate(), 1);
+
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: service.listMailtemplates().queryKey,
+      });
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: service.listKoppelbareMailtemplates().queryKey,
+      });
     });
   });
 });

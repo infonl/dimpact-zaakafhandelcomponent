@@ -118,15 +118,19 @@ export class MailCreateComponent implements OnInit {
         this.verzenderOptions = afzenders;
       });
 
-    this.mailtemplateService
-      .findMailtemplate("ZAAK_ALGEMEEN", this.zaak().uuid)
-      .subscribe((mailTemplate) => {
-        this.form.patchValue({
-          onderwerp: mailTemplate.onderwerp,
-          body: mailTemplate.body,
-        });
-        this.variabelen = mailTemplate.variabelen ?? [];
+    runQuery(
+      this.queryClient,
+      this.mailtemplateService.findMailtemplate(
+        "ZAAK_ALGEMEEN",
+        this.zaak().uuid,
+      ),
+    ).subscribe((mailTemplate) => {
+      this.form.patchValue({
+        onderwerp: mailTemplate.onderwerp,
+        body: mailTemplate.body,
       });
+      this.variabelen = mailTemplate.variabelen ?? [];
+    });
 
     this.zakenService
       .readDefaultAfzenderVoorZaak(this.zaak().uuid)
