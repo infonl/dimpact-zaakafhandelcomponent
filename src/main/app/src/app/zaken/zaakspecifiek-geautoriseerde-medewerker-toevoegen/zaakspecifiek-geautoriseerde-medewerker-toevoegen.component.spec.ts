@@ -121,7 +121,7 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
       groepId: "fakeGroepId",
       medewerkerId: "fakeMedewerkerId",
     });
-    request.flush(null);
+    request.flush(kandidaat);
     await settle();
     httpTestingController
       .expectOne(

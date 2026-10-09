@@ -101,6 +101,6 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
   protected toevoegen() {
     const { groep, medewerker } = this.form.getRawValue();
     if (!groep || !medewerker) return;
-    this.mutation.mutate({ groepId: groep.id, medewerker });
+    this.mutation.mutate({ groepId: groep.id, medewerkerId: medewerker.id });
   }
 }
