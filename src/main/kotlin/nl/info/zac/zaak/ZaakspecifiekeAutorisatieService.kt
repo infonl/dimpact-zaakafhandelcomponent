@@ -254,6 +254,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
      * Grants [medewerkerId], a member of the behandelaar group [groepId], individual access to the zaakspecifiek
      * geautoriseerde [zaak].
      *
+     * @return the added medewerker
      * @throws MedewerkerAlreadyZaakspecifiekGeautoriseerdException when the medewerker already has access
      * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaaktype does not define
      * the roltype
@@ -264,27 +265,30 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens,
         groepId: String,
         medewerkerId: String
-    ) {
+    ): User {
         assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
         assertBehandelaarGroep(zaakType, groepId)
         identityService.validateIfUserIsInGroup(medewerkerId, groepId)
         if (medewerkerId in listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)) {
             throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
         }
-        lockForZaak(zaak.uuid).withLock {
+        val medewerker = lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
             if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
                 throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
             }
-            grantZaakspecifiekeAutorisatie(
-                zaak = zaak,
-                medewerker = readMedewerkerIdentificatie(medewerkerId),
-                reason = zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak),
-                zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
-            )
+            identityService.readUser(medewerkerId).also {
+                grantZaakspecifiekeAutorisatie(
+                    zaak = zaak,
+                    medewerker = it.toMedewerkerIdentificatie(),
+                    reason = zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak),
+                    zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
+                )
+            }
         }
         indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
         reindexDependents(zaak)
+        return medewerker
     }
 
     fun markZaakspecifiekGeautoriseerd(zaak: Zaak) {
@@ -330,13 +334,13 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         )
 
     private fun readMedewerkerIdentificatie(medewerkerId: String) =
-        identityService.readUser(medewerkerId).let { user ->
-            MedewerkerIdentificatie().apply {
-                identificatie = user.id
-                voorletters = user.firstName
-                achternaam = user.lastName
-            }
-        }
+        identityService.readUser(medewerkerId).toMedewerkerIdentificatie()
+
+    private fun User.toMedewerkerIdentificatie() = MedewerkerIdentificatie().apply {
+        identificatie = this@toMedewerkerIdentificatie.id
+        voorletters = firstName
+        achternaam = lastName
+    }
 
     private fun reindexDependents(zaak: Zaak) {
         indexingService.addOrUpdateTakenForZaak(zaak.uuid)

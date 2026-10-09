@@ -9,9 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.model.createZaak
@@ -139,10 +137,10 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                     groepId = "fakeGroepId",
                     medewerkerId = "fakeMedewerkerId"
                 )
-            } just runs
+            } returns createUser(id = "fakeMedewerkerId", fullName = "fakeMedewerkerNaam")
 
             `when`("a medewerker of a groep is added") {
-                zaakspecifiekeAutorisatieRestService.addZaakspecifiekGeautoriseerdeMedewerker(
+                val restUser = zaakspecifiekeAutorisatieRestService.addZaakspecifiekGeautoriseerdeMedewerker(
                     zaak.uuid,
                     createRestZaakspecifiekGeautoriseerdeMedewerker(
                         groepId = "fakeGroepId",
@@ -152,6 +150,11 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
 
                 then("whether the zaak is zaakspecifiek geautoriseerd is read only once for the whole request") {
                     verify(exactly = 1) { zrcClientService.listZaakeigenschappen(zaak.uuid) }
+                }
+
+                and("the added medewerker is returned") {
+                    restUser.id shouldBe "fakeMedewerkerId"
+                    restUser.naam shouldBe "fakeMedewerkerNaam"
                 }
 
                 and("the medewerker is added to the zaak") {

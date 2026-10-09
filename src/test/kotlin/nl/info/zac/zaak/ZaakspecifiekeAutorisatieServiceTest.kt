@@ -1364,7 +1364,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
 
             `when`("the medewerker is added") {
-                zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                val addedMedewerker = zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
                     zaak = zaak,
                     zaakType = zaakType,
                     zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
@@ -1373,6 +1373,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
 
                 then("a zaakspecifiek geautoriseerde medewerker rol is added with the medewerker's name from Keycloak") {
+                    addedMedewerker.id shouldBe "fakeMedewerkerId"
                     with(rolSlot.captured) {
                         roltype shouldBe zaakspecifiekGeautoriseerdeMedewerkerRolType.url
                         roltoelichting shouldBe "Zaakspecifiek geautoriseerde medewerker van de zaak"

@@ -32,7 +32,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
-import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
@@ -173,7 +172,8 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             )
 
             then("the medewerker is a zaakspecifiek geautoriseerde medewerker of the zaak in Open Zaak") {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_OK
+                JSONObject(response.bodyAsString).getString("id") shouldBe BEHANDELAAR_1_EN_BRP_ZOEKER_2.username
                 zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe
                     listOf(BEHANDELAAR_1_EN_BRP_ZOEKER_2.username)
             }
@@ -241,7 +241,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             )
 
             then("that medewerker can read the zaak as well") {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_OK
                 readZaak(zaakUuid, BEHANDELAAR_LONG_NAME_TEST).code shouldBe HTTP_OK
             }
         }

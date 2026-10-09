@@ -21,6 +21,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.identity.model.toRestUser
 import nl.info.zac.app.identity.model.toRestUsers
 import nl.info.zac.app.zaak.model.RestZaakspecifiekGeautoriseerdeMedewerker
 import nl.info.zac.authentication.LoggedInUser
@@ -64,16 +65,16 @@ class ZaakspecifiekeAutorisatieRestService @Inject constructor(
     fun addZaakspecifiekGeautoriseerdeMedewerker(
         @PathParam("uuid") zaakUUID: UUID,
         @Valid restZaakspecifiekGeautoriseerdeMedewerker: RestZaakspecifiekGeautoriseerdeMedewerker
-    ) {
+    ): RestUser {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakAutorisatieGegevens = readZaakAutorisatieGegevensAndAssertWijzigen(zaak, zaakType)
-        zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+        return zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
             zaak = zaak,
             zaakType = zaakType,
             zaakAutorisatieGegevens = zaakAutorisatieGegevens,
             groepId = restZaakspecifiekGeautoriseerdeMedewerker.groepId,
             medewerkerId = restZaakspecifiekGeautoriseerdeMedewerker.medewerkerId
-        )
+        ).toRestUser()
     }
 
     private fun readZaakAutorisatieGegevensAndAssertWijzigen(zaak: Zaak, zaakType: ZaakType) =
