@@ -37,7 +37,7 @@ Write a two-letter acronym in capitals (`IOStream`) and capitalize only the firs
 cased two-letter acronym, nor names of nested classes, functions and properties.
 
 ## Prefer default parameter values over function overloads
-Following the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html#default-parameter-values-vs-overloads),
+Following the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html#default-parameter-values),
 declare one function with a default parameter value instead of an overload that only fills in an argument.
 Put parameters with a default value last, and use named arguments when a caller passes one.
 ```kotlin
