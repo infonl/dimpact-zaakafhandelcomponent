@@ -28,6 +28,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -269,4 +270,31 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     private fun LoggedInUser.isZaakspecifiekGeautoriseerdFor(zaaktypeOmschrijving: String) =
         ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in overallRoles ||
             ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in applicationRolesPerZaaktype[zaaktypeOmschrijving].orEmpty()
+}
+
+/**
+ * The single place where it is decided whether [zaak] is zaakspecifiek geautoriseerd and which medewerkers are
+ * individually authorised for it, so that the rechten and the search index always agree. The medewerkers are only
+ * read from the zaakregister when they are used.
+ *
+ * This is an extension function rather than a member, so that the derivation itself also runs in unit tests that
+ * mock [ZaakspecifiekeAutorisatieService].
+ */
+fun ZaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService: ZrcClientService, zaak: Zaak) =
+    readZaakAutorisatieGegevens(zrcClientService = zrcClientService, zaakUuid = zaak.uuid) { zaak }
+
+/**
+ * Variant of [readZaakAutorisatieGegevens] for callers that only know the UUID of the zaak; the zaak itself is only
+ * read when the medewerkers are used.
+ */
+fun ZaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(
+    zrcClientService: ZrcClientService,
+    zaakUuid: UUID,
+    zaakSupplier: () -> Zaak = { zrcClientService.readZaak(zaakUuid) }
+) = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUuid).let { isZaakspecifiekGeautoriseerd ->
+    ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd) {
+        readZaakToewijzing(zaak = zaakSupplier(), isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd)
+            .geautoriseerdeMedewerkerIds
+            .toList()
+    }
 }

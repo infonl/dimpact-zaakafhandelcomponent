@@ -23,7 +23,6 @@ import nl.info.client.zgw.zrc.util.isIntake
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
-import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
@@ -46,6 +45,7 @@ import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.policy.output.WerklijstRechten
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.DocumentIndicatie
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
@@ -55,6 +55,7 @@ import nl.info.zac.search.model.zoekobject.isZaakOpen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.readZaakAutorisatieGegevens
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
 import java.util.logging.Logger
@@ -88,17 +89,34 @@ class PolicyService @Inject constructor(
             )
         ).requireResult(OpaEvaluationClient.OVERIGE_RECHTEN_PATH)
 
-    fun readZaakRechten(zaak: Zaak, loggedInUser: LoggedInUser): ZaakRechten {
+
+    fun readZaakRechten(
+        zaak: Zaak,
+        loggedInUser: LoggedInUser,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
+    ): ZaakRechten {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        return readZaakRechten(zaak, zaakType, loggedInUser)
+        return readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
     }
 
-    fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType, loggedInUser: LoggedInUser): ZaakRechten {
+
+    fun readZaakRechten(
+        zaak: Zaak,
+        zaaktype: ZaakType,
+        loggedInUser: LoggedInUser,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
+    ): ZaakRechten {
+        val resolvedZaakAutorisatieGegevens = zaakAutorisatieGegevens
+            ?: zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         val statusType = zaak.status?.let {
             zrcClientService.readStatus(it).statustype
                 .let(ztcClientService::readStatustype)
         }
-        val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
         val zaakData = ZaakData(
             isOpen = zaak.isOpen(),
             zaaktype = zaaktype.getOmschrijving(),
@@ -108,9 +126,8 @@ class PolicyService @Inject constructor(
             isIntake = statusType?.isIntake(),
             isHeropend = statusType?.isHeropend(),
             isBrondatumBepaald = zaak.startdatumBewaartermijn != null,
-            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
-            isLoggedInUserGeautoriseerdeMedewerker = isZaakspecifiekGeautoriseerd &&
-                zaak.isGeautoriseerdeMedewerkerOf(loggedInUser.id)
+            isZaakspecifiekGeautoriseerd = resolvedZaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
+            isLoggedInUserGeautoriseerdeMedewerker = resolvedZaakAutorisatieGegevens.isGeautoriseerdeMedewerker(loggedInUser.id)
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -136,8 +153,10 @@ class PolicyService @Inject constructor(
             // not taken into account when searching for a zaak
             isBrondatumBepaald = null,
             isZaakspecifiekGeautoriseerd = zaakZoekObject.isZaakspecifiekGeautoriseerd,
-            isLoggedInUserGeautoriseerdeMedewerker = zaakZoekObject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in zaakZoekObject.zaakGeautoriseerdeMedewerkers.orEmpty()
+            isLoggedInUserGeautoriseerdeMedewerker = isLoggedInUserGeautoriseerdeMedewerker(
+                isZaakspecifiekGeautoriseerd = zaakZoekObject.isZaakspecifiekGeautoriseerd,
+                zaakGeautoriseerdeMedewerkers = zaakZoekObject.zaakGeautoriseerdeMedewerkers
+            )
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -159,9 +178,13 @@ class PolicyService @Inject constructor(
     fun readDocumentRechten(
         enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
         lock: EnkelvoudigInformatieObjectLock?,
-        zaak: Zaak?
+        zaak: Zaak?,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): DocumentRechten {
-        val isZaakspecifiekGeautoriseerd = zaak?.let { zrcClientService.isZaakspecifiekGeautoriseerd(it.uuid) } == true
+        val resolvedZaakAutorisatieGegevens = zaak?.let {
+            zaakAutorisatieGegevens
+                ?: zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, it)
+        }
         val documentData = DocumentData(
             isDefinitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF,
             isVergrendeld = enkelvoudigInformatieobject.getLocked(),
@@ -169,9 +192,9 @@ class PolicyService @Inject constructor(
             isOndertekend = enkelvoudigInformatieobject.isSigned(),
             isZaakOpen = zaak?.isOpen() ?: false,
             zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() },
-            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
-            isLoggedInUserGeautoriseerdeMedewerker = isZaakspecifiekGeautoriseerd &&
-                zaak.isGeautoriseerdeMedewerkerOf(loggedInUserInstance.get().id)
+            isZaakspecifiekGeautoriseerd = resolvedZaakAutorisatieGegevens?.isZaakspecifiekGeautoriseerd == true,
+            isLoggedInUserGeautoriseerdeMedewerker =
+                resolvedZaakAutorisatieGegevens?.isGeautoriseerdeMedewerker(loggedInUserInstance.get().id) == true
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -192,8 +215,10 @@ class PolicyService @Inject constructor(
             zaaktype = enkelvoudigInformatieobject.zaaktypeOmschrijving,
             isOndertekend = enkelvoudigInformatieobject.ondertekeningDatum != null,
             isZaakspecifiekGeautoriseerd = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd,
-            isLoggedInUserGeautoriseerdeMedewerker = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in enkelvoudigInformatieobject.zaakGeautoriseerdeMedewerkers.orEmpty()
+            isLoggedInUserGeautoriseerdeMedewerker = isLoggedInUserGeautoriseerdeMedewerker(
+                isZaakspecifiekGeautoriseerd = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd,
+                zaakGeautoriseerdeMedewerkers = enkelvoudigInformatieobject.zaakGeautoriseerdeMedewerkers
+            )
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -210,18 +235,26 @@ class PolicyService @Inject constructor(
         return readTaakRechten(taskInfo, zaaktypeOmschrijving)
     }
 
+    /**
+     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of the zaak of [taskInfo], for a caller that
+     * already read it in this request. When omitted, it is read here.
+     */
     fun readTaakRechten(
         taskInfo: TaskInfo,
-        zaaktypeOmschrijving: String
+        zaaktypeOmschrijving: String,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): TaakRechten {
-        val zaakUUID = readZaakUUID(taskInfo)
-        val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+        val resolvedZaakAutorisatieGegevens = zaakAutorisatieGegevens
+            ?: zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(
+                zrcClientService = zrcClientService,
+                zaakUuid = readZaakUUID(taskInfo)
+            )
         val taakData = TaakData(
             isOpen = taskInfo.isOpen(),
             zaaktype = zaaktypeOmschrijving,
-            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
-            isLoggedInUserGeautoriseerdeMedewerker = isZaakspecifiekGeautoriseerd &&
-                zrcClientService.readZaak(zaakUUID).isGeautoriseerdeMedewerkerOf(loggedInUserInstance.get().id)
+            isZaakspecifiekGeautoriseerd = resolvedZaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
+            isLoggedInUserGeautoriseerdeMedewerker =
+                resolvedZaakAutorisatieGegevens.isGeautoriseerdeMedewerker(loggedInUserInstance.get().id)
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(
@@ -238,8 +271,10 @@ class PolicyService @Inject constructor(
             isOpen = taakZoekObject.isOpen(),
             zaaktype = taakZoekObject.zaaktypeOmschrijving,
             isZaakspecifiekGeautoriseerd = taakZoekObject.isZaakspecifiekGeautoriseerd,
-            isLoggedInUserGeautoriseerdeMedewerker = taakZoekObject.isZaakspecifiekGeautoriseerd &&
-                loggedInUserInstance.get().id in taakZoekObject.zaakGeautoriseerdeMedewerkers.orEmpty()
+            isLoggedInUserGeautoriseerdeMedewerker = isLoggedInUserGeautoriseerdeMedewerker(
+                isZaakspecifiekGeautoriseerd = taakZoekObject.isZaakspecifiekGeautoriseerd,
+                zaakGeautoriseerdeMedewerkers = taakZoekObject.zaakGeautoriseerdeMedewerkers
+            )
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(
@@ -251,10 +286,11 @@ class PolicyService @Inject constructor(
         ).requireResult(OpaEvaluationClient.TAAK_RECHTEN_PATH)
     }
 
-    private fun Zaak.isGeautoriseerdeMedewerkerOf(userId: String) =
-        zaakspecifiekeAutorisatieService
-            .readZaakToewijzing(zaak = this, isZaakspecifiekGeautoriseerd = true)
-            .isGeautoriseerdeMedewerker(userId)
+    private fun isLoggedInUserGeautoriseerdeMedewerker(
+        isZaakspecifiekGeautoriseerd: Boolean,
+        zaakGeautoriseerdeMedewerkers: List<String>?
+    ) = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd) { zaakGeautoriseerdeMedewerkers.orEmpty() }
+        .isGeautoriseerdeMedewerker(loggedInUserInstance.get().id)
 
     fun readNotitieRechten(): NotitieRechten =
         evaluationClient.readNotitieRechten(
