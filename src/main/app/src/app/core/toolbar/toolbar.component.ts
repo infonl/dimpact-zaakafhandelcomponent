@@ -43,7 +43,6 @@ import { PolicyService } from "../../policy/policy.service";
 import { BackButtonDirective } from "../../shared/navigation/back-button.directive";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { VersionComponent } from "../../shared/version/version.component";
 import { SignaleringenService } from "../../signaleringen.service";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -96,7 +95,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   protected headerTitle$?: Observable<string>;
   protected hasNewSignaleringen = false;
-  protected werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
 
   private subscription$?: Subscription;
   private signaleringListener?: WebsocketListener;
@@ -106,6 +104,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   );
   protected readonly overigeRechtenQuery = injectQuery(() =>
     this.policyService.readOverigeRechten(),
+  );
+  protected readonly werklijstRechtenQuery = injectQuery(() =>
+    this.policyService.readWerklijstRechten(),
   );
   protected readonly medewerkerNaamToolbar = computed(() =>
     this.loggedInUserQuery
@@ -158,10 +159,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.headerTitle$ = this.utilService.headerTitle$;
-
-    this.policyService
-      .readWerklijstRechten()
-      .subscribe((rechten) => (this.werklijstRechten = rechten));
     this.setSignaleringen();
   }
 

@@ -44,7 +44,7 @@
   </button>
 
   <button
-    *ngIf="werklijstRechten?.canZakenTaken"
+    *ngIf="werklijstRechtenQuery.data()?.canZakenTaken"
     [matMenuTriggerFor]="zakenMenu"
     mat-flat-button
     [ngClass]="{ active: isCaseRouteActive() }"
@@ -70,7 +70,7 @@
   </button>
 
   <button
-    *ngIf="werklijstRechten?.canZakenTaken"
+    *ngIf="werklijstRechtenQuery.data()?.canZakenTaken"
     [matMenuTriggerFor]="takenMenu"
     mat-flat-button
     [ngClass]="{ active: isTaskRouteActive() }"
@@ -92,7 +92,7 @@
   </button>
 
   <button
-    *ngIf="werklijstRechten?.canInbox"
+    *ngIf="werklijstRechtenQuery.data()?.canInbox"
     [matMenuTriggerFor]="inboxMenu"
     mat-flat-button
     color="primary"

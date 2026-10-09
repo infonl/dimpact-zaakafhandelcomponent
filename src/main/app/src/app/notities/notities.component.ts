@@ -7,11 +7,11 @@ import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
+  computed,
+  effect,
   ElementRef,
   inject,
   input,
-  OnDestroy,
-  OnInit,
   ViewChild,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
@@ -21,10 +21,9 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { ObjectType } from "../core/websocket/model/object-type";
 import { Opcode } from "../core/websocket/model/opcode";
-import { WebsocketListener } from "../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../core/websocket/websocket.service";
 import { IdentityService } from "../identity/identity.service";
 import { injectMutation } from "../shared/http/inject-mutation";
@@ -51,10 +50,11 @@ import { NotitieService } from "./notities.service";
     DatumPipe,
   ],
 })
-export class NotitiesComponent implements OnInit, OnDestroy {
+export class NotitiesComponent {
   private readonly identityService = inject(IdentityService);
   private readonly notitieService = inject(NotitieService);
   private readonly websocketService = inject(WebsocketService);
+  private readonly queryClient = inject(QueryClient);
 
   readonly zaakUuid = input.required<string>();
   readonly notitieRechten = input<GeneratedType<"RestNotitieRechten">>();
@@ -67,11 +67,25 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
+  private readonly notitiesQuery = injectQuery(() =>
+    this.notitieService.listNotities(this.zaakUuid()),
+  );
+  protected readonly notities = computed(() =>
+    [...(this.notitiesQuery.data() ?? [])].sort((a, b) => {
+      if (!a.tijdstipLaatsteWijziging) return -1;
+      if (!b.tijdstipLaatsteWijziging) return 1;
+
+      return b.tijdstipLaatsteWijziging.localeCompare(
+        a.tijdstipLaatsteWijziging,
+      );
+    }),
+  );
+
   private readonly createNotitieMutation = injectMutation(
     () => this.notitieService.createNotitie(),
     {
       onSuccess: (notitie) => {
-        this.notities.splice(0, 0, notitie);
+        this.updateCachedNotities((notities) => [notitie, ...notities]);
         this.notitieTekst.nativeElement.value = "";
         this.scrollTarget.nativeElement.scrollIntoView({
           behavior: "smooth",
@@ -84,8 +98,11 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     () => this.notitieService.updateNotitie(),
     {
       onSuccess: (updatedNotitie, { id }) => {
-        const notitie = this.notities.find((candidate) => candidate.id === id);
-        if (notitie) Object.assign(notitie, updatedNotitie);
+        this.updateCachedNotities((notities) =>
+          notities.map((notitie) =>
+            notitie.id === id ? { ...notitie, ...updatedNotitie } : notitie,
+          ),
+        );
         this.geselecteerdeNotitieId = null;
       },
     },
@@ -94,34 +111,31 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     () => this.notitieService.deleteNotitie(),
     {
       onSuccess: (_data, id) => {
-        this.notities.splice(
-          this.notities.findIndex((notitie) => notitie.id === id),
-          1,
+        this.updateCachedNotities((notities) =>
+          notities.filter((notitie) => notitie.id !== id),
         );
       },
     },
   );
 
-  protected notities: GeneratedType<"RestNote">[] = [];
   protected showNotes = false;
   protected geselecteerdeNotitieId: number | null = null;
   protected maxLengteTextArea = 1000;
 
-  private notitiesListener!: WebsocketListener;
-
-  ngOnInit() {
-    this.haalNotitiesOp();
-
-    this.notitiesListener = this.websocketService.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK_NOTITIES,
-      this.zaakUuid(),
-      () => this.haalNotitiesOp(),
-    );
-  }
-
-  ngOnDestroy() {
-    this.websocketService.removeListener(this.notitiesListener);
+  constructor() {
+    effect((onCleanup) => {
+      const zaakUuid = this.zaakUuid();
+      const notitiesListener = this.websocketService.addListener(
+        Opcode.UPDATED,
+        ObjectType.ZAAK_NOTITIES,
+        zaakUuid,
+        () =>
+          void this.queryClient.invalidateQueries({
+            queryKey: this.notitieService.listNotities(zaakUuid).queryKey,
+          }),
+      );
+      onCleanup(() => this.websocketService.removeListener(notitiesListener));
+    });
   }
 
   protected toggleNotitieContainer() {
@@ -132,18 +146,15 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     this.geselecteerdeNotitieId = id ?? null;
   }
 
-  private haalNotitiesOp() {
-    this.notitieService.listNotities(this.zaakUuid()).subscribe((notities) => {
-      this.notities = notities;
-      this.notities.sort((a, b) => {
-        if (!a.tijdstipLaatsteWijziging) return -1;
-        if (!b.tijdstipLaatsteWijziging) return 1;
-
-        return b.tijdstipLaatsteWijziging.localeCompare(
-          a.tijdstipLaatsteWijziging,
-        );
-      });
-    });
+  private updateCachedNotities(
+    update: (
+      notities: GeneratedType<"RestNote">[],
+    ) => GeneratedType<"RestNote">[],
+  ) {
+    this.queryClient.setQueryData(
+      this.notitieService.listNotities(this.zaakUuid()).queryKey,
+      (notities) => update(notities ?? []),
+    );
   }
 
   protected maakNotitieAan(tekst: string) {

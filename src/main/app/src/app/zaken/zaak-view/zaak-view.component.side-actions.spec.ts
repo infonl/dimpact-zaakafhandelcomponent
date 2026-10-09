@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpTestingController } from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -20,7 +21,7 @@ import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { BAGService } from "../../bag/bag.service";
@@ -376,12 +377,10 @@ describe(ZaakViewComponent.name, () => {
     });
 
     let openSideNav: jest.SpyInstance;
-    let readHumanTaskPlanItem: jest.SpyInstance;
+    let httpTestingController: HttpTestingController;
 
     beforeEach(() => {
-      readHumanTaskPlanItem = jest
-        .spyOn(planItemsService, "readHumanTaskPlanItem")
-        .mockReturnValue(of(humanTaskPlanItem));
+      httpTestingController = TestBed.inject(HttpTestingController);
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
       openSideNav = jest
@@ -389,23 +388,36 @@ describe(ZaakViewComponent.name, () => {
         .mockResolvedValue("open");
     });
 
-    it("fetches the full plan item and opens its own panel", () => {
+    async function startHumanTask() {
       fixture.componentInstance["startHumanTaskPlanItem"](humanTaskPlanItem);
+      await sleep();
+    }
 
-      expect(readHumanTaskPlanItem).toHaveBeenCalledWith(humanTaskPlanItem.id);
-      expect(sideActions.actiefPlanItem()).toBe(humanTaskPlanItem);
+    it("fetches the full plan item and opens its own panel", async () => {
+      await startHumanTask();
+      httpTestingController
+        .expectOne("/rest/planitems/humanTaskPlanItem/fakeHumanTaskPlanItemId")
+        .flush(humanTaskPlanItem);
+      await sleep();
+
+      expect(sideActions.actiefPlanItem()).toEqual(humanTaskPlanItem);
       expect(sideActions.activeAction()).toBe("fakeHumanTaskNaam");
       expect(openSideNav).toHaveBeenCalled();
     });
 
-    it("reopens the panel of the plan item it already loaded without fetching it again", () => {
-      fixture.componentInstance["startHumanTaskPlanItem"](humanTaskPlanItem);
-      readHumanTaskPlanItem.mockClear();
+    it("reopens the panel of the plan item it already loaded without fetching it again", async () => {
+      await startHumanTask();
+      httpTestingController
+        .expectOne("/rest/planitems/humanTaskPlanItem/fakeHumanTaskPlanItemId")
+        .flush(humanTaskPlanItem);
+      await sleep();
       sideActions.clear();
 
-      fixture.componentInstance["startHumanTaskPlanItem"](humanTaskPlanItem);
+      await startHumanTask();
 
-      expect(readHumanTaskPlanItem).not.toHaveBeenCalled();
+      httpTestingController.expectNone(
+        "/rest/planitems/humanTaskPlanItem/fakeHumanTaskPlanItemId",
+      );
       expect(sideActions.activeAction()).toBe("fakeHumanTaskNaam");
     });
   });
