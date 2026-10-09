@@ -94,7 +94,7 @@ class TaskService @Inject constructor(
         return assignedTask
     }
 
-    fun releaseTask(task: Task, reason: String?, loggedInUser: LoggedInUser): Task =
+    private fun releaseTask(task: Task, reason: String?, loggedInUser: LoggedInUser): Task =
         flowableTaskService.releaseTask(task, reason).also { sendTaakOpNaamSignalering(it, loggedInUser) }
 
     fun listTasksForZaak(zaakUUID: UUID): List<TaskInfo> = flowableTaskService.listTasksForZaak(zaakUUID)
