@@ -358,7 +358,7 @@ ZAC kent op dit moment de volgende applicatierollen:
 * `brp_zoeken`
 * `zaakspecifiek_geautoriseerd`
 
-De applicatierollen `brp_zoeken` en `zaakspecifiek_geautoriseerd` geven geen toegang tot ZAC zonder één van de andere applicatierollen.
+De applicatierollen `brp_zoeken` en `zaakspecifiek_geautoriseerd` geven geen toegang tot ZAC zonder (minstens) één van de andere basis applicatierollen.
 Zie de secties [BRP-autorisatie](#brp-autorisatie) en [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie).
 
 De PABC wordt gebruikt om functionele rollen te autoriseren door vanuit functionele rollen koppelingen
