@@ -4,7 +4,9 @@
   -->
 
 <div class="table-container">
-  <div class="table-loading-shade" *ngIf="isLoadingResults"></div>
+  @if (isLoadingResults) {
+    <div class="table-loading-shade"></div>
+  }
   <div class="table-wrapper">
     <table
       mat-table
@@ -46,9 +48,9 @@
               [value]="listParameters.type"
             >
               <mat-option>{{ "filter.alle" | translate }}</mat-option>
-              <mat-option *ngFor="let value of filterType" [value]="value">{{
-                value
-              }}</mat-option>
+              @for (value of filterType; track value) {
+                <mat-option [value]="value">{{ value }}</mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </th>
@@ -81,8 +83,12 @@
             aria-label="expand row"
             (click)="updateActive(row); $event.stopPropagation()"
           >
-            <mat-icon *ngIf="expandedRow !== row">keyboard_arrow_down</mat-icon>
-            <mat-icon *ngIf="expandedRow === row">keyboard_arrow_up</mat-icon>
+            @if (expandedRow !== row) {
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            }
+            @if (expandedRow === row) {
+              <mat-icon>keyboard_arrow_up</mat-icon>
+            }
           </button>
         </td>
       </ng-container>
@@ -124,14 +130,15 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row">
           <div class="flex-row">
-            <button
-              *ngIf="werklijstRechten.canInboxProductaanvragenVerwijderen"
-              mat-icon-button
-              (click)="inboxProductaanvragenVerwijderen(row)"
-              title="{{ 'actie.verwijderen' | translate }}"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
+            @if (werklijstRechten.canInboxProductaanvragenVerwijderen) {
+              <button
+                mat-icon-button
+                (click)="inboxProductaanvragenVerwijderen(row)"
+                title="{{ 'actie.verwijderen' | translate }}"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
             <a
               mat-icon-button
               [routerLink]="['/informatie-objecten', row.aanvraagdocumentUUID]"
@@ -163,14 +170,15 @@
           [attr.colspan]="displayedColumns.length"
         >
           <div [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'">
-            <object
-              type="application/pdf"
-              *ngIf="row === expandedRow"
-              [data]="previewSrc"
-              title="aanvraagdocument.pdf"
-              height="600px"
-              width="100%"
-            ></object>
+            @if (row === expandedRow) {
+              <object
+                type="application/pdf"
+                [data]="previewSrc"
+                title="aanvraagdocument.pdf"
+                height="600px"
+                width="100%"
+              ></object>
+            }
           </div>
         </td>
       </ng-container>
@@ -184,13 +192,13 @@
       ></tr>
     </table>
 
-    <ng-container *ngIf="paginator.length === 0 && !isLoadingResults">
+    @if (paginator.length === 0 && !isLoadingResults) {
       <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
-    </ng-container>
+    }
 
-    <ng-container *ngIf="paginator.length === 0 && isLoadingResults">
+    @if (paginator.length === 0 && isLoadingResults) {
       <p>{{ "msg.loading" | translate }}</p>
-    </ng-container>
+    }
   </div>
   <mat-paginator
     #paginator

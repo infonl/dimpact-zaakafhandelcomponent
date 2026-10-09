@@ -2,20 +2,16 @@
   ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<button mat-icon-button [ngSwitch]="state()" (click)="toggle()">
-  <mat-icon
-    outlined
-    *ngSwitchCase="toggleSwitchOptions.CHECKED"
-    color="primary"
-    >{{ checkedIcon() }}</mat-icon
-  >
-  <mat-icon
-    outlined
-    *ngSwitchCase="toggleSwitchOptions.UNCHECKED"
-    color="warn"
-    >{{ unCheckedIcon() }}</mat-icon
-  >
-  <mat-icon outlined *ngSwitchCase="toggleSwitchOptions.INDETERMINATE">{{
-    indeterminateIcon()
-  }}</mat-icon>
+<button mat-icon-button (click)="toggle()">
+  @switch (state()) {
+    @case (toggleSwitchOptions.CHECKED) {
+      <mat-icon outlined color="primary">{{ checkedIcon() }}</mat-icon>
+    }
+    @case (toggleSwitchOptions.UNCHECKED) {
+      <mat-icon outlined color="warn">{{ unCheckedIcon() }}</mat-icon>
+    }
+    @case (toggleSwitchOptions.INDETERMINATE) {
+      <mat-icon outlined>{{ indeterminateIcon() }}</mat-icon>
+    }
+  }
 </button>

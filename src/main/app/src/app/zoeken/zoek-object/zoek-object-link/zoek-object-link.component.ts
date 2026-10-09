@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, HostListener, input } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
@@ -24,7 +23,6 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
   templateUrl: "./zoek-object-link.component.html",
   standalone: true,
   imports: [
-    NgIf,
     RouterLink,
     MatIconModule,
     TranslateModule,

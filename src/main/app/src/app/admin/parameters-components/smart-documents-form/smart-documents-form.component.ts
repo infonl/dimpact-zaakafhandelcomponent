@@ -4,7 +4,7 @@
  */
 
 import { FlatTreeControl } from "@angular/cdk/tree";
-import { NgIf } from "@angular/common";
+
 import { Component, effect, input, untracked } from "@angular/core";
 import {
   FormBuilder,
@@ -47,7 +47,6 @@ interface FlatNode {
   styleUrl: "./smart-documents-form.component.less",
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,

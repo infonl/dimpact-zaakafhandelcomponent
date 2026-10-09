@@ -63,15 +63,18 @@
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell dashboard-empty-cell" colspan="5">
-        <mat-progress-spinner
-          *ngIf="ioQuery.isLoading()"
-          mode="indeterminate"
-          diameter="32"
-          [attr.aria-label]="'msg.loading' | translate"
-        ></mat-progress-spinner>
-        <p *ngIf="!ioQuery.isLoading()">
-          {{ "msg.geen.gegevens.gevonden" | translate }}
-        </p>
+        @if (ioQuery.isLoading()) {
+          <mat-progress-spinner
+            mode="indeterminate"
+            diameter="32"
+            [attr.aria-label]="'msg.loading' | translate"
+          ></mat-progress-spinner>
+        }
+        @if (!ioQuery.isLoading()) {
+          <p>
+            {{ "msg.geen.gegevens.gevonden" | translate }}
+          </p>
+        }
       </td>
     </tr>
   </table>

@@ -16,17 +16,17 @@
         [formControl]="dateVan"
         (dateChange)="change()"
       />
-      <mat-icon
-        *ngIf="dateVan.value"
-        matSuffix
-        (click)="dateVan.setValue(null); change()"
-        >clear</mat-icon
-      >
-      <mat-datepicker-toggle
-        *ngIf="!dateVan.value"
-        matSuffix
-        [for]="pickerVan"
-      ></mat-datepicker-toggle>
+      @if (dateVan.value) {
+        <mat-icon matSuffix (click)="dateVan.setValue(null); change()"
+          >clear</mat-icon
+        >
+      }
+      @if (!dateVan.value) {
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="pickerVan"
+        ></mat-datepicker-toggle>
+      }
       <mat-datepicker #pickerVan></mat-datepicker>
     </mat-form-field>
     <mat-form-field>
@@ -37,17 +37,17 @@
         [formControl]="dateTM"
         (dateChange)="change()"
       />
-      <mat-icon
-        *ngIf="dateTM.value"
-        matSuffix
-        (click)="dateTM.setValue(null); change()"
-        >clear</mat-icon
-      >
-      <mat-datepicker-toggle
-        *ngIf="!dateTM.value"
-        matSuffix
-        [for]="pickerTM"
-      ></mat-datepicker-toggle>
+      @if (dateTM.value) {
+        <mat-icon matSuffix (click)="dateTM.setValue(null); change()"
+          >clear</mat-icon
+        >
+      }
+      @if (!dateTM.value) {
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="pickerTM"
+        ></mat-datepicker-toggle>
+      }
       <mat-datepicker #pickerTM></mat-datepicker>
     </mat-form-field>
   </div>

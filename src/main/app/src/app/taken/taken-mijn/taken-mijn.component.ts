@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  NgFor,
-  NgIf,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault,
-  SlicePipe,
-} from "@angular/common";
+import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -69,11 +62,6 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
     MatIconAnchor,
     RouterLink,
     TranslateModule,
-    NgIf,
-    NgFor,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
     SlicePipe,
     EmptyPipe,
     DatumPipe,

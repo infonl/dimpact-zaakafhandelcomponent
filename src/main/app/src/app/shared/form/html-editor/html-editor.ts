@@ -4,7 +4,6 @@
  *
  */
 
-import { NgIf } from "@angular/common";
 import {
   booleanAttribute,
   Component,
@@ -54,7 +53,6 @@ const plainTextSchema = new Schema({
     MatError,
     MatHint,
     MatLabel,
-    NgIf,
     NgxEditorModule,
     ReactiveFormsModule,
     TranslatePipe,

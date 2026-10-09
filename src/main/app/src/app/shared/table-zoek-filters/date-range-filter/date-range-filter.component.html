@@ -23,14 +23,15 @@
       [formControl]="dateTM"
     />
   </mat-date-range-input>
-  <mat-datepicker-toggle
-    *ngIf="!hasRange()"
-    matSuffix
-    [for]="datumPicker"
-  ></mat-datepicker-toggle>
-  <mat-icon *ngIf="hasRange()" matSuffix (click)="clearDate($event)"
-    >clear</mat-icon
-  >
+  @if (!hasRange()) {
+    <mat-datepicker-toggle
+      matSuffix
+      [for]="datumPicker"
+    ></mat-datepicker-toggle>
+  }
+  @if (hasRange()) {
+    <mat-icon matSuffix (click)="clearDate($event)">clear</mat-icon>
+  }
   <mat-date-range-picker
     (closed)="change()"
     disabled="false"

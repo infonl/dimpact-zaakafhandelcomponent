@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -34,7 +33,6 @@ import { MailService } from "../mail.service";
   templateUrl: "./ontvangstbevestiging.component.html",
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatToolbarModule,
     MatIconModule,

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   booleanAttribute,
   Component,
@@ -39,7 +38,6 @@ import { Form, FormConfig, FormField } from "./form-field.types";
     MatIcon,
     MatLabel,
     MatProgressSpinner,
-    NgIf,
     ReactiveFormsModule,
     TranslatePipe,
     ZacAutoComplete,

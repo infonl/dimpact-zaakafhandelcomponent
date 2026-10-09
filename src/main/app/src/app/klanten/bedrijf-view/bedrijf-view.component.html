@@ -24,94 +24,98 @@
             class="content flex-row flex-wrap space-between"
           >
             <zac-static-text label="bedrijfsnaam" [value]="bedrijf?.naam" />
-            <zac-static-text
-              *ngIf="bedrijf?.kvkNummer"
-              label="kvknummer"
-              [value]="bedrijf?.kvkNummer"
-            />
-            <zac-static-text
-              *ngIf="!bedrijf?.kvkNummer"
-              label="kvknummer"
-              [icon]="warningIcon"
-              [value]="'msg.error.kvk.unknown' | translate"
-            />
-            <zac-static-text
-              *ngIf="bedrijf?.vestigingsnummer"
-              label="vestigingsnummer"
-              [value]="bedrijf?.vestigingsnummer"
-            />
+            @if (bedrijf?.kvkNummer) {
+              <zac-static-text label="kvknummer" [value]="bedrijf?.kvkNummer" />
+            }
+            @if (!bedrijf?.kvkNummer) {
+              <zac-static-text
+                label="kvknummer"
+                [icon]="warningIcon"
+                [value]="'msg.error.kvk.unknown' | translate"
+              />
+            }
+            @if (bedrijf?.vestigingsnummer) {
+              <zac-static-text
+                label="vestigingsnummer"
+                [value]="bedrijf?.vestigingsnummer"
+              />
+            }
             <zac-static-text
               label="type"
               [value]="bedrijf?.type | i18nKey | translate"
             />
-            <zac-static-text
-              *ngIf="profiel"
-              label="rsin"
-              [value]="profiel.rsin"
-            />
-            <zac-static-text
-              *ngIf="!profiel"
-              [label]="bedrijf?.adres?.type ?? 'adres'"
-              [value]="bedrijf?.adres?.volledigAdres"
-            />
-            <zac-static-text
-              *ngFor="let adres of profiel?.adressen"
-              [label]="adres.type"
-              [value]="adres.volledigAdres"
-            />
+            @if (profiel) {
+              <zac-static-text label="rsin" [value]="profiel.rsin" />
+            }
+            @if (!profiel) {
+              <zac-static-text
+                [label]="bedrijf?.adres?.type ?? 'adres'"
+                [value]="bedrijf?.adres?.volledigAdres"
+              />
+            }
+            @for (adres of profiel?.adressen; track adres) {
+              <zac-static-text
+                [label]="adres.type"
+                [value]="adres.volledigAdres"
+              />
+            }
             <zac-static-text
               label="telefoonnummer"
               [value]="bedrijf?.telefoonnummer"
             />
             <zac-static-text label="emailadres" [value]="bedrijf?.emailadres" />
-            <zac-static-text
-              *ngIf="profiel"
-              label="totaal-werkzame-personen"
-              [value]="profiel.totaalWerkzamePersonen"
-            />
-            <zac-static-text
-              *ngIf="profiel"
-              label="hoofdactiviteit"
-              [value]="profiel.sbiHoofdActiviteit"
-            />
-            <zac-static-text
-              *ngIf="profiel"
-              label="activiteiten"
-              [value]="profiel.sbiActiviteiten?.join(',\r\n')"
-            />
-            <zac-static-text
-              *ngIf="profiel"
-              label="website"
-              [value]="profiel.website"
-            />
-            <zac-static-text
-              *ngIf="profiel?.rechtsvorm"
-              label="rechtsvorm"
-              [value]="profiel?.rechtsvorm"
-            />
-            <zac-static-text
-              *ngIf="profiel?.uitgebreideRechtsvorm"
-              label="uitgebreide-rechtsvorm"
-              [value]="profiel?.uitgebreideRechtsvorm"
-            />
-            <zac-static-text
-              *ngIf="profiel?.statutaireNaam"
-              label="statutaire-naam"
-              [value]="profiel?.statutaireNaam"
-            />
+            @if (profiel) {
+              <zac-static-text
+                label="totaal-werkzame-personen"
+                [value]="profiel.totaalWerkzamePersonen"
+              />
+            }
+            @if (profiel) {
+              <zac-static-text
+                label="hoofdactiviteit"
+                [value]="profiel.sbiHoofdActiviteit"
+              />
+            }
+            @if (profiel) {
+              <zac-static-text
+                label="activiteiten"
+                [value]="profiel.sbiActiviteiten?.join(',\r\n')"
+              />
+            }
+            @if (profiel) {
+              <zac-static-text label="website" [value]="profiel.website" />
+            }
+            @if (profiel?.rechtsvorm) {
+              <zac-static-text
+                label="rechtsvorm"
+                [value]="profiel?.rechtsvorm"
+              />
+            }
+            @if (profiel?.uitgebreideRechtsvorm) {
+              <zac-static-text
+                label="uitgebreide-rechtsvorm"
+                [value]="profiel?.uitgebreideRechtsvorm"
+              />
+            }
+            @if (profiel?.statutaireNaam) {
+              <zac-static-text
+                label="statutaire-naam"
+                [value]="profiel?.statutaireNaam"
+              />
+            }
           </div>
         </mat-card-content>
       </mat-card>
 
       <div class="flex-1 w75">
-        <zac-klant-zaken-tabel
-          *ngIf="bedrijf"
-          [klant]="bedrijf"
-        ></zac-klant-zaken-tabel>
-        <zac-klant-contactmomenten-tabel
-          *ngIf="bedrijf && bedrijf.vestigingsnummer"
-          [vestigingsnummer]="bedrijf.vestigingsnummer"
-        ></zac-klant-contactmomenten-tabel>
+        @if (bedrijf) {
+          <zac-klant-zaken-tabel [klant]="bedrijf"></zac-klant-zaken-tabel>
+        }
+        @if (bedrijf && bedrijf.vestigingsnummer) {
+          <zac-klant-contactmomenten-tabel
+            [vestigingsnummer]="bedrijf.vestigingsnummer"
+          ></zac-klant-contactmomenten-tabel>
+        }
       </div>
     </div>
   </mat-drawer-content>

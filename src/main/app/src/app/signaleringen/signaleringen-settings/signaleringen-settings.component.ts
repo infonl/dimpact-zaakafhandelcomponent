@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgClass, NgFor, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import { AfterViewInit, Component, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -27,8 +27,6 @@ const SETTING_PER_COLUMN = {
   imports: [
     I18nKeyPipe,
     NgClass,
-    NgFor,
-    NgIf,
     MatCardModule,
     MatTableModule,
     MatCheckboxModule,

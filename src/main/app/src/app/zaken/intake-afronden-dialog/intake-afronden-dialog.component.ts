@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgFor, NgIf } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import {
   AbstractControl,
@@ -47,8 +47,6 @@ import { ZakenService } from "../zaken.service";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgIf,
-    NgFor,
     AsyncPipe,
     ReactiveFormsModule,
     MatToolbarModule,

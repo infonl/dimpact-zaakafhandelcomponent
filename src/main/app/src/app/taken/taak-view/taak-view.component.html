@@ -26,59 +26,64 @@
     #actionsSidenav
     mode="over"
     position="end"
-    [ngSwitch]="activeSideAction"
     (closedStart)="activeSideAction = null"
   >
-    @if (taak) {
-      <zac-taak-edit
-        *ngSwitchCase="'actie.taak.wijzigen'"
-        [sideNav]="actionsSidenav"
-        [task]="taak"
-      />
-    }
-    @if (zaak) {
-      <zac-informatie-object-create-attended
-        *ngSwitchCase="'actie.document.maken'"
-        [sideNav]="actionsSidenav"
-        [zaak]="zaak"
-        [taak]="taak"
-        [smartDocumentsGroupId]="smartDocumentsGroupId"
-        [smartDocumentsTemplateId]="smartDocumentsTemplateId"
-        (document)="documentCreated()"
-      ></zac-informatie-object-create-attended>
-      <zac-informatie-object-link
-        *ngSwitchCase="'actie.document.verplaatsen'"
-        actionLabel="actie.document.verplaatsen"
-        [infoObject]="documentToMove"
-        [sideNav]="actionsSidenav"
-        [source]="zaak.identificatie"
-        (informationObjectLinked)="updateZaakDocumentList()"
-      />
-    }
-    @if (taak) {
-      <zac-informatie-object-add
-        *ngSwitchCase="'actie.document.toevoegen'"
-        [sideNav]="actionsSidenav"
-        [zaakUuid]="taak.zaakUuid"
-        [taakId]="taak.id"
-        (document)="updateTaakdocumenten($event)"
-      ></zac-informatie-object-add>
+    @switch (activeSideAction) {
+      @case ("actie.taak.wijzigen") {
+        @if (taak) {
+          <zac-taak-edit [sideNav]="actionsSidenav" [task]="taak" />
+        }
+      }
+      @case ("actie.document.maken") {
+        @if (zaak) {
+          <zac-informatie-object-create-attended
+            [sideNav]="actionsSidenav"
+            [zaak]="zaak"
+            [taak]="taak"
+            [smartDocumentsGroupId]="smartDocumentsGroupId"
+            [smartDocumentsTemplateId]="smartDocumentsTemplateId"
+            (document)="documentCreated()"
+          ></zac-informatie-object-create-attended>
+        }
+      }
+      @case ("actie.document.verplaatsen") {
+        @if (zaak) {
+          <zac-informatie-object-link
+            actionLabel="actie.document.verplaatsen"
+            [infoObject]="documentToMove"
+            [sideNav]="actionsSidenav"
+            [source]="zaak.identificatie"
+            (informationObjectLinked)="updateZaakDocumentList()"
+          />
+        }
+      }
+      @case ("actie.document.toevoegen") {
+        @if (taak) {
+          <zac-informatie-object-add
+            [sideNav]="actionsSidenav"
+            [zaakUuid]="taak.zaakUuid"
+            [taakId]="taak.id"
+            (document)="updateTaakdocumenten($event)"
+          ></zac-informatie-object-add>
+        }
+      }
     }
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
       <mat-card class="taak-formulier w50 flex">
         <mat-card-content>
-          <zac-composed-form
-            *ngIf="formFields.length"
-            [form]="form"
-            [fields]="formFields"
-            [readonly]="isReadonly()"
-            [loading]="isPending()"
-            [config]="_formConfig"
-            (formSubmitted)="onHardCodedFormSubmit($event, false)"
-            (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
-          />
+          @if (formFields.length) {
+            <zac-composed-form
+              [form]="form"
+              [fields]="formFields"
+              [readonly]="isReadonly()"
+              [loading]="isPending()"
+              [config]="_formConfig"
+              (formSubmitted)="onHardCodedFormSubmit($event, false)"
+              (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
+            />
+          }
           <div class="form">
             <!-- @defer (when) fires only once; @if removes the old form when route.data emits a new taak -->
             @defer (when formioFormulier) {
@@ -98,10 +103,9 @@
             } @loading {
               <mat-progress-bar mode="query"></mat-progress-bar>
             }
-            <mat-progress-bar
-              *ngIf="!formioFormulier && !formFields.length"
-              mode="query"
-            ></mat-progress-bar>
+            @if (!formioFormulier && !formFields.length) {
+              <mat-progress-bar mode="query"></mat-progress-bar>
+            }
           </div>
         </mat-card-content>
       </mat-card>
@@ -265,37 +269,40 @@
                       *matRowDef="let row; columns: historieColumns"
                     ></tr>
                   </table>
-                  <p *ngIf="historieSrc.data.length === 0">
-                    {{ "msg.geen.gegevens.gevonden" | translate }}
-                  </p>
+                  @if (historieSrc.data.length === 0) {
+                    <p>
+                      {{ "msg.geen.gegevens.gevonden" | translate }}
+                    </p>
+                  }
                 </div>
               </mat-tab>
             </mat-tab-group>
           </mat-card-content>
         </mat-card>
 
-        <zac-zaak-verkort
-          *ngIf="zaak"
-          class="zaak-card"
-          [zaak]="zaak"
-        ></zac-zaak-verkort>
+        @if (zaak) {
+          <zac-zaak-verkort class="zaak-card" [zaak]="zaak"></zac-zaak-verkort>
+        }
       </div>
     </div>
-    <zac-zaak-documenten
-      #zaakDocumentenComponent
-      *ngIf="initialized && zaak"
-      [zaak]="zaak"
-      (documentMoveToCase)="documentMoveToCase($event)"
-    ></zac-zaak-documenten>
-    <mat-card *ngIf="!initialized">
-      <mat-card-header>
-        <mat-card-title>{{
-          "enkelvoudig-informatie-objecten" | translate
-        }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-progress-bar mode="query"></mat-progress-bar>
-      </mat-card-content>
-    </mat-card>
+    @if (initialized && zaak) {
+      <zac-zaak-documenten
+        #zaakDocumentenComponent
+        [zaak]="zaak"
+        (documentMoveToCase)="documentMoveToCase($event)"
+      ></zac-zaak-documenten>
+    }
+    @if (!initialized) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{
+            "enkelvoudig-informatie-objecten" | translate
+          }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-progress-bar mode="query"></mat-progress-bar>
+        </mat-card-content>
+      </mat-card>
+    }
   </mat-drawer-content>
 </mat-drawer-container>

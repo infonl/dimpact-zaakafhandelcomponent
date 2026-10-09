@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgClass, NgFor, NgIf } from "@angular/common";
+import { AsyncPipe, NgClass } from "@angular/common";
 import { Component, inject, OnInit, viewChild } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -36,8 +36,6 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
     I18nKeyPipe,
     AsyncPipe,
     NgClass,
-    NgFor,
-    NgIf,
     MatSidenavModule,
     MatCardModule,
     MatFormFieldModule,

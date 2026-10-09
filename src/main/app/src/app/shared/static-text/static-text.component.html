@@ -10,24 +10,28 @@
   </label>
   <div class="static-text-content">
     <ng-content select="[position=content-before]"></ng-content>
-    <read-more
-      *ngIf="maxLength() as maxLength"
-      [maxLength]="maxLength"
-      text="{{ value() | empty }}"
-    ></read-more>
-    <ng-container *ngIf="!maxLength()">{{ value() | empty }}</ng-container>
-    <ng-container *ngIf="icon() as icon">
-      <mat-icon
-        *ngIf="showIcon()"
-        [attr.outlined]="icon.outlined"
-        [ngClass]="icon.styleClass"
-        (click)="iconClicked.emit()"
-        class="label-icon"
-        title="{{ icon.title | translate }}"
-      >
-        {{ icon.icon }}
-      </mat-icon>
-    </ng-container>
+    @if (maxLength(); as maxLength) {
+      <read-more
+        [maxLength]="maxLength"
+        text="{{ value() | empty }}"
+      ></read-more>
+    }
+    @if (!maxLength()) {
+      {{ value() | empty }}
+    }
+    @if (icon(); as icon) {
+      @if (showIcon()) {
+        <mat-icon
+          [attr.outlined]="icon.outlined"
+          [ngClass]="icon.styleClass"
+          (click)="iconClicked.emit()"
+          class="label-icon"
+          title="{{ icon.title | translate }}"
+        >
+          {{ icon.icon }}
+        </mat-icon>
+      }
+    }
     <ng-content select="[position=content-after]"></ng-content>
   </div>
 </div>

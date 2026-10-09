@@ -4,7 +4,7 @@
  *
  */
 
-import { LowerCasePipe, NgFor, NgIf } from "@angular/common";
+import { LowerCasePipe } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -22,8 +22,6 @@ import { MultiInputFormField } from "../BaseFormField";
   templateUrl: "./select.html",
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,

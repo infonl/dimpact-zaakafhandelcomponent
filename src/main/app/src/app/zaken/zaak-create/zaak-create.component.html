@@ -3,30 +3,34 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-sidenav-container class="p-2">
-  <mat-sidenav position="end" [ngSwitch]="activeSideAction">
-    <zac-klant-koppel
-      *ngSwitchCase="'actie.initiator.koppelen'"
-      (klantGegevens)="initiatorSelected($event.klant)"
-      [sideNav]="actionsSidenav()"
-      [initiator]="true"
-      [allowBedrijf]="
-        form.controls.zaaktype.value?.zaakafhandelparameters
-          ?.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false
-      "
-      [allowPersoon]="
-        form.controls.zaaktype.value?.zaakafhandelparameters
-          ?.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false
-      "
-      [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
-      class="side-nav-container"
-    ></zac-klant-koppel>
-    <zac-bag-zoek
-      *ngSwitchCase="'actie.bag-object.koppelen'"
-      [gekoppeldeBagObjecten]="form.controls.bagObjecten"
-      isSelectable
-      (bagObject)="bagObjectSelected()"
-      [sideNav]="actionsSidenav()"
-    ></zac-bag-zoek>
+  <mat-sidenav position="end">
+    @switch (activeSideAction) {
+      @case ("actie.initiator.koppelen") {
+        <zac-klant-koppel
+          (klantGegevens)="initiatorSelected($event.klant)"
+          [sideNav]="actionsSidenav()"
+          [initiator]="true"
+          [allowBedrijf]="
+            form.controls.zaaktype.value?.zaakafhandelparameters
+              ?.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false
+          "
+          [allowPersoon]="
+            form.controls.zaaktype.value?.zaakafhandelparameters
+              ?.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false
+          "
+          [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
+          class="side-nav-container"
+        ></zac-klant-koppel>
+      }
+      @case ("actie.bag-object.koppelen") {
+        <zac-bag-zoek
+          [gekoppeldeBagObjecten]="form.controls.bagObjecten"
+          isSelectable
+          (bagObject)="bagObjectSelected()"
+          [sideNav]="actionsSidenav()"
+        ></zac-bag-zoek>
+      }
+    }
   </mat-sidenav>
   <form [formGroup]="form" (ngSubmit)="formSubmit()">
     <fieldset>

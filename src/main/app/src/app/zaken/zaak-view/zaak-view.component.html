@@ -214,12 +214,13 @@
         (bagObjectVerwijderen)="bagObjectVerwijderen($event)"
       ></zac-zaak-details-card>
       <div class="w50 flex-1 flex-col gap-12">
-        <zac-besluit-view
-          *ngIf="zaak.besluiten?.length"
-          [besluiten]="zaak.besluiten ?? []"
-          [readonly]="!zaak.isOpen || !zaak.rechten.canBehandelen"
-          (besluitWijzigen)="besluitWijzigen($event)"
-        ></zac-besluit-view>
+        @if (zaak.besluiten?.length) {
+          <zac-besluit-view
+            [besluiten]="zaak.besluiten ?? []"
+            [readonly]="!zaak.isOpen || !zaak.rechten.canBehandelen"
+            (besluitWijzigen)="besluitWijzigen($event)"
+          ></zac-besluit-view>
+        }
 
         <zac-zaak-taken [zaak]="zaak" class="flex-col flex-1"></zac-zaak-taken>
       </div>
@@ -233,8 +234,9 @@
   </mat-drawer-content>
 </mat-drawer-container>
 
-<zac-notities
-  *ngIf="notitieRechten?.canLezen || notitieRechten?.canWijzigen"
-  [zaakUuid]="zaak.uuid"
-  [notitieRechten]="notitieRechten"
-></zac-notities>
+@if (notitieRechten?.canLezen || notitieRechten?.canWijzigen) {
+  <zac-notities
+    [zaakUuid]="zaak.uuid"
+    [notitieRechten]="notitieRechten"
+  ></zac-notities>
+}

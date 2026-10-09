@@ -3,20 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, computed, input, numberAttribute } from "@angular/core";
 import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
   selector: "read-more",
-  template: ` <div
-      *ngIf="showTooltip()"
-      matTooltip="{{ text() }}"
-      [innerHTML]="subText()"
-    ></div>
-    <div *ngIf="!showTooltip()" [innerHTML]="text()"></div>`,
+  template: ` @if (showTooltip()) {
+      <div matTooltip="{{ text() }}" [innerHTML]="subText()"></div>
+    }
+    @if (!showTooltip()) {
+      <div [innerHTML]="text()"></div>
+    }`,
   standalone: true,
-  imports: [NgIf, MatTooltipModule],
+  imports: [MatTooltipModule],
 })
 export class ReadMoreComponent {
   readonly text = input<string>();

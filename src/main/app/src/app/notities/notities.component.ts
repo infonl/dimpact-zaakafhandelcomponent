@@ -4,7 +4,7 @@
  */
 
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
-import { NgFor, NgIf } from "@angular/common";
+
 import {
   Component,
   ElementRef,
@@ -38,8 +38,6 @@ import { NotitieService } from "./notities.service";
   styleUrls: ["./notities.component.less"],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     MatButtonModule,
     MatIconModule,
     MatBadgeModule,

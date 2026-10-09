@@ -4,7 +4,7 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
-import { NgClass, NgFor, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -117,8 +117,6 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     ZacRadio,
     ZacInput,
     NgClass,
-    NgFor,
-    NgIf,
     StaticTextComponent,
     SmartDocumentsFormComponent,
   ],

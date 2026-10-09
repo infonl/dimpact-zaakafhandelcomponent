@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor } from "@angular/common";
 import { Component, effect, input, output, untracked } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -19,7 +18,6 @@ import { GeneratedType } from "../../utils/generated-types";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgFor,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,

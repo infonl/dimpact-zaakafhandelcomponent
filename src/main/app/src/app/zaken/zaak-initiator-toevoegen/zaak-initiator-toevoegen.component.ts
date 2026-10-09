@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -15,13 +14,7 @@ import { TranslateModule } from "@ngx-translate/core";
   templateUrl: "./zaak-initiator-toevoegen.component.html",
   styleUrls: ["./zaak-initiator-toevoegen.component.less"],
   standalone: true,
-  imports: [
-    NgIf,
-    MatExpansionModule,
-    MatIconModule,
-    MatIconButton,
-    TranslateModule,
-  ],
+  imports: [MatExpansionModule, MatIconModule, MatIconButton, TranslateModule],
 })
 export class ZaakInitiatorToevoegenComponent {
   readonly toevoegenToegestaan = input.required<boolean>();

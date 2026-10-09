@@ -3,415 +3,418 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-stepper
-  *ngIf="algemeenFormGroup"
-  orientation="horizontal"
-  [linear]="!algemeenFormGroup.valid"
-  [selectedIndex]="selectedIndexStart()"
->
-  <!--
+@if (algemeenFormGroup) {
+  <mat-stepper
+    orientation="horizontal"
+    [linear]="!algemeenFormGroup.valid"
+    [selectedIndex]="selectedIndexStart()"
+  >
+    <!--
     Step below is skipped on load when parameters are already saved
   -->
-  <mat-step [stepControl]="cmmnBpmnFormGroup">
-    <ng-template matStepLabel>{{
-      "gegevens.proces-model-methode.bpmn" | translate
-    }}</ng-template>
+    <mat-step [stepControl]="cmmnBpmnFormGroup">
+      <ng-template matStepLabel>{{
+        "gegevens.proces-model-methode.bpmn" | translate
+      }}</ng-template>
 
-    <header>
-      <h2>{{ bpmnZaakafhandelParameters.zaaktype.omschrijving }}</h2>
-      <p>
-        {{ "zaps.step.proces-model-methode.intro" | translate }}
-      </p>
-    </header>
+      <header>
+        <h2>{{ bpmnZaakafhandelParameters.zaaktype.omschrijving }}</h2>
+        <p>
+          {{ "zaps.step.proces-model-methode.intro" | translate }}
+        </p>
+      </header>
 
-    <section>
-      <zac-radio
-        [form]="cmmnBpmnFormGroup"
-        key="options"
-        label="zaps.step.proces-model-methode.label"
-        [options]="modellingMethodOptions"
-        optionDisplayValue="label"
-      ></zac-radio>
+      <section>
+        <zac-radio
+          [form]="cmmnBpmnFormGroup"
+          key="options"
+          label="zaps.step.proces-model-methode.label"
+          [options]="modellingMethodOptions"
+          optionDisplayValue="label"
+        ></zac-radio>
 
-      <div class="flex-row items-center gap-10 ml-1 my-3">
-        <mat-icon color="warn" class="pr-3">warning</mat-icon>
-        <small>{{
-          "msg.zaakafhandelparameters.waarschuwing" | translate
-        }}</small>
+        <div class="flex-row items-center gap-10 ml-1 my-3">
+          <mat-icon color="warn" class="pr-3">warning</mat-icon>
+          <small>{{
+            "msg.zaakafhandelparameters.waarschuwing" | translate
+          }}</small>
+        </div>
+      </section>
+
+      <div class="button-group flex-row flex-wrap">
+        <button mat-raised-button matStepperNext>
+          {{ "actie.volgende" | translate }}
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="
+            !isValid() ||
+            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+          "
+          (click)="opslaan()"
+        >
+          {{ "actie.opslaan" | translate }}
+        </button>
       </div>
-    </section>
+    </mat-step>
 
-    <div class="button-group flex-row flex-wrap">
-      <button mat-raised-button matStepperNext>
-        {{ "actie.volgende" | translate }}
-      </button>
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="
-          !isValid() ||
-          createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
-        "
-        (click)="opslaan()"
-      >
-        {{ "actie.opslaan" | translate }}
-      </button>
-    </div>
-  </mat-step>
+    <mat-step [stepControl]="algemeenFormGroup">
+      <ng-template matStepLabel>{{
+        "gegevens.algemeen" | translate
+      }}</ng-template>
 
-  <mat-step [stepControl]="algemeenFormGroup">
-    <ng-template matStepLabel>{{
-      "gegevens.algemeen" | translate
-    }}</ng-template>
+      <form [formGroup]="algemeenFormGroup">
+        <fieldset>
+          <section class="row">
+            <zac-static-text
+              class="col-12 col-lg-6"
+              label="zaaktype-omschrijving"
+              [value]="bpmnZaakafhandelParameters.zaaktype.omschrijving"
+            />
+            <zac-static-text
+              class="col-12 col-lg-6"
+              label="doel"
+              [value]="bpmnZaakafhandelParameters.zaaktype.doel"
+            />
+          </section>
+          <section class="row">
+            <zac-static-text
+              class="col-12 col-lg-6"
+              label="identificatie"
+              [value]="bpmnZaakafhandelParameters.zaaktype.identificatie"
+            />
+            <zac-static-text
+              class="col-12 col-lg-6"
+              label="uuid"
+              [value]="bpmnZaakafhandelParameters.zaaktype.uuid"
+            />
+          </section>
+          <section class="row">
+            <zac-static-text
+              class="col-12 col-lg-6"
+              label="zaakspecifiek-autoriseerbaar"
+              [value]="
+                (bpmnZaakafhandelParameters.isZaakspecifiekAutoriseerbaar
+                  ? 'actie.ja'
+                  : 'actie.nee'
+                ) | translate
+              "
+            />
+          </section>
+        </fieldset>
+        <fieldset class="my-5">
+          <section class="row">
+            <zac-select
+              class="col-12 col-lg-6"
+              key="bpmnDefinition"
+              label="bpmn.process-definition"
+              optionDisplayValue="name"
+              [form]="algemeenFormGroup"
+              [options]="bpmnProcessDefinitions"
+            >
+            </zac-select>
+          </section>
+          <section class="row">
+            <zac-select
+              class="col-12 col-lg-6"
+              key="defaultGroep"
+              label="groep.standaard"
+              optionDisplayValue="naam"
+              [form]="algemeenFormGroup"
+              [options]="groepen"
+            >
+            </zac-select>
 
-    <form [formGroup]="algemeenFormGroup">
-      <fieldset>
-        <section class="row">
-          <zac-static-text
-            class="col-12 col-lg-6"
-            label="zaaktype-omschrijving"
-            [value]="bpmnZaakafhandelParameters.zaaktype.omschrijving"
-          />
-          <zac-static-text
-            class="col-12 col-lg-6"
-            label="doel"
-            [value]="bpmnZaakafhandelParameters.zaaktype.doel"
-          />
-        </section>
-        <section class="row">
-          <zac-static-text
-            class="col-12 col-lg-6"
-            label="identificatie"
-            [value]="bpmnZaakafhandelParameters.zaaktype.identificatie"
-          />
-          <zac-static-text
-            class="col-12 col-lg-6"
-            label="uuid"
-            [value]="bpmnZaakafhandelParameters.zaaktype.uuid"
-          />
-        </section>
-        <section class="row">
-          <zac-static-text
-            class="col-12 col-lg-6"
-            label="zaakspecifiek-autoriseerbaar"
-            [value]="
-              (bpmnZaakafhandelParameters.isZaakspecifiekAutoriseerbaar
-                ? 'actie.ja'
-                : 'actie.nee'
-              ) | translate
+            <zac-select
+              class="col-12 col-lg-6"
+              key="defaultBehandelaar"
+              label="behandelaar.standaard"
+              optionDisplayValue="naam"
+              [form]="algemeenFormGroup"
+              [options]="medewerkers"
+            ></zac-select>
+          </section>
+          <section class="row">
+            <zac-input
+              class="col-12 col-lg-6"
+              key="productaanvraagtype"
+              [form]="algemeenFormGroup"
+            >
+              <mat-hint>{{
+                "msg.zaakafhandelparameters.productaanvraagtype" | translate
+              }}</mat-hint>
+            </zac-input>
+          </section>
+        </fieldset>
+
+        <div class="flex-row items-center gap-10 ml-1 my-3">
+          <mat-icon color="warn" class="pr-3">warning</mat-icon>
+          <small>{{
+            "msg.zaakafhandelparameters.waarschuwing" | translate
+          }}</small>
+        </div>
+
+        <div class="button-group flex-row flex-wrap">
+          <button mat-raised-button matStepperPrevious>
+            {{ "actie.terug" | translate }}
+          </button>
+          <button mat-raised-button matStepperNext>
+            {{ "actie.volgende" | translate }}
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="opslaan()"
+            [disabled]="
+              !isValid() ||
+              createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
             "
-          />
-        </section>
-      </fieldset>
-      <fieldset class="my-5">
-        <section class="row">
-          <zac-select
-            class="col-12 col-lg-6"
-            key="bpmnDefinition"
-            label="bpmn.process-definition"
-            optionDisplayValue="name"
-            [form]="algemeenFormGroup"
-            [options]="bpmnProcessDefinitions"
           >
-          </zac-select>
-        </section>
-        <section class="row">
-          <zac-select
-            class="col-12 col-lg-6"
-            key="defaultGroep"
-            label="groep.standaard"
-            optionDisplayValue="naam"
-            [form]="algemeenFormGroup"
-            [options]="groepen"
-          >
-          </zac-select>
-
-          <zac-select
-            class="col-12 col-lg-6"
-            key="defaultBehandelaar"
-            label="behandelaar.standaard"
-            optionDisplayValue="naam"
-            [form]="algemeenFormGroup"
-            [options]="medewerkers"
-          ></zac-select>
-        </section>
-        <section class="row">
-          <zac-input
-            class="col-12 col-lg-6"
-            key="productaanvraagtype"
-            [form]="algemeenFormGroup"
-          >
-            <mat-hint>{{
-              "msg.zaakafhandelparameters.productaanvraagtype" | translate
-            }}</mat-hint>
-          </zac-input>
-        </section>
-      </fieldset>
-
-      <div class="flex-row items-center gap-10 ml-1 my-3">
-        <mat-icon color="warn" class="pr-3">warning</mat-icon>
-        <small>{{
-          "msg.zaakafhandelparameters.waarschuwing" | translate
-        }}</small>
-      </div>
-
-      <div class="button-group flex-row flex-wrap">
-        <button mat-raised-button matStepperPrevious>
-          {{ "actie.terug" | translate }}
-        </button>
-        <button mat-raised-button matStepperNext>
-          {{ "actie.volgende" | translate }}
-        </button>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="opslaan()"
-          [disabled]="
-            !isValid() ||
-            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
-          "
-        >
-          {{ "actie.opslaan" | translate }}
-        </button>
-      </div>
-    </form>
-  </mat-step>
-  <mat-step
-    [stepControl]="zaakbeeindigFormGroup"
-    [hasError]="zaakbeeindigFormGroup.invalid"
-  >
-    <ng-template matStepLabel>{{
-      "gegevens.beeindiging" | translate
-    }}</ng-template>
-    <ng-template matStepContent>
-      <mat-card>
-        <mat-card-content>
-          <form [formGroup]="zaakbeeindigFormGroup" class="flex-col">
-            <div class="table-wrapper">
-              <table mat-table [dataSource]="zaakbeeindigParameters">
-                <ng-container matColumnDef="select">
-                  <th mat-header-cell *matHeaderCellDef></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    <mat-checkbox
-                      (click)="$event.stopPropagation()"
-                      (change)="changeSelection($event, parameter)"
-                      [checked]="selection.isSelected(parameter)"
-                      [disabled]="isZaaknietontvankelijkParameter(parameter)"
-                    >
-                    </mat-checkbox>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="reden">
-                  <th mat-header-cell *matHeaderCellDef translate="reden"></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    {{
-                      parameter.zaakbeeindigReden?.naam ??
-                        "zaak-is-niet-ontvankelijk" | translate
-                    }}
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="resultaat">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    translate="resultaat"
-                  ></th>
-                  <td mat-cell *matCellDef="let parameter">
-                    <mat-select
-                      placeholder="{{ 'resultaat.kies' | translate }}"
-                      [formControl]="
-                        getZaakbeeindigControl(parameter, 'beeindigResultaat')
-                      "
-                      [compareWith]="compareObject"
-                    >
-                      <mat-option
-                        *ngFor="let resultaattype of resultaattypes"
-                        [value]="resultaattype"
-                        >{{ resultaattype.naam }}</mat-option
+            {{ "actie.opslaan" | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step
+      [stepControl]="zaakbeeindigFormGroup"
+      [hasError]="zaakbeeindigFormGroup.invalid"
+    >
+      <ng-template matStepLabel>{{
+        "gegevens.beeindiging" | translate
+      }}</ng-template>
+      <ng-template matStepContent>
+        <mat-card>
+          <mat-card-content>
+            <form [formGroup]="zaakbeeindigFormGroup" class="flex-col">
+              <div class="table-wrapper">
+                <table mat-table [dataSource]="zaakbeeindigParameters">
+                  <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let parameter">
+                      <mat-checkbox
+                        (click)="$event.stopPropagation()"
+                        (change)="changeSelection($event, parameter)"
+                        [checked]="selection.isSelected(parameter)"
+                        [disabled]="isZaaknietontvankelijkParameter(parameter)"
                       >
-                    </mat-select>
-                  </td>
-                </ng-container>
-                <tr
-                  mat-header-row
-                  *matHeaderRowDef="['select', 'reden', 'resultaat']"
-                ></tr>
-                <tr
-                  mat-row
-                  *matRowDef="
-                    let row;
-                    columns: ['select', 'reden', 'resultaat']
-                  "
-                ></tr>
-              </table>
-              <p *ngIf="zaakbeeindigParameters.length === 0">
-                {{ "msg.geen.gegevens.gevonden" | translate }}
-              </p>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-      <div class="button-group flex-row flex-wrap">
-        <button mat-raised-button matStepperPrevious>
-          {{ "actie.terug" | translate }}
-        </button>
-        <button mat-raised-button matStepperNext>
-          {{ "actie.volgende" | translate }}
-        </button>
-        <button
-          mat-raised-button
-          color="primary"
-          [disabled]="
-            !isValid() ||
-            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
-          "
-          (click)="opslaan()"
-        >
-          {{ "actie.opslaan" | translate }}
-        </button>
-      </div>
-    </ng-template>
-  </mat-step>
-  <mat-step
-    [stepControl]="brpDoelbindingenFormGroup"
-    [hasError]="!brpDoelbindingenFormGroup.valid"
-  >
-    <ng-template matStepLabel>{{
-      "gegevens.koppelingen" | translate
-    }}</ng-template>
-    <ng-template matStepContent>
-      <mat-card>
-        <mat-card-content>
-          <h2>
-            {{ "gegevens.landelijk.koppelingen" | translate }}
-          </h2>
-          <p>
-            {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
-          </p>
-          <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
-            <div class="flex-row items-center gap-8">
-              <mat-slide-toggle
-                formControlName="brpKoppelen"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-              <p>{{ "gegevens.koppelen.brp" | translate }}</p>
-            </div>
-            <ng-container
-              *ngIf="
+                      </mat-checkbox>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="reden">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      translate="reden"
+                    ></th>
+                    <td mat-cell *matCellDef="let parameter">
+                      {{
+                        parameter.zaakbeeindigReden?.naam ??
+                          "zaak-is-niet-ontvankelijk" | translate
+                      }}
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="resultaat">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      translate="resultaat"
+                    ></th>
+                    <td mat-cell *matCellDef="let parameter">
+                      <mat-select
+                        placeholder="{{ 'resultaat.kies' | translate }}"
+                        [formControl]="
+                          getZaakbeeindigControl(parameter, 'beeindigResultaat')
+                        "
+                        [compareWith]="compareObject"
+                      >
+                        @for (
+                          resultaattype of resultaattypes;
+                          track resultaattype
+                        ) {
+                          <mat-option [value]="resultaattype">{{
+                            resultaattype.naam
+                          }}</mat-option>
+                        }
+                      </mat-select>
+                    </td>
+                  </ng-container>
+                  <tr
+                    mat-header-row
+                    *matHeaderRowDef="['select', 'reden', 'resultaat']"
+                  ></tr>
+                  <tr
+                    mat-row
+                    *matRowDef="
+                      let row;
+                      columns: ['select', 'reden', 'resultaat']
+                    "
+                  ></tr>
+                </table>
+                @if (zaakbeeindigParameters.length === 0) {
+                  <p>
+                    {{ "msg.geen.gegevens.gevonden" | translate }}
+                  </p>
+                }
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+        <div class="button-group flex-row flex-wrap">
+          <button mat-raised-button matStepperPrevious>
+            {{ "actie.terug" | translate }}
+          </button>
+          <button mat-raised-button matStepperNext>
+            {{ "actie.volgende" | translate }}
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            [disabled]="
+              !isValid() ||
+              createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+            "
+            (click)="opslaan()"
+          >
+            {{ "actie.opslaan" | translate }}
+          </button>
+        </div>
+      </ng-template>
+    </mat-step>
+    <mat-step
+      [stepControl]="brpDoelbindingenFormGroup"
+      [hasError]="!brpDoelbindingenFormGroup.valid"
+    >
+      <ng-template matStepLabel>{{
+        "gegevens.koppelingen" | translate
+      }}</ng-template>
+      <ng-template matStepContent>
+        <mat-card>
+          <mat-card-content>
+            <h2>
+              {{ "gegevens.landelijk.koppelingen" | translate }}
+            </h2>
+            <p>
+              {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
+            </p>
+            <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
+              <div class="flex-row items-center gap-8">
+                <mat-slide-toggle
+                  formControlName="brpKoppelen"
+                  (click)="$event.stopPropagation()"
+                  color="primary"
+                ></mat-slide-toggle>
+                <p>{{ "gegevens.koppelen.brp" | translate }}</p>
+              </div>
+              @if (
                 brpDoelbindingSetupEnabled &&
                 betrokkeneKoppelingen.controls.brpKoppelen.value
-              "
-            >
-              <form [formGroup]="brpDoelbindingenFormGroup">
-                <p>
-                  {{
-                    "title.admin.parameters.step.brp-doelbinding" | translate
-                  }}
-                </p>
-                <section class="flex-col">
-                  <mat-form-field
-                    class="flex-1 w33 w100-md"
-                    floatLabel="always"
-                  >
-                    <mat-label>{{
-                      "brp-doelbinding.zoek-waarde" | translate
-                    }}</mat-label>
-                    <mat-select
-                      placeholder="{{ 'resultaat.kies' | translate }}"
-                      [formControl]="
-                        brpDoelbindingenFormGroup.controls.zoekWaarde
-                      "
+              ) {
+                <form [formGroup]="brpDoelbindingenFormGroup">
+                  <p>
+                    {{
+                      "title.admin.parameters.step.brp-doelbinding" | translate
+                    }}
+                  </p>
+                  <section class="flex-col">
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
                     >
-                      <mat-option
-                        *ngFor="let value of brpSearchValues"
-                        [value]="value"
-                        >{{ value }}</mat-option
+                      <mat-label>{{
+                        "brp-doelbinding.zoek-waarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.kies' | translate }}"
+                        [formControl]="
+                          brpDoelbindingenFormGroup.controls.zoekWaarde
+                        "
                       >
-                    </mat-select>
-                  </mat-form-field>
-                  <mat-form-field
-                    class="flex-1 w33 w100-md"
-                    floatLabel="always"
-                  >
-                    <mat-label>{{
-                      "brp-doelbinding.raadpleeg-waarde" | translate
-                    }}</mat-label>
-                    <mat-select
-                      placeholder="{{ 'resultaat.kies' | translate }}"
-                      [formControl]="
-                        brpDoelbindingenFormGroup.controls.raadpleegWaarde
-                      "
+                        @for (value of brpSearchValues; track value) {
+                          <mat-option [value]="value">{{ value }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
                     >
-                      <mat-option
-                        *ngFor="let value of brpConsultingValues"
-                        [value]="value"
-                        >{{ value }}</mat-option
+                      <mat-label>{{
+                        "brp-doelbinding.raadpleeg-waarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.kies' | translate }}"
+                        [formControl]="
+                          brpDoelbindingenFormGroup.controls.raadpleegWaarde
+                        "
                       >
-                    </mat-select>
-                  </mat-form-field>
-                  <mat-form-field
-                    class="flex-1 w33 w100-md"
-                    floatLabel="always"
-                  >
-                    <mat-label>{{
-                      "brp-doelbinding.verwerkingregister-waarde" | translate
-                    }}</mat-label>
-                    <mat-select
-                      placeholder="{{ 'resultaat.kies' | translate }}"
-                      [formControl]="
-                        brpDoelbindingenFormGroup.controls
-                          .verwerkingregisterWaarde
-                      "
+                        @for (value of brpConsultingValues; track value) {
+                          <mat-option [value]="value">{{ value }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
                     >
-                      <mat-option
-                        *ngFor="let value of brpProcessingValues"
-                        [value]="value"
-                        >{{ value }}</mat-option
+                      <mat-label>{{
+                        "brp-doelbinding.verwerkingregister-waarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.kies' | translate }}"
+                        [formControl]="
+                          brpDoelbindingenFormGroup.controls
+                            .verwerkingregisterWaarde
+                        "
                       >
-                    </mat-select>
-                  </mat-form-field>
-                </section>
-              </form>
-            </ng-container>
-            <div class="flex-row items-center gap-8">
-              <mat-slide-toggle
-                formControlName="kvkKoppelen"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-              <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-      <smart-documents-form
-        [zaakTypeUuid]="bpmnZaakafhandelParameters.zaaktype.uuid"
-        [enabledGlobally]="
-          bpmnZaakafhandelParameters.smartDocuments?.isEnabledGlobally ?? false
-        "
-        [enabledForZaaktype]="
-          bpmnZaakafhandelParameters.smartDocuments?.isEnabledForZaaktype ??
-          false
-        "
-        #smartDocumentsFormRef
-      ></smart-documents-form>
-      <div class="button-group flex-row flex-wrap">
-        <button mat-raised-button matStepperPrevious>
-          {{ "actie.terug" | translate }}
-        </button>
-        <button
-          mat-raised-button
-          color="primary"
-          [disabled]="
-            !isValid() ||
-            createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+                        @for (value of brpProcessingValues; track value) {
+                          <mat-option [value]="value">{{ value }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </section>
+                </form>
+              }
+              <div class="flex-row items-center gap-8">
+                <mat-slide-toggle
+                  formControlName="kvkKoppelen"
+                  (click)="$event.stopPropagation()"
+                  color="primary"
+                ></mat-slide-toggle>
+                <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+        <smart-documents-form
+          [zaakTypeUuid]="bpmnZaakafhandelParameters.zaaktype.uuid"
+          [enabledGlobally]="
+            bpmnZaakafhandelParameters.smartDocuments?.isEnabledGlobally ??
+            false
           "
-          (click)="opslaan()"
-        >
-          {{ "actie.opslaan" | translate }}
-        </button>
-      </div>
-    </ng-template>
-  </mat-step>
-</mat-stepper>
+          [enabledForZaaktype]="
+            bpmnZaakafhandelParameters.smartDocuments?.isEnabledForZaaktype ??
+            false
+          "
+          #smartDocumentsFormRef
+        ></smart-documents-form>
+        <div class="button-group flex-row flex-wrap">
+          <button mat-raised-button matStepperPrevious>
+            {{ "actie.terug" | translate }}
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            [disabled]="
+              !isValid() ||
+              createOrUpdateBpmnZaakafhandelparametersMutation.isPending()
+            "
+            (click)="opslaan()"
+          >
+            {{ "actie.opslaan" | translate }}
+          </button>
+        </div>
+      </ng-template>
+    </mat-step>
+  </mat-stepper>
+}

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -76,8 +75,6 @@ type InboxProductaanvraagListParameters =
   animations: [detailExpand],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     RouterLink,
     MatTable,
     MatColumnDef,

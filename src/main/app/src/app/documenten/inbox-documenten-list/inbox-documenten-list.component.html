@@ -16,7 +16,9 @@
 
   <mat-drawer-content>
     <div class="table-container">
-      <div class="table-loading-shade" *ngIf="isLoadingResults"></div>
+      @if (isLoadingResults) {
+        <div class="table-loading-shade"></div>
+      }
       <div class="table-wrapper">
         <table
           mat-table
@@ -143,13 +145,13 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
 
-        <ng-container *ngIf="paginator.length === 0 && !isLoadingResults">
+        @if (paginator.length === 0 && !isLoadingResults) {
           <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
-        </ng-container>
+        }
 
-        <ng-container *ngIf="paginator.length === 0 && isLoadingResults">
+        @if (paginator.length === 0 && isLoadingResults) {
           <p>{{ "msg.loading" | translate }}</p>
-        </ng-container>
+        }
       </div>
       <mat-paginator
         #paginator

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -17,8 +16,6 @@ import { MultiInputFormField } from "../BaseFormField";
   templateUrl: "./radio.html",
   standalone: true,
   imports: [
-    NgFor,
-    NgIf,
     ReactiveFormsModule,
     MatRadioModule,
     MatFormFieldModule,

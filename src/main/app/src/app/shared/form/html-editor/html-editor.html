@@ -10,42 +10,52 @@
       {{ labelKey() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
-  <section class="editor" *ngIf="editor()">
-    <ngx-editor-menu
-      [editor]="editor()"
-      [toolbar]="computedToolbar()"
-      [customMenuRef]="variabelenKiesMenu"
-    >
-    </ngx-editor-menu>
-    <ng-template #variabelenKiesMenu>
-      <variabelen-kies-menu
+  @if (editor()) {
+    <section class="editor">
+      <ngx-editor-menu
         [editor]="editor()"
-        [variabelen]="variables()"
-      ></variabelen-kies-menu>
-    </ng-template>
-    <ngx-editor
-      [editor]="editor()"
-      [formControlName]="key()"
-      outputFormat="html"
-      [placeholder]="'mail-template-placeholder' | translate"
-      [maxlength]="maxlength()"
-    >
-    </ngx-editor>
-  </section>
+        [toolbar]="computedToolbar()"
+        [customMenuRef]="variabelenKiesMenu"
+      >
+      </ngx-editor-menu>
+      <ng-template #variabelenKiesMenu>
+        <variabelen-kies-menu
+          [editor]="editor()"
+          [variabelen]="variables()"
+        ></variabelen-kies-menu>
+      </ng-template>
+      <ngx-editor
+        [editor]="editor()"
+        [formControlName]="key()"
+        outputFormat="html"
+        [placeholder]="'mail-template-placeholder' | translate"
+        [maxlength]="maxlength()"
+      >
+      </ngx-editor>
+    </section>
+  }
   <section
     class="mat-mdc-form-field-subscript-wrapper mat-mdc-form-field-bottom-align"
   >
-    <div class="mat-mdc-form-field-error-wrapper" *ngIf="formError()">
-      <mat-error>{{ formError() }}</mat-error>
-    </div>
-    <div class="mat-mdc-form-field-hint-wrapper" *ngIf="!formError()">
-      <mat-hint>
-        <ng-content select="mat-hint"></ng-content>
-      </mat-hint>
-      <div *ngIf="maxlength()" class="mat-mdc-form-field-hint-spacer"></div>
-      <mat-hint align="end" *ngIf="maxlength() && !formError()">
-        {{ control()?.value?.length ?? 0 }} / {{ maxlength() }}
-      </mat-hint>
-    </div>
+    @if (formError()) {
+      <div class="mat-mdc-form-field-error-wrapper">
+        <mat-error>{{ formError() }}</mat-error>
+      </div>
+    }
+    @if (!formError()) {
+      <div class="mat-mdc-form-field-hint-wrapper">
+        <mat-hint>
+          <ng-content select="mat-hint"></ng-content>
+        </mat-hint>
+        @if (maxlength()) {
+          <div class="mat-mdc-form-field-hint-spacer"></div>
+        }
+        @if (maxlength() && !formError()) {
+          <mat-hint align="end">
+            {{ control()?.value?.length ?? 0 }} / {{ maxlength() }}
+          </mat-hint>
+        }
+      </div>
+    }
   </section>
 </div>

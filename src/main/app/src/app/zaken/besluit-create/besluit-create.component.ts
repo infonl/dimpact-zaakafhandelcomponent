@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, inject, input, OnInit, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -38,7 +37,6 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./besluit-create.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatToolbarModule,
     MatIconModule,

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   Component,
   DestroyRef,
@@ -46,7 +45,6 @@ import { PlanItemsService } from "../plan-items.service";
     MatIconButton,
     MatProgressSpinner,
     MatToolbar,
-    NgIf,
     TranslatePipe,
     ZacComposedForm,
   ],

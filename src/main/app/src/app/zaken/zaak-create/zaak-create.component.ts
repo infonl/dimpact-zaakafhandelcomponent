@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgSwitch, NgSwitchCase } from "@angular/common";
 import { Component, inject, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -46,8 +45,6 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-create.component.less"],
   standalone: true,
   imports: [
-    NgSwitch,
-    NgSwitchCase,
     ReactiveFormsModule,
     MatSidenavModule,
     MatButtonModule,

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgClass, NgFor, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -54,8 +54,6 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./klant-zaken-tabel.component.less"],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     NgClass,
     ReactiveFormsModule,
     MatCardModule,

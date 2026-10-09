@@ -36,144 +36,153 @@
         >
           <mat-icon outlined>other_admission</mat-icon>
         </button>
-        <button
-          *ngIf="zaak().rechten.canToevoegenInitiatorBedrijf"
-          [disabled]="bedrijfQuery.isLoading()"
-          [title]="'actie.initiator.wijzigen' | translate"
-          mat-icon-button
-          (click)="
-            $event.stopPropagation(); edit.emit(bedrijfQuery.data() ?? null)
-          "
-        >
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button
-          *ngIf="zaak().rechten.canVerwijderenInitiator"
-          [disabled]="bedrijfQuery.isLoading()"
-          [title]="'actie.ontkoppelen' | translate"
-          mat-icon-button
-          (click)="
-            $event.stopPropagation(); delete.emit(bedrijfQuery.data() ?? null)
-          "
-        >
-          <mat-icon>link_off</mat-icon>
-        </button>
-        <a
-          *ngIf="bedrijfQuery.data()"
-          mat-icon-button
-          [routerLink]="bedrijfRouteLink()"
-          title="{{ 'actie.bedrijf.bekijken' | translate }}"
-        >
-          <mat-icon>visibility</mat-icon>
-        </a>
+        @if (zaak().rechten.canToevoegenInitiatorBedrijf) {
+          <button
+            [disabled]="bedrijfQuery.isLoading()"
+            [title]="'actie.initiator.wijzigen' | translate"
+            mat-icon-button
+            (click)="
+              $event.stopPropagation(); edit.emit(bedrijfQuery.data() ?? null)
+            "
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+        @if (zaak().rechten.canVerwijderenInitiator) {
+          <button
+            [disabled]="bedrijfQuery.isLoading()"
+            [title]="'actie.ontkoppelen' | translate"
+            mat-icon-button
+            (click)="
+              $event.stopPropagation(); delete.emit(bedrijfQuery.data() ?? null)
+            "
+          >
+            <mat-icon>link_off</mat-icon>
+          </button>
+        }
+        @if (bedrijfQuery.data()) {
+          <a
+            mat-icon-button
+            [routerLink]="bedrijfRouteLink()"
+            title="{{ 'actie.bedrijf.bekijken' | translate }}"
+          >
+            <mat-icon>visibility</mat-icon>
+          </a>
+        }
       </div>
     </mat-panel-description>
   </mat-expansion-panel-header>
-  <div
-    *ngIf="!bedrijfQuery.isLoading()"
-    id="bedrijfsgegevens"
-    class="content flex-row flex-wrap"
-  >
-    <zac-static-text label="bedrijfsnaam" [value]="bedrijfQuery.data()?.naam" />
-    <zac-static-text
-      *ngIf="initiatorIdentificatie().kvkNummer"
-      label="kvknummer"
-      [value]="initiatorIdentificatie().kvkNummer"
-    />
-    <zac-static-text
-      *ngIf="!initiatorIdentificatie().kvkNummer"
-      label="kvknummer"
-      [icon]="warningIcon"
-      [value]="'msg.error.kvk.unknown' | translate"
-    />
-    <zac-static-text
-      *ngIf="initiatorIdentificatie().vestigingsnummer"
-      label="vestigingsnummer"
-      [value]="initiatorIdentificatie().vestigingsnummer"
-    />
-    <zac-static-text
-      label="type"
-      [value]="bedrijfQuery.data()?.type | i18nKey | translate"
-    />
-    <zac-static-text *ngIf="profiel()" label="rsin" [value]="profiel()?.rsin" />
-    <zac-static-text
-      *ngIf="!profiel()"
-      [label]="bedrijfQuery.data()?.adres?.type ?? 'adres'"
-      [value]="bedrijfQuery.data()?.adres?.volledigAdres"
-    />
-    <zac-static-text
-      *ngFor="let adres of profiel()?.adressen"
-      [label]="adres.type"
-      [value]="adres.volledigAdres"
-    />
-    <div class="flex-column gap-2">
+  @if (!bedrijfQuery.isLoading()) {
+    <div id="bedrijfsgegevens" class="content flex-row flex-wrap">
       <zac-static-text
-        label="telefoonnummer"
-        [value]="
-          zaak().zaakSpecificContactDetails?.telephoneNumber ??
-          bedrijfQuery.data()?.telefoonnummer
-        "
+        label="bedrijfsnaam"
+        [value]="bedrijfQuery.data()?.naam"
       />
-      @if (zaak().zaakSpecificContactDetails?.telephoneNumber) {
-        <div class="hint flex-row items-center gap-5">
-          <mat-icon outlined>info</mat-icon>
-          <span>{{
-            "initiator.aanvraagspecifiek-telefoonnummer" | translate
-          }}</span>
-        </div>
+      @if (initiatorIdentificatie().kvkNummer) {
+        <zac-static-text
+          label="kvknummer"
+          [value]="initiatorIdentificatie().kvkNummer"
+        />
+      }
+      @if (!initiatorIdentificatie().kvkNummer) {
+        <zac-static-text
+          label="kvknummer"
+          [icon]="warningIcon"
+          [value]="'msg.error.kvk.unknown' | translate"
+        />
+      }
+      @if (initiatorIdentificatie().vestigingsnummer) {
+        <zac-static-text
+          label="vestigingsnummer"
+          [value]="initiatorIdentificatie().vestigingsnummer"
+        />
+      }
+      <zac-static-text
+        label="type"
+        [value]="bedrijfQuery.data()?.type | i18nKey | translate"
+      />
+      @if (profiel()) {
+        <zac-static-text label="rsin" [value]="profiel()?.rsin" />
+      }
+      @if (!profiel()) {
+        <zac-static-text
+          [label]="bedrijfQuery.data()?.adres?.type ?? 'adres'"
+          [value]="bedrijfQuery.data()?.adres?.volledigAdres"
+        />
+      }
+      @for (adres of profiel()?.adressen; track adres) {
+        <zac-static-text [label]="adres.type" [value]="adres.volledigAdres" />
+      }
+      <div class="flex-column gap-2">
+        <zac-static-text
+          label="telefoonnummer"
+          [value]="
+            zaak().zaakSpecificContactDetails?.telephoneNumber ??
+            bedrijfQuery.data()?.telefoonnummer
+          "
+        />
+        @if (zaak().zaakSpecificContactDetails?.telephoneNumber) {
+          <div class="hint flex-row items-center gap-5">
+            <mat-icon outlined>info</mat-icon>
+            <span>{{
+              "initiator.aanvraagspecifiek-telefoonnummer" | translate
+            }}</span>
+          </div>
+        }
+      </div>
+      <div class="flex-column gap-2">
+        <zac-static-text
+          label="emailadres"
+          [value]="
+            zaak().zaakSpecificContactDetails?.emailAddress ??
+            bedrijfQuery.data()?.emailadres
+          "
+        />
+        @if (zaak().zaakSpecificContactDetails?.emailAddress) {
+          <div class="hint flex-row items-center gap-5">
+            <mat-icon outlined>info</mat-icon>
+            <span>{{
+              "initiator.aanvraagspecifiek-emailadres" | translate
+            }}</span>
+          </div>
+        }
+      </div>
+      @if (profiel()) {
+        <zac-static-text
+          label="totaal-werkzame-personen"
+          [value]="profiel()?.totaalWerkzamePersonen"
+        />
+      }
+      @if (profiel()) {
+        <zac-static-text
+          label="hoofdactiviteit"
+          [value]="profiel()?.sbiHoofdActiviteit"
+        />
+      }
+      @if (profiel()) {
+        <zac-static-text
+          label="activiteiten"
+          [value]="profiel()?.sbiActiviteiten?.join(',\r\n')"
+        />
+      }
+      @if (profiel()) {
+        <zac-static-text label="website" [value]="profiel()?.website" />
+      }
+      @if (profiel()?.rechtsvorm) {
+        <zac-static-text label="rechtsvorm" [value]="profiel()?.rechtsvorm" />
+      }
+      @if (profiel()?.uitgebreideRechtsvorm) {
+        <zac-static-text
+          label="uitgebreide-rechtsvorm"
+          [value]="profiel()?.uitgebreideRechtsvorm"
+        />
+      }
+      @if (profiel()?.statutaireNaam) {
+        <zac-static-text
+          label="statutaire-naam"
+          [value]="profiel()?.statutaireNaam"
+        />
       }
     </div>
-    <div class="flex-column gap-2">
-      <zac-static-text
-        label="emailadres"
-        [value]="
-          zaak().zaakSpecificContactDetails?.emailAddress ??
-          bedrijfQuery.data()?.emailadres
-        "
-      />
-      @if (zaak().zaakSpecificContactDetails?.emailAddress) {
-        <div class="hint flex-row items-center gap-5">
-          <mat-icon outlined>info</mat-icon>
-          <span>{{
-            "initiator.aanvraagspecifiek-emailadres" | translate
-          }}</span>
-        </div>
-      }
-    </div>
-    <zac-static-text
-      *ngIf="profiel()"
-      label="totaal-werkzame-personen"
-      [value]="profiel()?.totaalWerkzamePersonen"
-    />
-    <zac-static-text
-      *ngIf="profiel()"
-      label="hoofdactiviteit"
-      [value]="profiel()?.sbiHoofdActiviteit"
-    />
-    <zac-static-text
-      *ngIf="profiel()"
-      label="activiteiten"
-      [value]="profiel()?.sbiActiviteiten?.join(',\r\n')"
-    />
-    <zac-static-text
-      *ngIf="profiel()"
-      label="website"
-      [value]="profiel()?.website"
-    />
-    <zac-static-text
-      *ngIf="profiel()?.rechtsvorm"
-      label="rechtsvorm"
-      [value]="profiel()?.rechtsvorm"
-    />
-    <zac-static-text
-      *ngIf="profiel()?.uitgebreideRechtsvorm"
-      label="uitgebreide-rechtsvorm"
-      [value]="profiel()?.uitgebreideRechtsvorm"
-    />
-    <zac-static-text
-      *ngIf="profiel()?.statutaireNaam"
-      label="statutaire-naam"
-      [value]="profiel()?.statutaireNaam"
-    />
-  </div>
+  }
 </mat-expansion-panel>

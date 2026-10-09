@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -46,14 +46,14 @@
         </mat-card-content>
       </mat-card>
       <div class="flex-1 w75">
-        <zac-klant-zaken-tabel
-          *ngIf="persoon"
-          [klant]="persoon"
-        ></zac-klant-zaken-tabel>
-        <zac-klant-contactmomenten-tabel
-          *ngIf="persoon && persoon.bsn"
-          [bsn]="persoon.bsn"
-        ></zac-klant-contactmomenten-tabel>
+        @if (persoon) {
+          <zac-klant-zaken-tabel [klant]="persoon"></zac-klant-zaken-tabel>
+        }
+        @if (persoon && persoon.bsn) {
+          <zac-klant-contactmomenten-tabel
+            [bsn]="persoon.bsn"
+          ></zac-klant-contactmomenten-tabel>
+        }
       </div>
     </div>
   </mat-drawer-content>

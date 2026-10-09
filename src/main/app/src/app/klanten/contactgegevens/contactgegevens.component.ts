@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, input, output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -18,7 +17,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   templateUrl: "./contactgegevens.component.html",
   standalone: true,
   imports: [
-    NgIf,
     MatExpansionModule,
     MatButtonModule,
     MatIconModule,

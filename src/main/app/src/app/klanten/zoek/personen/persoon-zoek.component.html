@@ -102,30 +102,38 @@
     <ng-container matColumnDef="acties" stickyEnd>
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
-        <button
-          *ngIf="isSelectable()"
-          mat-icon-button
-          color="primary"
-          (click)="selectPersoon(row)"
-          title="{{ 'actie.selecteren' | translate }}"
-        >
-          <mat-icon>emoji_people</mat-icon>
-        </button>
-        <button
-          *ngIf="!isSelectable()"
-          mat-icon-button
-          (click)="openPersoonPagina(row)"
-          title="{{ 'actie.persoon.bekijken' | translate }}"
-        >
-          <mat-icon>visibility</mat-icon>
-        </button>
+        @if (isSelectable()) {
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="selectPersoon(row)"
+            title="{{ 'actie.selecteren' | translate }}"
+          >
+            <mat-icon>emoji_people</mat-icon>
+          </button>
+        }
+        @if (!isSelectable()) {
+          <button
+            mat-icon-button
+            (click)="openPersoonPagina(row)"
+            title="{{ 'actie.persoon.bekijken' | translate }}"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+        }
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="persoonColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: persoonColumns"></tr>
   </table>
-  <p *ngIf="personen.data.length == 0 && !loading">
-    {{ foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate) }}
-  </p>
-  <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
+  @if (personen.data.length == 0 && !loading) {
+    <p>
+      {{
+        foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
+      }}
+    </p>
+  }
+  @if (loading) {
+    <p>{{ "msg.loading" | translate }}</p>
+  }
 </div>

@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -15,7 +15,9 @@
 
 <div mat-dialog-content>
   <p [innerHTML]="data._melding.key | translate: data._melding.args"></p>
-  <p *ngIf="data.uitleg" class="uitleg" [innerHTML]="data.uitleg"></p>
+  @if (data.uitleg) {
+    <p class="uitleg" [innerHTML]="data.uitleg"></p>
+  }
 </div>
 
 <div mat-dialog-actions>
@@ -27,9 +29,11 @@
     [disabled]="loading"
     (click)="confirm()"
   >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
+    @if (loading) {
+      <mat-icon>
+        <mat-spinner diameter="18"></mat-spinner>
+      </mat-icon>
+    }
     {{ "actie.ja" | translate }}
   </button>
   <button

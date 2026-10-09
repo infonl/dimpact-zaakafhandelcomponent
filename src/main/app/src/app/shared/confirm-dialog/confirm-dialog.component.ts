@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -25,7 +24,6 @@ import { Observable } from "rxjs";
   styleUrls: ["./confirm-dialog.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     MatToolbarModule,
     MatDialogTitle,
     MatDialogContent,

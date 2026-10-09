@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -69,7 +68,6 @@ import { InboxDocumentenService } from "../inbox-documenten.service";
   styleUrls: ["./inbox-documenten-list.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     RouterLink,
     MatDrawerContainer,
     MatDrawer,

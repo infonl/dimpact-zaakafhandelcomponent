@@ -8,16 +8,17 @@
     <mat-card-title>{{
       "enkelvoudig-informatie-objecten" | translate
     }}</mat-card-title>
-    <mat-slide-toggle
-      *ngIf="heeftGerelateerdeZaken()"
-      [checked]="linkedDocumentsEnabled()"
-      [disabled]="isLoadingResults()"
-      (change)="linkedDocumentsEnabled.set($event.checked)"
-      color="primary"
-      class="flex-row"
-      id="gekoppeldeZaakDocumentenToon_toggle"
-      >{{ "toon-gekoppelde-zaak-documenten" | translate }}</mat-slide-toggle
-    >
+    @if (heeftGerelateerdeZaken()) {
+      <mat-slide-toggle
+        [checked]="linkedDocumentsEnabled()"
+        [disabled]="isLoadingResults()"
+        (change)="linkedDocumentsEnabled.set($event.checked)"
+        color="primary"
+        class="flex-row"
+        id="gekoppeldeZaakDocumentenToon_toggle"
+        >{{ "toon-gekoppelde-zaak-documenten" | translate }}</mat-slide-toggle
+      >
+    }
   </mat-card-header>
   <mat-card-content>
     <div class="table-wrapper">
@@ -68,70 +69,74 @@
               [bestandsnaam]="row.bestandsnaam"
             ></zac-document-icon>
             {{ row.titel }}
-            <mat-icon *ngIf="isPreviewBeschikbaar(row.formaat)" outlined
-              >plagiarism</mat-icon
-            >
-            <mat-icon
-              *ngIf="row.startformulier"
-              title="{{ 'startformulier' | translate }}"
-              class="gold-star"
-              >star</mat-icon
-            >
+            @if (isPreviewBeschikbaar(row.formaat)) {
+              <mat-icon outlined>plagiarism</mat-icon>
+            }
+            @if (row.startformulier) {
+              <mat-icon
+                title="{{ 'startformulier' | translate }}"
+                class="gold-star"
+                >star</mat-icon
+              >
+            }
           </td>
         </ng-container>
 
-        <ng-container
-          [matColumnDef]="column"
-          *ngFor="
-            let column of [
-              'zaakIdentificatie',
-              'relatieType',
-              'informatieobjectTypeOmschrijving',
-              'bestandsomvang',
-              'status',
-              'vertrouwelijkheidaanduiding',
-              'registratiedatumTijd',
-              'auteur',
-            ]
-          "
-        >
-          <th mat-sort-header mat-header-cell *matHeaderCellDef>
-            {{ column | i18nKey | translate }}
-          </th>
-          <td mat-cell *matCellDef="let row">
-            <ng-container *ngIf="column == 'zaakIdentificatie'">{{
-              row[column] | empty
-            }}</ng-container>
-            <ng-container *ngIf="column == 'relatieType'">{{
-              row[column] | empty
-            }}</ng-container>
-            <ng-container
-              *ngIf="column == 'informatieobjectTypeOmschrijving'"
-              >{{ row[column] | empty }}</ng-container
-            >
-            <ng-container *ngIf="column == 'bestandsomvang'">{{
-              row[column] | bestandsomvang | empty
-            }}</ng-container>
-            <ng-container *ngIf="column == 'status'">{{
-              (row[column] ? "informatieobject.status." + row[column] : "")
-                | i18nKey
-                | translate
-                | empty
-            }}</ng-container>
-            <ng-container *ngIf="column == 'vertrouwelijkheidaanduiding'">{{
-              (row[column] ? row[column] : "")
-                | vertrouwelijkaanduidingToTranslationKey
-                | translate
-                | empty
-            }}</ng-container>
-            <ng-container *ngIf="column == 'registratiedatumTijd'">{{
-              row[column] | datum: "short" | empty
-            }}</ng-container>
-            <ng-container *ngIf="column == 'auteur'">{{
-              row[column] | empty
-            }}</ng-container>
-          </td>
-        </ng-container>
+        @for (
+          column of [
+            "zaakIdentificatie",
+            "relatieType",
+            "informatieobjectTypeOmschrijving",
+            "bestandsomvang",
+            "status",
+            "vertrouwelijkheidaanduiding",
+            "registratiedatumTijd",
+            "auteur",
+          ];
+          track column
+        ) {
+          <ng-container [matColumnDef]="column">
+            <th mat-sort-header mat-header-cell *matHeaderCellDef>
+              {{ column | i18nKey | translate }}
+            </th>
+            <td mat-cell *matCellDef="let row">
+              @if (column == "zaakIdentificatie") {
+                {{ row[column] | empty }}
+              }
+              @if (column == "relatieType") {
+                {{ row[column] | empty }}
+              }
+              @if (column == "informatieobjectTypeOmschrijving") {
+                {{ row[column] | empty }}
+              }
+              @if (column == "bestandsomvang") {
+                {{ row[column] | bestandsomvang | empty }}
+              }
+              @if (column == "status") {
+                {{
+                  (row[column] ? "informatieobject.status." + row[column] : "")
+                    | i18nKey
+                    | translate
+                    | empty
+                }}
+              }
+              @if (column == "vertrouwelijkheidaanduiding") {
+                {{
+                  (row[column] ? row[column] : "")
+                    | vertrouwelijkaanduidingToTranslationKey
+                    | translate
+                    | empty
+                }}
+              }
+              @if (column == "registratiedatumTijd") {
+                {{ row[column] | datum: "short" | empty }}
+              }
+              @if (column == "auteur") {
+                {{ row[column] | empty }}
+              }
+            </td>
+          </ng-container>
+        }
 
         <ng-container matColumnDef="indicaties">
           <th mat-header-cell *matHeaderCellDef>
@@ -162,22 +167,24 @@
           </th>
           <td mat-cell *matCellDef="let row">
             <div class="flex-row">
-              <a
-                *ngIf="row.rechten.canLezen"
-                mat-icon-button
-                [routerLink]="['/informatie-objecten', row.uuid]"
-                title="{{ 'actie.document.bekijken' | translate }}"
-              >
-                <mat-icon>visibility</mat-icon>
-              </a>
-              <button
-                mat-icon-button
-                *ngIf="isBewerkenToegestaan(row)"
-                (click)="bewerken(row)"
-                title="{{ 'actie.document.bewerken' | translate }}"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
+              @if (row.rechten.canLezen) {
+                <a
+                  mat-icon-button
+                  [routerLink]="['/informatie-objecten', row.uuid]"
+                  title="{{ 'actie.document.bekijken' | translate }}"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </a>
+              }
+              @if (isBewerkenToegestaan(row)) {
+                <button
+                  mat-icon-button
+                  (click)="bewerken(row)"
+                  title="{{ 'actie.document.bewerken' | translate }}"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
               <button
                 mat-icon-button
                 [matMenuTriggerFor]="menu"
@@ -186,30 +193,26 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button
-                  mat-menu-item
-                  *ngIf="
-                    row.rechten.canWijzigen &&
-                    !row.isBesluitDocument &&
-                    !row.relatieType
-                  "
-                  (click)="documentOntkoppelen(row)"
-                >
-                  <mat-icon>link_off</mat-icon>
-                  <span>{{ "actie.document.ontkoppelen" | translate }}</span>
-                </button>
-                <button
-                  mat-menu-item
-                  *ngIf="
-                    row.rechten.canWijzigen &&
-                    !row.isBesluitDocument &&
-                    !row.relatieType
-                  "
-                  (click)="emitDocumentMove(row)"
-                >
-                  <mat-icon>move_item</mat-icon>
-                  <span>{{ "actie.document.verplaatsen" | translate }}</span>
-                </button>
+                @if (
+                  row.rechten.canWijzigen &&
+                  !row.isBesluitDocument &&
+                  !row.relatieType
+                ) {
+                  <button mat-menu-item (click)="documentOntkoppelen(row)">
+                    <mat-icon>link_off</mat-icon>
+                    <span>{{ "actie.document.ontkoppelen" | translate }}</span>
+                  </button>
+                }
+                @if (
+                  row.rechten.canWijzigen &&
+                  !row.isBesluitDocument &&
+                  !row.relatieType
+                ) {
+                  <button mat-menu-item (click)="emitDocumentMove(row)">
+                    <mat-icon>move_item</mat-icon>
+                    <span>{{ "actie.document.verplaatsen" | translate }}</span>
+                  </button>
+                }
                 <a mat-menu-item [href]="getDownloadURL(row)">
                   <mat-icon>download</mat-icon>
                   <span>{{ "actie.document.downloaden" | translate }}</span>
@@ -226,10 +229,9 @@
                 row == documentPreviewRow ? 'expanded' : 'collapsed'
               "
             >
-              <zac-document-viewer
-                [document]="row"
-                *ngIf="row == documentPreviewRow"
-              ></zac-document-viewer>
+              @if (row == documentPreviewRow) {
+                <zac-document-viewer [document]="row"></zac-document-viewer>
+              }
             </div>
           </td>
         </ng-container>
@@ -246,10 +248,14 @@
         ></tr>
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell" [colSpan]="documentColumns().length + 2">
-            <p *ngIf="isLoadingResults()">{{ "msg.loading" | translate }}</p>
-            <p *ngIf="!isLoadingResults()">
-              {{ "msg.geen.gegevens.gevonden" | translate }}
-            </p>
+            @if (isLoadingResults()) {
+              <p>{{ "msg.loading" | translate }}</p>
+            }
+            @if (!isLoadingResults()) {
+              <p>
+                {{ "msg.geen.gegevens.gevonden" | translate }}
+              </p>
+            }
           </td>
         </tr>
       </table>

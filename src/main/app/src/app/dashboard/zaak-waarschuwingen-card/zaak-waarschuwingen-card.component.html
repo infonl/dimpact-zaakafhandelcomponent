@@ -17,12 +17,13 @@
       <td mat-cell *matCellDef="let zaak">
         <div class="flex-row items-center gap-10">
           {{ zaak.einddatumGepland | datum | empty }}
-          <mat-icon
-            class="warning"
-            [title]="'msg.datum.overschreden' | translate"
-            *ngIf="isAfterDate(zaak.einddatumGepland, zaak.einddatum)"
-            >warning
-          </mat-icon>
+          @if (isAfterDate(zaak.einddatumGepland, zaak.einddatum)) {
+            <mat-icon
+              class="warning"
+              [title]="'msg.datum.overschreden' | translate"
+              >warning
+            </mat-icon>
+          }
         </div>
       </td>
     </ng-container>
@@ -45,14 +46,13 @@
       <td mat-cell *matCellDef="let zaak">
         <div class="flex-row items-center gap-10">
           {{ zaak.uiterlijkeEinddatumAfdoening | datum | empty }}
-          <mat-icon
-            *ngIf="
-              isAfterDate(zaak.uiterlijkeEinddatumAfdoening, zaak.einddatum)
-            "
-            [title]="'msg.datum.overschreden' | translate"
-            class="error"
-            >warning
-          </mat-icon>
+          @if (isAfterDate(zaak.uiterlijkeEinddatumAfdoening, zaak.einddatum)) {
+            <mat-icon
+              [title]="'msg.datum.overschreden' | translate"
+              class="error"
+              >warning
+            </mat-icon>
+          }
         </div>
       </td>
     </ng-container>
@@ -68,30 +68,34 @@
     <ng-container matColumnDef="url" stickyEnd id="zaakButtons">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let zaak">
-        <a
-          *ngIf="zaak.rechten.canLezen"
-          mat-icon-button
-          [routerLink]="['/zaken', zaak.identificatie]"
-          [id]="'zaakBekijken_' + zaak.uuid + '_button'"
-          title="{{ 'actie.zaak.bekijken' | translate }}"
-        >
-          <mat-icon>visibility</mat-icon>
-        </a>
+        @if (zaak.rechten.canLezen) {
+          <a
+            mat-icon-button
+            [routerLink]="['/zaken', zaak.identificatie]"
+            [id]="'zaakBekijken_' + zaak.uuid + '_button'"
+            title="{{ 'actie.zaak.bekijken' | translate }}"
+          >
+            <mat-icon>visibility</mat-icon>
+          </a>
+        }
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell dashboard-empty-cell" colspan="6">
-        <mat-progress-spinner
-          *ngIf="zakenQuery.isLoading()"
-          mode="indeterminate"
-          diameter="32"
-          [attr.aria-label]="'msg.loading' | translate"
-        ></mat-progress-spinner>
-        <p *ngIf="!zakenQuery.isLoading()">
-          {{ "msg.geen.gegevens.gevonden" | translate }}
-        </p>
+        @if (zakenQuery.isLoading()) {
+          <mat-progress-spinner
+            mode="indeterminate"
+            diameter="32"
+            [attr.aria-label]="'msg.loading' | translate"
+          ></mat-progress-spinner>
+        }
+        @if (!zakenQuery.isLoading()) {
+          <p>
+            {{ "msg.geen.gegevens.gevonden" | translate }}
+          </p>
+        }
       </td>
     </tr>
   </table>

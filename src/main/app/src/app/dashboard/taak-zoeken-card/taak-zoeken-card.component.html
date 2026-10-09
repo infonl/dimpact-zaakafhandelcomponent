@@ -51,15 +51,18 @@
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell dashboard-empty-cell" colspan="5">
-        <mat-progress-spinner
-          *ngIf="zoekQuery.isLoading()"
-          mode="indeterminate"
-          diameter="32"
-          [attr.aria-label]="'msg.loading' | translate"
-        ></mat-progress-spinner>
-        <p *ngIf="!zoekQuery.isLoading()">
-          {{ "msg.geen.gegevens.gevonden" | translate }}
-        </p>
+        @if (zoekQuery.isLoading()) {
+          <mat-progress-spinner
+            mode="indeterminate"
+            diameter="32"
+            [attr.aria-label]="'msg.loading' | translate"
+          ></mat-progress-spinner>
+        }
+        @if (!zoekQuery.isLoading()) {
+          <p>
+            {{ "msg.geen.gegevens.gevonden" | translate }}
+          </p>
+        }
       </td>
     </tr>
   </table>

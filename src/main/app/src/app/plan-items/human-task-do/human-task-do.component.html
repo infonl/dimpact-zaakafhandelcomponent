@@ -14,23 +14,24 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<section
-  *ngIf="!formFields.length"
-  class="flex-fill flex-row justify-center items-center"
->
-  <mat-spinner diameter="30" />
-</section>
+@if (!formFields.length) {
+  <section class="flex-fill flex-row justify-center items-center">
+    <mat-spinner diameter="30" />
+  </section>
+}
 
 <!-- form using Angular form builder -->
-<section *ngIf="formFields.length" class="mt-2">
-  <zac-composed-form
-    [form]="form"
-    [fields]="formFields"
-    [config]="formConfig"
-    [loading]="doHumanTaskPlanItemMutation.isPending()"
-    [success]="doHumanTaskPlanItemMutation.isSuccess()"
-    disableAfterSuccess
-    (formSubmitted)="onFormSubmit($event)"
-    (formCancelled)="onFormCancel()"
-  />
-</section>
+@if (formFields.length) {
+  <section class="mt-2">
+    <zac-composed-form
+      [form]="form"
+      [fields]="formFields"
+      [config]="formConfig"
+      [loading]="doHumanTaskPlanItemMutation.isPending()"
+      [success]="doHumanTaskPlanItemMutation.isSuccess()"
+      disableAfterSuccess
+      (formSubmitted)="onFormSubmit($event)"
+      (formCancelled)="onFormCancel()"
+    />
+  </section>
+}
