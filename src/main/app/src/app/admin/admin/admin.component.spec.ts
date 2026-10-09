@@ -7,6 +7,7 @@ import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { Subject } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
@@ -18,14 +19,18 @@ import { AdminComponent } from "./admin.component";
 class TestAdminComponent extends AdminComponent {
   private readonly openedStart = new Subject<void>();
 
-  readonly sideNavContainer = signal({
-    hasBackdrop: true,
-    updateContentMargins: jest.fn(),
-  } as unknown as MatSidenavContainer);
+  readonly sideNavContainer = signal(
+    fromPartial<MatSidenavContainer>({
+      hasBackdrop: true,
+      updateContentMargins: jest.fn(),
+    }),
+  );
 
-  readonly menuSidenav = signal({
-    openedStart: this.openedStart.asObservable(),
-  } as unknown as MatSidenav);
+  readonly menuSidenav = signal(
+    fromPartial<MatSidenav>({
+      openedStart: this.openedStart.asObservable(),
+    }),
+  );
 
   public constructor(
     utilService: UtilService,
