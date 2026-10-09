@@ -12,7 +12,6 @@ import {
 import { UtilService } from "../core/service/util.service";
 import { PostBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -20,7 +19,6 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class MailtemplateBeheerService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient, { optional: true });
@@ -32,11 +30,22 @@ export class MailtemplateBeheerService {
   }
 
   listMailtemplates() {
-    return this.zacHttpClient.GET("/rest/beheer/mailtemplates");
+    return this.zacQueryClient.GET("/rest/beheer/mailtemplates");
   }
 
   listKoppelbareMailtemplates() {
-    return this.zacHttpClient.GET("/rest/beheer/mailtemplates/koppelbaar");
+    return this.zacQueryClient.GET("/rest/beheer/mailtemplates/koppelbaar");
+  }
+
+  private invalidateMailtemplateLists() {
+    return Promise.all([
+      this.queryClient?.invalidateQueries({
+        queryKey: this.listMailtemplates().queryKey,
+      }),
+      this.queryClient?.invalidateQueries({
+        queryKey: this.listKoppelbareMailtemplates().queryKey,
+      }),
+    ]);
   }
 
   deleteMailtemplate() {
@@ -46,10 +55,12 @@ export class MailtemplateBeheerService {
         (id: number) => ({ parameters: { path: { id } } }),
       ),
       {
-        onSuccess: () =>
+        onSuccess: () => {
+          void this.invalidateMailtemplateLists();
           this.utilService.openSnackbar(
             "msg.mailtemplate.verwijderen.uitgevoerd",
-          ),
+          );
+        },
       },
     );
   }
@@ -73,6 +84,7 @@ export class MailtemplateBeheerService {
 
     return mergeMutationOptions(save, {
       onSuccess: () => {
+        void this.invalidateMailtemplateLists();
         if (id != null) {
           void this.queryClient?.invalidateQueries({
             queryKey: this.readMailtemplateQuery(id).queryKey,
@@ -84,7 +96,7 @@ export class MailtemplateBeheerService {
   }
 
   ophalenVariabelenVoorMail(mail: GeneratedType<"Mail">) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/beheer/mailtemplates/variabelen/{mail}",
       {
         path: { mail },

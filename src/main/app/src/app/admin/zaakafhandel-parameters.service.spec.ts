@@ -11,6 +11,7 @@ import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
 import { runMutation } from "../shared/http/run-mutation";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
 describe(ZaakafhandelParametersService.name, () => {
@@ -37,6 +38,20 @@ describe(ZaakafhandelParametersService.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaakafhandelparameters.opgeslagen",
       );
+    });
+
+    it("invalidates the mailtemplate koppelingen, which the parameters hold", async () => {
+      const invalidateQueries = jest
+        .spyOn(testQueryClient, "invalidateQueries")
+        .mockResolvedValue(undefined);
+
+      await runMutationOnSuccess(service.updateZaakafhandelparameters());
+
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: TestBed.inject(
+          MailtemplateKoppelingService,
+        ).listMailtemplateKoppelingen().queryKey,
+      });
     });
   });
 
