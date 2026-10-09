@@ -55,7 +55,7 @@ class ProductaanvraagZaakService @Inject constructor(
         zaaktype: ZaakType,
         productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
-    ): Zaak = Zaak().apply {
+) = Zaak().apply {
         this.zaaktype = zaaktype.url
         startdatum = productaanvraagObject.record.startAt
         bronorganisatie = configurationService.readBronOrganisatie()
