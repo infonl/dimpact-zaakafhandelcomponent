@@ -18,8 +18,8 @@ an employee with edit rights on such a zaak add extra medewerkers by hand.
   for the zaaktype. It is sorted by name, without paging or search.
 - **Adding stores the existing rol.** ZAC adds a *Zaakspecifiek geautoriseerde medewerker* rol to the zaak in
   Open Zaak, identical to the one previous zaak- and taakbehandelaars get. The added medewerker can use their
-  own application role on the zaak, can add others in turn, and finds the zaak in werkvoorraden and
-  zoekresultaten.
+  own application role on the zaak and finds the zaak in werkvoorraden and zoekresultaten. When that role gives
+  `wijzigen`, as `behandelaar` does on an open zaak, they can add others in turn.
 - **The zaakhistorie shows the addition**; the betrokkenen tab does not show the medewerker.
 
 ## Capabilities
