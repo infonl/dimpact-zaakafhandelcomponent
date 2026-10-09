@@ -96,7 +96,7 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   ],
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
-  readonly menuTrigger = viewChild.required(MatMenuTrigger);
+  readonly menuTrigger = viewChild(MatMenuTrigger);
   readonly cardElements = viewChildren<string, ElementRef<HTMLElement>>(
     "cardElement",
     { read: ElementRef },
@@ -416,7 +416,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   hint() {
     this.editMode.setValue(true);
     setTimeout(() => {
-      this.menuTrigger().openMenu();
+      this.menuTrigger()?.openMenu();
     }, 666);
   }
 

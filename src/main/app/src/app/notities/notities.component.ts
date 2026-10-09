@@ -59,10 +59,10 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   readonly zaakUuid = input.required<string>();
   readonly notitieRechten = input<GeneratedType<"RestNotitieRechten">>();
 
-  readonly notitieTekst = viewChild.required<{
+  readonly notitieTekst = viewChild<{
     nativeElement: HTMLTextAreaElement;
   }>("notitieTekst");
-  readonly scrollTarget = viewChild.required<ElementRef>("scrollTarget");
+  readonly scrollTarget = viewChild<ElementRef>("scrollTarget");
 
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -72,8 +72,9 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     {
       onSuccess: (notitie) => {
         this.notities.splice(0, 0, notitie);
-        this.notitieTekst().nativeElement.value = "";
-        this.scrollTarget().nativeElement.scrollIntoView({
+        const notitieTekst = this.notitieTekst();
+        if (notitieTekst) notitieTekst.nativeElement.value = "";
+        this.scrollTarget()?.nativeElement.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
@@ -169,7 +170,8 @@ export class NotitiesComponent implements OnInit, OnDestroy {
   }
 
   protected annuleerUpdateNotitie() {
-    this.notitieTekst().nativeElement.value = "";
+    const notitieTekst = this.notitieTekst();
+    if (notitieTekst) notitieTekst.nativeElement.value = "";
     this.geselecteerdeNotitieId = null;
   }
 

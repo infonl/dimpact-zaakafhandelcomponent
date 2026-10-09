@@ -128,8 +128,9 @@ export class TaakViewComponent
   readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   readonly historieSort = viewChild<MatSort>("historieSort");
-  readonly zaakDocumentenComponent =
-    viewChild.required<ZaakDocumentenComponent>("zaakDocumentenComponent");
+  readonly zaakDocumentenComponent = viewChild<ZaakDocumentenComponent>(
+    "zaakDocumentenComponent",
+  );
 
   protected taak?: GeneratedType<"RestTask">;
   protected zaak?: GeneratedType<"RestZaak">;
@@ -551,7 +552,7 @@ export class TaakViewComponent
   }
 
   updateZaakDocumentList() {
-    this.zaakDocumentenComponent().updateDocumentList();
+    this.zaakDocumentenComponent()?.updateDocumentList();
   }
 
   protected updateZaak() {
