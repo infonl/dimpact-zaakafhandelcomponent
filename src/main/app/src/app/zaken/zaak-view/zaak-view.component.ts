@@ -54,6 +54,8 @@ import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-co
 import { detailExpand } from "../../shared/animations/animations";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { runMutation } from "../../shared/http/run-mutation";
+import { runQuery } from "../../shared/http/run-query";
+import { StaleTimes } from "../../shared/http/zac-query-client";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { toI18nKey } from "../../shared/utils/i18n-key";
@@ -192,7 +194,6 @@ export class ZaakViewComponent
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  notitieRechten!: GeneratedType<"RestNotitieRechten">;
   viewInitialized = signal(false);
 
   private zaakListener!: WebsocketListener;
@@ -213,6 +214,10 @@ export class ZaakViewComponent
 
   protected readonly brpRechtenQuery = injectQuery(() =>
     this.policyService.readBrpRechten(),
+  );
+
+  protected readonly notitieRechtenQuery = injectQuery(() =>
+    this.policyService.readNotitieRechten(),
   );
 
   protected readonly betrokkenenQuery = injectQuery(() =>
@@ -291,8 +296,6 @@ export class ZaakViewComponent
       this.utilService.setTitle("title.zaak", {
         zaak: zaak.identificatie,
       });
-
-      this.loadNotitieRechten();
     });
 
     effect(() => {
@@ -367,12 +370,13 @@ export class ZaakViewComponent
     const actiefPlanItem = this.sideActions.actiefPlanItem();
     if (!actiefPlanItem || actiefPlanItem.id !== planItem.id) {
       this.sideActions.clear();
-      this.planItemsService
-        .readHumanTaskPlanItem(planItem.id)
-        .subscribe((planItem) => {
-          this.sideActions.actiefPlanItem.set(planItem);
-          this.sideActions.open(planItem.naam);
-        });
+      runQuery(this.queryClient, {
+        ...this.planItemsService.readHumanTaskPlanItem(planItem.id),
+        staleTime: StaleTimes.Instant,
+      }).subscribe((planItem) => {
+        this.sideActions.actiefPlanItem.set(planItem);
+        this.sideActions.open(planItem.naam);
+      });
       return;
     }
     this.sideActions.open(planItem.naam);
@@ -455,12 +459,6 @@ export class ZaakViewComponent
       .subscribe((besluiten) =>
         this.zakenService.cacheZaak({ ...this.zaak, besluiten }),
       );
-  }
-
-  private loadNotitieRechten() {
-    this.policyService
-      .readNotitieRechten()
-      .subscribe((rechten) => (this.notitieRechten = rechten));
   }
 
   protected initiatorGeselecteerd(

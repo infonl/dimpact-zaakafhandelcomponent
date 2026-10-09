@@ -13,8 +13,8 @@
     (click)="toggleNotitieContainer()"
   >
     <mat-icon
-      [matBadgeHidden]="notities.length === 0"
-      [matBadge]="notities.length"
+      [matBadgeHidden]="notities().length === 0"
+      [matBadge]="notities().length"
       matBadgeColor="accent"
     >
       sticky_note_2
@@ -41,7 +41,7 @@
 
   <mat-card-content class="notitie-body">
     <div #scrollTarget></div>
-    <ng-container *ngFor="let notitie of notities">
+    <ng-container *ngFor="let notitie of notities()">
       <mat-card class="notitie">
         <mat-card-header>
           <div

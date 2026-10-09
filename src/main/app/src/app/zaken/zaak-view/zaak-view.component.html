@@ -234,7 +234,10 @@
 </mat-drawer-container>
 
 <zac-notities
-  *ngIf="notitieRechten?.canLezen || notitieRechten?.canWijzigen"
+  *ngIf="
+    notitieRechtenQuery.data()?.canLezen ||
+    notitieRechtenQuery.data()?.canWijzigen
+  "
   [zaakUuid]="zaak.uuid"
-  [notitieRechten]="notitieRechten"
+  [notitieRechten]="notitieRechtenQuery.data()"
 ></zac-notities>
