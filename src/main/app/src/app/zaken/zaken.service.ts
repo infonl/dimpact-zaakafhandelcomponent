@@ -48,6 +48,11 @@ type ZaakDetailsUpdateVariables = {
   reden: string;
 };
 
+type ZaakspecifiekGeautoriseerdeMedewerkerToevoegen = {
+  groepId: string;
+  medewerker: GeneratedType<"RestUser">;
+};
+
 @Injectable({
   providedIn: "root",
 })
@@ -294,22 +299,42 @@ export class ZakenService {
   }
 
   addZaakspecifiekGeautoriseerdeMedewerker(uuid: string) {
-    return mergeMutationOptions(
-      this.zacQueryClient.POST(
-        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers",
-        { path: { uuid } },
-      ),
-      {
-        onSuccess: () => {
-          this.queryClient.invalidateQueries({
-            queryKey: [
-              "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
-            ],
-          });
-          this.invalidateHistorie(uuid);
-        },
-      },
+    const post = this.zacQueryClient.POST(
+      "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers",
+      { path: { uuid } },
     );
+    const toBody = ({
+      groepId,
+      medewerker,
+    }: ZaakspecifiekGeautoriseerdeMedewerkerToevoegen) => ({
+      groepId,
+      medewerkerId: medewerker.id,
+    });
+    return mutationOptions<
+      void,
+      HttpErrorResponse,
+      ZaakspecifiekGeautoriseerdeMedewerkerToevoegen,
+      void
+    >({
+      mutationKey: post.mutationKey,
+      mutationFn: async (variables, context) => {
+        await post.mutationFn?.(toBody(variables), context);
+      },
+      onError: (error, variables, onMutateResult, context) =>
+        post.onError?.(error, toBody(variables), onMutateResult, context),
+      onSuccess: (_, { medewerker }) => {
+        this.utilService.openSnackbar(
+          "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd",
+          { medewerker: medewerker.naam },
+        );
+        this.queryClient.invalidateQueries({
+          queryKey: [
+            "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+          ],
+        });
+        this.invalidateHistorie(uuid);
+      },
+    });
   }
 
   listBetrokkenenVoorZaakQuery(uuid: string) {

@@ -15,7 +15,6 @@ import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -45,7 +44,6 @@ import { ZakenService } from "../zaken.service";
 export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
   private readonly zakenService = inject(ZakenService);
   private readonly identityService = inject(IdentityService);
-  private readonly utilService = inject(UtilService);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
@@ -87,15 +85,7 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
       this.zakenService.addZaakspecifiekGeautoriseerdeMedewerker(
         this.zaak().uuid,
       ),
-    {
-      onSuccess: () => {
-        this.utilService.openSnackbar(
-          "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd",
-          { medewerker: this.form.controls.medewerker.value?.naam },
-        );
-        void this.sideNav().close();
-      },
-    },
+    { onSuccess: () => void this.sideNav().close() },
   );
 
   constructor() {
@@ -111,6 +101,6 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
   protected toevoegen() {
     const { groep, medewerker } = this.form.getRawValue();
     if (!groep || !medewerker) return;
-    this.mutation.mutate({ groepId: groep.id, medewerkerId: medewerker.id });
+    this.mutation.mutate({ groepId: groep.id, medewerker });
   }
 }
