@@ -569,6 +569,8 @@ Bij een zaakspecifiek geautoriseerde zaak kun je extra medewerkers toegang geven
 
 4 Klik op Toevoegen
 
+![Medewerker toevoegen](./images/medewerker-toevoegen.png)
+
 De toegevoegde medewerker heeft vanaf dan toegang tot de zaak, met de rechten van de eigen rol voor het zaaktype.
 De zaakhistorie toont dat de medewerker is toegevoegd als Zaakspecifiek geautoriseerde medewerker.
 Een toegevoegde medewerker die de zaak mag wijzigen, kan zelf ook medewerkers toevoegen.
