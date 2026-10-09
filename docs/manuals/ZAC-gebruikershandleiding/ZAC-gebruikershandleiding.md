@@ -517,7 +517,7 @@ Deze medewerkers hebben toegang tot een zaakspecifiek geautoriseerde zaak:
 - de behandelaar van de zaak
 - de vorige behandelaars van de zaak, vanaf het moment van de zaakspecifieke autorisatie
 - medewerkers met de rol Zaakspecifiek geautoriseerd voor het zaaktype. De beheerder richt deze rol in.
-- medewerkers die een medewerker met bewerkrechten handmatig aan de zaak toevoegt. Zie [Medewerker toevoegen](#medewerker-toevoegen).
+- medewerkers die door een medewerker met bewerkrechten handmatig aan de zaak zijn toegevoegd. Zie [Medewerker toevoegen](#medewerker-toevoegen).
 
 Ook deze medewerkers hebben altijd een andere rol voor het zaaktype nodig, bijvoorbeeld Raadpleger of Behandelaar.
 Die rol bepaalt wat de medewerker met de zaak mag doen.
