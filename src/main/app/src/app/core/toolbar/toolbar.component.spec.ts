@@ -31,7 +31,6 @@ import { fromPartial } from "src/test-helpers";
 import { mockMutationFn, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
-import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -350,9 +349,7 @@ describe(ToolbarComponent.name, () => {
   });
 
   describe("Back button", () => {
-    it("is disabled when navigation back is unavailable", async () => {
-      const navigationService = TestBed.inject(NavigationService);
-      navigationService.backDisabled$ = of(true);
+    it("is disabled when the browser history holds no ZAC page before this one", async () => {
       createComponent();
       await fixture.whenStable();
       fixture.detectChanges();
@@ -363,9 +360,8 @@ describe(ToolbarComponent.name, () => {
       expect(await backButton.isDisabled()).toBe(true);
     });
 
-    it("is enabled when navigation back is available", async () => {
-      const navigationService = TestBed.inject(NavigationService);
-      navigationService.backDisabled$ = of(false);
+    it("is enabled when the browser history holds a ZAC page before this one", async () => {
+      Object.assign(window.navigation, { canGoBack: true });
       createComponent();
       await fixture.whenStable();
       fixture.detectChanges();

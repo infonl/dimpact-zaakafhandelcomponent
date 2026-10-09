@@ -9,9 +9,11 @@ import { NgZone, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatProgressBarHarness } from "@angular/material/progress-bar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { screen } from "@testing-library/angular";
 import { testQueryClient } from "../../../../setupJest";
 import { Progress, UtilService } from "../service/util.service";
 import { LoadingComponent } from "./loading.component";
@@ -64,6 +66,26 @@ describe(LoadingComponent.name, () => {
 
     it("should show a query progress bar", async () => {
       expect(await progressBarMode()).toBe("query");
+    });
+  });
+
+  describe("while the router navigates", () => {
+    beforeEach(() => {
+      const router = TestBed.inject(Router);
+      router.resetConfig([
+        {
+          path: "slow",
+          canActivate: [() => new Promise(() => {})],
+          children: [],
+        },
+      ]);
+      void router.navigateByUrl("/slow");
+      fixture.detectChanges();
+    });
+
+    // The harness waits for the navigation to end, which this pending guard never lets happen
+    it("should show a query progress bar", () => {
+      expect(screen.getByRole("progressbar")).toHaveAttribute("mode", "query");
     });
   });
 
