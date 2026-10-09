@@ -200,7 +200,7 @@ export class TakenWerkvoorraadComponent
     this.assignToMeMutation.mutate({
       taakId: taakZoekObject.id,
       zaakUuid: taakZoekObject.zaakUuid,
-      groepId: null as unknown as string,
+      groepId: taakZoekObject.groepID,
     });
   }
 
