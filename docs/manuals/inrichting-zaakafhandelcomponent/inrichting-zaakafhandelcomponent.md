@@ -251,7 +251,7 @@ ZAC zoekt naar een roltype met behulp van één van deze velden:
 
 ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor een roltype zowel het `Omschrijving` als het `Omschrijving generiek` veld gevuld is dan wordt het `Omschrijving` veld gebruikt.
 
-Het roltype 'Zaakspecifiek geautoriseerde medewerker' heeft ook de omschrijving generiek 'Behandelaar'. ZAC telt dit roltype niet als het roltype 'Behandelaar', omdat de omschrijving anders is. Zie sectie [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie).
+Het roltype 'Zaakspecifiek geautoriseerde medewerker' heeft ook de omschrijving generiek 'Behandelaar'. ZAC beschouwt dit roltype echter niet als het roltype 'Behandelaar', omdat de omschrijving anders is. Zie sectie [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie).
 
 **Let op:** voor het roltype 'Behandelaar' vereist ZAC dat zowel het veld `Omschrijving generiek` op 'Behandelaar' staat als het veld `Omschrijving` de exacte waarde 'Behandelaar' heeft. Als een gemeente een andere omschrijving gebruikt (bijv. 'Behandelaar domein X'), dan moet dit aangepast worden naar 'Behandelaar'.
 
