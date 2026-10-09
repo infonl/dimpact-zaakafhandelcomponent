@@ -284,13 +284,13 @@ export class ZakenService {
     uuid: string,
     groepId: string,
   ) {
-    return queryOptions({
+    return {
       ...this.zacQueryClient.GET(
         "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
         { path: { uuid }, query: { groepId } },
       ),
       staleTime: 0,
-    });
+    };
   }
 
   addZaakspecifiekGeautoriseerdeMedewerker(uuid: string) {
