@@ -11,9 +11,12 @@ import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { fromPartial, runMutationOnSuccess } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
+import { UtilService } from "../core/service/util.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { TakenService } from "./taken.service";
 
 describe(TakenService.name, () => {
@@ -98,33 +101,57 @@ describe(TakenService.name, () => {
   });
 
   describe("toekennenAanIngelogdeMedewerker", () => {
-    it("patches with the given body", () => {
-      const body = {
-        taakId: "taak-1",
-        zaakUuid: "zaak-uuid-1",
-        groepId: "groep-1",
-      };
-      jest.spyOn(zacHttpClient, "PATCH").mockReturnValue(of({} as never));
-      service.toekennenAanIngelogdeMedewerker(body).subscribe();
-      expect(zacHttpClient.PATCH).toHaveBeenCalledWith(
-        expect.any(String),
-        body,
+    it("builds mutation options for /rest/taken/toekennen/mij", () => {
+      jest.spyOn(zacQueryClient, "PATCH");
+      service.toekennenAanIngelogdeMedewerker();
+      expect(zacQueryClient.PATCH).toHaveBeenCalledWith(
+        "/rest/taken/toekennen/mij",
+      );
+    });
+
+    it("names the behandelaar the taak was assigned to", async () => {
+      const utilService = TestBed.inject(UtilService);
+      jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
+
+      await runMutationOnSuccess(
+        service.toekennenAanIngelogdeMedewerker(),
+        undefined,
+        fromPartial<GeneratedType<"RestTask">>({
+          behandelaar: { naam: "fakeBehandelaarNaam" },
+        }),
+      );
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.taak.toegekend",
+        { behandelaar: "fakeBehandelaarNaam" },
       );
     });
   });
 
   describe("toekennenAanIngelogdeMedewerkerVanuitLijst", () => {
-    it("patches with the given body", () => {
-      const body = {
-        taakId: "taak-1",
-        zaakUuid: "zaak-uuid-1",
-        groepId: "groep-1",
-      };
-      jest.spyOn(zacHttpClient, "PATCH").mockReturnValue(of({} as never));
-      service.toekennenAanIngelogdeMedewerkerVanuitLijst(body).subscribe();
-      expect(zacHttpClient.PATCH).toHaveBeenCalledWith(
-        expect.any(String),
-        body,
+    it("builds mutation options for /rest/taken/lijst/toekennen/mij", () => {
+      jest.spyOn(zacQueryClient, "PATCH");
+      service.toekennenAanIngelogdeMedewerkerVanuitLijst();
+      expect(zacQueryClient.PATCH).toHaveBeenCalledWith(
+        "/rest/taken/lijst/toekennen/mij",
+      );
+    });
+
+    it("names the behandelaar the taak was assigned to", async () => {
+      const utilService = TestBed.inject(UtilService);
+      jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
+
+      await runMutationOnSuccess(
+        service.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+        undefined,
+        fromPartial<GeneratedType<"RestTask">>({
+          behandelaar: { naam: "fakeBehandelaarNaam" },
+        }),
+      );
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.taak.toegekend",
+        { behandelaar: "fakeBehandelaarNaam" },
       );
     });
   });

@@ -494,6 +494,40 @@ describe(ZaakTakenComponent.name, () => {
       expect(assignToMeButtonIn("fakeTaakNaam")).toBeNull();
     });
 
+    it("shows the assigned behandelaar on every row that was assigned before the first response arrived", async () => {
+      await setup([
+        taak({ id: "taakIdA", naam: "taakNaamA" }),
+        taak({ id: "taakIdB", naam: "taakNaamB" }),
+      ]);
+
+      await user.click(assignToMeButtonIn("taakNaamA")!);
+      await sleep();
+      await user.click(assignToMeButtonIn("taakNaamB")!);
+      await sleep();
+      httpTestingController
+        .match("/rest/taken/toekennen/mij")
+        .forEach((request) =>
+          request.flush(
+            taak({
+              id: request.request.body.taakId,
+              behandelaar: {
+                id: "behandelaarIdVan" + request.request.body.taakId,
+                naam: "behandelaarVan" + request.request.body.taakId,
+              },
+            }),
+          ),
+        );
+      await sleep();
+      fixture.detectChanges();
+
+      expect(
+        within(rowOf("taakNaamA")).getByText("behandelaarVantaakIdA"),
+      ).toBeVisible();
+      expect(
+        within(rowOf("taakNaamB")).getByText("behandelaarVantaakIdB"),
+      ).toBeVisible();
+    });
+
     it("suspends the taak updates while the assignment is in flight", async () => {
       await setup();
 
