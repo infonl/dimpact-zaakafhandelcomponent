@@ -235,7 +235,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     }
 
     /**
-     * Lists the members of [groepId] who can still be added to the zaakspecifiek geautoriseerde [zaak], leaving out
+     * Lists the members of [groepId] who can still be added to the zaakspecifiek geautoriseerde zaak, leaving out
      * everyone who already has access to it.
      */
     fun listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
