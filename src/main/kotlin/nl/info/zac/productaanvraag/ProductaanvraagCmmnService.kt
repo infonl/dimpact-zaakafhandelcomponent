@@ -22,7 +22,8 @@ class ProductaanvraagCmmnService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaakProcessService: ZaakProcessService,
     private val productaanvraagZaakService: ProductaanvraagZaakService,
-    private val productaanvraagEmailService: ProductaanvraagEmailService
+    private val productaanvraagEmailService: ProductaanvraagEmailService,
+    private val productaanvraagClaimRepository: ProductaanvraagClaimRepository
 ) {
     fun createAndStartZaak(
         zaaktypeConfiguration: ZaaktypeConfiguration,
@@ -44,6 +45,9 @@ class ProductaanvraagCmmnService @Inject constructor(
             zaaktype = zaaktype,
             processStartData = ProcessStartData(zaakData = productaanvraagObject.extractAanvraaggegevens())
         )
+        // The claim boundary of docs/solution-architecture/productRequestSupport.md: only a productaanvraag whose
+        // process has started is done, so that an interrupted handling is handled again after its claim times out.
+        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
             zaak = zaak,
             betrokkene = productaanvraagInitiator.betrokkene,

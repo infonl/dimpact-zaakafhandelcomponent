@@ -72,15 +72,13 @@ sequenceDiagram
     ZAC->>+OpenZaak: Link submitted form PDF document to case
     ZAC->>+OpenZaak: Link any uploaded attachments (documents) to case
     ZAC->>+OpenZaak: Link any stakeholders ('betrokkenen') to case, including the initiator
+    ZAC->>+OpenKlant: Retrieve request specific contact details
+    ZAC->>+OpenKlant: Link request specific contact details to newly created zaak
     alt CMMN configured (or both CMMN & BPMN)
         ZAC->>+ZAC: Start CMMN case
-        ZAC->>+OpenKlant: Retrieve request specific contact details
-        ZAC->>+OpenKlant: Link request specific contact details to newly created zaak
         ZAC->>+ZAC: Send confirmation mail
     else BPMN configured only
         ZAC->>+ZAC: Start BPMN process
-        ZAC->>+OpenKlant: Retrieve request specific contact details
-        ZAC->>+OpenKlant: Link request specific contact details to newly created zaak
     else no mapping
         ZAC->>+ZAC: Register inbox product request (no case started)
     end
@@ -101,9 +99,16 @@ To prevent this, ZAC keeps a claim per Product Request object in its own databas
    redelivering.
 2. The claim is set to `DONE` as soon as the zaak has been created and its CMMN case or BPMN process has been started,
    and for Product Requests without a zaaktype mapping as soon as the inbox product request has been registered.
-   The remaining steps - role assignment, document pairing, linking contact details and the confirmation email - run
-   after that point and do not affect the claim.
+   For both CMMN and BPMN, ZAC sets up the zaak - document pairing, role assignment, linking stakeholders and contact
+   details - before it starts the case or process, so these steps run before the claim is set to `DONE`. Only the
+   confirmation email runs after that point and does not affect the claim.
 3. A claim that was taken but never set to `DONE`, for example because ZAC was restarted halfway through, is reclaimed
    by a later notification once it is older than `PRODUCTAANVRAAG_CLAIM_TIMEOUT_MINUTES` (10 minutes by default,
    configurable through the ZAC Helm chart). Handling then simply starts over, without manual intervention.
+   If the handling was interrupted after the zaak had been created, starting over creates a new zaak, and the earlier
+   zaak stays without a case or process.
+
+When handling fails with an error instead of being interrupted, ZAC logs the error and still acknowledges the
+notification, so Open Notifications does not redeliver it. The claim then stays unfinished until another notification
+for the same Product Request object arrives.
 

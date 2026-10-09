@@ -44,8 +44,7 @@ class ProductaanvraagZaakService @Inject constructor(
     private val configurationService: ConfigurationService,
     private val klantClientService: KlantClientService,
     private val productaanvraagBetrokkeneService: ProductaanvraagBetrokkeneService,
-    private val productaanvraagDocumentService: ProductaanvraagDocumentService,
-    private val productaanvraagClaimRepository: ProductaanvraagClaimRepository
+    private val productaanvraagDocumentService: ProductaanvraagDocumentService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ProductaanvraagZaakService::class.java.name)
@@ -69,11 +68,7 @@ class ProductaanvraagZaakService @Inject constructor(
             zaakgegevens.omschrijving?.let { omschrijving = it }
         }
         toelichting = generateZaakExplanationFromProductaanvraag(productaanvraagDimpact)
-    }.let(zgwApiService::createZaak).also {
-        // Mark the productaanvraag as done as soon as its zaak exists. A productaanvraag that is not marked as done
-        // is handled again after its claim times out, and that would create a second zaak for it.
-        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
-    }
+    }.let(zgwApiService::createZaak)
 
     /**
      * A default behandelaar that is no longer a member of the default group is a stale configuration. It must not

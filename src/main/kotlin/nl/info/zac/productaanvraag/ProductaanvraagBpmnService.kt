@@ -21,7 +21,8 @@ import nl.info.zac.util.NoArgConstructor
 class ProductaanvraagBpmnService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaakProcessService: ZaakProcessService,
-    private val productaanvraagZaakService: ProductaanvraagZaakService
+    private val productaanvraagZaakService: ProductaanvraagZaakService,
+    private val productaanvraagClaimRepository: ProductaanvraagClaimRepository
 ) {
     fun createAndStartZaak(
         zaaktypeConfiguration: ZaaktypeConfiguration,
@@ -49,5 +50,8 @@ class ProductaanvraagBpmnService @Inject constructor(
                 communicatiekanaal = zaak.communicatiekanaalNaam
             )
         )
+        // The claim boundary of docs/solution-architecture/productRequestSupport.md: only a productaanvraag whose
+        // process has started is done, so that an interrupted handling is handled again after its claim times out.
+        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
     }
 }
