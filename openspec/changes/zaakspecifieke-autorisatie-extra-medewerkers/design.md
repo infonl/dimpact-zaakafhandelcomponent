@@ -46,6 +46,13 @@ for the zaaktype.
 `ZaakRestService` is already large. A new `ZaakspecifiekeAutorisatieRestService` under the same `zaken` path holds
 both endpoints, like the other `zaken` REST services split off before it.
 
+### Both endpoints read the zaakspecifieke autorisatie once
+
+Each endpoint reads the `ZaakAutorisatieGegevens` of the zaak once, through
+`ZaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens`, and passes it to both the `wijzigen` check and the
+service. The kandidaten reuse its medewerkers. Adding reads the rollen again under the per-zaak lock, so a
+concurrent addition is still refused.
+
 ### Adding repeats the checks
 
 `POST /rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers` with `{ groepId, medewerkerId }`:
