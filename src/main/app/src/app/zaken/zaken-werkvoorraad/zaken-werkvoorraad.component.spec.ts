@@ -3,27 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Data, provideRouter } from "@angular/router";
+import { ActivatedRoute, Data } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { TabelGegevens } from "../../shared/dynamic-table/model/tabel-gegevens";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
@@ -60,15 +53,11 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       {
         imports: [NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
-          provideRouter([]),
           {
             provide: ActivatedRoute,
             useValue: mockActivatedRoute,
           },
-          provideHttpClient(withInterceptorsFromDi()),
-          provideHttpClientTesting(),
           provideNativeDateAdapter(),
-          provideQueryClient(testQueryClient),
         ],
       },
     );
@@ -503,6 +492,64 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
       expect(dialogData).toEqual([gewoneZaak]);
       expect(openSnackbar).not.toHaveBeenCalled();
+    });
+
+    describe("when the batch has finished", () => {
+      const commitUrl =
+        "/rest/indexeren/commit-pending-changes-to-search-index";
+
+      async function finishBatch() {
+        await setupWithMockedBatchProcess();
+        const stop = jest
+          .spyOn(component["batchProcessService"], "stop")
+          .mockImplementation(() => undefined);
+        const load = jest
+          .spyOn(component["dataSource"], "load")
+          .mockImplementation(() => undefined);
+        component["selection"].select(gewoneZaak);
+        component["openVerdelenScherm"]();
+
+        const [{ finally: onBatchFinished }] = jest.mocked(
+          component["batchProcessService"].subscribe,
+        ).mock.calls[0];
+        const finished = Promise.resolve(onBatchFinished());
+        await sleep();
+
+        return { stop, load, finished };
+      }
+
+      it("reloads the zaken only after the pending changes are committed to the search index", async () => {
+        const { stop, load, finished } = await finishBatch();
+
+        const request = httpTestingController.expectOne(commitUrl);
+        expect(request.request.method).toBe("POST");
+        expect(load).not.toHaveBeenCalled();
+        expect(stop).not.toHaveBeenCalled();
+
+        request.flush(null);
+        await finished;
+
+        expect(load).toHaveBeenCalledWith(5_000);
+        expect(stop).toHaveBeenCalled();
+        expect(component["selection"].isEmpty()).toBe(true);
+        expect(component["zakenLoading"]()).toBe(false);
+      });
+
+      it("leaves the zaken as they are when the commit to the search index fails", async () => {
+        const { stop, load, finished } = await finishBatch();
+        jest
+          .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+          .mockReturnValue(EMPTY);
+
+        httpTestingController
+          .expectOne(commitUrl)
+          .flush(null, { status: 500, statusText: "Server Error" });
+
+        await expect(finished).rejects.toBeDefined();
+        expect(load).not.toHaveBeenCalled();
+        expect(stop).not.toHaveBeenCalled();
+        expect(component["selection"].isEmpty()).toBe(false);
+      });
     });
   });
 });

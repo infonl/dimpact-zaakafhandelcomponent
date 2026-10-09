@@ -46,7 +46,6 @@ function generateTranslationHash() {
 function generateFontHash() {
   const assetsDir = path.join(__dirname, "../src/assets");
   const fontFiles = [
-    "MaterialSymbolsOutlined.woff2",
     "fonts/Roboto/300.woff2",
     "fonts/Roboto/400.woff2",
     "fonts/Roboto/500.woff2",

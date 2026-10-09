@@ -9,10 +9,12 @@ import java.util.UUID
 data class ZaaktypeConfigurationUnderTest(
     val configurationType: ZaaktypeConfigurationType,
     val zaaktypeUuid: UUID,
+    val secondVersionZaaktypeUuid: UUID,
     val readConfiguration: () -> String,
     val storeConfiguration: (String) -> Unit,
-    val previousNietOntvankelijkResultaattypeUuid: String,
-    val previousZaakbeeindigResultaattypeUuid: String,
-    val expectedNietOntvankelijkResultaattypeUuid: String,
-    val expectedZaakbeeindigResultaattypeUuid: String
+    val nietOntvankelijkResultaattypeUuid: String,
+    val nietOntvankelijkResultaattypeOmschrijving: String,
+    val zaakbeeindigResultaattypeUuid: String,
+    val secondVersionNietOntvankelijkResultaattypeUuid: String,
+    val secondVersionZaakbeeindigResultaattypeUuid: String
 )

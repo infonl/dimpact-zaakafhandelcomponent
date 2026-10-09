@@ -8,12 +8,11 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  EventEmitter,
   inject,
   input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   ViewChild,
 } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
@@ -80,7 +79,7 @@ export class CaseLocationEditComponent
 {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly sideNav = input.required<MatDrawer>();
-  @Output() locatie = new EventEmitter<void>();
+  readonly locatie = output<void>();
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
 

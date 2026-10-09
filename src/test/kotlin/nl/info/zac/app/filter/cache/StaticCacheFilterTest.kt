@@ -82,6 +82,23 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
+    given("hashed font path that the Angular build writes for a font referenced from the stylesheets") {
+        val req = request("/media/material-symbols-outlined-B64SXWOI.woff2")
+        val res = mockk<HttpServletResponse>(relaxed = true)
+        val chain = mockk<FilterChain>(relaxed = true)
+        val responseSlot = slot<HttpServletResponse>()
+
+        `when`("doFilter is called") {
+            filter.doFilter(req, res, chain)
+
+            then("chain receives ResponseWrapper with immutable cache-control") {
+                verify { chain.doFilter(any(), capture(responseSlot)) }
+                responseSlot.captured.getOutputStream()
+                verify { res.setHeader("Cache-Control", "public, max-age=$expectedMaxAge, immutable") }
+            }
+        }
+    }
+
     given("versioned asset path with valid 8-char hex v param") {
         val req = request("/assets/logo.svg", vParam = "395afa0f")
         val res = mockk<HttpServletResponse>(relaxed = true)

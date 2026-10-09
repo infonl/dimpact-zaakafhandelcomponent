@@ -9,10 +9,9 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   input,
   OnDestroy,
-  Output,
+  output,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -126,8 +125,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   readonly selectedIndexStart = input<number>(0);
-  @Output() switchModellingMethod =
-    new EventEmitter<ProcessModelMethodSelection>();
+  readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocumentsFormComponent!: SmartDocumentsFormComponent;
@@ -244,7 +242,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-  protected filteredMedewerkerMail: GeneratedType<"RESTReplyTo">[] = [];
+  protected filteredMedewerkerMail: GeneratedType<"RestReplyTo">[] = [];
   protected ontvangstBevestigingsMailtemplates: GeneratedType<"RestMailtemplate">[] =
     [];
 
@@ -252,10 +250,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     enabled: this.formBuilder.control(false),
     templateName:
       this.formBuilder.control<GeneratedType<"RestMailtemplate"> | null>(null),
-    emailSender: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+    emailSender: this.formBuilder.control<GeneratedType<"RestReplyTo"> | null>(
       null,
     ),
-    emailReply: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
+    emailReply: this.formBuilder.control<GeneratedType<"RestReplyTo"> | null>(
       null,
     ),
   });
@@ -288,7 +286,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
   protected zaakbeeindigRedenen: GeneratedType<"RestZaakbeeindigReden">[] = [];
   protected mailtemplates: GeneratedType<"RestMailtemplate">[] = [];
-  protected replyTos: GeneratedType<"RESTReplyTo">[] = [];
+  protected replyTos: GeneratedType<"RestReplyTo">[] = [];
   protected isLoading = false;
   protected subscriptions$: Subscription[] = [];
   protected brpConsultingValues: string[] = [];
@@ -392,9 +390,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.cdr.detectChanges();
-    if (this.smartDocumentsFormComponent) {
-      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
-    }
   }
 
   private async readHumanTaskParameters(
@@ -640,8 +635,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
     }
     this.filteredMedewerkerMail = this.replyTos.filter(
-      (replyTo: GeneratedType<"RESTReplyTo">) =>
-        !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"),
+      (replyTo: GeneratedType<"RestReplyTo">) =>
+        !(replyTo.isSpeciaal && replyTo.mail === "MEDEWERKER"),
     );
     this.ontvangstBevestigingsMailtemplates = this.getAvailableMailtemplates(
       "TAAK_ONTVANGSTBEVESTIGING",
@@ -1088,7 +1083,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     });
 
     if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
-      this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();
+      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
     }
   }
 
@@ -1132,8 +1127,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     return parseInt(value?.toString(), 10);
   }
 
-  protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">) {
-    return replyTo.speciaal
+  protected replyToDisplayValue(replyTo: GeneratedType<"RestReplyTo">) {
+    return replyTo.isSpeciaal
       ? toI18nKey("gegevens.mail.afzender." + replyTo.mail)
       : (replyTo.mail ?? "");
   }

@@ -20,8 +20,6 @@ import jakarta.ws.rs.ServiceUnavailableException
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
@@ -30,7 +28,8 @@ import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.test.org.flowable.task.api.createTestTask
-import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
@@ -51,9 +50,8 @@ class NotificationReceiverTest : BehaviorSpec({
     val inboxDocumentService = mockk<InboxDocumentService>()
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val signaleringService = mockk<SignaleringService>()
-    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
-    val cmmnService = mockk<CmmnService>()
-    val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
+    val zaakProcessService = mockk<ZaakProcessService>()
     val taskService = mockk<TaskService>()
     val zrcClientService = mockk<ZrcClientService>()
     val httpHeaders = mockk<HttpHeaders>()
@@ -65,9 +63,8 @@ class NotificationReceiverTest : BehaviorSpec({
         indexingService = indexingService,
         inboxDocumentService = inboxDocumentService,
         detachedDocumentService = detachedDocumentService,
-        zaaktypeConfigurationService = zaaktypeConfigurationService,
-        cmmnService = cmmnService,
-        zaakVariabelenService = zaakVariabelenService,
+        zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
+        zaakProcessService = zaakProcessService,
         signaleringService = signaleringService,
         taskService = taskService,
         zrcClientService = zrcClientService,
@@ -121,7 +118,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
+        every { zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
 
         `when`("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -131,7 +128,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
+                    zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -149,7 +146,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
+        every { zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
 
         `when`("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -159,7 +156,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
+                    zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -184,7 +181,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.FORBIDDEN.statusCode
                 verify(exactly = 0) {
-                    zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
+                    zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -209,8 +206,7 @@ class NotificationReceiverTest : BehaviorSpec({
         val signaleringVerzondenZoekParameters = mutableListOf<SignaleringVerzondenZoekParameters>()
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { cmmnService.deleteCase(zaakUUID) } returns Unit
-        every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
+        every { zaakProcessService.deleteInAllEngines(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
         every { indexingService.removeTaak(taskId) } just Runs
         every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } returns 2
@@ -229,8 +225,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    cmmnService.deleteCase(zaakUUID)
-                    zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
+                    zaakProcessService.deleteInAllEngines(zaakUUID)
                     indexingService.removeZaak(zaakUUID)
                     indexingService.removeTaak(taskId)
                     eventingService.send(any<ScreenEvent>())
@@ -715,8 +710,7 @@ class NotificationReceiverTest : BehaviorSpec({
                 verify(exactly = 0) {
                     indexingService.removeInformatieobject(any())
                     eventingService.send(any<ScreenEvent>())
-                    cmmnService.deleteCase(any())
-                    zaakVariabelenService.deleteAllCaseVariables(any())
+                    zaakProcessService.deleteInAllEngines(any())
                     indexingService.removeZaak(any())
                     indexingService.removeTaak(any())
                     eventingService.send(any<ScreenEvent>())

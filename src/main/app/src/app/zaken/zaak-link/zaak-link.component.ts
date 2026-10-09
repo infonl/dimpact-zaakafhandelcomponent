@@ -5,12 +5,11 @@
 
 import {
   Component,
-  EventEmitter,
-  Output,
   computed,
   effect,
   inject,
   input,
+  output,
   signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -76,7 +75,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
 export class ZaakLinkComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly sideNav = input.required<MatDrawer>();
-  @Output() zaakLinked = new EventEmitter<void>();
+  readonly zaakLinked = output<void>();
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly zoekenService = inject(ZoekenService);

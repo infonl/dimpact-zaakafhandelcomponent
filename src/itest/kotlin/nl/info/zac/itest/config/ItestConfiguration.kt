@@ -111,6 +111,7 @@ object ItestConfiguration {
     const val REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_CODE = "BRP_VERWERKINGSREGISTER_WAARDE"
     const val REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM = "BRP Verwerkingsregister Waarde"
     const val RESULTAAT_TYPE_GEWEIGERD_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
+    const val ZAAKTYPE_CMMN_TEST_2_RESULTAATTYPE_GEWEIGERD_UUID = "d47f2f3b-b169-4dc3-a6d6-3fb615de42f3"
     const val ROLTYPE_NAME_BEHANDELAAR = "Behandelaar"
     const val ROLTYPE_NAME_BELANGHEBBENDE = "Belanghebbende"
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
@@ -366,6 +367,9 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
     val ZAAKTYPE_CMMN_TEST_1_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
+    val ZAAKTYPE_CMMN_TEST_1_VERSION_2_UUID: UUID = UUID.fromString("ffa8a2a5-44ab-4644-ae6e-1d3c6d122e5a")
+    const val ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_GEWEIGERD_UUID = "19d9ad5d-d341-4179-a0e3-52b3d53e8965"
+    const val ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_AFGEBROKEN_UUID = "4132de6c-ed50-496e-a22e-536d9c03feba"
     const val ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
     const val ZAAKTYPE_CMMN_TEST_1_DESCRIPTION = "Test zaaktype 1"
 
@@ -397,6 +401,9 @@ object ItestConfiguration {
     const val ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE = "bpmn-test-zaaktype-1"
     const val ZAAKTYPE_BPMN_TEST_1_DESCRIPTION = "BPMN test zaaktype 1"
     const val ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE = "bpmn-test-1-productaanvraagtype"
+    val ZAAKTYPE_BPMN_TEST_1_VERSION_2_UUID: UUID = UUID.fromString("dd8744be-0f6e-4f0b-b017-f5fbf02be0dd")
+    const val ZAAKTYPE_BPMN_TEST_1_VERSION_2_RESULTAATTYPE_AFGEBROKEN_UUID = "2b92903a-2cb9-4028-b0f8-f034b3ee9bed"
+    const val ZAAKTYPE_BPMN_TEST_1_VERSION_2_RESULTAATTYPE_VERLEEND_UUID = "7749ad06-f1b3-41f5-abe9-789960af0fbc"
     val ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "82442c7f-05f2-4e9d-a0ae-c038344809af"
     )

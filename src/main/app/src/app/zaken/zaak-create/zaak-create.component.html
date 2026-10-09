@@ -23,6 +23,7 @@
     <zac-bag-zoek
       *ngSwitchCase="'actie.bag-object.koppelen'"
       [gekoppeldeBagObjecten]="form.controls.bagObjecten"
+      isSelectable
       (bagObject)="bagObjectSelected()"
       [sideNav]="actionsSidenav"
     ></zac-bag-zoek>

@@ -8,7 +8,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **keycloak**: 26.7.5
 - **postgis**: 17-3.4
 - **redis**: 8.6.7
-- **solr**: 9.10.1-slim
+- **solr**: 9.11.0-slim
 - **openpolicyagent/opa**: 1.21.1-static
 - **brp-api/personen-mock**: 2.7.0-202610011328
 - **gotenberg**: 8.37.0
@@ -24,11 +24,11 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-zaak**: 1.29.3
 - **open-object**: 4.1.1
 - **open-klant**: 2.15.0
-- **open-forms**: 3.5.9
+- **open-forms**: 3.5.10
 - **open-notificaties**: 1.16.2
 - **open-archiefbeheer**: 2.0.0
-- **pabc-migrations**: 2.1.0-prerelease
-- **pabc-api**: 2.1.0-prerelease
+- **pabc-migrations**: 2.1.0
+- **pabc-api**: 2.1.0
 
 ## Update Process
 

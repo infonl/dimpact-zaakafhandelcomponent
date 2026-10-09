@@ -6,11 +6,11 @@ package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
+import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.flowable.task.readTaskData
+import nl.info.zac.flowable.task.readTaskInformation
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.flowable.util.taakStatus
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -45,7 +45,7 @@ class TaakZoekObjectConverter @Inject constructor(
      */
     override fun convert(id: String, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens): TaakZoekObject {
         val taskInfo = flowableTaskService.readTask(id)
-        val zaak = zrcClientService.readZaak(TaakVariabelenService.readZaakUUID(taskInfo))
+        val zaak = zrcClientService.readZaak(readZaakUUID(taskInfo))
         return convert(id, taskInfo, zaak, zaakAutorisatieGegevens)
     }
 
@@ -73,7 +73,7 @@ class TaakZoekObjectConverter @Inject constructor(
     ): TaakZoekObject {
         // read from the task's own zaakUUID variable, not zaak.uuid, so that a taak's zaak reference
         // is always taken from the taak itself, even if [zaak] were ever supplied for a different zaak
-        val zaakUUID = TaakVariabelenService.readZaakUUID(taskInfo)
+        val zaakUUID = readZaakUUID(taskInfo)
         val zaaktype = ztcClientService.readZaaktype(readZaaktypeUUID(taskInfo))
         return TaakZoekObject(
             id = id,

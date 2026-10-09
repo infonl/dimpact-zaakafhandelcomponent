@@ -4,14 +4,7 @@
  */
 
 import { NgClass } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  inject,
-  input,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -44,7 +37,7 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
 export class ZaakBetrokkeneFilterComponent implements OnInit {
   readonly zoekparameters =
     input.required<GeneratedType<"RestZoekParameters">>();
-  @Output() changed = new EventEmitter<void>();
+  readonly changed = output<void>();
   protected dialogOpen: boolean = false;
   protected betrokkeneSelectControl = new FormControl<ZoekVeld>(
     ZoekVeld.ZAAK_INITIATOR,

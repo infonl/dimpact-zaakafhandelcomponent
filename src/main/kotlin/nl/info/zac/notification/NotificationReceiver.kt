@@ -17,8 +17,6 @@ import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CmmnService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
@@ -28,7 +26,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
-import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
@@ -61,9 +60,8 @@ class NotificationReceiver @Inject constructor(
     private val indexingService: IndexingService,
     private val inboxDocumentService: InboxDocumentService,
     private val detachedDocumentService: DetachedDocumentService,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
-    private val cmmnService: CmmnService,
-    private val zaakVariabelenService: ZaakVariabelenService,
+    private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
+    private val zaakProcessService: ZaakProcessService,
     private val signaleringService: SignaleringService,
     private val taskService: TaskService,
     private val zrcClientService: ZrcClientService,
@@ -157,8 +155,7 @@ class NotificationReceiver @Inject constructor(
             if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
                 notification.resourceUrl.extractUuid().let { zaakUUID ->
                     LOG.info { "Deleting Flowable process data for zaak with UUID '$zaakUUID'" }
-                    cmmnService.deleteCase(zaakUUID)
-                    zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
+                    zaakProcessService.deleteInAllEngines(zaakUUID)
                     LOG.info { "Successfully deleted Flowable process data for zaak with UUID '$zaakUUID'" }
                 }
             }
@@ -373,7 +370,7 @@ class NotificationReceiver @Inject constructor(
         if (notification.resource != Resource.ZAAKTYPE) return
         try {
             if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
-                zaaktypeConfigurationService.updateZaaktypeConfiguration(notification.resourceUrl)
+                zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(notification.resourceUrl)
             }
         } catch (exception: RuntimeException) {
             warning("zaaktype", notification, exception)

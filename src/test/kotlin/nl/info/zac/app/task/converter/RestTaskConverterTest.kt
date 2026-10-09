@@ -11,12 +11,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import jakarta.json.JsonObject
-import net.atos.zac.flowable.task.TaakVariabelenService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createHumanTaskReferentieTabel
 import nl.info.zac.admin.model.createReferenceTable
@@ -40,22 +41,16 @@ class RestTaskConverterTest : BehaviorSpec({
     val groepConverter = mockk<RestGroupConverter>()
     val medewerkerConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
 
     val restTaskConverter = RestTaskConverter(
         groepConverter = groepConverter,
         medewerkerConverter = medewerkerConverter,
         policyService = policyService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService,
         bpmnProcessDefinitionTaskFormService = bpmnProcessDefinitionTaskFormService
     )
-
-    mockkStatic(TaakVariabelenService::class)
-
-    afterSpec {
-        unmockkStatic(TaakVariabelenService::class)
-    }
 
     afterEach { checkUnnecessaryStub() }
 
@@ -68,20 +63,20 @@ class RestTaskConverterTest : BehaviorSpec({
         given("a CMMN task with full read access, assigned to a behandelaar") {
             val taskInfo = mockk<Task>()
             val taakRechten = createTaakRechten()
-            val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+            val zaaktypeCmmnConfiguration = mockk<ZaaktypeConfiguration>()
             val humanTaskParameters = createHumanTaskParameters(
                 planItemDefinitionID = taskDefinitionKey,
                 formulierDefinitieID = "AANVULLENDE_INFORMATIE",
                 referenceTables = emptyList()
             )
 
-            every { TaakVariabelenService.readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
-            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
+            every { taskInfo.caseVariables } returns mapOf(
+                VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                VAR_ZAAK_UUID to zaakUUID,
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_UUID to zaaktypeUUID
+            )
+            every { taskInfo.taskLocalVariables } returns emptyMap()
             every { taskInfo.scopeType } returns ScopeTypes.CMMN
 
             every { taskInfo.id } returns "fakeTaskId"
@@ -96,13 +91,13 @@ class RestTaskConverterTest : BehaviorSpec({
 
             every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
+            every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
             every { medewerkerConverter.convertUserId("fakeAssigneeId") } returns createRestUser(id = "fakeAssigneeId")
 
             `when`("convert is called") {
-                val restTask = restTaskConverter.convert(taskInfo)
+                val restTask = restTaskConverter.toRestTask(taskInfo)
 
                 then("basic fields are mapped correctly, including the assigned status") {
                     restTask.id shouldBe "fakeTaskId"
@@ -128,13 +123,13 @@ class RestTaskConverterTest : BehaviorSpec({
             val processDefinitionId = "fakeProcessDefinitionId"
             val formKey = "fakeFormKey"
 
-            every { TaakVariabelenService.readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
-            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
+            every { taskInfo.processVariables } returns mapOf(
+                VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                VAR_ZAAK_UUID to zaakUUID,
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_UUID to zaaktypeUUID
+            )
+            every { taskInfo.taskLocalVariables } returns emptyMap()
             every { taskInfo.scopeType } returns null
 
             every { taskInfo.id } returns "fakeBpmnTaskId"
@@ -152,7 +147,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { bpmnProcessDefinitionTaskFormService.readForm(processDefinitionId, formKey) } returns fakeFormioFormulier
 
             `when`("convert is called") {
-                val restTask = restTaskConverter.convert(taskInfo)
+                val restTask = restTaskConverter.toRestTask(taskInfo)
 
                 then("formio formulier is set and formulierDefinitieId is null") {
                     restTask.formioFormulier shouldBe fakeFormioFormulier
@@ -168,7 +163,7 @@ class RestTaskConverterTest : BehaviorSpec({
 
         given("a CMMN advies task whose human task is coupled to the ADVIES reference table") {
             val taskInfo = mockk<Task>()
-            val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+            val zaaktypeCmmnConfiguration = mockk<ZaaktypeConfiguration>()
             val humanTaskParameters = createHumanTaskParameters(
                 planItemDefinitionID = taskDefinitionKey,
                 formulierDefinitieID = "ADVIES",
@@ -186,13 +181,13 @@ class RestTaskConverterTest : BehaviorSpec({
                 )
             )
 
-            every { TaakVariabelenService.readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
-            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-            every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
-            every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
+            every { taskInfo.caseVariables } returns mapOf(
+                VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                VAR_ZAAK_UUID to zaakUUID,
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_UUID to zaaktypeUUID
+            )
+            every { taskInfo.taskLocalVariables } returns emptyMap()
             every { taskInfo.scopeType } returns ScopeTypes.CMMN
 
             every { taskInfo.id } returns "fakeAdviesTaskId"
@@ -207,12 +202,12 @@ class RestTaskConverterTest : BehaviorSpec({
 
             every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns createTaakRechten()
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
+            every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
 
             `when`("convert is called") {
-                val restTask = restTaskConverter.convert(taskInfo)
+                val restTask = restTaskConverter.toRestTask(taskInfo)
 
                 then("the advies options of the reference table are offered on the task") {
                     restTask.tabellen["ADVIES"] shouldBe listOf("Positief", "Negatief")
@@ -224,10 +219,12 @@ class RestTaskConverterTest : BehaviorSpec({
             val taskInfo = mockk<TaskInfo>()
             val taakRechten = createTaakRechtenAllDeny()
 
-            every { TaakVariabelenService.readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
-            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
+            every { taskInfo.processVariables } returns mapOf(
+                VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                VAR_ZAAK_UUID to zaakUUID,
+                VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                VAR_ZAAKTYPE_UUID to zaaktypeUUID
+            )
             every { taskInfo.scopeType } returns null
 
             every { taskInfo.id } returns "fakeTaskId"
@@ -239,7 +236,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { bpmnProcessDefinitionTaskFormService.readForm(any(), any()) } returns mockk()
 
             `when`("convert is called") {
-                val restTask = restTaskConverter.convert(taskInfo)
+                val restTask = restTaskConverter.toRestTask(taskInfo)
 
                 then("the status is derived as AFGEROND and sensitive fields are null") {
                     restTask.status shouldBe TaakStatus.AFGEROND
@@ -261,7 +258,7 @@ class RestTaskConverterTest : BehaviorSpec({
             val taskInfo1 = mockk<TaskInfo>()
             val taskInfo2 = mockk<TaskInfo>()
             val taakRechten = createTaakRechten()
-            val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+            val zaaktypeCmmnConfiguration = mockk<ZaaktypeConfiguration>()
             val humanTaskParameters = createHumanTaskParameters(
                 planItemDefinitionID = taskDefinitionKey,
                 formulierDefinitieID = "AANVULLENDE_INFORMATIE",
@@ -269,13 +266,13 @@ class RestTaskConverterTest : BehaviorSpec({
             )
 
             for (taskInfo in listOf(taskInfo1, taskInfo2)) {
-                every { TaakVariabelenService.readZaaktypeOmschrijving(taskInfo) } returns fakeZaaktypeOmschrijving
-                every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaakUUID
-                every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
-                every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
-                every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
-                every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
-                every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
+                every { taskInfo.caseVariables } returns mapOf(
+                    VAR_ZAAKTYPE_OMSCHRIJVING to fakeZaaktypeOmschrijving,
+                    VAR_ZAAK_UUID to zaakUUID,
+                    VAR_ZAAK_IDENTIFICATIE to "fakeZaakIdentificatie",
+                    VAR_ZAAKTYPE_UUID to zaaktypeUUID
+                )
+                every { taskInfo.taskLocalVariables } returns emptyMap()
                 every { taskInfo.scopeType } returns ScopeTypes.CMMN
                 every { taskInfo.id } returns "fakeId"
                 every { taskInfo.name } returns "fakeName"
@@ -288,13 +285,13 @@ class RestTaskConverterTest : BehaviorSpec({
                 every { taskInfo.identityLinks } returns emptyList()
                 every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
                 every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
+                    zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
                 } returns zaaktypeCmmnConfiguration
             }
-            every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
+            every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
 
             `when`("convert is called with the list") {
-                val restTasks = restTaskConverter.convert(listOf(taskInfo1, taskInfo2))
+                val restTasks = restTaskConverter.toRestTasks(listOf(taskInfo1, taskInfo2))
 
                 then("both tasks are converted") {
                     restTasks.size shouldBe 2

@@ -22,6 +22,7 @@ import { StaticTextComponent } from "src/app/shared/static-text/static-text.comp
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
+import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -505,9 +506,9 @@ describe(ZaakViewComponent.name, () => {
         );
 
       detailsCard().bagObjectVerwijderen.emit(
-        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+        fromPartial<GeneratedType<"RestBagObjectGegevens">>({
           uuid: "fakeBagObjectGegevensUuid",
-          zaakobject: fromPartial<GeneratedType<"RESTBAGObject">>({
+          zaakobject: fromPartial<GeneratedType<"RestBagObject">>({
             omschrijving: "fakeBagObjectOmschrijving",
           }),
         }),
@@ -517,6 +518,20 @@ describe(ZaakViewComponent.name, () => {
         "fakeBagObjectOmschrijving",
         expect.any(Function),
       );
+    });
+  });
+
+  describe("the BAG object koppelen side action", () => {
+    it("makes the BAG search selectable", async () => {
+      mockActivatedRoute.data.next({ zaak });
+      sideActions.activeAction.set("actie.bag-object.koppelen");
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const bagZoek = fixture.debugElement.query(By.directive(BagZoekComponent))
+        .componentInstance as BagZoekComponent;
+
+      expect(bagZoek.isSelectable()).toBe(true);
     });
   });
 });

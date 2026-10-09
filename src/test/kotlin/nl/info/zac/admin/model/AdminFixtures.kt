@@ -4,7 +4,6 @@
  */
 package nl.info.zac.admin.model
 
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -51,7 +50,7 @@ fun createZaaktypeCmmnHumantaskParameters(
 @Suppress("LongParameterList")
 fun createHumanTaskParameters(
     id: Long = 1234L,
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+    zaaktypeCmmnExtension: ZaaktypeCmmnExtension = createZaaktypeCmmnConfiguration().getOrCreateCmmnExtension(),
     isActief: Boolean = true,
     formulierDefinitieID: String? = "fakeFormulierDefinitieID",
     planItemDefinitionID: String = "fakePlanItemDefinitionID",
@@ -60,7 +59,7 @@ fun createHumanTaskParameters(
     referenceTables: List<HumanTaskReferentieTabel>? = emptyList()
 ) = ZaaktypeCmmnHumantaskParameters().apply {
     this.id = id
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeCmmnExtension = zaaktypeCmmnExtension
     this.isActief = isActief
     this.setFormulierDefinitieID(formulierDefinitieID)
     this.planItemDefinitionID = planItemDefinitionID
@@ -115,7 +114,7 @@ fun createZaaktypeCmmnConfiguration(
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
     productaanvraagtype: String? = null,
-    nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
+    nietOntvankelijkResultaattypeOmschrijving: String? = "fakeNietOntvankelijkResultaattype",
     zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters> = emptySet(),
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
@@ -123,29 +122,30 @@ fun createZaaktypeCmmnConfiguration(
     smartDocumentsEnabled: Boolean = false,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
-    zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation()
+    zaaktypeEmailParameters: ZaaktypeEmailParameters = createAutomaticEmailConfirmation()
 ) =
-    ZaaktypeCmmnConfiguration().apply {
+    ZaaktypeConfiguration().apply {
         this.id = id
         this.creatiedatum = creationDate
         this.zaaktypeUuid = zaaktypeUUID
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
-        this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.nietOntvankelijkResultaattypeOmschrijving = nietOntvankelijkResultaattypeOmschrijving
         this.groepID = groupId
-        this.caseDefinitionID = caseDefinitionId
+        bindTo(ProcessEngine.CMMN, caseDefinitionId)
+        getOrCreateCmmnExtension()
         this.defaultBehandelaarId = defaultBehandelaarId
         this.isSmartDocumentsEnabled = smartDocumentsEnabled
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
-                    zaaktypeCmmnConfiguration = this,
+                    zaaktypeConfiguration = this,
                     mailTemplate = createMailTemplate()
                 )
             )
         )
-        setZaakAfzenders(setOf(createZaakAfzender(zaaktypeCmmnConfiguration = this)))
+        setZaakAfzenders(setOf(createZaakAfzender(zaaktypeConfiguration = this)))
         setZaakbeeindigParameters(zaaktypeCompletionParameters)
         val parameters = this
         this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
@@ -154,8 +154,8 @@ fun createZaaktypeCmmnConfiguration(
         this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
             this?.zaaktypeConfiguration = parameters
         }
-        this.zaaktypeCmmnEmailParameters = zaaktypeCmmnEmailParameters.apply {
-            this.zaaktypeCmmnConfiguration = parameters
+        this.zaaktypeEmailParameters = zaaktypeEmailParameters.apply {
+            this.zaaktypeConfiguration = parameters
         }
     }
 
@@ -166,22 +166,22 @@ fun createZaaktypeBpmnConfiguration(
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     productaanvraagtype: String? = null,
-    nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
+    nietOntvankelijkResultaattypeOmschrijving: String? = "fakeNietOntvankelijkResultaattype",
     zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters> = emptySet(),
     groupId: String? = null,
     defaultBehandelaarId: String? = null,
     smartDocumentsEnabled: Boolean = false,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
-    bpmnProcessDefinitionKey: String? = null,
+    bpmnProcessDefinitionKey: String = "fakeBpmnProcessDefinitionKey",
 ) =
-    ZaaktypeBpmnConfiguration().apply {
+    ZaaktypeConfiguration().apply {
         this.id = id
         this.creatiedatum = creationDate
         this.zaaktypeUuid = zaaktypeUUID
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.productaanvraagtype = productaanvraagtype
-        this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.nietOntvankelijkResultaattypeOmschrijving = nietOntvankelijkResultaattypeOmschrijving
         this.groepID = groupId
         this.defaultBehandelaarId = defaultBehandelaarId
         this.isSmartDocumentsEnabled = smartDocumentsEnabled
@@ -193,48 +193,43 @@ fun createZaaktypeBpmnConfiguration(
         this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
             this?.zaaktypeConfiguration = parameters
         }
-        bpmnProcessDefinitionKey?.let {
-            this.bpmnProcessDefinitionKey = it
-        }
+        bindTo(ProcessEngine.BPMN, bpmnProcessDefinitionKey)
     }
 
 data class ZaaktypeConfigurationUnderTest(
-    val configurationType: ZaaktypeConfigurationType,
-    val create: (nietOntvankelijkResultaattype: UUID) -> ZaaktypeConfiguration
+    val configurationType: ProcessEngine,
+    val create: (nietOntvankelijkResultaattypeOmschrijving: String?) -> ZaaktypeConfiguration
 )
 
 /**
  * One factory per configuration type, so that a test of behaviour that both engines share runs for each of them.
  */
 fun createZaaktypeConfigurationsUnderTest() = listOf(
-    ZaaktypeConfigurationUnderTest(ZaaktypeConfigurationType.CMMN) {
-        createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattype = it)
+    ZaaktypeConfigurationUnderTest(ProcessEngine.CMMN) {
+        createZaaktypeCmmnConfiguration(nietOntvankelijkResultaattypeOmschrijving = it)
     },
-    ZaaktypeConfigurationUnderTest(ZaaktypeConfigurationType.BPMN) {
-        createZaaktypeBpmnConfiguration(
-            nietOntvankelijkResultaattype = it,
-            bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
-        )
+    ZaaktypeConfigurationUnderTest(ProcessEngine.BPMN) {
+        createZaaktypeBpmnConfiguration(nietOntvankelijkResultaattypeOmschrijving = it)
     }
 )
 
 fun createZaaktypeCompletionParameters(
     id: Long? = 1234L,
     zaakbeeindigReden: ZaakbeeindigReden = createZaakbeeindigReden(),
-    resultaattype: UUID = UUID.randomUUID()
+    resultaattypeOmschrijving: String = "fakeResultaattypeOmschrijving"
 ) = ZaaktypeCompletionParameters().apply {
     this.id = id
     this.zaakbeeindigReden = zaakbeeindigReden
-    this.resultaattype = resultaattype
+    this.resultaattypeOmschrijving = resultaattypeOmschrijving
 }
 
 fun createMailtemplateKoppelingen(
     id: Long? = 1234L,
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+    zaaktypeConfiguration: ZaaktypeConfiguration,
     mailTemplate: MailTemplate
-) = ZaaktypeCmmnMailtemplateParameters().apply {
+) = ZaaktypeMailtemplateParameters().apply {
     this.id = id
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeConfiguration = zaaktypeConfiguration
     this.mailTemplate = mailTemplate
 }
 
@@ -246,14 +241,14 @@ fun createAutomaticEmailConfirmation(
     emailSender: String? = "sender@example.com",
     emailReply: String? = "reply@example.com",
     // Do not add default `= createZaakafhandelParameters()` as it will cause an infinite loop
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
-) = ZaaktypeCmmnEmailParameters().apply {
+    zaaktypeConfiguration: ZaaktypeConfiguration? = null,
+) = ZaaktypeEmailParameters().apply {
     this.id = id
     this.isEnabled = enabled
     this.templateName = templateName
     this.emailSender = emailSender
     this.emailReply = emailReply
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    zaaktypeConfiguration?.let { this.zaaktypeConfiguration = it }
 }
 
 fun createMailTemplate(
@@ -268,13 +263,13 @@ fun createMailTemplate(
 
 fun createZaakAfzender(
     id: Long? = 1234L,
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+    zaaktypeConfiguration: ZaaktypeConfiguration,
     defaultMail: Boolean = false,
     mail: String = "mail@example.com",
     replyTo: String = "replyTo@example.com",
-) = ZaaktypeCmmnZaakafzenderParameters().apply {
+) = ZaaktypeZaakafzenderParameters().apply {
     this.id = id
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeConfiguration = zaaktypeConfiguration
     this.isDefaultMail = defaultMail
     this.mail = mail
     this.replyTo = replyTo

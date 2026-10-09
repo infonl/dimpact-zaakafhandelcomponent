@@ -33,11 +33,12 @@ import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.compo
 })
 export class BAGViewComponent implements OnInit {
   protected bagIdentificatie!: string;
-  protected adres?: GeneratedType<"RESTBAGAdres">;
-  protected openbareRuimte?: GeneratedType<"RESTOpenbareRuimte">;
-  protected woonplaats?: GeneratedType<"RESTWoonplaats">;
-  protected pand?: GeneratedType<"RESTPand">;
-  protected nummeraanduiding?: GeneratedType<"RESTNummeraanduiding">;
+  protected adres?: GeneratedType<"RestBagAdres">;
+  protected adresRegels?: string;
+  protected openbareRuimte?: GeneratedType<"RestOpenbareRuimte">;
+  protected woonplaats?: GeneratedType<"RestWoonplaats">;
+  protected pand?: GeneratedType<"RestPand">;
+  protected nummeraanduiding?: GeneratedType<"RestNummeraanduiding">;
   protected geometrie?: GeneratedType<"RestGeometry">;
 
   constructor(
@@ -48,11 +49,20 @@ export class BAGViewComponent implements OnInit {
   ngOnInit() {
     this.utilService.setTitle("bagobjectgegevens");
     this.activatedRoute.data.subscribe((data) => {
-      const bagObject: GeneratedType<"RESTBAGObject"> = data.bagObject;
+      const bagObject: GeneratedType<"RestBagObject"> = data.bagObject;
       this.bagIdentificatie = bagObject.identificatie!;
       switch (bagObject.bagObjectType) {
         case "ADRES":
           this.adres = bagObject;
+          this.adresRegels = joinNonEmpty(
+            "\n",
+            joinNonEmpty(
+              " ",
+              this.adres.openbareRuimteNaam,
+              this.adres.huisnummerWeergave,
+            ),
+            joinNonEmpty(" ", this.adres.postcode, this.adres.woonplaatsNaam),
+          );
           this.geometrie = this.adres.geometry ?? undefined;
           break;
         case "ADRESSEERBAAR_OBJECT":
@@ -73,4 +83,11 @@ export class BAGViewComponent implements OnInit {
       }
     });
   }
+}
+
+function joinNonEmpty(
+  separator: string,
+  ...parts: (string | null | undefined)[]
+) {
+  return parts.filter(Boolean).join(separator);
 }

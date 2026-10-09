@@ -14,6 +14,9 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.just
+import org.flowable.engine.history.HistoricProcessInstance
 import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
@@ -24,7 +27,8 @@ import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createHistoricProcessInstance
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ProcessEngine.BPMN
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import org.flowable.bpmn.model.BpmnModel
@@ -49,14 +53,14 @@ class BpmnServiceTest : BehaviorSpec({
     val runtimeService = mockk<RuntimeService>()
     val historyService = mockk<HistoryService>()
     val processEngine = mockk<ProcessEngine>()
-    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         historyService,
         processEngine,
-        zaaktypeBpmnConfigurationBeheerService,
+        zaaktypeConfigurationService,
         bpmnProcessDefinitionTaskFormService
     )
 
@@ -139,37 +143,6 @@ class BpmnServiceTest : BehaviorSpec({
             }
         }
     }
-    given("A valid zaaktype UUID with a process definition") {
-        val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
-        every {
-            zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
-        } returns zaaktypeBpmnProcessDefinition
-
-        `when`("finding the process definition for the zaaktype") {
-            val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
-
-            then("the correct process definition is returned") {
-                result shouldBe zaaktypeBpmnProcessDefinition
-            }
-        }
-    }
-
-    given("A valid zaaktype UUID without a process definition") {
-        val zaaktypeUUID = UUID.randomUUID()
-        every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID) } returns null
-
-        `when`("finding the process definition for the zaaktype") {
-            val exception = shouldThrow<BpmnProcessDefinitionNotFoundException> {
-                bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
-            }
-
-            then("null is returned") {
-                exception.message shouldContain "$zaaktypeUUID"
-            }
-        }
-    }
-
     given("A valid process definition key with an existing process definition") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val processDefinition = createProcessDefinition()
@@ -215,8 +188,8 @@ class BpmnServiceTest : BehaviorSpec({
             runtimeService.deleteProcessInstance(processInstanceId, null)
         } returns Unit
 
-        `when`("Terminating the process instance by zaak UUID") {
-            bpmnService.terminateCase(zaaktypeUUID)
+        `when`("the process instance of the zaak is deleted") {
+            bpmnService.deleteProcessInstance(zaaktypeUUID)
 
             then("the process instance is terminated") {
                 verify(exactly = 1) {
@@ -234,8 +207,8 @@ class BpmnServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        `when`("Terminating the process instance by zaak UUID") {
-            bpmnService.terminateCase(zaaktypeUUID)
+        `when`("the process instance of the zaak is deleted") {
+            bpmnService.deleteProcessInstance(zaaktypeUUID)
 
             then("the process instance is not found") {
                 verify(exactly = 0) {
@@ -315,7 +288,7 @@ class BpmnServiceTest : BehaviorSpec({
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
         } returns linkedProcessDefinitionKeys
 
         `when`("checking it has linked configurations by process definition key") {
@@ -331,7 +304,7 @@ class BpmnServiceTest : BehaviorSpec({
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
         } returns linkedProcessDefinitionKeys
 
         `when`("checking it has linked configurations by process definition key") {
@@ -357,7 +330,7 @@ class BpmnServiceTest : BehaviorSpec({
             then("true is returned") {
                 isProcessDefinitionInUse shouldBe true
                 verify(exactly = 0) {
-                    zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+                    zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
                 }
             }
         }
@@ -372,7 +345,7 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 0
         val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
         } returns linkedProcessDefinitionKeys
 
         `when`("checking the process definition is in use by process definition key") {
@@ -393,7 +366,7 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 0
         val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
         } returns linkedProcessDefinitionKeys
 
         `when`("checking the process definition is in use by process definition key") {
@@ -678,6 +651,58 @@ class BpmnServiceTest : BehaviorSpec({
                 then("only user tasks with form keys are included in the form keys list") {
                     result.formKeys shouldHaveSize 1
                     result.formKeys[0] shouldBe "someForm"
+                }
+            }
+        }
+    }
+
+    context("deleting the process instance and the history of a zaak") {
+        given("a zaak with a running process instance and the history of two process instances") {
+            val zaakUuid = UUID.randomUUID()
+            val processInstance = mockk<ProcessInstance>()
+            val historicProcessInstance1 = mockk<HistoricProcessInstance>()
+            val historicProcessInstance2 = mockk<HistoricProcessInstance>()
+            every { processInstance.id } returns "fakeProcessInstanceId"
+            every { historicProcessInstance1.id } returns "fakeHistoricProcessInstanceId1"
+            every { historicProcessInstance2.id } returns "fakeHistoricProcessInstanceId2"
+            every {
+                runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).singleResult()
+            } returns processInstance
+            every { runtimeService.deleteProcessInstance("fakeProcessInstanceId", "Zaak deleted") } just runs
+            every {
+                historyService.createHistoricProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).list()
+            } returns listOf(historicProcessInstance1, historicProcessInstance2)
+            every { historyService.deleteHistoricProcessInstance(any()) } just runs
+
+            `when`("the process instance and the history of the zaak are deleted") {
+                bpmnService.deleteProcessInstanceAndHistory(zaakUuid)
+
+                then("the running process instance and the history of every process instance of the zaak are deleted") {
+                    verify(exactly = 1) {
+                        runtimeService.deleteProcessInstance("fakeProcessInstanceId", "Zaak deleted")
+                        historyService.deleteHistoricProcessInstance("fakeHistoricProcessInstanceId1")
+                        historyService.deleteHistoricProcessInstance("fakeHistoricProcessInstanceId2")
+                    }
+                }
+            }
+        }
+
+        given("a zaak without a process instance or history") {
+            val zaakUuid = UUID.randomUUID()
+            every {
+                runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).singleResult()
+            } returns null
+            every {
+                historyService.createHistoricProcessInstanceQuery().processInstanceBusinessKey(zaakUuid.toString()).list()
+            } returns emptyList()
+
+            `when`("the process instance and the history of the zaak are deleted") {
+                bpmnService.deleteProcessInstanceAndHistory(zaakUuid)
+
+                then("nothing is deleted") {
+                    verify(exactly = 0) {
+                        runtimeService.deleteProcessInstance(any(), "Zaak deleted")
+                    }
                 }
             }
         }

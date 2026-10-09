@@ -11,7 +11,8 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ProcessEngine.BPMN
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.util.AllOpen
@@ -47,7 +48,7 @@ class BpmnService @Inject constructor(
     private val runtimeService: RuntimeService,
     private val historyService: HistoryService,
     private val processEngine: ProcessEngine,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService
 ) {
     companion object {
@@ -221,16 +222,6 @@ class BpmnService @Inject constructor(
     }
 
     /**
-     * Returns the BPMN process definition for the given zaaktype UUID
-     *
-     * @param zaaktypeUUID UUID of the zaaktype for which the process definition is requested
-     * @throws BpmnProcessDefinitionNotFoundException if no process definition is found for the given zaaktype UUID
-     */
-    fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
-        zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
-            ?: throw BpmnProcessDefinitionNotFoundException("No BPMN process definition found for zaaktype with UUID: '$zaaktypeUUID'")
-
-    /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.
      */
     private fun findProcessInstance(zaakUUID: UUID): ProcessInstance? =
@@ -239,15 +230,22 @@ class BpmnService @Inject constructor(
             .singleResult()
 
     /**
-     * Terminate a case
-     * This also terminates all open tasks related to the case.
-     *
-     * @param zaakUUID UUID of the zaak, for which the case should be terminated.
+     * Deletes the running process instance of the zaak, together with its open tasks, and keeps its history.
      */
-    fun terminateCase(zaakUUID: UUID) =
-        findProcessInstance(zaakUUID)?.let {
-            runtimeService.deleteProcessInstance(it.id, null)
-        }
+    fun deleteProcessInstance(zaakUUID: UUID, deleteReason: String? = null) {
+        findProcessInstance(zaakUUID)?.let { runtimeService.deleteProcessInstance(it.id, deleteReason) }
+    }
+
+    /**
+     * Deletes the process instance of the zaak and the history of every process instance of the zaak.
+     */
+    fun deleteProcessInstanceAndHistory(zaakUUID: UUID) {
+        deleteProcessInstance(zaakUUID, "Zaak deleted")
+        historyService.createHistoricProcessInstanceQuery()
+            .processInstanceBusinessKey(zaakUUID.toString())
+            .list()
+            .forEach { historyService.deleteHistoricProcessInstance(it.id) }
+    }
 
     /**
      * Returns a list of unique BPMN process definition keys used in process instances
@@ -262,7 +260,7 @@ class BpmnService @Inject constructor(
      * Returns a list of unique BPMN process definition keys used in zaaktype BPMN configurations
      */
     fun findUniqueBpmnProcessDefinitionKeysFromConfigurations() =
-        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations().toSet()
+        zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN).toSet()
 
     /**
      * Returns if a process definition has current or historic process instances
@@ -281,7 +279,7 @@ class BpmnService @Inject constructor(
      * @param processDefinitionKey Process definition key
      */
     fun hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey: String) =
-        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+        zaaktypeConfigurationService.listDefinitionKeysBoundTo(BPMN)
             .contains(processDefinitionKey)
 
     /**

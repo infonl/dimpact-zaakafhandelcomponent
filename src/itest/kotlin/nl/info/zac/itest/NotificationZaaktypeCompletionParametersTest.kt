@@ -13,15 +13,21 @@ import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_VERLEEND_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_VERSION_2_RESULTAATTYPE_AFGEBROKEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_VERSION_2_RESULTAATTYPE_VERLEEND_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_VERSION_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_AFGEBROKEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_GEWEIGERD_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_VERSION_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.itest.config.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.itest.config.ZaaktypeConfigurationUnderTest
+import nl.info.zac.itest.util.queryZacDatabase
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -29,14 +35,13 @@ import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 private const val ZAAKTYPE_TEST_1_RESULTAATTYPE_GEWEIGERD_UUID = "f940861c-f8f8-4e45-8317-a6175561af0a"
 private const val ZAAKTYPE_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID = "31f56eaa-4515-437e-a3ab-9f7f71e8ee6f"
-private const val ZAAKTYPE_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID = "060b1651-4795-4982-bf66-584391bf0421"
-private const val ZAAKTYPE_TEST_3_RESULTAATTYPE_VERLEEND_UUID = "2b774ae4-68b0-462c-b6a0-e48b861ee148"
 
-/** Resultaattype of zaaktype test 3 whose omschrijving does not occur in any of the zaaktypes under test. */
+/** Resultaattype of zaaktype test 3 whose omschrijving does not occur in the second versions. */
 private const val ZAAKTYPE_TEST_3_RESULTAATTYPE_EIGENSCHAP_UUID = "ce19f9dc-efd7-4f6a-a95f-7b22f5ab9a09"
 
 @Isolate
@@ -50,10 +55,68 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
         it.bodyAsString
     }
 
+    fun storeBpmnConfiguration(configuration: String) {
+        itestHttpClient.performJSONPostRequest(
+            url = zaaktypeBpmnConfigurationUri,
+            requestBodyAsString = configuration,
+            testUser = BEHEERDER_1
+        ).code shouldBe HTTP_OK
+    }
+
+    fun sendZaaktypeCreatedNotification(zaaktypeUuid: UUID) {
+        val zaaktypeUri = "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$zaaktypeUuid"
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "zaaktypen",
+                    "resource" to "zaaktype",
+                    "resourceUrl" to zaaktypeUri,
+                    "hoofdObject" to zaaktypeUri,
+                    "actie" to "create",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString()
+        ).code shouldBe HTTP_NO_CONTENT
+    }
+
+    fun readStoredConfiguration(zaaktypeUuid: UUID, columns: String) =
+        queryZacDatabase(
+            "SELECT $columns FROM zaakafhandelcomponent.zaaktype_configuration WHERE zaaktype_uuid = '$zaaktypeUuid'"
+        )
+
+    fun readStoredZaakbeeindigResultaattypen(zaaktypeUuid: UUID) =
+        queryZacDatabase(
+            """
+            SELECT parameters.resultaattype_omschrijving
+            FROM zaakafhandelcomponent.zaaktype_completion_parameters parameters
+            JOIN zaakafhandelcomponent.zaaktype_configuration configuration
+                ON configuration.id = parameters.zaaktype_configuration_id
+            WHERE configuration.zaaktype_uuid = '$zaaktypeUuid'
+            """.trimIndent()
+        )
+
+    fun readResultaattypeUuidsThroughRest(zaaktypeUuid: UUID) =
+        JSONObject(read("$zaaktypeCmmnConfigurationUri/$zaaktypeUuid")).let { configuration ->
+            configuration.getJSONObject("zaakNietOntvankelijkResultaattype").getString("id") to
+                configuration.getJSONArray("zaakbeeindigParameters").let { parameters ->
+                    (0 until parameters.length()).map {
+                        parameters.getJSONObject(it).getJSONObject("resultaattype").getString("id")
+                    }
+                }
+        }
+
     listOf(
         ZaaktypeConfigurationUnderTest(
             configurationType = CMMN,
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
+            secondVersionZaaktypeUuid = ZAAKTYPE_CMMN_TEST_1_VERSION_2_UUID,
             readConfiguration = { read("$zaaktypeCmmnConfigurationUri/$ZAAKTYPE_CMMN_TEST_1_UUID") },
             storeConfiguration = {
                 itestHttpClient.performPutRequest(
@@ -62,68 +125,64 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
                     testUser = BEHEERDER_1
                 ).code shouldBe HTTP_OK
             },
-            previousNietOntvankelijkResultaattypeUuid = RESULTAAT_TYPE_GEWEIGERD_UUID,
-            previousZaakbeeindigResultaattypeUuid = ZAAKTYPE_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID,
-            expectedNietOntvankelijkResultaattypeUuid = ZAAKTYPE_TEST_1_RESULTAATTYPE_GEWEIGERD_UUID,
-            expectedZaakbeeindigResultaattypeUuid = ZAAKTYPE_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID
+            nietOntvankelijkResultaattypeUuid = ZAAKTYPE_TEST_1_RESULTAATTYPE_GEWEIGERD_UUID,
+            nietOntvankelijkResultaattypeOmschrijving = "Geweigerd",
+            zaakbeeindigResultaattypeUuid = ZAAKTYPE_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID,
+            secondVersionNietOntvankelijkResultaattypeUuid = ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_GEWEIGERD_UUID,
+            secondVersionZaakbeeindigResultaattypeUuid = ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_AFGEBROKEN_UUID
         ),
         ZaaktypeConfigurationUnderTest(
             configurationType = BPMN,
             zaaktypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
+            secondVersionZaaktypeUuid = ZAAKTYPE_BPMN_TEST_1_VERSION_2_UUID,
             readConfiguration = { read("$zaaktypeBpmnConfigurationUri/$BPMN_TEST_PROCESS_DEFINITION_KEY") },
-            storeConfiguration = {
-                itestHttpClient.performJSONPostRequest(
-                    url = zaaktypeBpmnConfigurationUri,
-                    requestBodyAsString = it,
-                    testUser = BEHEERDER_1
-                ).code shouldBe HTTP_OK
-            },
-            previousNietOntvankelijkResultaattypeUuid = ZAAKTYPE_TEST_3_RESULTAATTYPE_VERLEEND_UUID,
-            previousZaakbeeindigResultaattypeUuid = ZAAKTYPE_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID,
-            expectedNietOntvankelijkResultaattypeUuid = ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_VERLEEND_UUID.toString(),
-            expectedZaakbeeindigResultaattypeUuid = ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID.toString()
+            storeConfiguration = ::storeBpmnConfiguration,
+            nietOntvankelijkResultaattypeUuid = ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_VERLEEND_UUID.toString(),
+            nietOntvankelijkResultaattypeOmschrijving = "Verleend",
+            zaakbeeindigResultaattypeUuid = ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID.toString(),
+            secondVersionNietOntvankelijkResultaattypeUuid = ZAAKTYPE_BPMN_TEST_1_VERSION_2_RESULTAATTYPE_VERLEEND_UUID,
+            secondVersionZaakbeeindigResultaattypeUuid = ZAAKTYPE_BPMN_TEST_1_VERSION_2_RESULTAATTYPE_AFGEBROKEN_UUID
         )
     ).forEach { zaaktypeConfigurationUnderTest ->
         var originalZaaktypeConfiguration: String? = null
         afterSpec {
+            val secondVersionConfiguration = "SELECT id FROM zaakafhandelcomponent.zaaktype_configuration " +
+                "WHERE zaaktype_uuid = '${zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid}'"
+            queryZacDatabase(
+                "DELETE FROM zaakafhandelcomponent.zaaktype_zaakafzender_parameters " +
+                    "WHERE zaaktype_configuration_id IN ($secondVersionConfiguration)"
+            )
+            queryZacDatabase("DELETE FROM zaakafhandelcomponent.zaaktype_configuration WHERE id IN ($secondVersionConfiguration)")
             originalZaaktypeConfiguration?.let(zaaktypeConfigurationUnderTest.storeConfiguration)
         }
 
         given(
             """a ${zaaktypeConfigurationUnderTest.configurationType} zaaktype configuration whose zaak beeindigen
-                gegevens point at resultaattypen of another zaaktype"""
+                gegevens point at resultaattypen of its zaaktype version and at a resultaattype whose omschrijving
+                the next version does not have"""
         ) {
             val zaakbeeindigRedenen = JSONArray(read("$zaaktypeCmmnConfigurationUri/zaakbeeindigredenen"))
-            val zaakbeeindigReden = zaakbeeindigRedenen.getJSONObject(0)
-            val unmatchedZaakbeeindigReden = zaakbeeindigRedenen.getJSONObject(1)
-
             originalZaaktypeConfiguration = zaaktypeConfigurationUnderTest.readConfiguration()
             zaaktypeConfigurationUnderTest.storeConfiguration(
                 JSONObject(originalZaaktypeConfiguration).apply {
                     put(
                         "zaakNietOntvankelijkResultaattype",
-                        JSONObject().put(
-                            "id",
-                            zaaktypeConfigurationUnderTest.previousNietOntvankelijkResultaattypeUuid
-                        )
+                        JSONObject().put("id", zaaktypeConfigurationUnderTest.nietOntvankelijkResultaattypeUuid)
                     )
                     put(
                         "zaakbeeindigParameters",
                         JSONArray()
                             .put(
                                 JSONObject()
-                                    .put("zaakbeeindigReden", zaakbeeindigReden)
+                                    .put("zaakbeeindigReden", zaakbeeindigRedenen.getJSONObject(0))
                                     .put(
                                         "resultaattype",
-                                        JSONObject().put(
-                                            "id",
-                                            zaaktypeConfigurationUnderTest.previousZaakbeeindigResultaattypeUuid
-                                        )
+                                        JSONObject().put("id", zaaktypeConfigurationUnderTest.zaakbeeindigResultaattypeUuid)
                                     )
                             )
                             .put(
                                 JSONObject()
-                                    .put("zaakbeeindigReden", unmatchedZaakbeeindigReden)
+                                    .put("zaakbeeindigReden", zaakbeeindigRedenen.getJSONObject(1))
                                     .put(
                                         "resultaattype",
                                         JSONObject().put("id", ZAAKTYPE_TEST_3_RESULTAATTYPE_EIGENSCHAP_UUID)
@@ -132,63 +191,71 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
                     )
                 }.toString()
             )
-            JSONObject(zaaktypeConfigurationUnderTest.readConfiguration())
-                .getJSONArray("zaakbeeindigParameters")
-                .length() shouldBe 2
+            val productaanvraagtype = JSONObject(originalZaaktypeConfiguration).optString("productaanvraagtype")
 
-            `when`("a zaaktype notification for this zaaktype is received") {
-                val zaaktypeUri = "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/" +
-                    "${zaaktypeConfigurationUnderTest.zaaktypeUuid}"
-                val response = itestHttpClient.performJSONPostRequest(
-                    url = "$ZAC_API_URI/notificaties",
-                    headers = Headers.headersOf(
-                        "Content-Type",
-                        "application/json",
-                        "Authorization",
-                        OPEN_NOTIFICATIONS_API_SECRET_KEY
-                    ),
-                    requestBodyAsString = JSONObject(
-                        mapOf(
-                            "kanaal" to "zaaktypen",
-                            "resource" to "zaaktype",
-                            "resourceUrl" to zaaktypeUri,
-                            "hoofdObject" to zaaktypeUri,
-                            "actie" to "update",
-                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
-                        )
-                    ).toString()
-                )
-                response.code shouldBe HTTP_NO_CONTENT
+            `when`("a notification is received that a second version of the zaaktype was published") {
+                sendZaaktypeCreatedNotification(zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid)
 
                 then(
-                    """the resultaattypen are remapped to the resultaattypen of the zaaktype with the same omschrijving
-                        and not to the first resultaattype of the zaaktype"""
+                    """the second version gets a copy of the configuration that stores the resultaattype omschrijvingen,
+                        and drops the reference whose omschrijving the second version does not have"""
                 ) {
                     eventually(30.seconds) {
-                        val zaaktypeConfiguration = JSONObject(zaaktypeConfigurationUnderTest.readConfiguration())
-
-                        zaaktypeConfiguration
-                            .getJSONObject("zaakNietOntvankelijkResultaattype")
-                            .getString("id") shouldBe
-                            zaaktypeConfigurationUnderTest.expectedNietOntvankelijkResultaattypeUuid
-
-                        val zaakbeeindigParameters = zaaktypeConfiguration.getJSONArray("zaakbeeindigParameters")
-                        zaakbeeindigParameters
-                            .getJSONObject(0)
-                            .getJSONObject("resultaattype")
-                            .getString("id") shouldBe
-                            zaaktypeConfigurationUnderTest.expectedZaakbeeindigResultaattypeUuid
+                        readStoredConfiguration(
+                            zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid,
+                            "niet_ontvankelijk_resultaattype_omschrijving"
+                        ) shouldBe listOf(zaaktypeConfigurationUnderTest.nietOntvankelijkResultaattypeOmschrijving)
+                        readStoredZaakbeeindigResultaattypen(
+                            zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid
+                        ) shouldBe listOf("Afgebroken")
                     }
                 }
 
-                then(
-                    """the parameter whose resultaattype omschrijving does not occur in the zaaktype is dropped
-                        instead of being mapped to an arbitrary resultaattype"""
-                ) {
-                    eventually(30.seconds) {
-                        JSONObject(zaaktypeConfigurationUnderTest.readConfiguration())
-                            .getJSONArray("zaakbeeindigParameters")
-                            .length() shouldBe 1
+                then("the REST API returns the UUIDs of the resultaattypen of the second version") {
+                    readResultaattypeUuidsThroughRest(zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid) shouldBe
+                        Pair(
+                            zaaktypeConfigurationUnderTest.secondVersionNietOntvankelijkResultaattypeUuid,
+                            listOf(zaaktypeConfigurationUnderTest.secondVersionZaakbeeindigResultaattypeUuid)
+                        )
+                }
+
+                then("the REST API keeps returning the UUIDs of its own resultaattypen for the first version") {
+                    readResultaattypeUuidsThroughRest(zaaktypeConfigurationUnderTest.zaaktypeUuid) shouldBe
+                        Pair(
+                            zaaktypeConfigurationUnderTest.nietOntvankelijkResultaattypeUuid,
+                            listOf(zaaktypeConfigurationUnderTest.zaakbeeindigResultaattypeUuid)
+                        )
+                }
+
+                then("the second version keeps the productaanvraagtype of the first version") {
+                    readStoredConfiguration(
+                        zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid,
+                        "COALESCE(productaanvraagtype, '')"
+                    ) shouldBe listOf(productaanvraagtype)
+                }
+            }
+
+            if (zaaktypeConfigurationUnderTest.configurationType == BPMN) {
+                `when`("a beheerder stores the configuration of the second version with the productaanvraagtype of the first") {
+                    storeBpmnConfiguration(
+                        JSONObject(originalZaaktypeConfiguration).apply {
+                            remove("id")
+                            optJSONObject("betrokkeneKoppelingen")?.remove("id")
+                            optJSONObject("brpDoelbindingen")?.remove("id")
+                            put("zaaktypeUuid", zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid.toString())
+                            put(
+                                "zaakNietOntvankelijkResultaattype",
+                                JSONObject().put("id", zaaktypeConfigurationUnderTest.secondVersionNietOntvankelijkResultaattypeUuid)
+                            )
+                            put("zaakbeeindigParameters", JSONArray())
+                        }.toString()
+                    )
+
+                    then("it is accepted, because both configurations belong to versions of the same zaaktype") {
+                        readStoredConfiguration(
+                            zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid,
+                            "productaanvraagtype"
+                        ) shouldBe listOf(productaanvraagtype)
                     }
                 }
             }

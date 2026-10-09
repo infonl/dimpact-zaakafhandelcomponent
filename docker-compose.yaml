@@ -281,7 +281,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:d25d25a0d0c9e5a917ebad1a1c42f8109f049b628fc7a730027c97b6b98b5386
+    image: solr:9.11.0-slim@sha256:c8a5ad7d951c00f15d5847ba0a94c1ab212de42de10668b80848831b72d75b9f
     ports:
       - "8983:8983"
     volumes:
@@ -743,7 +743,7 @@ services:
       - pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:2.1.0-prerelease@sha256:e444442e21bc85b99f5a39825f84bc2c73523b4867d9712e17f83807527e6641
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:2.1.0@sha256:75640f1ee9dc6a155800a31457574b9c36eb0cd41827c45333b9f39d05c94abb
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -755,7 +755,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:2.1.0-prerelease@sha256:632dde894d86a9f1aa2dff0224fa5a67010e2d16c894a7898320f2ce313c2df9
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:2.1.0@sha256:7e4f906ea46ba4eace1997a074099a5a54038e38901890d486d117583861a61d
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -936,7 +936,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.5.9@sha256:9ec62a4f955e501f4081b772d5caa0ed04a9ebca8dfdf13fe5b123d2fef2bf22
+    image: openformulieren/open-forms:3.5.10@sha256:a71bb4a76bfa0886391b9dcf87a9c4857a7b76076c084b61d38db820fd09d6dc
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1053,7 +1053,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.5.9@sha256:9ec62a4f955e501f4081b772d5caa0ed04a9ebca8dfdf13fe5b123d2fef2bf22
+    image: openformulieren/open-forms:3.5.10@sha256:a71bb4a76bfa0886391b9dcf87a9c4857a7b76076c084b61d38db820fd09d6dc
     # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1080,7 +1080,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.5.9@sha256:9ec62a4f955e501f4081b772d5caa0ed04a9ebca8dfdf13fe5b123d2fef2bf22
+    image: openformulieren/open-forms:3.5.10@sha256:a71bb4a76bfa0886391b9dcf87a9c4857a7b76076c084b61d38db820fd09d6dc
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1108,7 +1108,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.5.9@sha256:9ec62a4f955e501f4081b772d5caa0ed04a9ebca8dfdf13fe5b123d2fef2bf22
+    image: openformulieren/open-forms:3.5.10@sha256:a71bb4a76bfa0886391b9dcf87a9c4857a7b76076c084b61d38db820fd09d6dc
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."

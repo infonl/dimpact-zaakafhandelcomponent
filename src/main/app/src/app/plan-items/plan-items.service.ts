@@ -4,7 +4,6 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { PostBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -52,12 +51,9 @@ export class PlanItemsService {
     );
   }
 
-  doUserEventListenerPlanItem(
-    body: PostBody<"/rest/planitems/doUserEventListenerPlanItem">,
-  ) {
-    return this.zacHttpClient.POST(
+  doUserEventListenerPlanItem() {
+    return this.zacQueryClient.POST(
       "/rest/planitems/doUserEventListenerPlanItem",
-      body,
     );
   }
 }

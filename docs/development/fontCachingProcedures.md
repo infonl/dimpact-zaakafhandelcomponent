@@ -10,9 +10,7 @@ Zac implements font caching strategy to enhance performance and user experience.
 - the files are cached locally in the nginx container in /tmp and do not persist on restarts
 
 ### Material Symbols Font
-- The Material Symbols font, which is relatively large (~3MB), is also cached.
-- Caching this font is crucial as it prevents the display of fallback text for Material icons.
-- We also prefetch the font so it's impossible for the user to experience a scenario where the icons font is not loaded in time and shows the fallback text.
-  - in index.html there will be a line that adds this functionality, something like: `<link rel="prefetch" href="assets/fonts/material-symbols.woff2" as="font" type="font/woff2" crossorigin>`]
-  - Due to the cache invalidation, a user might experience a slightly longer white screen when loading the app because of the prefetch. This will only occur if the cache has expired and the fonts need to be re-fetched.
+- The full Material Symbols font (~3MB) lives in `src/main/app/fonts/`. The production build (`npm run build`) runs `scripts/generate-icon-font.mjs`, which keeps only the icons whose names appear in `src/` (~30KB) and writes them to `src/generated/fonts/material-symbols-outlined.woff2`. The dev server keeps all icons, so a new icon works without a restart.
+- `styles.less` loads the font with `font-display: block`, so icons never show their name as fallback text while the font loads.
+- An icon name that never appears literally in `src/` (e.g. one rendered by a library in `node_modules`) must be added to `libraryIconNames` in the generator script, or it renders as plain text in production.
 

@@ -485,20 +485,24 @@ class ZacClient(
         fatalDate: LocalDate,
         groupId: String,
         groupName: String,
-        sendMail: Boolean = false,
+        medewerker: TestUser? = null,
         testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Starting human task plan item with plan item instance id: $planItemInstanceId, " +
-                "fatal date: $fatalDate, group id: $groupId, group name: $groupName, send mail: $sendMail"
+                "fatal date: $fatalDate, group id: $groupId, group name: $groupName, " +
+                "medewerker: ${medewerker?.username}"
         }
+        val medewerkerField = medewerker?.let {
+            """"medewerker": { "id": "${it.username}", "naam": "${it.displayName}" },"""
+        }.orEmpty()
         return itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
             requestBodyAsString = """{
                     "planItemInstanceId": "$planItemInstanceId",
                     "fataledatum": "${fatalDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
-                    "taakStuurGegevens": { "shouldSendMail": $sendMail },
                     "groep": { "id": "$groupId", "naam": "$groupName" },
+                    $medewerkerField
                     "taakdata":{}
                 }
             """.trimIndent(),
@@ -513,7 +517,7 @@ class ZacClient(
         zaakUUID: UUID,
         fatalDate: LocalDate,
         group: TestGroup,
-        sendMail: Boolean = false,
+        medewerker: TestUser? = null,
         testUser: TestUser
     ): ResponseContent {
         val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(
@@ -534,7 +538,7 @@ class ZacClient(
             fatalDate = fatalDate,
             groupId = group.name,
             groupName = group.description,
-            sendMail = sendMail,
+            medewerker = medewerker,
             testUser = testUser
         )
     }

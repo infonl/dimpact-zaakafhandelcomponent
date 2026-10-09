@@ -12,7 +12,7 @@ import jakarta.json.JsonString
 import jakarta.json.JsonValue
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.util.time.convertToDate
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.zgw.drc.DrcClientService
@@ -60,7 +60,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
 
     fun submit(restTask: RestTask, task: Task, zaak: Zaak): Task {
         var submittedTask = task
-        taakVariabelenService.setTaskinformation(task, restTask.taakinformatie)
+        taakVariabelenService.setTaskInformation(task, restTask.taakinformatie)
         taakVariabelenService.setTaskData(task, restTask.taakdata)
 
         val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata.orEmpty())

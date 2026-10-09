@@ -97,6 +97,7 @@ Coding conventions that a linter can check are enforced there rather than only d
 | No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |
 | No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
 | Component inputs use `input()`, not the `@Input()` decorator  | ESLint `@angular-eslint/prefer-signals`                          |
+| Component outputs use `output()`, not the `@Output()` decorator | ESLint `@angular-eslint/prefer-output-emitter-ref`            |
 | No `ngOnChanges`, also in specs; react to inputs with `computed()`/`effect()` | ESLint `no-restricted-imports` (`OnChanges`, `SimpleChange(s)`), `no-restricted-properties` (calls), `@typescript-eslint/naming-convention` (members named `ngOnChanges`) |
 | Every segment of an i18n key is lowercase kebab-case          | `src/main/app/src/app/core/translations.spec.ts` (`npm test`)    |
 | `nl.json` and `en.json` hold the same i18n keys               | `src/main/app/src/app/core/translations.spec.ts` (`npm test`)    |
@@ -149,7 +150,7 @@ code has two kinds of boolean that none of the default prefixes describes:
 - `can` for a permission: the `RestXxxRechten` models and the OPA policy outputs hold some forty permissions
   each named after a Dutch verb, such as `canLezen` and `canToevoegenInitiatorPersoon`. `isLezen` or
   `hasLezen` would say something else.
-- `should` for an instruction in a request, such as `shouldSendMail` on `RESTTaakStuurGegevens` and
+- `should` for an instruction in a request, such as `shouldIncludeGekoppeldeZaakDocumenten` on `RestInformatieobjectZoekParameters` and
   `shouldTakenVerlengen` on `RestZaakVerlengGegevens`: the client asks ZAC to do something, it does not
   describe a state.
 

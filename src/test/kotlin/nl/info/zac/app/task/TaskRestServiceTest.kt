@@ -23,9 +23,9 @@ import kotlinx.coroutines.test.runTest
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
-import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
+import nl.info.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.DrcClientService
@@ -67,12 +67,17 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.task.api.history.HistoricTaskInstance
 import java.net.URI
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.io.reader
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.slot
+import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 
 @Suppress("LargeClass")
 class TaskRestServiceTest : BehaviorSpec({
@@ -93,6 +98,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val taskService = mockk<TaskService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val bpmnTaskFormRuntimeService = mockk<BpmnTaskFormRuntimeService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val testDispatcher = StandardTestDispatcher()
@@ -117,6 +123,7 @@ class TaskRestServiceTest : BehaviorSpec({
         bpmnTaskFormRuntimeService = bpmnTaskFormRuntimeService,
         zaakVariabelenService = zaakVariabelenService,
         fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L),
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
         dispatcher = testDispatcher
     )
     val loggedInUser = createLoggedInUser()
@@ -186,7 +193,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every {
                 indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
             } just runs
-            every { restTaskConverter.convert(task) } returns restTask
+            every { restTaskConverter.toRestTask(task) } returns restTask
 
             `when`("the task is open and the user has permission") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
@@ -242,7 +249,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
-            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { taakVariabelenService.setTaskInformation(task, null) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
@@ -299,11 +306,11 @@ class TaskRestServiceTest : BehaviorSpec({
                 )
             } just Runs
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
-            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { taakVariabelenService.setTaskInformation(task, null) } just runs
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
             every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
             every { historicTaskInstance.id } returns restTaak.id
-            every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
+            every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaakConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
             `when`("task is completed by a user with permissions to change tasks") {
@@ -360,13 +367,13 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
-            every { taakVariabelenService.setTaskinformation(task, null) } just runs
+            every { taakVariabelenService.setTaskInformation(task, null) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
             every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
-            every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
+            every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaakConverted
             every { httpSessionInstance.get() } returns httpSession
             // in this test we assume there was no document uploaded to the http session beforehand
             every { httpSession.getAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } returns null
@@ -453,7 +460,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.completeTask(assignedTask) } returns historicTaskInstance
             every { historicTaskInstance.id } returns restTask.id
             every { indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false) } just runs
-            every { restTaskConverter.convert(historicTaskInstance) } returns restTaskConverted
+            every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaskConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
             `when`("the task is completed") {
@@ -468,6 +475,16 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
                 and("the completed task is returned") {
                     restTaskReturned shouldBe restTaskConverted
+                }
+                and("no zaakspecifieke autorisatie is granted, since completing already requires access to the zaak") {
+                    verify(exactly = 0) {
+                        taskService.assignTaskToUser(
+                            taskId = any(),
+                            assignee = any(),
+                            loggedInUser = any(),
+                            explanation = any()
+                        )
+                    }
                 }
             }
         }
@@ -560,9 +577,10 @@ class TaskRestServiceTest : BehaviorSpec({
             )
             val loggedInUser = createLoggedInUser()
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak, loggedInUser).canLezen } returns true
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { policyService.readZaakRechten(zaak, loggedInUser, any()).canLezen } returns true
             every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
-            every { restTaskConverter.convert(tasks) } returns restTasks
+            every { restTaskConverter.toRestTasks(tasks, any()) } returns restTasks
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("the tasks are listed for this zaak") {
@@ -573,6 +591,42 @@ class TaskRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         taskService.listTasksForZaak(zaak.uuid)
                     }
+                }
+            }
+        }
+
+        given("a zaak with two taken") {
+            val zaak = createZaak()
+            val tasks = listOf(
+                createTestTask(id = "fakeId1"),
+                createTestTask(id = "fakeId2")
+            )
+            val restTasks = listOf(
+                createRestTask(id = "fakeId1"),
+                createRestTask(id = "fakeId2")
+            )
+            val loggedInUser = createLoggedInUser()
+            val zaakAutorisatieGegevensForPolicy = slot<ZaakAutorisatieGegevens>()
+            val zaakAutorisatieGegevensForConverter = slot<ZaakAutorisatieGegevens>()
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every {
+                policyService.readZaakRechten(zaak, loggedInUser, capture(zaakAutorisatieGegevensForPolicy))
+            } returns createZaakRechten(lezen = true)
+            every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
+            every { restTaskConverter.toRestTasks(tasks, capture(zaakAutorisatieGegevensForConverter)) } returns restTasks
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the taken of the zaak are listed") {
+                taskRestService.listTasksForZaak(zaak.uuid)
+
+                then("Open Zaak is asked only once whether the zaak is zaakspecifiek geautoriseerd") {
+                    verify(exactly = 1) { zrcClientService.listZaakeigenschappen(zaak.uuid) }
+                }
+
+                and("the policy check and the conversion of the taken use the same zaakspecifieke autorisatie data") {
+                    zaakAutorisatieGegevensForConverter.captured shouldBeSameInstanceAs
+                        zaakAutorisatieGegevensForPolicy.captured
                 }
             }
         }
@@ -597,7 +651,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { signaleringService.deleteSignaleringen(any()) } returns 2
             every { flowableTaskService.readTask(taskId) } returns taskInfo
             every { policyService.readTaakRechten(taskInfo).canLezen } returns true
-            every { restTaskConverter.convert(taskInfo) } returns restTask
+            every { restTaskConverter.toRestTask(taskInfo) } returns restTask
             every { bpmnTaskFormRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
             every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(
                 "fakeKey" to "fakeValue"

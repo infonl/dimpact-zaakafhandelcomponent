@@ -5,7 +5,9 @@
 package net.atos.zac.event
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -13,13 +15,22 @@ import io.mockk.slot
 import jakarta.enterprise.event.Event
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.signalering.event.SignaleringEvent
+import net.atos.zac.signalering.event.SignaleringEventId
+import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.identity.model.createUser
+import java.net.URI
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 class EventingServiceTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
@@ -69,4 +80,54 @@ class EventingServiceTest : BehaviorSpec({
             }
         }
     }
+
+    context("Sending a signalering event") {
+        given("an observer that fails with an error") {
+            val actor = createUser(id = "fakeActorId")
+            val zaakOpNaamSignaleringEvent = SignaleringEvent(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                SignaleringEventId(URI("https://example.com/rol/fakeRolUuid"), null),
+                actor
+            )
+            val notImplementedError = NotImplementedError("fakeError")
+            every {
+                signaleringEvent.fireAsync(zaakOpNaamSignaleringEvent)
+            } returns CompletableFuture.failedFuture(notImplementedError)
+
+            `when`("the signalering event is sent") {
+                val logRecords = captureLogRecords { eventingService.send(zaakOpNaamSignaleringEvent) }
+
+                then("the failure is logged, because nothing else observes the outcome of an asynchronous event") {
+                    logRecords shouldHaveSize 1
+                    with(logRecords.single()) {
+                        level shouldBe Level.SEVERE
+                        thrown shouldBe notImplementedError
+                    }
+                }
+
+                then("the actor is not logged, because a user ID is personal data") {
+                    logRecords.single().message shouldNotContain actor.id
+                }
+            }
+        }
+    }
 })
+
+private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
+    val logger = Logger.getLogger(EventingService::class.java.name)
+    val records = mutableListOf<LogRecord>()
+    val handler = object : Handler() {
+        override fun publish(record: LogRecord) {
+            records.add(record)
+        }
+        override fun flush() = Unit
+        override fun close() = Unit
+    }
+    logger.addHandler(handler)
+    try {
+        block()
+    } finally {
+        logger.removeHandler(handler)
+    }
+    return records
+}

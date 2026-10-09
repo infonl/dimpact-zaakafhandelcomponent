@@ -9,11 +9,10 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   inject,
   input,
   OnDestroy,
-  Output,
+  output,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -49,6 +48,7 @@ import {
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacRadio } from "src/app/shared/form/radio/radio";
 import { ZacSelect } from "src/app/shared/form/select/select";
+import { injectMutation } from "src/app/shared/http/inject-mutation";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -106,8 +106,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
 })
 export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   readonly selectedIndexStart = input<number>(0);
-  @Output() switchModellingMethod =
-    new EventEmitter<ProcessModelMethodSelection>();
+  readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocumentsFormComponent!: SmartDocumentsFormComponent;
@@ -115,7 +114,10 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly dialog = inject(MatDialog);
 
-  protected isLoading: boolean = false;
+  protected readonly createOrUpdateBpmnZaakafhandelparametersMutation =
+    injectMutation(() =>
+      this.zaakafhandelParametersService.createOrUpdateBpmnZaakafhandelparameters(),
+    );
   protected isSavedZaakafhandelParameters: boolean = false;
 
   protected bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] =
@@ -514,9 +516,8 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    this.isLoading = true;
-    this.zaakafhandelParametersService
-      .createOrUpdateBpmnZaakafhandelparameters({
+    this.createOrUpdateBpmnZaakafhandelparametersMutation.mutate(
+      {
         id: this.bpmnZaakafhandelParameters?.id || null,
         zaaktypeUuid: this.bpmnZaakafhandelParameters.zaaktype.uuid,
         zaaktypeOmschrijving:
@@ -541,27 +542,18 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           isEnabledForZaaktype:
             this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false,
         },
-      })
-      .subscribe({
-        next: (data) => {
-          this.isLoading = false;
+      },
+      {
+        onSuccess: (data) => {
           this.bpmnZaakafhandelParameters.id = data.id; // needed for next save
           this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
 
-          this.utilService.openSnackbar(
-            "msg.zaakafhandelparameters.opgeslagen",
-          );
-
           if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
-            this.smartDocumentsFormComponent
-              .saveSmartDocumentsMapping()
-              .subscribe();
+            this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
           }
         },
-        error: () => {
-          this.isLoading = false;
-        },
-      });
+      },
+    );
   }
 
   protected confirmModellingMethodSwitch() {

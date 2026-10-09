@@ -6,11 +6,10 @@
 import {
   Component,
   effect,
-  EventEmitter,
   input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -81,9 +80,8 @@ export class InformatieObjectCreateAttendedComponent
   readonly sideNav = input.required<MatDrawer>();
   readonly smartDocumentsGroupId = input<string>();
   readonly smartDocumentsTemplateId = input<string>();
-  @Output() document = new EventEmitter<
-    GeneratedType<"RestDocumentCreationAttendedData">
-  >();
+  readonly document =
+    output<GeneratedType<"RestDocumentCreationAttendedData">>();
 
   private readonly destroy$ = new Subject<void>();
 

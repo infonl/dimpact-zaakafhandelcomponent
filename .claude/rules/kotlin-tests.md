@@ -30,6 +30,17 @@ then("expected result") { ... }
 and("an additional assertion") { ... }
 ```
 
+## Name an integration test after the REST service it calls
+Name an integration test that calls one REST service `<RestService>Test`. When the REST service has more than one
+integration test, add the aspect that the test covers between the REST service name and `Test`:
+`<RestService><Aspect>Test`.
+```kotlin
+// Before: a test that stores configurations through ZaaktypeBpmnConfigurationRestService
+class ZaaktypeConfigurationProductaanvraagtypeTest
+// After
+class ZaaktypeBpmnConfigurationRestServiceProductaanvraagtypeTest
+```
+
 ## In Kotlin unit tests the 'shouldThrow' should be in the 'When' block
 In Kotlin unit tests the 'shouldThrow' should be in the '`when`' and not in the 'then' block.
 Also the exception message should be checked in the 'then' block.

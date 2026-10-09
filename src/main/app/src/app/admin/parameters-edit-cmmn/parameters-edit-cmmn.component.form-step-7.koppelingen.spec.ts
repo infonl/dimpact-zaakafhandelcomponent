@@ -3,12 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -18,7 +15,6 @@ import {
   createQueryOptions,
   fromPartial,
 } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -90,9 +86,6 @@ describe("Koppelingen form step", () => {
     const { fixture } = await render(ParametersEditCmmnComponent, {
       imports: [TranslateModule.forRoot(), RouterModule, NoopAnimationsModule],
       providers: [
-        provideQueryClient(testQueryClient),
-        provideHttpClient(),
-        provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
           useValue: fromPartial<ActivatedRoute>({
@@ -156,6 +149,7 @@ describe("Koppelingen form step", () => {
             addTemplateMappings: () => [],
             flattenGroups: () => [],
             getTemplateMappings: () => [],
+            storeTemplatesMapping: () => createMutationOptions(null) as never,
           }),
         },
         {

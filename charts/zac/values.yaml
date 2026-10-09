@@ -298,13 +298,14 @@ podSecurityContext:
 
 # -- generic security context
 securityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   capabilities:
     drop:
       - ALL
-# runAsNonRoot: true
-# runAsUser: 1000
 
 # service specifications
 service:
@@ -397,6 +398,9 @@ initContainer:
   enabled: true
    # -- Security context for the curl-based init containers (read-only root filesystem is safe here)
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
@@ -446,6 +450,9 @@ opa:
       type: RuntimeDefault
    # -- container security context applied to the OPA container in both sidecar and standalone modes
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
@@ -521,7 +528,7 @@ solr-operator:
        # -- solr image repository
       repository: library/solr
        # -- solr image tag
-      tag: 9.10.1-slim@sha256:d25d25a0d0c9e5a917ebad1a1c42f8109f049b628fc7a730027c97b6b98b5386
+      tag: 9.11.0-slim@sha256:c8a5ad7d951c00f15d5847ba0a94c1ab212de42de10668b80848831b72d75b9f
      # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
      # jobs settings
@@ -701,6 +708,9 @@ office_converter:
     seccompProfile:
       type: RuntimeDefault
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:

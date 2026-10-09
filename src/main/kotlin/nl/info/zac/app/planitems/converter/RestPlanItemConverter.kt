@@ -7,10 +7,10 @@ package nl.info.zac.app.planitems.converter
 import jakarta.inject.Inject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ReferenceTableValue
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnExtension
 import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.app.planitems.model.RestPlanItem
 import nl.info.zac.app.planitems.model.UserEventListenerActie
@@ -20,19 +20,19 @@ import java.time.LocalDate
 import java.util.UUID
 
 class RestPlanItemConverter @Inject constructor(
-    val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
+    val zaaktypeConfigurationService: ZaaktypeConfigurationService
 ) {
     fun convertPlanItems(planItems: List<PlanItemInstance>, zaak: Zaak): List<RestPlanItem> =
         zaak.zaaktype.extractUuid().let { zaaktypeUUID ->
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).let { zaakafhandelParameters ->
-                planItems.map { convertPlanItem(it, zaak.uuid, zaakafhandelParameters) }
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)?.cmmnExtension.let { cmmnExtension ->
+                planItems.map { convertPlanItem(it, zaak.uuid, cmmnExtension) }
             }
         }
 
     fun convertPlanItem(
         planItem: PlanItemInstance,
         zaakUuid: UUID,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+        zaaktypeCmmnExtension: ZaaktypeCmmnExtension?
     ): RestPlanItem =
         RestPlanItem(
             id = planItem.id,
@@ -41,33 +41,37 @@ class RestPlanItemConverter @Inject constructor(
             zaakUuid = zaakUuid
         ).apply {
             when (type) {
-                PlanItemType.USER_EVENT_LISTENER -> convertUserEventListener(this, planItem, zaaktypeCmmnConfiguration)
-                PlanItemType.HUMAN_TASK -> convertHumanTask(this, planItem, zaaktypeCmmnConfiguration)
+                PlanItemType.USER_EVENT_LISTENER -> convertUserEventListener(this, planItem, zaaktypeCmmnExtension)
+                PlanItemType.HUMAN_TASK -> convertHumanTask(this, planItem, zaaktypeCmmnExtension)
                 PlanItemType.PROCESS_TASK -> {}
             }
         }
 
+    @Suppress("TooGenericExceptionThrown")
     private fun convertUserEventListener(
         restPlanItem: RestPlanItem,
         userEventListenerPlanItem: PlanItemInstance,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+        zaaktypeCmmnExtension: ZaaktypeCmmnExtension?
     ): RestPlanItem =
         restPlanItem.apply {
             userEventListenerActie = UserEventListenerActie.valueOf(userEventListenerPlanItem.planItemDefinitionId)
-            toelichting = zaaktypeCmmnConfiguration.readUserEventListenerParameters(
-                userEventListenerPlanItem.planItemDefinitionId
-            ).toelichting
+            toelichting = (
+                zaaktypeCmmnExtension ?: throw RuntimeException(
+                    "No UserEventListenerParameters found for planitemDefinitionID: " +
+                        "'${userEventListenerPlanItem.planItemDefinitionId}', because the zaaktype has no CMMN configuration"
+                )
+                ).readUserEventListenerParameters(userEventListenerPlanItem.planItemDefinitionId).toelichting
         }
 
     @Suppress("ExplicitItLambdaParameter")
     private fun convertHumanTask(
         restPlanItem: RestPlanItem,
         humanTaskPlanItem: PlanItemInstance,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+        zaaktypeCmmnExtension: ZaaktypeCmmnExtension?
     ): RestPlanItem =
         restPlanItem.apply {
-            zaaktypeCmmnConfiguration
-                .findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId)
+            zaaktypeCmmnExtension
+                ?.findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId)
                 ?.let { it ->
                     isActief = it.isActief
                     it.getFormulierDefinitieID()?.let { fd ->

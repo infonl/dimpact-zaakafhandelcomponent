@@ -16,8 +16,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
-import java.util.Objects
-import java.util.UUID
 
 @Entity
 @Table(schema = FlywayIntegrator.Companion.SCHEMA, name = "zaaktype_completion_parameters")
@@ -28,7 +26,7 @@ import java.util.UUID
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCompletionParameters : UserModifiable<ZaaktypeCompletionParameters> {
+class ZaaktypeCompletionParameters : UserModifiableZaaktypeConfigurationData<ZaaktypeCompletionParameters> {
     @Id
     @GeneratedValue(generator = "sq_zaaktype_completion_parameters", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
@@ -44,26 +42,23 @@ class ZaaktypeCompletionParameters : UserModifiable<ZaaktypeCompletionParameters
     @NotNull
     lateinit var zaakbeeindigReden: ZaakbeeindigReden
 
-    @Column(name = "resultaattype_uuid", nullable = false)
+    @Column(name = "resultaattype_omschrijving", nullable = false)
     @NotNull
-    lateinit var resultaattype: UUID
+    lateinit var resultaattypeOmschrijving: String
 
     override fun equals(other: Any?): Boolean {
         if (other !is ZaaktypeCompletionParameters) return false
         return zaakbeeindigReden.id == other.zaakbeeindigReden.id &&
-            resultaattype == other.resultaattype
+            resultaattypeOmschrijving == other.resultaattypeOmschrijving
     }
 
-    override fun hashCode(): Int {
-        checkNotNull(zaakbeeindigReden) { "zaakbeeindigReden is null" }
-        return Objects.hash(zaakbeeindigReden.id, resultaattype)
-    }
-
-    override fun isModifiedFrom(original: ZaaktypeCompletionParameters): Boolean =
-        zaakbeeindigReden == original.zaakbeeindigReden && resultaattype != original.resultaattype
+    // Constant per class, because Hibernate adds an element to an eager PersistentSet before it has loaded all its
+    // fields (https://hibernate.atlassian.net/browse/HHH-3799), and `applyChanges` modifies elements inside the set.
+    // A hash code based on these fields would leave the element in the wrong bucket, so `contains` would miss it.
+    override fun hashCode() = javaClass.hashCode()
 
     override fun applyChanges(changes: ZaaktypeCompletionParameters) {
-        resultaattype = changes.resultaattype
+        resultaattypeOmschrijving = changes.resultaattypeOmschrijving
     }
 
     override fun resetId(): ZaaktypeCompletionParameters {

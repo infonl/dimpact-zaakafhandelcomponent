@@ -5,12 +5,12 @@
 
 import { CommonModule } from "@angular/common";
 import {
+  booleanAttribute,
   Component,
-  EventEmitter,
-  Output,
-  ViewChild,
   inject,
   input,
+  output,
+  ViewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -60,16 +60,17 @@ import { BAGService } from "../bag.service";
   ],
 })
 export class BagZoekComponent {
-  @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();
+  readonly bagObject = output<GeneratedType<"RestBagObject">>();
+  readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly gekoppeldeBagObjecten = input<
-    | GeneratedType<"RESTBAGObject">[]
-    | FormControl<GeneratedType<"RESTBAGObject">[] | null>
+    | GeneratedType<"RestBagObject">[]
+    | FormControl<GeneratedType<"RestBagObject">[] | null>
   >([]);
   readonly sideNav = input.required<MatSidenav | MatDrawer>();
-  @ViewChild(MatTable) private table!: MatTable<GeneratedType<"RESTBAGObject">>;
+  @ViewChild(MatTable) private table!: MatTable<GeneratedType<"RestBagObject">>;
   protected trefwoorden = new FormControl("", [Validators.maxLength(255)]);
   protected bagObjecten = new MatTableDataSource<
-    GeneratedType<"RESTBAGObject"> | GeneratedType<"RESTBAGAdres">
+    GeneratedType<"RestBagObject"> | GeneratedType<"RestBagAdres">
   >();
   protected loading = false;
   protected columns: string[] = [
@@ -106,7 +107,7 @@ export class BagZoekComponent {
     }
   }
 
-  protected selectBagObject(bagObject: GeneratedType<"RESTBAGObject">) {
+  protected selectBagObject(bagObject: GeneratedType<"RestBagObject">) {
     const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
     if (gekoppeldeBagObjecten instanceof FormControl) {
       gekoppeldeBagObjecten.setValue([
@@ -119,12 +120,12 @@ export class BagZoekComponent {
     this.bagObject.emit(bagObject);
   }
 
-  protected expandable(bagObject: GeneratedType<"RESTBAGObject">) {
+  protected expandable(bagObject: GeneratedType<"RestBagObject">) {
     if (bagObject.bagObjectType !== "ADRES") {
       return false;
     }
 
-    const adres: GeneratedType<"RESTBAGAdres"> = bagObject;
+    const adres: GeneratedType<"RestBagAdres"> = bagObject;
     return (
       adres.openbareRuimte ||
       adres.nummeraanduiding ||
@@ -134,7 +135,7 @@ export class BagZoekComponent {
   }
 
   protected expand(
-    bagObject: GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
+    bagObject: GeneratedType<"RestBagObject" | "RestBagAdres"> & {
       expanded: boolean;
     },
   ) {
@@ -151,12 +152,12 @@ export class BagZoekComponent {
     );
     bagObject.expanded = true;
 
-    const children: (GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
+    const children: (GeneratedType<"RestBagObject" | "RestBagAdres"> & {
       expanded?: boolean;
       child?: boolean;
     })[] = [];
     if (bagObject.bagObjectType === "ADRES") {
-      const adres: GeneratedType<"RESTBAGAdres"> = bagObject;
+      const adres: GeneratedType<"RestBagAdres"> = bagObject;
       if (adres.nummeraanduiding) {
         children.push(adres.nummeraanduiding);
       }
@@ -179,7 +180,7 @@ export class BagZoekComponent {
     this.table.renderRows();
   }
 
-  protected reedsGekoppeld(row: GeneratedType<"RESTBAGObject">): boolean {
+  protected reedsGekoppeld(row: GeneratedType<"RestBagObject">): boolean {
     const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
     const objects =
       gekoppeldeBagObjecten instanceof FormControl
@@ -192,7 +193,7 @@ export class BagZoekComponent {
     );
   }
 
-  protected openBagTonenPagina(bagObject: GeneratedType<"RESTBAGObject">) {
+  protected openBagTonenPagina(bagObject: GeneratedType<"RestBagObject">) {
     this.sideNav().close();
     this.router.navigate([
       "/bag-objecten",

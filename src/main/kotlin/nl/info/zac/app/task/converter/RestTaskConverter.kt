@@ -5,18 +5,18 @@
 package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
-import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
+import nl.info.zac.flowable.task.readTaskData
+import nl.info.zac.flowable.task.readTaskDocuments
+import nl.info.zac.flowable.task.readTaskInformation
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.flowable.task.readZaaktypeOmschrijving
+import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.util.time.convertToZonedDateTime
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
@@ -24,6 +24,7 @@ import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.RestTask
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -34,15 +35,26 @@ class RestTaskConverter @Inject constructor(
     private val groepConverter: RestGroupConverter,
     private val medewerkerConverter: RestUserConverter,
     private val policyService: PolicyService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
 ) {
-    fun convert(tasks: List<TaskInfo>) = tasks.map(::convert)
+    fun toRestTasks(tasks: List<TaskInfo>) = tasks.map { toRestTask(it) }
+
+
+    fun toRestTasks(tasks: List<TaskInfo>, zaakAutorisatieGegevens: ZaakAutorisatieGegevens) =
+        tasks.map { toRestTask(it, zaakAutorisatieGegevens) }
 
     @Suppress("LongMethod", "ComplexMethod")
-    fun convert(taskInfo: TaskInfo): RestTask {
+    fun toRestTask(
+        taskInfo: TaskInfo,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
+    ): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
-        val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).toRestTaakRechten()
+        val restTaakRechten = policyService.readTaakRechten(
+            taskInfo = taskInfo,
+            zaaktypeOmschrijving = zaaktypeOmschrijving,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        ).toRestTaakRechten()
         val restTask = RestTask(
             id = taskInfo.id,
             naam = taskInfo.name,
@@ -116,8 +128,10 @@ class RestTaskConverter @Inject constructor(
         zaaktypeUUID: UUID,
         taskDefinitionKey: String
     ) {
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
-            .getHumanTaskParametersCollection()
+        zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
+            ?.cmmnExtension
+            ?.getHumanTaskParametersCollection()
+            .orEmpty()
             .first { taskDefinitionKey == it.planItemDefinitionID }.let {
                 verwerkZaakafhandelParameters(restTask, it)
             }

@@ -14,8 +14,6 @@ import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CmmnService
-import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
@@ -39,7 +37,7 @@ import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DE
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
-import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
@@ -58,7 +56,6 @@ import java.net.URI
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Level
-import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Logger
 import kotlin.concurrent.withLock
 
@@ -74,18 +71,10 @@ class ZaakService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private val identityService: IdentityService,
     private val indexingService: IndexingService,
-    private val bpmnService: BpmnService,
+    private val zaakProcessService: ZaakProcessService,
     private val pabcClientService: PabcClientService,
-    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
-    private val cmmnService: CmmnService
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
 ) {
-    companion object {
-        private val zaakAssignmentLocks = Array(64) { ReentrantLock() }
-
-        private fun lockForZaak(uuid: UUID) =
-            zaakAssignmentLocks[Math.floorMod(uuid.hashCode(), zaakAssignmentLocks.size)]
-    }
-
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
         identificationType: IdentificatieType,
@@ -208,7 +197,7 @@ class ZaakService @Inject constructor(
     fun assignZaak(zaak: Zaak, zaakAssignment: ZaakAssignment, reason: String?) {
         val (group, user) = zaakAssignment
         // lock for the given zaak so that it is impossible to assign the zaak to multiple users on quick subsequent calls
-        lockForZaak(zaak.uuid).withLock {
+        zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak)
             zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user?.id)
 
@@ -483,22 +472,8 @@ class ZaakService @Inject constructor(
         return true
     }
 
-    private fun changeZaakDataAssignment(
-        zaakUuid: UUID,
-        group: Group?,
-        user: User?
-    ) {
-        if (bpmnService.isZaakProcessDriven(zaakUuid)) {
-            try {
-                group?.let { zaakVariabelenService.setGroup(zaakUuid, it.name) }
-                user?.let {
-                    zaakVariabelenService.setUser(zaakUuid, it.id)
-                } ?: zaakVariabelenService.removeUser(zaakUuid)
-            } catch (exception: CaseOrProcessNotFoundException) {
-                LOG.warning { exception.message }
-            }
-        }
-    }
+    private fun changeZaakDataAssignment(zaakUuid: UUID, group: Group?, user: User?) =
+        zaakProcessService.updateAssignment(zaakUuid, groupId = group?.name, behandelaarId = user?.id)
 
     fun listStatusTypes(zaaktypeUUID: UUID) =
         ztcClientService.readStatustypen(
@@ -567,12 +542,5 @@ class ZaakService @Inject constructor(
         ).map { it.name }.contains(this.name)
     }
 
-    fun setIsZaakdataGearchiveerd(zaak: Zaak): Boolean {
-        val hasActiveProces = bpmnService.isZaakProcessDriven(zaak.uuid)
-        val hasActiveCase = cmmnService.isZaakCaseDriven(zaak.uuid)
-        if (hasActiveProces || hasActiveCase) {
-            return false
-        }
-        return true
-    }
+    fun setIsZaakdataGearchiveerd(zaak: Zaak) = !zaakProcessService.hasActiveProcess(zaak.uuid)
 }

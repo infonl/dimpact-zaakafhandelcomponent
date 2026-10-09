@@ -4,14 +4,7 @@
  */
 
 import { NgFor, NgIf } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  inject,
-  input,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
@@ -71,7 +64,7 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
 export class BesluitViewComponent implements OnInit {
   readonly besluiten = input.required<GeneratedType<"RestBesluit">[]>();
   readonly readonly = input.required<boolean>();
-  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
+  readonly besluitWijzigen = output<GeneratedType<"RestBesluit">>();
 
   private readonly zakenService = inject(ZakenService);
   private readonly dialog = inject(MatDialog);

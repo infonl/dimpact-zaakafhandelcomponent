@@ -30,8 +30,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Observable, of, throwError } from "rxjs";
-import { catchError, tap } from "rxjs/operators";
+import { Observable, of } from "rxjs";
+import { map, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -277,16 +277,19 @@ export class InformatieObjectViewComponent
         "actie.lock",
         () => {
           button.disabled = true;
-          this.informatieObjectenService
-            .lockInformatieObject(this.infoObject.uuid!, this.zaak!.uuid!)
-            .pipe(
-              catchError((e) => {
-                // we only need to do this on error, because on success we get a new button
-                button.disabled = false;
-                return throwError(() => e);
-              }),
-            )
-            .subscribe();
+          runMutation(
+            this.queryClient,
+            this.informatieObjectenService.lockInformatieObject(
+              this.infoObject.uuid!,
+              this.zaak!.uuid!,
+            ),
+            undefined as never,
+          ).subscribe({
+            // we only need to do this on error, because on success we get a new button
+            error: () => {
+              button.disabled = false;
+            },
+          });
         },
         "lock",
       );
@@ -301,16 +304,19 @@ export class InformatieObjectViewComponent
         "actie.unlock",
         () => {
           button.disabled = true;
-          this.informatieObjectenService
-            .unlockInformatieObject(this.infoObject.uuid!, this.zaak?.uuid)
-            .pipe(
-              catchError((e) => {
-                // we only need to do this on error, because on success we get a new button
-                button.disabled = false;
-                return throwError(() => e);
-              }),
-            )
-            .subscribe();
+          runMutation(
+            this.queryClient,
+            this.informatieObjectenService.unlockInformatieObject(
+              this.infoObject.uuid!,
+              this.zaak?.uuid,
+            ),
+            undefined as never,
+          ).subscribe({
+            // we only need to do this on error, because on success we get a new button
+            error: () => {
+              button.disabled = false;
+            },
+          });
         },
         "lock_open",
       );
@@ -352,10 +358,14 @@ export class InformatieObjectViewComponent
         new AsyncButtonMenuItem(
           "actie.converteren",
           () =>
-            this.informatieObjectenService.convertInformatieObjectToPDF(
-              this.infoObject.uuid!,
-              this.zaak!.uuid!,
-            ),
+            runMutation(
+              this.queryClient,
+              this.informatieObjectenService.convertInformatieObjectToPDF(
+                this.infoObject.uuid!,
+                this.zaak!.uuid!,
+              ),
+              undefined as never,
+            ).pipe(map(() => undefined)),
           "picture_as_pdf",
         ),
       );
@@ -446,9 +456,13 @@ export class InformatieObjectViewComponent
         key: "msg.document.ondertekenen.bevestigen",
         args: { document: this.infoObject.titel },
       },
-      this.informatieObjectenService.ondertekenInformatieObject(
-        this.infoObject.uuid!,
-        this.zaak!.uuid!,
+      runMutation(
+        this.queryClient,
+        this.informatieObjectenService.ondertekenInformatieObject(
+          this.infoObject.uuid!,
+          this.zaak!.uuid!,
+        ),
+        undefined as never,
       ),
     );
 

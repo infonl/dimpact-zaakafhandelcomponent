@@ -3,19 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Directive,
-  EventEmitter,
-  HostBinding,
-  HostListener,
-  Output,
-} from "@angular/core";
+import { Directive, HostBinding, HostListener, output } from "@angular/core";
 
 @Directive({
   selector: "[DropZone]",
 })
 export class FileDragAndDropDirective {
-  @Output() fileDropped = new EventEmitter<FileList>();
+  readonly fileDropped = output<FileList>();
   @HostBinding("style.border") private border = "solid transparent";
 
   @HostListener("dragover", ["$event"]) public onDragOver(evt: DragEvent) {

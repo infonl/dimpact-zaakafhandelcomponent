@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { TranslateModule } from "@ngx-translate/core";
@@ -39,6 +39,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
     @if (type() === "persoon") {
       <zac-persoon-zoek
         [syncEnabled]="true"
+        isSelectable
         [zaaktypeUUID]="zaaktypeUUID()"
         (persoon)="klantGeselecteerd($event)"
       ></zac-persoon-zoek>
@@ -46,6 +47,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
     @if (type() === "bedrijf") {
       <zac-bedrijf-zoek
         [syncEnabled]="true"
+        isSelectable
         (bedrijf)="klantGeselecteerd($event)"
       ></zac-bedrijf-zoek>
     }
@@ -54,7 +56,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
 export class KlantKoppelInitiator {
   readonly type = input<"persoon" | "bedrijf">("persoon");
   readonly zaaktypeUUID = input<string | null | undefined>(null);
-  @Output() klantGegevens = new EventEmitter<KlantGegevens>();
+  readonly klantGegevens = output<KlantGegevens>();
 
   klantGeselecteerd(klant: GeneratedType<"RestBedrijf" | "RestPersoon">): void {
     this.klantGegevens.emit(new KlantGegevens(klant));

@@ -150,6 +150,12 @@ Notes:
   and keep seeing the zaak, its taken and its documenten. A marked zaak can never be released: leaving it
   without a behandelaar is refused, so such a zaak always has at least one individually authorised
   medewerker.
+- **A taakbehandelaar of a zaakspecifiek geautoriseerde zaak is individually authorised for that zaak**:
+  when a taak of a marked zaak is assigned to a medewerker, ZAC gives that medewerker the `Zaakspecifiek
+  geautoriseerde medewerker` rol on the zaak before the assignment is written. Marking a zaak does the same for
+  the taakbehandelaars of its open taken. The rol is never removed because of a taak, so reassigning,
+  releasing or completing the taak leaves the medewerker's access intact. The zaakbehandelaar, and a
+  medewerker who already holds the rol, get no extra rol.
 - **Other employees are able to access zaakspecifiek geautoriseerde zaken** by being granted
   `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration, exactly like any other
   application role. Granting them that mapping is therefore a deployment prerequisite: without it, they cannot

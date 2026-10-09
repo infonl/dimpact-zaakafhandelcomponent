@@ -4,6 +4,7 @@
  */
 package net.atos.zac.flowable.cmmn
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -14,13 +15,17 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.authentication.LoggedInUser
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
+import org.flowable.cmmn.api.CmmnTaskService
+import org.flowable.cmmn.api.history.HistoricCaseInstance
 import org.flowable.cmmn.api.runtime.CaseInstance
 import org.flowable.cmmn.api.runtime.CaseInstanceBuilder
 import java.net.URI
@@ -30,11 +35,13 @@ class CmmnServiceTest : BehaviorSpec({
     val cmmnRuntimeService = mockk<CmmnRuntimeService>()
     val cmmnRepositoryService = mockk<CmmnRepositoryService>()
     val cmmnHistoryService = mockk<CmmnHistoryService>()
+    val cmmnTaskService = mockk<CmmnTaskService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val cmmnService = CmmnService(
         cmmnRuntimeService,
         cmmnHistoryService,
         cmmnRepositoryService,
+        cmmnTaskService,
         loggedInUserInstance
     )
 
@@ -62,7 +69,7 @@ class CmmnServiceTest : BehaviorSpec({
         every { cmmnRuntimeService.createCaseInstanceBuilder() } returns caseInstanceBuilder
         every {
             caseInstanceBuilder
-                .caseDefinitionKey(zaaktypeCmmnConfiguration.caseDefinitionID)
+                .caseDefinitionKey(checkNotNull(zaaktypeCmmnConfiguration.processBinding).definitionKey)
                 .businessKey(zaakUUID.toString())
                 .variable("zaakUUID", zaak.uuid)
                 .variable("zaakIdentificatie", zaak.identificatie)
@@ -76,7 +83,7 @@ class CmmnServiceTest : BehaviorSpec({
             cmmnService.startCase(
                 zaak = zaak,
                 zaaktype = zaakType,
-                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                caseDefinitionKey = checkNotNull(zaaktypeCmmnConfiguration.processBinding).definitionKey,
                 zaakData = zaakData
             )
 
@@ -109,27 +116,53 @@ class CmmnServiceTest : BehaviorSpec({
             }
         }
     }
-    given("A CMMN case for a certain zaak UUID") {
+    given("a zaak with a running case instance and the history of two case instances") {
         val zaakUUID = UUID.randomUUID()
-        val caseInstanceID = "fakeCaseInstanceID"
         val caseInstance = mockk<CaseInstance>()
+        val historicCaseInstance1 = mockk<HistoricCaseInstance>()
+        val historicCaseInstance2 = mockk<HistoricCaseInstance>()
+        every { caseInstance.id } returns "fakeCaseInstanceId"
+        every { historicCaseInstance1.id } returns "fakeHistoricCaseInstanceId1"
+        every { historicCaseInstance2.id } returns "fakeHistoricCaseInstanceId2"
         every {
-            cmmnRuntimeService.createCaseInstanceQuery()
-                .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
-                .singleResult()
+            cmmnRuntimeService.createCaseInstanceQuery().caseInstanceBusinessKey(zaakUUID.toString()).singleResult()
         } returns caseInstance
-        every { caseInstance.id } returns caseInstanceID
-        every { cmmnRuntimeService.deleteCaseInstance(caseInstanceID) } just Runs
-        every { cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID) } just Runs
+        every { cmmnRuntimeService.deleteCaseInstance("fakeCaseInstanceId") } just Runs
+        every {
+            cmmnHistoryService.createHistoricCaseInstanceQuery().caseInstanceBusinessKey(zaakUUID.toString()).list()
+        } returns listOf(historicCaseInstance1, historicCaseInstance2)
+        every { cmmnHistoryService.deleteHistoricCaseInstance(any()) } just Runs
 
-        `when`("the case is requested to be deleted") {
+        `when`("the case is deleted") {
             cmmnService.deleteCase(zaakUUID)
 
-            then("the case is successfully deleted") {
+            then("the running case instance and the history of every case instance of the zaak are deleted") {
                 verify(exactly = 1) {
-                    cmmnRuntimeService.deleteCaseInstance(caseInstanceID)
-                    cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID)
+                    cmmnRuntimeService.deleteCaseInstance("fakeCaseInstanceId")
+                    cmmnHistoryService.deleteHistoricCaseInstance("fakeHistoricCaseInstanceId1")
+                    cmmnHistoryService.deleteHistoricCaseInstance("fakeHistoricCaseInstanceId2")
                 }
+            }
+        }
+    }
+    given("a zaak whose case instance has ended, so that only its history is left") {
+        val zaakUUID = UUID.randomUUID()
+        val historicCaseInstance = mockk<HistoricCaseInstance>()
+        every { historicCaseInstance.id } returns "fakeHistoricCaseInstanceId"
+        every {
+            cmmnRuntimeService.createCaseInstanceQuery().caseInstanceBusinessKey(zaakUUID.toString()).singleResult()
+        } returns null
+        every {
+            cmmnHistoryService.createHistoricCaseInstanceQuery().caseInstanceBusinessKey(zaakUUID.toString()).list()
+        } returns listOf(historicCaseInstance)
+        every { cmmnHistoryService.deleteHistoricCaseInstance("fakeHistoricCaseInstanceId") } just Runs
+
+        `when`("the case is deleted") {
+            cmmnService.deleteCase(zaakUUID)
+
+            then("the history of the ended case instance is deleted") {
+                verify(exactly = 1) { cmmnHistoryService.deleteHistoricCaseInstance("fakeHistoricCaseInstanceId") }
+                verify(exactly = 0) { cmmnRuntimeService.deleteCaseInstance(any()) }
             }
         }
     }
@@ -163,6 +196,36 @@ class CmmnServiceTest : BehaviorSpec({
 
             then("the zaak is not reported as case driven") {
                 isZaakCaseDriven shouldBe false
+            }
+        }
+    }
+    given("a plan item instance for which a human task was started") {
+        val task = createTestTask(id = "fakeTaskId")
+        every {
+            cmmnTaskService.createTaskQuery().planItemInstanceId("fakePlanItemInstanceId").singleResult()
+        } returns task
+
+        `when`("the open task of that plan item instance is read") {
+            val openTask = cmmnService.readOpenTaskForPlanItem("fakePlanItemInstanceId")
+
+            then("the task created for the plan item instance is returned") {
+                openTask shouldBe task
+            }
+        }
+    }
+    given("a plan item instance without an open task") {
+        every {
+            cmmnTaskService.createTaskQuery().planItemInstanceId("fakePlanItemInstanceId").singleResult()
+        } returns null
+
+        `when`("the open task of that plan item instance is read") {
+            val taskNotFoundException = shouldThrow<TaskNotFoundException> {
+                cmmnService.readOpenTaskForPlanItem("fakePlanItemInstanceId")
+            }
+
+            then("the caller is told which plan item instance has no open task") {
+                taskNotFoundException.message shouldBe
+                    "No open task found for plan item instance id 'fakePlanItemInstanceId'"
             }
         }
     }

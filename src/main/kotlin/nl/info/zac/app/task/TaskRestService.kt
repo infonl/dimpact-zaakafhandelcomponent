@@ -25,13 +25,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
-import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_TOELICHTING
-import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
-import net.atos.zac.flowable.task.TaakVariabelenService.isZaakHervatten
-import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
-import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
+import nl.info.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_TOELICHTING
+import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_VERZENDDATUM
+import nl.info.zac.flowable.task.isZaakHervatten
+import nl.info.zac.flowable.task.readSignatures
+import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.flowable.util.isOpen
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
@@ -71,6 +72,8 @@ import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.readZaakAutorisatieGegevens
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
@@ -111,6 +114,7 @@ class TaskRestService @Inject constructor(
     private val bpmnTaskFormRuntimeService: BpmnTaskFormRuntimeService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val fileSizeConfiguration: FileSizeConfiguration,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
 
     /**
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
@@ -127,10 +131,11 @@ class TaskRestService @Inject constructor(
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUUID)
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         assertPolicy(
-            policyService.readZaakRechten(zaak, loggedInUser).canLezen
+            policyService.readZaakRechten(zaak, loggedInUser, zaakAutorisatieGegevens).canLezen
         )
-        return taskService.listTasksForZaak(zaakUUID).let(restTaskConverter::convert)
+        return restTaskConverter.toRestTasks(taskService.listTasksForZaak(zaakUUID), zaakAutorisatieGegevens)
     }
 
     @GET
@@ -139,7 +144,7 @@ class TaskRestService @Inject constructor(
         flowableTaskService.readTask(taskId).let { task ->
             assertPolicy(policyService.readTaakRechten(task).canLezen)
             deleteSignaleringen(task)
-            val restTask = restTaskConverter.convert(task)
+            val restTask = restTaskConverter.toRestTask(task)
             if (task.isOpen()) {
                 restTask.formioFormulier?.let {
                     restTask.formioFormulier = bpmnTaskFormRuntimeService.renderFormioFormulier(restTask)
@@ -156,7 +161,7 @@ class TaskRestService @Inject constructor(
         flowableTaskService.readOpenTask(restTask.id).let {
             assertPolicy(it.isOpen() && policyService.readTaakRechten(it).canWijzigen)
             taakVariabelenService.setTaskData(it, restTask.taakdata)
-            taakVariabelenService.setTaskinformation(it, restTask.taakinformatie)
+            taakVariabelenService.setTaskInformation(it, restTask.taakinformatie)
             val updatedTask = updateDescriptionAndDueDate(restTask)
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
@@ -210,7 +215,7 @@ class TaskRestService @Inject constructor(
         // Checking the user's authorization for the task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().canZakenTaken)
         val task = assignLoggedInUserToTask(restTaskAssignData)
-        return restTaskConverter.convert(task)
+        return restTaskConverter.toRestTask(task)
     }
 
     @PATCH
@@ -228,7 +233,7 @@ class TaskRestService @Inject constructor(
     @PATCH
     @Path("toekennen/mij")
     fun assignTaskToLoggedInUser(restTaskAssignData: RestTaskAssignData) =
-        assignLoggedInUserToTask(restTaskAssignData).let(restTaskConverter::convert)
+        assignLoggedInUserToTask(restTaskAssignData).let { restTaskConverter.toRestTask(it) }
 
     @PATCH
     @Path("complete")
@@ -254,7 +259,7 @@ class TaskRestService @Inject constructor(
             indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
-        }.let(restTaskConverter::convert)
+        }.let { restTaskConverter.toRestTask(it) }
     }
 
     private fun addZaakdata(restTask: RestTask) = restTask.taakdata?.apply {
@@ -275,7 +280,7 @@ class TaskRestService @Inject constructor(
     private fun processHardCodedFormTask(restTask: RestTask, zaak: Zaak): Task {
         val updatedTask = updateDescriptionAndDueDate(restTask)
         createDocuments(restTask, zaak)
-        if (isZaakHervatten(restTask.taakdata)) {
+        if (restTask.taakdata?.let(::isZaakHervatten) == true) {
             suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         restTask.taakdata?.let { taakdata ->
@@ -290,7 +295,7 @@ class TaskRestService @Inject constructor(
             signEnkelvoudigInformatieobjecten(taakdata, zaak)
         }
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
-        taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
+        taakVariabelenService.setTaskInformation(updatedTask, restTask.taakinformatie)
         return updatedTask
     }
 
@@ -379,9 +384,9 @@ class TaskRestService @Inject constructor(
     }
 
     private fun signEnkelvoudigInformatieobjecten(taakdata: Map<String, Any>, zaak: Zaak) {
-        readSignatures(taakdata).ifPresent { signature ->
+        readSignatures(taakdata)?.let { signature ->
             signature.split(
-                TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
+                TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
             ).dropLastWhile { it.isEmpty() }.toTypedArray()
                 .filter { it.isNotEmpty() }
                 .map(UUID::fromString)
@@ -425,7 +430,7 @@ class TaskRestService @Inject constructor(
     ) {
         val verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate()
         documenten.split(
-            TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
+            TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
         ).dropLastWhile { it.isEmpty() }.toTypedArray()
             .forEach { documentUUID ->
                 setVerzenddatumEnkelvoudigInformatieObject(

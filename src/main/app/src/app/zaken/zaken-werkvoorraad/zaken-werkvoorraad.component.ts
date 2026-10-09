@@ -71,7 +71,6 @@ import { ZakenService } from "../zaken.service";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { IndexingService } from "src/app/indexing/indexing.service";
@@ -130,6 +129,9 @@ export class ZakenWerkvoorraadComponent
   protected readonly indicatiesLayout = IndicatiesLayout;
   private readonly assignToMeMutation = injectMutation(() =>
     this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+  );
+  private readonly commitPendingChangesToSearchIndexMutation = injectMutation(
+    () => this.indexService.commitPendingChangesToSearchIndex(),
   );
   protected selection = new SelectionModel<ZaakZoekObject>(true, []);
   protected dataSource: ZakenWerkvoorraadDatasource;
@@ -357,14 +359,14 @@ export class ZakenWerkvoorraadComponent
         },
       },
       finally: () =>
-        firstValueFrom(
-          this.indexService.commitPendingChangesToSearchIndex(),
-        ).then(() => {
-          this.selection.clear();
-          this.dataSource.load(5_000); // We need to give the indexing service some time to finish
-          this.zakenLoading.set(false);
-          this.batchProcessService.stop();
-        }),
+        this.commitPendingChangesToSearchIndexMutation
+          .mutateAsync(undefined as never)
+          .then(() => {
+            this.selection.clear();
+            this.dataSource.load(5_000); // We need to give the indexing service some time to finish
+            this.zakenLoading.set(false);
+            this.batchProcessService.stop();
+          }),
     });
 
     this.dialog

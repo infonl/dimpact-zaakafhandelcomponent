@@ -20,9 +20,9 @@ import { BAGService } from "../bag.service";
 import { BagZoekComponent } from "./bag-zoek.component";
 
 const makeBagObject = (
-  fields: Partial<GeneratedType<"RESTBAGObject">> = {},
-): GeneratedType<"RESTBAGObject"> =>
-  fromPartial<GeneratedType<"RESTBAGObject">>({
+  fields: Partial<GeneratedType<"RestBagObject">> = {},
+): GeneratedType<"RestBagObject"> =>
+  fromPartial<GeneratedType<"RestBagObject">>({
     identificatie: "0363010000012345",
     bagObjectType: "ADRES",
     ...fields,
@@ -34,7 +34,7 @@ describe(BagZoekComponent.name, () => {
   let detectChanges: () => void;
   let sideNav: MatDrawer;
 
-  function returnFromSearch(...bagObjecten: GeneratedType<"RESTBAGObject">[]) {
+  function returnFromSearch(...bagObjecten: GeneratedType<"RestBagObject">[]) {
     listAdressen.mockReturnValue(
       createQueryOptions({ resultaten: bagObjecten }),
     );
@@ -45,15 +45,16 @@ describe(BagZoekComponent.name, () => {
     onBagObject,
   }: {
     gekoppeldeBagObjecten?:
-      | GeneratedType<"RESTBAGObject">[]
-      | FormControl<GeneratedType<"RESTBAGObject">[] | null>;
-    onBagObject?: (bagObject: GeneratedType<"RESTBAGObject">) => void;
+      | GeneratedType<"RestBagObject">[]
+      | FormControl<GeneratedType<"RestBagObject">[] | null>;
+    onBagObject?: (bagObject: GeneratedType<"RestBagObject">) => void;
   } = {}) {
     sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
     const rendered = await render(BagZoekComponent, {
       inputs: {
         sideNav,
         ...(gekoppeldeBagObjecten ? { gekoppeldeBagObjecten } : {}),
+        isSelectable: !!onBagObject,
       },
       on: onBagObject ? { bagObject: onBagObject } : {},
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
@@ -142,7 +143,7 @@ describe(BagZoekComponent.name, () => {
       const alreadyLinked = makeBagObject({ identificatie: "existing" });
       const bagObject = makeBagObject({ identificatie: "new" });
       const gekoppeldeBagObjecten = new FormControl<
-        GeneratedType<"RESTBAGObject">[] | null
+        GeneratedType<"RestBagObject">[] | null
       >([alreadyLinked]);
       returnFromSearch(bagObject);
       await setup({ gekoppeldeBagObjecten, onBagObject: jest.fn() });
@@ -214,7 +215,7 @@ describe(BagZoekComponent.name, () => {
 
   it("adds the bag object to the linked array it was given", async () => {
     const bagObject = makeBagObject();
-    const gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
+    const gekoppeldeBagObjecten: GeneratedType<"RestBagObject">[] = [];
     returnFromSearch(bagObject);
     await setup({ gekoppeldeBagObjecten, onBagObject: jest.fn() });
     await search("Teststraat 1");
@@ -286,7 +287,7 @@ describe(BagZoekComponent.name, () => {
     it("cannot be shown for an adres without related objects", async () => {
       returnFromSearch(
         makeBagObject(
-          fromPartial<GeneratedType<"RESTBAGAdres">>({
+          fromPartial<GeneratedType<"RestBagAdres">>({
             bagObjectType: "ADRES",
             openbareRuimte: undefined,
             nummeraanduiding: undefined,
@@ -309,7 +310,7 @@ describe(BagZoekComponent.name, () => {
     it("shows the nummeraanduiding of an adres as an extra row", async () => {
       returnFromSearch(
         makeBagObject(
-          fromPartial<GeneratedType<"RESTBAGAdres">>({
+          fromPartial<GeneratedType<"RestBagAdres">>({
             bagObjectType: "ADRES",
             nummeraanduiding: {
               identificatie: "0363200000400021",

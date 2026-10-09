@@ -11,22 +11,24 @@ import jakarta.transaction.Transactional
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
 import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
+import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.cmmn.api.repository.CaseDefinition
 import org.flowable.cmmn.api.runtime.PlanItemDefinitionType
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.cmmn.model.HumanTask
 import org.flowable.cmmn.model.UserEventListener
 import org.flowable.common.engine.api.FlowableObjectNotFoundException
+import org.flowable.task.api.Task
 import java.util.Date
 import java.util.UUID
 import java.util.logging.Logger
@@ -40,21 +42,25 @@ class CmmnService @Inject constructor(
     private val cmmnRuntimeService: CmmnRuntimeService,
     private val cmmnHistoryService: CmmnHistoryService,
     private val cmmnRepositoryService: CmmnRepositoryService,
+    private val cmmnTaskService: CmmnTaskService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         private val LOG = Logger.getLogger(CmmnService::class.java.getName())
     }
 
-    fun deleteCase(zaakUUID: UUID) =
+    /**
+     * Deletes the running case instance of the zaak and the history of every case instance of the zaak.
+     */
+    fun deleteCase(zaakUUID: UUID) {
         cmmnRuntimeService.createCaseInstanceQuery()
-            .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
-            .singleResult()?.let {
-                // delete the case instance
-                cmmnRuntimeService.deleteCaseInstance(it.id)
-                // delete any historic case instances
-                cmmnHistoryService.deleteHistoricCaseInstance(it.id)
-            }
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .singleResult()?.let { cmmnRuntimeService.deleteCaseInstance(it.id) }
+        cmmnHistoryService.createHistoricCaseInstanceQuery()
+            .caseInstanceBusinessKey(zaakUUID.toString())
+            .list()
+            .forEach { cmmnHistoryService.deleteHistoricCaseInstance(it.id) }
+    }
 
     fun listHumanTaskPlanItems(zaakUUID: UUID): List<PlanItemInstance> =
         cmmnRuntimeService.createPlanItemInstanceQuery()
@@ -73,10 +79,9 @@ class CmmnService @Inject constructor(
     fun startCase(
         zaak: Zaak,
         zaaktype: ZaakType,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        caseDefinitionKey: String,
         zaakData: Map<String, Any>? = null
     ) {
-        val caseDefinitionKey = zaaktypeCmmnConfiguration.caseDefinitionID
         LOG.info("Starting zaak '${zaak.uuid}' using CMMN model '$caseDefinitionKey'")
         try {
             val caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()
@@ -134,6 +139,13 @@ class CmmnService @Inject constructor(
 
     fun startUserEventListenerPlanItem(planItemInstanceId: String) =
         cmmnRuntimeService.triggerPlanItemInstance(planItemInstanceId)
+
+    fun readOpenTaskForPlanItem(planItemInstanceId: String): Task =
+        cmmnTaskService.createTaskQuery()
+            .planItemInstanceId(planItemInstanceId)
+            .singleResult() ?: throw TaskNotFoundException(
+            "No open task found for plan item instance id '$planItemInstanceId'"
+        )
 
     fun readOpenPlanItem(planItemInstanceId: String): PlanItemInstance {
         return cmmnRuntimeService.createPlanItemInstanceQuery()

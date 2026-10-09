@@ -4,10 +4,14 @@
  */
 package nl.info.zac.app.zaak.model
 
+import nl.info.client.bag.model.generated.PointGeoJSON
+import nl.info.client.bag.model.generated.PuntOfVlak
+import nl.info.client.bag.model.generated.Surface
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.math.BigDecimal
 
 @AllOpen
 @NoArgConstructor
@@ -53,4 +57,21 @@ fun GeoJSONGeometry.toRestGeometry() = RestGeometry(
     polygon = null,
     // not supported currently
     geometrycollection = null
+)
+
+fun Surface.toRestGeometry() = RestGeometry(
+    type = RestGeometryType.POLYGON,
+    polygon = coordinates.map { ring -> ring.map { it.toRestCoordinates() } }
+)
+
+fun PointGeoJSON.toRestGeometry() = RestGeometry(
+    type = RestGeometryType.POINT,
+    point = coordinates.toRestCoordinates()
+)
+
+fun PuntOfVlak.toRestGeometry() = punt?.toRestGeometry() ?: vlak?.toRestGeometry()
+
+private fun List<BigDecimal>.toRestCoordinates() = RestCoordinates(
+    longitude = this[0].toDouble(),
+    latitude = this[1].toDouble()
 )

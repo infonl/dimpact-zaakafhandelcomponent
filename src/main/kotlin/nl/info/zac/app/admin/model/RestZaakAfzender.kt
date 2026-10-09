@@ -5,7 +5,7 @@
 package nl.info.zac.app.admin.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -33,30 +33,30 @@ data class RestZaakAfzender(
     var isSpeciaal: Boolean = false
 )
 
-fun RestZaakAfzender.toZaakAfzender() = ZaaktypeCmmnZaakafzenderParameters().apply {
+fun RestZaakAfzender.toZaakAfzender() = ZaaktypeZaakafzenderParameters().apply {
     id = this@toZaakAfzender.id
     isDefaultMail = this@toZaakAfzender.isDefaultMail
     this@toZaakAfzender.mail?.let { mail = it }
     this@toZaakAfzender.replyTo?.let { replyTo = it }
 }
 
-fun ZaaktypeCmmnZaakafzenderParameters.toRestZaakAfzender() = RestZaakAfzender(
+fun ZaaktypeZaakafzenderParameters.toRestZaakAfzender() = RestZaakAfzender(
     id = this@toRestZaakAfzender.id,
     isDefaultMail = this@toRestZaakAfzender.isDefaultMail,
     mail = this@toRestZaakAfzender.mail,
     replyTo = this@toRestZaakAfzender.replyTo,
-    isSpeciaal = ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries.any { it.name(this@toRestZaakAfzender.mail) },
+    isSpeciaal = ZaaktypeZaakafzenderParameters.SpecialMail.entries.any { it.name(this@toRestZaakAfzender.mail) },
     suffix = null
 )
 
-fun List<RestZaakAfzender>.toZaakAfzenders(): List<ZaaktypeCmmnZaakafzenderParameters> =
+fun List<RestZaakAfzender>.toZaakAfzenders(): List<ZaaktypeZaakafzenderParameters> =
     this@toZaakAfzenders.filter { !it.isSpeciaal || it.isDefaultMail || it.replyTo != null }
         .map { it.toZaakAfzender() }
 
-fun Set<ZaaktypeCmmnZaakafzenderParameters>.toRestZaakAfzenders(): List<RestZaakAfzender> {
+fun Set<ZaaktypeZaakafzenderParameters>.toRestZaakAfzenders(): List<RestZaakAfzender> {
     val restZaakAfzenders = this@toRestZaakAfzenders.map { it.toRestZaakAfzender() }.toMutableList()
     // now add the 'special' zaakafzender emails, if they are not already present
-    for (speciaal in ZaaktypeCmmnZaakafzenderParameters.SpecialMail.entries) {
+    for (speciaal in ZaaktypeZaakafzenderParameters.SpecialMail.entries) {
         if (this@toRestZaakAfzenders.map { it.mail }.none { speciaal.name == it }) {
             restZaakAfzenders.add(
                 RestZaakAfzender(

@@ -16,6 +16,8 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @ApplicationScoped
 @AllOpen
@@ -26,6 +28,10 @@ class EventingService @Inject constructor(
     private val signaleringJobEvent: Event<JobEvent>,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(EventingService::class.java.name)
+    }
+
     /**
      * Send [ScreenEvent]s to Observer(s), which pass them on to the subscribed websocket clients.
      *
@@ -43,9 +49,14 @@ class EventingService @Inject constructor(
      * Send [SignaleringEvent]s to Observer(s), which use them to create and/or send signaleringen.
      *
      * Prefer using the factory methods on [SignaleringEventUtil] to create these events.
+     *
+     * CDI does not log a failure of an asynchronous observer, it only completes the returned stage with it.
      */
     fun send(event: SignaleringEvent<*>) {
-        signaleringEvent.fireAsync(event)
+        signaleringEvent.fireAsync(event).exceptionally { throwable ->
+            LOG.log(Level.SEVERE, "Failed to handle signalering event: ${event.opcode} ${event.objectType} ${event.objectId}", throwable)
+            null
+        }
     }
 
     /**

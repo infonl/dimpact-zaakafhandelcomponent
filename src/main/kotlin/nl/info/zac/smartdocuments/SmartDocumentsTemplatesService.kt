@@ -94,7 +94,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         LOG.fine { "Storing template mapping for zaaktype UUID $zaaktypeUUID" }
 
         (
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+            zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
                 ?: throw ZaaktypeConfigurationNotFoundException("No zaaktype configuration found for zaaktype UUID $zaaktypeUUID")
             ).let {
             restTemplateGroups.toSmartDocumentsTemplateGroupSet(it).let { modelTemplateGroups ->
@@ -107,7 +107,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
     }
 
     private fun getZaaktypeConfigurationId(zaaktypeUUID: UUID): Long? =
-        zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)?.id
+        zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)?.id
 
     /**
      * Deletes all template groups and templates for a zaaktypeConfiguration
@@ -172,7 +172,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         if (!smartDocumentsService.isEnabled()) {
             LOG.fine { "Smart documents is disabled. Returning empty set of template groups" }
             emptySet()
-        } else if (zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) == null) {
+        } else if (zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) == null) {
             // A zaaktype configuration is only persisted after first save — return empty set rather than querying with a null id
             LOG.fine { "No zaaktype configuration found for zaaktype UUID '$zaaktypeUuid'. Returning empty set of template groups" }
             emptySet()

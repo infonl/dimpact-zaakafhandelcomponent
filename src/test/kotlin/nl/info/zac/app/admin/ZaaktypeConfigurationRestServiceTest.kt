@@ -7,27 +7,33 @@ package nl.info.zac.app.admin
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.flowable.cmmn.CmmnService
+import nl.info.client.zgw.util.extractUuid
+import net.atos.zac.app.admin.model.RESTCaseDefinition
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createResultaatType
+import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
+import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
@@ -40,18 +46,16 @@ import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import java.net.URI
 import java.util.UUID
 
 class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val configurationService = mockk<ConfigurationService>()
     val cmmnService = mockk<CmmnService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
+    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
     val referenceTableService = mockk<ReferenceTableService>()
-    val zaaktypeCmmnConfigurationConverter = mockk<RestZaaktypeConfigurationConverter>()
-    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
-    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val restZaaktypeConfigurationConverter = mockk<RestZaaktypeConfigurationConverter>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val caseDefinitionConverter = mockk<RestCaseDefinitionConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
@@ -61,13 +65,10 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         configurationService = configurationService,
         cmmnService = cmmnService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-        zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
-        zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
-        zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
+        zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
         referenceTableService = referenceTableService,
-        zaaktypeCmmnConfigurationConverter = zaaktypeCmmnConfigurationConverter,
+        restZaaktypeConfigurationConverter = restZaaktypeConfigurationConverter,
         caseDefinitionConverter = caseDefinitionConverter,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         policyService = policyService,
@@ -97,26 +98,20 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             )
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
-                zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(restZaakafhandelParameters)
+                restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaakafhandelParameters)
             } returns zaakafhandelParameters
             every {
-                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
-                    productaanvraagtype, updatedRestZaakafhandelParameters.zaaktype.omschrijving!!
+                zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
+                    productaanvraagtype,
+                    updatedRestZaakafhandelParameters.zaaktype.omschrijving!!
                 )
             } just runs
             every {
-                zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype)
-            } just runs
-            every {
-                zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
+                zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
             every {
-                zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(createdZaakafhandelParameters, true)
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(createdZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
-            every {
-                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
-            } just runs
-            every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
 
             `when`("the zaakafhandelparameters are created") {
                 val returnedRestZaakafhandelParameters =
@@ -131,7 +126,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 ) {
                     returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
                     verify(exactly = 1) {
-                        zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
+                        zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters)
                     }
                 }
             }
@@ -148,8 +143,9 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             )
             every { policyService.readOverigeRechten().canBeheren } returns true
             every {
-                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
-                    productaanvraagtype, restZaakafhandelParameters.zaaktype.omschrijving!!
+                zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
+                    productaanvraagtype,
+                    restZaakafhandelParameters.zaaktype.omschrijving!!
                 )
             } throws InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
 
@@ -168,7 +164,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                     exception.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
                     exception.message shouldBe null
                     verify(exactly = 0) {
-                        zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
+                        zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters)
                     }
                 }
             }
@@ -217,95 +213,52 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 exception.errorCode shouldBe ERROR_CODE_USER_NOT_IN_GROUP
                 exception.message shouldBe null
                 verify(exactly = 0) {
-                    zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+                    zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeCmmnConfiguration)
                 }
             }
         }
     }
 
-    given("Existing zaaktype configuration for CMMN") {
-        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
-        every { policyService.readOverigeRechten().canBeheren } returns true
-        every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
-        } returns zaaktypeCmmnConfiguration
-        every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
-        } returns zaaktypeCmmnConfiguration
-        every {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
-        } returns createRestZaaktypeConfiguration()
+    createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
+        given("an existing zaaktype configuration bound to $configurationType") {
+            val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every {
+                zaaktypeConfigurationService.findConfiguration(zaaktypeConfiguration.zaaktypeUuid)
+            } returns zaaktypeConfiguration
+            every {
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeConfiguration, true)
+            } returns createRestZaaktypeConfiguration()
 
-        `when`("zaaktypeCmmnConfiguration is requested") {
-            zaaktypeConfigurationRestService.readZaaktypeConfiguration(
-                zaaktypeCmmnConfiguration.zaaktypeUuid
-            )
+            `when`("the zaaktype configuration is requested") {
+                zaaktypeConfigurationRestService.readZaaktypeConfiguration(zaaktypeConfiguration.zaaktypeUuid)
 
-            then("the correct functions are called to retrieve the configuration") {
-                verify(exactly = 1) {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
-                        zaaktypeCmmnConfiguration.zaaktypeUuid
-                    )
-                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
-                }
-            }
-        }
-    }
-
-    given("Existing zaaktype configuration for BPMN") {
-        val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(id = null)
-        every { policyService.readOverigeRechten().canBeheren } returns true
-        every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
-        } returns zaaktypeBpmnConfiguration
-        every {
-            zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
-        } returns zaaktypeBpmnConfiguration
-        every {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
-        } returns createRestZaaktypeConfiguration()
-
-        `when`("zaaktypeCmmnConfiguration is requested") {
-            zaaktypeConfigurationRestService.readZaaktypeConfiguration(
-                zaaktypeBpmnConfiguration.zaaktypeUuid
-            )
-
-            then("the correct functions are called to retrieve the configuration") {
-                verify(exactly = 1) {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
-                    zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
-                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
+                then("the configuration is converted with its related data") {
+                    verify(exactly = 1) {
+                        restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeConfiguration, true)
+                    }
                 }
             }
         }
     }
 
     given("No existing zaaktype configuration") {
-        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
+        val zaaktypeUuid = UUID.randomUUID()
+        val newZaaktypeConfiguration = slot<ZaaktypeConfiguration>()
         every { policyService.readOverigeRechten().canBeheren } returns true
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns null
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
-        } returns null
-        every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
-        } returns zaaktypeCmmnConfiguration
-        every {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
+            restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(capture(newZaaktypeConfiguration), true)
         } returns createRestZaaktypeConfiguration()
 
         `when`("zaaktypeConfiguration is requested") {
-            zaaktypeConfigurationRestService.readZaaktypeConfiguration(
-                zaaktypeCmmnConfiguration.zaaktypeUuid
-            )
+            zaaktypeConfigurationRestService.readZaaktypeConfiguration(zaaktypeUuid)
 
-            then("the correct functions are called to retrieve the configuration") {
-                verify(exactly = 1) {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
-                        zaaktypeCmmnConfiguration.zaaktypeUuid
-                    )
-                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
+            then("a new, unbound configuration for the zaaktype version is converted, so that a beheerder can configure it") {
+                with(newZaaktypeConfiguration.captured) {
+                    this.zaaktypeUuid shouldBe zaaktypeUuid
+                    id shouldBe null
+                    processBinding shouldBe null
                 }
             }
         }
@@ -325,7 +278,88 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
             then("the configured address is combined with the two special mail options, sorted") {
                 replyTos.map { it.mail } shouldBe listOf("GEMEENTE", "MEDEWERKER", "fakeReplyToAddress")
-                replyTos.map { it.speciaal } shouldBe listOf(true, true, false)
+                replyTos.map { it.isSpeciaal } shouldBe listOf(true, true, false)
+            }
+        }
+    }
+
+    context("reading case definition and listing endpoints") {
+        given("a case definition key") {
+            val caseDefinition = RESTCaseDefinition().apply {
+                key = "fakeCaseDefinitionKey"
+                naam = "fakeCaseDefinitionName"
+            }
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every { caseDefinitionConverter.convertToRestCaseDefinition("fakeCaseDefinitionKey", true) } returns caseDefinition
+
+            `when`("reading case definition") {
+                val returnedCaseDef = zaaktypeConfigurationRestService.readCaseDefinition("fakeCaseDefinitionKey")
+
+                then("case definition is returned from converter") {
+                    returnedCaseDef shouldBe caseDefinition
+                }
+            }
+        }
+
+        given("catalogus and zaaktype configurations") {
+            val catalogusUri = URI("https://example.com/catalogi/1")
+            val zaakType = createZaakType()
+            val config = ZaaktypeConfiguration().apply {
+                zaaktypeUuid = zaakType.url.extractUuid()
+            }
+            val restConfig = createRestZaaktypeConfiguration(
+                restZaaktypeOverzicht = createRestZaaktypeOverzicht(uuid = zaakType.url.extractUuid())
+            )
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
+            every { ztcClientService.listZaaktypen(catalogusUri) } returns listOf(zaakType)
+            every { zaaktypeConfigurationService.findConfiguration(zaakType.url.extractUuid()) } returns config
+            every { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(config, false) } returns restConfig
+
+            `when`("listing zaaktype configurations") {
+                val list = zaaktypeConfigurationRestService.listZaaktypeConfigurations()
+
+                then("the converted configuration list is returned") {
+                    list shouldHaveSize 1
+                    list.first() shouldBe restConfig
+                }
+            }
+        }
+
+        given("zaakbeeindig redenen in configuration service") {
+            val reden = ZaakbeeindigReden().apply {
+                id = 1L
+                naam = "fakeReden"
+            }
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every { zaaktypeConfigurationService.listZaakbeeindigRedenen() } returns listOf(reden)
+
+            `when`("listing all zaakbeeindig redenen") {
+                val reasons = zaaktypeConfigurationRestService.listZaakbeeindigRedenen()
+
+                then("reasons are converted and returned") {
+                    reasons shouldHaveSize 1
+                    reasons.first().naam shouldBe "fakeReden"
+                }
+            }
+        }
+
+        given("resultaattypes for a zaaktype") {
+            val zaakType = createZaakType()
+            val resultaatType = createResultaatType()
+            every { policyService.readOverigeRechten().canBeheren } returns true
+            every { ztcClientService.readZaaktype(zaakType.url.extractUuid()) } returns zaakType
+            every { ztcClientService.readResultaattypen(zaakType.url) } returns listOf(resultaatType)
+
+            `when`("listing resultaattypes for zaaktype for admins") {
+                val resultaatTypes = zaaktypeConfigurationRestService.listResultaattypesForZaaktypeForAdmins(
+                    zaakType.url.extractUuid()
+                )
+
+                then("resultaattypes are returned") {
+                    resultaatTypes shouldHaveSize 1
+                    resultaatTypes.first().naam shouldBe resultaatType.omschrijving
+                }
             }
         }
     }
