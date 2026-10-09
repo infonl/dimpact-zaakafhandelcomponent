@@ -4,11 +4,13 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { NavigationService } from "../shared/navigation/navigation.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -19,6 +21,8 @@ export class TakenService {
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
+  private readonly router = inject(Router);
+  private readonly navigationService = inject(NavigationService);
 
   readTaak(taskId: string) {
     return this.zacHttpClient.GET("/rest/taken/{taskId}", {
@@ -84,7 +88,22 @@ export class TakenService {
   complete() {
     return mergeMutationOptions(
       this.zacQueryClient.PATCH("/rest/taken/complete"),
-      { onSuccess: () => this.utilService.openSnackbar("msg.taak.afgerond") },
+      {
+        onSuccess: (taak) => {
+          this.utilService.openSnackbar("msg.taak.afgerond");
+          void this.leaveCompletedTaak(taak);
+        },
+      },
+    );
+  }
+
+  private leaveCompletedTaak({ id }: GeneratedType<"RestTask">) {
+    if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
+      return;
+
+    return this.navigationService.returnToOrigin(
+      (path) => path === `/taken/${id}`,
+      "/",
     );
   }
 

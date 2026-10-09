@@ -8,6 +8,7 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
+import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
@@ -16,6 +17,7 @@ import { testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { NavigationService } from "../shared/navigation/navigation.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { TakenService } from "./taken.service";
 
@@ -169,6 +171,44 @@ describe(TakenService.name, () => {
       jest.spyOn(zacQueryClient, "PATCH");
       service.complete();
       expect(zacQueryClient.PATCH).toHaveBeenCalledWith(expect.any(String));
+    });
+
+    describe("when the taak is completed", () => {
+      let navigationService: NavigationService;
+      let router: Router;
+      const taak = fromPartial<GeneratedType<"RestTask">>({ id: "1" });
+
+      beforeEach(() => {
+        jest
+          .spyOn(TestBed.inject(UtilService), "openSnackbar")
+          .mockImplementation(() => {});
+        navigationService = TestBed.inject(NavigationService);
+        jest.spyOn(navigationService, "returnToOrigin").mockResolvedValue(true);
+        router = TestBed.inject(Router);
+      });
+
+      it("returns from the taak to where it was opened, or to the dashboard", async () => {
+        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+
+        await runMutationOnSuccess(service.complete(), undefined, taak);
+
+        expect(navigationService.returnToOrigin).toHaveBeenCalledWith(
+          expect.any(Function),
+          "/",
+        );
+        const [isLeaving] = jest.mocked(navigationService.returnToOrigin).mock
+          .calls[0];
+        expect(isLeaving("/taken/1")).toBe(true);
+        expect(isLeaving("/taken/10")).toBe(false);
+      });
+
+      it("stays on the taak when it was opened from an e-mail", async () => {
+        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1?bron=email");
+
+        await runMutationOnSuccess(service.complete(), undefined, taak);
+
+        expect(navigationService.returnToOrigin).not.toHaveBeenCalled();
+      });
     });
   });
 

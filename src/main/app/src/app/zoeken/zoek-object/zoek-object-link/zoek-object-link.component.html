@@ -9,6 +9,7 @@
     <a
       (click)="navigate($event)"
       [routerLink]="getLink()"
+      [state]="openedFromSearch"
       title="{{
         'actie.' + zoekObject().type?.toLowerCase() + '.bekijken' | translate
       }}"

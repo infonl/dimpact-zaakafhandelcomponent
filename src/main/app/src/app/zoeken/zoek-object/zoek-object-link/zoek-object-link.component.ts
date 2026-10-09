@@ -12,6 +12,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { ZaakIndicatiesComponent } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
+import { navigationOriginState } from "../../../shared/navigation/navigation.service";
 import { ReadMoreComponent } from "../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
@@ -41,6 +42,7 @@ export class ZoekObjectLinkComponent {
   readonly sideNav = input.required<MatSidenav>();
   protected _newtab = false;
   protected indicatiesLayout = IndicatiesLayout;
+  protected readonly openedFromSearch = navigationOriginState("zoeken");
 
   @HostListener("document:keydown", ["$event"])
   protected handleKeydown(event: KeyboardEvent) {
