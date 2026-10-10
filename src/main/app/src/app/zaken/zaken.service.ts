@@ -17,7 +17,7 @@ import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { toI18nKey } from "../shared/utils/i18n-key";
 
@@ -277,6 +277,42 @@ export class ZakenService {
     this.queryClient.invalidateQueries(
       { queryKey: this.listHistorieVoorZaakQuery(uuid).queryKey },
       { cancelRefetch: false },
+    );
+  }
+
+  listZaakspecifiekGeautoriseerdeMedewerkerKandidatenQuery(
+    uuid: string,
+    groepId: string,
+  ) {
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+        { path: { uuid }, query: { groepId } },
+      ),
+      staleTime: StaleTimes.Instant,
+    };
+  }
+
+  addZaakspecifiekGeautoriseerdeMedewerker(uuid: string) {
+    return mergeMutationOptions(
+      this.zacQueryClient.POST(
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers",
+        { path: { uuid } },
+      ),
+      {
+        onSuccess: (medewerker) => {
+          this.utilService.openSnackbar(
+            "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd",
+            { medewerker: medewerker.naam },
+          );
+          this.queryClient.invalidateQueries({
+            queryKey: [
+              "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+            ],
+          });
+          this.invalidateHistorie(uuid);
+        },
+      },
     );
   }
 
