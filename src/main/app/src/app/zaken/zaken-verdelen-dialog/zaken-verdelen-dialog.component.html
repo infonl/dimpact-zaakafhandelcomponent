@@ -1,16 +1,19 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>assignment_ind</mat-icon>
-  <span *ngIf="data.length === 1" class="flex-grow-1">
-    {{ "title.zaak.verdelen" | translate }}
-  </span>
-  <span *ngIf="data.length !== 1" class="flex-grow-1">
-    {{ "title.zaken.verdelen" | translate: { aantal: data.length } }}
-  </span>
+  @if (data.length === 1) {
+    <span class="flex-grow-1">
+      {{ "title.zaak.verdelen" | translate }}
+    </span>
+  } @else {
+    <span class="flex-grow-1">
+      {{ "title.zaken.verdelen" | translate: { aantal: data.length } }}
+    </span>
+  }
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
@@ -29,9 +32,11 @@
           [readonly]="noAuthorisedGroups()"
           [options]="groupsQuery.data() ?? []"
         ></zac-auto-complete>
-        <mat-error *ngIf="noAuthorisedGroups()">{{
-          "msg.error.dialog.zaken-verdelen.no-authorised-groups" | translate
-        }}</mat-error>
+        @if (noAuthorisedGroups()) {
+          <mat-error>{{
+            "msg.error.dialog.zaken-verdelen.no-authorised-groups" | translate
+          }}</mat-error>
+        }
         <zac-auto-complete
           class="col-12"
           [form]="form"
@@ -56,9 +61,11 @@
     (click)="verdeel()"
     id="zakenVerdelen_button"
   >
-    <mat-icon *ngIf="mutation.isPending()">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
+    @if (mutation.isPending()) {
+      <mat-icon>
+        <mat-spinner diameter="18"></mat-spinner>
+      </mat-icon>
+    }
     {{ "actie.verdelen" | translate }}
   </button>
   <button

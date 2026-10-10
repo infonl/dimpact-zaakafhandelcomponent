@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgSwitch, NgSwitchCase } from "@angular/common";
 import { Component, input, linkedSignal, output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -14,7 +13,7 @@ import { ToggleSwitchOptions } from "./toggle-switch-options";
   templateUrl: "./toggle-filter.component.html",
   styleUrls: ["./toggle-filter.component.less"],
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, NgSwitch, NgSwitchCase],
+  imports: [MatButtonModule, MatIconModule],
 })
 export class ToggleFilterComponent {
   protected readonly selected = input<ToggleSwitchOptions>(

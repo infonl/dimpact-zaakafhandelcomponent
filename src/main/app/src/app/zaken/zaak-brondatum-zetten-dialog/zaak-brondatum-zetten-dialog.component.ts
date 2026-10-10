@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import {
   AbstractControl,
@@ -42,7 +41,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgIf,
     ReactiveFormsModule,
     MatToolbarModule,
     MatIconModule,

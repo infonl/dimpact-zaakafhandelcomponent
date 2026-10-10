@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, input, output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
@@ -29,7 +28,6 @@ import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-ini
     MatToolbarModule,
     KlantKoppelBetrokkeneComponent,
     KlantKoppelInitiator,
-    NgIf,
     TranslateModule,
   ],
   template: `
@@ -51,55 +49,67 @@ import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-ini
       <mat-divider></mat-divider>
 
       <!--Initiator-->
-      <mat-tab-group mat-stretch-tabs="false" *ngIf="initiator()">
-        <mat-tab *ngIf="allowPersoon()">
-          <ng-template mat-tab-label>
-            <mat-icon>emoji_people</mat-icon>
-            {{ "betrokkene.persoon" | translate }}
-          </ng-template>
-          <zac-klant-koppel-initiator-persoon
-            type="persoon"
-            [zaaktypeUUID]="zaaktypeUUID()"
-            (klantGegevens)="klantGegevens.emit($event)"
-          />
-        </mat-tab>
-        <mat-tab *ngIf="allowBedrijf()">
-          <ng-template mat-tab-label>
-            <mat-icon>business</mat-icon>
-            {{ "betrokkene.bedrijf" | translate }}
-          </ng-template>
-          <zac-klant-koppel-initiator-persoon
-            type="bedrijf"
-            (klantGegevens)="klantGegevens.emit($event)"
-          />
-        </mat-tab>
-      </mat-tab-group>
+      @if (initiator()) {
+        <mat-tab-group mat-stretch-tabs="false">
+          @if (allowPersoon()) {
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>emoji_people</mat-icon>
+                {{ "betrokkene.persoon" | translate }}
+              </ng-template>
+              <zac-klant-koppel-initiator-persoon
+                type="persoon"
+                [zaaktypeUUID]="zaaktypeUUID()"
+                (klantGegevens)="klantGegevens.emit($event)"
+              />
+            </mat-tab>
+          }
+          @if (allowBedrijf()) {
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>business</mat-icon>
+                {{ "betrokkene.bedrijf" | translate }}
+              </ng-template>
+              <zac-klant-koppel-initiator-persoon
+                type="bedrijf"
+                (klantGegevens)="klantGegevens.emit($event)"
+              />
+            </mat-tab>
+          }
+        </mat-tab-group>
+      }
 
       <!--Betrokkene-->
-      <mat-tab-group mat-stretch-tabs="false" *ngIf="!initiator()">
-        <mat-tab *ngIf="allowPersoon()">
-          <ng-template mat-tab-label>
-            <mat-icon>emoji_people</mat-icon>
-            {{ "betrokkene.persoon" | translate }}
-          </ng-template>
-          <zac-klant-koppel-betrokkene-persoon
-            type="persoon"
-            [zaaktypeUUID]="zaaktypeUUID()"
-            (klantGegevens)="klantGegevens.emit($event)"
-          />
-        </mat-tab>
-        <mat-tab *ngIf="allowBedrijf()">
-          <ng-template mat-tab-label>
-            <mat-icon>business</mat-icon>
-            {{ "betrokkene.bedrijf" | translate }}
-          </ng-template>
-          <zac-klant-koppel-betrokkene-persoon
-            type="bedrijf"
-            [zaaktypeUUID]="zaaktypeUUID()"
-            (klantGegevens)="klantGegevens.emit($event)"
-          />
-        </mat-tab>
-      </mat-tab-group>
+      @if (!initiator()) {
+        <mat-tab-group mat-stretch-tabs="false">
+          @if (allowPersoon()) {
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>emoji_people</mat-icon>
+                {{ "betrokkene.persoon" | translate }}
+              </ng-template>
+              <zac-klant-koppel-betrokkene-persoon
+                type="persoon"
+                [zaaktypeUUID]="zaaktypeUUID()"
+                (klantGegevens)="klantGegevens.emit($event)"
+              />
+            </mat-tab>
+          }
+          @if (allowBedrijf()) {
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>business</mat-icon>
+                {{ "betrokkene.bedrijf" | translate }}
+              </ng-template>
+              <zac-klant-koppel-betrokkene-persoon
+                type="bedrijf"
+                [zaaktypeUUID]="zaaktypeUUID()"
+                (klantGegevens)="klantGegevens.emit($event)"
+              />
+            </mat-tab>
+          }
+        </mat-tab-group>
+      }
 
       <mat-action-row class="px-3">
         <button mat-raised-button (click)="sideNav().close()">

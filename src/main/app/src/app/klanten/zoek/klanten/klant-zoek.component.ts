@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, inject, output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
@@ -20,7 +19,6 @@ import { PersoonZoekComponent } from "../personen/persoon-zoek.component";
   styleUrls: ["./klant-zoek.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     MatTabsModule,
     MatIconModule,
     TranslateModule,

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf, TitleCasePipe } from "@angular/common";
+import { TitleCasePipe } from "@angular/common";
 import {
   booleanAttribute,
   Component,
@@ -59,7 +59,6 @@ import { FormCommunicatieService } from "../form-communicatie-service";
     MatIconModule,
     MatExpansionPanelActionRow,
     TranslateModule,
-    NgIf,
     TitleCasePipe,
   ],
 })

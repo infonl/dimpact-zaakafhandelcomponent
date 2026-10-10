@@ -18,7 +18,9 @@
       </ng-content>
     </mat-label>
   </mat-slide-toggle>
-  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+  @if (formError()) {
+    <mat-error>{{ formError() }}</mat-error>
+  }
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

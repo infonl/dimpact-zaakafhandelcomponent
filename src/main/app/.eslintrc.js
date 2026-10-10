@@ -150,13 +150,18 @@ module.exports = {
       extends: [
         "plugin:@angular-eslint/template/recommended",
         "plugin:@angular-eslint/template/accessibility",
-        "plugin:prettier/recommended",
       ],
       rules: {
-        /**
-         * Any template/HTML related rules you wish to use/reconfigure over and above the
-         * recommended set provided by the @angular-eslint project would go here.
-         */
+        "@angular-eslint/template/prefer-control-flow": "error",
+        "@angular-eslint/template/prefer-at-else": "error",
+        // Templates had existing violations of these rules when template linting was switched on.
+        // Make them errors once those are fixed.
+        "@angular-eslint/template/eqeqeq": "warn",
+        "@angular-eslint/template/no-autofocus": "warn",
+        "@angular-eslint/template/label-has-associated-control": "warn",
+        "@angular-eslint/template/click-events-have-key-events": "warn",
+        "@angular-eslint/template/interactive-supports-focus": "warn",
+        "@angular-eslint/template/elements-content": "warn",
       },
     },
   ],

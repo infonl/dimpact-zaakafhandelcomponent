@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -34,7 +33,6 @@ import { ContactmomentenService } from "../contactmomenten.service";
   styleUrls: ["./klant-contactmomenten-tabel.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     MatCardModule,
     MatTableModule,
     MatPaginatorModule,

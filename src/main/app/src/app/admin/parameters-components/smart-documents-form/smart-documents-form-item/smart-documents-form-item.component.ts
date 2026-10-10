@@ -4,7 +4,6 @@
  *
  */
 
-import { NgFor } from "@angular/common";
 import { Component, input, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -23,7 +22,6 @@ import { toI18nKey } from "../../../../shared/utils/i18n-key";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgFor,
     ReactiveFormsModule,
     MatCheckboxModule,
     MatFormFieldModule,

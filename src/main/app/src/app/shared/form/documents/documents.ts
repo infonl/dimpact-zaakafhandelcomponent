@@ -4,7 +4,6 @@
  *
  */
 
-import { NgIf } from "@angular/common";
 import { booleanAttribute, Component, effect, input } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor } from "@angular/material/button";
@@ -37,7 +36,6 @@ import { MultiInputFormField } from "../BaseFormField";
     MatIconModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    NgIf,
     ReactiveFormsModule,
     TranslatePipe,
   ],

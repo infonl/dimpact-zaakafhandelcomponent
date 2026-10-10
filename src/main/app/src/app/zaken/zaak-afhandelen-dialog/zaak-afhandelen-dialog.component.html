@@ -5,14 +5,17 @@
 
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>thumb_up_alt</mat-icon>
-  <span class="flex-grow-1" *ngIf="data.planItem">
-    {{
-      "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
-    }}
-  </span>
-  <span class="flex-grow-1" *ngIf="!data.planItem">
-    {{ "actie.zaak.afsluiten" | translate }}
-  </span>
+  @if (data.planItem) {
+    <span class="flex-grow-1">
+      {{
+        "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
+      }}
+    </span>
+  } @else {
+    <span class="flex-grow-1">
+      {{ "actie.zaak.afsluiten" | translate }}
+    </span>
+  }
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
@@ -21,132 +24,127 @@
 
 <form [formGroup]="form" (submit)="afhandelen()">
   <mat-dialog-content>
-    <p
-      *ngIf="data.planItem?.toelichting"
-      class="readonly"
-      [innerHTML]="data.planItem?.toelichting"
-    ></p>
-    <p
-      *ngIf="
-        form.controls.resultaattype.value?.isBesluitVerplicht &&
-        !data.zaak.besluiten?.length
-      "
-      class="readonly error"
-      [innerHTML]="'msg.besluit.verplicht' | translate"
-    ></p>
-    <zac-static-text
-      *ngIf="data.zaak.resultaat"
-      label="resultaat"
-      [value]="data.zaak.resultaat.resultaattype?.naam"
-    />
-    <zac-static-text
-      *ngFor="let besluit of data.zaak.besluiten"
-      [label]="besluit.identificatie | empty"
-      [value]="besluit.besluittype?.naam"
-    />
-    <zac-select
-      *ngIf="!data.zaak.resultaat"
-      [form]="form"
-      key="resultaattype"
-      label="resultaat"
-      [options]="resultaattypesQuery.data() ?? []"
-      optionDisplayValue="naam"
-    />
+    @if (data.planItem?.toelichting) {
+      <p class="readonly" [innerHTML]="data.planItem?.toelichting"></p>
+    }
+    @if (
+      form.controls.resultaattype.value?.isBesluitVerplicht &&
+      !data.zaak.besluiten?.length
+    ) {
+      <p
+        class="readonly error"
+        [innerHTML]="'msg.besluit.verplicht' | translate"
+      ></p>
+    }
+    @if (data.zaak.resultaat) {
+      <zac-static-text
+        label="resultaat"
+        [value]="data.zaak.resultaat.resultaattype?.naam"
+      />
+    }
+    @for (besluit of data.zaak.besluiten; track besluit) {
+      <zac-static-text
+        [label]="besluit.identificatie | empty"
+        [value]="besluit.besluittype?.naam"
+      />
+    }
+    @if (!data.zaak.resultaat) {
+      <zac-select
+        [form]="form"
+        key="resultaattype"
+        label="resultaat"
+        [options]="resultaattypesQuery.data() ?? []"
+        optionDisplayValue="naam"
+      />
+    }
     <zac-input [form]="form" key="toelichting" />
-    <zac-date
-      [form]="form"
-      key="brondatum"
-      *ngIf="form.controls.resultaattype.value?.isDatumKenmerkVerplicht"
-    >
-      <mat-label>{{
-        brondatumLabel || ("zaak.brondatum" | translate)
-      }}</mat-label>
-    </zac-date>
-    <div
-      *ngIf="
-        data.zaak.zaaktype.zaakafhandelparameters?.afrondenMail !==
-          'NIET_BESCHIKBAAR' && !!data.planItem
-      "
-    >
-      <mat-checkbox id="sendMail" formControlName="sendMail">
-        {{ "send-mail" | translate }}
-      </mat-checkbox>
-    </div>
-    <zac-select
-      *ngIf="form.controls.sendMail.value"
-      [form]="form"
-      key="verzender"
-      [options]="afzendersQuery.data() ?? []"
-      optionDisplayValue="mail"
-      suffix="suffix"
-    />
-    <zac-input
-      *ngIf="form.controls.sendMail.value"
-      [form]="form"
-      key="ontvanger"
-    >
-      <button
-        *ngIf="contactEmailAddress()"
-        mat-icon-button
-        type="button"
-        matSuffix
-        title="{{ 'actie.contact.email.toevoegen' | translate }}"
-        (click)="setOntvanger()"
-      >
-        <mat-icon>person</mat-icon>
-      </button>
-    </zac-input>
-    <mat-expansion-panel
-      *ngIf="form.controls.sendMail.value"
-      class="mat-elevation-z0"
-    >
-      <mat-expansion-panel-header>
-        {{ "body" | translate }}
-      </mat-expansion-panel-header>
-      <p class="readonly" [innerHTML]="mailtemplateQuery.data()?.body"></p>
-    </mat-expansion-panel>
+    @if (form.controls.resultaattype.value?.isDatumKenmerkVerplicht) {
+      <zac-date [form]="form" key="brondatum">
+        <mat-label>{{
+          brondatumLabel || ("zaak.brondatum" | translate)
+        }}</mat-label>
+      </zac-date>
+    }
+    @if (
+      data.zaak.zaaktype.zaakafhandelparameters?.afrondenMail !==
+        "NIET_BESCHIKBAAR" && !!data.planItem
+    ) {
+      <div>
+        <mat-checkbox id="sendMail" formControlName="sendMail">
+          {{ "send-mail" | translate }}
+        </mat-checkbox>
+      </div>
+    }
+    @if (form.controls.sendMail.value) {
+      <zac-select
+        [form]="form"
+        key="verzender"
+        [options]="afzendersQuery.data() ?? []"
+        optionDisplayValue="mail"
+        suffix="suffix"
+      />
+    }
+    @if (form.controls.sendMail.value) {
+      <zac-input [form]="form" key="ontvanger">
+        @if (contactEmailAddress()) {
+          <button
+            mat-icon-button
+            type="button"
+            matSuffix
+            title="{{ 'actie.contact.email.toevoegen' | translate }}"
+            (click)="setOntvanger()"
+          >
+            <mat-icon>person</mat-icon>
+          </button>
+        }
+      </zac-input>
+    }
+    @if (form.controls.sendMail.value) {
+      <mat-expansion-panel class="mat-elevation-z0">
+        <mat-expansion-panel-header>
+          {{ "body" | translate }}
+        </mat-expansion-panel-header>
+        <p class="readonly" [innerHTML]="mailtemplateQuery.data()?.body"></p>
+      </mat-expansion-panel>
+    }
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button
-      *ngIf="
-        !(
-          form.controls.resultaattype.value?.isBesluitVerplicht &&
-          !data.zaak.besluiten?.length
-        )
-      "
-      mat-raised-button
-      color="primary"
-      type="submit"
-      [disabled]="
-        !form.valid ||
-        afsluitenMutation.isPending() ||
-        afsluitenMutation.isSuccess() ||
-        planItemAfhandelenMutation.isPending() ||
-        planItemAfhandelenMutation.isSuccess()
-      "
-    >
-      <mat-icon
-        *ngIf="
+    @if (
+      form.controls.resultaattype.value?.isBesluitVerplicht &&
+      !data.zaak.besluiten?.length
+    ) {
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="openBesluitVastleggen()"
+      >
+        {{ "actie.besluit.vastleggen" | translate }}
+      </button>
+    } @else {
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="
+          !form.valid ||
           afsluitenMutation.isPending() ||
-          planItemAfhandelenMutation.isPending()
+          afsluitenMutation.isSuccess() ||
+          planItemAfhandelenMutation.isPending() ||
+          planItemAfhandelenMutation.isSuccess()
         "
       >
-        <mat-spinner diameter="18"></mat-spinner>
-      </mat-icon>
-      {{ "actie.zaak.afhandelen" | translate }}
-    </button>
-    <button
-      *ngIf="
-        form.controls.resultaattype.value?.isBesluitVerplicht &&
-        !data.zaak.besluiten?.length
-      "
-      mat-raised-button
-      color="primary"
-      type="button"
-      (click)="openBesluitVastleggen()"
-    >
-      {{ "actie.besluit.vastleggen" | translate }}
-    </button>
+        @if (
+          afsluitenMutation.isPending() ||
+          planItemAfhandelenMutation.isPending()
+        ) {
+          <mat-icon>
+            <mat-spinner diameter="18"></mat-spinner>
+          </mat-icon>
+        }
+        {{ "actie.zaak.afhandelen" | translate }}
+      </button>
+    }
     <button
       mat-raised-button
       [disabled]="

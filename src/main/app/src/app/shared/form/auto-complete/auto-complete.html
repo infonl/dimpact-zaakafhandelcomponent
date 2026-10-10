@@ -16,37 +16,40 @@
     [matAutocomplete]="auto"
     [formControlName]="key()"
   />
-  <button
-    *ngIf="!control()?.value"
-    mat-icon-button
-    matSuffix
-    [disabled]="control()?.disabled"
-    type="button"
-  >
-    <mat-icon>search</mat-icon>
-  </button>
-  <button
-    *ngIf="!control()?.disabled && control()?.value"
-    mat-icon-button
-    matSuffix
-    (click)="reset()"
-    type="button"
-  >
-    <mat-icon>clear</mat-icon>
-  </button>
+  @if (!control()?.value) {
+    <button
+      mat-icon-button
+      matSuffix
+      [disabled]="control()?.disabled"
+      type="button"
+    >
+      <mat-icon>search</mat-icon>
+    </button>
+  }
+  @if (!control()?.disabled && control()?.value) {
+    <button mat-icon-button matSuffix (click)="reset()" type="button">
+      <mat-icon>clear</mat-icon>
+    </button>
+  }
   <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith">
-    <mat-option *ngIf="isLoading()" disabled="true">
-      {{
-        "laden.generiek"
-          | translate: { label: (labelKey() | translate | lowercase) }
-      }}
-      <mat-spinner diameter="15" matPrefix></mat-spinner>
-    </mat-option>
-    <mat-option *ngFor="let option of filteredOptions()" [value]="option">
-      {{ displayWith(option) | translate }}
-    </mat-option>
+    @if (isLoading()) {
+      <mat-option disabled="true">
+        {{
+          "laden.generiek"
+            | translate: { label: (labelKey() | translate | lowercase) }
+        }}
+        <mat-spinner diameter="15" matPrefix></mat-spinner>
+      </mat-option>
+    }
+    @for (option of filteredOptions(); track option) {
+      <mat-option [value]="option">
+        {{ displayWith(option) | translate }}
+      </mat-option>
+    }
   </mat-autocomplete>
-  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+  @if (formError()) {
+    <mat-error>{{ formError() }}</mat-error>
+  }
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

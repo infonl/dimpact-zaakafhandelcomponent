@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgClass, NgIf } from "@angular/common";
+import { AsyncPipe, NgClass } from "@angular/common";
 import {
   Component,
   computed,
@@ -60,7 +60,6 @@ import { WebsocketService } from "../websocket/websocket.service";
   styleUrls: ["./toolbar.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     NgClass,
     AsyncPipe,
     ReactiveFormsModule,

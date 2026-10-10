@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, input, OnInit, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
@@ -18,7 +17,6 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
 @Component({
   selector: "zac-klant-koppel-betrokkene-persoon",
   imports: [
-    NgIf,
     TranslateModule,
     ReactiveFormsModule,
     PersoonZoekComponent,
@@ -42,21 +40,23 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
           </section>
         </fieldset>
       </form>
-      <zac-persoon-zoek
-        *ngIf="type() === 'persoon'"
-        [blockSearch]="form.invalid"
-        [syncEnabled]="true"
-        isSelectable
-        (persoon)="klantGeselecteerd($event)"
-        [zaaktypeUUID]="zaaktypeUUID()"
-      ></zac-persoon-zoek>
-      <zac-bedrijf-zoek
-        *ngIf="type() === 'bedrijf'"
-        [blockSearch]="form.invalid"
-        [syncEnabled]="true"
-        isSelectable
-        (bedrijf)="klantGeselecteerd($event)"
-      ></zac-bedrijf-zoek>
+      @if (type() === "persoon") {
+        <zac-persoon-zoek
+          [blockSearch]="form.invalid"
+          [syncEnabled]="true"
+          isSelectable
+          (persoon)="klantGeselecteerd($event)"
+          [zaaktypeUUID]="zaaktypeUUID()"
+        ></zac-persoon-zoek>
+      }
+      @if (type() === "bedrijf") {
+        <zac-bedrijf-zoek
+          [blockSearch]="form.invalid"
+          [syncEnabled]="true"
+          isSelectable
+          (bedrijf)="klantGeselecteerd($event)"
+        ></zac-bedrijf-zoek>
+      }
     </div>
   `,
 })

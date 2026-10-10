@@ -51,11 +51,11 @@
                     placeholder="{{ 'filter.alle' | translate }}"
                   >
                     <mat-option>{{ "filter.alle" | translate }}</mat-option>
-                    <mat-option
-                      *ngFor="let value of zaaktypes"
-                      [value]="value"
-                      >{{ value.omschrijving }}</mat-option
-                    >
+                    @for (value of zaaktypes; track value) {
+                      <mat-option [value]="value">{{
+                        value.omschrijving
+                      }}</mat-option>
+                    }
                   </mat-select>
                 </mat-form-field>
               </th>
@@ -76,11 +76,9 @@
                     placeholder="{{ 'filter.alle' | translate }}"
                   >
                     <mat-option>{{ "filter.alle" | translate }}</mat-option>
-                    <mat-option
-                      *ngFor="let value of caseDefinitions"
-                      [value]="value"
-                      >{{ value.naam }}</mat-option
-                    >
+                    @for (value of caseDefinitions; track value) {
+                      <mat-option [value]="value">{{ value.naam }}</mat-option>
+                    }
                   </mat-select>
                 </mat-form-field>
               </th>
@@ -125,12 +123,11 @@
                 mat-sort-header="valide"
               ></th>
               <td mat-cell *matCellDef="let row">
-                <mat-icon outlined *ngIf="row.isValide" color="primary"
-                  >check_circle</mat-icon
-                >
-                <mat-icon outlined *ngIf="!row.isValide" color="warn"
-                  >error</mat-icon
-                >
+                @if (row.isValide) {
+                  <mat-icon outlined color="primary">check_circle</mat-icon>
+                } @else {
+                  <mat-icon outlined color="warn">error</mat-icon>
+                }
               </td>
             </ng-container>
             <ng-container matColumnDef="omschrijving">
@@ -264,12 +261,16 @@
               "
             ></tr>
           </table>
-          <p *ngIf="parameters.data.length === 0 && !loading">
-            {{ "msg.geen.gegevens.gevonden" | translate }}
-          </p>
-          <p *ngIf="parameters.data.length === 0 && loading">
-            {{ "msg.loading" | translate }}
-          </p>
+          @if (parameters.data.length === 0 && !loading) {
+            <p>
+              {{ "msg.geen.gegevens.gevonden" | translate }}
+            </p>
+          }
+          @if (parameters.data.length === 0 && loading) {
+            <p>
+              {{ "msg.loading" | translate }}
+            </p>
+          }
         </div>
       </mat-card-content>
     </mat-card>

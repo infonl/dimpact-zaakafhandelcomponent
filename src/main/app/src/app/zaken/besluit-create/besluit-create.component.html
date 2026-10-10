@@ -39,40 +39,37 @@
         {{ "besluit.publicatie.indicatie.koptitel" | translate }}
       </div>
       <zac-date [form]="form" key="publicatiedatum" />
-      <div
-        class="mb-2"
-        *ngIf="
-          (form.controls.besluit.value?.publication?.publicationTermDays ??
-            0) <= 1
-        "
-      >
-        {{
-          "besluit.publicatie.indicatie.onderschrift"
-            | translate
-              : {
-                  publicationTermDays:
-                    form.controls.besluit.value?.publication
-                      ?.publicationTermDays,
-                }
-        }}
-      </div>
-      <div
-        class="mb-2"
-        *ngIf="
-          (form.controls.besluit.value?.publication?.publicationTermDays ?? 0) >
-          1
-        "
-      >
-        {{
-          "besluit.publicatie.indicatie.onderschrift.meervoud"
-            | translate
-              : {
-                  publicationTermDays:
-                    form.controls.besluit.value?.publication
-                      ?.publicationTermDays,
-                }
-        }}
-      </div>
+      @if (
+        (form.controls.besluit.value?.publication?.publicationTermDays ?? 0) <=
+        1
+      ) {
+        <div class="mb-2">
+          {{
+            "besluit.publicatie.indicatie.onderschrift"
+              | translate
+                : {
+                    publicationTermDays:
+                      form.controls.besluit.value?.publication
+                        ?.publicationTermDays,
+                  }
+          }}
+        </div>
+      }
+      @if (
+        (form.controls.besluit.value?.publication?.publicationTermDays ?? 0) > 1
+      ) {
+        <div class="mb-2">
+          {{
+            "besluit.publicatie.indicatie.onderschrift.meervoud"
+              | translate
+                : {
+                    publicationTermDays:
+                      form.controls.besluit.value?.publication
+                        ?.publicationTermDays,
+                  }
+          }}
+        </div>
+      }
       <zac-date [form]="form" key="uiterlijkereactiedatum" />
     </fieldset>
   }

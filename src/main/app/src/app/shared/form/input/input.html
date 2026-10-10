@@ -10,9 +10,11 @@
       {{ labelKey() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
-  <div *ngIf="displayValue()" class="position-absolute overflow-hidden">
-    {{ getDisplayValue(control()?.value) }}
-  </div>
+  @if (displayValue()) {
+    <div class="position-absolute overflow-hidden">
+      {{ getDisplayValue(control()?.value) }}
+    </div>
+  }
   <input
     matInput
     autocomplete="off"
@@ -24,25 +26,30 @@
     [readonly]="readonly() || !!displayValue()"
     [type]="computedType()"
   />
-  <button
-    *ngIf="!readonly() && !control()?.disabled && control()?.value?.length"
-    matSuffix
-    mat-icon-button
-    type="button"
-    (click)="control()?.reset(undefined)"
-  >
-    <mat-icon>clear</mat-icon>
-  </button>
+  @if (!readonly() && !control()?.disabled && control()?.value?.length) {
+    <button
+      matSuffix
+      mat-icon-button
+      type="button"
+      (click)="control()?.reset(undefined)"
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  }
   <span matSuffix>
     <ng-content select="button"></ng-content>
     <ng-content select="span"></ng-content>
     <ng-content select="mat-icon"></ng-content>
   </span>
-  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+  @if (formError()) {
+    <mat-error>{{ formError() }}</mat-error>
+  }
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>
-  <mat-hint align="end" *ngIf="maxlength()">
-    {{ control()?.value?.length ?? 0 }} / {{ maxlength() }}
-  </mat-hint>
+  @if (maxlength()) {
+    <mat-hint align="end">
+      {{ control()?.value?.length ?? 0 }} / {{ maxlength() }}
+    </mat-hint>
+  }
 </mat-form-field>

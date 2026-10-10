@@ -140,7 +140,7 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": ".eslintrc.js",
-            "lintFilePatterns": ["**/*.spec.ts", "**/*.ts"]
+            "lintFilePatterns": ["**/*.spec.ts", "**/*.ts", "**/*.html"]
           }
         }
       }

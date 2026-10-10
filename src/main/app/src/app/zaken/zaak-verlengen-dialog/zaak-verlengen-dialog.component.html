@@ -22,12 +22,9 @@
           {{ verlengduurHint }}
         </mat-hint>
       </zac-input>
-      <zac-date
-        *ngIf="data.zaak.einddatumGepland"
-        [form]="form"
-        key="einddatumGepland"
-      >
-      </zac-date>
+      @if (data.zaak.einddatumGepland) {
+        <zac-date [form]="form" key="einddatumGepland"> </zac-date>
+      }
       <zac-date [form]="form" key="uiterlijkeEinddatumAfdoening"></zac-date>
       <zac-checkbox [form]="form" key="takenVerlengen" label="taken.verlengen">
       </zac-checkbox>
@@ -44,9 +41,11 @@
           extendZaakMutation.isSuccess()
         "
       >
-        <mat-icon *ngIf="extendZaakMutation.isPending()">
-          <mat-spinner diameter="18"></mat-spinner>
-        </mat-icon>
+        @if (extendZaakMutation.isPending()) {
+          <mat-icon>
+            <mat-spinner diameter="18"></mat-spinner>
+          </mat-icon>
+        }
         {{ "actie.zaak.verlengen" | translate }}
       </button>
       <button

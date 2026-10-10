@@ -4,7 +4,6 @@
  *
  */
 
-import { NgIf } from "@angular/common";
 import {
   booleanAttribute,
   Component,
@@ -32,7 +31,6 @@ import { FormHelper } from "../helpers";
   styleUrls: ["./date.less"],
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,

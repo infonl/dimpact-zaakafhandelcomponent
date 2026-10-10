@@ -2,54 +2,63 @@
   ~ SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<div *ngIf="layout() !== versionLayout.VERBOSE" class="version">
-  <mat-chip
-    class="flex-row"
-    [matTooltip]="
-      buildInformatie?.buildId && buildInformatie?.buildDatumTijd
-        ? ('health-check.build-informatie.build'
-          | translate
-            : {
-                build: buildInformatie?.buildId,
-                timestamp: (buildInformatie?.buildDatumTijd | datum: 'short'),
-              })
-        : ''
-    "
-  >
-    <mat-icon>construction</mat-icon>
-    <span class="label">
-      {{
-        "health-check.build-informatie.version"
-          | translate: { version: buildInformatie?.versienummer?.toUpperCase() }
-      }}</span
+@if (layout() === versionLayout.VERBOSE) {
+  <mat-card class="version">
+    <mat-card-content>
+      <p>
+        <mat-icon class="icon">construction</mat-icon>
+        {{
+          "health-check.build-informatie.version"
+            | translate
+              : { version: buildInformatie?.versienummer?.toUpperCase() }
+        }}
+      </p>
+      @if (buildInformatie?.buildId && buildInformatie?.buildDatumTijd) {
+        <p>
+          {{
+            "health-check.build-informatie.build"
+              | translate
+                : {
+                    build: buildInformatie?.buildId,
+                    timestamp:
+                      (buildInformatie?.buildDatumTijd | datum: "short"),
+                  }
+          }}
+        </p>
+      }
+      @if (buildInformatie?.commit) {
+        <p>
+          {{
+            "health-check.build-informatie.commit"
+              | translate: { commit: buildInformatie?.commit }
+          }}
+        </p>
+      }
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <div class="version">
+    <mat-chip
+      class="flex-row"
+      [matTooltip]="
+        buildInformatie?.buildId && buildInformatie?.buildDatumTijd
+          ? ('health-check.build-informatie.build'
+            | translate
+              : {
+                  build: buildInformatie?.buildId,
+                  timestamp: (buildInformatie?.buildDatumTijd | datum: 'short'),
+                })
+          : ''
+      "
     >
-  </mat-chip>
-</div>
-
-<mat-card *ngIf="layout() === versionLayout.VERBOSE" class="version">
-  <mat-card-content>
-    <p>
-      <mat-icon class="icon">construction</mat-icon>
-      {{
-        "health-check.build-informatie.version"
-          | translate: { version: buildInformatie?.versienummer?.toUpperCase() }
-      }}
-    </p>
-    <p *ngIf="buildInformatie?.buildId && buildInformatie?.buildDatumTijd">
-      {{
-        "health-check.build-informatie.build"
-          | translate
-            : {
-                build: buildInformatie?.buildId,
-                timestamp: (buildInformatie?.buildDatumTijd | datum: "short"),
-              }
-      }}
-    </p>
-    <p *ngIf="buildInformatie?.commit">
-      {{
-        "health-check.build-informatie.commit"
-          | translate: { commit: buildInformatie?.commit }
-      }}
-    </p>
-  </mat-card-content>
-</mat-card>
+      <mat-icon>construction</mat-icon>
+      <span class="label">
+        {{
+          "health-check.build-informatie.version"
+            | translate
+              : { version: buildInformatie?.versienummer?.toUpperCase() }
+        }}</span
+      >
+    </mat-chip>
+  </div>
+}

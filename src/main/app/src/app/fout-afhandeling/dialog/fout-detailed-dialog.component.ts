@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -26,9 +26,7 @@ import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
     MatDividerModule,
     MatIconModule,
     MatToolbarModule,
-    NgIf,
     AsyncPipe,
-    NgForOf,
   ],
 })
 export class FoutDetailedDialogComponent {

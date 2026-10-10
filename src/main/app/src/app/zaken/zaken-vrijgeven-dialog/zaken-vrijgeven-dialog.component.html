@@ -5,12 +5,15 @@
 
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>clear_all</mat-icon>
-  <span *ngIf="data.length === 1" class="flex-grow-1">
-    {{ "title.zaak.vrijgeven" | translate }}
-  </span>
-  <span *ngIf="data.length !== 1" class="flex-grow-1">
-    {{ "title.zaken.vrijgeven" | translate: { aantal: data.length } }}
-  </span>
+  @if (data.length === 1) {
+    <span class="flex-grow-1">
+      {{ "title.zaak.vrijgeven" | translate }}
+    </span>
+  } @else {
+    <span class="flex-grow-1">
+      {{ "title.zaken.vrijgeven" | translate: { aantal: data.length } }}
+    </span>
+  }
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
@@ -24,8 +27,11 @@
         <zac-input class="col-12" [form]="form" key="reden"></zac-input>
       </section>
     </fieldset>
-    <p *ngIf="data.length === 1">{{ "msg.vrijgeven.zaak" | translate }}</p>
-    <p *ngIf="data.length !== 1">{{ "msg.vrijgeven.zaken" | translate }}</p>
+    @if (data.length === 1) {
+      <p>{{ "msg.vrijgeven.zaak" | translate }}</p>
+    } @else {
+      <p>{{ "msg.vrijgeven.zaken" | translate }}</p>
+    }
   </mat-dialog-content>
   <mat-dialog-actions>
     <zac-form-actions

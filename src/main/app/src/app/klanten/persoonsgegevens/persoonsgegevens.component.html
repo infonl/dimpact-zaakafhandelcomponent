@@ -31,27 +31,31 @@
               : indicatiesLayout.EXTENDED
           "
         ></zac-persoon-indicaties>
-        <button
-          *ngIf="
-            allowedToChangeInitiatorBedrijf() ||
-            allowedToChangeAndSearchInitiatorPersoon()
-          "
-          mat-icon-button
-          [title]="'actie.initiator.wijzigen' | translate"
-          [disabled]="isDisabled()"
-          (click)="$event.stopPropagation(); edit.emit(persoonQuery.data()!)"
-        >
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button
-          *ngIf="zaak().rechten.canVerwijderenInitiator"
-          mat-icon-button
-          [disabled]="isDisabled()"
-          [title]="'actie.ontkoppelen' | translate"
-          (click)="$event.stopPropagation(); delete.emit(persoonQuery.data()!)"
-        >
-          <mat-icon>link_off</mat-icon>
-        </button>
+        @if (
+          allowedToChangeInitiatorBedrijf() ||
+          allowedToChangeAndSearchInitiatorPersoon()
+        ) {
+          <button
+            mat-icon-button
+            [title]="'actie.initiator.wijzigen' | translate"
+            [disabled]="isDisabled()"
+            (click)="$event.stopPropagation(); edit.emit(persoonQuery.data()!)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+        @if (zaak().rechten.canVerwijderenInitiator) {
+          <button
+            mat-icon-button
+            [disabled]="isDisabled()"
+            [title]="'actie.ontkoppelen' | translate"
+            (click)="
+              $event.stopPropagation(); delete.emit(persoonQuery.data()!)
+            "
+          >
+            <mat-icon>link_off</mat-icon>
+          </button>
+        }
         <a
           mat-icon-button
           [routerLink]="['/persoon', temporaryPersonId()]"
@@ -64,65 +68,66 @@
       </div>
     </mat-panel-description>
   </mat-expansion-panel-header>
-  <div
-    *ngIf="persoonQuery.data()"
-    id="persoonsgegevens"
-    class="content flex-row justify-start flex-wrap gap-10"
-  >
-    <zac-static-text
-      class="flex-1"
-      label="naam"
-      [value]="persoonQuery.data()?.naam"
-    />
-    <zac-static-text
-      class="flex-1"
-      label="burgerservicenummer"
-      [value]="persoonQuery.data()?.bsn"
-    />
-    <zac-static-text
-      class="flex-1"
-      label="geboortedatum"
-      [value]="persoonQuery.data()?.geboortedatum | datum"
-    />
-    <zac-static-text
-      class="flex-1"
-      label="verblijfplaats"
-      [value]="persoonQuery.data()?.verblijfplaats"
-    />
-    <div class="flex-1 flex-column gap-2">
-      <zac-static-text
-        label="telefoonnummer"
-        [value]="
-          zaak().zaakSpecificContactDetails?.telephoneNumber ??
-          persoonQuery.data()?.telefoonnummer
-        "
-      />
-      @if (zaak().zaakSpecificContactDetails?.telephoneNumber) {
-        <div class="hint flex-row items-center gap-5">
-          <mat-icon outlined>info</mat-icon>
-          <span>{{
-            "initiator.aanvraagspecifiek-telefoonnummer" | translate
-          }}</span>
-        </div>
-      }
-    </div>
-    <div class="flex-1 flex-column gap-2">
+  @if (persoonQuery.data()) {
+    <div
+      id="persoonsgegevens"
+      class="content flex-row justify-start flex-wrap gap-10"
+    >
       <zac-static-text
         class="flex-1"
-        label="emailadres"
-        [value]="
-          zaak().zaakSpecificContactDetails?.emailAddress ??
-          persoonQuery.data()?.emailadres
-        "
+        label="naam"
+        [value]="persoonQuery.data()?.naam"
       />
-      @if (zaak().zaakSpecificContactDetails?.emailAddress) {
-        <div class="hint flex-row items-center gap-5">
-          <mat-icon outlined>info</mat-icon>
-          <span>{{
-            "initiator.aanvraagspecifiek-emailadres" | translate
-          }}</span>
-        </div>
-      }
+      <zac-static-text
+        class="flex-1"
+        label="burgerservicenummer"
+        [value]="persoonQuery.data()?.bsn"
+      />
+      <zac-static-text
+        class="flex-1"
+        label="geboortedatum"
+        [value]="persoonQuery.data()?.geboortedatum | datum"
+      />
+      <zac-static-text
+        class="flex-1"
+        label="verblijfplaats"
+        [value]="persoonQuery.data()?.verblijfplaats"
+      />
+      <div class="flex-1 flex-column gap-2">
+        <zac-static-text
+          label="telefoonnummer"
+          [value]="
+            zaak().zaakSpecificContactDetails?.telephoneNumber ??
+            persoonQuery.data()?.telefoonnummer
+          "
+        />
+        @if (zaak().zaakSpecificContactDetails?.telephoneNumber) {
+          <div class="hint flex-row items-center gap-5">
+            <mat-icon outlined>info</mat-icon>
+            <span>{{
+              "initiator.aanvraagspecifiek-telefoonnummer" | translate
+            }}</span>
+          </div>
+        }
+      </div>
+      <div class="flex-1 flex-column gap-2">
+        <zac-static-text
+          class="flex-1"
+          label="emailadres"
+          [value]="
+            zaak().zaakSpecificContactDetails?.emailAddress ??
+            persoonQuery.data()?.emailadres
+          "
+        />
+        @if (zaak().zaakSpecificContactDetails?.emailAddress) {
+          <div class="hint flex-row items-center gap-5">
+            <mat-icon outlined>info</mat-icon>
+            <span>{{
+              "initiator.aanvraagspecifiek-emailadres" | translate
+            }}</span>
+          </div>
+        }
+      </div>
     </div>
-  </div>
+  }
 </mat-expansion-panel>

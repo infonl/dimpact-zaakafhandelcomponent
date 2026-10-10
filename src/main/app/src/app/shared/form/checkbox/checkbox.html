@@ -8,7 +8,9 @@
   <mat-checkbox [formControlName]="key()" [required]="isRequired()">
     {{ labelKey() | translate | capitalizeFirstLetter }}
   </mat-checkbox>
-  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+  @if (formError()) {
+    <mat-error>{{ formError() }}</mat-error>
+  }
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

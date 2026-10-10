@@ -33,9 +33,11 @@
       color="primary"
       type="submit"
     >
-      <mat-icon *ngIf="ontkoppelZaakMutation.isPending()">
-        <mat-spinner diameter="18"></mat-spinner>
-      </mat-icon>
+      @if (ontkoppelZaakMutation.isPending()) {
+        <mat-icon>
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+      }
       {{ "actie.ontkoppelen" | translate }}
     </button>
     <button

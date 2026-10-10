@@ -33,16 +33,17 @@
       optionDisplayValue="mail"
     />
     <zac-input [form]="form" key="ontvanger">
-      <button
-        *ngIf="contactEmailAddress()"
-        type="button"
-        mat-icon-button
-        matSuffix
-        title="{{ 'actie.contact.email.toevoegen' | translate }}"
-        (click)="setOntvanger()"
-      >
-        <mat-icon>person</mat-icon>
-      </button>
+      @if (contactEmailAddress()) {
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          title="{{ 'actie.contact.email.toevoegen' | translate }}"
+          (click)="setOntvanger()"
+        >
+          <mat-icon>person</mat-icon>
+        </button>
+      }
     </zac-input>
     <zac-html-editor
       [form]="form"

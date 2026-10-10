@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf } from "@angular/common";
 import { Component, effect, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -52,8 +51,6 @@ import { ZakenService } from "../zaken.service";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgIf,
-    NgFor,
     ReactiveFormsModule,
     MatToolbarModule,
     MatIconModule,

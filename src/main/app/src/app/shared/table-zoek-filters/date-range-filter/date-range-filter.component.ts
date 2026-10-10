@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   Component,
   computed,
@@ -27,7 +26,6 @@ import { GeneratedType } from "../../utils/generated-types";
   styleUrls: ["./date-range-filter.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatDatepickerModule,

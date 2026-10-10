@@ -12,7 +12,7 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from "@angular/cdk/drag-drop";
-import { NgClass, NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -63,11 +63,7 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgIf,
-    NgFor,
     NgClass,
-    NgSwitch,
-    NgSwitchCase,
     ReactiveFormsModule,
     CdkDropListGroup,
     CdkDropList,

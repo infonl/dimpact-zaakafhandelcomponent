@@ -13,34 +13,31 @@
   >
     {{ "actie.dashboard.wijzigen" | translate }}
   </mat-slide-toggle>
-  <button
-    *ngIf="!editMode.value"
-    [disabled]="true"
-    id="spacer_button"
-    mat-icon-button
-  ></button>
-  <button
-    *ngIf="editMode.value"
-    [disabled]="this.available.length == 0"
-    id="cardToevoegen_button"
-    mat-icon-button
-    title="{{ 'actie.card.toevoegen' | translate }}"
-    aria-label="Dashboardcard toevoegen"
-    [matMenuTriggerFor]="cardsMenu"
-  >
-    <mat-icon>dashboard_customize</mat-icon>
-  </button>
+  @if (editMode.value) {
+    <button
+      [disabled]="this.available.length == 0"
+      id="cardToevoegen_button"
+      mat-icon-button
+      title="{{ 'actie.card.toevoegen' | translate }}"
+      aria-label="Dashboardcard toevoegen"
+      [matMenuTriggerFor]="cardsMenu"
+    >
+      <mat-icon>dashboard_customize</mat-icon>
+    </button>
+  } @else {
+    <button [disabled]="true" id="spacer_button" mat-icon-button></button>
+  }
   <mat-menu #cardsMenu="matMenu" class="cards-menu">
     <h4 class="menu-title hide-xs" translate="actie.card.toevoegen"></h4>
     <mat-divider class="hide-gt-xs"></mat-divider>
-    <ng-container *ngFor="let card of available">
+    @for (card of available; track card) {
       <button mat-menu-item (click)="add(card)">
         <mat-icon>{{
           card.signaleringType != null ? "notifications" : ""
         }}</mat-icon>
         <span>{{ "dashboard.card." + card.id | i18nKey | translate }}</span>
       </button>
-    </ng-container>
+    }
   </mat-menu>
 </div>
 
@@ -49,100 +46,97 @@
   [ngClass]="editMode.value ? 'edit-mode' : 'view-mode'"
   cdkDropListGroup
 >
-  <ng-container *ngFor="let column of grid">
-    <div
-      *ngIf="editMode.value || 0 < column.length"
-      class="grid-column-{{ editMode.value ? '3' : columnsInDashboard }}"
-      cdkDropList
-      cdkDropListOrientation="vertical"
-      cdkDropListDisabled="{{ !editMode.value }}"
-      (cdkDropListDropped)="move($event)"
-      [cdkDropListData]="column"
-    >
-      <mat-card
-        #cardElement
-        appearance="raised"
-        class="dashboard-card"
-        role="region"
-        [attr.aria-label]="'dashboard.card.' + card?.id | i18nKey | translate"
-        *ngFor="let card of column"
-        cdkDrag
+  @for (column of grid; track column) {
+    @if (editMode.value || 0 < column.length) {
+      <div
+        class="grid-column-{{ editMode.value ? '3' : columnsInDashboard }}"
+        cdkDropList
+        cdkDropListOrientation="vertical"
+        cdkDropListDisabled="{{ !editMode.value }}"
+        (cdkDropListDropped)="move($event)"
+        [cdkDropListData]="column"
       >
-        <div class="placeholder" *cdkDragPlaceholder></div>
-        <ng-container *ngIf="card != null">
-          <mat-card-header>
-            <mat-card-title-group>
-              <mat-card-title>
-                {{ "dashboard.card." + card.id | i18nKey | translate }}
-                <mat-icon
-                  *ngIf="card.signaleringType != null"
-                  class="cardtype"
-                  title="{{
-                    'signalering.type.' + card.signaleringType
-                      | i18nKey
-                      | translate
-                  }}"
-                >
-                  notifications_active
-                </mat-icon>
-              </mat-card-title>
-
-              <button
-                *ngIf="editMode.value"
-                class="delete"
-                [id]="'cardVerwijderen_' + card.id + '_button'"
-                mat-icon-button
-                title="{{ 'actie.card.verwijderen' | translate }}"
-                (click)="delete(card)"
-              >
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-card-title-group>
-          </mat-card-header>
-          <mat-card-content
-            class="dashboard-card-content"
-            [ngSwitch]="card.type"
+        @for (card of column; track card) {
+          <mat-card
+            #cardElement
+            appearance="raised"
+            class="dashboard-card"
+            role="region"
+            [attr.aria-label]="
+              'dashboard.card.' + card?.id | i18nKey | translate
+            "
+            cdkDrag
           >
-            <zac-informatieobjecten-card
-              [data]="card"
-              *ngSwitchCase="dashboardCardType.INFORMATIEOBJECTEN"
-            >
-            </zac-informatieobjecten-card>
-            <zac-taken-card
-              [data]="card"
-              *ngSwitchCase="dashboardCardType.TAKEN"
-            >
-            </zac-taken-card>
-            <zac-taak-zoeken-card
-              [data]="card"
-              *ngSwitchCase="dashboardCardType.TAAK_ZOEKEN"
-            >
-            </zac-taak-zoeken-card>
-            <zac-zaken-card
-              [data]="card"
-              *ngSwitchCase="dashboardCardType.ZAKEN"
-            >
-            </zac-zaken-card>
-            <zac-zaak-waarschuwingen-card
-              [data]="card"
-              *ngSwitchCase="dashboardCardType.ZAAK_WAARSCHUWINGEN"
-            >
-            </zac-zaak-waarschuwingen-card>
-            <zac-zaak-zoeken-card
-              [data]="card"
-              *ngSwitchCase="dashboardCardType.ZAAK_ZOEKEN"
-            >
-            </zac-zaak-zoeken-card>
-          </mat-card-content>
-        </ng-container>
-      </mat-card>
-    </div>
-  </ng-container>
+            <div class="placeholder" *cdkDragPlaceholder></div>
+            @if (card != null) {
+              <mat-card-header>
+                <mat-card-title-group>
+                  <mat-card-title>
+                    {{ "dashboard.card." + card.id | i18nKey | translate }}
+                    @if (card.signaleringType != null) {
+                      <mat-icon
+                        class="cardtype"
+                        title="{{
+                          'signalering.type.' + card.signaleringType
+                            | i18nKey
+                            | translate
+                        }}"
+                      >
+                        notifications_active
+                      </mat-icon>
+                    }
+                  </mat-card-title>
+
+                  @if (editMode.value) {
+                    <button
+                      class="delete"
+                      [id]="'cardVerwijderen_' + card.id + '_button'"
+                      mat-icon-button
+                      title="{{ 'actie.card.verwijderen' | translate }}"
+                      (click)="delete(card)"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  }
+                </mat-card-title-group>
+              </mat-card-header>
+              <mat-card-content class="dashboard-card-content">
+                @switch (card.type) {
+                  @case (dashboardCardType.INFORMATIEOBJECTEN) {
+                    <zac-informatieobjecten-card [data]="card">
+                    </zac-informatieobjecten-card>
+                  }
+                  @case (dashboardCardType.TAKEN) {
+                    <zac-taken-card [data]="card"> </zac-taken-card>
+                  }
+                  @case (dashboardCardType.TAAK_ZOEKEN) {
+                    <zac-taak-zoeken-card [data]="card"> </zac-taak-zoeken-card>
+                  }
+                  @case (dashboardCardType.ZAKEN) {
+                    <zac-zaken-card [data]="card"> </zac-zaken-card>
+                  }
+                  @case (dashboardCardType.ZAAK_WAARSCHUWINGEN) {
+                    <zac-zaak-waarschuwingen-card [data]="card">
+                    </zac-zaak-waarschuwingen-card>
+                  }
+                  @case (dashboardCardType.ZAAK_ZOEKEN) {
+                    <zac-zaak-zoeken-card [data]="card"> </zac-zaak-zoeken-card>
+                  }
+                }
+              </mat-card-content>
+            }
+          </mat-card>
+        }
+      </div>
+    }
+  }
 </div>
-<div *ngIf="showHint" class="table-wrapper">
-  <p class="hint">
-    <button type="button" id="hint_button" mat-button (click)="hint()">
-      {{ "msg.geen.cards.hint" | translate }}
-    </button>
-  </p>
-</div>
+@if (showHint) {
+  <div class="table-wrapper">
+    <p class="hint">
+      <button type="button" id="hint_button" mat-button (click)="hint()">
+        {{ "msg.geen.cards.hint" | translate }}
+      </button>
+    </p>
+  </div>
+}

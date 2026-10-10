@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgFor } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
@@ -16,7 +16,7 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
   templateUrl: "./fout-afhandeling.component.html",
   styleUrls: ["./fout-afhandeling.component.less"],
   standalone: true,
-  imports: [AsyncPipe, NgFor, MatCardModule, MatIconModule, TranslateModule],
+  imports: [AsyncPipe, MatCardModule, MatIconModule, TranslateModule],
 })
 export class FoutAfhandelingComponent implements OnInit {
   protected bericht: string | null = null;

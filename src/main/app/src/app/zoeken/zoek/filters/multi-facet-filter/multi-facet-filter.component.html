@@ -12,36 +12,35 @@
     <mat-card-title>{{
       "zoeken.filter." + (label() | lowercase) | i18nKey | translate
     }}</mat-card-title>
-    <mat-icon (click)="invert()" class="on" *ngIf="!inverse"
-      >toggle_off</mat-icon
-    >
-    <mat-icon (click)="invert()" class="off" *ngIf="inverse"
-      >toggle_on</mat-icon
-    >
+    @if (inverse) {
+      <mat-icon (click)="invert()" class="off">toggle_on</mat-icon>
+    } @else {
+      <mat-icon (click)="invert()" class="on">toggle_off</mat-icon>
+    }
   </mat-card-title-group>
   <mat-card-content>
-    <div *ngFor="let facetWaarde of opties()" class="flex-row space-between">
-      <mat-checkbox
-        zacNarrowMatCheckbox
-        (change)="checkboxChange()"
-        [formControlName]="facetWaarde.naam"
-      >
-        <read-more
-          *ngIf="isVertaalbaar(label())"
-          [text]="
-            VERTAALBARE_FACETTEN[label()] + facetWaarde.naam
-              | i18nKey
-              | translate
-          "
-          [maxLength]="30"
-        ></read-more>
-        <read-more
-          *ngIf="!isVertaalbaar(label())"
-          [text]="facetWaarde.naam"
-          [maxLength]="30"
-        ></read-more>
-      </mat-checkbox>
-      <span class="waarde">{{ facetWaarde.aantal }}</span>
-    </div>
+    @for (facetWaarde of opties(); track facetWaarde) {
+      <div class="flex-row space-between">
+        <mat-checkbox
+          zacNarrowMatCheckbox
+          (change)="checkboxChange()"
+          [formControlName]="facetWaarde.naam"
+        >
+          @if (isVertaalbaar(label())) {
+            <read-more
+              [text]="
+                VERTAALBARE_FACETTEN[label()] + facetWaarde.naam
+                  | i18nKey
+                  | translate
+              "
+              [maxLength]="30"
+            ></read-more>
+          } @else {
+            <read-more [text]="facetWaarde.naam" [maxLength]="30"></read-more>
+          }
+        </mat-checkbox>
+        <span class="waarde">{{ facetWaarde.aantal }}</span>
+      </div>
+    }
   </mat-card-content>
 </mat-card>
