@@ -8,6 +8,7 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
+import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
@@ -169,6 +170,52 @@ describe(TakenService.name, () => {
       jest.spyOn(zacQueryClient, "PATCH");
       service.complete();
       expect(zacQueryClient.PATCH).toHaveBeenCalledWith(expect.any(String));
+    });
+
+    describe("when the taak is completed", () => {
+      let router: Router;
+
+      beforeEach(() => {
+        jest
+          .spyOn(TestBed.inject(UtilService), "openSnackbar")
+          .mockImplementation(() => {});
+        router = TestBed.inject(Router);
+        jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
+      });
+
+      it("returns to the page the taak was opened from", async () => {
+        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+        const zaakUrl = router.parseUrl("/zaken/ZAAK-1");
+        jest.spyOn(router, "lastSuccessfulNavigation", "get").mockReturnValue(
+          fromPartial({
+            extras: {},
+            previousNavigation: { finalUrl: zaakUrl },
+          }),
+        );
+
+        await runMutationOnSuccess(service.complete());
+
+        expect(router.navigateByUrl).toHaveBeenCalledWith(zaakUrl);
+      });
+
+      it("goes to the dashboard when the taak has no page it was opened from", async () => {
+        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+        jest
+          .spyOn(router, "lastSuccessfulNavigation", "get")
+          .mockReturnValue(null);
+
+        await runMutationOnSuccess(service.complete());
+
+        expect(router.navigateByUrl).toHaveBeenCalledWith("/");
+      });
+
+      it("stays on the taak when it was opened from an e-mail", async () => {
+        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1?bron=email");
+
+        await runMutationOnSuccess(service.complete());
+
+        expect(router.navigateByUrl).not.toHaveBeenCalled();
+      });
     });
   });
 
