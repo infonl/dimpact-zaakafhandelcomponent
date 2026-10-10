@@ -238,8 +238,6 @@ class TaakVariabelenServiceTest : BehaviorSpec({
         val taakData = mapOf(
             "zaakOpschorten" to "true",
             "zaakHervatten" to "true",
-            "taakStuurGegevens.sendMail" to "true",
-            "taakStuurGegevens.mail" to "TAAK_AANVULLENDE_INFORMATIE",
             "ondertekenen" to "fakeDocumentUUID1;fakeDocumentUUID2"
         )
 
@@ -247,8 +245,6 @@ class TaakVariabelenServiceTest : BehaviorSpec({
             then("the flags are true and the values are returned") {
                 isZaakOpschorten(taakData) shouldBe true
                 isZaakHervatten(taakData) shouldBe true
-                isSendDataSendMail(taakData) shouldBe true
-                readSendDataMail(taakData) shouldBe "TAAK_AANVULLENDE_INFORMATIE"
                 readSignatures(taakData) shouldBe "fakeDocumentUUID1;fakeDocumentUUID2"
             }
         }
@@ -257,7 +253,6 @@ class TaakVariabelenServiceTest : BehaviorSpec({
     given("Task data with flags that are not the string 'true'") {
         val taakData = mapOf<String, Any>(
             "zaakHervatten" to true,
-            "taakStuurGegevens.sendMail" to "false",
             "ondertekenen" to listOf("fakeDocumentUUID")
         )
 
@@ -265,7 +260,6 @@ class TaakVariabelenServiceTest : BehaviorSpec({
             then("the flags are false and non-string values are ignored") {
                 isZaakOpschorten(mapOf("zaakOpschorten" to "TRUE")) shouldBe false
                 isZaakHervatten(taakData) shouldBe false
-                isSendDataSendMail(taakData) shouldBe false
                 readSignatures(taakData).shouldBeNull()
             }
         }

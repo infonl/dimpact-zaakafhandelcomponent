@@ -18,14 +18,12 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.mail.model.toMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CmmnService
-import nl.info.zac.flowable.task.isSendDataSendMail
 import nl.info.zac.flowable.task.isZaakOpschorten
 import nl.info.zac.flowable.task.readMailAttachments
 import nl.info.zac.flowable.task.readMailBody
 import nl.info.zac.flowable.task.readMailFrom
 import nl.info.zac.flowable.task.readMailReplyTo
 import nl.info.zac.flowable.task.readMailTo
-import nl.info.zac.flowable.task.readSendDataMail
 import nl.info.zac.flowable.task.setMailBody
 import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -170,11 +168,10 @@ class PlanItemsRestService @Inject constructor(
             }
         }
 
-        val shouldSendMail = isSendDataSendMail(taakdata)
-        val sendDataMail = readSendDataMail(taakdata)
-        if (shouldSendMail && sendDataMail != null) {
-            val mail = Mail.valueOf(sendDataMail)
-
+        val formulierDefinitieID = zaaktypeConfiguration?.cmmnExtension
+            ?.findHumanTaskParameter(planItem.planItemDefinitionId)
+            ?.getFormulierDefinitieID()
+        readTaskMail(formulierDefinitieID)?.let { mail ->
             val mailTemplate = zaaktypeConfiguration?.getMailtemplateKoppelingen().orEmpty()
                 .map { it.mailTemplate }
                 .firstOrNull { it?.mail == mail }
@@ -331,6 +328,13 @@ class PlanItemsRestService @Inject constructor(
         }
         return null
     }
+
+    private fun readTaskMail(formulierDefinitieID: String?): Mail? =
+        when (formulierDefinitieID) {
+            FormulierDefinitie.AANVULLENDE_INFORMATIE.name -> Mail.TAAK_AANVULLENDE_INFORMATIE
+            FormulierDefinitie.EXTERN_ADVIES_MAIL.name -> Mail.TAAK_ADVIES_EXTERN
+            else -> null
+        }
 
     private fun isAanvullendeInformatieTask(planItem: PlanItemInstance): Boolean =
         FormulierDefinitie.AANVULLENDE_INFORMATIE.toString() == planItem.planItemDefinitionId

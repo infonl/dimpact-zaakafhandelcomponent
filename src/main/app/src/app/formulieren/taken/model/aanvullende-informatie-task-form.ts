@@ -119,18 +119,6 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
 
     const formFields: FormField[] = [
       {
-        type: "checkbox",
-        key: "taakStuurGegevens.sendMail",
-        hidden: true,
-        control: this.formBuilder.control(true),
-      },
-      {
-        type: "input",
-        key: "taakStuurGegevens.mail",
-        hidden: true,
-        control: this.formBuilder.control("TAAK_AANVULLENDE_INFORMATIE"),
-      },
-      {
         type: "select",
         key: "verzender",
         options: afzendersVoorZaakOptions,

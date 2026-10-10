@@ -23,6 +23,8 @@ import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_MAIL_BODY
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
@@ -103,7 +105,10 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                         "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
                     },
-                    "taakdata":{}
+                    "taakdata": {
+                        "emailadres": "$TEST_AANVULLENDE_INFORMATIE_EMAIL",
+                        "body": "$TEST_AANVULLENDE_INFORMATIE_MAIL_BODY"
+                    }
                 }
             """.trimIndent(),
             testUser = BEHANDELAAR_1
