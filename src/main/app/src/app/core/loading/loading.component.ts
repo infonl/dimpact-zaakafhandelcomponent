@@ -5,6 +5,7 @@
 
 import { Component, computed, inject } from "@angular/core";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { Router } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import {
   QueryClient,
@@ -22,6 +23,7 @@ import { UtilService } from "../service/util.service";
 export class LoadingComponent {
   protected readonly utilService = inject(UtilService);
   protected readonly queryClient = inject(QueryClient);
+  private readonly router = inject(Router);
 
   protected readonly progress = this.utilService.progress;
 
@@ -31,6 +33,9 @@ export class LoadingComponent {
   protected readonly isMutating = computed(() => this.mutatingCount() > 0);
   protected readonly isFetching = computed(() => this.fetchingCount() > 0);
   protected readonly isLoading = computed(
-    () => this.utilService.loading() || this.isFetching(),
+    () =>
+      this.utilService.loading() ||
+      this.isFetching() ||
+      this.router.currentNavigation() !== null,
   );
 }
