@@ -53,7 +53,7 @@ class ZaakBrondatumRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten(brondatumZetten = true)
             every { loggedInUserInstance.get() } returns loggedInUser
             every {
@@ -79,7 +79,7 @@ class ZaakBrondatumRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every {
-                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechtenAllDeny()
             every { loggedInUserInstance.get() } returns loggedInUser
 

@@ -40,7 +40,11 @@ class ZaakBrondatumRestService @Inject constructor(
     @Path("/zaak/{uuid}/brondatum")
     fun setBrondatum(@PathParam("uuid") zaakUUID: UUID, @Valid restZaakSetBrondatum: RestZaakSetBrondatum) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canBrondatumZetten)
+        assertPolicy(policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        ).canBrondatumZetten)
         zgwApiService.setBrondatum(zaak, restZaakSetBrondatum.brondatum)
     }
 }

@@ -172,7 +172,7 @@ class ZaakRestService @Inject constructor(
     fun addBetrokkene(@Valid restZaakBetrokkeneGegevens: RestZaakBetrokkeneGegevens): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakBetrokkeneGegevens.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         addBetrokkeneToZaak(
             roleTypeUUID = restZaakBetrokkeneGegevens.roltypeUUID,
             betrokkeneIdentificatie = restZaakBetrokkeneGegevens.betrokkeneIdentificatie,
@@ -191,7 +191,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canBehandelen)
         zgwApiService.closeZaak(
             zaak = zaak,
@@ -200,7 +200,11 @@ class ZaakRestService @Inject constructor(
             brondatum = afsluitenGegevens.brondatum?.let(String::toLocalDate)
         )
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (closedZaak, closedZaakType) ->
-            val closedZaakRechten = policyService.readZaakRechten(closedZaak, closedZaakType, loggedInUser)
+            val closedZaakRechten = policyService.readZaakRechten(
+                zaak = closedZaak,
+                zaaktype = closedZaakType,
+                loggedInUser = loggedInUser
+            )
             restZaakConverter.toRestZaak(
                 zaak = closedZaak,
                 zaakType = closedZaakType,
@@ -262,7 +266,7 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakURI(
             checkNotNull(betrokkene.zaak) { "Betrokkene '$betrokkeneUUID' has no zaak" }
         )
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         removeBetrokkene(zaakRechten, betrokkene, reden.reden)
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
     }
@@ -272,7 +276,7 @@ class ZaakRestService @Inject constructor(
     fun deleteInitiator(@PathParam("uuid") zaakUUID: UUID, reden: RestReden): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
             removeInitiator(zaakRechten, it, reden.reden)
         }
@@ -319,7 +323,11 @@ class ZaakRestService @Inject constructor(
     @Produces("image/png")
     fun downloadProcessDiagram(@PathParam("uuid") zaakUUID: UUID): Response {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canLezen)
+        assertPolicy(policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        ).canLezen)
         return Response.ok(bpmnService.getProcessDiagram(zaakUUID))
             .header(
                 "Content-Disposition",
@@ -338,7 +346,11 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}/afzender")
     fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakAfzender> {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canLezen)
+        assertPolicy(policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        ).canLezen)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
                 zaaktypeConfigurationService.findConfiguration(zaak.zaaktype.extractUuid())
@@ -359,7 +371,11 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}/betrokkene")
     fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakBetrokkene> {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canLezen)
+        assertPolicy(policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        ).canLezen)
         return zaakService.listBetrokkenenforZaak(zaak).toRestZaakBetrokkenen(identificationService)
     }
 
@@ -393,7 +409,11 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}/historie")
     fun listZaakHistory(@PathParam("uuid") zaakUUID: UUID): List<HistoryLine> {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canLezen)
+        assertPolicy(policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        ).canLezen)
         return zaakHistoryService.getZaakHistory(zaakUUID)
     }
 
@@ -514,7 +534,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(!zaak.isOpen() && zaakRechten.canHeropenen)
         zgwApiService.createStatusForZaak(
             zaak,
@@ -525,7 +545,11 @@ class ZaakRestService @Inject constructor(
             zrcClientService.deleteResultaat(it.extractUuid())
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (reopenedZaak, reopenedZaakType) ->
-            val reopenedZaakRechten = policyService.readZaakRechten(reopenedZaak, reopenedZaakType, loggedInUser)
+            val reopenedZaakRechten = policyService.readZaakRechten(
+                zaak = reopenedZaak,
+                zaaktype = reopenedZaakType,
+                loggedInUser = loggedInUser
+            )
             restZaakConverter.toRestZaak(
                 zaak = reopenedZaak,
                 zaakType = reopenedZaakType,
@@ -547,7 +571,7 @@ class ZaakRestService @Inject constructor(
         val statustype = zaak.status?.let {
             ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
         }
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canAfbreken)
         assertPolicy(zaak.isOpen() && !statustype.isHeropend())
         zaak.resultaat?.run {
@@ -589,7 +613,11 @@ class ZaakRestService @Inject constructor(
             zaakProcessService.terminate(it, zaakUUID)
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
-            val terminatedZaakRechten = policyService.readZaakRechten(terminatedZaak, terminatedZaakType, loggedInUser)
+            val terminatedZaakRechten = policyService.readZaakRechten(
+                zaak = terminatedZaak,
+                zaaktype = terminatedZaakType,
+                loggedInUser = loggedInUser
+            )
             restZaakConverter.toRestZaak(
                 zaak = terminatedZaak,
                 zaakType = terminatedZaakType,
@@ -604,7 +632,7 @@ class ZaakRestService @Inject constructor(
     fun updateInitiator(restZaakInitiatorGegevens: RestZaakInitiatorGegevens): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
             restZaakInitiatorGegevens.toelichting ?: throw ExplanationRequiredException()
             removeInitiator(zaakRechten, it, ROL_VERWIJDER_REDEN)
@@ -695,7 +723,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canWijzigenLocatie)
         val zaakPatch = Zaak().apply {
             zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeoJSONGeometry()
@@ -722,7 +750,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canVerlengen)
         val updatedZaak = suspensionZaakHelper.extendZaak(
             zaak = zaak,
@@ -774,7 +802,11 @@ class ZaakRestService @Inject constructor(
         zaakType: ZaakType
     ) {
         restZaak.initiatorIdentificatie?.let { initiator ->
-            val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get())
+            val zaakRechten = policyService.readZaakRechten(
+                zaak = zaak,
+                zaaktype = zaakType,
+                loggedInUser = loggedInUserInstance.get()
+            )
             val identification = when (initiator.type) {
                 IdentificatieType.BSN -> initiator.temporaryPersonId?.let(identificationService::replaceKeyWithBsn)
                 // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer` if available

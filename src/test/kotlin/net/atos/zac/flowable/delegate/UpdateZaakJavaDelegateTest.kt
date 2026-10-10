@@ -73,7 +73,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
         } returns createZaakRechtenAllDeny(behandelen = true)
         every { juelExpression.getValue(delegateExecution) } returns zaakStatusName
         every {
@@ -113,7 +113,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
         } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns zaakStatusName
         every {
@@ -157,7 +157,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
         } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns resultaattypeDescription
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
@@ -200,7 +200,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
         } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns resultaattypeDescription
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
@@ -232,7 +232,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
         } returns createZaakRechtenAllDeny()
 
         `when`("the delegate is called") {

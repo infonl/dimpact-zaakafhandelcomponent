@@ -158,7 +158,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         val documentRechten = createDocumentRechtenAllDeny(lezen = true)
 
         every {
-            policyService.readDocumentRechten(enkelvoudigInformatieObject, null, null)
+            policyService.readDocumentRechten(enkelvoudigInformatieobject = enkelvoudigInformatieObject, zaak = null, lock = null)
         } returns documentRechten
         every {
             brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url)
@@ -197,7 +197,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             drcClientService.readEnkelvoudigInformatieobject(uuid)
         } returns document
         every {
-            policyService.readDocumentRechten(document, null, null)
+            policyService.readDocumentRechten(enkelvoudigInformatieobject = document, zaak = null, lock = null)
         } returns rechten
         every {
             brcClientService.isInformatieObjectGekoppeldAanBesluit(document.url)

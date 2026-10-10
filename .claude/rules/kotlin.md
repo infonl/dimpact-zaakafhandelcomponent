@@ -36,6 +36,28 @@ Write a two-letter acronym in capitals (`IOStream`) and capitalize only the firs
 `toRestZaak`). detekt rejects all-caps acronyms of three or more letters in class names only; it does not see a wrongly
 cased two-letter acronym, nor names of nested classes, functions and properties.
 
+## Prefer default parameter values over function overloads
+Following the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html#default-parameter-values),
+declare one function with a default parameter value instead of an overload that only fills in an argument.
+Put parameters with a default value last, and use named arguments when a caller passes one.
+```kotlin
+// Before
+fun readZaakRechten(zaak: Zaak, loggedInUser: LoggedInUser) =
+    readZaakRechten(zaak, ztcClientService.readZaaktype(zaak.zaaktype), loggedInUser)
+fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType, loggedInUser: LoggedInUser): ZaakRechten { ... }
+// After
+fun readZaakRechten(zaak: Zaak, loggedInUser: LoggedInUser, zaaktype: ZaakType? = null): ZaakRechten {
+    val resolvedZaaktype = zaaktype ?: ztcClientService.readZaaktype(zaak.zaaktype)
+    ...
+}
+// Caller
+policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
+```
+In a class that tests mock with MockK, such as a CDI service, a default value must not use a class member
+(e.g. `zaaktype: ZaakType = ztcClientService.readZaaktype(zaak.zaaktype)`). Kotlin evaluates the default before
+MockK intercepts the call, on the mock whose fields are `null`, so the call throws a `NullPointerException`.
+Use a `null` default and resolve the value in the function body instead, as in the example above.
+
 ## Boolean properties on JSON-B models
 JSON-B strips the `is` prefix from a boolean property name. On a class serialized with JSON-B (e.g. a `RestXxx`
 model), add `@get:JsonbProperty("isXxx")` above an `is` boolean property, so that the JSON field name equals the

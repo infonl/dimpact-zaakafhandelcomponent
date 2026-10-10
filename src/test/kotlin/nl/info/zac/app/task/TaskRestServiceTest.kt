@@ -578,7 +578,13 @@ class TaskRestServiceTest : BehaviorSpec({
             val loggedInUser = createLoggedInUser()
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
-            every { policyService.readZaakRechten(zaak, loggedInUser, any()).canLezen } returns true
+            every {
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                ).canLezen
+            } returns true
             every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
             every { restTaskConverter.toRestTasks(tasks, any()) } returns restTasks
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -611,7 +617,11 @@ class TaskRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
             every {
-                policyService.readZaakRechten(zaak, loggedInUser, capture(zaakAutorisatieGegevensForPolicy))
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = capture(zaakAutorisatieGegevensForPolicy)
+                )
             } returns createZaakRechten(lezen = true)
             every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
             every { restTaskConverter.toRestTasks(tasks, capture(zaakAutorisatieGegevensForConverter)) } returns restTasks

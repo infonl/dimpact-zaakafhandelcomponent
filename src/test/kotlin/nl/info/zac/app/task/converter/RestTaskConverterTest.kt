@@ -89,7 +89,9 @@ class RestTaskConverterTest : BehaviorSpec({
             every { taskInfo.taskDefinitionKey } returns taskDefinitionKey
             every { taskInfo.identityLinks } returns emptyList()
 
-            every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
+            every {
+                policyService.readTaakRechten(taskInfo = taskInfo, zaaktypeOmschrijving = fakeZaaktypeOmschrijving)
+            } returns taakRechten
             every {
                 zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             } returns zaaktypeCmmnConfiguration
@@ -143,7 +145,9 @@ class RestTaskConverterTest : BehaviorSpec({
             every { taskInfo.formKey } returns formKey
             every { taskInfo.identityLinks } returns emptyList()
 
-            every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
+            every {
+                policyService.readTaakRechten(taskInfo = taskInfo, zaaktypeOmschrijving = fakeZaaktypeOmschrijving)
+            } returns taakRechten
             every { bpmnProcessDefinitionTaskFormService.readForm(processDefinitionId, formKey) } returns fakeFormioFormulier
 
             `when`("convert is called") {
@@ -200,7 +204,9 @@ class RestTaskConverterTest : BehaviorSpec({
             every { taskInfo.taskDefinitionKey } returns taskDefinitionKey
             every { taskInfo.identityLinks } returns emptyList()
 
-            every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns createTaakRechten()
+            every {
+                policyService.readTaakRechten(taskInfo = taskInfo, zaaktypeOmschrijving = fakeZaaktypeOmschrijving)
+            } returns createTaakRechten()
             every {
                 zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             } returns zaaktypeCmmnConfiguration
@@ -232,7 +238,9 @@ class RestTaskConverterTest : BehaviorSpec({
             every { taskInfo.processDefinitionId } returns "fakeProcessDefinitionId"
             every { taskInfo.formKey } returns "fakeFormKey"
 
-            every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
+            every {
+                policyService.readTaakRechten(taskInfo = taskInfo, zaaktypeOmschrijving = fakeZaaktypeOmschrijving)
+            } returns taakRechten
             every { bpmnProcessDefinitionTaskFormService.readForm(any(), any()) } returns mockk()
 
             `when`("convert is called") {
@@ -283,7 +291,9 @@ class RestTaskConverterTest : BehaviorSpec({
                 every { taskInfo.dueDate } returns null
                 every { taskInfo.taskDefinitionKey } returns taskDefinitionKey
                 every { taskInfo.identityLinks } returns emptyList()
-                every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
+                every {
+                    policyService.readTaakRechten(taskInfo = taskInfo, zaaktypeOmschrijving = fakeZaaktypeOmschrijving)
+                } returns taakRechten
                 every {
                     zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
                 } returns zaaktypeCmmnConfiguration

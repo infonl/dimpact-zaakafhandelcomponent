@@ -133,7 +133,11 @@ class TaskRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         assertPolicy(
-            policyService.readZaakRechten(zaak, loggedInUser, zaakAutorisatieGegevens).canLezen
+            policyService.readZaakRechten(
+                zaak = zaak,
+                loggedInUser = loggedInUser,
+                zaakAutorisatieGegevens = zaakAutorisatieGegevens
+            ).canLezen
         )
         return restTaskConverter.toRestTasks(taskService.listTasksForZaak(zaakUUID), zaakAutorisatieGegevens)
     }

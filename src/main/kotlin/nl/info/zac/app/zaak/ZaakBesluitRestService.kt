@@ -65,7 +65,11 @@ class ZaakBesluitRestService @Inject constructor(
     @Path("besluit")
     fun createBesluit(@Valid besluitToevoegenGegevens: RestBesluitCreateData): RestBesluit {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(besluitToevoegenGegevens.zaakUuid)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canVastleggenBesluit)
+        assertPolicy(policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        ).canVastleggenBesluit)
         assertPolicy(CollectionUtils.isNotEmpty(zaakType.besluittypen))
 
         return besluitService.createBesluit(zaak, besluitToevoegenGegevens).let {
@@ -101,7 +105,7 @@ class ZaakBesluitRestService @Inject constructor(
     fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUUID: UUID): List<RestBesluit> {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canLezen)
         return brcClientService.listBesluiten(zaak)
             .map { restBesluitConverter.convertToRestBesluit(it) }
@@ -113,7 +117,11 @@ class ZaakBesluitRestService @Inject constructor(
         val besluit = brcClientService.readBesluit(besluitUuid)
         val zaak = zrcClientService.readZaak(besluit.zaak)
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).canLezen)
+        assertPolicy(policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        ).canLezen)
         return brcClientService.listAuditTrail(besluitUuid).let {
             zaakHistoryLineConverter.convert(it)
         }

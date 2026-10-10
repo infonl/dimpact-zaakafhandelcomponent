@@ -61,7 +61,9 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
 
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
             every { zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID) } returns suspensionDateTime
             every { zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID) } returns expectedDays
 
@@ -78,7 +80,9 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
         given("a zaak exists that has not been suspended") {
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
             every { zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID) } returns null
             every { zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID) } returns null
 
@@ -109,7 +113,9 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
 
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
             every {
                 suspensionZaakHelper.resumeZaak(zaak, resumeData.reason, any())
             } returns resumedZaak
@@ -155,7 +161,9 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
 
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
             every {
                 suspensionZaakHelper.suspendZaak(
                     zaak = zaak,
