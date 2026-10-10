@@ -18,6 +18,9 @@ import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.zrc.util.markZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
+import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
+import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
@@ -27,6 +30,7 @@ import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarExce
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.User
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
@@ -56,7 +60,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
 
         private val zaakAssignmentLocks = Array(64) { ReentrantLock() }
 
-        fun taakbehandelaarToelichting(zaak: Zaak) =
+        fun zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak: Zaak) =
             "Zaakspecifiek geautoriseerd medewerker van zaak ${zaak.identificatie}"
     }
 
@@ -218,14 +222,8 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             zaakToewijzing.behandelaarRollen.none { it.identificatienummer == medewerkerId } &&
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
-                    medewerker = identityService.readUser(medewerkerId).let { user ->
-                        MedewerkerIdentificatie().apply {
-                            identificatie = user.id
-                            voorletters = user.firstName
-                            achternaam = user.lastName
-                        }
-                    },
-                    reason = taakbehandelaarToelichting(zaak),
+                    medewerker = readMedewerkerIdentificatie(medewerkerId),
+                    reason = zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak),
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
         }
@@ -234,6 +232,63 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             reindexDependents(zaak)
         }
         return isGranted
+    }
+
+    /**
+     * Lists the members of [groepId] who can still be added to the zaakspecifiek geautoriseerde zaak, leaving out
+     * everyone who already has access to it.
+     */
+    fun listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens,
+        zaakType: ZaakType,
+        groepId: String
+    ): List<User> {
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
+        assertBehandelaarGroep(zaakType, groepId)
+        val medewerkerIdsWithAccess = zaakAutorisatieGegevens.geautoriseerdeMedewerkers.toSet() +
+            listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)
+        return identityService.listUsersInGroup(groepId).filter { it.id !in medewerkerIdsWithAccess }
+    }
+
+    /**
+     * Grants [medewerkerId], a member of the behandelaar group [groepId], individual access to the zaakspecifiek
+     * geautoriseerde [zaak].
+     *
+     * @return the added medewerker
+     * @throws MedewerkerAlreadyZaakspecifiekGeautoriseerdException when the medewerker already has access
+     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaaktype does not define
+     * the roltype
+     */
+    fun addZaakspecifiekGeautoriseerdeMedewerker(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens,
+        groepId: String,
+        medewerkerId: String
+    ): User {
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
+        assertBehandelaarGroep(zaakType, groepId)
+        identityService.validateIfUserIsInGroup(medewerkerId, groepId)
+        if (medewerkerId in listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)) {
+            throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
+        }
+        val medewerker = lockForZaak(zaak.uuid).withLock {
+            val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
+                throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
+            }
+            identityService.readUser(medewerkerId).also {
+                grantZaakspecifiekeAutorisatie(
+                    zaak = zaak,
+                    medewerker = it.toMedewerkerIdentificatie(),
+                    reason = zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak),
+                    zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
+                )
+            }
+        }
+        indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
+        reindexDependents(zaak)
+        return medewerker
     }
 
     fun markZaakspecifiekGeautoriseerd(zaak: Zaak) {
@@ -261,6 +316,31 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                 "Roltype '${ZgwApiService.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER}' not found " +
                     "for zaaktype '${zaak.zaaktype}' of zaak with UUID '${zaak.uuid}'"
             )
+
+    private fun assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens: ZaakAutorisatieGegevens) {
+        if (!zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd) throw ZaakNotZaakspecifiekGeautoriseerdException()
+    }
+
+    private fun assertBehandelaarGroep(zaakType: ZaakType, groepId: String) {
+        if (identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaakType.omschrijving).none { it.name == groepId }) {
+            throw GroupNotBehandelaarForZaaktypeException()
+        }
+    }
+
+    private fun listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType: ZaakType) =
+        identityService.listUserIdsForApplicationRoleAndZaaktype(
+            applicationRole = ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+            zaaktypeDescription = zaakType.omschrijving
+        )
+
+    private fun readMedewerkerIdentificatie(medewerkerId: String) =
+        identityService.readUser(medewerkerId).toMedewerkerIdentificatie()
+
+    private fun User.toMedewerkerIdentificatie() = MedewerkerIdentificatie().apply {
+        identificatie = this@toMedewerkerIdentificatie.id
+        voorletters = firstName
+        achternaam = lastName
+    }
 
     private fun reindexDependents(zaak: Zaak) {
         indexingService.addOrUpdateTakenForZaak(zaak.uuid)

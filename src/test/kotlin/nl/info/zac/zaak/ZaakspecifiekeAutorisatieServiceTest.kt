@@ -36,6 +36,9 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createEigenschap
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
+import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
+import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
+import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
@@ -46,8 +49,11 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.exception.UserNotInGroupException
+import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.zaak.model.createZaakToewijzing
 
@@ -70,6 +76,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         taskHistoryService = taskHistoryService
     )
     val geautoriseerdZaakEigenschap = createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+    val geautoriseerdeZaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true) { emptyList() }
 
     afterEach {
         checkUnnecessaryStub()
@@ -1010,6 +1017,381 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException.errorCode shouldBe
                         ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND
                     verify(exactly = 0) { zrcClientService.createRol(any(), any()) }
+                }
+            }
+        }
+    }
+
+    context("Listing the medewerkers of a groep who can be added to a zaakspecifiek geautoriseerde zaak") {
+        given("a zaak that is not zaakspecifiek geautoriseerd") {
+
+            `when`("the kandidaten are listed") {
+                val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
+                    zaakspecifiekeAutorisatieService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() },
+                        zaakType = createZaakType(),
+                        groepId = "fakeGroepId"
+                    )
+                }
+
+                then("the request is refused with the error code that the frontend translates") {
+                    zaakNotZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and a groep without the behandelaar role for the zaaktype") {
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeOtherGroepId"))
+
+            `when`("the kandidaten of that groep are listed") {
+                val groupNotBehandelaarForZaaktypeException = shouldThrow<GroupNotBehandelaarForZaaktypeException> {
+                    zaakspecifiekeAutorisatieService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true) { emptyList() },
+                        zaakType = zaakType,
+                        groepId = "fakeGroepId"
+                    )
+                }
+
+                then("the request is refused with the error code that the frontend translates") {
+                    groupNotBehandelaarForZaaktypeException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_GROUP_NOT_BEHANDELAAR_FOR_ZAAKTYPE
+                }
+            }
+        }
+
+        given(
+            """a zaakspecifiek geautoriseerde zaak and a behandelaar groep with the zaakbehandelaar, a holder of the
+            |zaakspecifiek geautoriseerde medewerker rol, a medewerker with access through IAM and one without access
+            """.trimMargin()
+        ) {
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            val medewerkerWithoutAccess = createUser(id = "fakeMedewerkerWithoutAccessId")
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every {
+                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+                    "fakeZaaktypeOmschrijving"
+                )
+            } returns setOf("fakeIamMedewerkerId")
+            every { identityService.listUsersInGroup("fakeGroepId") } returns listOf(
+                createUser(id = "fakeZaakbehandelaarId"),
+                createUser(id = "fakeGeautoriseerdeMedewerkerId"),
+                createUser(id = "fakeIamMedewerkerId"),
+                medewerkerWithoutAccess
+            )
+
+            `when`("the kandidaten of that groep are listed") {
+                val kandidaten = zaakspecifiekeAutorisatieService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
+                    zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true) {
+                        listOf("fakeZaakbehandelaarId", "fakeGeautoriseerdeMedewerkerId")
+                    },
+                    zaakType = zaakType,
+                    groepId = "fakeGroepId"
+                )
+
+                then("only the medewerker without access is returned") {
+                    kandidaten shouldContainExactly listOf(medewerkerWithoutAccess)
+                }
+            }
+        }
+    }
+
+    context("Adding a medewerker to a zaakspecifiek geautoriseerde zaak") {
+        given("a zaak that is not zaakspecifiek geautoriseerd") {
+            val zaak = createZaak()
+
+            `when`("a medewerker is added") {
+                val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
+                    zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                        zaak = zaak,
+                        zaakType = createZaakType(),
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() },
+                        groepId = "fakeGroepId",
+                        medewerkerId = "fakeMedewerkerId"
+                    )
+                }
+
+                then("the request is refused and no rol is added") {
+                    zaakNotZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD
+                    verify(exactly = 0) { zrcClientService.createRol(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and a medewerker who is not in the chosen behandelaar groep") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every {
+                identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId")
+            } throws UserNotInGroupException()
+
+            `when`("the medewerker is added") {
+                shouldThrow<UserNotInGroupException> {
+                    zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                        zaak = zaak,
+                        zaakType = zaakType,
+                        zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                        groepId = "fakeGroepId",
+                        medewerkerId = "fakeMedewerkerId"
+                    )
+                }
+
+                then("no rol is added") {
+                    verify(exactly = 0) { zrcClientService.createRol(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and a medewerker with access through IAM") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every { identityService.validateIfUserIsInGroup("fakeIamMedewerkerId", "fakeGroepId") } just runs
+            every {
+                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+                    "fakeZaaktypeOmschrijving"
+                )
+            } returns setOf("fakeIamMedewerkerId")
+
+            `when`("the medewerker is added") {
+                val medewerkerAlreadyZaakspecifiekGeautoriseerdException =
+                    shouldThrow<MedewerkerAlreadyZaakspecifiekGeautoriseerdException> {
+                        zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                            zaak = zaak,
+                            zaakType = zaakType,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                            groepId = "fakeGroepId",
+                            medewerkerId = "fakeIamMedewerkerId"
+                        )
+                    }
+
+                then("the request is refused and no rol is added") {
+                    medewerkerAlreadyZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD
+                    verify(exactly = 0) { zrcClientService.createRol(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and the medewerker who is its zaakbehandelaar") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            val behandelaarRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeZaakbehandelaarId")
+            )
+            val rollen = listOf<Rol<*>>(behandelaarRol)
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every { identityService.validateIfUserIsInGroup("fakeZaakbehandelaarId", "fakeGroepId") } just runs
+            every {
+                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+                    "fakeZaaktypeOmschrijving"
+                )
+            } returns emptySet()
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns listOf(behandelaarRol)
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns emptyList()
+
+            `when`("the zaakbehandelaar is added") {
+                val medewerkerAlreadyZaakspecifiekGeautoriseerdException =
+                    shouldThrow<MedewerkerAlreadyZaakspecifiekGeautoriseerdException> {
+                        zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                            zaak = zaak,
+                            zaakType = zaakType,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                            groepId = "fakeGroepId",
+                            medewerkerId = "fakeZaakbehandelaarId"
+                        )
+                    }
+
+                then("the request is refused and no rol is added") {
+                    medewerkerAlreadyZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD
+                    verify(exactly = 0) { zrcClientService.createRol(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and a medewerker who already holds the zaakspecifiek geautoriseerde medewerker rol") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            val geautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId")
+            )
+            val rollen = listOf<Rol<*>>(geautoriseerdeMedewerkerRol)
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
+            every {
+                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+                    "fakeZaaktypeOmschrijving"
+                )
+            } returns emptySet()
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns listOf(geautoriseerdeMedewerkerRol)
+
+            `when`("the medewerker is added again") {
+                val medewerkerAlreadyZaakspecifiekGeautoriseerdException =
+                    shouldThrow<MedewerkerAlreadyZaakspecifiekGeautoriseerdException> {
+                        zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                            zaak = zaak,
+                            zaakType = zaakType,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                            groepId = "fakeGroepId",
+                            medewerkerId = "fakeMedewerkerId"
+                        )
+                    }
+
+                then("the request is refused and no second rol is added") {
+                    medewerkerAlreadyZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD
+                    verify(exactly = 0) { zrcClientService.createRol(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak whose zaaktype lacks the zaakspecifiek geautoriseerde medewerker roltype") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            val rollen = emptyList<Rol<*>>()
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
+            every {
+                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+                    "fakeZaaktypeOmschrijving"
+                )
+            } returns emptySet()
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns emptyList()
+            every { identityService.readUser("fakeMedewerkerId") } returns createUser(id = "fakeMedewerkerId")
+            every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype) } returns null
+
+            `when`("a medewerker is added") {
+                val zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException =
+                    shouldThrow<ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException> {
+                        zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                            zaak = zaak,
+                            zaakType = zaakType,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                            groepId = "fakeGroepId",
+                            medewerkerId = "fakeMedewerkerId"
+                        )
+                    }
+
+                then("the request is refused with the error code that the frontend translates and nothing is reindexed") {
+                    zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND
+                    verify(exactly = 0) {
+                        zrcClientService.createRol(any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and a medewerker of a behandelaar groep without access") {
+            val zaak = createZaak(identificatie = "fakeZaakIdentificatie")
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            val rollen = emptyList<Rol<*>>()
+            val zaakspecifiekGeautoriseerdeMedewerkerRolType =
+                createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
+            val rolSlot = slot<Rol<*>>()
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
+            every {
+                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+                    "fakeZaaktypeOmschrijving"
+                )
+            } returns emptySet()
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns emptyList()
+            every { identityService.readUser("fakeMedewerkerId") } returns createUser(
+                id = "fakeMedewerkerId",
+                firstName = "fakeFirstName",
+                lastName = "fakeLastName"
+            )
+            every {
+                zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
+            } returns zaakspecifiekGeautoriseerdeMedewerkerRolType
+            every {
+                zrcClientService.createRol(
+                    capture(rolSlot),
+                    "Zaakspecifiek geautoriseerd medewerker van zaak fakeZaakIdentificatie"
+                )
+            } returns createRolMedewerker()
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
+            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+
+            `when`("the medewerker is added") {
+                val addedMedewerker = zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                    zaak = zaak,
+                    zaakType = zaakType,
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                    groepId = "fakeGroepId",
+                    medewerkerId = "fakeMedewerkerId"
+                )
+
+                then("a zaakspecifiek geautoriseerde medewerker rol is added with the medewerker's name from Keycloak") {
+                    addedMedewerker.id shouldBe "fakeMedewerkerId"
+                    with(rolSlot.captured) {
+                        roltype shouldBe zaakspecifiekGeautoriseerdeMedewerkerRolType.url
+                        roltoelichting shouldBe "Zaakspecifiek geautoriseerde medewerker van de zaak"
+                        with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
+                            identificatie shouldBe "fakeMedewerkerId"
+                            voorletters shouldBe "fakeFirstName"
+                            achternaam shouldBe "fakeLastName"
+                        }
+                    }
+                }
+
+                and("the zaak, its taken and its documenten are reindexed, so the medewerker finds them") {
+                    verifyOrder {
+                        zrcClientService.createRol(any(), any())
+                        indexingService.addOrUpdateZaak(zaak.uuid, false)
+                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
+                        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                    }
                 }
             }
         }
