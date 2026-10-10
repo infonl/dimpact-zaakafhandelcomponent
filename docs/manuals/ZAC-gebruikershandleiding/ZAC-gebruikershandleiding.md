@@ -79,6 +79,7 @@ Versiegeschiedenis:
   - [Zaakgegevens bewerken](#zaakgegevens-bewerken)
   - [Zaak zaakspecifiek autoriseren](#zaak-zaakspecifiek-autoriseren)
     - [Werken met een zaakspecifiek geautoriseerde zaak](#werken-met-een-zaakspecifiek-geautoriseerde-zaak)
+    - [Medewerker toevoegen](#medewerker-toevoegen)
   - [Locatie koppelen](#locatie-koppelen)
   - [Locatie wijzigen](#locatie-wijzigen)
   - [Locatie ontkoppelen](#locatie-ontkoppelen)
@@ -516,6 +517,7 @@ Deze medewerkers hebben toegang tot een zaakspecifiek geautoriseerde zaak:
 - de behandelaar van de zaak
 - de vorige behandelaars van de zaak, vanaf het moment van de zaakspecifieke autorisatie
 - medewerkers met de rol Zaakspecifiek geautoriseerd voor het zaaktype. De beheerder richt deze rol in.
+- medewerkers die door een medewerker met bewerkrechten handmatig aan de zaak zijn toegevoegd. Zie [Medewerker toevoegen](#medewerker-toevoegen).
 
 Ook deze medewerkers hebben altijd een andere rol voor het zaaktype nodig, bijvoorbeeld Raadpleger of Behandelaar.
 Die rol bepaalt wat de medewerker met de zaak mag doen.
@@ -550,6 +552,28 @@ Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. 
 - Een zaakspecifiek geautoriseerde zaak heeft altijd een behandelaar. Je kunt de zaak niet vrijgeven.
 - Je kunt de zaak aan een andere behandelaar toekennen. De vorige behandelaar houdt dan toegang tot de zaak. ZAC registreert de vorige behandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak.
 - Zaakspecifiek geautoriseerde medewerkers staan niet in het tabblad ‘Betrokkenen’ van de zaak.
+
+### Medewerker toevoegen
+
+Bij een zaakspecifiek geautoriseerde zaak kun je extra medewerkers toegang geven tot de zaak.
+
+> De optie is alleen beschikbaar bij een zaakspecifiek geautoriseerde zaak, en alleen als je de zaak mag wijzigen.
+
+**Stappen**
+
+1 Kies in het menu onder ‘Koppelingen’ voor ‘Medewerker toevoegen’
+
+2 Kies een groep. De lijst toont alleen groepen met de rol Behandelaar voor het zaaktype.
+
+3 Kies een medewerker uit de groep. Medewerkers die al toegang hebben tot de zaak, staan niet in de lijst. Hebben alle medewerkers van de groep al toegang, dan toont ZAC een melding.
+
+4 Klik op Toevoegen
+
+![Medewerker toevoegen](./images/medewerker-toevoegen.png)
+
+De toegevoegde medewerker heeft vanaf dan toegang tot de zaak, met de rechten van de eigen rol voor het zaaktype.
+De zaakhistorie toont dat de medewerker is toegevoegd als Zaakspecifiek geautoriseerde medewerker.
+Een toegevoegde medewerker die de zaak mag wijzigen, kan zelf ook medewerkers toevoegen.
 
 ## Locatie koppelen
 
