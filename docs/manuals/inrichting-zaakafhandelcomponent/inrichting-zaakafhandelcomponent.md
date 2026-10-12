@@ -648,9 +648,9 @@ Een medewerker heeft toegang tot een zaakspecifiek geautoriseerde zaak als minim
    ZAC geeft deze rol aan de vorige behandelaar als een zaakspecifiek geautoriseerde zaak een andere behandelaar krijgt.
    ZAC geeft deze rol ook aan een medewerker die door een medewerker met bewerkrechten handmatig aan de zaak is toegevoegd.
    De toegevoegde medewerker komt uit een groep met de applicatierol `behandelaar` voor het zaaktype.
-   ZAC geeft deze rol ook aan een medewerker die een taak van de zaak toegekend krijgt, de taakbehandelaar.
+   ZAC geeft deze rol ook aan een medewerker die een taak van de zaak toegekend krijgt, tenzij die medewerker de huidige behandelaar is of deze rol al heeft.
    Dat geldt ook voor de taakbehandelaar van een open taak op het moment dat de zaak zaakspecifiek geautoriseerd wordt.
-   Een vorige taakbehandelaar houdt deze rol, ook na het vrijgeven of afronden van de taak, of als de taak een andere taakbehandelaar krijgt.
+   Een medewerker die deze rol als taakbehandelaar kreeg, houdt de rol ook na het vrijgeven of afronden van de taak, of als de taak een andere taakbehandelaar krijgt.
 
 De voorwaarden 2 en 3 gelden alleen voor die ene zaak, niet voor andere zaakspecifiek geautoriseerde zaken van hetzelfde zaaktype.
 
