@@ -270,6 +270,11 @@ export class ZaakViewComponent
         () => {
           this.betrokkenenService.invalidateBetrokkenen(this.zaak);
           this.invalidateZaakHistorie();
+          this.queryClient.invalidateQueries({
+            queryKey: this.zakenService.listGeautoriseerdeMedewerkersQuery(
+              zaak.uuid,
+            ).queryKey,
+          });
           this.updateZaak();
         },
       );
