@@ -516,6 +516,7 @@ Deze medewerkers hebben toegang tot een zaakspecifiek geautoriseerde zaak:
 
 - de behandelaar van de zaak
 - de vorige behandelaars van de zaak, vanaf het moment van de zaakspecifieke autorisatie
+- de huidige en vorige taakbehandelaars van de taken van de zaak, vanaf het moment van de zaakspecifieke autorisatie
 - medewerkers met de rol Zaakspecifiek geautoriseerd voor het zaaktype. De beheerder richt deze rol in.
 - medewerkers die door een medewerker met bewerkrechten handmatig aan de zaak zijn toegevoegd. Zie [Medewerker toevoegen](#medewerker-toevoegen).
 
@@ -551,6 +552,11 @@ Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. 
 
 - Een zaakspecifiek geautoriseerde zaak heeft altijd een behandelaar. Je kunt de zaak niet vrijgeven.
 - Je kunt de zaak aan een andere behandelaar toekennen. De vorige behandelaar houdt dan toegang tot de zaak. ZAC registreert de vorige behandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak.
+- Als je een taak start en een medewerker als taakbehandelaar kiest, dan krijgt deze medewerker toegang tot de zaak.
+- Als je een taak aan een andere medewerker toekent, dan krijgt de nieuwe taakbehandelaar toegang. De vorige taakbehandelaar houdt toegang. Dit geldt ook voor ‘Aan mij toekennen’ en voor taken verdelen.
+- Een taakbehandelaar houdt toegang als de taak is vrijgegeven of afgerond.
+- Als een zaak met een open taak zaakspecifiek geautoriseerd wordt, dan krijgt de taakbehandelaar van die taak toegang tot de zaak.
+- ZAC registreert een taakbehandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak. De taakhistorie toont dan een regel ‘Zaakspecifiek geautoriseerde medewerker’ met de naam van de taakbehandelaar. Die regel staat er alleen als de medewerker nog geen Zaakspecifiek geautoriseerde medewerker was en niet de behandelaar van de zaak is.
 - Zaakspecifiek geautoriseerde medewerkers staan niet in het tabblad ‘Betrokkenen’ van de zaak.
 
 ### Medewerker toevoegen

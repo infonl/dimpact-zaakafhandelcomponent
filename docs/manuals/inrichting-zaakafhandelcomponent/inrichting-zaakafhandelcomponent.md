@@ -648,6 +648,9 @@ Een medewerker heeft toegang tot een zaakspecifiek geautoriseerde zaak als minim
    ZAC geeft deze rol aan de vorige behandelaar als een zaakspecifiek geautoriseerde zaak een andere behandelaar krijgt.
    ZAC geeft deze rol ook aan een medewerker die door een medewerker met bewerkrechten handmatig aan de zaak is toegevoegd.
    De toegevoegde medewerker komt uit een groep met de applicatierol `behandelaar` voor het zaaktype.
+   ZAC geeft deze rol ook aan een medewerker die een taak van de zaak toegekend krijgt, de taakbehandelaar.
+   Dat geldt ook voor de taakbehandelaar van een open taak op het moment dat de zaak zaakspecifiek geautoriseerd wordt.
+   Een vorige taakbehandelaar houdt deze rol, ook na het vrijgeven of afronden van de taak, of als de taak een andere taakbehandelaar krijgt.
 
 De voorwaarden 2 en 3 gelden alleen voor die ene zaak, niet voor andere zaakspecifiek geautoriseerde zaken van hetzelfde zaaktype.
 
@@ -690,7 +693,7 @@ Het zaaktype blijft bruikbaar, maar de zaakspecifieke autorisatie werkt niet vol
 
 | Ontbreekt                                          | Gevolg                                                                                                   |
 |----------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| Roltype 'Zaakspecifiek geautoriseerde medewerker'  | Een medewerker kan een zaakspecifiek geautoriseerde zaak niet aan een andere behandelaar overdragen.     |
+| Roltype 'Zaakspecifiek geautoriseerde medewerker'  | Een medewerker kan een zaakspecifiek geautoriseerde zaak niet aan een andere behandelaar overdragen, en kan een taak van zo'n zaak niet aan een medewerker toekennen. |
 | Eigenschap `ZAAK_GEAUTORISEERD`                    | Een medewerker kan zaken van dit zaaktype niet zaakspecifiek autoriseren.                                |
 
 ![Inrichtingscheck waarschuwing zaakspecifieke autorisatie](images/inrichtingscheck_zaakspecifieke_autorisatie.png)
@@ -716,6 +719,7 @@ Zonder deze koppeling hebben alleen de behandelaar en de medewerkers met de rol 
 |--------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
 | De medewerker ziet het vinkje 'Zaak zaakspecifiek autoriseren' niet.                        | Het zaaktype heeft niet zowel de eigenschap `ZAAK_GEAUTORISEERD` als het roltype 'Zaakspecifiek geautoriseerde medewerker', of de catalogus is niet gesynchroniseerd. |
 | De medewerker kan een zaak niet aan een andere behandelaar overdragen.                     | Het roltype 'Zaakspecifiek geautoriseerde medewerker' ontbreekt in de catalogus van het zaaktype.                                  |
+| De medewerker kan een taak niet aan een medewerker toekennen, of taken verdelen slaat een taak over. | Het roltype 'Zaakspecifiek geautoriseerde medewerker' ontbreekt in de catalogus van het zaaktype.                       |
 | Een medewerker met de applicatierol `zaakspecifiek_geautoriseerd` ziet de zaak niet.        | De medewerker heeft geen basis-applicatierol voor het zaaktype, de koppeling geldt voor een ander domein, of de medewerker meldde zich niet opnieuw aan na de wijziging. |
 
 ### Migratie van de oude naar de nieuwe IAM-architectuur
