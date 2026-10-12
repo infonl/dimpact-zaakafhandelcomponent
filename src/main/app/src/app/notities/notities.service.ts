@@ -4,7 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
@@ -13,9 +13,12 @@ export class NotitieService {
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   listNotities(uuid: string) {
-    return this.zacQueryClient.GET("/rest/notities/zaken/{uuid}", {
-      path: { uuid },
-    });
+    return {
+      ...this.zacQueryClient.GET("/rest/notities/zaken/{uuid}", {
+        path: { uuid },
+      }),
+      staleTime: StaleTimes.Instant,
+    };
   }
 
   createNotitie() {

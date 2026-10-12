@@ -31,6 +31,18 @@ import { DatumPipe } from "../shared/pipes/datum.pipe";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
 
+function nieuwsteWijzigingEerst(
+  notitie: GeneratedType<"RestNote">,
+  andereNotitie: GeneratedType<"RestNote">,
+) {
+  if (!notitie.tijdstipLaatsteWijziging) return -1;
+  if (!andereNotitie.tijdstipLaatsteWijziging) return 1;
+
+  return andereNotitie.tijdstipLaatsteWijziging.localeCompare(
+    notitie.tijdstipLaatsteWijziging,
+  );
+}
+
 @Component({
   selector: "zac-notities",
   templateUrl: "./notities.component.html",
@@ -69,14 +81,7 @@ export class NotitiesComponent {
     this.notitieService.listNotities(this.zaakUuid()),
   );
   protected readonly notities = computed(() =>
-    [...(this.notitiesQuery.data() ?? [])].sort((a, b) => {
-      if (!a.tijdstipLaatsteWijziging) return -1;
-      if (!b.tijdstipLaatsteWijziging) return 1;
-
-      return b.tijdstipLaatsteWijziging.localeCompare(
-        a.tijdstipLaatsteWijziging,
-      );
-    }),
+    [...(this.notitiesQuery.data() ?? [])].sort(nieuwsteWijzigingEerst),
   );
 
   private readonly createNotitieMutation = injectMutation(

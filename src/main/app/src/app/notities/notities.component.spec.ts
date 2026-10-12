@@ -156,6 +156,51 @@ describe(NotitiesComponent.name, () => {
       expect(websocketService.removeListener).toHaveBeenCalledTimes(1);
     });
 
+    it("should reload the notities when it is shown again, so changes made while it was not listening are not missed", async () => {
+      await setup({ notities: [notitie()], notitieRechten });
+      fixture.destroy();
+
+      fixture = TestBed.createComponent(NotitiesComponent);
+      fixture.componentRef.setInput("zaakUuid", "fakeZaakUuid");
+      fixture.componentRef.setInput("notitieRechten", notitieRechten);
+      fixture.detectChanges();
+      await respondWithNotities([notitie({ tekst: "fakeNieuweTekst" })]);
+      await openNotities();
+
+      expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
+    });
+
+    it("should show the most recently changed notitie first, after the notities without a change time", async () => {
+      await setup({
+        notities: [
+          notitie({
+            id: 1,
+            tekst: "fakeOudsteTekst",
+            tijdstipLaatsteWijziging: "2026-01-01T10:00:00Z",
+          }),
+          notitie({
+            id: 2,
+            tekst: "fakeNieuwsteTekst",
+            tijdstipLaatsteWijziging: "2026-03-01T10:00:00Z",
+          }),
+          notitie({ id: 3, tekst: "fakeTekstZonderTijdstip" }),
+        ],
+        notitieRechten,
+      });
+
+      await openNotities();
+
+      expect(
+        screen
+          .getAllByText(/^fake.*Tekst/)
+          .map((element) => element.textContent?.trim()),
+      ).toEqual([
+        "fakeTekstZonderTijdstip",
+        "fakeNieuwsteTekst",
+        "fakeOudsteTekst",
+      ]);
+    });
+
     it("should offer to add a notitie", async () => {
       await setup({ notitieRechten });
 

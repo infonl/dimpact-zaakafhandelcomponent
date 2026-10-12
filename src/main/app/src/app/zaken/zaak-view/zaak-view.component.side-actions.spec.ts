@@ -409,6 +409,22 @@ describe(ZaakViewComponent.name, () => {
       );
       expect(sideActions.activeAction()).toBe("fakeHumanTaskNaam");
     });
+
+    it("keeps no cached copy of the plan item, so a failed fetch the next time is reported to the user instead of only logged", async () => {
+      await startHumanTask();
+      httpTestingController
+        .expectOne("/rest/planitems/humanTaskPlanItem/fakeHumanTaskPlanItemId")
+        .flush(humanTaskPlanItem);
+      await sleep();
+      await sleep();
+
+      expect(
+        testQueryClient.getQueryCache().findAll({
+          predicate: (query) =>
+            JSON.stringify(query.queryKey).includes("fakeHumanTaskPlanItemId"),
+        }),
+      ).toEqual([]);
+    });
   });
 
   describe("updateDocumentList", () => {

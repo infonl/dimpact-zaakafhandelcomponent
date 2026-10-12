@@ -379,6 +379,7 @@ export class ZaakViewComponent
       runQuery(this.queryClient, {
         ...this.planItemsService.readHumanTaskPlanItem(planItem.id),
         staleTime: StaleTimes.Instant,
+        gcTime: 0,
       }).subscribe((planItem) => {
         this.sideActions.actiefPlanItem.set(planItem);
         this.sideActions.open(planItem.naam);
