@@ -1022,6 +1022,72 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         }
     }
 
+    context("Listing the medewerkers who are individually authorised for a zaakspecifiek geautoriseerde zaak") {
+        given("a zaak that is not zaakspecifiek geautoriseerd") {
+            val zaak = createZaak()
+
+            `when`("the geautoriseerde medewerkers are listed") {
+                val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
+                    zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
+                        zaak = zaak,
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() }
+                    )
+                }
+
+                then("the request is refused with the error code that the frontend translates") {
+                    zaakNotZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD
+                }
+
+                and("the rollen of the zaak are not read") {
+                    verify(exactly = 0) { zrcClientService.listRollen(any<Zaak>()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak with a behandelaar and two individually authorised medewerkers") {
+            val zaak = createZaak()
+            val behandelaarRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(voorletters = "Mila", achternaam = "Visser")
+            )
+            val geautoriseerdeMedewerkerRolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType()
+            val geautoriseerdeMedewerkerRolZ = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = geautoriseerdeMedewerkerRolType,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(voorletters = "Zoe", achternaam = "Bakker")
+            )
+            val geautoriseerdeMedewerkerRolA = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = geautoriseerdeMedewerkerRolType,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(voorletters = "anna", achternaam = "Smit")
+            )
+            val rollen = listOf<Rol<*>>(behandelaarRol, geautoriseerdeMedewerkerRolZ, geautoriseerdeMedewerkerRolA)
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns listOf(behandelaarRol)
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns listOf(geautoriseerdeMedewerkerRolZ, geautoriseerdeMedewerkerRolA)
+
+            `when`("the geautoriseerde medewerkers are listed") {
+                val geautoriseerdeMedewerkerRollen = zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
+                    zaak = zaak,
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens
+                )
+
+                then("the behandelaar and the individually authorised medewerkers are returned, sorted by name regardless of case") {
+                    geautoriseerdeMedewerkerRollen shouldContainExactly
+                        listOf(geautoriseerdeMedewerkerRolA, behandelaarRol, geautoriseerdeMedewerkerRolZ)
+                }
+
+                and("whether the zaak is zaakspecifiek geautoriseerd is not read again") {
+                    verify(exactly = 0) { zrcClientService.listZaakeigenschappen(any()) }
+                }
+            }
+        }
+    }
+
     context("Listing the medewerkers of a groep who can be added to a zaakspecifiek geautoriseerde zaak") {
         given("a zaak that is not zaakspecifiek geautoriseerd") {
 

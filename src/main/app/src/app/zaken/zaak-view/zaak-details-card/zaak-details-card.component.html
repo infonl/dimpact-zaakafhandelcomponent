@@ -82,6 +82,20 @@
         </mat-tab>
       }
 
+      @if (zaak().isZaakspecifiekGeautoriseerd) {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>person</mat-icon>
+            {{ "medewerkers" | translate }}
+          </ng-template>
+          <ng-template matTabContent>
+            <zac-zaak-details-medewerkers-tab
+              [zaakUuid]="zaak().uuid"
+            ></zac-zaak-details-medewerkers-tab>
+          </ng-template>
+        </mat-tab>
+      }
+
       @if (zaak().gerelateerdeZaken?.length) {
         <mat-tab>
           <ng-template mat-tab-label>

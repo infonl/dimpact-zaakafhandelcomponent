@@ -31,6 +31,7 @@ import { ZaakHistorieComponent } from "../../zaken-historie/zaak-historie.compon
 import { ZaakDetailsAlgemeenTabComponent } from "./zaak-details-algemeen-tab/zaak-details-algemeen-tab.component";
 import { ZaakDetailsBagObjectenTabComponent } from "./zaak-details-bag-objecten-tab/zaak-details-bag-objecten-tab.component";
 import { ZaakDetailsGerelateerdeZakenTabComponent } from "./zaak-details-gerelateerde-zaken-tab/zaak-details-gerelateerde-zaken-tab.component";
+import { ZaakDetailsMedewerkersTabComponent } from "./zaak-details-medewerkers-tab/zaak-details-medewerkers-tab.component";
 
 @Component({
   selector: "zac-zaak-details-card",
@@ -54,6 +55,7 @@ import { ZaakDetailsGerelateerdeZakenTabComponent } from "./zaak-details-gerelat
     ZaakDetailsAlgemeenTabComponent,
     ZaakDetailsBagObjectenTabComponent,
     ZaakDetailsGerelateerdeZakenTabComponent,
+    ZaakDetailsMedewerkersTabComponent,
     ZaakHistorieComponent,
     ZaakIndicatiesComponent,
     LocatieTonenComponent,
