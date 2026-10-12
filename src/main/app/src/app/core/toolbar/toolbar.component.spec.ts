@@ -26,7 +26,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { mockMutationFn, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
