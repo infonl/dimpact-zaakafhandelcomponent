@@ -39,7 +39,7 @@ import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { merge } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
@@ -173,6 +173,10 @@ export class InboxProductaanvragenListComponent
 
   ngAfterViewInit() {
     this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
+    const stopLoading = () => {
+      this.isLoadingResults = false;
+      this.utilService.setLoading(false);
+    };
     merge(this.sort().sortChange, this.paginator().page, this.filterChange)
       .pipe(
         startWith({}),
@@ -185,11 +189,7 @@ export class InboxProductaanvragenListComponent
             this.inboxProductaanvragenService.list({ ...this.listParameters }),
           );
         }),
-        map((data) => {
-          this.isLoadingResults = false;
-          this.utilService.setLoading(false);
-          return data;
-        }),
+        tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((data) => {
         this.paginator().length = Number(data.totaal);
