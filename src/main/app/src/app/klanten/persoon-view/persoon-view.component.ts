@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
@@ -21,7 +20,6 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
   styleUrls: ["./persoon-view.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     MatSidenavModule,
     MatCardModule,
     TranslateModule,

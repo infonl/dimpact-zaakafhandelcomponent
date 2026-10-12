@@ -4,7 +4,7 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
-import { NgClass, NgFor, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -93,8 +93,6 @@ const GEKOPPELDE_COLUMNS = [
   animations: [detailExpand],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     NgClass,
     RouterLink,
     MatCardModule,

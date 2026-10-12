@@ -26,17 +26,19 @@
     #actionsSidenav
     mode="over"
     position="end"
-    [ngSwitch]="activeSideAction"
     (closedStart)="activeSideAction = null"
   >
-    <zac-informatie-object-edit
-      *ngSwitchCase="'actie.nieuwe.versie.toevoegen'"
-      [sideNav]="actionsSidenav"
-      [infoObject]="documentNieuweVersieGegevens"
-      [zaakUuid]="zaak?.uuid ?? ''"
-      (document)="versieToegevoegd($event)"
-    >
-    </zac-informatie-object-edit>
+    @switch (activeSideAction) {
+      @case ("actie.nieuwe.versie.toevoegen") {
+        <zac-informatie-object-edit
+          [sideNav]="actionsSidenav"
+          [infoObject]="documentNieuweVersieGegevens"
+          [zaakUuid]="zaak?.uuid ?? ''"
+          (document)="versieToegevoegd($event)"
+        >
+        </zac-informatie-object-edit>
+      }
+    }
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap flex-col-xl gap-10">
@@ -75,18 +77,20 @@
                   [value]="infoObject.registratiedatumTijd | datum: 'short'"
                   class="flex-item"
                 />
-                <zac-static-text
-                  label="verzenddatum"
-                  [value]="infoObject.verzenddatum | datum"
-                  *ngIf="infoObject.verzenddatum"
-                  class="flex-item"
-                />
-                <zac-static-text
-                  label="ontvangstdatum"
-                  *ngIf="infoObject.ontvangstdatum"
-                  [value]="infoObject.ontvangstdatum | datum"
-                  class="flex-item"
-                />
+                @if (infoObject.verzenddatum) {
+                  <zac-static-text
+                    label="verzenddatum"
+                    [value]="infoObject.verzenddatum | datum"
+                    class="flex-item"
+                  />
+                }
+                @if (infoObject.ontvangstdatum) {
+                  <zac-static-text
+                    label="ontvangstdatum"
+                    [value]="infoObject.ontvangstdatum | datum"
+                    class="flex-item"
+                  />
+                }
               </div>
               <mat-divider class="mat-divider-wrapper"></mat-divider>
 
@@ -131,16 +135,17 @@
                 />
               </div>
               <div class="flex flex-row justify-start gap-10">
-                <zac-static-text
-                  label="informatieobject.status"
-                  [value]="
-                    'informatieobject.status.' + infoObject.status
-                      | i18nKey
-                      | translate
-                  "
-                  *ngIf="infoObject.status"
-                  class="flex-item"
-                />
+                @if (infoObject.status) {
+                  <zac-static-text
+                    label="informatieobject.status"
+                    [value]="
+                      'informatieobject.status.' + infoObject.status
+                        | i18nKey
+                        | translate
+                    "
+                    class="flex-item"
+                  />
+                }
                 <zac-static-text
                   label="vertrouwelijkheidaanduiding"
                   [value]="
@@ -286,9 +291,11 @@
                     *matRowDef="let row; columns: historieColumns"
                   ></tr>
                 </table>
-                <p *ngIf="historie.data.length == 0">
-                  {{ "msg.geen.gegevens.gevonden" | translate }}
-                </p>
+                @if (historie.data.length == 0) {
+                  <p>
+                    {{ "msg.geen.gegevens.gevonden" | translate }}
+                  </p>
+                }
               </div>
             </mat-tab>
           </mat-tab-group>
@@ -296,62 +303,63 @@
       </mat-card>
 
       <div class="flex-col w50 flex-1">
-        <mat-card
-          class="zaak-gegevens"
-          *ngFor="let zaak of zaakInformatieObjecten"
-        >
-          <mat-card-header>
-            <mat-card-title-group>
-              <mat-card-title
-                >{{ "zaak" | translate }}
-                {{ zaak.zaakIdentificatie }}</mat-card-title
-              >
-              <mat-card-subtitle>{{
-                zaak.zaaktypeOmschrijving
-              }}</mat-card-subtitle>
-              <a
-                [routerLink]="['/zaken', zaak?.zaakIdentificatie]"
-                [title]="zaak.zaakIdentificatie + ' openen'"
-                id="zaakDetail_button"
-                mat-icon-button
-              >
-                <mat-icon>visibility</mat-icon>
-              </a>
-            </mat-card-title-group>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="content flex-row flex-wrap flex-col-xs">
-              <zac-static-text
-                class="flex-1 w33"
-                label="status"
-                [value]="zaak.zaakStatus | empty: 'naam'"
-              />
-              <zac-static-text
-                class="flex-1 w33"
-                label="startdatum"
-                [value]="zaak.zaakStartDatum | datum"
-              />
-              <zac-static-text
-                class="flex-1 w33"
-                label="einddatum-gepland"
-                [value]="zaak.zaakEinddatumGepland | datum"
-              />
-            </div>
-          </mat-card-content>
-        </mat-card>
+        @for (zaak of zaakInformatieObjecten; track zaak) {
+          <mat-card class="zaak-gegevens">
+            <mat-card-header>
+              <mat-card-title-group>
+                <mat-card-title
+                  >{{ "zaak" | translate }}
+                  {{ zaak.zaakIdentificatie }}</mat-card-title
+                >
+                <mat-card-subtitle>{{
+                  zaak.zaaktypeOmschrijving
+                }}</mat-card-subtitle>
+                <a
+                  [routerLink]="['/zaken', zaak?.zaakIdentificatie]"
+                  [title]="zaak.zaakIdentificatie + ' openen'"
+                  id="zaakDetail_button"
+                  mat-icon-button
+                >
+                  <mat-icon>visibility</mat-icon>
+                </a>
+              </mat-card-title-group>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="content flex-row flex-wrap flex-col-xs">
+                <zac-static-text
+                  class="flex-1 w33"
+                  label="status"
+                  [value]="zaak.zaakStatus | empty: 'naam'"
+                />
+                <zac-static-text
+                  class="flex-1 w33"
+                  label="startdatum"
+                  [value]="zaak.zaakStartDatum | datum"
+                />
+                <zac-static-text
+                  class="flex-1 w33"
+                  label="einddatum-gepland"
+                  [value]="zaak.zaakEinddatumGepland | datum"
+                />
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
       </div>
 
-      <div class="flex-row w100" *ngIf="documentPreviewBeschikbaar">
-        <mat-expansion-panel class="w100" expanded="true">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <mat-icon outlined>plagiarism</mat-icon>
-              {{ infoObject.titel }} | {{ "document.preview" | translate }}
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <zac-document-viewer [document]="infoObject"></zac-document-viewer>
-        </mat-expansion-panel>
-      </div>
+      @if (documentPreviewBeschikbaar) {
+        <div class="flex-row w100">
+          <mat-expansion-panel class="w100" expanded="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon outlined>plagiarism</mat-icon>
+                {{ infoObject.titel }} | {{ "document.preview" | translate }}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <zac-document-viewer [document]="infoObject"></zac-document-viewer>
+          </mat-expansion-panel>
+        </div>
+      }
     </div>
   </mat-drawer-content>
 </mat-drawer-container>

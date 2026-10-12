@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf } from "@angular/common";
 import { Component, inject, input, OnInit, output } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 
@@ -40,8 +39,6 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
   styleUrls: ["./besluit-view.component.less"],
   standalone: true,
   imports: [
-    NgFor,
-    NgIf,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,

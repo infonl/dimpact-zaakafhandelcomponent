@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { LowerCasePipe, NgIf } from "@angular/common";
+import { LowerCasePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -57,7 +57,6 @@ import { TakenService } from "../../taken/taken.service";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgIf,
     MatCard,
     MatCardHeader,
     MatCardTitle,

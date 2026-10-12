@@ -16,7 +16,9 @@
 
   <mat-drawer-content>
     <div class="table-container">
-      <div class="table-loading-shade" *ngIf="isLoadingResults"></div>
+      @if (isLoadingResults) {
+        <div class="table-loading-shade"></div>
+      }
       <div class="table-wrapper">
         <table
           mat-table
@@ -62,11 +64,9 @@
                   [value]="listParameters.ontkoppeldDoor"
                 >
                   <mat-option>{{ "filter.alle" | translate }}</mat-option>
-                  <mat-option
-                    *ngFor="let value of filterOntkoppeldDoor"
-                    [value]="value"
-                    >{{ value.naam }}</mat-option
-                  >
+                  @for (value of filterOntkoppeldDoor; track value) {
+                    <mat-option [value]="value">{{ value.naam }}</mat-option>
+                  }
                 </mat-select>
               </mat-form-field>
             </th>
@@ -168,25 +168,28 @@
                 >
                   <mat-icon>download</mat-icon>
                 </a>
-                <button
-                  *ngIf="
-                    werklijstRechten.canOntkoppeldeDocumentenVerwijderen &&
-                    !row.isVergrendeld
-                  "
-                  mat-icon-button
-                  (click)="documentVerwijderen(row)"
-                  title="{{ 'actie.verwijderen' | translate }}"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
-                <div *ngIf="row.isVergrendeld" class="indication">
-                  <mat-icon
-                    title="{{ 'indicatie.vergrendeld' | translate }}"
-                    class="mat-mdc-standard-chip mat-mdc-chip-highlighted mat-accent lock-icon"
+                @if (
+                  werklijstRechten.canOntkoppeldeDocumentenVerwijderen &&
+                  !row.isVergrendeld
+                ) {
+                  <button
+                    mat-icon-button
+                    (click)="documentVerwijderen(row)"
+                    title="{{ 'actie.verwijderen' | translate }}"
                   >
-                    lock
-                  </mat-icon>
-                </div>
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+                @if (row.isVergrendeld) {
+                  <div class="indication">
+                    <mat-icon
+                      title="{{ 'indicatie.vergrendeld' | translate }}"
+                      class="mat-mdc-standard-chip mat-mdc-chip-highlighted mat-accent lock-icon"
+                    >
+                      lock
+                    </mat-icon>
+                  </div>
+                }
                 <button
                   mat-icon-button
                   (click)="openDrawer(row)"
@@ -209,13 +212,13 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
 
-        <ng-container *ngIf="paginator.length === 0 && !isLoadingResults">
+        @if (paginator.length === 0 && !isLoadingResults) {
           <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
-        </ng-container>
+        }
 
-        <ng-container *ngIf="paginator.length === 0 && isLoadingResults">
+        @if (paginator.length === 0 && isLoadingResults) {
           <p>{{ "msg.loading" | translate }}</p>
-        </ng-container>
+        }
       </div>
       <mat-paginator
         #paginator

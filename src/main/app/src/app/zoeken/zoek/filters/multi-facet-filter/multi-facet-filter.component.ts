@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { LowerCasePipe, NgFor, NgIf } from "@angular/common";
+import { LowerCasePipe } from "@angular/common";
 import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
@@ -22,8 +22,6 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgIf,
-    NgFor,
     LowerCasePipe,
     ReactiveFormsModule,
     MatCardModule,

@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  KeyValuePipe,
-  NgClass,
-  NgFor,
-  NgIf,
-  NgSwitch,
-  NgSwitchCase,
-} from "@angular/common";
+import { KeyValuePipe, NgClass } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -94,10 +87,6 @@ const ZOEK_MISLUKT = Symbol("zoek mislukt");
     MatSelect,
     MatSuffix,
     MultiFacetFilterComponent,
-    NgFor,
-    NgIf,
-    NgSwitch,
-    NgSwitchCase,
     PersoonZoekComponent,
     ReactiveFormsModule,
     TaakZoekObjectComponent,

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -47,7 +46,6 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   styleUrls: ["./bag-zaken-tabel.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatCardModule,
     MatTableModule,

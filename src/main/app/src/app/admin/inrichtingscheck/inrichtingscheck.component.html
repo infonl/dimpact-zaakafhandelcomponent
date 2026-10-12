@@ -69,402 +69,454 @@
         <mat-card>
           <mat-card-content>
             <div class="table-wrapper">
-              <table
-                *ngIf="!loadingZaaktypes"
-                mat-table
-                [dataSource]="dataSource"
-                matSort
-                matSortDirection="asc"
-                (matSortChange)="sortData($event)"
-                multiTemplateDataRows
-              >
-                <ng-container matColumnDef="expand">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    aria-label="row actions"
-                  >
-                    &nbsp;
-                  </th>
-                  <td mat-cell *matCellDef="let row">
-                    <mat-icon *ngIf="needsAttention(row) && expandedRow !== row"
-                      >keyboard_arrow_down</mat-icon
+              @if (!loadingZaaktypes) {
+                <table
+                  mat-table
+                  [dataSource]="dataSource"
+                  matSort
+                  matSortDirection="asc"
+                  (matSortChange)="sortData($event)"
+                  multiTemplateDataRows
+                >
+                  <ng-container matColumnDef="expand">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      aria-label="row actions"
                     >
-                    <mat-icon *ngIf="needsAttention(row) && expandedRow === row"
-                      >keyboard_arrow_up</mat-icon
+                      &nbsp;
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                      @if (needsAttention(row) && expandedRow !== row) {
+                        <mat-icon>keyboard_arrow_down</mat-icon>
+                      }
+                      @if (needsAttention(row) && expandedRow === row) {
+                        <mat-icon>keyboard_arrow_up</mat-icon>
+                      }
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="zaaktypeOmschrijving">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      mat-sort-header="zaaktypeOmschrijving"
                     >
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="zaaktypeOmschrijving">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="zaaktypeOmschrijving"
-                  >
-                    {{ "zaaktype-omschrijving" | translate }}
-                  </th>
-                  <td mat-cell *matCellDef="let row">
-                    {{ row.zaaktype.omschrijving }}
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="zaaktypeDoel">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="zaaktypeDoel"
-                  >
-                    {{ "doel" | translate }}
-                  </th>
-                  <td mat-cell *matCellDef="let row">
-                    <read-more
-                      [text]="row.zaaktype.doel"
-                      [maxLength]="100"
-                    ></read-more>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="beginGeldigheid">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="beginGeldigheid"
-                  >
-                    {{ "begin.geldigheid" | translate }}
-                  </th>
-                  <td mat-cell *matCellDef="let row">
-                    {{ row.zaaktype.beginGeldigheid | datum }}
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="valide">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="valide"
-                  ></th>
-                  <td mat-cell *matCellDef="let row">
-                    <mat-icon
-                      outlined
-                      *ngIf="row.isValide && !row.hasWaarschuwingen"
-                      color="primary"
-                      aria-hidden="false"
-                      [attr.aria-label]="
-                        'health-check.zaaktype.status.valide' | translate
-                      "
-                      >check_circle</mat-icon
+                      {{ "zaaktype-omschrijving" | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                      {{ row.zaaktype.omschrijving }}
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="zaaktypeDoel">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      mat-sort-header="zaaktypeDoel"
                     >
-                    <mat-icon
-                      outlined
-                      *ngIf="row.isValide && row.hasWaarschuwingen"
-                      class="warning"
-                      aria-hidden="false"
-                      [attr.aria-label]="
-                        'health-check.zaaktype.status.waarschuwing' | translate
-                      "
-                      >warning</mat-icon
+                      {{ "doel" | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                      <read-more
+                        [text]="row.zaaktype.doel"
+                        [maxLength]="100"
+                      ></read-more>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="beginGeldigheid">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      mat-sort-header="beginGeldigheid"
                     >
-                    <mat-icon
-                      outlined
-                      *ngIf="!row.isValide"
-                      color="warn"
-                      aria-hidden="false"
-                      [attr.aria-label]="
-                        'health-check.zaaktype.status.niet-valide' | translate
-                      "
-                      >error</mat-icon
-                    >
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="expandedPrefix">
-                  <td mat-cell *matCellDef="let row" colspan="2"></td>
-                </ng-container>
-                <ng-container matColumnDef="expandedTitle">
-                  <td mat-cell *matCellDef="let cellRow">
-                    @let row = rowOf(dataSource, cellRow);
-                    <div
-                      class="detail flex-col"
-                      [@detailExpand]="
-                        row === expandedRow ? 'expanded' : 'collapsed'
-                      "
-                    >
-                      <div *ngIf="!row.isZaakafhandelParametersValide">
-                        {{ "zaakafhandelparameters" | translate }}
-                      </div>
-                      <div *ngIf="!row.isStatustypeIntakeAanwezig">
-                        {{ "statustype" | translate }}
-                      </div>
-                      <div *ngIf="!row.isStatustypeInBehandelingAanwezig">
-                        {{ "statustype" | translate }}
-                      </div>
-                      <div *ngIf="!row.isStatustypeHeropendAanwezig">
-                        {{ "statustype" | translate }}
-                      </div>
+                      {{ "begin.geldigheid" | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                      {{ row.zaaktype.beginGeldigheid | datum }}
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="valide">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      mat-sort-header="valide"
+                    ></th>
+                    <td mat-cell *matCellDef="let row">
+                      @if (row.isValide && !row.hasWaarschuwingen) {
+                        <mat-icon
+                          outlined
+                          color="primary"
+                          aria-hidden="false"
+                          [attr.aria-label]="
+                            'health-check.zaaktype.status.valide' | translate
+                          "
+                          >check_circle</mat-icon
+                        >
+                      }
+                      @if (row.isValide && row.hasWaarschuwingen) {
+                        <mat-icon
+                          outlined
+                          class="warning"
+                          aria-hidden="false"
+                          [attr.aria-label]="
+                            'health-check.zaaktype.status.waarschuwing'
+                              | translate
+                          "
+                          >warning</mat-icon
+                        >
+                      }
+                      @if (!row.isValide) {
+                        <mat-icon
+                          outlined
+                          color="warn"
+                          aria-hidden="false"
+                          [attr.aria-label]="
+                            'health-check.zaaktype.status.niet-valide'
+                              | translate
+                          "
+                          >error</mat-icon
+                        >
+                      }
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="expandedPrefix">
+                    <td mat-cell *matCellDef="let row" colspan="2"></td>
+                  </ng-container>
+                  <ng-container matColumnDef="expandedTitle">
+                    <td mat-cell *matCellDef="let cellRow">
+                      @let row = rowOf(dataSource, cellRow);
                       <div
-                        *ngIf="!row.isStatustypeAanvullendeInformatieVereist"
-                      >
-                        {{ "statustype" | translate }}
-                      </div>
-                      <div *ngIf="!row.isStatustypeAfgerondAanwezig">
-                        {{ "statustype" | translate }}
-                      </div>
-                      <div
-                        *ngIf="
-                          row.isStatustypeAfgerondAanwezig &&
-                          !row.isStatustypeAfgerondLaatsteVolgnummer
+                        class="detail flex-col"
+                        [@detailExpand]="
+                          row === expandedRow ? 'expanded' : 'collapsed'
                         "
                       >
-                        {{ "statustype" | translate }}
-                      </div>
-                      <div *ngIf="!row.isResultaattypeAanwezig">
-                        {{ "resultaattype" | translate }}
-                      </div>
-                      <div *ngIf="!row.aantalInitiatorroltypen">
-                        {{ "rol" | translate }}
-                      </div>
-                      <div *ngIf="!row.aantalBehandelaarroltypen">
-                        {{ "rol" | translate }}
-                      </div>
-                      <div *ngIf="!row.isRolOverigeAanwezig">
-                        {{ "rol" | translate }}
-                      </div>
-                      <div *ngIf="!row.isInformatieobjecttypeEmailAanwezig">
-                        {{ "informatieobjecttype" | translate }}
-                      </div>
-                      <div
-                        *ngIf="
+                        @if (!row.isZaakafhandelParametersValide) {
+                          <div>
+                            {{ "zaakafhandelparameters" | translate }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeIntakeAanwezig) {
+                          <div>
+                            {{ "statustype" | translate }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeInBehandelingAanwezig) {
+                          <div>
+                            {{ "statustype" | translate }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeHeropendAanwezig) {
+                          <div>
+                            {{ "statustype" | translate }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeAanvullendeInformatieVereist) {
+                          <div>
+                            {{ "statustype" | translate }}
+                          </div>
+                        }
+                        @if (
+                          !row.isStatustypeAfgerondAanwezig ||
+                          !row.isStatustypeAfgerondLaatsteVolgnummer
+                        ) {
+                          <div>
+                            {{ "statustype" | translate }}
+                          </div>
+                        }
+                        @if (!row.isResultaattypeAanwezig) {
+                          <div>
+                            {{ "resultaattype" | translate }}
+                          </div>
+                        }
+                        @if (!row.aantalInitiatorroltypen) {
+                          <div>
+                            {{ "rol" | translate }}
+                          </div>
+                        }
+                        @if (!row.aantalBehandelaarroltypen) {
+                          <div>
+                            {{ "rol" | translate }}
+                          </div>
+                        }
+                        @if (!row.isRolOverigeAanwezig) {
+                          <div>
+                            {{ "rol" | translate }}
+                          </div>
+                        }
+                        @if (!row.isInformatieobjecttypeEmailAanwezig) {
+                          <div>
+                            {{ "informatieobjecttype" | translate }}
+                          </div>
+                        }
+                        @if (
                           row.resultaattypesMetVerplichtBesluit?.length &&
                           !row.isBesluittypeAanwezig
-                        "
-                      >
-                        {{ "besluittype" | translate }}
-                      </div>
-                      <div *ngIf="!row.isBrpInstellingenCorrect">
-                        {{ "brp-protocollering" | translate }}
-                      </div>
-                      <div
-                        *ngIf="
+                        ) {
+                          <div>
+                            {{ "besluittype" | translate }}
+                          </div>
+                        }
+                        @if (!row.isBrpInstellingenCorrect) {
+                          <div>
+                            {{ "brp-protocollering" | translate }}
+                          </div>
+                        }
+                        @if (
                           row.isZaakspecifiekeAutorisatieEigenschapAanwezig &&
                           !row.isZaakspecifiekeAutorisatieRoltypeAanwezig
-                        "
-                      >
-                        {{ "rol" | translate }}
-                      </div>
-                      <div
-                        *ngIf="
+                        ) {
+                          <div>
+                            {{ "rol" | translate }}
+                          </div>
+                        }
+                        @if (
                           row.isZaakspecifiekeAutorisatieRoltypeAanwezig &&
                           !row.isZaakspecifiekeAutorisatieEigenschapAanwezig
-                        "
-                      >
-                        {{ "eigenschap" | translate }}
+                        ) {
+                          <div>
+                            {{ "eigenschap" | translate }}
+                          </div>
+                        }
                       </div>
-                    </div>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="expandedDetail">
-                  <td
-                    mat-cell
-                    *matCellDef="let cellRow"
-                    [attr.colspan]="columnsToDisplay.length - 3"
-                  >
-                    @let row = rowOf(dataSource, cellRow);
-                    <div
-                      class="detail flex-col"
-                      [@detailExpand]="
-                        row === expandedRow ? 'expanded' : 'collapsed'
-                      "
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="expandedDetail">
+                    <td
+                      mat-cell
+                      *matCellDef="let cellRow"
+                      [attr.colspan]="columnsToDisplay.length - 3"
                     >
-                      <div *ngIf="!row.isZaakafhandelParametersValide">
-                        {{
-                          "health-check.zaaktype.zaakafhandel-parameters-ongeldig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.isStatustypeIntakeAanwezig">
-                        {{
-                          "health-check.zaaktype.geen-statustype-intake-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.isStatustypeInBehandelingAanwezig">
-                        {{
-                          "health-check.zaaktype.geen-statustype-in-behandeling-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.isStatustypeHeropendAanwezig">
-                        {{
-                          "health-check.zaaktype.geen-statustype-heropend-aanwezig"
-                            | translate
-                        }}
-                      </div>
+                      @let row = rowOf(dataSource, cellRow);
                       <div
-                        *ngIf="!row.isStatustypeAanvullendeInformatieVereist"
-                      >
-                        {{
-                          "health-check.zaaktype.geen-statustype-aanvullende-informatie-vereist"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.isStatustypeAfgerondAanwezig">
-                        {{
-                          "health-check.zaaktype.geen-statustype-afgerond-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div
-                        *ngIf="
-                          row.isStatustypeAfgerondAanwezig &&
-                          !row.isStatustypeAfgerondLaatsteVolgnummer
+                        class="detail flex-col"
+                        [@detailExpand]="
+                          row === expandedRow ? 'expanded' : 'collapsed'
                         "
                       >
-                        {{
-                          "health-check.zaaktype.statustype-afgerond-laatste-volgnummer"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.isResultaattypeAanwezig">
-                        {{
-                          "health-check.zaaktype.geen-resultaattype-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.aantalInitiatorroltypen">
-                        {{
-                          "health-check.zaaktype.geen-rol-initiator-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.aantalBehandelaarroltypen">
-                        {{
-                          "health-check.zaaktype.geen-rol-behandelaar-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="(row.aantalInitiatorroltypen ?? 0) > 1">
-                        {{
-                          "health-check.zaaktype.te-veel-rol-initiator-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="(row.aantalBehandelaarroltypen ?? 0) > 1">
-                        {{
-                          "health-check.zaaktype.te-veel-rol-behandelaar-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.isRolOverigeAanwezig">
-                        {{
-                          "health-check.zaaktype.geen-rol-overige-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div *ngIf="!row.isInformatieobjecttypeEmailAanwezig">
-                        {{
-                          "health-check.zaaktype.geen-informatieobjecttype-email-aanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div
-                        *ngIf="
+                        @if (!row.isZaakafhandelParametersValide) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.zaakafhandel-parameters-ongeldig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeIntakeAanwezig) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-statustype-intake-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeInBehandelingAanwezig) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-statustype-in-behandeling-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeHeropendAanwezig) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-statustype-heropend-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeAanvullendeInformatieVereist) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-statustype-aanvullende-informatie-vereist"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.isStatustypeAfgerondAanwezig) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-statustype-afgerond-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        } @else if (
+                          !row.isStatustypeAfgerondLaatsteVolgnummer
+                        ) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.statustype-afgerond-laatste-volgnummer"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.isResultaattypeAanwezig) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-resultaattype-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.aantalInitiatorroltypen) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-rol-initiator-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.aantalBehandelaarroltypen) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-rol-behandelaar-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if ((row.aantalInitiatorroltypen ?? 0) > 1) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.te-veel-rol-initiator-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if ((row.aantalBehandelaarroltypen ?? 0) > 1) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.te-veel-rol-behandelaar-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.isRolOverigeAanwezig) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-rol-overige-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (!row.isInformatieobjecttypeEmailAanwezig) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.geen-informatieobjecttype-email-aanwezig"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (
                           row.resultaattypesMetVerplichtBesluit?.length &&
                           !row.isBesluittypeAanwezig
-                        "
-                        [innerHTML]="
-                          'health-check.zaaktype.geen-besluittype-aanwezig'
-                            | translate
-                              : {
-                                  resultaattypes:
-                                    row.resultaattypesMetVerplichtBesluit!.join(
-                                      ', '
-                                    ),
-                                }
-                        "
-                      ></div>
-                      <div *ngIf="!row.isBrpInstellingenCorrect">
-                        {{
-                          "health-check.zaaktype.onjuiste-brp-headerwaarde"
-                            | translate
-                        }}
-                      </div>
-                      <div
-                        *ngIf="
+                        ) {
+                          <div
+                            [innerHTML]="
+                              'health-check.zaaktype.geen-besluittype-aanwezig'
+                                | translate
+                                  : {
+                                      resultaattypes:
+                                        row.resultaattypesMetVerplichtBesluit!.join(
+                                          ', '
+                                        ),
+                                    }
+                            "
+                          ></div>
+                        }
+                        @if (!row.isBrpInstellingenCorrect) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.onjuiste-brp-headerwaarde"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (
                           row.isZaakspecifiekeAutorisatieEigenschapAanwezig &&
                           !row.isZaakspecifiekeAutorisatieRoltypeAanwezig
-                        "
-                      >
-                        {{
-                          "health-check.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt"
-                            | translate
-                        }}
-                      </div>
-                      <div
-                        *ngIf="
+                        ) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt"
+                                | translate
+                            }}
+                          </div>
+                        }
+                        @if (
                           row.isZaakspecifiekeAutorisatieRoltypeAanwezig &&
                           !row.isZaakspecifiekeAutorisatieEigenschapAanwezig
-                        "
-                      >
-                        {{
-                          "health-check.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt"
-                            | translate
-                        }}
+                        ) {
+                          <div>
+                            {{
+                              "health-check.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt"
+                                | translate
+                            }}
+                          </div>
+                        }
                       </div>
-                    </div>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="zoekFilter">
-                  <th mat-header-cell *matHeaderCellDef colspan="3">
-                    <mat-form-field subscriptSizing="dynamic">
-                      <mat-label>{{ "filter" | translate }}</mat-label>
-                      <input matInput (keyup)="applyFilter($event)" />
-                    </mat-form-field>
-                  </th>
-                </ng-container>
-                <ng-container matColumnDef="valideFilter">
-                  <th mat-header-cell *matHeaderCellDef colspan="2">
-                    <zac-toggle-filter
-                      unCheckedIcon="error"
-                      [selected]="valideFilter"
-                      (changed)="valideFilter = $event; applyFilter()"
-                    ></zac-toggle-filter>
-                  </th>
-                </ng-container>
-                <tr
-                  mat-header-row
-                  *matHeaderRowDef="columnsToDisplay; sticky: true"
-                ></tr>
-                <tr
-                  mat-header-row
-                  *matHeaderRowDef="['valideFilter', 'zoekFilter']"
-                ></tr>
-                <tr
-                  (click)="
-                    needsAttention(row)
-                      ? (expandedRow = expandedRow === row ? null : row)
-                      : null
-                  "
-                  [class]="rowStateClass(row)"
-                  class="main-row"
-                  mat-row
-                  *matRowDef="let row; columns: columnsToDisplay"
-                ></tr>
-                <tr
-                  mat-row
-                  *matRowDef="
-                    let row;
-                    columns: [
-                      'expandedPrefix',
-                      'expandedTitle',
-                      'expandedDetail',
-                    ]
-                  "
-                  class="detail-row"
-                ></tr>
-              </table>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="zoekFilter">
+                    <th mat-header-cell *matHeaderCellDef colspan="3">
+                      <mat-form-field subscriptSizing="dynamic">
+                        <mat-label>{{ "filter" | translate }}</mat-label>
+                        <input matInput (keyup)="applyFilter($event)" />
+                      </mat-form-field>
+                    </th>
+                  </ng-container>
+                  <ng-container matColumnDef="valideFilter">
+                    <th mat-header-cell *matHeaderCellDef colspan="2">
+                      <zac-toggle-filter
+                        unCheckedIcon="error"
+                        [selected]="valideFilter"
+                        (changed)="valideFilter = $event; applyFilter()"
+                      ></zac-toggle-filter>
+                    </th>
+                  </ng-container>
+                  <tr
+                    mat-header-row
+                    *matHeaderRowDef="columnsToDisplay; sticky: true"
+                  ></tr>
+                  <tr
+                    mat-header-row
+                    *matHeaderRowDef="['valideFilter', 'zoekFilter']"
+                  ></tr>
+                  <tr
+                    (click)="
+                      needsAttention(row)
+                        ? (expandedRow = expandedRow === row ? null : row)
+                        : null
+                    "
+                    [class]="rowStateClass(row)"
+                    class="main-row"
+                    mat-row
+                    *matRowDef="let row; columns: columnsToDisplay"
+                  ></tr>
+                  <tr
+                    mat-row
+                    *matRowDef="
+                      let row;
+                      columns: [
+                        'expandedPrefix',
+                        'expandedTitle',
+                        'expandedDetail',
+                      ]
+                    "
+                    class="detail-row"
+                  ></tr>
+                </table>
+              }
             </div>
-            <p *ngIf="dataSource.data.length === 0 && !loadingZaaktypes">
-              {{ "msg.geen.gegevens.gevonden" | translate }}
-            </p>
-            <p *ngIf="dataSource.data.length === 0 && loadingZaaktypes">
-              {{ "msg.loading" | translate }}
-            </p>
+            @if (dataSource.data.length === 0 && !loadingZaaktypes) {
+              <p>
+                {{ "msg.geen.gegevens.gevonden" | translate }}
+              </p>
+            }
+            @if (dataSource.data.length === 0 && loadingZaaktypes) {
+              <p>
+                {{ "msg.loading" | translate }}
+              </p>
+            }
           </mat-card-content>
         </mat-card>
       </mat-card-content>
@@ -480,46 +532,41 @@
         <mat-expansion-panel hideToggle>
           <mat-expansion-panel-header>
             <mat-panel-title>
-              <mat-icon *ngIf="loadingCommunicatiekanaal"
-                >hourglass_empty</mat-icon
-              >
-              <mat-icon
-                outlined
-                *ngIf="
-                  !loadingCommunicatiekanaal &&
-                  bestaatCommunicatiekanaalEformulier
-                "
-                color="primary"
-                >check_circle
-              </mat-icon>
-              <mat-icon
-                outlined
-                *ngIf="
-                  !loadingCommunicatiekanaal &&
-                  !bestaatCommunicatiekanaalEformulier
-                "
-                color="warn"
-                >error
-              </mat-icon>
+              @if (loadingCommunicatiekanaal) {
+                <mat-icon>hourglass_empty</mat-icon>
+              }
+              @if (
+                !loadingCommunicatiekanaal &&
+                bestaatCommunicatiekanaalEformulier
+              ) {
+                <mat-icon outlined color="primary">check_circle </mat-icon>
+              }
+              @if (
+                !loadingCommunicatiekanaal &&
+                !bestaatCommunicatiekanaalEformulier
+              ) {
+                <mat-icon outlined color="warn">error </mat-icon>
+              }
               <div>
                 {{ "health-check.communicatiekanaal.e-formulier" | translate }}
               </div>
             </mat-panel-title>
             <mat-panel-description>
-              <div *ngIf="!loadingCommunicatiekanaal">
-                <ng-container *ngIf="bestaatCommunicatiekanaalEformulier">
-                  {{
-                    "health-check.communicatiekanaal.e-formulier.beschikbaar"
-                      | translate
-                  }}
-                </ng-container>
-                <ng-container *ngIf="!bestaatCommunicatiekanaalEformulier">
-                  {{
-                    "health-check.communicatiekanaal.e-formulier.niet.beschikbaar"
-                      | translate
-                  }}
-                </ng-container>
-              </div>
+              @if (!loadingCommunicatiekanaal) {
+                <div>
+                  @if (bestaatCommunicatiekanaalEformulier) {
+                    {{
+                      "health-check.communicatiekanaal.e-formulier.beschikbaar"
+                        | translate
+                    }}
+                  } @else {
+                    {{
+                      "health-check.communicatiekanaal.e-formulier.niet.beschikbaar"
+                        | translate
+                    }}
+                  }
+                </div>
+              }
             </mat-panel-description>
             <mat-icon>help</mat-icon>
           </mat-expansion-panel-header>

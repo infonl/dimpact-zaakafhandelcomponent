@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CommonModule } from "@angular/common";
 import { Component, computed, inject, input } from "@angular/core";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";
@@ -24,7 +23,6 @@ import { IndicatiesComponent } from "../indicaties.component";
     MatIconModule,
     MatTooltipModule,
     TranslateModule,
-    CommonModule,
   ],
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],

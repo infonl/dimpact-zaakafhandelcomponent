@@ -4,7 +4,7 @@
  *
  */
 
-import { LowerCasePipe, NgFor, NgIf } from "@angular/common";
+import { LowerCasePipe } from "@angular/common";
 import { Component, effect, signal } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
@@ -23,8 +23,6 @@ import { MultiInputFormField } from "../BaseFormField";
   templateUrl: "./auto-complete.html",
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     LowerCasePipe,
     ReactiveFormsModule,
     MatFormFieldModule,

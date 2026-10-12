@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { KeyValuePipe, NgFor } from "@angular/common";
+import { KeyValuePipe } from "@angular/common";
 import { Component, computed, inject, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
@@ -25,7 +25,6 @@ import { ColumnPickerValue } from "./column-picker-value";
   styleUrls: ["./column-picker.component.less"],
   standalone: true,
   imports: [
-    NgFor,
     KeyValuePipe,
     MatIconButton,
     MatMenuTrigger,

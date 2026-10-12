@@ -314,12 +314,13 @@
       <td mat-cell *matCellDef="let row">
         <div class="flex-row items-center gap-10">
           {{ row.einddatumGepland | datum | empty }}
-          <mat-icon
-            *ngIf="isAfterDate(row.einddatumGepland)"
-            [title]="'msg.datum.overschreden' | translate"
-            class="warning"
-            >warning
-          </mat-icon>
+          @if (isAfterDate(row.einddatumGepland)) {
+            <mat-icon
+              [title]="'msg.datum.overschreden' | translate"
+              class="warning"
+              >warning
+            </mat-icon>
+          }
         </div>
       </td>
     </ng-container>
@@ -387,12 +388,13 @@
       <td mat-cell *matCellDef="let row">
         <div class="flex-row items-center gap-10">
           {{ row.uiterlijkeEinddatumAfdoening | datum | empty }}
-          <mat-icon
-            *ngIf="isAfterDate(row.uiterlijkeEinddatumAfdoening)"
-            [title]="'msg.datum.overschreden' | translate"
-            class="error"
-            >warning</mat-icon
-          >
+          @if (isAfterDate(row.uiterlijkeEinddatumAfdoening)) {
+            <mat-icon
+              [title]="'msg.datum.overschreden' | translate"
+              class="error"
+              >warning</mat-icon
+            >
+          }
         </div>
       </td>
     </ng-container>
@@ -513,15 +515,16 @@
           >
             <mat-icon>visibility</mat-icon>
           </a>
-          <button
-            *ngIf="showAssignToMe(row)"
-            mat-icon-button
-            [id]="'kenZaakAanMijToe_' + row.identificatie + '_button'"
-            title="{{ 'actie.mij.toekennen' | translate }}"
-            (click)="assignToMe(row, $event)"
-          >
-            <mat-icon outlined>person_add</mat-icon>
-          </button>
+          @if (showAssignToMe(row)) {
+            <button
+              mat-icon-button
+              [id]="'kenZaakAanMijToe_' + row.identificatie + '_button'"
+              title="{{ 'actie.mij.toekennen' | translate }}"
+              (click)="assignToMe(row, $event)"
+            >
+              <mat-icon outlined>person_add</mat-icon>
+            </button>
+          }
         </div>
       </td>
     </ng-container>
@@ -534,123 +537,136 @@
       >
         <div [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'">
           <div class="flex-row flex-wrap row-detail">
-            <ng-container
-              *ngFor="let column of dataSource.detailExpandColumns"
-              [ngSwitch]="column"
-            >
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.EINDDATUM_GEPLAND"
-                [value]="row.einddatumGepland | datum"
-                [icon]="einddatumGeplandIcon"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.DAGEN_TOT_STREEFDATUM"
-                [value]="row.einddatumGepland | dagen"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.UITERLIJKE_EINDDATUM_AFDOENING"
-                [value]="row.uiterlijkeEinddatumAfdoening | datum"
-                [icon]="uiterlijkeEinddatumAfdoeningIcon"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.DAGEN_TOT_FATALEDATUM"
-                [value]="row.uiterlijkeEinddatumAfdoening | dagen"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.STARTDATUM"
-                [value]="row.startdatum | datum"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.ZAAK_DOT_IDENTIFICATIE"
-                [value]="row.identificatie"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.GROEP"
-                [value]="row.groepNaam"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.REGISTRATIEDATUM"
-                [value]="row.registratiedatum | datum"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.COMMUNICATIEKANAAL"
-                [value]="row.communicatiekanaal"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.VERTROUWELIJKHEIDAANDUIDING"
-                [value]="
-                  row.vertrouwelijkheidaanduiding
-                    ? (row.vertrouwelijkheidaanduiding
-                      | vertrouwelijkaanduidingToTranslationKey
-                      | translate)
-                    : '-'
-                "
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.BEHANDELAAR"
-                [label]="column | i18nKey"
-                class="flex-1 w33"
-                [value]="row.behandelaarNaam"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.ZAAKTYPE"
-                [value]="row.zaaktypeOmschrijving"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.STATUS"
-                [value]="row.statustypeOmschrijving"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchCase="zoekenColumn.OPENSTAANDE_TAKEN"
-                [value]="row.aantalOpenstaandeTaken"
-                class="flex-1 w33"
-                [label]="column | i18nKey"
-              />
-              <zac-static-text
-                *ngSwitchDefault
-                [label]="column | i18nKey"
-                [value]="row[column] | translate"
-                class="flex-1 w33"
-              />
-              <div
-                class="flex-1 w33 static-text"
-                *ngSwitchCase="zoekenColumn.INDICATIES"
-              >
-                <label class="static-text-label">{{
-                  "indicaties" | translate
-                }}</label>
-                <div class="static-text-content">
-                  <zac-zaak-indicaties
-                    [layout]="indicatiesLayout.COMPACT"
-                    [zaakZoekObject]="row"
-                  ></zac-zaak-indicaties>
-                </div>
-              </div>
-            </ng-container>
+            @for (column of dataSource.detailExpandColumns; track column) {
+              @switch (column) {
+                @case (zoekenColumn.EINDDATUM_GEPLAND) {
+                  <zac-static-text
+                    [value]="row.einddatumGepland | datum"
+                    [icon]="einddatumGeplandIcon"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.DAGEN_TOT_STREEFDATUM) {
+                  <zac-static-text
+                    [value]="row.einddatumGepland | dagen"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.UITERLIJKE_EINDDATUM_AFDOENING) {
+                  <zac-static-text
+                    [value]="row.uiterlijkeEinddatumAfdoening | datum"
+                    [icon]="uiterlijkeEinddatumAfdoeningIcon"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.DAGEN_TOT_FATALEDATUM) {
+                  <zac-static-text
+                    [value]="row.uiterlijkeEinddatumAfdoening | dagen"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.STARTDATUM) {
+                  <zac-static-text
+                    [value]="row.startdatum | datum"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.ZAAK_DOT_IDENTIFICATIE) {
+                  <zac-static-text
+                    [value]="row.identificatie"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.GROEP) {
+                  <zac-static-text
+                    [value]="row.groepNaam"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.REGISTRATIEDATUM) {
+                  <zac-static-text
+                    [value]="row.registratiedatum | datum"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.COMMUNICATIEKANAAL) {
+                  <zac-static-text
+                    [value]="row.communicatiekanaal"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.VERTROUWELIJKHEIDAANDUIDING) {
+                  <zac-static-text
+                    [value]="
+                      row.vertrouwelijkheidaanduiding
+                        ? (row.vertrouwelijkheidaanduiding
+                          | vertrouwelijkaanduidingToTranslationKey
+                          | translate)
+                        : '-'
+                    "
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.BEHANDELAAR) {
+                  <zac-static-text
+                    [label]="column | i18nKey"
+                    class="flex-1 w33"
+                    [value]="row.behandelaarNaam"
+                  />
+                }
+                @case (zoekenColumn.ZAAKTYPE) {
+                  <zac-static-text
+                    [value]="row.zaaktypeOmschrijving"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.STATUS) {
+                  <zac-static-text
+                    [value]="row.statustypeOmschrijving"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @case (zoekenColumn.OPENSTAANDE_TAKEN) {
+                  <zac-static-text
+                    [value]="row.aantalOpenstaandeTaken"
+                    class="flex-1 w33"
+                    [label]="column | i18nKey"
+                  />
+                }
+                @default {
+                  <zac-static-text
+                    [label]="column | i18nKey"
+                    [value]="row[column] | translate"
+                    class="flex-1 w33"
+                  />
+                }
+                @case (zoekenColumn.INDICATIES) {
+                  <div class="flex-1 w33 static-text">
+                    <label class="static-text-label">{{
+                      "indicaties" | translate
+                    }}</label>
+                    <div class="static-text-content">
+                      <zac-zaak-indicaties
+                        [layout]="indicatiesLayout.COMPACT"
+                        [zaakZoekObject]="row"
+                      ></zac-zaak-indicaties>
+                    </div>
+                  </div>
+                }
+              }
+            }
           </div>
         </div>
       </td>
@@ -679,17 +695,18 @@
     ></tr>
   </table>
 
-  <ng-container *ngIf="dataSource.totalItems === 0"
-    ><p>{{ "msg.geen.gegevens.gevonden" | translate }}</p></ng-container
-  >
+  @if (dataSource.totalItems === 0) {
+    <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
+  }
 </div>
 
 <div class="pagination-wrapper">
-  <zac-export-button
-    *ngIf="this.werklijstRechten.canZakenTakenExporteren"
-    [zoekParameters]="this.dataSource.zoekParameters"
-    [filename]="'title.zaken.werkvoorraad' | translate"
-  ></zac-export-button>
+  @if (this.werklijstRechten.canZakenTakenExporteren) {
+    <zac-export-button
+      [zoekParameters]="this.dataSource.zoekParameters"
+      [filename]="'title.zaken.werkvoorraad' | translate"
+    ></zac-export-button>
+  }
   <mat-paginator
     #paginator
     [length]="dataSource.totalItems"
@@ -703,40 +720,42 @@
 </div>
 
 <div class="buttons">
-  <button
-    *ngIf="isSelected()"
-    [disabled]="zakenLoading()"
-    (click)="openVerdelenScherm()"
-    color="accent"
-    id="verdelen_button"
-    mat-raised-button
-    title="{{ 'actie.verdelen' | translate }}"
-  >
-    {{ "actie.verdelen" | translate }}
-    <mat-icon
-      [matBadgeHidden]="!isSelected()"
-      [matBadge]="countSelected()"
-      matBadgeColor="primary"
-      matBadgeSize="small"
-      >assignment_ind</mat-icon
+  @if (isSelected()) {
+    <button
+      [disabled]="zakenLoading()"
+      (click)="openVerdelenScherm()"
+      color="accent"
+      id="verdelen_button"
+      mat-raised-button
+      title="{{ 'actie.verdelen' | translate }}"
     >
-  </button>
-  <button
-    *ngIf="isSelected()"
-    [disabled]="zakenLoading()"
-    (click)="openVrijgevenScherm()"
-    color="accent"
-    id="vrijgeven_button"
-    mat-raised-button
-    title="{{ 'actie.vrijgeven' | translate }}"
-  >
-    {{ "actie.vrijgeven" | translate }}
-    <mat-icon
-      [matBadgeHidden]="!isSelected()"
-      [matBadge]="countSelected(true)"
-      matBadgeColor="primary"
-      matBadgeSize="small"
-      >clear_all</mat-icon
+      {{ "actie.verdelen" | translate }}
+      <mat-icon
+        [matBadgeHidden]="!isSelected()"
+        [matBadge]="countSelected()"
+        matBadgeColor="primary"
+        matBadgeSize="small"
+        >assignment_ind</mat-icon
+      >
+    </button>
+  }
+  @if (isSelected()) {
+    <button
+      [disabled]="zakenLoading()"
+      (click)="openVrijgevenScherm()"
+      color="accent"
+      id="vrijgeven_button"
+      mat-raised-button
+      title="{{ 'actie.vrijgeven' | translate }}"
     >
-  </button>
+      {{ "actie.vrijgeven" | translate }}
+      <mat-icon
+        [matBadgeHidden]="!isSelected()"
+        [matBadge]="countSelected(true)"
+        matBadgeColor="primary"
+        matBadgeSize="small"
+        >clear_all</mat-icon
+      >
+    </button>
+  }
 </div>

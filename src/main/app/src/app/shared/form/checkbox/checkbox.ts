@@ -4,7 +4,6 @@
  *
  */
 
-import { NgIf } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -23,7 +22,6 @@ import { SingleInputFormField } from "../BaseFormField";
     MatCheckboxModule,
     MatError,
     MatHint,
-    NgIf,
     TranslateModule,
     CapitalizeFirstLetterPipe,
   ],

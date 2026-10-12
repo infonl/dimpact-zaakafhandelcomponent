@@ -4,7 +4,7 @@
  *
  */
 
-import { NgClass, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import { booleanAttribute, Component, computed, input } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -21,7 +21,6 @@ import { FormHelper } from "../helpers";
   templateUrl: "./input.html",
   standalone: true,
   imports: [
-    NgIf,
     NgClass,
     ReactiveFormsModule,
     MatFormFieldModule,

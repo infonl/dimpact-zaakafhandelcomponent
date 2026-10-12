@@ -12,14 +12,15 @@
       <span>{{
         "initiator.aanvraagspecifieke-contactgegevens" | translate
       }}</span>
-      <button
-        *ngIf="toevoegenToegestaan()"
-        mat-icon-button
-        [title]="'actie.initiator.koppelen' | translate"
-        (click)="$event.stopPropagation(); add.emit()"
-      >
-        <mat-icon>person_add_alt_1</mat-icon>
-      </button>
+      @if (toevoegenToegestaan()) {
+        <button
+          mat-icon-button
+          [title]="'actie.initiator.koppelen' | translate"
+          (click)="$event.stopPropagation(); add.emit()"
+        >
+          <mat-icon>person_add_alt_1</mat-icon>
+        </button>
+      }
     </mat-panel-description>
   </mat-expansion-panel-header>
   <div

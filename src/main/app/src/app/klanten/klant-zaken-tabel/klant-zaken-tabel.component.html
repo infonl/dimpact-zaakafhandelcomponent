@@ -52,12 +52,11 @@
                   "betrokkene-roltype.kies" | translate
                 }}</mat-option>
                 @if (distinctRoltypenQuery.data(); as data) {
-                  <mat-option
-                    *ngFor="let betrokkene of data"
-                    [value]="betrokkene"
-                  >
-                    {{ betrokkene }}
-                  </mat-option>
+                  @for (betrokkene of data; track betrokkene) {
+                    <mat-option [value]="betrokkene">
+                      {{ betrokkene }}
+                    </mat-option>
+                  }
                 }
               </mat-select>
             </mat-form-field>
@@ -68,9 +67,11 @@
             {{ "betrokkene-roltype" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
-            <div *ngFor="let betrokkene of getBetrokkenheid(object)">
-              {{ betrokkene }}
-            </div>
+            @for (betrokkene of getBetrokkenheid(object); track betrokkene) {
+              <div>
+                {{ betrokkene }}
+              </div>
+            }
           </td>
         </ng-container>
         <ng-container matColumnDef="status_filter">
@@ -234,13 +235,14 @@
               >
                 filter_alt
               </mat-icon>
-              <mat-icon
-                *ngIf="actieveFilters"
-                class="filter-button"
-                title="{{ 'actie.zoekopdracht.wissen' | translate }}"
-              >
-                filter_alt_off
-              </mat-icon>
+              @if (actieveFilters) {
+                <mat-icon
+                  class="filter-button"
+                  title="{{ 'actie.zoekopdracht.wissen' | translate }}"
+                >
+                  filter_alt_off
+                </mat-icon>
+              }
             </button>
           </th>
         </ng-container>
@@ -263,10 +265,13 @@
         <tr mat-row *matRowDef="let row; columns: columns"></tr>
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell" [colSpan]="columns.length">
-            <p *ngIf="isLoadingResults">{{ "msg.loading" | translate }}</p>
-            <p *ngIf="!isLoadingResults">
-              {{ "msg.geen.gegevens.gevonden" | translate }}
-            </p>
+            @if (isLoadingResults) {
+              <p>{{ "msg.loading" | translate }}</p>
+            } @else {
+              <p>
+                {{ "msg.geen.gegevens.gevonden" | translate }}
+              </p>
+            }
           </td>
         </tr>
       </table>

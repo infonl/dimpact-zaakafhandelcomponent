@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { NgIf } from "@angular/common";
+
 import {
   Component,
   computed,
@@ -54,7 +54,6 @@ const DEFAULT_SORT_ORDER: GeneratedType<"SorteerRichting"> = "DESC";
   ],
   standalone: true,
   imports: [
-    NgIf,
     MatTable,
     MatSort,
     MatColumnDef,

@@ -17,14 +17,16 @@
       <mat-icon>visibility</mat-icon>
     </a>
   </div>
-  <zac-zaak-indicaties
-    *ngIf="zoekObject().type === 'ZAAK'"
-    [layout]="indicatiesLayout.SEARCH"
-    [zaakZoekObject]="zaakZoekObject"
-  ></zac-zaak-indicaties>
-  <zac-informatie-object-indicaties
-    *ngIf="zoekObject().type === 'DOCUMENT'"
-    [layout]="indicatiesLayout.SEARCH"
-    [documentZoekObject]="documentZoekObject"
-  ></zac-informatie-object-indicaties>
+  @if (zoekObject().type === "ZAAK") {
+    <zac-zaak-indicaties
+      [layout]="indicatiesLayout.SEARCH"
+      [zaakZoekObject]="zaakZoekObject"
+    ></zac-zaak-indicaties>
+  }
+  @if (zoekObject().type === "DOCUMENT") {
+    <zac-informatie-object-indicaties
+      [layout]="indicatiesLayout.SEARCH"
+      [documentZoekObject]="documentZoekObject"
+    ></zac-informatie-object-indicaties>
+  }
 </div>

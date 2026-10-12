@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
@@ -22,7 +21,6 @@ import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.compo
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgIf,
     MatCardModule,
     MatSidenavModule,
     TranslateModule,

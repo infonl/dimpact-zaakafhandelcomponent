@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -90,7 +89,6 @@ import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiat
   animations: [detailExpand],
   standalone: true,
   imports: [
-    CommonModule,
     MatSidenavModule,
     BagZoekComponent,
     BesluitCreateComponent,
@@ -194,7 +192,7 @@ export class ZaakViewComponent
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  notitieRechten!: GeneratedType<"RestNotitieRechten">;
+  notitieRechten?: GeneratedType<"RestNotitieRechten">;
   viewInitialized = signal(false);
 
   private zaakListener!: WebsocketListener;

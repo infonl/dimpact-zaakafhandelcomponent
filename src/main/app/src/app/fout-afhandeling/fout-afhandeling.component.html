@@ -11,9 +11,14 @@
       <p>{{ bericht }}</p>
     }
     @if ((serverErrorTexts | async)?.length ?? 0 > 0) {
-      <p *ngFor="let serverErrorText of serverErrorTexts | async">
-        {{ serverErrorText }}
-      </p>
+      @for (
+        serverErrorText of serverErrorTexts | async;
+        track serverErrorText
+      ) {
+        <p>
+          {{ serverErrorText }}
+        </p>
+      }
     }
   </mat-card-content>
 </mat-card>

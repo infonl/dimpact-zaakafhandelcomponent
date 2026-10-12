@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
   computed,
@@ -37,8 +36,6 @@ import { KlantenService } from "../klanten.service";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    NgIf,
-    NgFor,
     MatExpansionModule,
     MatProgressSpinnerModule,
     MatIconModule,

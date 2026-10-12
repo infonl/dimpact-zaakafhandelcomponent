@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgSwitch, NgSwitchCase, NgSwitchDefault } from "@angular/common";
 import { Component, OnInit, viewChild } from "@angular/core";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import {
@@ -25,9 +24,6 @@ import { ParameterSelectProcessModelMethodComponent } from "../parameters-select
   templateUrl: "./parameters-edit-shell.component.html",
   standalone: true,
   imports: [
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
     MatSidenavModule,
     MatProgressSpinnerModule,
     SideNavComponent,

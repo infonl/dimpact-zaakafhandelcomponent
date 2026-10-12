@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -71,8 +70,6 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
   styleUrls: ["./ontkoppelde-documenten-list.component.less"],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     RouterLink,
     MatDrawerContainer,
     MatDrawer,

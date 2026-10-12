@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -33,7 +32,6 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-opschorten-dialog.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatToolbarModule,
     MatDialogTitle,

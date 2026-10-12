@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgClass, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   Component,
   computed,
@@ -45,7 +45,6 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
   standalone: true,
   imports: [
     NgClass,
-    NgIf,
     ReactiveFormsModule,
     MatButtonModule,
     MatDividerModule,

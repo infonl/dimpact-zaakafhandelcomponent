@@ -4,7 +4,6 @@
  *
  */
 
-import { NgIf } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatError, MatHint, MatLabel } from "@angular/material/form-field";
@@ -27,7 +26,6 @@ import { SingleInputFormField } from "../BaseFormField";
     MatError,
     MatHint,
     MatLabel,
-    NgIf,
     TranslateModule,
     CapitalizeFirstLetterPipe,
   ],

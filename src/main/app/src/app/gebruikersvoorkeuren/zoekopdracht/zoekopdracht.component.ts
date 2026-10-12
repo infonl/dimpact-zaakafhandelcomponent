@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgClass, NgFor, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -34,8 +34,6 @@ import { ZoekFilters } from "./zoekfilters.model";
   styleUrls: ["./zoekopdracht.component.less"],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     NgClass,
     MatButtonModule,
     MatIconModule,
