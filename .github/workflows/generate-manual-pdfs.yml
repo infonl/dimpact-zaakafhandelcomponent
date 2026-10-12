@@ -1,0 +1,98 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Generate manual PDFs
+
+on:
+  # Called by the release job, because a release created with GITHUB_TOKEN triggers no 'release' event.
+  workflow_call:
+    inputs:
+      version:
+        description: "ZAC version of the release, e.g. 5.10.0"
+        type: string
+        required: true
+      release-tag:
+        description: "Tag of the GitHub release to attach the PDFs to"
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "ZAC version, e.g. 5.10.0"
+        type: string
+        required: true
+      release-tag:
+        description: "Tag of the GitHub release to attach the PDFs to. Leave empty to only upload them as a workflow artifact."
+        type: string
+        required: false
+  pull_request:
+    paths:
+      - "docs/manuals/ZAC-gebruikershandleiding/**"
+      - "docs/manuals/inrichting-zaakafhandelcomponent/**"
+      - "docs/manuals/pdf-generator/**"
+      - ".github/workflows/generate-manual-pdfs.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.release-tag || 'no-release' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  generate-manual-pdfs:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      GENERATOR_DIRECTORY: docs/manuals/pdf-generator
+      OUTPUT_DIRECTORY: build/manual-pdfs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: ${{ env.GENERATOR_DIRECTORY }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.GENERATOR_DIRECTORY }}
+        run: |
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+
+      - name: Determine manual version
+        id: manual-version
+        env:
+          VERSION: ${{ inputs.version }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -n "$VERSION" ]; then
+            # the manuals are named after the major and minor version, e.g. ZAC-V5.10-gebruikershandleiding.pdf
+            echo "version=$(echo "$VERSION" | cut -d. -f1,2)" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=PR${PULL_REQUEST_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate manual PDFs
+        run: ${{ env.GENERATOR_DIRECTORY }}/generate-manual-pdfs.sh "${{ steps.manual-version.outputs.version }}" "${{ env.OUTPUT_DIRECTORY }}"
+
+      - name: Upload manual PDFs as artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: manual-pdfs-${{ steps.manual-version.outputs.version }}
+          path: ${{ env.OUTPUT_DIRECTORY }}/*.pdf
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Attach manual PDFs to the release
+        if: ${{ inputs.release-tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release-tag }}
+        run: gh release upload "$RELEASE_TAG" "$OUTPUT_DIRECTORY"/*.pdf --clobber
