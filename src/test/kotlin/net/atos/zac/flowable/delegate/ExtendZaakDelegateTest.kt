@@ -71,7 +71,9 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, zaaktype, loggedInUser) } returns createZaakRechtenAllDeny(verlengen = true)
+        every {
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
+        } returns createZaakRechtenAllDeny(verlengen = true)
 
         val aantalDagenExpression = mockk<JuelExpression>()
         every { aantalDagenExpression.getValue(delegateExecution) } returns extendDays
@@ -162,7 +164,9 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, zaaktype, loggedInUser) } returns createZaakRechtenAllDeny(verlengen = true)
+        every {
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
+        } returns createZaakRechtenAllDeny(verlengen = true)
 
         val aantalDagenExpression = mockk<JuelExpression>()
         every { aantalDagenExpression.getValue(delegateExecution) } returns extendDays
@@ -234,7 +238,9 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, zaaktype, loggedInUser) } returns createZaakRechtenAllDeny()
+        every {
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
+        } returns createZaakRechtenAllDeny()
 
         val extendZaakDelegate = ExtendZaakDelegate().apply {
             aantalDagen = mockk()

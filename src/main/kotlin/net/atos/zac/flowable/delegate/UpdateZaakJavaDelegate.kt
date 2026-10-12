@@ -38,9 +38,9 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
         val loggedInUser = flowableHelper.loggedInUserInstance.get()
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(
-                zaak,
-                zaaktype,
-                loggedInUser
+                zaak = zaak,
+                zaaktype = zaaktype,
+                loggedInUser = loggedInUser
             ).canBehandelen,
             LOG,
             "User '${loggedInUser.id}' is not authorised to handle zaak '${zaak.identificatie}'"

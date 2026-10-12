@@ -39,9 +39,9 @@ class ExtendZaakDelegate : AbstractDelegate() {
         val (zaak, zaaktype) = flowableHelper.zaakService.readZaakAndZaakTypeByZaakID(getZaakIdentificatie(execution))
         val loggedInUser = flowableHelper.loggedInUserInstance.get()
         val zaakRechten = flowableHelper.policyService.readZaakRechten(
-            zaak,
-            zaaktype,
-            loggedInUser
+            zaak = zaak,
+            zaaktype = zaaktype,
+            loggedInUser = loggedInUser
         )
         assertPolicy(
             zaakRechten.canVerlengen,
