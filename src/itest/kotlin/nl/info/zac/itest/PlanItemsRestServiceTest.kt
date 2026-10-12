@@ -18,7 +18,10 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_MAIL_BODY
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
@@ -30,6 +33,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 const val UITERLIJKE_EINDDATUM_AFDOENING = "2001-01-01"
+private const val PLAN_ITEMS_REST_SERVICE_TEST_MAIL_RECIPIENT = "plan-items-rest-service-test@example.com"
 
 class PlanItemsRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -96,11 +100,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         `when`("the start human task plan items endpoint is called with a fatal date") {
+            val mailBody = "fakePlanItemsRestServiceTestMailBody-${UUID.randomUUID()}"
             val response = zacClient.startHumanTaskPlanItem(
                 planItemInstanceId = humanTaskItemAanvullendeInformatieId,
                 fatalDate = LocalDate.parse(UITERLIJKE_EINDDATUM_AFDOENING).minusDays(1),
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
+                mailRecipient = PLAN_ITEMS_REST_SERVICE_TEST_MAIL_RECIPIENT,
+                mailBody = mailBody,
                 testUser = BEHANDELAAR_1
             )
 
@@ -108,6 +115,18 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
+            }
+
+            and("the aanvullende informatie email is sent to the recipient from the task data") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$PLAN_ITEMS_REST_SERVICE_TEST_MAIL_RECIPIENT/messages/",
+                    testUser = BEHANDELAAR_1
+                )
+                receivedMailsResponse.code shouldBe HTTP_OK
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                (0 until receivedMails.length())
+                    .map { receivedMails.getJSONObject(it).getString("mimeMessage") }
+                    .count { it.contains(mailBody) } shouldBe 1
             }
         }
 
@@ -130,7 +149,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                         "planItemInstanceId": "$newAdditionalInfoTaskId",
                         "fataledatum": "$fataleDatum",
                         "groep": { "id": "${GROUP_BEHANDELAARS_TEST_1.name}", "naam": "${GROUP_BEHANDELAARS_TEST_1.description}" },
-                        "taakdata":{}
+                        "taakdata": {
+                            "emailadres": "$TEST_AANVULLENDE_INFORMATIE_EMAIL",
+                            "body": "$TEST_AANVULLENDE_INFORMATIE_MAIL_BODY"
+                        }
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1

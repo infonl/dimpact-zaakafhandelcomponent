@@ -542,33 +542,112 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("Task data with send mail information") {
+        listOf(
+            FormulierDefinitie.AANVULLENDE_INFORMATIE to Mail.TAAK_AANVULLENDE_INFORMATIE,
+            FormulierDefinitie.EXTERN_ADVIES_MAIL to Mail.TAAK_ADVIES_EXTERN
+        ).forEach { (formulierDefinitie, mail) ->
+            given("Task data for a human task plan item with formulier definitie $formulierDefinitie") {
+                val restHumanTaskData = createRestHumanTaskData(
+                    planItemInstanceId = planItemInstanceId,
+                    taakdata = mapOf(
+                        "emailadres" to "example@example.com",
+                        "body" to "body"
+                    ),
+                    fataledatum = null
+                )
+                val taskDataSlot = slot<Map<String, String>>()
+                val mailGegevensSlot = slot<MailGegevens>()
+                val zaak = createZaak(
+                    zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
+                    uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+                )
+                val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID).apply {
+                    getOrCreateCmmnExtension().setHumanTaskParametersCollection(
+                        listOf(
+                            createHumanTaskParameters(
+                                planItemDefinitionID = planItemInstanceId,
+                                formulierDefinitieID = formulierDefinitie.name,
+                                leadTime = null
+                            )
+                        )
+                    )
+                }
+                val loggedInUser = createLoggedInUser()
+                every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+                every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+                every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeConfiguration
+                every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+                every { mailTemplateService.readDefaultMailTemplate(mail) } returns createMailTemplate()
+                every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
+                every { mailService.getGemeenteMailAdres() } returns createMailAdres()
+                every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
+                every {
+                    cmmnService.startHumanTaskPlanItem(
+                        planItemInstanceId = planItemInstanceId,
+                        groupId = restHumanTaskData.groep.id,
+                        assignee = null,
+                        dueDate = any(),
+                        description = restHumanTaskData.toelichting,
+                        taakdata = capture(taskDataSlot),
+                        zaakUUID = zaak.uuid
+                    )
+                } just runs
+                every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
+                every { loggedInUserInstance.get() } returns loggedInUser
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+
+                `when`("the human task plan item is started") {
+                    planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                    then("the task is started with the task data") {
+                        taskDataSlot.captured shouldBe restHumanTaskData.taakdata
+                    }
+
+                    and("the email belonging to the formulier definitie is sent to the recipient from the task data") {
+                        verify(exactly = 1) {
+                            mailTemplateService.readDefaultMailTemplate(mail)
+                            mailService.sendMail(any(), any())
+                        }
+                        with(mailGegevensSlot.captured) {
+                            to.email shouldBe "example@example.com"
+                            vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                        }
+                    }
+                }
+            }
+        }
+
+        given("Task data with mail fields for a human task plan item with a formulier definitie without email") {
             val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
                 taakdata = mapOf(
-                    "taakStuurGegevens.sendMail" to "true",
-                    "taakStuurGegevens.mail" to "TAAK_AANVULLENDE_INFORMATIE",
                     "emailadres" to "example@example.com",
                     "body" to "body"
                 ),
                 fataledatum = null
             )
-            val taskDataSlot = slot<Map<String, String>>()
-            val mailGegevensSlot = slot<MailGegevens>()
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID).apply {
+                getOrCreateCmmnExtension().setHumanTaskParametersCollection(
+                    listOf(
+                        createHumanTaskParameters(
+                            planItemDefinitionID = planItemInstanceId,
+                            formulierDefinitieID = FormulierDefinitie.EXTERN_ADVIES_VASTLEGGEN.name,
+                            leadTime = null
+                        )
+                    )
+                )
+            }
             val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-            every { mailTemplateService.readDefaultMailTemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
-            every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
-            every { mailService.getGemeenteMailAdres() } returns createMailAdres()
-            every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
             every {
                 cmmnService.startHumanTaskPlanItem(
                     planItemInstanceId = planItemInstanceId,
@@ -576,19 +655,18 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     assignee = null,
                     dueDate = any(),
                     description = restHumanTaskData.toelichting,
-                    taakdata = capture(taskDataSlot),
+                    taakdata = any(),
                     zaakUUID = zaak.uuid
                 )
             } just runs
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
 
-            `when`("A human task plan item is started from user that has access") {
-                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-
+            `when`("the human task plan item is started") {
                 planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
 
-                then("A CMMN human task plan item is started and the zaak is re-indexed") {
+                then("the task is started without sending an email") {
                     verify(exactly = 1) {
                         cmmnService.startHumanTaskPlanItem(
                             planItemInstanceId = any(),
@@ -599,30 +677,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                             taakdata = any(),
                             zaakUUID = any()
                         )
-                        indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
-                }
-
-                and("the task data is set correctly") {
-                    taskDataSlot.captured shouldBe restHumanTaskData.taakdata
-                }
-
-                and("email was sent for the task") {
-                    verify(exactly = 1) {
+                    verify(exactly = 0) {
                         mailService.sendMail(any(), any())
                     }
-                    mailGegevensSlot.captured.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
-            }
-
-            `when`("the enkelvoudig informatieobject is updated by a user that has no access") {
-                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
-                val exception = shouldThrow<PolicyException> {
-                    planItemsRESTService.doHumanTaskplanItem(
-                        restHumanTaskData
-                    )
-                }
-                then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
     }
