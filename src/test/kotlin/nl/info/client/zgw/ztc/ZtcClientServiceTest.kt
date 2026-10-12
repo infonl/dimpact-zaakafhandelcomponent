@@ -13,6 +13,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService.Companion.MAX_CACHE_SIZE
 import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
@@ -181,6 +183,32 @@ class ZtcClientServiceTest : BehaviorSpec({
 
             then("it should return the zaaktypes of all pages combined") {
                 zaaktypen shouldBe listOf(firstPageZaakType, secondPageZaakType)
+            }
+        }
+    }
+
+    given("zaaktypes for a catalogus that have been listed") {
+        val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+        val firstZaakType = createZaakType()
+        val secondZaakType = createZaakType()
+        every {
+            ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getCatalogus() == catalogusUri })
+        } returns Results(
+            countValue = 2,
+            resultsValue = listOf(firstZaakType, secondZaakType),
+            nextValue = null,
+            previousValue = null
+        )
+        ztcClientService.listZaaktypen(catalogusUri)
+
+        `when`("readZaaktype is called for each listed zaaktype") {
+            val firstReadZaakType = ztcClientService.readZaaktype(firstZaakType.url.extractUuid())
+            val secondReadZaakType = ztcClientService.readZaaktype(secondZaakType.url.extractUuid())
+
+            then("it should return the listed zaaktypes from the cache without reading them from the ZTC") {
+                firstReadZaakType shouldBe firstZaakType
+                secondReadZaakType shouldBe secondZaakType
+                verify(exactly = 0) { ztcClient.zaaktypeRead(any()) }
             }
         }
     }

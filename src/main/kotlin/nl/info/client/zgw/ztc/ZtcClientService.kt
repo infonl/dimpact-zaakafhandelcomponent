@@ -162,7 +162,10 @@ class ZtcClientService @Inject constructor(
                 result = ztcClient.zaaktypeList(
                     ZaaktypeListParameters(catalogusURI, page = page, pageSize = ZAAKTYPE_PAGE_SIZE)
                 )
-                addAll(result.results())
+                result.results().forEach { zaakType ->
+                    add(zaakType)
+                    uuidToZaakTypeCache.put(zaakType.url.extractUuid(), zaakType)
+                }
                 page++
             } while (result.next() != null)
         }
