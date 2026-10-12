@@ -23,10 +23,13 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.identity.model.toRestUser
 import nl.info.zac.app.identity.model.toRestUsers
+import nl.info.zac.app.zaak.model.RestGeautoriseerdeMedewerker
 import nl.info.zac.app.zaak.model.RestZaakspecifiekGeautoriseerdeMedewerker
+import nl.info.zac.app.zaak.model.toRestGeautoriseerdeMedewerker
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
@@ -47,6 +50,16 @@ class ZaakspecifiekeAutorisatieRestService @Inject constructor(
     private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
     private val zrcClientService: ZrcClientService
 ) {
+    @GET
+    @Path("zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers")
+    fun listGeautoriseerdeMedewerkers(@PathParam("uuid") zaakUUID: UUID): List<RestGeautoriseerdeMedewerker> {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakAutorisatieGegevens = readZaakAutorisatieGegevensAndAssertRecht(zaak, zaakType) { it.canLezen }
+        return zaakspecifiekeAutorisatieService
+            .listGeautoriseerdeMedewerkerRollen(zaak, zaakAutorisatieGegevens)
+            .map { it.toRestGeautoriseerdeMedewerker() }
+    }
+
     @GET
     @Path("zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten")
     fun listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
@@ -78,14 +91,22 @@ class ZaakspecifiekeAutorisatieRestService @Inject constructor(
     }
 
     private fun readZaakAutorisatieGegevensAndAssertWijzigen(zaak: Zaak, zaakType: ZaakType) =
-        zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak).also {
-            assertPolicy(
+        readZaakAutorisatieGegevensAndAssertRecht(zaak, zaakType) { it.canWijzigen }
+
+    private fun readZaakAutorisatieGegevensAndAssertRecht(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        recht: (ZaakRechten) -> Boolean
+    ) = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak).also {
+        assertPolicy(
+            recht(
                 policyService.readZaakRechten(
                     zaak = zaak,
                     zaaktype = zaakType,
                     loggedInUser = loggedInUserInstance.get(),
                     zaakAutorisatieGegevens = it
-                ).canWijzigen
+                )
             )
-        }
+        )
+    }
 }

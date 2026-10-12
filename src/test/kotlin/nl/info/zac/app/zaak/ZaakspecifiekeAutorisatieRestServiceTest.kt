@@ -12,11 +12,16 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakEigenschap
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
+import nl.info.zac.app.zaak.model.RestGeautoriseerdeMedewerker
 import nl.info.zac.app.zaak.model.createRestZaakspecifiekGeautoriseerdeMedewerker
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -47,6 +52,75 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    context("Listing the medewerkers who are individually authorised for a zaakspecifiek geautoriseerde zaak") {
+        given("a user with the 'lezen' right on the zaak") {
+            val geautoriseerdeMedewerkerRol = createRolMedewerker(
+                rolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType(),
+                medewerkerIdentificatie = createMedewerkerIdentificatie(
+                    identificatie = "fakeMedewerkerId",
+                    voorletters = "Emma",
+                    achternaam = "Jansen"
+                )
+            )
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
+            every {
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                )
+            } returns createZaakRechten(wijzigen = false)
+            every {
+                zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(zaak, any())
+            } returns listOf(geautoriseerdeMedewerkerRol)
+
+            `when`("the geautoriseerde medewerkers are listed") {
+                val restGeautoriseerdeMedewerkers = zaakspecifiekeAutorisatieRestService.listGeautoriseerdeMedewerkers(
+                    zaak.uuid
+                )
+
+                then("each medewerker is returned with the roltype that gives them access to the zaak") {
+                    restGeautoriseerdeMedewerkers shouldBe listOf(
+                        RestGeautoriseerdeMedewerker(
+                            id = "fakeMedewerkerId",
+                            naam = "Emma Jansen",
+                            roltype = ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
+                        )
+                    )
+                }
+            }
+        }
+
+        given("a user without the 'lezen' right on the zaak") {
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
+            every {
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                )
+            } returns createZaakRechten(lezen = false)
+
+            `when`("the geautoriseerde medewerkers are listed") {
+                shouldThrow<PolicyException> {
+                    zaakspecifiekeAutorisatieRestService.listGeautoriseerdeMedewerkers(zaak.uuid)
+                }
+
+                then("the geautoriseerde medewerkers are not read") {
+                    verify(exactly = 0) {
+                        zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(any(), any())
+                    }
+                }
+            }
+        }
     }
 
     context("Listing the medewerkers who can be added to a zaakspecifiek geautoriseerde zaak") {
