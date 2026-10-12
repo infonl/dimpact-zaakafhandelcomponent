@@ -630,12 +630,15 @@ Gebruik dit bijvoorbeeld voor een zaak met gevoelige informatie.
 De gebruikershandleiding beschrijft hoe een medewerker een zaak zaakspecifiek autoriseert.
 Deze sectie beschrijft wat een beheerder moet inrichten.
 
-Twee componenten bepalen samen of een medewerker een zaakspecifiek geautoriseerde zaak mag zien:
+De inrichting heeft twee delen:
 
-| Component                  | Wat wordt ingericht                                                                                    | Door wie                |
-|----------------------------|--------------------------------------------------------------------------------------------------------|-------------------------|
-| Zaaktypecatalogus (Open Zaak) | De zaakeigenschap `ZAAK_GEAUTORISEERD` en het roltype 'Zaakspecifiek geautoriseerde medewerker' per zaaktype | Functioneel beheerder |
-| Keycloak en de PABC        | Welke medewerkers de applicatierol `zaakspecifiek_geautoriseerd` hebben, en voor welke zaaktypen        | Functioneel beheerder   |
+| Deel                          | Wat wordt ingericht                                                                                          | Verplicht?                                                                                                  |
+|-------------------------------|--------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| Zaaktypecatalogus (Open Zaak) | De zaakeigenschap `ZAAK_GEAUTORISEERD` en het roltype 'Zaakspecifiek geautoriseerde medewerker' per zaaktype | Ja. Zonder dit deel kan niemand een zaak van het zaaktype zaakspecifiek autoriseren.                        |
+| PABC (en alleen soms Keycloak) | Welke functionele rollen de applicatierol `zaakspecifiek_geautoriseerd` hebben, en voor welke zaaktypen     | Nee. Alleen nodig als een vaste groep alle zaakspecifiek geautoriseerde zaken van een zaaktype moet zien.   |
+
+Keycloak is alleen nodig als de medewerkers die toegang moeten krijgen nog geen eigen functionele rol hebben.
+Zie [Voorbeelden](#voorbeelden).
 
 #### Wie heeft toegang tot een zaakspecifiek geautoriseerde zaak
 
@@ -695,20 +698,90 @@ Het zaaktype blijft bruikbaar, maar de zaakspecifieke autorisatie werkt niet vol
 
 ![Inrichtingscheck waarschuwing zaakspecifieke autorisatie](images/inrichtingscheck_zaakspecifieke_autorisatie.png)
 
-#### Keycloak en PABC inrichten
+#### PABC inrichten
 
-Richt de applicatierol `zaakspecifiek_geautoriseerd` in zoals de andere applicatierollen.
-Zie sectie [IAM-architectuur](#iam-architectuur).
+Richt deze stap eenmalig in:
 
 1. Voeg in de PABC de applicatierol `zaakspecifiek_geautoriseerd` toe aan de applicatie `zaakafhandelcomponent`, als deze nog niet bestaat.
-2. Maak in Keycloak een functionele rol aan, bijvoorbeeld 'zaakspecifiek_geautoriseerd_vergunningen'.
-   Ken de functionele rol toe aan de groep(en) van de medewerkers die alle zaakspecifiek geautoriseerde zaken mogen zien.
-3. Voeg in de PABC de functionele rol toe en maak een autorisatie-koppeling met de applicatierol `zaakspecifiek_geautoriseerd` voor het domein met de zaaktypen.
-4. Controleer dat de medewerkers ook een basis-applicatierol hebben voor dezelfde zaaktypen.
+   Zie sectie [Applicatierollen](#applicatierollen).
 
-Zonder deze koppeling hebben alleen de behandelaar en de medewerkers met de rol 'Zaakspecifiek geautoriseerde medewerker' toegang tot een zaakspecifiek geautoriseerde zaak.
+Richt daarna deze stappen in voor elke groep medewerkers die alle zaakspecifiek geautoriseerde zaken van een zaaktype moet zien:
+
+1. Open het dashboard van de PABC.
+2. Kies de functionele rol van de groep.
+3. Voeg de applicatierol `zaakspecifiek_geautoriseerd` toe aan de autorisatie-koppeling voor het domein met de zaaktypen.
+   Gebruik hetzelfde domein als de basis-applicatierol van de groep.
+4. Sla de autorisatie-koppeling op.
+
+Gebruik zo veel mogelijk een functionele rol die al bestaat. Dan hoeft u niets in Keycloak te wijzigen.
+Maak alleen een nieuwe functionele rol als de medewerkers die toegang moeten krijgen nog geen functionele rol hebben die past.
+Zie [Voorbeeld 3](#voorbeeld-3-een-aparte-groep-ziet-alle-zaakspecifiek-geautoriseerde-zaken).
+
+Een medewerker moet zich opnieuw aanmelden in ZAC na een wijziging in de PABC of in Keycloak.
 
 > Let op! Een medewerker die alleen de applicatierol `zaakspecifiek_geautoriseerd` heeft, en geen basis-applicatierol, kan zich niet aanmelden in ZAC.
+
+#### Voorbeelden
+
+De voorbeelden gebruiken het domein 'Vergunningen' met het zaaktype 'Omgevingsvergunning'.
+Het zaaktype is zaakspecifiek autoriseerbaar. Zie sectie [Zaaktypecatalogus inrichten](#zaaktypecatalogus-inrichten).
+In Keycloak en de PABC bestaan al deze functionele rollen:
+
+| Functionele rol            | Groep in Keycloak        | Autorisatie-koppeling in de PABC            |
+|----------------------------|--------------------------|---------------------------------------------|
+| `behandelaar_vergunningen` | Team Vergunningen        | `behandelaar` in het domein 'Vergunningen'  |
+| `coordinator_vergunningen` | Teamleiders Vergunningen | `coordinator` in het domein 'Vergunningen'  |
+| `beheerder_zac`            | Functioneel beheer       | `beheerder` voor `Alle entiteitstypes`      |
+
+| Voorbeeld                                                                                                   | Zaaktypecatalogus | PABC | Keycloak |
+|-------------------------------------------------------------------------------------------------------------|-------------------|------|----------|
+| [1. Alleen de behandelaar en gekozen collega's](#voorbeeld-1-alleen-de-behandelaar-en-gekozen-collegas)     | Ja                | Nee  | Nee      |
+| [2. De teamleiders zien alles](#voorbeeld-2-de-teamleiders-zien-alle-zaakspecifiek-geautoriseerde-zaken)     | Ja                | Ja   | Nee      |
+| [3. Een aparte groep ziet alles](#voorbeeld-3-een-aparte-groep-ziet-alle-zaakspecifiek-geautoriseerde-zaken) | Ja                | Ja   | Ja       |
+| [4. De functioneel beheerder ziet alles](#voorbeeld-4-de-functioneel-beheerder-ziet-alle-zaakspecifiek-geautoriseerde-zaken) | Ja | Ja | Nee |
+
+##### Voorbeeld 1: alleen de behandelaar en gekozen collega's
+
+Een behandelaar van Team Vergunningen krijgt een zaak over een collega van de gemeente.
+De behandelaar autoriseert de zaak zaakspecifiek.
+Daarna ziet alleen de behandelaar de zaak. De andere medewerkers van Team Vergunningen zien de zaak niet meer.
+De behandelaar voegt een collega aan de zaak toe, of kent de zaak toe aan een andere behandelaar.
+Die collega en de vorige behandelaar houden toegang tot deze ene zaak.
+
+Inrichting: alleen de zaaktypecatalogus. Niets in de PABC, niets in Keycloak.
+
+##### Voorbeeld 2: de teamleiders zien alle zaakspecifiek geautoriseerde zaken
+
+De teamleiders van Vergunningen moeten alle zaakspecifiek geautoriseerde zaken van hun domein zien en verdelen.
+De groep Teamleiders Vergunningen heeft al de functionele rol `coordinator_vergunningen`.
+
+Inrichting:
+- PABC: voeg de applicatierol `zaakspecifiek_geautoriseerd` toe aan de autorisatie-koppeling van `coordinator_vergunningen` voor het domein 'Vergunningen'.
+- Keycloak: niets.
+
+De teamleiders zien nu alle zaakspecifiek geautoriseerde zaken van het domein 'Vergunningen', met de rechten van `coordinator`.
+
+##### Voorbeeld 3: een aparte groep ziet alle zaakspecifiek geautoriseerde zaken
+
+De medewerkers van het team Integriteit moeten alle zaakspecifiek geautoriseerde zaken van het domein 'Vergunningen' raadplegen.
+Ze hebben nog geen functionele rol voor het domein 'Vergunningen'.
+
+Inrichting:
+- Keycloak: maak de functionele rol `integriteit_vergunningen` aan. Ken de functionele rol toe aan de groep Integriteit.
+- PABC: voeg de functionele rol `integriteit_vergunningen` toe. Maak een autorisatie-koppeling met de applicatierollen `raadpleger` en `zaakspecifiek_geautoriseerd` voor het domein 'Vergunningen'.
+
+De medewerkers van Integriteit zien nu alle zaakspecifiek geautoriseerde zaken van het domein 'Vergunningen'. Ze mogen deze zaken alleen raadplegen.
+Door de rol `raadpleger` zien ze ook de andere zaken van het domein.
+
+##### Voorbeeld 4: de functioneel beheerder ziet alle zaakspecifiek geautoriseerde zaken
+
+Een functioneel beheerder met de rol `beheerder` ziet zaakspecifiek geautoriseerde zaken niet automatisch.
+
+Inrichting:
+- PABC: voeg de applicatierol `zaakspecifiek_geautoriseerd` toe aan de autorisatie-koppeling van `beheerder_zac`.
+- Keycloak: niets.
+
+Doe dit alleen als de beheerder de inhoud van deze zaken echt moet zien.
 
 #### Problemen oplossen
 
