@@ -40,8 +40,10 @@ import moment from "moment";
 import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
-import { BackButtonDirective } from "../../shared/navigation/back-button.directive";
-import { NavigationService } from "../../shared/navigation/navigation.service";
+import {
+  BackButtonDirective,
+  injectCanGoBack,
+} from "../../shared/navigation/back-button.directive";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { VersionComponent } from "../../shared/version/version.component";
 import { SignaleringenService } from "../../signaleringen.service";
@@ -98,6 +100,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   private subscription$?: Subscription;
   private signaleringListener?: WebsocketListener;
 
+  protected readonly canGoBack = injectCanGoBack();
   protected readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
@@ -118,7 +121,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly utilService: UtilService,
-    protected readonly navigation: NavigationService,
     private readonly identityService: IdentityService,
     protected readonly zoekenService: ZoekenService,
     private readonly signaleringenService: SignaleringenService,

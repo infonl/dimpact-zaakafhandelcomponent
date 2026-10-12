@@ -23,7 +23,12 @@ import { MatIconRegistry } from "@angular/material/icon";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from "@angular/material/snack-bar";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
-import { provideRouter, RouteReuseStrategy } from "@angular/router";
+import {
+  NavigationError,
+  provideRouter,
+  Router,
+  RouteReuseStrategy,
+} from "@angular/router";
 import {
   provideTranslateService,
   TranslateLoader,
@@ -53,6 +58,17 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(),
     provideRouter(APP_ROUTES),
+    // When a resolver fails on the first page load, Angular resets the address bar to the
+    // root url. Keep the url the user asked for, so a reload retries it. This listens to the
+    // public router events because they fire after that reset; withNavigationErrorHandler
+    // runs before it, so its url change would be overwritten.
+    provideEnvironmentInitializer(() => {
+      const router = inject(Router);
+      router.events.subscribe((event) => {
+        if (event instanceof NavigationError && !router.navigated)
+          window.history.replaceState(null, "", event.url);
+      });
+    }),
     provideTranslateService({
       fallbackLang: "nl",
       loader: {
