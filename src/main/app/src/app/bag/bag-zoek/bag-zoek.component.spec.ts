@@ -15,6 +15,7 @@ import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 import { BagZoekComponent } from "./bag-zoek.component";
@@ -92,6 +93,18 @@ describe(BagZoekComponent.name, () => {
 
     expect(listAdressen).toHaveBeenCalledWith({ trefwoorden: "Teststraat 1" });
     expect(await rowOf("0363010000012345")).toBeVisible();
+  });
+
+  it("stops the global loading indicator when the search fails", async () => {
+    listAdressen.mockReturnValue({
+      queryKey: ["test-query-failing"],
+      queryFn: jest.fn().mockRejectedValue(new Error("server error")),
+    });
+    await setup();
+
+    await search("Teststraat 1");
+
+    expect(TestBed.inject(UtilService).loading()).toBe(false);
   });
 
   it("does not search when no keywords are entered", async () => {

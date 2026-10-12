@@ -37,7 +37,7 @@ import {
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { merge } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
@@ -164,6 +164,10 @@ export class InboxDocumentenListComponent
 
   ngAfterViewInit() {
     this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
+    const stopLoading = () => {
+      this.isLoadingResults = false;
+      this.utilService.setLoading(false);
+    };
     merge(this.sort().sortChange, this.paginator().page, this.filterChange)
       .pipe(
         startWith({}),
@@ -179,11 +183,7 @@ export class InboxDocumentenListComponent
             }),
           );
         }),
-        map((data) => {
-          this.isLoadingResults = false;
-          this.utilService.setLoading(false);
-          return data;
-        }),
+        tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((data) => {
         this.paginator().length = data.totaal ?? 0;

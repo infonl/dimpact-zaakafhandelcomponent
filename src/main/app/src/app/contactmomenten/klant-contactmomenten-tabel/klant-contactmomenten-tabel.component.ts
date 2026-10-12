@@ -18,7 +18,7 @@ import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { PutBody } from "../../shared/http/http-client";
 import { runQuery } from "../../shared/http/run-query";
@@ -88,6 +88,10 @@ export class KlantContactmomentenTabelComponent
 
   ngAfterViewInit(): void {
     this.init = true;
+    const stopLoading = () => {
+      this.isLoadingResults = false;
+      this.utilService.setLoading(false);
+    };
     this.paginator()
       .page.pipe(
         startWith({}),
@@ -96,11 +100,7 @@ export class KlantContactmomentenTabelComponent
           this.utilService.setLoading(true);
           return runQuery(this.queryClient, this.loadContactmomenten());
         }),
-        map((resultaat) => {
-          this.isLoadingResults = false;
-          this.utilService.setLoading(false);
-          return resultaat;
-        }),
+        tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((resultaat) => {
         this.paginator().length = resultaat.totaal ?? 0;
