@@ -86,13 +86,13 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
   describe("requestForm", () => {
     describe("field structure", () => {
-      it("should return exactly 8 fields for a non-suspendable zaak", async () => {
+      it("should not add zaakOpschorten for a non-suspendable zaak", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
-        expect(fields.length).toBe(8);
+        expect(fields.map((f) => f.key)).not.toContain("zaakOpschorten");
       });
 
-      it("should return 9 fields for a suspendable zaak (adds zaakOpschorten)", async () => {
+      it("should add zaakOpschorten for a suspendable zaak", async () => {
         const suspendableZaak = fromPartial<GeneratedType<"RestZaak">>({
           uuid: "zaak-uuid",
           zaaktype: { isOpschortingMogelijk: true },
@@ -104,7 +104,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
         const fields = await formulier.requestForm(suspendableZaak);
 
-        expect(fields.length).toBe(9);
+        expect(fields.map((f) => f.key)).toContain("zaakOpschorten");
       });
 
       it("should return fields in the expected order", async () => {
@@ -549,12 +549,6 @@ describe(AanvullendeInformatieTaskForm.name, () => {
     });
 
     describe("field structure", () => {
-      it("should return exactly 6 base fields", async () => {
-        const fields = await formulier.handleForm(mockTaak, mockZaak);
-
-        expect(fields.length).toBe(6);
-      });
-
       it("should return fields in the expected order", async () => {
         const fields = await formulier.handleForm(mockTaak, mockZaak);
 
