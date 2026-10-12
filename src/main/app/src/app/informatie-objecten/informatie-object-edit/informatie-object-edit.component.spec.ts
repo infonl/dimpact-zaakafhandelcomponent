@@ -31,7 +31,6 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectEditComponent } from "./informatie-object-edit.component";
@@ -103,14 +102,12 @@ describe(InformatieObjectEditComponent.name, () => {
         ReactiveFormsModule,
         MatIconModule,
         TranslateModule.forRoot(),
-        VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
       ],
       providers: [
         provideZonelessChangeDetection(),
         provideTanStackQuery(testQueryClient),
         provideQueryClient(testQueryClient),
-        VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
     }).compileComponents();
 
