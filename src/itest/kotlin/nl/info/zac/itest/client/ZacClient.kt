@@ -135,6 +135,8 @@ class ZacClient(
         brpVerwerkingregisterWaarde: String = "Algemeen",
         automaticEmailConfirmationReply: String = "reply@example.com",
         fatalDateWarningWindow: Int? = null,
+        defaultGroepId: String? = GROUP_BEHANDELAARS_TEST_1.name,
+        defaultZaakafzenderMail: String = "GEMEENTE",
         testUser: TestUser
     ): ResponseContent {
         logger.info {
@@ -265,7 +267,7 @@ class ZacClient(
               "zaakAfzenders": [
               {
                  "isDefaultMail": true,
-                 "mail": "GEMEENTE",
+                 "mail": "$defaultZaakafzenderMail",
                  "isSpeciaal": true,
                  "replyTo": "GEMEENTE"
                 },
@@ -340,7 +342,7 @@ class ZacClient(
                   }
                 ]
               },             
-              "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
+              "defaultGroepId": ${defaultGroepId?.let { "\"$it\"" }},
               "defaultBehandelaarId": null,
               "einddatumGeplandWaarschuwing": null,
               "uiterlijkeEinddatumAfdoeningWaarschuwing": $fatalDateWarningWindow,

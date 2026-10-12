@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :06-10-2026 <br>
-> Versie :   1.10 <br>
-> Verandering : Zaakspecifieke autorisatie <br>
+> Datum :12-10-2026 <br>
+> Versie :   1.10.1 <br>
+> Verandering : Zaakspecifieke autorisatie, tabblad Medewerkers <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -43,6 +43,7 @@ Versiegeschiedenis:
 | 1.9.1 | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
 | 1.9.2 | ZAC v5.6 Handleiding, toevoeging 'Ken aan mij toe' in zaken- en taken-werkvoorraad                                                      |
 | 1.10  | Toevoeging zaakspecifieke autorisatie                                                                                                      |
+| 1.10.1 | Toevoeging tabblad Medewerkers bij zaakspecifieke autorisatie                                                                             |
 
 <div style="page-break-after: always"></div>
 
@@ -79,6 +80,7 @@ Versiegeschiedenis:
   - [Zaakgegevens bewerken](#zaakgegevens-bewerken)
   - [Zaak zaakspecifiek autoriseren](#zaak-zaakspecifiek-autoriseren)
     - [Werken met een zaakspecifiek geautoriseerde zaak](#werken-met-een-zaakspecifiek-geautoriseerde-zaak)
+    - [Medewerkers](#medewerkers)
     - [Medewerker toevoegen](#medewerker-toevoegen)
   - [Locatie koppelen](#locatie-koppelen)
   - [Locatie wijzigen](#locatie-wijzigen)
@@ -557,7 +559,20 @@ Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. 
 - Een taakbehandelaar houdt toegang als de taak is vrijgegeven of afgerond.
 - Als een zaak met een open taak zaakspecifiek geautoriseerd wordt, dan krijgt de taakbehandelaar van die taak toegang tot de zaak.
 - ZAC registreert een taakbehandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak. De taakhistorie toont dan een regel ‘Zaakspecifiek geautoriseerde medewerker’ met de naam van de taakbehandelaar. Die regel staat er alleen als de medewerker nog geen Zaakspecifiek geautoriseerde medewerker was en niet de behandelaar van de zaak is.
-- Zaakspecifiek geautoriseerde medewerkers staan niet in het tabblad ‘Betrokkenen’ van de zaak.
+- Zaakspecifiek geautoriseerde medewerkers staan niet in het tabblad ‘Betrokkenen’ van de zaak. Je ziet ze in het tabblad ‘Medewerkers’.
+
+### Medewerkers
+
+Het tabblad ‘Medewerkers’ toont welke medewerkers specifiek toegang hebben tot de zaak. Van elke medewerker toont het tabblad de rol op de zaak:
+
+- Behandelaar: de huidige behandelaar van de zaak
+- Zaakspecifiek geautoriseerde medewerker: de vorige behandelaars, de behandelaars van taken van de zaak en de medewerkers die handmatig aan de zaak zijn toegevoegd. Zie [Medewerker toevoegen](#medewerker-toevoegen).
+
+Het tabblad toont geen medewerkers die toegang hebben via de rol Zaakspecifiek geautoriseerd.
+
+> Het tabblad is alleen beschikbaar bij een zaakspecifiek geautoriseerde zaak.
+
+![Tabblad Medewerkers](./images/zaak-tabblad-medewerkers.png)
 
 ### Medewerker toevoegen
 
@@ -578,7 +593,7 @@ Bij een zaakspecifiek geautoriseerde zaak kun je extra medewerkers toegang geven
 ![Medewerker toevoegen](./images/medewerker-toevoegen.png)
 
 De toegevoegde medewerker heeft vanaf dan toegang tot de zaak, met de rechten van de eigen rol voor het zaaktype.
-De zaakhistorie toont dat de medewerker is toegevoegd als Zaakspecifiek geautoriseerde medewerker.
+De zaakhistorie toont dat de medewerker is toegevoegd als Zaakspecifiek geautoriseerde medewerker. Het tabblad ‘Medewerkers’ toont de medewerker ook.
 Een toegevoegde medewerker die de zaak mag wijzigen, kan zelf ook medewerkers toevoegen.
 
 ## Locatie koppelen

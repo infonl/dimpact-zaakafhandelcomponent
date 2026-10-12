@@ -134,6 +134,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected isSavedZaakafhandelParameters: boolean = false;
 
   parameters: GeneratedType<"RestZaaktypeConfiguration"> = {
+    defaultGroepId: null,
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
@@ -938,7 +939,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.parameters = {
       ...this.parameters,
       ...this.algemeenFormGroup.value,
-      defaultGroepId: this.algemeenFormGroup.value.defaultGroep?.id,
+      defaultGroepId: this.algemeenFormGroup.value.defaultGroep?.id ?? null,
       defaultBehandelaarId: this.algemeenFormGroup.value.defaultBehandelaar?.id,
     };
 

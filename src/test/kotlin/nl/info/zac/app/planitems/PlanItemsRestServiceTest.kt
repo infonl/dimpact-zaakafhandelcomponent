@@ -222,7 +222,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             } just runs
             every { cmmnService.readOpenTaskForPlanItem(planItemInstanceId) } returns task
             every {
-                taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, "fakeTaakbehandelaarId")
+                taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, "fakeTaakbehandelaarId")
             } just runs
             every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
 
@@ -246,7 +246,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                         )
                         taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(
                             task,
-                            zaak,
                             "fakeTaakbehandelaarId"
                         )
                     }
