@@ -134,8 +134,9 @@ jobs:
           owner: infonl
           package: zaakafhandelcomponent
           keep-n-tagged: 10
-          # comma-separated regexes; a single pattern with nested groups is rejected as ReDoS-prone
-          exclude-tags: '^latest$,^v?[0-9]+\.[0-9]+$,^v?[0-9]+\.[0-9]+\.[0-9]+$,^v?[0-9]+\.[0-9]+\.[0-9]+-[^.]+$'
+          # In regex mode the whole value is ONE regex (it is not split on commas), and a pattern with
+          # nested quantifiers is rejected as ReDoS-prone, hence the flat alternation.
+          exclude-tags: '^(latest|v?[0-9]+\.[0-9]+|v?[0-9]+\.[0-9]+\.[0-9]+|v?[0-9]+\.[0-9]+\.[0-9]+-[^.]+)$'
           use-regex: true
           delete-untagged: true
           delete-partial-images: true
