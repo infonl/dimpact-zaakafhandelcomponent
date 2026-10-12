@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :06-10-2026 <br>
-> Versie :   1.10 <br>
-> Verandering : Zaakspecifieke autorisatie <br>
+> Datum :12-10-2026 <br>
+> Versie :   1.10.1 <br>
+> Verandering : Zaakspecifieke autorisatie, tabblad Medewerkers <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -43,6 +43,7 @@ Versiegeschiedenis:
 | 1.9.1 | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
 | 1.9.2 | ZAC v5.6 Handleiding, toevoeging 'Ken aan mij toe' in zaken- en taken-werkvoorraad                                                      |
 | 1.10  | Toevoeging zaakspecifieke autorisatie                                                                                                      |
+| 1.10.1 | Toevoeging tabblad Medewerkers bij zaakspecifieke autorisatie                                                                             |
 
 <div style="page-break-after: always"></div>
 
