@@ -244,9 +244,12 @@
   </mat-drawer-content>
 </mat-drawer-container>
 
-@if (notitieRechten?.canLezen || notitieRechten?.canWijzigen) {
+@if (
+  notitieRechtenQuery.data()?.canLezen ||
+  notitieRechtenQuery.data()?.canWijzigen
+) {
   <zac-notities
     [zaakUuid]="zaak.uuid"
-    [notitieRechten]="notitieRechten"
+    [notitieRechten]="notitieRechtenQuery.data()"
   ></zac-notities>
 }

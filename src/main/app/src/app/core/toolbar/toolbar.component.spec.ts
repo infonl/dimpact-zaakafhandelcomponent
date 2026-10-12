@@ -26,7 +26,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { mockMutationFn, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
@@ -81,13 +80,12 @@ describe(ToolbarComponent.name, () => {
       canBeheren: false,
       canZoeken: false,
     });
-    jest.spyOn(policyService, "readWerklijstRechten").mockReturnValue(
-      of(
-        fromPartial<GeneratedType<"RestWerklijstRechten">>({
-          canZakenTaken: false,
-          canInbox: false,
-        }),
-      ),
+    testQueryClient.setQueryData(
+      policyService.readWerklijstRechten().queryKey,
+      fromPartial<GeneratedType<"RestWerklijstRechten">>({
+        canZakenTaken: false,
+        canInbox: false,
+      }),
     );
 
     createZaakMutation = runInInjectionContext(injector, () =>
@@ -143,13 +141,12 @@ describe(ToolbarComponent.name, () => {
 
   describe("Navigation menus", () => {
     it("renders zaken and taken menu buttons when werklijstRechten.zakenTaken is true", async () => {
-      jest.spyOn(policyService, "readWerklijstRechten").mockReturnValue(
-        of(
-          fromPartial<GeneratedType<"RestWerklijstRechten">>({
-            canZakenTaken: true,
-            canInbox: false,
-          }),
-        ),
+      testQueryClient.setQueryData(
+        policyService.readWerklijstRechten().queryKey,
+        fromPartial<GeneratedType<"RestWerklijstRechten">>({
+          canZakenTaken: true,
+          canInbox: false,
+        }),
       );
       createComponent();
 
@@ -177,13 +174,12 @@ describe(ToolbarComponent.name, () => {
     });
 
     it("renders inbox menu button when werklijstRechten.inbox is true", async () => {
-      jest.spyOn(policyService, "readWerklijstRechten").mockReturnValue(
-        of(
-          fromPartial<GeneratedType<"RestWerklijstRechten">>({
-            canZakenTaken: false,
-            canInbox: true,
-          }),
-        ),
+      testQueryClient.setQueryData(
+        policyService.readWerklijstRechten().queryKey,
+        fromPartial<GeneratedType<"RestWerklijstRechten">>({
+          canZakenTaken: false,
+          canInbox: true,
+        }),
       );
       createComponent();
 

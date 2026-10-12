@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpTestingController } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  TestRequest,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -74,6 +77,16 @@ describe(NotitiesComponent.name, () => {
     fixture.detectChanges();
   }
 
+  async function answerMutation(
+    request: TestRequest,
+    body: Parameters<TestRequest["flush"]>[0],
+  ) {
+    request.flush(body);
+    await sleep();
+    await sleep();
+    fixture.detectChanges();
+  }
+
   async function openNotities() {
     await userEvent
       .setup()
@@ -113,14 +126,79 @@ describe(NotitiesComponent.name, () => {
       expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
     });
 
-    it("should neither reload the notities nor listen to the new zaak when the zaakUuid changes", async () => {
+    it("should show the notities of the new zaak and listen to it instead when the zaakUuid changes", async () => {
       await setup({ notitieRechten });
 
       fixture.componentRef.setInput("zaakUuid", "fakeZaakUuid2");
       fixture.detectChanges();
+      httpTestingController
+        .expectOne("/rest/notities/zaken/fakeZaakUuid2")
+        .flush([notitie({ zaakUUID: "fakeZaakUuid2", tekst: "fakeTekst2" })]);
+      await sleep();
+      fixture.detectChanges();
+      await openNotities();
 
-      httpTestingController.expectNone("/rest/notities/zaken/fakeZaakUuid2");
-      expect(websocketService.addListener).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("fakeTekst2")).toBeInTheDocument();
+      expect(websocketService.removeListener).toHaveBeenCalledTimes(1);
+      expect(websocketService.addListener).toHaveBeenLastCalledWith(
+        Opcode.UPDATED,
+        ObjectType.ZAAK_NOTITIES,
+        "fakeZaakUuid2",
+        expect.any(Function),
+      );
+    });
+
+    it("should stop listening for changes to the notities when it is destroyed", async () => {
+      await setup({ notitieRechten });
+
+      fixture.destroy();
+
+      expect(websocketService.removeListener).toHaveBeenCalledTimes(1);
+    });
+
+    it("should reload the notities when it is shown again, so changes made while it was not listening are not missed", async () => {
+      await setup({ notities: [notitie()], notitieRechten });
+      fixture.destroy();
+
+      fixture = TestBed.createComponent(NotitiesComponent);
+      fixture.componentRef.setInput("zaakUuid", "fakeZaakUuid");
+      fixture.componentRef.setInput("notitieRechten", notitieRechten);
+      fixture.detectChanges();
+      await respondWithNotities([notitie({ tekst: "fakeNieuweTekst" })]);
+      await openNotities();
+
+      expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
+    });
+
+    it("should show the most recently changed notitie first, after the notities without a change time", async () => {
+      await setup({
+        notities: [
+          notitie({
+            id: 1,
+            tekst: "fakeOudsteTekst",
+            tijdstipLaatsteWijziging: "2026-01-01T10:00:00Z",
+          }),
+          notitie({
+            id: 2,
+            tekst: "fakeNieuwsteTekst",
+            tijdstipLaatsteWijziging: "2026-03-01T10:00:00Z",
+          }),
+          notitie({ id: 3, tekst: "fakeTekstZonderTijdstip" }),
+        ],
+        notitieRechten,
+      });
+
+      await openNotities();
+
+      expect(
+        screen
+          .getAllByText(/^fake.*Tekst/)
+          .map((element) => element.textContent?.trim()),
+      ).toEqual([
+        "fakeTekstZonderTijdstip",
+        "fakeNieuwsteTekst",
+        "fakeOudsteTekst",
+      ]);
     });
 
     it("should offer to add a notitie", async () => {
@@ -179,9 +257,7 @@ describe(NotitiesComponent.name, () => {
           tekst: "fakeNieuweTekst",
           gebruikersnaamMedewerker: "currentUser",
         });
-        request.flush({ ...request.request.body, id: 2 });
-        await sleep();
-        fixture.detectChanges();
+        await answerMutation(request, { ...request.request.body, id: 2 });
 
         expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
       });
@@ -220,9 +296,7 @@ describe(NotitiesComponent.name, () => {
           tekst: "fakeGewijzigdeTekst",
           gebruikersnaamMedewerker: "currentUser",
         });
-        request.flush(request.request.body);
-        await sleep();
-        fixture.detectChanges();
+        await answerMutation(request, request.request.body);
 
         expect(screen.getByText("fakeGewijzigdeTekst")).toBeInTheDocument();
       });
@@ -250,9 +324,7 @@ describe(NotitiesComponent.name, () => {
       await sleep();
       const request = httpTestingController.expectOne("/rest/notities/2");
       expect(request.request.method).toBe("DELETE");
-      request.flush(null);
-      await sleep();
-      fixture.detectChanges();
+      await answerMutation(request, null);
 
       expect(screen.getByText("een")).toBeInTheDocument();
       expect(screen.queryByText("twee")).not.toBeInTheDocument();
