@@ -29,7 +29,6 @@ import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-paramete
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
@@ -60,7 +59,6 @@ describe(ZaakCreateComponent.name, () => {
     TestBed.configureTestingModule({
       providers: [
         ZakenService,
-        NavigationService,
         KlantenService,
         ReferentieTabelService,
         UtilService,
@@ -403,14 +401,14 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe("cancel button", () => {
-    it("calls navigationService.back() when cancel button is clicked", async () => {
-      const navigationService = TestBed.inject(NavigationService);
-      jest.spyOn(navigationService, "back");
+    it("goes back to the previous page when cancel button is clicked", async () => {
+      Object.assign(window.navigation, { canGoBack: true });
+      jest.spyOn(history, "back").mockImplementation(() => {});
       const cancelButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.annuleren" }),
       );
       await cancelButton.click();
-      expect(navigationService.back).toHaveBeenCalled();
+      expect(history.back).toHaveBeenCalled();
     });
   });
 

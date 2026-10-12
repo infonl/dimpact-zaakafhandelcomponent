@@ -49,7 +49,7 @@ class ZaakSuspendRestService @Inject constructor(
     fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID): RestZaakOpschorting {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canLezen)
         return RestZaakOpschorting().apply {
             vanafDatumTijd = zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
@@ -65,7 +65,7 @@ class ZaakSuspendRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         val resumedZaak = suspensionZaakHelper.resumeZaak(zaak, resumeData.reason)
         return restZaakConverter.toRestZaak(
             zaak = resumedZaak,
@@ -83,7 +83,7 @@ class ZaakSuspendRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         val suspendedZaak = suspensionZaakHelper.suspendZaak(
             zaak = zaak,
             numberOfDays = suspendData.numberOfDays,

@@ -60,7 +60,9 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, zaaktype, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
+        every {
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
+        } returns createZaakRechtenAllDeny(toekennen = true)
 
         val groupExpression = mockk<JuelExpression>()
         every { groupExpression.getValue(delegateExecution) } returns groupId
@@ -102,7 +104,9 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, zaaktype, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
+        every {
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
+        } returns createZaakRechtenAllDeny(toekennen = true)
 
         val groupExpression = mockk<FixedValue>()
         every { groupExpression.getValue(delegateExecution) } returns groupId
@@ -141,7 +145,9 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, zaaktype, loggedInUser) } returns createZaakRechtenAllDeny()
+        every {
+            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
+        } returns createZaakRechtenAllDeny()
 
         val updateZaakAssignmentDelegate = UpdateZaakAssignmentDelegate().apply {
             groepId = mockk()

@@ -30,6 +30,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
+import { catchError, EMPTY, finalize } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -99,11 +100,17 @@ export class BagZoekComponent {
         this.bagService.listAdressen({
           trefwoorden: this.trefwoorden.value,
         }),
-      ).subscribe((adressen) => {
-        this.bagObjecten.data = adressen.resultaten ?? [];
-        this.loading = false;
-        this.utilService.setLoading(false);
-      });
+      )
+        .pipe(
+          catchError(() => EMPTY),
+          finalize(() => {
+            this.loading = false;
+            this.utilService.setLoading(false);
+          }),
+        )
+        .subscribe((adressen) => {
+          this.bagObjecten.data = adressen.resultaten ?? [];
+        });
     }
   }
 

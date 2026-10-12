@@ -4,9 +4,11 @@
  */
 
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { BackButtonDirective } from "./back-button.directive";
-import { NavigationService } from "./navigation.service";
+import { TestBed } from "@angular/core/testing";
+import { Router } from "@angular/router";
+import { render, screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
+import { BackButtonDirective, injectCanGoBack } from "./back-button.directive";
 
 @Component({
   template: "<button zacBackButton>back</button>",
@@ -15,26 +17,39 @@ import { NavigationService } from "./navigation.service";
 class TestHostComponent {}
 
 describe(BackButtonDirective.name, () => {
-  let fixture: ComponentFixture<TestHostComponent>;
-  let navigationServiceMock: Pick<NavigationService, "back">;
-
-  beforeEach(async () => {
-    navigationServiceMock = { back: jest.fn() };
-
-    await TestBed.configureTestingModule({
-      imports: [TestHostComponent],
-      providers: [
-        { provide: NavigationService, useValue: navigationServiceMock },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(TestHostComponent);
-    fixture.detectChanges();
+  beforeEach(() => {
+    jest.spyOn(history, "back").mockImplementation(() => {});
   });
 
-  it("should navigate back when clicked", () => {
-    fixture.nativeElement.querySelector("button").click();
+  it("goes back in the browser history when it holds a ZAC page before this one", async () => {
+    Object.assign(window.navigation, { canGoBack: true });
+    await render(TestHostComponent);
 
-    expect(navigationServiceMock.back).toHaveBeenCalled();
+    await userEvent.setup().click(screen.getByRole("button", { name: "back" }));
+
+    expect(history.back).toHaveBeenCalled();
+  });
+
+  it("goes to the dashboard when no ZAC page came before this one, so the user does not leave ZAC", async () => {
+    await render(TestHostComponent);
+    const router = TestBed.inject(Router);
+    jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "back" }));
+
+    expect(history.back).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).toHaveBeenCalledWith("/");
+  });
+});
+
+describe(injectCanGoBack.name, () => {
+  it("follows the browser history as the user navigates", () => {
+    const canGoBack = TestBed.runInInjectionContext(() => injectCanGoBack());
+    expect(canGoBack()).toBe(false);
+
+    Object.assign(window.navigation, { canGoBack: true });
+    window.navigation.dispatchEvent(new Event("currententrychange"));
+
+    expect(canGoBack()).toBe(true);
   });
 });

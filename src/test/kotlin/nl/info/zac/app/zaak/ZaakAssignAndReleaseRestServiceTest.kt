@@ -125,7 +125,9 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("toekennen policy is assigned to the user") {
-                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
+                every {
+                    policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = true)
                 val returnedRestZaak = zaakAssignAndReleaseRestService.assignZaak(restZaakAssignmentData)
 
                 then("expected response is prepared") {
@@ -135,7 +137,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
 
             `when`("toekennen policy is missing") {
                 every {
-                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                    policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
                 } returns createZaakRechtenAllDeny(toekennen = false)
                 shouldThrow<PolicyException> {
                     zaakAssignAndReleaseRestService.assignZaak(restZaakAssignmentData)
@@ -173,7 +175,9 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             } returns restZaak
 
             `when`("toekennen policy is assigned to the logged-in user") {
-                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
+                every {
+                    policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = true)
                 val returnedRestZaak = zaakAssignAndReleaseRestService.assignZaakToLoggedInUser(
                     restZaakAssignmentToLoggedInUserData
                 )
@@ -185,7 +189,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
 
             `when`("logged-in user does not have toekennen policy") {
                 every {
-                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                    policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
                 } returns createZaakRechtenAllDeny(toekennen = false)
                 shouldThrow<PolicyException> {
                     zaakAssignAndReleaseRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
@@ -224,7 +228,9 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             } returns restZaak
 
             `when`("toekennen policy is assigned to the logged-in user") {
-                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
+                every {
+                    policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = true)
                 val returnedRestZaak = zaakAssignAndReleaseRestService.assignZaakToLoggedInUser(
                     restZaakAssignmentToLoggedInUserData
                 )
@@ -236,7 +242,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
 
             `when`("logged-in user does not have toekennen policy") {
                 every {
-                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                    policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
                 } returns createZaakRechtenAllDeny(toekennen = false)
                 shouldThrow<PolicyException> {
                     zaakAssignAndReleaseRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)

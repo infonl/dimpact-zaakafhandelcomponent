@@ -172,7 +172,7 @@ builder, without editing the Java `FlowableTaskService`.
 - gegeven: *Zaakspecifiek geautoriseerde medewerker*;
 - oude waarde: empty;
 - nieuwe waarde: the medewerker's name;
-- toelichting: "Zaakspecifiek geautoriseerd medewerker van zaak {zaaknummer}".
+- toelichting: "Zaakspecifiek geautoriseerde medewerker van de zaak".
 
 Neither the label nor the toelichting is translated. The label is the roltype omschrijving
 (`ZgwApiService.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER`). The zaakhistorie shows
@@ -206,7 +206,7 @@ Decided during the grilling of 2026-10-05:
   (see Decisions). This makes the earlier question about BPMN error behaviour moot.
 - **The zaakbehandelaar gets no ZGM rol when they become taakbehandelaar** (confirmed by the developer). They
   already have access through the *Behandelaar* rol.
-- Rol audit toelichting and taakhistorie toelichting: "Zaakspecifiek geautoriseerd medewerker van zaak {zaaknummer}", not translated.
+- Rol audit toelichting and taakhistorie toelichting: "Zaakspecifiek geautoriseerde medewerker van de zaak", not translated.
 - Out of scope:
   - assignee validation on REST paths: no group or role check exists for taken (`TaskRestService.kt:178-179`).
     A raadpleger assigned via the API would get read access. Follow-up ticket;
