@@ -11,78 +11,50 @@ import jakarta.json.bind.JsonbConfig
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import net.atos.zac.util.JsonbUtil
-import nl.info.client.klant.KlantClientService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.or.shared.exception.ORErrorException
 import nl.info.client.or.shared.exception.ORRuntimeException
 import nl.info.client.or.shared.exception.ORValidationErrorException
-import nl.info.client.zgw.shared.ZgwApiService
-import nl.info.client.zgw.shared.exception.ZgwErrorException
-import nl.info.client.zgw.shared.exception.ZgwRuntimeException
-import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeConfiguration
-import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.PRODUCTAANVRAAG_GEBRUIKER
 import nl.info.zac.authentication.runAsLoggedInUser
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.flowable.ZaakProcessService
-import nl.info.zac.flowable.ProcessStartData
-import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
-import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import nl.info.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
-import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.zaak.ZaakService
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.onFailure
 
-const val TOELICHTING_MAX_LENGTH = 1000
+private const val PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS = "aanvraaggegevens"
+private const val PRODUCTAANVRAAG_FORMULIER_VELD_BRON = "bron"
+private const val PRODUCTAANVRAAG_FORMULIER_VELD_TYPE = "type"
 
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
-@Suppress("TooManyFunctions", "LongParameterList")
+@Suppress("LongParameterList")
 class ProductaanvraagService @Inject constructor(
     private val objectsClientService: ObjectsClientService,
-    private val zgwApiService: ZgwApiService,
-    private val ztcClientService: ZtcClientService,
-    private val zaakService: ZaakService,
-    private val identityService: IdentityService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val inboxDocumentService: InboxDocumentService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
-    private val productaanvraagEmailService: ProductaanvraagEmailService,
-    private val zaakProcessService: ZaakProcessService,
-    private val configurationService: ConfigurationService,
-    private val klantClientService: KlantClientService,
-    private val productaanvraagBetrokkeneService: ProductaanvraagBetrokkeneService,
-    private val productaanvraagDocumentService: ProductaanvraagDocumentService,
+    private val productaanvraagCmmnService: ProductaanvraagCmmnService,
+    private val productaanvraagBpmnService: ProductaanvraagBpmnService,
     private val productaanvraagClaimRepository: ProductaanvraagClaimRepository
 ) {
-
     companion object {
         private val LOG = Logger.getLogger(ProductaanvraagService::class.java.name)
-
-        private const val PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS = "aanvraaggegevens"
-        private const val PRODUCTAANVRAAG_FORMULIER_VELD_BRON = "bron"
-        private const val PRODUCTAANVRAAG_FORMULIER_VELD_TYPE = "type"
     }
 
     fun handleProductaanvraag(productaanvraagObjectUUID: UUID) {
@@ -100,6 +72,26 @@ class ProductaanvraagService @Inject constructor(
                 ?.let { handleProductaanvraagDimpactWithoutFailing(productaanvraagObjectUUID, it) }
         }
     }
+
+    fun getAanvraaggegevens(productaanvraagObject: ModelObject) = productaanvraagObject.extractAanvraaggegevens()
+
+    @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
+    fun getProductaanvraag(productaanvraagObject: ModelObject): ProductaanvraagDimpact =
+        JsonbBuilder.create(
+            JsonbConfig()
+                // Register our enum JSON adapters because by default enums are deserialized using the enum's name
+                // instead of the value, and this fails because in the generated model classes the enum names are
+                // capitalized and the values are not
+                .withAdapters(
+                    IndicatieMachtigingEnumJsonAdapter(),
+                    RolOmschrijvingGeneriekEnumJsonAdapter(),
+                    BetalingStatusEnumJsonAdapter(),
+                    GeometryTypeEnumJsonAdapter()
+                )
+        ).fromJson(
+            JsonbUtil.JSONB.toJson(productaanvraagObject.record.data),
+            ProductaanvraagDimpact::class.java
+        )
 
     private fun readProductaanvraagObject(productaanvraagObjectUUID: UUID): ModelObject? =
         try {
@@ -121,6 +113,18 @@ class ProductaanvraagService @Inject constructor(
         return null
     }
 
+    /**
+     * Checks if the required attributes defined by the 'Productaanvraag Dimpact' JSON schema are present.
+     * This is a bit of a poor man's solution because we are currently 'misusing' the very generic Objects API
+     * to store specific productaanvraag JSON data.
+     */
+    private fun isProductaanvraagDimpact(productaanvraagObject: ModelObject) =
+        productaanvraagObject.record.data.let {
+            it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_BRON) &&
+                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_TYPE) &&
+                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS)
+        }
+
     private fun handleProductaanvraagDimpactWithoutFailing(productaanvraagObjectUUID: UUID, productaanvraagObject: ModelObject) {
         LOG.info("Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
         try {
@@ -134,65 +138,6 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    fun getAanvraaggegevens(productaanvraagObject: ModelObject): Map<String, Any> =
-        (productaanvraagObject.record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>)
-            .values
-            .filterIsInstance<Map<String, Any>>()
-            .flatMap { it.entries }
-            .associate { it.key to it.value }
-
-    @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
-    fun getProductaanvraag(productaanvraagObject: ModelObject): ProductaanvraagDimpact =
-        JsonbBuilder.create(
-            JsonbConfig()
-                // Register our enum JSON adapters because by default enums are deserialized using the enum's name
-                // instead of the value, and this fails because in the generated model classes the enum names are
-                // capitalized and the values are not
-                .withAdapters(
-                    IndicatieMachtigingEnumJsonAdapter(),
-                    RolOmschrijvingGeneriekEnumJsonAdapter(),
-                    BetalingStatusEnumJsonAdapter(),
-                    GeometryTypeEnumJsonAdapter()
-                )
-        ).fromJson(
-            JsonbUtil.JSONB.toJson(productaanvraagObject.record.data),
-            ProductaanvraagDimpact::class.java
-        )
-
-    /**
-     * A default behandelaar that is no longer a member of the default group is a stale configuration. It must not
-     * stop the intake, so the zaak is then assigned to the group only.
-     */
-    private fun findValidDefaultBehandelaarId(groupId: String?, defaultBehandelaarId: String?, zaak: Zaak): String? {
-        if (defaultBehandelaarId == null || groupId == null || identityService.isUserInGroup(defaultBehandelaarId, groupId)) {
-            return defaultBehandelaarId
-        }
-        LOG.warning {
-            "Default behandelaar '$defaultBehandelaarId' is not a member of default group '$groupId'. " +
-                "Therefore zaak with UUID '${zaak.uuid}' is assigned to the group only."
-        }
-        return null
-    }
-
-    private fun assignZaak(zaak: Zaak, groupId: String?, behandelaarId: String?) {
-        if (groupId == null && behandelaarId == null) return
-        LOG.info { "Assigning zaak with UUID '${zaak.uuid}' to group: '$groupId' and behandelaar: '$behandelaarId'" }
-        zaakService.assignZaak(
-            zaak = zaak,
-            groupId = groupId,
-            userName = behandelaarId,
-            reason = null
-        )
-    }
-
-    private fun deleteInboxDocument(documentUUID: UUID) {
-        val inboxDocument = inboxDocumentService.find(documentUUID) ?: run {
-            LOG.warning { "Inbox document with id '$documentUUID' not found." }
-            return
-        }
-        inboxDocument.id?.run(inboxDocumentService::deleteIfExists)
-    }
-
     /**
      * Handles a productaanvraag-Dimpact [ModelObject]
      * - If the current configuration of a zaaktype has the productaanvraagtype and is bound to a process engine,
@@ -204,111 +149,53 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
+        val zaaktypeConfiguration = findBoundZaaktypeConfiguration(productaanvraag.type) ?: run {
+            LOG.info(
+                "No zaaktype configured for productaanvraag-Dimpact type '${productaanvraag.type}'. " +
+                    "No zaak was created. Registering productaanvraag as inbox productaanvraag."
+            )
+            registreerInbox(productaanvraag, productaanvraagObject)
+            productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
+            return
+        }
+        LOG.fine {
+            "Creating a zaak using process engine ${zaaktypeConfiguration.getProcessEngine()} with zaaktype UUID: " +
+                "'${zaaktypeConfiguration.zaaktypeUuid}'"
+        }
+        when (zaaktypeConfiguration.getProcessEngine()) {
+            ProcessEngine.BPMN -> productaanvraagBpmnService.createAndStartZaak(
+                zaaktypeConfiguration = zaaktypeConfiguration,
+                productaanvraagDimpact = productaanvraag,
+                productaanvraagObject = productaanvraagObject
+            )
+            else -> productaanvraagCmmnService.createAndStartZaak(
+                zaaktypeConfiguration = zaaktypeConfiguration,
+                productaanvraagDimpact = productaanvraag,
+                productaanvraagObject = productaanvraagObject
+            )
+        }
+    }
+
+    private fun findBoundZaaktypeConfiguration(productaanvraagtype: String): ZaaktypeConfiguration? {
         val (boundConfigurations, unboundConfigurations) = zaaktypeConfigurationService
-            .listCurrentConfigurationsByProductaanvraagtype(productaanvraag.type)
+            .listCurrentConfigurationsByProductaanvraagtype(productaanvraagtype)
             .partition { it.processBinding != null }
         unboundConfigurations.forEach {
             LOG.warning(
                 "Zaaktype configuration with zaaktype UUID '${it.zaaktypeUuid}' has productaanvraag type " +
-                    "'${productaanvraag.type}' but is not bound to a process engine, so it is ignored."
+                    "'$productaanvraagtype' but is not bound to a process engine, so it is ignored."
             )
         }
         if (boundConfigurations.size > 1) {
             LOG.warning(
-                "Multiple zaaktype configurations found for productaanvraag type '${productaanvraag.type}'. " +
+                "Multiple zaaktype configurations found for productaanvraag type '$productaanvraagtype'. " +
                     "Using the most recently created one with zaaktype UUID: " +
                     "'${boundConfigurations.first().zaaktypeUuid}' and zaaktype omschrijving: " +
                     "'${boundConfigurations.first().zaaktypeOmschrijving}'."
             )
         }
-        val zaaktypeConfiguration = boundConfigurations.firstOrNull()
-        when {
-            zaaktypeConfiguration == null -> {
-                LOG.info(
-                    "No zaaktype configured for productaanvraag-Dimpact type '${productaanvraag.type}'. " +
-                        "No zaak was created. Registering productaanvraag as inbox productaanvraag."
-                )
-                registreerInbox(productaanvraag, productaanvraagObject)
-                productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
-            }
-            zaaktypeConfiguration.getProcessEngine() == ProcessEngine.BPMN ->
-                processProductaanvraagWithBpmnZaaktype(
-                    zaaktypeConfiguration = zaaktypeConfiguration,
-                    productaanvraagDimpact = productaanvraag,
-                    productaanvraagObject = productaanvraagObject
-                )
-            else ->
-                processProductaanvraagWithCmmnZaaktype(
-                    zaaktypeConfiguration = zaaktypeConfiguration,
-                    productaanvraagDimpact = productaanvraag,
-                    productaanvraagObject = productaanvraagObject
-                )
-        }
+        return boundConfigurations.firstOrNull()
     }
-
-    @Suppress("TooGenericExceptionCaught")
-    private fun processProductaanvraagWithCmmnZaaktype(
-        zaaktypeConfiguration: ZaaktypeConfiguration,
-        productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject
-    ) {
-        try {
-            LOG.fine {
-                "Creating a zaak using a CMMN case with zaaktype UUID: '${zaaktypeConfiguration.zaaktypeUuid}'"
-            }
-            startZaakWithCmmnProcess(
-                zaaktypeConfiguration = zaaktypeConfiguration,
-                productaanvraagDimpact = productaanvraagDimpact,
-                productaanvraagObject = productaanvraagObject
-            )
-        } catch (exception: ExplanationRequiredException) {
-            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraagDimpact, exception)
-        } catch (exception: RuntimeException) {
-            logZaakCouldNotBeCreatedWarning("CMMN", productaanvraagDimpact, exception)
-        }
-    }
-
-    /**
-     * Checks if the required attributes defined by the 'Productaanvraag Dimpact' JSON schema are present.
-     * This is a bit of a poor man's solution because we are currently 'misusing' the very generic Objects API
-     * to store specific productaanvraag JSON data.
-     */
-    private fun isProductaanvraagDimpact(productaanvraagObject: ModelObject) =
-        productaanvraagObject.record.data.let {
-            it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_BRON) &&
-                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_TYPE) &&
-                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS)
-        }
-
-    private fun pairDocumentsWithZaak(
-        productaanvraagDimpact: ProductaanvraagDimpact,
-        zaak: Zaak
-    ) {
-        try {
-            productaanvraagDocumentService.pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url)
-        } catch (zgwRuntimeException: ZgwRuntimeException) {
-            logAanvraagPdfPairingFailure(productaanvraagDimpact, zaak, zgwRuntimeException)
-        } catch (zgwErrorException: ZgwErrorException) {
-            logAanvraagPdfPairingFailure(productaanvraagDimpact, zaak, zgwErrorException)
-        } catch (zgwValidationErrorException: ZgwValidationErrorException) {
-            logAanvraagPdfPairingFailure(productaanvraagDimpact, zaak, zgwValidationErrorException)
-        } catch (processingException: ProcessingException) {
-            logAanvraagPdfPairingFailure(productaanvraagDimpact, zaak, processingException)
-        }
-        productaanvraagDimpact.bijlagen?.let {
-            productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(bijlageURIs = it, zaakUrl = zaak.url)
-        }
-    }
-
-    private fun logAanvraagPdfPairingFailure(
-        productaanvraagDimpact: ProductaanvraagDimpact,
-        zaak: Zaak,
-        exception: RuntimeException
-    ) = LOG.log(
-        Level.WARNING,
-        "Failed to pair aanvraag PDF `${productaanvraagDimpact.pdf}` with zaak '${zaak.identificatie}'",
-        exception
-    )
 
     private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ModelObject) {
         val inboxProductaanvraag = InboxProductaanvraag().apply {
@@ -333,167 +220,18 @@ class ProductaanvraagService @Inject constructor(
         productaanvraag.bijlagen?.forEach { deleteInboxDocument(it.extractUuid()) }
     }
 
-    private fun processProductaanvraagWithBpmnZaaktype(
-        zaaktypeConfiguration: ZaaktypeConfiguration,
-        productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject
-    ) {
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeConfiguration.zaaktypeUuid)
-        val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
-        val behandelaarId = findValidDefaultBehandelaarId(
-            groupId = zaaktypeConfiguration.groepID,
-            defaultBehandelaarId = zaaktypeConfiguration.defaultBehandelaarId,
-            zaak = zaak
-        )
-        // First, pair the productaanvraag and assign the zaak to the group and/or user,
-        // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
-        productaanvraagDocumentService.pairProductaanvraagWithZaak(
-            productaanvraag = productaanvraagObject,
-            zaakUrl = zaak.url
-        )
-        assignZaak(
-            zaak = zaak,
-            groupId = zaaktypeConfiguration.groepID,
-            behandelaarId = behandelaarId
-        )
-        pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
-        productaanvraagBetrokkeneService.addInitiatorAndBetrokkenenToZaak(
-            productaanvraag = productaanvraagDimpact,
-            zaak = zaak,
-            brpEnabled = isBrpEnabled(zaaktypeConfiguration),
-            kvkEnabled = isKvkEnabled(zaaktypeConfiguration)
-        )
-        klantClientService.findProductaanvraagSpecificContactDetails(
-            productaanvraagDimpact.bron.kenmerk
-        )?.let {
-            klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
+    private fun deleteInboxDocument(documentUUID: UUID) {
+        val inboxDocument = inboxDocumentService.find(documentUUID) ?: run {
+            LOG.warning { "Inbox document with id '$documentUUID' not found." }
+            return
         }
-        zaakProcessService.start(
-            zaaktypeConfiguration = zaaktypeConfiguration,
-            zaak = zaak,
-            zaaktype = zaaktype,
-            processStartData = ProcessStartData(
-                zaakData = getAanvraaggegevens(productaanvraagObject),
-                groupId = zaaktypeConfiguration.groepID,
-                behandelaarId = behandelaarId,
-                communicatiekanaal = zaak.communicatiekanaalNaam
-            )
-        )
-        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
+        inboxDocument.id?.run(inboxDocumentService::deleteIfExists)
     }
-
-    private fun startZaakWithCmmnProcess(
-        zaaktypeConfiguration: ZaaktypeConfiguration,
-        productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject
-    ) {
-        checkNotNull(zaaktypeConfiguration.processBinding) {
-            "Zaaktype configuration for zaaktype '${zaaktypeConfiguration.zaaktypeUuid}' is not bound to a case definition"
-        }
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeConfiguration.zaaktypeUuid)
-        val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
-        // First, start the CMMN process for the zaak and only then perform other actions related to the zaak,
-        // so that should things fail, at least the CMMN process has been started.
-        // Note that the error handling here still has room for improvement.
-        zaakProcessService.start(
-            zaaktypeConfiguration = zaaktypeConfiguration,
-            zaak = zaak,
-            zaaktype = zaaktype,
-            processStartData = ProcessStartData(zaakData = getAanvraaggegevens(productaanvraagObject))
-        )
-        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
-        // First, pair the productaanvraag and assign the zaak to the group and/or user,
-        // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
-        productaanvraagDocumentService.pairProductaanvraagWithZaak(
-            productaanvraag = productaanvraagObject,
-            zaakUrl = zaak.url
-        )
-        if (zaaktypeConfiguration.groepID == null) {
-            LOG.warning {
-                "No group ID found in the zaaktype configuration for zaak ${zaak.identificatie} with UUID '${zaak.uuid}'. " +
-                    "No group role was assigned for this zaak created for ${generateProductaanvraagDescription(productaanvraagDimpact)}."
-            }
-        }
-        assignZaak(
-            zaak = zaak,
-            groupId = zaaktypeConfiguration.groepID,
-            behandelaarId = findValidDefaultBehandelaarId(
-                groupId = zaaktypeConfiguration.groepID,
-                defaultBehandelaarId = zaaktypeConfiguration.defaultBehandelaarId,
-                zaak = zaak
-            )
-        )
-        pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
-        productaanvraagBetrokkeneService.addInitiatorAndBetrokkenenToZaak(
-            productaanvraag = productaanvraagDimpact,
-            zaak = zaak,
-            brpEnabled = isBrpEnabled(zaaktypeConfiguration),
-            kvkEnabled = isKvkEnabled(zaaktypeConfiguration)
-        ).run {
-            val productaanvraagSpecificContactDetails = klantClientService.findProductaanvraagSpecificContactDetails(
-                productaanvraagDimpact.bron.kenmerk
-            )
-            productaanvraagSpecificContactDetails?.let {
-                klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
-            }
-            productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
-                zaak = zaak,
-                betrokkene = this,
-                productaanvraagSpecificEmailAddress = productaanvraagSpecificContactDetails?.contactDetails?.emailAddress,
-                zaaktypeConfiguration = zaaktypeConfiguration
-            )
-        }
-    }
-
-    private fun createZaak(
-        zaakType: ZaakType,
-        productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject
-    ): Zaak {
-        return Zaak().apply {
-            this.zaaktype = zaakType.url
-            startdatum = productaanvraagObject.record.startAt
-            bronorganisatie = configurationService.readBronOrganisatie()
-            communicatiekanaalNaam = ConfigurationService.COMMUNICATIEKANAAL_EFORMULIER
-            verantwoordelijkeOrganisatie = configurationService.readBronOrganisatie()
-            productaanvraagDimpact.zaakgegevens?.let { zaakgegevens ->
-                // note that ZAC currently only supports 'POINT' zaakgeometries
-                zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {
-                    zaakgeometrie = it.toGeoJSONGeometry()
-                }
-                zaakgegevens.omschrijving?.let { omschrijving = it }
-            }
-            toelichting = generateZaakExplanationFromProductaanvraag(productaanvraagDimpact)
-        }.let(zgwApiService::createZaak)
-    }
-
-    private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =
-        (
-            "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'." +
-                productaanvraag.zaakgegevens?.toelichting?.let { " $it" }.orEmpty()
-            )
-            // truncate to the maximum length allowed by the ZGW APIs
-            .take(TOELICHTING_MAX_LENGTH)
-
-    private fun logZaakCouldNotBeCreatedWarning(
-        processType: String,
-        productaanvraagDimpact: ProductaanvraagDimpact,
-        exception: RuntimeException
-    ) {
-        LOG.log(
-            Level.WARNING,
-            "Failed to create a zaak of process type: '$processType' for productaanvraag with PDF '${productaanvraagDimpact.pdf}'",
-            exception
-        )
-    }
-
-    private fun isBrpEnabled(zaaktypeConfiguration: ZaaktypeConfiguration) =
-        zaaktypeConfiguration.zaaktypeBetrokkeneParameters?.isBrpKoppelenEnabled ?: false
-
-    private fun isKvkEnabled(zaaktypeConfiguration: ZaaktypeConfiguration) =
-        zaaktypeConfiguration.zaaktypeBetrokkeneParameters?.isKvkKoppelenEnabled ?: false
-
-    private fun generateProductaanvraagDescription(productaanvraag: ProductaanvraagDimpact) =
-        "Productaanvraag '${productaanvraag.bron.naam}' with characteristics '${productaanvraag.bron.kenmerk}' and " +
-            "type '${productaanvraag.type}'"
 }
+
+fun ModelObject.extractAanvraaggegevens(): Map<String, Any> =
+    (record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>)
+        .values
+        .filterIsInstance<Map<String, Any>>()
+        .flatMap { it.entries }
+        .associate { it.key to it.value }

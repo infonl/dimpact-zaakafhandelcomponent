@@ -73,6 +73,16 @@
         ></zac-case-details-edit>
       }
     }
+    @if (
+      activeAction === "actie.zaakspecifiek-geautoriseerde-medewerker.toevoegen"
+    ) {
+      @defer (on immediate) {
+        <zac-zaakspecifiek-geautoriseerde-medewerker-toevoegen
+          [zaak]="zaak"
+          [sideNav]="actionsSidenav"
+        ></zac-zaakspecifiek-geautoriseerde-medewerker-toevoegen>
+      }
+    }
     @if (activeAction === "actie.zaak.locatie.koppelen") {
       @defer (on immediate) {
         <zac-case-location-edit

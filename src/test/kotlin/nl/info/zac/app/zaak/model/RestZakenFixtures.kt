@@ -464,3 +464,11 @@ fun createRestZaakSetBrondatum(
 ) = RestZaakSetBrondatum(
     brondatum = brondatum
 )
+
+fun createRestZaakspecifiekGeautoriseerdeMedewerker(
+    groepId: String = "fakeGroepId",
+    medewerkerId: String = "fakeMedewerkerId"
+) = RestZaakspecifiekGeautoriseerdeMedewerker(
+    groepId = groepId,
+    medewerkerId = medewerkerId
+)

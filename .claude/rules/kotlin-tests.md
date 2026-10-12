@@ -30,6 +30,23 @@ then("expected result") { ... }
 and("an additional assertion") { ... }
 ```
 
+## Unit test one class in isolation
+A unit test tests one class. Mock every dependency that the class under test gets injected, including services
+of the same package, with `mockk`. Never construct a real instance of another service to wire into the class under
+test: the test then also tests that service, and fails or loses coverage when that service changes.
+Give every service its own unit test class, `<Class>Test`, that tests its behaviour directly. When you extract
+logic from a class into a new service, move the scenarios that cover that logic to the test class of the new
+service, and mock the new service in the test of the original class.
+
+```kotlin
+// Before: the test of ProductaanvraagService also tests ProductaanvraagZaakService
+val productaanvraagZaakService = ProductaanvraagZaakService(zgwApiService = zgwApiService, ...)
+val productaanvraagService = ProductaanvraagService(productaanvraagZaakService = productaanvraagZaakService, ...)
+// After
+val productaanvraagZaakService = mockk<ProductaanvraagZaakService>()
+val productaanvraagService = ProductaanvraagService(productaanvraagZaakService = productaanvraagZaakService, ...)
+```
+
 ## Name an integration test after the REST service it calls
 Name an integration test that calls one REST service `<RestService>Test`. When the REST service has more than one
 integration test, add the aspect that the test covers between the REST service name and `Test`:

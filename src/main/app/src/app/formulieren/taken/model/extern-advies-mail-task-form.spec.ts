@@ -76,22 +76,6 @@ describe(ExternAdviesMailTaskForm.name, () => {
       fields = await formulier.requestForm(mockZaak);
     });
 
-    describe("taakStuurGegevens", () => {
-      it("should set sendMail to true", () => {
-        expect(
-          fields.find((f) => f.key === "taakStuurGegevens.sendMail")?.control
-            ?.value,
-        ).toBe(true);
-      });
-
-      it("should set mail to TAAK_ADVIES_EXTERN", () => {
-        expect(
-          fields.find((f) => f.key === "taakStuurGegevens.mail")?.control
-            ?.value,
-        ).toBe("TAAK_ADVIES_EXTERN");
-      });
-    });
-
     describe("service calls", () => {
       it("should call listAfzendersVoorZaak with the zaak uuid", () => {
         expect(zakenService.listAfzendersVoorZaak).toHaveBeenCalledWith(

@@ -332,5 +332,15 @@ function createKoppelingenMenuItems(
     menu.push(new ButtonMenuItem("actie.zaak.koppelen", open, "account_tree"));
   }
 
+  if (zaak.isZaakspecifiekGeautoriseerd && zaak.rechten.canWijzigen) {
+    menu.push(
+      new ButtonMenuItem(
+        "actie.zaakspecifiek-geautoriseerde-medewerker.toevoegen",
+        open,
+        "person_add",
+      ),
+    );
+  }
+
   return menu;
 }

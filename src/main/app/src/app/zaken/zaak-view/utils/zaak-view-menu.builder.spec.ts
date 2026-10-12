@@ -588,6 +588,46 @@ describe(buildZaakMenu.name, () => {
         ),
       ).not.toContain("actie.betrokkene.koppelen");
     });
+
+    describe("medewerker toevoegen", () => {
+      const medewerkerToevoegen =
+        "actie.zaakspecifiek-geautoriseerde-medewerker.toevoegen";
+
+      function menuFor(
+        isZaakspecifiekGeautoriseerd: boolean,
+        canWijzigen: boolean,
+      ) {
+        return buildZaakMenu(
+          createZaak(
+            { isZaakspecifiekGeautoriseerd },
+            { canWijzigen, canBehandelen: true },
+          ),
+          noPlanItems,
+          handlers,
+          dialogs,
+          false,
+          false,
+        );
+      }
+
+      it("is offered on a zaakspecifiek geautoriseerde zaak to a user with wijzigen", () => {
+        expect(titles(menuFor(true, true))).toContain(medewerkerToevoegen);
+      });
+
+      it("is not offered on a zaak that is not zaakspecifiek geautoriseerd", () => {
+        expect(titles(menuFor(false, true))).not.toContain(medewerkerToevoegen);
+      });
+
+      it("is not offered to a user without wijzigen", () => {
+        expect(titles(menuFor(true, false))).not.toContain(medewerkerToevoegen);
+      });
+
+      it("opens the side action panel", () => {
+        buttonNamed(menuFor(true, true), medewerkerToevoegen)?.fn();
+
+        expect(handlers.openSideAction).toHaveBeenCalled();
+      });
+    });
   });
 });
 

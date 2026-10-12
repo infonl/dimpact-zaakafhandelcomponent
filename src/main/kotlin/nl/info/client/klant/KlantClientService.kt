@@ -7,7 +7,7 @@ package nl.info.client.klant
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException
-import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
+import nl.info.client.klant.model.KlantcontactContactDetails
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.VESTIGING
@@ -122,10 +122,10 @@ class KlantClientService @Inject constructor(
             partijIdentificatorObjectId = number
         ).getResults().firstOrNull()?.getExpand()?.betrokkenen.orEmpty()
 
-    fun findProductaanvraagSpecificContactDetails(formulierKenmerk: String): ProductaanvraagSpecificContactDetails? =
-        findKlantcontactForOpenFormsProductaanvraag(formulierKenmerk)?.let { klantcontact ->
+    fun findKlantcontactContactDetailsForFormulier(formulierKenmerk: String): KlantcontactContactDetails? =
+        findKlantcontactForFormulier(formulierKenmerk)?.let { klantcontact ->
             findRequestSpecificContactDetailsForKlantcontact(klantcontact)?.let { contactDetails ->
-                ProductaanvraagSpecificContactDetails(
+                KlantcontactContactDetails(
                     klantcontactUuid = klantcontact.uuid,
                     contactDetails = contactDetails
                 )
@@ -137,16 +137,8 @@ class KlantClientService @Inject constructor(
             findRequestSpecificContactDetailsForKlantcontact(it)
         }
 
-    fun linkProductaanvraagSpecificContactDetailsToZaak(
-        productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails,
-        zaakUuid: UUID
-    ) {
-        klantClient.onderwerpobjectCreate(
-            createZaakOnderwerpobject(
-                productaanvraagSpecificContactDetails.klantcontactUuid,
-                zaakUuid
-            )
-        )
+    fun linkKlantcontactToZaak(klantcontactUuid: UUID, zaakUuid: UUID) {
+        klantClient.onderwerpobjectCreate(createZaakOnderwerpobject(klantcontactUuid, zaakUuid))
     }
 
     private fun createZaakOnderwerpobject(klantcontactUuid: UUID, zaakUuid: UUID) =
@@ -160,7 +152,7 @@ class KlantClientService @Inject constructor(
             }
         }
 
-    private fun findKlantcontactForOpenFormsProductaanvraag(formulierKenmerk: String) =
+    private fun findKlantcontactForFormulier(formulierKenmerk: String) =
         klantClient.klantcontactList(
             page = 1,
             pageSize = DEFAULT_PAGE_SIZE,

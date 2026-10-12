@@ -20,7 +20,9 @@ import nl.info.zac.identity.model.toUser
 import nl.info.zac.log.log
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.keycloak.admin.client.resource.GroupResource
 import org.keycloak.admin.client.resource.RealmResource
+import org.keycloak.representations.idm.UserRepresentation
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -36,6 +38,7 @@ class IdentityService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(IdentityService::class.java.name)
+        private const val GROUP_MEMBERS_PAGE_SIZE = 100
     }
 
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
@@ -81,6 +84,30 @@ class IdentityService @Inject constructor(
             .sortedBy { it.description }
     }
 
+    /**
+     * Returns the ids of the members of every group that the PABC authorises for [applicationRole] and the given
+     * zaaktype. A group that the PABC knows but Keycloak does not is skipped.
+     */
+    fun listUserIdsForApplicationRoleAndZaaktype(applicationRole: String, zaaktypeDescription: String): Set<String> =
+        pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+            applicationRole = applicationRole,
+            zaaktypeDescription = zaaktypeDescription
+        ).flatMap { group ->
+            try {
+                listUsersInGroup(group.name)
+            } catch (groupNotFoundException: GroupNotFoundException) {
+                log(
+                    logger = LOG,
+                    level = Level.WARNING,
+                    message = "Group '${group.name}' from the PABC could not be found in Keycloak",
+                    throwable = groupNotFoundException
+                )
+                emptyList()
+            }
+        }
+            .map { it.id }
+            .toSet()
+
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
         .map { it.toUser() }.firstOrNull()
@@ -103,9 +130,8 @@ class IdentityService @Inject constructor(
             .groups(groupId, true, 0, 1, true)
             .firstOrNull()?.id
             ?: throw GroupNotFoundException()
-        return keycloakZacRealmResource.groups()
-            .group(keycloakGroupId)
-            .members()
+        return keycloakZacRealmResource.groups().group(keycloakGroupId)
+            .listAllMembers()
             .map { it.toUser() }
             .sortedBy { it.getFullName() }
     }
@@ -127,5 +153,14 @@ class IdentityService @Inject constructor(
         if (!isUserInGroup(userId, groupId)) {
             throw UserNotInGroupException()
         }
+    }
+
+    private fun GroupResource.listAllMembers(): List<UserRepresentation> {
+        val members = mutableListOf<UserRepresentation>()
+        do {
+            val page = members(members.size, GROUP_MEMBERS_PAGE_SIZE)
+            members += page
+        } while (page.size == GROUP_MEMBERS_PAGE_SIZE)
+        return members
     }
 }

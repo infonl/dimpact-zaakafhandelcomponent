@@ -31,8 +31,6 @@ private const val TAAK_DATA_MAIL_REPLYTO = "replyTo"
 private const val TAAK_DATA_MAIL_TO = "emailadres"
 private const val TAAK_DATA_MAIL_BODY = "body"
 private const val TAAK_DATA_MAIL_BIJLAGEN = "bijlagen"
-private const val TAAK_DATA_STUUR_GEGEVENS_SENDMAIL = "taakStuurGegevens.sendMail"
-private const val TAAK_DATA_STUUR_GEGEVENS_MAIL = "taakStuurGegevens.mail"
 
 private const val VAR_TASK_TAAKDATA = "taakdata"
 private const val VAR_TASK_TAAKDOCUMENTEN = "taakdocumenten"
@@ -93,16 +91,11 @@ fun readMailAttachments(taakData: Map<String, String>) = findStringTaskDataEleme
 
 fun readSignatures(taakData: Map<String, Any>) = findObjectTaskDataElement(taakData, TAAK_DATA_ONDERTEKENEN)
 
-fun readSendDataMail(taakData: Map<String, Any>) = findObjectTaskDataElement(taakData, TAAK_DATA_STUUR_GEGEVENS_MAIL)
-
 fun isZaakOpschorten(taakData: Map<String, String>) =
     findStringTaskDataElement(taakData, TAAK_DATA_ZAAK_OPSCHORTEN) == BooleanUtils.TRUE
 
 fun isZaakHervatten(taakData: Map<String, Any>) =
     findObjectTaskDataElement(taakData, TAAK_DATA_ZAAK_HERVATTEN) == BooleanUtils.TRUE
-
-fun isSendDataSendMail(taakData: Map<String, Any>) =
-    findObjectTaskDataElement(taakData, TAAK_DATA_STUUR_GEGEVENS_SENDMAIL) == BooleanUtils.TRUE
 
 fun readZaakUUID(taskInfo: TaskInfo) = readVariable(taskInfo, VAR_ZAAK_UUID) as UUID
 

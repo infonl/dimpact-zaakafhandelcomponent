@@ -34,6 +34,7 @@ nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeHoofdzaakArchiveTest
 nl.info.zac.itest.ZaakRestServiceCompleteTest
 nl.info.zac.itest.ZaakRestServiceExtensionTest
 nl.info.zac.itest.ZaakRestServiceLinkParentChildZaken
+nl.info.zac.itest.ZaakspecifiekeAutorisatieRestServiceTest
 nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationRestServiceTest
 nl.info.zac.itest.ZaaktypeConfigurationSchemaRepairMigrationTest
 nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationPreservedSettingsTest

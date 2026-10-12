@@ -14,7 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import jakarta.ws.rs.NotFoundException
-import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
+import nl.info.client.klant.model.KlantcontactContactDetails
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum
 import nl.info.client.klanten.model.generated.CodeRegisterEnum
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum
@@ -382,7 +382,7 @@ class KlantClientServiceTest : BehaviorSpec({
         }
     }
 
-    context("Finding productaanvraag-specific contact details") {
+    context("Finding the contact details of the klantcontact for a formulier") {
         given("No klantcontact exists for the given kenmerk") {
             val kenmerk = "fakeKenmerk"
             every {
@@ -396,8 +396,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(emptyList())
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return null") {
                     result.shouldBeNull()
@@ -420,8 +420,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 listOf(createKlantcontact(hadBetrokkenen = emptyList()))
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return null") {
                     result.shouldBeNull()
@@ -469,8 +469,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return the contact details with email and phone") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
@@ -512,8 +512,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return the contact details with email and no phone") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
@@ -555,8 +555,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return the contact details with phone and no email") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
@@ -604,8 +604,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return the contact details with only the first email and no phone") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
@@ -637,8 +637,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 expand = createExpandBetrokkeneAllOfExpand(digitaleAdressen = emptyList())
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return null because there are no non-preferred digital addresses") {
                     result.shouldBeNull()
@@ -663,8 +663,8 @@ class KlantClientServiceTest : BehaviorSpec({
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every { klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid) } throws NotFoundException()
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return null") {
                     result.shouldBeNull()
@@ -689,8 +689,8 @@ class KlantClientServiceTest : BehaviorSpec({
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every { klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid) } throws NotFoundException()
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return null") {
                     result.shouldBeNull()
@@ -731,8 +731,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return the non-preferred contact details regardless of the partij link") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
@@ -771,8 +771,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then(
                     "it should return null because preferred addresses are the citizen's saved preference, not aanvraag-specific"
@@ -820,8 +820,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return only the non-preferred address, excluding the preferred email") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
@@ -850,8 +850,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
             } returns createExpandBetrokkene(uuid = betrokkeneUuid, initiator = false)
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return null because the betrokkene is not the initiator") {
                     result.shouldBeNull()
@@ -878,8 +878,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
             } returns createExpandBetrokkene(uuid = betrokkeneUuid).apply { this.initiator = null }
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return null because the betrokkene has no initiator flag set") {
                     result.shouldBeNull()
@@ -930,8 +930,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should skip the not-found betrokkene and return contact details from the second") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
@@ -981,8 +981,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             )
 
-            `when`("productaanvraag-specific contact details are requested") {
-                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+            `when`("the contact details of the klantcontact for the formulier are requested") {
+                val result = klantClientService.findKlantcontactContactDetailsForFormulier(kenmerk)
 
                 then("it should return the contact details from the initiator klant betrokkene") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
@@ -1537,22 +1537,15 @@ class KlantClientServiceTest : BehaviorSpec({
         }
     }
 
-    context("Linking productaanvraag-specific contact details to a zaak") {
-        given("A productaanvraag-specific contact details and a zaak UUID") {
+    context("Linking a klantcontact to a zaak") {
+        given("A klantcontact UUID and a zaak UUID") {
             val klantcontactUuid = UUID.randomUUID()
             val zaakUuid = UUID.randomUUID()
-            val contactDetails = ProductaanvraagSpecificContactDetails(
-                klantcontactUuid = klantcontactUuid,
-                contactDetails = ContactDetails(
-                    emailAddress = "test@example.com",
-                    telephoneNumber = "0612345678"
-                )
-            )
             val onderwerpobjectSlot = slot<Onderwerpobject>()
             every { klantClient.onderwerpobjectCreate(capture(onderwerpobjectSlot)) } returns Onderwerpobject()
 
-            `when`("the contact details are linked to the zaak") {
-                klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, zaakUuid)
+            `when`("the klantcontact is linked to the zaak") {
+                klantClientService.linkKlantcontactToZaak(klantcontactUuid = klantcontactUuid, zaakUuid = zaakUuid)
 
                 then("onderwerpobjectCreate is called with the correct klantcontact UUID and zaak identificator") {
                     val captured = onderwerpobjectSlot.captured
