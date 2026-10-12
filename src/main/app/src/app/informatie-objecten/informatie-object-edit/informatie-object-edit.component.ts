@@ -61,9 +61,6 @@ export class InformatieObjectEditComponent {
   private readonly configuratieService = inject(ConfiguratieService);
   private readonly translateService = inject(TranslateService);
   private readonly identityService = inject(IdentityService);
-  private readonly vertrouwelijkaanduidingToTranslationKeyPipe = inject(
-    VertrouwelijkaanduidingToTranslationKeyPipe,
-  );
   private readonly formBuilder = inject(FormBuilder);
   private readonly queryClient = inject(QueryClient);
 
@@ -217,14 +214,10 @@ export class InformatieObjectEditComponent {
       ontvangstdatum: infoObject.ontvangstdatum
         ? moment(infoObject.ontvangstdatum)
         : null,
-      vertrouwelijkheidaanduiding: infoObject.vertrouwelijkheidaanduiding
-        ? {
-            label: this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-              infoObject.vertrouwelijkheidaanduiding,
-            ),
-            value: infoObject.vertrouwelijkheidaanduiding,
-          }
-        : null,
+      vertrouwelijkheidaanduiding:
+        this.vertrouwelijkheidsAanduidingen.find(
+          ({ value }) => value === infoObject.vertrouwelijkheidaanduiding,
+        ) ?? null,
       auteur: auteur,
     });
 
