@@ -16,7 +16,7 @@
         text="{{ value() | empty }}"
       ></read-more>
     } @else {
-      {{ value() | empty }}
+      <ng-container>{{ value() | empty }}</ng-container>
     }
     @if (icon(); as icon) {
       @if (showIcon()) {
