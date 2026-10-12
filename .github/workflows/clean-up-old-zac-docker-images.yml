@@ -11,30 +11,39 @@ on:
 permissions:
   packages: write
 
+# the cleanup action is not safe to run in parallel against the same package
+concurrency:
+  group: clean-up-docker-images
+  cancel-in-progress: false
+
 jobs:
-  # Remove all untagged (orphaned) container image versions
+  # Remove untagged (orphaned) container image versions.
+  #
+  # Note: tags point to multi-platform image indexes whose child manifests (platform images,
+  # provenance/SBOM attestations) are stored as untagged package versions. Deleting all untagged
+  # versions blindly breaks tagged images ("manifest unknown" on pull). The ghcr-cleanup-action
+  # resolves the manifest tree and only deletes untagged versions that no tagged image references.
   clean-untagged:
     runs-on: ubuntu-26.04
     name: Delete untagged Docker images
     steps:
-      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+      - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
         with:
           owner: infonl
-          package-name: zaakafhandelcomponent
-          package-type: container
-          delete-only-untagged-versions: true
-          min-versions-to-keep: 0
+          package: zaakafhandelcomponent
+          delete-untagged: true
+          delete-partial-images: true
+          delete-ghost-images: true
+          delete-orphaned-images: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       # The NVD database cache image is republished daily under the ':latest' tag,
       # which orphans the previous digest. Clean up those untagged versions too.
-      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+      - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
         with:
           owner: infonl
-          package-name: nvd-database-cache
-          package-type: container
-          delete-only-untagged-versions: true
-          min-versions-to-keep: 0
+          package: nvd-database-cache
+          delete-untagged: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
   # Delete old tagged images but keep the 10 most recent, while always preserving:
@@ -49,6 +58,7 @@ jobs:
   # matches the regex against the SHA256 digest (version name), not against the
   # image tags, so tag-based patterns never match.
   clean-tagged:
+    needs: clean-untagged
     runs-on: ubuntu-26.04
     name: Delete old Docker images, keep minor release versions
     steps:
@@ -111,3 +121,25 @@ jobs:
           done <<< "$to_delete"
 
           echo "Done. Deleted ${deleted} versions."
+
+  # Temporary dry run to compare with 'clean-tagged' above. Check the logged deletions against that job's
+  # output; if they match, replace 'clean-tagged' with this job and drop 'dry-run'.
+  clean-tagged-dry-run:
+    needs: [clean-untagged, clean-tagged]
+    runs-on: ubuntu-26.04
+    name: Dry run - delete old Docker images with ghcr-cleanup-action
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+        with:
+          owner: infonl
+          package: zaakafhandelcomponent
+          keep-n-tagged: 10
+          exclude-tags: '^(latest|v?\d+\.\d+(\.\d+(-[^.\s]+)?)?)$'
+          use-regex: true
+          delete-untagged: true
+          delete-partial-images: true
+          delete-ghost-images: true
+          delete-orphaned-images: true
+          validate: true
+          dry-run: true
+          token: ${{ secrets.GITHUB_TOKEN }}
