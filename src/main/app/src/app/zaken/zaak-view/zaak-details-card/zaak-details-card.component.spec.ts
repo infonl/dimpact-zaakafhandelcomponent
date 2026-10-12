@@ -191,6 +191,18 @@ describe(ZaakDetailsCardComponent.name, () => {
       expect(await tabLabels()).toContain("gerelateerde-zaken");
     });
 
+    it("adds the medewerkers tab when the zaak is zaakspecifiek geautoriseerd", async () => {
+      renderCard({ zaak: { ...zaak, isZaakspecifiekGeautoriseerd: true } });
+
+      expect(await tabLabels()).toContain("medewerkers");
+    });
+
+    it("does not add the medewerkers tab when the zaak is not zaakspecifiek geautoriseerd", async () => {
+      renderCard({ zaak: { ...zaak, isZaakspecifiekGeautoriseerd: false } });
+
+      expect(await tabLabels()).not.toContain("medewerkers");
+    });
+
     it("adds the betrokkenen tab when betrokkene koppelingen are configured", async () => {
       renderCard({ showBetrokkeneKoppelingen: true });
 

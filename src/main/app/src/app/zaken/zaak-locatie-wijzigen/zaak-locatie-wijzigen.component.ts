@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgClass, NgFor, NgIf } from "@angular/common";
+import { AsyncPipe, NgClass } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -66,8 +66,6 @@ import { ZakenService } from "../zaken.service";
     MatInputModule,
     MatToolbarModule,
     NgClass,
-    NgFor,
-    NgIf,
     ReactiveFormsModule,
     StaticTextComponent,
     TranslateModule,
@@ -90,7 +88,7 @@ export class CaseLocationEditComponent
   markerLocatie$ = new BehaviorSubject<GeneratedType<"RestGeometry"> | null>(
     null,
   );
-  nearestAddress!: AddressResult;
+  nearestAddress?: AddressResult;
   searchControl = new FormControl();
   reasonControl = new FormControl();
   searchResults: SuggestResult[] = [];

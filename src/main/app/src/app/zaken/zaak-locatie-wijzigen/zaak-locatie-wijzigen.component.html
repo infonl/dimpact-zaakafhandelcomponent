@@ -48,34 +48,39 @@
             </button>
           </mat-card-content>
         </mat-card>
-        <mat-form-field *ngIf="!readonly" appearance="fill" class="full-width">
-          <mat-icon matSuffix>search</mat-icon>
-          <mat-label>{{ "adres" | translate }}</mat-label>
-          <input
-            matInput
-            type="text"
-            id="search"
-            [formControl]="searchControl"
-            [matAutocomplete]="auto"
-            maxlength="255"
+        @if (!readonly) {
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-icon matSuffix>search</mat-icon>
+            <mat-label>{{ "adres" | translate }}</mat-label>
+            <input
+              matInput
+              type="text"
+              id="search"
+              [formControl]="searchControl"
+              [matAutocomplete]="auto"
+              maxlength="255"
+            />
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              [displayWith]="displayAddress"
+              (optionSelected)="selectAddress($event)"
+            >
+              @for (result of searchResults; track result) {
+                <mat-option [value]="result">
+                  <mat-icon mat-list-icon>home</mat-icon>
+                  <span>{{ result.weergavenaam }}</span>
+                </mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        }
+        @if (nearestAddress?.weergavenaam; as weergavenaam) {
+          <zac-static-text
+            class="overlay"
+            label="zaak.locatie.adres"
+            [value]="weergavenaam"
           />
-          <mat-autocomplete
-            #auto="matAutocomplete"
-            [displayWith]="displayAddress"
-            (optionSelected)="selectAddress($event)"
-          >
-            <mat-option *ngFor="let result of searchResults" [value]="result">
-              <mat-icon mat-list-icon>home</mat-icon>
-              <span>{{ result.weergavenaam }}</span>
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-        <zac-static-text
-          *ngIf="nearestAddress?.weergavenaam"
-          class="overlay"
-          label="zaak.locatie.adres"
-          [value]="nearestAddress.weergavenaam"
-        />
+        }
         <div class="map-container">
           <div
             #openLayersMap
@@ -84,31 +89,35 @@
             [ngClass]="{ readonly: readonly }"
           ></div>
         </div>
-        <mat-form-field *ngIf="!readonly" class="full-width">
-          <mat-label>{{ "reden" | translate }}</mat-label>
-          <input
-            matInput
-            type="text"
-            id="reden"
-            [formControl]="reasonControl"
-            required="true"
-          />
-          <mat-hint align="end">
-            {{ reasonControl.value?.length ?? 0 }}/80
-          </mat-hint>
-        </mat-form-field>
+        @if (!readonly) {
+          <mat-form-field class="full-width">
+            <mat-label>{{ "reden" | translate }}</mat-label>
+            <input
+              matInput
+              type="text"
+              id="reden"
+              [formControl]="reasonControl"
+              required="true"
+            />
+            <mat-hint align="end">
+              {{ reasonControl.value?.length ?? 0 }}/80
+            </mat-hint>
+          </mat-form-field>
+        }
       </div>
     </div>
   </div>
 
-  <fieldset *ngIf="!readonly">
-    <mat-action-row>
-      <zac-form-actions
-        [form]="form"
-        [mutation]="mutation"
-        submitLabel="actie.opslaan"
-        disableAfterSuccess
-      />
-    </mat-action-row>
-  </fieldset>
+  @if (!readonly) {
+    <fieldset>
+      <mat-action-row>
+        <zac-form-actions
+          [form]="form"
+          [mutation]="mutation"
+          submitLabel="actie.opslaan"
+          disableAfterSuccess
+        />
+      </mat-action-row>
+    </fieldset>
+  }
 </form>

@@ -21,11 +21,9 @@
       key="numberOfDays"
       label="opschortduur"
     ></zac-input>
-    <zac-date
-      [form]="form"
-      key="einddatumGepland"
-      *ngIf="data.zaak.einddatumGepland"
-    ></zac-date>
+    @if (data.zaak.einddatumGepland) {
+      <zac-date [form]="form" key="einddatumGepland"></zac-date>
+    }
     <zac-date [form]="form" key="uiterlijkeEinddatumAfdoening"></zac-date>
     <zac-textarea [form]="form" key="reason"></zac-textarea>
   </mat-dialog-content>
@@ -42,9 +40,11 @@
       "
       type="submit"
     >
-      <mat-icon *ngIf="suspendZaakMutation.isPending()">
-        <mat-spinner diameter="18"></mat-spinner>
-      </mat-icon>
+      @if (suspendZaakMutation.isPending()) {
+        <mat-icon>
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+      }
       {{ "actie.zaak.opschorten" | translate }}
     </button>
     <button

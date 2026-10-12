@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf } from "@angular/common";
 import { AfterViewInit, Component, OnInit, viewChild } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -40,8 +39,6 @@ import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-
   styleUrls: ["./parameters.component.less"],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     RouterLink,
     TranslateModule,
     MatSidenavModule,

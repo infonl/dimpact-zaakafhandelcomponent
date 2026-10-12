@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -74,10 +73,6 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
   styleUrls: ["./informatie-object-view.component.less"],
   standalone: true,
   imports: [
-    NgFor,
-    NgIf,
-    NgSwitch,
-    NgSwitchCase,
     MatButtonModule,
     MatCardModule,
     MatDividerModule,

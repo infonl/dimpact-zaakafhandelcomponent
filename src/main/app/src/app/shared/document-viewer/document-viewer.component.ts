@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgClass, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import { Component, computed, inject, input } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -18,7 +18,7 @@ import { GeneratedType } from "../utils/generated-types";
   templateUrl: "./document-viewer.component.html",
   styleUrls: ["./document-viewer.component.less"],
   standalone: true,
-  imports: [NgClass, NgIf],
+  imports: [NgClass],
 })
 export class DocumentViewerComponent {
   private readonly informatieObjectenService = inject(

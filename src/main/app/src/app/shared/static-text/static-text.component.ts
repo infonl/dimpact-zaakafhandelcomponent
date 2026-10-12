@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgClass, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   Component,
   computed,
@@ -23,7 +23,6 @@ import { ReadMoreComponent } from "../read-more/read-more.component";
   templateUrl: "./static-text.component.html",
   styleUrls: ["./static-text.component.less"],
   imports: [
-    NgIf,
     NgClass,
     MatIconModule,
     TranslateModule,

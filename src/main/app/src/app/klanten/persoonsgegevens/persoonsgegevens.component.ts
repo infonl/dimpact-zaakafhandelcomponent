@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   Component,
   computed,
@@ -36,7 +35,6 @@ import { KlantenService } from "../klanten.service";
   templateUrl: "./persoonsgegevens.component.html",
   standalone: true,
   imports: [
-    NgIf,
     MatExpansionModule,
     MatProgressSpinnerModule,
     MatIconModule,

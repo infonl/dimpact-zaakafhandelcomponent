@@ -23,32 +23,35 @@
         <mat-spinner diameter="24"></mat-spinner>
       </div>
     } @else {
-      <ng-container [ngSwitch]="modellingMethodSelection.type">
-        <zac-parameters-select-process-model-method
-          *ngSwitchDefault
-          (switchModellingMethod)="switchModellingMethod($event)"
-        >
-        </zac-parameters-select-process-model-method>
-
-        <zac-parameters-edit-cmmn
-          *ngSwitchCase="'CMMN'"
-          [selectedIndexStart]="
-            modellingMethodSelection.selectedIndexStart ?? 0
-          "
-          (switchModellingMethod)="switchModellingMethod($event)"
-        >
-        </zac-parameters-edit-cmmn>
-
-        <zac-parameters-edit-bpmn
-          *ngSwitchCase="'BPMN'"
-          [selectedIndexStart]="
-            modellingMethodSelection.selectedIndexStart ?? 0
-          "
-          (switchModellingMethod)="switchModellingMethod($event)"
-        >
+      @switch (modellingMethodSelection.type) {
+        @default {
+          <zac-parameters-select-process-model-method
+            (switchModellingMethod)="switchModellingMethod($event)"
           >
-        </zac-parameters-edit-bpmn>
-      </ng-container>
+          </zac-parameters-select-process-model-method>
+        }
+
+        @case ("CMMN") {
+          <zac-parameters-edit-cmmn
+            [selectedIndexStart]="
+              modellingMethodSelection.selectedIndexStart ?? 0
+            "
+            (switchModellingMethod)="switchModellingMethod($event)"
+          >
+          </zac-parameters-edit-cmmn>
+        }
+
+        @case ("BPMN") {
+          <zac-parameters-edit-bpmn
+            [selectedIndexStart]="
+              modellingMethodSelection.selectedIndexStart ?? 0
+            "
+            (switchModellingMethod)="switchModellingMethod($event)"
+          >
+            >
+          </zac-parameters-edit-bpmn>
+        }
+      }
     }
   </mat-sidenav-content>
 </mat-sidenav-container>

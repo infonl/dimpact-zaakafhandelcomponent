@@ -11,16 +11,19 @@
     </ng-content>
   </mat-label>
   <mat-radio-group [formControlName]="key()" class="flex flex-col gap-5">
-    <mat-radio-button
-      [required]="isRequired()"
-      *ngFor="let option of availableOptions()"
-      [checked]="compareWith(option, control()?.value)"
-      [value]="option"
-    >
-      {{ displayWith(option) | translate }}
-    </mat-radio-button>
+    @for (option of availableOptions(); track option) {
+      <mat-radio-button
+        [required]="isRequired()"
+        [checked]="compareWith(option, control()?.value)"
+        [value]="option"
+      >
+        {{ displayWith(option) | translate }}
+      </mat-radio-button>
+    }
   </mat-radio-group>
-  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+  @if (formError()) {
+    <mat-error>{{ formError() }}</mat-error>
+  }
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

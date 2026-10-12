@@ -9,14 +9,15 @@
     <mat-panel-description>
       <div class="hide-sm">{{ "msg.zaak.geen.initiator" | translate }}</div>
       <div class="hide-gt-sm">-</div>
-      <button
-        *ngIf="toevoegenToegestaan()"
-        (click)="add.emit()"
-        [title]="'actie.initiator.koppelen' | translate"
-        mat-icon-button
-      >
-        <mat-icon>person_add_alt_1</mat-icon>
-      </button>
+      @if (toevoegenToegestaan()) {
+        <button
+          (click)="add.emit()"
+          [title]="'actie.initiator.koppelen' | translate"
+          mat-icon-button
+        >
+          <mat-icon>person_add_alt_1</mat-icon>
+        </button>
+      }
     </mat-panel-description>
   </mat-expansion-panel-header>
 </mat-expansion-panel>

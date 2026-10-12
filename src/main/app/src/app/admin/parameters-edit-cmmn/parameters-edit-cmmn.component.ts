@@ -4,7 +4,7 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
-import { NgClass, NgFor, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -117,8 +117,6 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     ZacRadio,
     ZacInput,
     NgClass,
-    NgFor,
-    NgIf,
     StaticTextComponent,
     SmartDocumentsFormComponent,
   ],
@@ -136,6 +134,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected isSavedZaakafhandelParameters: boolean = false;
 
   parameters: GeneratedType<"RestZaaktypeConfiguration"> = {
+    defaultGroepId: null,
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
@@ -940,7 +939,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.parameters = {
       ...this.parameters,
       ...this.algemeenFormGroup.value,
-      defaultGroepId: this.algemeenFormGroup.value.defaultGroep?.id,
+      defaultGroepId: this.algemeenFormGroup.value.defaultGroep?.id ?? null,
       defaultBehandelaarId: this.algemeenFormGroup.value.defaultBehandelaar?.id,
     };
 

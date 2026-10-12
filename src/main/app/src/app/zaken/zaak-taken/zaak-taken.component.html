@@ -24,18 +24,19 @@
       >
         <ng-container matColumnDef="collapse">
           <th mat-header-cell *matHeaderCellDef>
-            <mat-icon
-              *ngIf="!allTakenExpanded"
-              [attr.aria-label]="'actie.alles.uitklappen' | translate"
-              (click)="expandTaken(true)"
-              >expand_more
-            </mat-icon>
-            <mat-icon
-              *ngIf="allTakenExpanded"
-              [attr.aria-label]="'actie.alles.inklappen' | translate"
-              (click)="expandTaken(false)"
-              >expand_less
-            </mat-icon>
+            @if (allTakenExpanded) {
+              <mat-icon
+                [attr.aria-label]="'actie.alles.inklappen' | translate"
+                (click)="expandTaken(false)"
+                >expand_less
+              </mat-icon>
+            } @else {
+              <mat-icon
+                [attr.aria-label]="'actie.alles.uitklappen' | translate"
+                (click)="expandTaken(true)"
+                >expand_more
+              </mat-icon>
+            }
           </th>
         </ng-container>
         <ng-container matColumnDef="naam">
@@ -82,15 +83,16 @@
           <td mat-cell *matCellDef="let taak">
             <div class="flex-row items-center gap-5">
               {{ taak.data.fataledatum | datum | empty }}
-              <mat-icon
-                *ngIf="
-                  taak.data.status !== 'AFGEROND' &&
-                  isAfterDate(taak.data.fataledatum)
-                "
-                [title]="'msg.datum.overschreden' | translate"
-                class="error list-icon"
-                >warning</mat-icon
-              >
+              @if (
+                taak.data.status !== "AFGEROND" &&
+                isAfterDate(taak.data.fataledatum)
+              ) {
+                <mat-icon
+                  [title]="'msg.datum.overschreden' | translate"
+                  class="error list-icon"
+                  >warning</mat-icon
+                >
+              }
             </div>
           </td>
         </ng-container>
@@ -119,26 +121,28 @@
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let row">
             <div class="flex-row">
-              <a
-                *ngIf="row.data.rechten.canLezen"
-                mat-icon-button
-                [routerLink]="['/taken', row.data.id]"
-                (click)="$event.stopPropagation()"
-                [id]="'taakBekijken_' + row.data.id + '_button'"
-                title="{{ 'actie.taak.bekijken' | translate }}"
-              >
-                <mat-icon>visibility</mat-icon>
-              </a>
-              <button
-                mat-icon-button
-                title="{{ 'actie.mij.toekennen' | translate }}"
-                [id]="'kenTaakAanMijToe_' + row.data.id + '_button'"
-                [disabled]="isAssigningTaakToMe(row.data)"
-                (click)="assignTaakToMe(row.data, $event)"
-                *ngIf="showAssignTaakToMe(row.data)"
-              >
-                <mat-icon outlined>person_add</mat-icon>
-              </button>
+              @if (row.data.rechten.canLezen) {
+                <a
+                  mat-icon-button
+                  [routerLink]="['/taken', row.data.id]"
+                  (click)="$event.stopPropagation()"
+                  [id]="'taakBekijken_' + row.data.id + '_button'"
+                  title="{{ 'actie.taak.bekijken' | translate }}"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </a>
+              }
+              @if (showAssignTaakToMe(row.data)) {
+                <button
+                  mat-icon-button
+                  title="{{ 'actie.mij.toekennen' | translate }}"
+                  [id]="'kenTaakAanMijToe_' + row.data.id + '_button'"
+                  [disabled]="isAssigningTaakToMe(row.data)"
+                  (click)="assignTaakToMe(row.data, $event)"
+                >
+                  <mat-icon outlined>person_add</mat-icon>
+                </button>
+              }
             </div>
           </td>
         </ng-container>
@@ -151,16 +155,18 @@
                   label="uitkomst"
                   [value]="uitkomst(row.data) | translate"
                 />
-                <zac-static-text
-                  label="bijlage"
-                  *ngIf="row.data.taakinformatie?.bijlagen"
-                  [value]="row.data.taakinformatie?.bijlagen"
-                />
-                <zac-static-text
-                  label="opmerking"
-                  *ngIf="row.data.taakinformatie?.opmerking"
-                  [value]="row.data.taakinformatie?.opmerking"
-                />
+                @if (row.data.taakinformatie?.bijlagen) {
+                  <zac-static-text
+                    label="bijlage"
+                    [value]="row.data.taakinformatie?.bijlagen"
+                  />
+                }
+                @if (row.data.taakinformatie?.opmerking) {
+                  <zac-static-text
+                    label="opmerking"
+                    [value]="row.data.taakinformatie?.opmerking"
+                  />
+                }
               </div>
             </div>
           </td>
@@ -184,12 +190,15 @@
         ></tr>
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell" colspan="9">
-            <p *ngIf="takenQuery.isPending()">
-              {{ "msg.loading" | translate }}
-            </p>
-            <p *ngIf="!takenQuery.isPending()">
-              {{ "msg.geen.gegevens.gevonden" | translate }}
-            </p>
+            @if (takenQuery.isPending()) {
+              <p>
+                {{ "msg.loading" | translate }}
+              </p>
+            } @else {
+              <p>
+                {{ "msg.geen.gegevens.gevonden" | translate }}
+              </p>
+            }
           </td>
         </tr>
       </table>

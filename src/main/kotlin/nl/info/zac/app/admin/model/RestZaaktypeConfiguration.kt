@@ -6,6 +6,7 @@ package nl.info.zac.app.admin.model
 
 import jakarta.annotation.Nullable
 import jakarta.json.bind.annotation.JsonbProperty
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters
@@ -31,6 +32,7 @@ data class RestZaaktypeConfiguration(
     var zaaktype: RestZaaktypeOverzicht,
     var caseDefinition: RESTCaseDefinition? = null,
     var defaultBehandelaarId: String? = null,
+    @field:NotBlank
     var defaultGroepId: String? = null,
     var einddatumGeplandWaarschuwing: Int? = null,
     var uiterlijkeEinddatumAfdoeningWaarschuwing: Int? = null,

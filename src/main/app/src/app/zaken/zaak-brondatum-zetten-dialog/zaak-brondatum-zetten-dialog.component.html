@@ -5,14 +5,17 @@
 
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
   <mat-icon>calendar_today</mat-icon>
-  <span class="flex-grow-1" *ngIf="data.planItem">
-    {{
-      "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
-    }}
-  </span>
-  <span class="flex-grow-1" *ngIf="!data.planItem">
-    {{ "actie.zaak.brondatum-zetten" | translate }}
-  </span>
+  @if (data.planItem) {
+    <span class="flex-grow-1">
+      {{
+        "planitem." + data.planItem.userEventListenerActie | i18nKey | translate
+      }}
+    </span>
+  } @else {
+    <span class="flex-grow-1">
+      {{ "actie.zaak.brondatum-zetten" | translate }}
+    </span>
+  }
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
@@ -40,14 +43,14 @@
         planItemAfhandelenMutation.isSuccess()
       "
     >
-      <mat-icon
-        *ngIf="
-          brondatumZettenMutation.isPending() ||
-          planItemAfhandelenMutation.isPending()
-        "
-      >
-        <mat-spinner diameter="18"></mat-spinner>
-      </mat-icon>
+      @if (
+        brondatumZettenMutation.isPending() ||
+        planItemAfhandelenMutation.isPending()
+      ) {
+        <mat-icon>
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+      }
       {{ "actie.zaak.brondatum-zetten" | translate }}
     </button>
     <button

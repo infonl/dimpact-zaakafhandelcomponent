@@ -4,7 +4,7 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
-import { NgFor, NgIf } from "@angular/common";
+
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -83,8 +83,6 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   styleUrls: ["./parameters-edit-bpmn.component.less"],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     ReactiveFormsModule,
     MatStepperModule,
     MatIconModule,

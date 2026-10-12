@@ -688,6 +688,17 @@ describe(ZaakViewComponent.name, () => {
         { cancelRefetch: false },
       );
     });
+
+    it("invalidates the geautoriseerde medewerkers query, so an open medewerkers tab shows a medewerker added elsewhere", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listGeautoriseerdeMedewerkersQuery(zaak.uuid)
+          .queryKey,
+      });
+    });
   });
 
   describe("zaak besluiten websocket listener", () => {

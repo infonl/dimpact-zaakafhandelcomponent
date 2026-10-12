@@ -10,7 +10,7 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
-import { NgIf } from "@angular/common";
+
 import { AfterViewInit, Component, OnInit, viewChild } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -58,7 +58,6 @@ import { HealthCheckService } from "../health-check.service";
   ],
   standalone: true,
   imports: [
-    NgIf,
     MatSidenavModule,
     MatCardModule,
     MatExpansionModule,

@@ -8,66 +8,73 @@
   (mouseenter)="mouseEnter()"
   (mouseleave)="mouseLeave()"
 >
-  <ng-container *ngFor="let menuItem of menu()" [ngSwitch]="menuItem.type">
-    <h3 mat-subheader *ngSwitchCase="menuItemType.HEADER">
-      <mat-icon *ngIf="menuState() === MenuState.CLOSED">{{
-        menuItem.icon ?? "more_horiz"
-      }}</mat-icon>
-      <span *ngIf="menuState() === MenuState.OPEN">
-        {{ menuItem.title | translate }}</span
-      >
-    </h3>
-    <mat-divider *ngSwitchCase="menuItemType.HEADER" />
-    <a
-      mat-list-item
-      *ngSwitchCase="menuItemType.LINK"
-      [disabled]="menuItem.disabled"
-      [activated]="menuItem.activated"
-      routerLink="{{ asLinkMenuItem(menuItem).url }}"
-      routerLinkActive="active"
-    >
-      <mat-icon
-        [matTooltipDisabled]="menuState() === MenuState.OPEN"
-        matTooltipPosition="after"
-        [matTooltip]="menuItem.title | translate"
-        matListItemIcon
-        >{{ menuItem.icon }}</mat-icon
-      >
-      <div matListItemTitle>{{ menuItem.title | translate }}</div>
-    </a>
-    <button
-      mat-list-item
-      *ngSwitchCase="menuItemType.BUTTON"
-      [disabled]="menuItem.disabled"
-      [activated]="activeItem() === menuItem.title"
-      (click)="onClick(asButtonMenuItem(menuItem))"
-      routerLinkActive="active"
-    >
-      <mat-icon
-        [matTooltipDisabled]="menuState() === MenuState.OPEN"
-        matTooltipPosition="after"
-        [matTooltip]="menuItem.title | translate"
-        matListItemIcon
-        >{{ menuItem.icon }}</mat-icon
-      >
-      <div matListItemTitle>{{ menuItem.title | translate }}</div>
-    </button>
-    <a
-      mat-list-item
-      *ngSwitchCase="menuItemType.HREF"
-      [disabled]="menuItem.disabled"
-      [href]="asHrefMenuItem(menuItem).url"
-    >
-      <mat-icon
-        [matTooltipDisabled]="menuState() === MenuState.OPEN"
-        matTooltipPosition="after"
-        [matTooltip]="menuItem.title | translate"
-        matListItemIcon
-        >{{ menuItem.icon }}</mat-icon
-      >
-      <div matListItemTitle>{{ menuItem.title | translate }}</div>
-    </a>
-  </ng-container>
+  @for (menuItem of menu(); track menuItem) {
+    @switch (menuItem.type) {
+      @case (menuItemType.HEADER) {
+        <h3 mat-subheader>
+          @if (menuState() === MenuState.CLOSED) {
+            <mat-icon>{{ menuItem.icon ?? "more_horiz" }}</mat-icon>
+          }
+          @if (menuState() === MenuState.OPEN) {
+            <span> {{ menuItem.title | translate }}</span>
+          }
+        </h3>
+        <mat-divider />
+      }
+      @case (menuItemType.LINK) {
+        <a
+          mat-list-item
+          [disabled]="menuItem.disabled"
+          [activated]="menuItem.activated"
+          routerLink="{{ asLinkMenuItem(menuItem).url }}"
+          routerLinkActive="active"
+        >
+          <mat-icon
+            [matTooltipDisabled]="menuState() === MenuState.OPEN"
+            matTooltipPosition="after"
+            [matTooltip]="menuItem.title | translate"
+            matListItemIcon
+            >{{ menuItem.icon }}</mat-icon
+          >
+          <div matListItemTitle>{{ menuItem.title | translate }}</div>
+        </a>
+      }
+      @case (menuItemType.BUTTON) {
+        <button
+          mat-list-item
+          [disabled]="menuItem.disabled"
+          [activated]="activeItem() === menuItem.title"
+          (click)="onClick(asButtonMenuItem(menuItem))"
+          routerLinkActive="active"
+        >
+          <mat-icon
+            [matTooltipDisabled]="menuState() === MenuState.OPEN"
+            matTooltipPosition="after"
+            [matTooltip]="menuItem.title | translate"
+            matListItemIcon
+            >{{ menuItem.icon }}</mat-icon
+          >
+          <div matListItemTitle>{{ menuItem.title | translate }}</div>
+        </button>
+      }
+      @case (menuItemType.HREF) {
+        <a
+          mat-list-item
+          [disabled]="menuItem.disabled"
+          [href]="asHrefMenuItem(menuItem).url"
+        >
+          <mat-icon
+            [matTooltipDisabled]="menuState() === MenuState.OPEN"
+            matTooltipPosition="after"
+            [matTooltip]="menuItem.title | translate"
+            matListItemIcon
+            >{{ menuItem.icon }}</mat-icon
+          >
+          <div matListItemTitle>{{ menuItem.title | translate }}</div>
+        </a>
+      }
+    }
+  }
 </mat-nav-list>
 <mat-toolbar class="toolbar-footer">
   <button

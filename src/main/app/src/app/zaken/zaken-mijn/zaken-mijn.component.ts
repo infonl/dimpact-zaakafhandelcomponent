@@ -4,14 +4,7 @@
  */
 
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
-import {
-  NgFor,
-  NgIf,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault,
-  SlicePipe,
-} from "@angular/common";
+import { SlicePipe } from "@angular/common";
 import { AfterViewInit, Component, OnDestroy, viewChild } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
@@ -58,11 +51,6 @@ import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
-    NgFor,
-    NgIf,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
     SlicePipe,
     MatIconButton,
     MatIconAnchor,

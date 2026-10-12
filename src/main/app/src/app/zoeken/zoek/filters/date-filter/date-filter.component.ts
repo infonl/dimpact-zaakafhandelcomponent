@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, input, linkedSignal, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatDatepickerModule } from "@angular/material/datepicker";
@@ -20,7 +19,6 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styleUrls: ["./date-filter.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatExpansionModule,
     MatFormFieldModule,

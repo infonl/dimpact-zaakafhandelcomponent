@@ -6,14 +6,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { ComponentType } from "@angular/cdk/portal";
-import {
-  NgFor,
-  NgIf,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault,
-  SlicePipe,
-} from "@angular/common";
+import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -97,11 +90,6 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
-    NgFor,
-    NgIf,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
     RouterLink,
     SlicePipe,
     StaticTextComponent,

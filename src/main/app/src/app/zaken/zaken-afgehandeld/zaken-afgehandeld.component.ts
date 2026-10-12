@@ -4,14 +4,7 @@
  */
 
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
-import {
-  NgFor,
-  NgIf,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault,
-  SlicePipe,
-} from "@angular/common";
+import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -65,11 +58,6 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
-    NgFor,
-    NgIf,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
     SlicePipe,
     MatIconButton,
     MatIconAnchor,

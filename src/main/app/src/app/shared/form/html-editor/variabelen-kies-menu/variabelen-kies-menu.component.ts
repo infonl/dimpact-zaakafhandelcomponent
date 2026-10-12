@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -22,7 +21,6 @@ import { I18nKeyPipe } from "../../../pipes/i18n-key.pipe";
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    NgFor,
     TranslatePipe,
   ],
 })

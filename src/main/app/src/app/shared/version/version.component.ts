@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, inject, input, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatChipsModule } from "@angular/material/chips";
@@ -25,7 +24,6 @@ export enum VersionLayout {
   styleUrls: ["./version.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     MatChipsModule,
     MatTooltipModule,
     MatIconModule,

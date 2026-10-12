@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -32,7 +31,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-verlengen-dialog.component.html",
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     MatToolbarModule,
     MatDialogTitle,

@@ -235,6 +235,21 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     }
 
     /**
+     * Lists the behandelaar and zaakspecifiek geautoriseerde medewerker rollen of the zaakspecifiek geautoriseerde
+     * [zaak], sorted by name. Medewerkers who have access to all zaakspecifiek geautoriseerde zaken of the zaaktype
+     * through their application role are left out, since they hold no rol on the zaak.
+     */
+    fun listGeautoriseerdeMedewerkerRollen(
+        zaak: Zaak,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens
+    ): List<RolMedewerker> {
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
+        return readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true).let {
+            it.behandelaarRollen + it.zaakspecifiekGeautoriseerdeMedewerkers
+        }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.naam.orEmpty() })
+    }
+
+    /**
      * Lists the members of [groepId] who can still be added to the zaakspecifiek geautoriseerde zaak, leaving out
      * everyone who already has access to it.
      */

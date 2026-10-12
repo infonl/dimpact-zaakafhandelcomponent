@@ -17,14 +17,7 @@ import { detailExpand } from "../../shared/animations/animations";
 import { SelectionModel } from "@angular/cdk/collections";
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { ComponentType } from "@angular/cdk/portal";
-import {
-  NgFor,
-  NgIf,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault,
-  SlicePipe,
-} from "@angular/common";
+import { SlicePipe } from "@angular/common";
 import { MatBadge } from "@angular/material/badge";
 import {
   MatButton,
@@ -107,11 +100,6 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
-    NgFor,
-    NgIf,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
     RouterLink,
     SlicePipe,
     StaticTextComponent,
