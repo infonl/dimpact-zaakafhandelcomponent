@@ -34,7 +34,7 @@ PRIVATE repo `infonl/dimpact-provisioning`, branch `main`, via `gh api repos/inf
 - Grafana, Grafana Loki, Tempo: these come from the Dimpact `monitoring-logging` chart.
   1. Read `MONITORING_LOGGING_CHART_VERSION` in `.github/workflows/azure-provision-trace-and-metrics.yml`.
   2. Download the published chart `https://github.com/Dimpact-Samenwerking/helm-charts/releases/download/monitoring-logging-<version>/monitoring-logging-<version>.tgz` and unpack it.
-  3. Grafana = `grafana.image.tag` in `values.yaml`. Loki = the loki `image.tag` in `values.yaml`. Tempo = the tempo `image.tag` in `values.yaml`, or, when it has none, `appVersion` in `charts/tempo/Chart.yaml`. Use the same fallback for Grafana and Loki.
+  3. Use these exact paths in `values.yaml`; the sections also hold sidecar images (e.g. `alpine…`), so never take just any `tag:`. Grafana = `grafana.image.tag`. Loki = `loki.loki.image.tag`. Tempo = `tempo.tempo.image.tag`. When a path has no tag, use `appVersion` in `charts/<grafana|loki|tempo>/Chart.yaml`; when it has one, cross-check it against that `appVersion` and mention a difference.
   4. Check `containers/metrics/monitoring-logging-values.yaml` in the provisioning repo for image overrides.
 - Solr: ZAC repo, `git show origin/main:charts/zac/values.yaml`, the `library/solr` image tag.
 - WildFly: ZAC repo, `<wildfly.version>` in `git show origin/main:pom.xml`.
