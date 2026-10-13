@@ -15,7 +15,7 @@ help()
    echo "Syntax: $0 [-u|c|s|y|h] <zaaknummer>"
    echo "options:"
    echo "-u     Base Open Zaak URL. Defaults to 'http://localhost:8001'."
-   echo "-c     Open Zaak client ID. Defaults to 'zac_client'."
+   echo "-c     Open Zaak client ID. Defaults to 'zac-client'."
    echo "-s     Open Zaak client secret. Defaults to 'openzaakZaakafhandelcomponentClientSecret'."
    echo "-y     Delete the zaak without asking for confirmation."
    echo "-h     Print this help."
@@ -43,7 +43,7 @@ createJwt() {
 }
 
 openZaakBaseURL="http://localhost:8001"
-clientId="zac_client"
+clientId="zac-client"
 clientSecret="openzaakZaakafhandelcomponentClientSecret"
 skipConfirmation=false
 
