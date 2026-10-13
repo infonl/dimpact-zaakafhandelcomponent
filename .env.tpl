@@ -70,7 +70,7 @@ SOLR_PASSWORD=fakeSolrPassword
 VERANTWOORDELIJKE_ORGANISATIE_RSIN=316245124
 ZAC_INTERNAL_ENDPOINTS_API_KEY=fakeZacInternalEndpointsApiKey
 ZGW_API_CLIENT_MP_REST_URL=http://host.docker.internal:8001/
-ZGW_API_CLIENTID=zac_client
+ZGW_API_CLIENTID=zac-client
 ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
 
 # -----------------------------------------

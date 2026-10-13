@@ -57,8 +57,8 @@ scripts/github/.secrets
 docker-compose.override.yml
 check-for-running-containers.sh
 
-### Docker ###
-.DS_store
+### macOS ###
+.DS_Store
 
 ### Claude ###
 .claude/settings.local.json
