@@ -89,28 +89,17 @@ class PolicyService @Inject constructor(
             )
         ).requireResult(OpaEvaluationClient.OVERIGE_RECHTEN_PATH)
 
-
+    /**
+     * @param zaaktype The zaaktype of the zaak; read from the ZTC when not given.
+     * @param zaakAutorisatieGegevens The zaakspecifieke autorisatie data of the zaak; read from the ZRC when not given.
+     */
     fun readZaakRechten(
         zaak: Zaak,
         loggedInUser: LoggedInUser,
+        zaaktype: ZaakType? = null,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): ZaakRechten {
-        val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        return readZaakRechten(
-            zaak = zaak,
-            zaaktype = zaakType,
-            loggedInUser = loggedInUser,
-            zaakAutorisatieGegevens = zaakAutorisatieGegevens
-        )
-    }
-
-
-    fun readZaakRechten(
-        zaak: Zaak,
-        zaaktype: ZaakType,
-        loggedInUser: LoggedInUser,
-        zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
-    ): ZaakRechten {
+        val resolvedZaaktype = zaaktype ?: ztcClientService.readZaaktype(zaak.zaaktype)
         val resolvedZaakAutorisatieGegevens = zaakAutorisatieGegevens
             ?: zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         val statusType = zaak.status?.let {
@@ -119,10 +108,10 @@ class PolicyService @Inject constructor(
         }
         val zaakData = ZaakData(
             isOpen = zaak.isOpen(),
-            zaaktype = zaaktype.getOmschrijving(),
+            zaaktype = resolvedZaaktype.getOmschrijving(),
             isOpgeschort = zaak.isOpgeschort(),
             isVerlengd = zaak.isVerlengd(),
-            isBesloten = zaaktype.getBesluittypen()?.isNotEmpty() == true,
+            isBesloten = resolvedZaaktype.getBesluittypen()?.isNotEmpty() == true,
             isIntake = statusType?.isIntake(),
             isHeropend = statusType?.isHeropend(),
             isBrondatumBepaald = zaak.startdatumBewaartermijn != null,
@@ -168,19 +157,18 @@ class PolicyService @Inject constructor(
         ).requireResult(OpaEvaluationClient.ZAAK_RECHTEN_PATH)
     }
 
-    fun readDocumentRechten(enkelvoudigInformatieobject: EnkelvoudigInformatieObject, zaak: Zaak?) =
-        readDocumentRechten(
-            enkelvoudigInformatieobject = enkelvoudigInformatieobject,
-            lock = lockService.findLock(enkelvoudigInformatieobject.getUrl().extractUuid()),
-            zaak = zaak
-        )
-
+    /**
+     * @param lock The lock of the document; read from the database when not given and the document is locked.
+     */
     fun readDocumentRechten(
         enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
-        lock: EnkelvoudigInformatieObjectLock?,
         zaak: Zaak?,
+        lock: EnkelvoudigInformatieObjectLock? = null,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): DocumentRechten {
+        val resolvedLock = lock ?: enkelvoudigInformatieobject.takeIf { it.getLocked() }?.let {
+            lockService.findLock(it.getUrl().extractUuid())
+        }
         val resolvedZaakAutorisatieGegevens = zaak?.let {
             zaakAutorisatieGegevens
                 ?: zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, it)
@@ -188,7 +176,7 @@ class PolicyService @Inject constructor(
         val documentData = DocumentData(
             isDefinitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF,
             isVergrendeld = enkelvoudigInformatieobject.getLocked(),
-            vergrendeldDoor = lock?.userId,
+            vergrendeldDoor = resolvedLock?.userId,
             isOndertekend = enkelvoudigInformatieobject.isSigned(),
             isZaakOpen = zaak?.isOpen() ?: false,
             zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() },
@@ -230,18 +218,14 @@ class PolicyService @Inject constructor(
         ).requireResult(OpaEvaluationClient.DOCUMENT_RECHTEN_PATH)
     }
 
-    fun readTaakRechten(taskInfo: TaskInfo): TaakRechten {
-        val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
-        return readTaakRechten(taskInfo, zaaktypeOmschrijving)
-    }
-
     /**
-     * @param zaakAutorisatieGegevens the zaakspecifieke autorisatie data of the zaak of [taskInfo], for a caller that
-     * already read it in this request. When omitted, it is read here.
+     * @param zaaktypeOmschrijving The zaaktype description of the task; read from the task variables when not given.
+     * @param zaakAutorisatieGegevens The zaakspecifieke autorisatie data of the zaak of the task; read from the ZRC
+     * when not given.
      */
     fun readTaakRechten(
         taskInfo: TaskInfo,
-        zaaktypeOmschrijving: String,
+        zaaktypeOmschrijving: String? = null,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): TaakRechten {
         val resolvedZaakAutorisatieGegevens = zaakAutorisatieGegevens
@@ -251,7 +235,7 @@ class PolicyService @Inject constructor(
             )
         val taakData = TaakData(
             isOpen = taskInfo.isOpen(),
-            zaaktype = zaaktypeOmschrijving,
+            zaaktype = zaaktypeOmschrijving ?: readZaaktypeOmschrijving(taskInfo),
             isZaakspecifiekGeautoriseerd = resolvedZaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
             isLoggedInUserGeautoriseerdeMedewerker =
                 resolvedZaakAutorisatieGegevens.isGeautoriseerdeMedewerker(loggedInUserInstance.get().id)

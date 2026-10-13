@@ -14,7 +14,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
-import nl.info.zac.admin.model.validate
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -51,7 +50,6 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun storeConfiguration(zaaktypeConfiguration: ZaaktypeConfiguration): ZaaktypeConfiguration {
-        zaaktypeConfiguration.validate()
         zaaktypeConfiguration.id = zaaktypeConfigurationRepository.findByZaaktypeUuid(
             zaaktypeConfiguration.zaaktypeUuid
         )?.id

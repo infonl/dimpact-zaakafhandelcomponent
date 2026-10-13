@@ -55,13 +55,10 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     private val taskHistoryService: TaskHistoryService
 ) {
     companion object {
-        private const val ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER =
+        const val ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER =
             "Zaakspecifiek geautoriseerde medewerker van de zaak"
 
         private val zaakAssignmentLocks = Array(64) { ReentrantLock() }
-
-        fun zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak: Zaak) =
-            "Zaakspecifiek geautoriseerd medewerker van zaak ${zaak.identificatie}"
     }
 
     /**
@@ -223,7 +220,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = readMedewerkerIdentificatie(medewerkerId),
-                    reason = zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak),
+                    reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
         }
@@ -232,6 +229,21 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             reindexDependents(zaak)
         }
         return isGranted
+    }
+
+    /**
+     * Lists the behandelaar and zaakspecifiek geautoriseerde medewerker rollen of the zaakspecifiek geautoriseerde
+     * [zaak], sorted by name. Medewerkers who have access to all zaakspecifiek geautoriseerde zaken of the zaaktype
+     * through their application role are left out, since they hold no rol on the zaak.
+     */
+    fun listGeautoriseerdeMedewerkerRollen(
+        zaak: Zaak,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens
+    ): List<RolMedewerker> {
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
+        return readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true).let {
+            it.behandelaarRollen + it.zaakspecifiekGeautoriseerdeMedewerkers
+        }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.naam.orEmpty() })
     }
 
     /**
@@ -281,7 +293,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = it.toMedewerkerIdentificatie(),
-                    reason = zaakspecifiekGeautoriseerdeMedewerkerToelichting(zaak),
+                    reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
             }
@@ -298,7 +310,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             .distinctBy { it.assignee }
             .forEach {
                 if (grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, it.assignee)) {
-                    taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(it, zaak, it.assignee)
+                    taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(it, it.assignee)
                 }
             }
         indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)

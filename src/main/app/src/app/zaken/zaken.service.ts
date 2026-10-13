@@ -280,6 +280,16 @@ export class ZakenService {
     );
   }
 
+  listGeautoriseerdeMedewerkersQuery(uuid: string) {
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers",
+        { path: { uuid } },
+      ),
+      staleTime: StaleTimes.Instant,
+    };
+  }
+
   listZaakspecifiekGeautoriseerdeMedewerkerKandidatenQuery(
     uuid: string,
     groepId: string,
@@ -309,6 +319,9 @@ export class ZakenService {
             queryKey: [
               "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
             ],
+          });
+          this.queryClient.invalidateQueries({
+            queryKey: this.listGeautoriseerdeMedewerkersQuery(uuid).queryKey,
           });
           this.invalidateHistorie(uuid);
         },

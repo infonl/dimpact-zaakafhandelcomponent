@@ -340,7 +340,11 @@ class RestInformatieobjectConverter @Inject constructor(
         } else {
             null
         }
-        val documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak)
+        val documentRechten = policyService.readDocumentRechten(
+            enkelvoudigInformatieobject = enkelvoudigInformatieObject,
+            zaak = zaak,
+            lock = lock
+        )
         val restEnkelvoudigInformatieobject = RestGekoppeldeZaakEnkelvoudigInformatieObject()
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.identificatie

@@ -14,9 +14,7 @@ import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.app.task.model.RestTaskAssignData
 import nl.info.zac.app.task.model.RestTaskDistributeData
-import nl.info.zac.app.task.model.RestTaskDistributeTask
 import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.authentication.LoggedInUser
@@ -44,30 +42,6 @@ class TaskService @Inject constructor(
         private val LOG = Logger.getLogger(TaskService::class.java.name)
     }
 
-    fun assignOrReleaseTask(
-        restTaskAssignData: RestTaskAssignData,
-        task: Task,
-        loggedInUser: LoggedInUser
-    ) {
-        assignTaskAndOptionallyReleaseFromAssignee(
-            task = task,
-            restTaskDistributeData = RestTaskDistributeData(
-                taken = listOf(
-                    RestTaskDistributeTask(
-                        taakId = task.id,
-                        zaakUuid = restTaskAssignData.zaakUuid
-                    )
-                ),
-                groepId = restTaskAssignData.groepId,
-                reden = restTaskAssignData.reden,
-                behandelaarGebruikersnaam = restTaskAssignData.behandelaarId
-            ),
-            loggedInUser = loggedInUser
-        )
-        sendScreenEventsOnTaskChange(task, restTaskAssignData.zaakUuid)
-        indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
-    }
-
     /**
      * Assigns a list of tasks to a group and optionally also to an assignee,
      * sends corresponding screen events and updates the search index.
@@ -89,13 +63,8 @@ class TaskService @Inject constructor(
         try {
             assignTasks(restTaskDistributeData, loggedInUser, succesfullyAssignedTaskIds)
         } finally {
-            // always update the search index and send the screen event, also if exceptions were thrown
             indexingService.commit()
             LOG.fine { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
-
-            // if a screen event resource ID was specified, send a screen event
-            // with the provided job ID so that it can be picked up by a client
-            // that has created a websocket subscription to this event
             screenEventResourceId?.let {
                 LOG.fine { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
                 eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
@@ -103,42 +72,33 @@ class TaskService @Inject constructor(
         }
     }
 
-    /**
-     * Assigns a task to a user and sends the 'taak op naam' signalering event.
-     * When the task belongs to a zaakspecifiek geautoriseerde zaak, the user is granted access to that zaak
-     * before the assignment is written, so that they can open the task as soon as it is theirs.
-     *
-     * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaak is zaakspecifiek
-     * geautoriseerd but its zaaktype does not define the roltype; the task is then left unchanged
-     */
-    fun assignTaskToUser(
-        taskId: String,
-        assignee: String,
-        loggedInUser: LoggedInUser,
-        explanation: String?
+    fun assignTask(
+        task: Task,
+        groupId: String,
+        userId: String?,
+        reason: String?,
+        loggedInUser: LoggedInUser
     ): Task {
-        grantZaakspecifiekeAutorisatieToNewAssignee(flowableTaskService.readOpenTask(taskId), assignee)
-        return flowableTaskService.assignTaskToUser(taskId, assignee, explanation).also {
-            eventingService.send(
-                SignaleringEventUtil.event(
-                    SignaleringType.Type.TAAK_OP_NAAM,
-                    it,
-                    loggedInUser
-                )
-            )
+        val assignedTask = when {
+            userId != null -> {
+                grantZaakspecifiekeAutorisatieToNewAssignee(task, userId)
+                flowableTaskService.assignTaskToUser(task.id, userId, reason).also {
+                    sendTaakOpNaamSignalering(it, loggedInUser)
+                }
+            }
+            task.assignee != null -> releaseTask(task, reason, loggedInUser)
+            else -> task
         }
+        flowableTaskService.assignTaskToGroup(task, groupId, reason)
+        sendScreenEventsAndIndex(task)
+        return assignedTask
     }
 
-    /**
-     * Returns any Flowable tasks that are part of a zaak for a given ZAAK UUID.
-     */
+    private fun releaseTask(task: Task, reason: String?, loggedInUser: LoggedInUser): Task =
+        flowableTaskService.releaseTask(task, reason).also { sendTaakOpNaamSignalering(it, loggedInUser) }
+
     fun listTasksForZaak(zaakUUID: UUID): List<TaskInfo> = flowableTaskService.listTasksForZaak(zaakUUID)
 
-    /**
-     * Releases a list of tasks from any assigned user, sends corresponding screen events
-     * and updates the search index.
-     * This can be a long-running operation.
-     */
     @WithSpan
     fun releaseTasks(
         @SpanAttribute("restTaakVerdelenGegevens") restTaskReleaseData: RestTaskReleaseData,
@@ -155,20 +115,11 @@ class TaskService @Inject constructor(
         } finally {
             indexingService.commit()
             LOG.fine { "Successfully released ${taskIds.size} tasks." }
-
-            // if a screen event resource ID was specified, send a screen event
-            // with the provided job ID so that it can be picked up by a client
-            // that has created a websocket subscription to this event
             screenEventResourceId?.let {
                 LOG.fine { "Sending 'TAKEN_VRIJGEVEN' screen event with ID '$it'." }
                 eventingService.send(ScreenEventType.TAKEN_VRIJGEVEN.updated(it))
             }
         }
-    }
-
-    fun sendScreenEventsOnTaskChange(task: Task, zaakUuid: UUID) {
-        eventingService.send(ScreenEventType.TAAK.updated(task))
-        eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(zaakUuid))
     }
 
     private fun assignTasks(
@@ -178,14 +129,15 @@ class TaskService @Inject constructor(
     ) {
         restTaskDistributeData.taken.forEach { restTask ->
             try {
-                flowableTaskService.readOpenTask(restTask.taakId).let {
-                    assignTaskAndOptionallyReleaseFromAssignee(it, restTaskDistributeData, loggedInUser)
-                    sendScreenEventsOnTaskChange(it, restTask.zaakUuid)
-                }
-                indexingService.indexeerDirect(restTask.taakId, ZoekObjectType.TAAK, false)
+                assignTask(
+                    task = flowableTaskService.readOpenTask(restTask.taakId),
+                    groupId = restTaskDistributeData.groepId,
+                    userId = restTaskDistributeData.behandelaarGebruikersnaam,
+                    reason = restTaskDistributeData.reden,
+                    loggedInUser = loggedInUser
+                )
                 successfullyAssignedTaskIds.add(restTask.taakId)
             } catch (taskNotFoundException: TaskNotFoundException) {
-                // continue assigning remaining tasks if a particular open task could not be found
                 LOG.log(
                     Level.SEVERE,
                     "No open task with ID '${restTask.taakId}' found while assigning tasks. Skipping task.",
@@ -203,33 +155,6 @@ class TaskService @Inject constructor(
         }
     }
 
-    private fun assignTaskAndOptionallyReleaseFromAssignee(
-        task: Task,
-        restTaskDistributeData: RestTaskDistributeData,
-        loggedInUser: LoggedInUser
-    ) {
-        restTaskDistributeData.behandelaarGebruikersnaam?.let {
-            assignTaskToUser(
-                taskId = task.id,
-                assignee = it,
-                loggedInUser = loggedInUser,
-                explanation = restTaskDistributeData.reden
-            )
-        } ?: task.assignee?.let {
-            // if no assignee was specified _and_ the task currently has an assignee, only then release it
-            releaseTask(
-                task = task,
-                loggedInUser = loggedInUser,
-                reden = restTaskDistributeData.reden
-            )
-        }
-        flowableTaskService.assignTaskToGroup(
-            task,
-            restTaskDistributeData.groepId,
-            restTaskDistributeData.reden
-        )
-    }
-
     private fun releaseTasks(
         restTaskReleaseData: RestTaskReleaseData,
         loggedInUser: LoggedInUser,
@@ -238,13 +163,8 @@ class TaskService @Inject constructor(
         restTaskReleaseData.taken.forEach {
             try {
                 flowableTaskService.readOpenTask(it.taakId).let { task ->
-                    val updatedTask = releaseTask(
-                        task = task,
-                        loggedInUser = loggedInUser,
-                        reden = restTaskReleaseData.reden
-                    )
-                    indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
-                    sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
+                    releaseTask(task = task, reason = restTaskReleaseData.reden, loggedInUser = loggedInUser)
+                    sendScreenEventsAndIndex(task)
                     taskIds.add(task.id)
                 }
             } catch (taskNotFoundException: TaskNotFoundException) {
@@ -261,21 +181,18 @@ class TaskService @Inject constructor(
         if (task.assignee == assignee) return
         val zaak = zrcClientService.readZaak(readZaakUUID(task))
         if (zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, assignee)) {
-            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, zaak, assignee)
+            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, assignee)
         }
     }
 
-    private fun releaseTask(
-        task: Task,
-        loggedInUser: LoggedInUser,
-        reden: String?
-    ) = flowableTaskService.releaseTask(task, reden).also {
-        eventingService.send(
-            SignaleringEventUtil.event(
-                SignaleringType.Type.TAAK_OP_NAAM,
-                it,
-                loggedInUser
-            )
-        )
+    private fun sendTaakOpNaamSignalering(task: Task, loggedInUser: LoggedInUser) {
+        eventingService.send(SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUser))
     }
+
+    private fun sendScreenEventsAndIndex(task: Task) {
+        eventingService.send(ScreenEventType.TAAK.updated(task))
+        eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(readZaakUUID(task)))
+        indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
+    }
+
 }

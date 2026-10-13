@@ -203,6 +203,34 @@ class ItestHttpClient {
     }
 
     /**
+     * Performs a request with an arbitrary HTTP method (e.g. a WebDAV method such as `PROPFIND` or `LOCK`)
+     * on the given URL with optional headers and request body.
+     *
+     * @param method The HTTP method to use.
+     * @param url The URL to perform the request on.
+     * @param headers Optional headers to include in the request. Defaults to no headers.
+     * @param requestBody Optional body of the request.
+     * @return A [ResponseContent] containing the response body, headers, and status code.
+     */
+    fun performRequest(
+        method: String,
+        url: String,
+        headers: Headers = Headers.headersOf(),
+        requestBody: RequestBody? = null
+    ): ResponseContent {
+        logger.info { "Performing $method request on: '$url'" }
+        val request = Request.Builder()
+            .headers(headers)
+            .url(url)
+            .method(method, requestBody)
+            .build()
+        return okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.bytes(), it.headers, it.code)
+        }
+    }
+
+    /**
      * Performs a POST request on the given URL with optional headers and request body.
      * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
      * and will be logged out from Keycloak afterwards.

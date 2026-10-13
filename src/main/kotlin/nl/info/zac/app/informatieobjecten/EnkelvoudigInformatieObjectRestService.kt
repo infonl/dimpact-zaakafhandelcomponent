@@ -180,7 +180,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         } ?: run {
             checkNotNull(zaak) { "Zoekparameters hebben geen waarde" }
             val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
-            assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get(), zaakAutorisatieGegevens).canLezen)
+            assertPolicy(
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    loggedInUser = loggedInUserInstance.get(),
+                    zaakAutorisatieGegevens = zaakAutorisatieGegevens
+                ).canLezen
+            )
             val enkelvoudigInformatieobjectenVoorZaak = listEnkelvoudigInformatieobjectenVoorZaak(zaak, zaakAutorisatieGegevens) +
                 if (zoekParameters.shouldIncludeGekoppeldeZaakDocumenten) {
                     listGekoppeldeZaakInformatieObjectenVoorZaak(zaak)
@@ -631,7 +637,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieObject): RestZaakInformatieobject {
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
-        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, loggedInUserInstance.get())
+        val zaakrechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaaktype,
+            loggedInUser = loggedInUserInstance.get()
+        )
         return RestZaakInformatieobject(
             zaakIdentificatie = zaak.getIdentificatie(),
             zaakRechten = zaakrechten.toRestZaakRechten(),
