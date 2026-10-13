@@ -589,9 +589,9 @@ describe(buildZaakMenu.name, () => {
       ).not.toContain("actie.betrokkene.koppelen");
     });
 
-    describe("medewerker toevoegen", () => {
-      const medewerkerToevoegen =
-        "actie.zaakspecifiek-geautoriseerde-medewerker.toevoegen";
+    describe("medewerker koppelen", () => {
+      const medewerkerKoppelen =
+        "actie.zaakspecifiek-geautoriseerde-medewerker.koppelen";
 
       function menuFor(
         isZaakspecifiekGeautoriseerd: boolean,
@@ -611,19 +611,50 @@ describe(buildZaakMenu.name, () => {
       }
 
       it("is offered on a zaakspecifiek geautoriseerde zaak to a user with wijzigen", () => {
-        expect(titles(menuFor(true, true))).toContain(medewerkerToevoegen);
+        expect(titles(menuFor(true, true))).toContain(medewerkerKoppelen);
       });
 
       it("is not offered on a zaak that is not zaakspecifiek geautoriseerd", () => {
-        expect(titles(menuFor(false, true))).not.toContain(medewerkerToevoegen);
+        expect(titles(menuFor(false, true))).not.toContain(medewerkerKoppelen);
       });
 
       it("is not offered to a user without wijzigen", () => {
-        expect(titles(menuFor(true, false))).not.toContain(medewerkerToevoegen);
+        expect(titles(menuFor(true, false))).not.toContain(medewerkerKoppelen);
+      });
+
+      it("is offered between bag-object koppelen and locatie koppelen", () => {
+        const menu = buildZaakMenu(
+          createZaak(
+            { isZaakspecifiekGeautoriseerd: true },
+            {
+              canWijzigen: true,
+              canToevoegenBagObject: true,
+              canWijzigenLocatie: true,
+            },
+          ),
+          noPlanItems,
+          handlers,
+          dialogs,
+          false,
+          false,
+        );
+
+        const koppelingen = titles(menu).filter((title) =>
+          [
+            "actie.bag-object.koppelen",
+            medewerkerKoppelen,
+            "actie.zaak.locatie.koppelen",
+          ].includes(title),
+        );
+        expect(koppelingen).toEqual([
+          "actie.bag-object.koppelen",
+          medewerkerKoppelen,
+          "actie.zaak.locatie.koppelen",
+        ]);
       });
 
       it("opens the side action panel", () => {
-        buttonNamed(menuFor(true, true), medewerkerToevoegen)?.fn();
+        buttonNamed(menuFor(true, true), medewerkerKoppelen)?.fn();
 
         expect(handlers.openSideAction).toHaveBeenCalled();
       });
