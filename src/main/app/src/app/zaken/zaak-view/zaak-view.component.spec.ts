@@ -17,7 +17,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { within } from "@testing-library/angular";
-import { EMPTY, of, ReplaySubject } from "rxjs";
+import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
@@ -308,9 +308,10 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("should render <zac-notities> when notitieRechten.lezen is true", () => {
-      jest
-        .spyOn(policyService, "readNotitieRechten")
-        .mockReturnValue(of({ canLezen: true, canWijzigen: false }));
+      testQueryClient.setQueryData(
+        policyService.readNotitieRechten().queryKey,
+        { canLezen: true, canWijzigen: false },
+      );
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
@@ -320,9 +321,10 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("should render <zac-notities> when notitieRechten.wijzigen is true", () => {
-      jest
-        .spyOn(policyService, "readNotitieRechten")
-        .mockReturnValue(of({ canLezen: false, canWijzigen: true }));
+      testQueryClient.setQueryData(
+        policyService.readNotitieRechten().queryKey,
+        { canLezen: false, canWijzigen: true },
+      );
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
@@ -332,9 +334,10 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("should not render <zac-notities> when both notitieRechten.lezen and wijzigen are false", () => {
-      jest
-        .spyOn(policyService, "readNotitieRechten")
-        .mockReturnValue(of({ canLezen: false, canWijzigen: false }));
+      testQueryClient.setQueryData(
+        policyService.readNotitieRechten().queryKey,
+        { canLezen: false, canWijzigen: false },
+      );
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
@@ -342,7 +345,6 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("should not render <zac-notities> when notitieRechten is absent", () => {
-      jest.spyOn(policyService, "readNotitieRechten").mockReturnValue(EMPTY);
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 

@@ -17,7 +17,8 @@
     "test:watch": "ng test --watch --verbose --silent=false",
     "test:report": "ng test --coverage",
     "test:scripts": "node --test scripts/generate-icon-font.test.mjs",
-    "lint": "ng lint",
+    "lint": "ng lint && npm run lint:spec-templates",
+    "lint:spec-templates": "npm run generate:types:zac-openapi && ngc -p tsconfig.spec.json --noEmit",
     "lint:unused": "npx ngx-unused . -p tsconfig.json",
     "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.json -o ./src/generated/types/zac-openapi-types.d.ts",
     "generate:icon-font": "node scripts/generate-icon-font.mjs"
@@ -77,7 +78,7 @@
     "@testing-library/user-event": "14.6.7",
     "@types/dom-navigation": "1.0.7",
     "@types/jest": "29.5.14",
-    "@types/node": "24.19.1",
+    "@types/node": "24.19.2",
     "@typescript-eslint/eslint-plugin": "8.71.1",
     "@typescript-eslint/parser": "8.71.1",
     "eslint": "9.39.5",

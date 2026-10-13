@@ -13,8 +13,8 @@
     (click)="toggleNotitieContainer()"
   >
     <mat-icon
-      [matBadgeHidden]="notities.length === 0"
-      [matBadge]="notities.length"
+      [matBadgeHidden]="notities().length === 0"
+      [matBadge]="notities().length"
       matBadgeColor="accent"
     >
       sticky_note_2
@@ -42,7 +42,7 @@
 
     <mat-card-content class="notitie-body">
       <div #scrollTarget></div>
-      @for (notitie of notities; track notitie) {
+      @for (notitie of notities(); track notitie) {
         <mat-card class="notitie">
           <mat-card-header>
             <div

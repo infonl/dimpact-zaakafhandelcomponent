@@ -5,7 +5,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { NgIf } from "@angular/common";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Component } from "@angular/core";
@@ -132,7 +131,6 @@ const zaaktypeZonderEigenschap = fromPartial<
   templateUrl: "./inrichtingscheck.component.html",
   standalone: true,
   imports: [
-    NgIf,
     MatSidenavModule,
     MatCardModule,
     MatExpansionModule,
