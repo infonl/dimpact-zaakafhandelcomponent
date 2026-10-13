@@ -8,7 +8,7 @@ Columns: Latest | Our Version on TEST.
 
 GitHub releases via `gh api repos/<repo>/releases`: the highest non-prerelease, non-draft version. Release lists are not sorted by version, so compare numbers, not order.
 
-- Fluent-bit: `fluent/fluent-bit` (ignore older maintenance lines such as 5.0.x)
+- Fluent-bit: `fluent/fluent-bit` (ignore releases of older maintenance lines)
 - Grafana: `grafana/grafana`
 - Grafana Loki: `grafana/loki` (ignore `operator/…` tags)
 - Tempo: `grafana/tempo`

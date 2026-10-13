@@ -10,7 +10,7 @@ Public release notes. Strip the HTML tags and ignore the `__NEXT_DATA__` JSON; t
 
 - KVK Zoeken: https://developers.kvk.nl/documentation/release-notes/zoeken-api
 - KVK Basisprofiel: https://developers.kvk.nl/documentation/release-notes/basisprofiel-api
-- KVK Vestigingsprofiel: https://developers.kvk.nl/documentation/release-notes/vestigingsprofiel-api. It shows 1.4.1, which is not a real API version (a 2022 fix named "1.4.1"). Report 1.4.1 and say 1.4.0 is still current, unless a version newer than 1.4.1 appears.
+- KVK Vestigingsprofiel: https://developers.kvk.nl/documentation/release-notes/vestigingsprofiel-api. The page contains a 2022 fix labelled "1.4.1", but this is not an API version; report 1.4.0 as latest unless a newer real API version appears, and mention the misleading label in a remark.
 - BRP: https://brp-api.github.io/Haal-Centraal-BRP-bevragen/releasenotes, the highest "versie X.Y.Z".
 
 ## 2. Our Version on TEST

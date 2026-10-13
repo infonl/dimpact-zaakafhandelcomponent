@@ -24,13 +24,13 @@ Plain rendered text, NOT in a code block, so the user can paste it into Confluen
 2. **Beveiliging ZAC:** `<n> kritieke en <n> hoge kwetsbaarheden opgelost; <container hardening in one phrase>`. Skip a part that has nothing.
 3. **Beveiliging WebDAV:** only if there is a WebDAV fix. Say whether ZAC already uses the new version.
 
-Example (sprint ending 2026-10-12):
+Shape:
 
 **Sprintoverzicht: componenten en beveiliging**
 
-- **Componenten:** TEST draait nu op Keycloak 26.7.5, Open Formulieren 3.5.10, PABC 2.1.0-prerelease
-- **Beveiliging ZAC:** 3 kritieke en 4 hoge kwetsbaarheden opgelost; containers draaien nu zonder beheerrechten en met geheugenlimieten.
-- **Beveiliging WebDAV:** extra controle op bestandspaden toegevoegd (preventief); ZAC gebruikt de nieuwe versie 1.2.351 al.
+- **Componenten:** TEST draait nu op `<component> <versie>`, `<component> <versie>`, …
+- **Beveiliging ZAC:** `<n>` kritieke en `<n>` hoge kwetsbaarheden opgelost; `<container hardening>`.
+- **Beveiliging WebDAV:** `<wat er is verbeterd>` (preventief, if hardening); ZAC gebruikt de nieuwe versie `<versie>` al.
 
 ## Do not overstate
 
