@@ -237,7 +237,7 @@ Om een zaaktype in deze lijst te controleren klik je op de regel. Daarna worden 
 Voor nu worden de volgende onderdelen gecheckt:
 - Zaakafhandelparameters | er wordt gecheckt of deze volledig zijn ingericht
 - Statustypen | er wordt gecheckt of voor de werking van de ZAC vereiste statustypen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Intake’, ‘In behandeling’, ‘Heropend’, ‘Wacht op aanvullende informatie’ en ‘Afgerond’ waarbij ‘Afgerond’ het hoogste volgnummer moet hebben zodat dit de eindstatus wordt.
-- Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel 'Initiator' en 'Behandelaar' die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. ZAC vereist precies één roltype 'Initiator' en één roltype 'Behandelaar'. Het roltype 'Behandelaar' moet de volgende eigenschappen hebben: Betrokkene type 'Medewerker', Omschrijving generiek 'Behandelaar' én Omschrijving 'Behandelaar'. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan een zaak.
+- Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel 'Initiator' en 'Behandelaar' die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. ZAC vereist precies één roltype 'Initiator' en één roltype 'Behandelaar'. Het roltype 'Behandelaar' moet de volgende eigenschappen hebben: Omschrijving generiek 'Behandelaar' én Omschrijving 'Behandelaar'. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan een zaak.
 - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
 - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
 - Zaakspecifieke autorisatie | ZAC controleert of het zaaktype de eigenschap `ZAAK_GEAUTORISEERD` en het roltype 'Zaakspecifiek geautoriseerde medewerker' heeft. Heeft het zaaktype maar één van de twee, dan toont de check een waarschuwing. Het zaaktype blijft dan bruikbaar. Zie sectie [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie).
@@ -672,9 +672,19 @@ Een zaaktype is zaakspecifiek autoriseerbaar als het zaaktype in de zaaktypecata
   ZAC slaat bij een zaakspecifiek geautoriseerde zaak de waarde `true` op in deze zaakeigenschap.
   Gebruik als formaat `tekst`, met lengte 5 en de waardenverzameling `true` en `false`.
 - Een roltype met deze eigenschappen:
-  - Omschrijving: exact 'Zaakspecifiek geautoriseerde medewerker'
-  - Omschrijving generiek: 'Behandelaar'
-  - Betrokkene type: 'Medewerker'
+  - Omschrijving: exact `Zaakspecifiek geautoriseerde medewerker`
+  - Omschrijving generiek: `Behandelaar`
+
+Om in Open Zaak het `ZAAK_GEAUTORISEERD` eigenschap te kunnen zetten op een zaak, moet er eerst een 'eigenschap specificatie' worden aangemaakt in de zaaktypecatalogus:
+![Open Zaak - 'ZAAK_GEAUTORISEERD' eigenschap specificatie](images/open-zaak-boolean-eigenschap-specificatie.png)
+
+Vervolgens moet er in Open Zaak voor zaaktypes die zaakspecifiek geautoriseerd moeten kunnen worden, een zaaktype eigenschap met eigenschapsnaam `ZAAK_GEAUTORISEERD` worden toegevoegd. 
+Deze moet gelinkt worden aan de eerder aangemaakte eigenschap specificatie. 
+Gebruik als definitie: `Zaakspecifiek geautoriseerd` en als toelichting: `Bepaalt of een zaak zaakspecifiek geautoriseerd is.`
+![Open Zaak - 'ZAAK_GEAUTORISEERD' zaaktype eigenschap](images/open-zaak-zaak-geautoriseerd-zaaktype-eigenschap.png)
+
+In Open Zaak ziet het `Zaakspecifiek geautoriseerde medewerker` roltype er als volgt uit:
+![Open Zaak - 'Zaakspecifiek geautoriseerde medewerker' roltype](images/open-zaak-zaakspecifiek-roltype.png)
 
 ZAC gebruikt het roltype voor de medewerkers die toegang houden tot de zaak, zoals de vorige behandelaar.
 Medewerkers met dit roltype verschijnen niet in het tabblad 'Betrokkenen' van de zaak, en een medewerker kan ze daar niet ontkoppelen.
