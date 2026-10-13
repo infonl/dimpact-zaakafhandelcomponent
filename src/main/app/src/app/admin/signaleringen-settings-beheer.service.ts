@@ -29,7 +29,7 @@ export class SignaleringenSettingsBeheerService {
         { path: { groupId } },
       ),
       {
-        onSuccess: () =>
+        onSettled: () =>
           this.queryClient.invalidateQueries({
             queryKey: this.list(groupId).queryKey,
           }),

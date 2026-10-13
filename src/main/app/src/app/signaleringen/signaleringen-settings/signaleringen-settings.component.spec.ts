@@ -24,8 +24,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
 import { SignaleringenSettingsComponent } from "./signaleringen-settings.component";
 
-const INSTELLINGEN_URL = "/rest/signaleringen/instellingen";
-
 const zaakOpNaam = fromPartial<GeneratedType<"RestSignaleringInstellingen">>({
   id: 1,
   type: "ZAAK_OP_NAAM",
@@ -63,7 +61,9 @@ describe(SignaleringenSettingsComponent.name, () => {
   async function respondWith(
     instellingen: GeneratedType<"RestSignaleringInstellingen">[],
   ) {
-    httpTestingController.expectOne(INSTELLINGEN_URL).flush(instellingen);
+    httpTestingController
+      .expectOne("/rest/signaleringen/instellingen")
+      .flush(instellingen.map((instelling) => ({ ...instelling })));
     await sleep();
     await sleep();
     fixture.detectChanges();
@@ -177,7 +177,9 @@ describe(SignaleringenSettingsComponent.name, () => {
     await user.click(checkbox("actie.signalering.dashboard"));
     await sleep();
 
-    const request = httpTestingController.expectOne(INSTELLINGEN_URL);
+    const request = httpTestingController.expectOne(
+      "/rest/signaleringen/instellingen",
+    );
 
     expect(request.request.method).toBe("PUT");
     expect(request.request.body).toEqual({
@@ -200,7 +202,7 @@ describe(SignaleringenSettingsComponent.name, () => {
     expect(utilService.setLoading).toHaveBeenCalledWith(true);
 
     httpTestingController
-      .expectOne(INSTELLINGEN_URL)
+      .expectOne("/rest/signaleringen/instellingen")
       .flush({ ...zaakOpNaam, isMailEnabled: true });
     await sleep();
 
@@ -218,14 +220,36 @@ describe(SignaleringenSettingsComponent.name, () => {
     await user.click(checkbox("actie.signalering.mail"));
     await sleep();
     httpTestingController
-      .expectOne(INSTELLINGEN_URL)
+      .expectOne("/rest/signaleringen/instellingen")
       .flush({ ...zaakOpNaam, isMailEnabled: true });
     await sleep();
 
-    const reread = httpTestingController.expectOne(INSTELLINGEN_URL);
+    const reread = httpTestingController.expectOne(
+      "/rest/signaleringen/instellingen",
+    );
     expect(reread.request.method).toBe("GET");
     reread.flush([{ ...zaakOpNaam, isMailEnabled: true }]);
     await sleep();
+  });
+
+  it("shows the stored setting again when the save fails", async () => {
+    await renderComponent();
+    await respondWith([zaakOpNaam]);
+
+    await user.click(checkbox("actie.signalering.mail"));
+    await sleep();
+    httpTestingController
+      .expectOne("/rest/signaleringen/instellingen")
+      .flush(null, { status: 400, statusText: "Bad Request" });
+    await sleep();
+    await respondWith([zaakOpNaam]);
+
+    expect(
+      screen.getByRole("checkbox", {
+        name: "actie.signalering.mail",
+        hidden: true,
+      }),
+    ).not.toBeChecked();
   });
 
   it("has the dashboard read its signalering types again once a setting is saved", async () => {
@@ -241,7 +265,7 @@ describe(SignaleringenSettingsComponent.name, () => {
     await user.click(checkbox("actie.signalering.dashboard"));
     await sleep();
     httpTestingController
-      .expectOne(INSTELLINGEN_URL)
+      .expectOne("/rest/signaleringen/instellingen")
       .flush({ ...zaakOpNaam, isDashboardEnabled: true });
     await sleep();
     await respondWith([{ ...zaakOpNaam, isDashboardEnabled: true }]);

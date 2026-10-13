@@ -25,7 +25,7 @@ export class SignaleringenSettingsService {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/signaleringen/instellingen"),
       {
-        onSuccess: () =>
+        onSettled: () =>
           Promise.all([
             this.queryClient.invalidateQueries({
               queryKey: this.list().queryKey,

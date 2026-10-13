@@ -22,9 +22,6 @@ import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
 import { InformatieobjectenCardComponent } from "./informatieobjecten-card.component";
 
-const INFORMATIEOBJECTEN_URL =
-  "/rest/signaleringen/informatieobjecten/ZAAK_DOCUMENT_TOEGEVOEGD";
-
 const informatieobject = (
   fields: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">> = {},
 ) =>
@@ -78,7 +75,9 @@ describe(InformatieobjectenCardComponent.name, () => {
     informatieobjecten: GeneratedType<"RestEnkelvoudigInformatieobject">[],
   ) {
     httpTestingController
-      .expectOne(INFORMATIEOBJECTEN_URL)
+      .expectOne(
+        "/rest/signaleringen/informatieobjecten/ZAAK_DOCUMENT_TOEGEVOEGD",
+      )
       .flush(informatieobjecten);
     await sleep();
     await sleep();
@@ -163,7 +162,9 @@ describe(InformatieobjectenCardComponent.name, () => {
     signaleringenChanged(signaleringChangedEvent("ZAAK_OP_NAAM"));
     await sleep();
 
-    httpTestingController.expectNone(INFORMATIEOBJECTEN_URL);
+    httpTestingController.expectNone(
+      "/rest/signaleringen/informatieobjecten/ZAAK_DOCUMENT_TOEGEVOEGD",
+    );
   });
 
   it("sorts the informatieobjecten ascending and then descending by titel", async () => {

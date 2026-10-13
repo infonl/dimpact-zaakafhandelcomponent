@@ -112,8 +112,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.signaleringenService.readLatestSignalering(),
   );
   protected readonly hasNewSignaleringen = computed(() => {
-    // Opening the dashboard re-reads an often unchanged latest signalering. Depending on when it was
-    // read, not only on what was read, makes that re-read compare it with the new dashboardOpened.
     this.latestSignaleringQuery.dataUpdatedAt();
     const latestSignalering = this.latestSignaleringQuery.data();
     if (!latestSignalering) return false;

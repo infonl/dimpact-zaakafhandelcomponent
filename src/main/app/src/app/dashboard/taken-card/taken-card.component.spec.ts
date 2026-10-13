@@ -22,8 +22,6 @@ import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
 import { TakenCardComponent } from "./taken-card.component";
 
-const TAKEN_URL = "/rest/signaleringen/taken/TAAK_OP_NAAM";
-
 const taak = (
   fields: Partial<GeneratedType<"RestSignaleringTaskSummary">> = {},
 ) =>
@@ -77,7 +75,9 @@ describe(TakenCardComponent.name, () => {
   async function respondWithTaken(
     taken: GeneratedType<"RestSignaleringTaskSummary">[],
   ) {
-    httpTestingController.expectOne(TAKEN_URL).flush(taken);
+    httpTestingController
+      .expectOne("/rest/signaleringen/taken/TAAK_OP_NAAM")
+      .flush(taken);
     await sleep();
     await sleep();
     fixture.detectChanges();
@@ -154,7 +154,7 @@ describe(TakenCardComponent.name, () => {
     signaleringenChanged(signaleringChangedEvent("ZAAK_OP_NAAM"));
     await sleep();
 
-    httpTestingController.expectNone(TAKEN_URL);
+    httpTestingController.expectNone("/rest/signaleringen/taken/TAAK_OP_NAAM");
   });
 
   it("sorts the taken ascending and then descending by naam", async () => {

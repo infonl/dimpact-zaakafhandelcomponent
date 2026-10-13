@@ -25,9 +25,6 @@ import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GroepSignaleringenComponent } from "./groep-signaleringen.component";
 
-const GROUPS_URL = "/rest/identity/groups";
-const INSTELLINGEN_URL = "/rest/signaleringen/group/fakeGroupId/instellingen";
-
 const groep = fromPartial<GeneratedType<"RestGroup">>({
   id: "fakeGroupId",
   naam: "Fake groep",
@@ -66,14 +63,16 @@ describe(GroepSignaleringenComponent.name, () => {
     }));
 
     httpTestingController = TestBed.inject(HttpTestingController);
-    httpTestingController.expectOne(GROUPS_URL).flush([groep]);
+    httpTestingController.expectOne("/rest/identity/groups").flush([groep]);
     fixture.detectChanges();
   }
 
   async function respondWithInstellingen(
     instellingen: GeneratedType<"RestSignaleringInstellingen">[],
   ) {
-    httpTestingController.expectOne(INSTELLINGEN_URL).flush(instellingen);
+    httpTestingController
+      .expectOne("/rest/signaleringen/group/fakeGroupId/instellingen")
+      .flush(instellingen.map((instelling) => ({ ...instelling })));
     await sleep();
     await sleep();
     fixture.detectChanges();
@@ -106,7 +105,9 @@ describe(GroepSignaleringenComponent.name, () => {
   it("reads no settings before a group is chosen", async () => {
     await setup();
 
-    httpTestingController.expectNone(INSTELLINGEN_URL);
+    httpTestingController.expectNone(
+      "/rest/signaleringen/group/fakeGroupId/instellingen",
+    );
   });
 
   it("shows the settings of the chosen group", async () => {
@@ -145,7 +146,9 @@ describe(GroepSignaleringenComponent.name, () => {
     await sleep();
 
     expect(utilService.setLoading).toHaveBeenCalledWith(true);
-    const request = httpTestingController.expectOne(INSTELLINGEN_URL);
+    const request = httpTestingController.expectOne(
+      "/rest/signaleringen/group/fakeGroupId/instellingen",
+    );
     expect(request.request.method).toBe("PUT");
     expect(request.request.body).toEqual({
       ...zaakOpNaam,
@@ -162,7 +165,7 @@ describe(GroepSignaleringenComponent.name, () => {
     );
     await sleep();
     httpTestingController
-      .expectOne(INSTELLINGEN_URL)
+      .expectOne("/rest/signaleringen/group/fakeGroupId/instellingen")
       .flush({ ...zaakOpNaam, isMailEnabled: true });
     await sleep();
 
@@ -182,11 +185,13 @@ describe(GroepSignaleringenComponent.name, () => {
     );
     await sleep();
     httpTestingController
-      .expectOne(INSTELLINGEN_URL)
+      .expectOne("/rest/signaleringen/group/fakeGroupId/instellingen")
       .flush({ ...zaakOpNaam, isMailEnabled: true });
     await sleep();
 
-    const reread = httpTestingController.expectOne(INSTELLINGEN_URL);
+    const reread = httpTestingController.expectOne(
+      "/rest/signaleringen/group/fakeGroupId/instellingen",
+    );
     expect(reread.request.method).toBe("GET");
     reread.flush([{ ...zaakOpNaam, isMailEnabled: true }]);
     await sleep();
@@ -201,10 +206,33 @@ describe(GroepSignaleringenComponent.name, () => {
     );
     await sleep();
     httpTestingController
-      .expectOne(INSTELLINGEN_URL)
+      .expectOne("/rest/signaleringen/group/fakeGroupId/instellingen")
       .flush(null, { status: 400, statusText: "Bad Request" });
     await sleep();
+    await respondWithInstellingen([zaakOpNaam]);
 
     expect(utilService.setLoading).toHaveBeenCalledWith(false);
+  });
+
+  it("shows the stored setting again when the save fails", async () => {
+    await setup();
+    await chooseGroupWithInstellingen();
+
+    await user.click(
+      screen.getByRole("checkbox", { name: "actie.signalering.mail" }),
+    );
+    await sleep();
+    httpTestingController
+      .expectOne("/rest/signaleringen/group/fakeGroupId/instellingen")
+      .flush(null, { status: 400, statusText: "Bad Request" });
+    await sleep();
+    await respondWithInstellingen([zaakOpNaam]);
+
+    expect(
+      screen.getByRole("checkbox", {
+        name: "actie.signalering.mail",
+        hidden: true,
+      }),
+    ).not.toBeChecked();
   });
 });
