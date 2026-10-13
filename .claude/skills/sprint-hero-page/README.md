@@ -1,6 +1,6 @@
 # Update the sprint hero page with Claude Code
 
-The `sprint-hero-page` skill fills the version sections of the sprint hero page in Confluence. It only reads, from GitHub, Docker Hub, release notes, download pages and the ZAC repo among others, and changes nothing.
+The `sprint-hero-page` skill fills the version sections and the summary of the sprint hero page in Confluence. It reads from GitHub, Docker Hub, release notes, download pages and the ZAC repo, among other sources. It changes nothing except refreshing your local `origin/main` ref; it never touches remote repositories, your branch or your working tree.
 
 ## What you need
 
