@@ -14,13 +14,20 @@ class ZaaktypeConfigurationMigrationQuarantineLoggingTest : BehaviorSpec({
 
     afterSpec { migrationTestDatabases.forEach(MigrationTestDatabase::close) }
 
-    given("a database at version 104 with one zaakbeeindig parameter in the quarantine table") {
+    given(
+        """a database at version 104 with a zaakbeeindig parameter and a configuration with a behandelaar in the
+            quarantine table"""
+    ) {
         val migrationTestDatabase = MigrationTestDatabase().also { migrationTestDatabases.add(it) }
         migrationTestDatabase.migrateTo("103")
         migrationTestDatabase.execute(
             """
-            INSERT INTO zaaktype_configuration (id, zaaktype_uuid, groep_id, zaaktype_omschrijving, creatiedatum)
-            VALUES (1, 'a0000000-0000-0000-0000-000000000001', 'fakeGroup', 'fakeOmschrijving', NOW());
+            INSERT INTO zaaktype_configuration
+                (id, zaaktype_uuid, groep_id, zaaktype_omschrijving, creatiedatum, gebruikersnaam_behandelaar,
+                niet_ontvankelijk_resultaattype_uuid, niet_ontvankelijk_resultaattype_omschrijving)
+            VALUES
+                (1, 'a0000000-0000-0000-0000-000000000001', 'fakeGroup', 'fakeOmschrijving', NOW(),
+                'fakeBehandelaar', 'b0000000-0000-0000-0000-000000000001', NULL);
             INSERT INTO zaaktype_completion_parameters
                 (id, zaaktype_configuration_id, id_zaakbeeindigreden, resultaattype_uuid, resultaattype_omschrijving)
             VALUES
@@ -33,11 +40,21 @@ class ZaaktypeConfigurationMigrationQuarantineLoggingTest : BehaviorSpec({
         `when`("the database is migrated to version 105") {
             val migrationOutput = migrationTestDatabase.migrateTo("105")
 
-            then("the migration logs the quarantined row with its full row data as a warning") {
+            then("the migration logs every quarantined row with its row data as a warning") {
                 migrationOutput shouldContain
                     "V105: zaaktype_configuration_migration_quarantine row 1: migration V104, " +
                     "source table zaaktype_completion_parameters, reason resultaattype without omschrijving"
                 migrationOutput shouldContain "\"resultaattype_uuid\": \"c0000000-0000-0000-0000-000000000001\""
+                migrationOutput shouldContain
+                    "V105: zaaktype_configuration_migration_quarantine row 2: migration V104, " +
+                    "source table zaaktype_configuration, reason niet-ontvankelijk resultaattype without omschrijving"
+                migrationOutput shouldContain
+                    "\"niet_ontvankelijk_resultaattype_uuid\": \"b0000000-0000-0000-0000-000000000001\""
+            }
+
+            then("the migration logs the username of the behandelaar only as redacted") {
+                migrationOutput shouldContain "\"gebruikersnaam_behandelaar\": \"[REDACTED]\""
+                migrationOutput shouldNotContain "fakeBehandelaar"
             }
         }
     }
