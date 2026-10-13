@@ -186,4 +186,5 @@ class LoggedInUserProviderTest : BehaviorSpec({
                 }
             }
         }
-    }})
+    }
+})
