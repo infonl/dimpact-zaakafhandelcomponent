@@ -13,6 +13,7 @@ import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.generated.Catalogus
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.configuration.ConfigurationService
 import org.eclipse.microprofile.health.HealthCheckResponse
 
@@ -33,6 +34,23 @@ class OpenZaakReadinessHealthCheckTest : BehaviorSpec({
 
                 then("a HealthCheckResponse with status UP is returned") {
                     result.status shouldBe HealthCheckResponse.Status.UP
+                }
+            }
+        }
+
+        given("a readiness probe outside any user session") {
+            val runsAsSystemUser = mutableListOf<Boolean>()
+            every { configurationService.readCatalogusDomein() } returns "fakeDomein"
+            every { ztcClientService.listCatalogus(any<CatalogusListParameters>()) } answers {
+                runsAsSystemUser += LoggedInUserProvider.systemUser.get()
+                mockk<Results<Catalogus>>()
+            }
+
+            `when`("call() is invoked") {
+                healthCheck.call()
+
+                then("the catalogi are listed as the system user instead of falling back to the functionele gebruiker") {
+                    runsAsSystemUser shouldBe listOf(true)
                 }
             }
         }

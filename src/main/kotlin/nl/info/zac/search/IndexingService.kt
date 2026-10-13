@@ -370,7 +370,7 @@ class IndexingService @Inject constructor(
      */
     fun addOrUpdateInformatieobjectenForZaakAsync(zaakUUID: UUID) {
         coroutineScope.launch {
-            addOrUpdateInformatieobjectenForZaak(zaakUUID)
+            runAsSystemUser { addOrUpdateInformatieobjectenForZaak(zaakUUID) }
         }
     }
 
