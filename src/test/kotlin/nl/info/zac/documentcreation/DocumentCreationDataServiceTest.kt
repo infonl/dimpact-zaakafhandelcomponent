@@ -365,8 +365,39 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         }
     }
 
+    given("A zaak with an initiator of type niet-natuurlijk persoon with only a KVK number") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem()
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data is created from the rechtspersoon found by KVK number") {
+                data.aanvragerData?.naam shouldBe resultaatItem.naam
+            }
+        }
+    }
+
     given(
-        "A zaak with an initiator of type niet-natuurlijk persoon with neither an RSIN nor a vestigingsnummer"
+        "A zaak with an initiator of type niet-natuurlijk persoon with neither an RSIN, a KVK number nor a vestigingsnummer"
     ) {
         val loggedInUser = createLoggedInUser()
         val rolNietNatuurlijkPersoon =
@@ -374,6 +405,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
                 nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
                     innNnpId = null,
+                    kvkNummer = null,
                     vestigingsnummer = null
                 )
             )
@@ -393,7 +425,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             then("an exception is thrown") {
                 illegalStateException.message shouldBe
                     "Niet-natuurlijke persoon initiator role '$rolNietNatuurlijkPersoon' with neither " +
-                    "INN NNP ID (RSIN) nor vestigingsnummer is not supported"
+                    "INN NNP ID (RSIN), KVK number nor vestigingsnummer is not supported"
             }
         }
     }

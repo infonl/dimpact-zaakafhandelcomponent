@@ -278,6 +278,39 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             }
         }
 
+        `when`(
+            "no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role " +
+                "with a vestiging but without a KVK number"
+        ) {
+            capturedMailGegevens.clear()
+            clearMocks(klantClientService, zgwApiService, mailService, answers = false)
+            val nietNatuurlijkPersoonRoleWithVestigingWithoutKvkNummer = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    vestigingsnummer = "123456789123",
+                    kvkNummer = null
+                )
+            )
+            every { flowableHelper.zgwApiService } returns zgwApiService
+            every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+            every {
+                zgwApiService.findInitiatorRoleForZaak(zaak)
+            } returns nietNatuurlijkPersoonRoleWithVestigingWithoutKvkNummer
+
+            SendConfirmationEmailDelegate().apply {
+                from = fromExpression
+                template = templateExpression
+            }.execute(delegateExecution)
+
+            then("no digital addresses are looked up and no mail is sent") {
+                verify(exactly = 0) {
+                    klantClientService.findDigitalAddressesForVestiging(any(), any())
+                    klantClientService.findDigitalAddressesForNonNaturalPerson(any())
+                }
+                capturedMailGegevens shouldHaveSize 0
+                verify(exactly = 0) { mailService.sendMail(any<MailGegevens>(), any<Bronnen>()) }
+            }
+        }
+
         `when`("no zaak-specific contact details exist and the initiator has an unsupported betrokkene type") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, mailService, answers = false)

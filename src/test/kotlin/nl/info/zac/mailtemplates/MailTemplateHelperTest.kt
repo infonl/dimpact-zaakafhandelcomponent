@@ -343,6 +343,39 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
 
+        given("A zaak with an initiator of role niet-natuurlijk persoon with only a KVK number") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val zaakTonenURL = URI("https://example.com/fakeURL")
+            val kvkNummer = "12345678"
+            val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    kvkNummer = kvkNummer
+                )
+            )
+            val resultaatItem = createResultaatItem()
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+            every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+
+            `when`("the variables are resolved with a text containing a placeholder for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator placeholder is replaced by the name of the rechtspersoon found by KVK number") {
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}"
+                }
+            }
+        }
+
         given("A zaak with zaakdata and a mail template body containing '{ZAAKDATA:key}' placeholders") {
             val zaak = createZaak()
             every { zaakVariabelenService.readZaakdata(zaak.uuid) } returns mapOf(

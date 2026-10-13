@@ -36,6 +36,8 @@ import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.identification.findRechtspersoonOrVestiging
+import nl.info.zac.identification.toIdentificatieType
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -144,23 +146,15 @@ class DocumentCreationDataService @Inject constructor(
     private fun createAanvragerDataVestiging(vestigingsnummer: String): AanvragerData? =
         kvkClientService.findVestiging(vestigingsnummer)?.toAanvragerDataBedrijf()
 
-    /**
-     * Note that niet-natuurlijke personen can be used both for KVK niet-natuurlijke personen (with an RSIN)
-     * and for KVK vestigingen.
-     */
     private fun createAanvragerDataNietNatuurlijkPersoon(initiator: Rol<*>): AanvragerData? {
-        val nietNatuurlijkPersoonIdentificatie = (initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)
-        val kvkResultaat = when {
-            nietNatuurlijkPersoonIdentificatie?.innNnpId?.isNotBlank() == true ->
-                kvkClientService.findRechtspersoonByRsin(nietNatuurlijkPersoonIdentificatie.innNnpId)
-            nietNatuurlijkPersoonIdentificatie?.vestigingsNummer?.isNotBlank() == true ->
-                kvkClientService.findVestiging(nietNatuurlijkPersoonIdentificatie.vestigingsNummer)
-            else -> error(
-                "Niet-natuurlijke persoon initiator role '$initiator' with neither INN NNP ID (RSIN) " +
-                    "nor vestigingsnummer is not supported"
+        val nietNatuurlijkPersoonIdentificatie = initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie
+        if (nietNatuurlijkPersoonIdentificatie?.toIdentificatieType() == null) {
+            error(
+                "Niet-natuurlijke persoon initiator role '$initiator' with neither INN NNP ID (RSIN), " +
+                    "KVK number nor vestigingsnummer is not supported"
             )
         }
-        return kvkResultaat?.toAanvragerDataBedrijf()
+        return kvkClientService.findRechtspersoonOrVestiging(nietNatuurlijkPersoonIdentificatie)?.toAanvragerDataBedrijf()
     }
 
     private fun createStartformulierData(zaakUri: URI): StartformulierData? =
