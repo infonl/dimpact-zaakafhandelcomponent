@@ -40,6 +40,7 @@ import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.task.model.TaakSortering
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
@@ -1631,6 +1632,29 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     ctx.zrcClientService.readZaak(zaak.uuid)
                 }
+            }
+        }
+    }
+
+    given("A zaak's documenten to reindex asynchronously, outside any user session") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val runsAsSystemUser = mutableListOf<Boolean>()
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } answers {
+            runsAsSystemUser += LoggedInUserProvider.systemUser.get()
+            zaak
+        }
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } answers {
+            runsAsSystemUser += LoggedInUserProvider.systemUser.get()
+            emptyList()
+        }
+
+        `when`("addOrUpdateInformatieobjectenForZaakAsync is called and the coroutine dispatcher is advanced") {
+            ctx.indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaak.uuid)
+            ctx.testDispatcher.scheduler.advanceUntilIdle()
+
+            then("the ZGW calls run as the system user instead of falling back to the functionele gebruiker") {
+                runsAsSystemUser shouldBe listOf(true, true)
             }
         }
     }
