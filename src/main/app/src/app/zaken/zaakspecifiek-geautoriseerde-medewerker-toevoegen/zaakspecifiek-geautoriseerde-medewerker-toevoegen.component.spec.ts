@@ -111,7 +111,7 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
       await screen.findByRole("option", { name: "fakeMedewerkerNaam" }),
     );
 
-    await user.click(screen.getByRole("button", { name: "actie.toevoegen" }));
+    await user.click(screen.getByRole("button", { name: "actie.koppelen" }));
 
     const request = httpTestingController.expectOne(
       "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers",
@@ -134,6 +134,40 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
       { medewerker: "fakeMedewerkerNaam" },
     );
     expect(sideNav.close).toHaveBeenCalled();
+  });
+
+  it("keeps the panel open with an empty form but the checkbox still ticked when the user wants to link another medewerker", async () => {
+    await setup();
+    await chooseGroep();
+    await user.click(screen.getByRole("combobox", { name: /medewerker/i }));
+    await user.click(
+      await screen.findByRole("option", { name: "fakeMedewerkerNaam" }),
+    );
+    await user.click(screen.getByRole("checkbox", { name: /nogmaals/i }));
+
+    await user.click(screen.getByRole("button", { name: "actie.koppelen" }));
+
+    httpTestingController
+      .expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers",
+      )
+      .flush(kandidaat);
+    await settle();
+    httpTestingController
+      .expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers/kandidaten?groepId=fakeGroepId",
+      )
+      .flush([]);
+    await settle();
+
+    expect(sideNav.close).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole("combobox", { name: /groep/i }),
+    ).not.toHaveTextContent("fakeGroepNaam");
+    expect(
+      screen.getByRole("combobox", { name: /medewerker/i }),
+    ).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("checkbox", { name: /nogmaals/i })).toBeChecked();
   });
 
   it("tells the user when every medewerker of the chosen groep already has access", async () => {
@@ -162,7 +196,7 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
       screen.getByRole("combobox", { name: /medewerker/i }),
     ).not.toHaveTextContent("fakeMedewerkerNaam");
     expect(
-      screen.getByRole("button", { name: "actie.toevoegen" }),
+      screen.getByRole("button", { name: "actie.koppelen" }),
     ).toBeDisabled();
   });
 });

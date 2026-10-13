@@ -16,6 +16,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
+import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -37,6 +38,7 @@ import { ZakenService } from "../zaken.service";
     MatToolbarModule,
     ReactiveFormsModule,
     TranslatePipe,
+    ZacCheckbox,
     ZacFormActions,
     ZacSelect,
   ],
@@ -57,6 +59,7 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
       { value: null, disabled: true },
       [Validators.required],
     ),
+    nogEenMedewerkerKoppelen: this.formBuilder.nonNullable.control(false),
   });
 
   private readonly groep = toSignal(this.form.controls.groep.valueChanges, {
@@ -85,7 +88,16 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
       this.zakenService.addZaakspecifiekGeautoriseerdeMedewerker(
         this.zaak().uuid,
       ),
-    { onSuccess: () => void this.sideNav().close() },
+    {
+      onSuccess: () => {
+        if (!this.form.controls.nogEenMedewerkerKoppelen.value) {
+          void this.sideNav().close();
+          return;
+        }
+        this.form.controls.groep.reset();
+        this.mutation.reset();
+      },
+    },
   );
 
   constructor() {
