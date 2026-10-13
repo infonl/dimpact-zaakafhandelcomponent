@@ -136,7 +136,7 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
     expect(sideNav.close).toHaveBeenCalled();
   });
 
-  it("keeps the panel open with the groep still chosen when the user wants to link another medewerker", async () => {
+  it("keeps the panel open with an empty form but the checkbox still ticked when the user wants to link another medewerker", async () => {
     await setup();
     await chooseGroep();
     await user.click(screen.getByRole("combobox", { name: /medewerker/i }));
@@ -161,12 +161,12 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
     await settle();
 
     expect(sideNav.close).not.toHaveBeenCalled();
-    expect(screen.getByRole("combobox", { name: /groep/i })).toHaveTextContent(
-      "fakeGroepNaam",
-    );
+    expect(
+      screen.getByRole("combobox", { name: /groep/i }),
+    ).not.toHaveTextContent("fakeGroepNaam");
     expect(
       screen.getByRole("combobox", { name: /medewerker/i }),
-    ).not.toHaveTextContent("fakeMedewerkerNaam");
+    ).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByRole("checkbox", { name: /nogmaals/i })).toBeChecked();
   });
 

@@ -94,7 +94,7 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
           void this.sideNav().close();
           return;
         }
-        this.form.controls.medewerker.reset();
+        this.form.controls.groep.reset();
         this.mutation.reset();
       },
     },
