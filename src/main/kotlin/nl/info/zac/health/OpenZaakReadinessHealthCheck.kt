@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
+import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
 import org.eclipse.microprofile.health.HealthCheck
@@ -27,9 +28,11 @@ class OpenZaakReadinessHealthCheck @Inject constructor(
     @WithSpan(value = "GET OpenZaakReadinessHealthCheck")
     override fun call(): HealthCheckResponse =
         try {
-            configurationService.readCatalogusDomein()
-                .let { domein -> CatalogusListParameters().also { it.domein = domein } }
-                .let(ztcClientService::listCatalogus)
+            runAsSystemUser {
+                configurationService.readCatalogusDomein()
+                    .let { domein -> CatalogusListParameters().also { it.domein = domein } }
+                    .let(ztcClientService::listCatalogus)
+            }
             HealthCheckResponse.up(OpenZaakReadinessHealthCheck::class.java.name)
         } catch (@Suppress("TooGenericExceptionCaught") exception: RuntimeException) {
             HealthCheckResponse.named(OpenZaakReadinessHealthCheck::class.java.name)

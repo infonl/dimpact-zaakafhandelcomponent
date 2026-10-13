@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional
 import jakarta.ws.rs.core.UriBuilder
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
+import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.model.Taal
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -114,7 +115,9 @@ class ConfigurationService @Inject constructor(
         }
         bronOrganisatie.validateRSIN(ENV_VAR_BRON_ORGANISATIE_RSIN)
         verantwoordelijkeOrganisatie.validateRSIN(ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)
-        catalogusURI = ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = catalogusDomein }).url
+        catalogusURI = runAsSystemUser {
+            ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = catalogusDomein })
+        }.url
     }
 
     fun listTalen(): List<Taal> {
