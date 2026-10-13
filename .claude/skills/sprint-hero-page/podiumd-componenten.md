@@ -6,7 +6,7 @@ Columns: Latest version | one column per PodiumD release in the user's table | O
 
 ## 1. Latest version
 
-Docker Hub: `https://hub.docker.com/v2/repositories/<image>/tags?page_size=100&ordering=last_updated`. Keep only `X.Y.Z` tags and take the highest by number (not the first in the list).
+Docker Hub: start with `https://hub.docker.com/v2/repositories/<image>/tags?page_size=100&ordering=last_updated` and follow each response's `next` URL until it is null. Keep only `X.Y.Z` tags from all pages and take the highest by number.
 
 - Open Formulieren: `openformulieren/open-forms`
 - Open Archiefbeheer: `maykinmedia/open-archiefbeheer`

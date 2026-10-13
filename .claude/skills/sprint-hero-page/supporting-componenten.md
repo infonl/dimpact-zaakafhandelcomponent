@@ -6,7 +6,7 @@ Columns: Latest | Our Version on TEST.
 
 ## 1. Latest
 
-GitHub releases via `gh api repos/<repo>/releases`: the highest non-prerelease, non-draft version. Release lists are not sorted by version, so compare numbers, not order.
+GitHub releases via `gh api --paginate "repos/<repo>/releases?per_page=100"`: inspect every page and take the highest non-prerelease, non-draft version. Release lists are not sorted by version, so compare numbers, not order.
 
 - Fluent-bit: `fluent/fluent-bit` (ignore releases of older maintenance lines)
 - Grafana: `grafana/grafana`
