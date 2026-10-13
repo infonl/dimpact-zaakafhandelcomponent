@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :06-10-2026 <br>
-> Versie :   1.10 <br>
-> Verandering : Zaakspecifieke autorisatie <br>
+> Datum :13-10-2026 <br>
+> Versie :   1.11 <br>
+> Verandering : Zaakspecifieke autorisatie bij taken <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
