@@ -1637,21 +1637,21 @@ class IndexingServiceTest : BehaviorSpec({
     }
 
     given("A zaak's documenten to reindex asynchronously, outside any user session") {
-        val ctx = setupContext()
+        val testContext = setupContext()
         val zaak = createZaak()
         val runsAsSystemUser = mutableListOf<Boolean>()
-        every { ctx.zrcClientService.readZaak(zaak.uuid) } answers {
+        every { testContext.zrcClientService.readZaak(zaak.uuid) } answers {
             runsAsSystemUser += LoggedInUserProvider.systemUser.get()
             zaak
         }
-        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } answers {
+        every { testContext.zrcClientService.listZaakinformatieobjecten(zaak) } answers {
             runsAsSystemUser += LoggedInUserProvider.systemUser.get()
             emptyList()
         }
 
         `when`("addOrUpdateInformatieobjectenForZaakAsync is called and the coroutine dispatcher is advanced") {
-            ctx.indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaak.uuid)
-            ctx.testDispatcher.scheduler.advanceUntilIdle()
+            testContext.indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaak.uuid)
+            testContext.testDispatcher.scheduler.advanceUntilIdle()
 
             then("the ZGW calls run as the system user instead of falling back to the functionele gebruiker") {
                 runsAsSystemUser shouldBe listOf(true, true)

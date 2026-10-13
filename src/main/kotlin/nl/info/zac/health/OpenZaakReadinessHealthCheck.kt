@@ -29,9 +29,9 @@ class OpenZaakReadinessHealthCheck @Inject constructor(
     override fun call(): HealthCheckResponse =
         try {
             runAsSystemUser {
-                configurationService.readCatalogusDomein()
-                    .let { domein -> CatalogusListParameters().also { it.domein = domein } }
-                    .let(ztcClientService::listCatalogus)
+                ztcClientService.listCatalogus(
+                    CatalogusListParameters().apply { domein = configurationService.readCatalogusDomein() }
+                )
             }
             HealthCheckResponse.up(OpenZaakReadinessHealthCheck::class.java.name)
         } catch (@Suppress("TooGenericExceptionCaught") exception: RuntimeException) {
