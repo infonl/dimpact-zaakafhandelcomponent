@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :12-10-2026 <br>
-> Versie :   1.10.1 <br>
-> Verandering : Zaakspecifieke autorisatie, tabblad Medewerkers <br>
+> Datum :13-10-2026 <br>
+> Versie :   1.10.2 <br>
+> Verandering : Zaakspecifieke autorisatie bij taken <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -16,34 +16,35 @@
 
 Versiegeschiedenis:
 
-| 0.1   | Initiële versie                                                                                                                            |
-|-------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| 0.2   | Update nav sprints opgeleverd op 30-11-2022, 14-12-2022, 11-1-2023, 25-1-2023                                                              |
-| 1.0   | Update nav sprints opgeleverd op 9-2-2023 en 23-2-2023<br><br>Heropenen zaak, Zaak koppelen, Werking van de taak: Advies extern toegevoegd |
-| 1.1   | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023                                                                                     |
-| 1.2   | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023                                                                                     |
-| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023                                                                                     |
-| 1.4   | Update format wijziging en redigeerwerk van 29-8-2023                                                                                      |
-| 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
-| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
-| 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
-| 1.6.1 | Toevoeging indicaties voor personen                                                                                                        |
-| 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen                                              |
-| 1.6.3 | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen                                             |
-| 1.6.4 | Nieuwe screendumps, koppeling aanpassingen tekstueel verwerkt                                                                              |
-| 1.6.5 | Aanpassingen locatie scherm en werking verwerkt                                                                                            |
-| 1.6.6 | ZAC v3.8 Handleiding                                                                                                                       |
-| 1.6.7 | ZAC v3.9 Handleiding                                                                                                                       |
-| 1.6.8 | ZAC v3.11 Handleiding                                                                                                                      |
-| 1.6.9 | ZAC v3.12 Handleiding                                                                                                                      |
-| 1.7   | ZAC v4.10 Handleiding                                                                                                                      |
-| 1.7.1 | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken                                                                                        |
-| 1.8   | ZAC v5.5 Handleiding, verwijderen impliciete applicatierol hiërarchie                                                                      |
-| 1.9   | ZAC v5.6 Handleiding, toevoeging voor brondatum zetten                                                                                     |
-| 1.9.1 | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
-| 1.9.2 | ZAC v5.6 Handleiding, toevoeging 'Ken aan mij toe' in zaken- en taken-werkvoorraad                                                      |
-| 1.10  | Toevoeging zaakspecifieke autorisatie                                                                                                      |
-| 1.10.1 | Toevoeging tabblad Medewerkers bij zaakspecifieke autorisatie                                                                             |
+| 0.1    | Initiële versie                                                                                                                            |
+|--------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| 0.2    | Update nav sprints opgeleverd op 30-11-2022, 14-12-2022, 11-1-2023, 25-1-2023                                                              |
+| 1.0    | Update nav sprints opgeleverd op 9-2-2023 en 23-2-2023<br><br>Heropenen zaak, Zaak koppelen, Werking van de taak: Advies extern toegevoegd |
+| 1.1    | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023                                                                                     |
+| 1.2    | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023                                                                                     |
+| 1.3    | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023                                                                                     |
+| 1.4    | Update format wijziging en redigeerwerk van 29-8-2023                                                                                      |
+| 1.5    | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
+| 1.5.1  | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
+| 1.6.0  | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
+| 1.6.1  | Toevoeging indicaties voor personen                                                                                                        |
+| 1.6.2  | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen                                              |
+| 1.6.3  | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen                                             |
+| 1.6.4  | Nieuwe screendumps, koppeling aanpassingen tekstueel verwerkt                                                                              |
+| 1.6.5  | Aanpassingen locatie scherm en werking verwerkt                                                                                            |
+| 1.6.6  | ZAC v3.8 Handleiding                                                                                                                       |
+| 1.6.7  | ZAC v3.9 Handleiding                                                                                                                       |
+| 1.6.8  | ZAC v3.11 Handleiding                                                                                                                      |
+| 1.6.9  | ZAC v3.12 Handleiding                                                                                                                      |
+| 1.7    | ZAC v4.10 Handleiding                                                                                                                      |
+| 1.7.1  | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken                                                                                        |
+| 1.8    | ZAC v5.5 Handleiding, verwijderen impliciete applicatierol hiërarchie                                                                      |
+| 1.9    | ZAC v5.6 Handleiding, toevoeging voor brondatum zetten                                                                                     |
+| 1.9.1  | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
+| 1.9.2  | ZAC v5.6 Handleiding, toevoeging 'Ken aan mij toe' in zaken- en taken-werkvoorraad                                                         |
+| 1.10   | Toevoeging zaakspecifieke autorisatie                                                                                                      |
+| 1.10.1 | Toevoeging tabblad Medewerkers bij zaakspecifieke autorisatie                                                                              |
+| 1.10.2 | Toevoeging zaakspecifieke autorisatie bij taken                                                                                            |
 
 <div style="page-break-after: always"></div>
 
@@ -518,6 +519,7 @@ Deze medewerkers hebben toegang tot een zaakspecifiek geautoriseerde zaak:
 
 - de behandelaar van de zaak
 - de vorige behandelaars van de zaak, vanaf het moment van de zaakspecifieke autorisatie
+- de taakbehandelaars van open taken op het moment van autoriseren, en medewerkers die daarna een taak van de zaak toegekend krijgen. Zij houden daarna toegang.
 - medewerkers met de rol Zaakspecifiek geautoriseerd voor het zaaktype. De beheerder richt deze rol in.
 - medewerkers die door een medewerker met bewerkrechten handmatig aan de zaak zijn toegevoegd. Zie [Medewerker toevoegen](#medewerker-toevoegen).
 
@@ -553,6 +555,11 @@ Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. 
 
 - Een zaakspecifiek geautoriseerde zaak heeft altijd een behandelaar. Je kunt de zaak niet vrijgeven.
 - Je kunt de zaak aan een andere behandelaar toekennen. De vorige behandelaar houdt dan toegang tot de zaak. ZAC registreert de vorige behandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak.
+- Als je een taak start en een medewerker als taakbehandelaar kiest, dan krijgt deze medewerker toegang tot de zaak.
+- Als je een taak aan een andere medewerker toekent, dan krijgt de nieuwe taakbehandelaar toegang. De vorige taakbehandelaar houdt toegang. Dit geldt ook voor ‘Aan mij toekennen’ en voor taken verdelen.
+- Een taakbehandelaar houdt toegang als de taak is vrijgegeven of afgerond.
+- Als een zaak met een open taak zaakspecifiek geautoriseerd wordt, dan krijgt de taakbehandelaar van die taak toegang tot de zaak.
+- ZAC registreert een taakbehandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak. De taakhistorie toont dan een regel ‘Zaakspecifiek geautoriseerde medewerker’ met de naam van de taakbehandelaar. Die regel staat er alleen als de medewerker nog geen Zaakspecifiek geautoriseerde medewerker was en niet de behandelaar van de zaak is.
 - Zaakspecifiek geautoriseerde medewerkers staan niet in het tabblad ‘Betrokkenen’ van de zaak. Je ziet ze in het tabblad ‘Medewerkers’.
 
 ### Medewerkers

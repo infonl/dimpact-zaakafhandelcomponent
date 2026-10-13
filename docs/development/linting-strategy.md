@@ -7,13 +7,19 @@ round.
 
 ## What runs
 
-| Check                  | Command                              | Configuration        |
-| ---------------------- | ------------------------------------ | -------------------- |
-| ESLint                 | `npm run lint` (in `src/main/app`)   | `.eslintrc.js`       |
-| TypeScript + templates | `npm run build` (in `src/main/app`)  | `tsconfig.app.json`  |
-| TypeScript in specs    | `npm test` (in `src/main/app`)       | `tsconfig.spec.json` |
+| Check                       | Command                              | Configuration        |
+| --------------------------- | ------------------------------------ | -------------------- |
+| ESLint                      | `npm run lint` (in `src/main/app`)   | `.eslintrc.js`       |
+| Templates in specs          | `npm run lint` (in `src/main/app`)   | `tsconfig.spec.json` |
+| TypeScript + templates      | `npm run build` (in `src/main/app`)  | `tsconfig.app.json`  |
+| TypeScript in specs         | `npm test` (in `src/main/app`)       | `tsconfig.spec.json` |
 
-`./gradlew build` runs all three, so the pipeline executes the same commands a developer runs.
+`./gradlew build` runs all of these, so the pipeline executes the same commands a developer runs.
+
+Jest compiles specs without the Angular template compiler, so it does not check the templates of
+test host components. `npm run lint` therefore also runs `npm run lint:spec-templates`, which
+compiles the specs ahead of time with `ngc`. It generates the OpenAPI types first, because the
+types are not in Git.
 
 ## TypeScript settings
 
@@ -25,6 +31,10 @@ template therefore fails the build wherever it is found.
 nullish coalesce whose left side can never be absent. Those are warnings rather than errors;
 remove the guard rather than leaving it in, because a guard the compiler knows is dead tells
 the next reader something untrue about the value.
+
+`tsconfig.json` also makes the extended diagnostic `unusedStandaloneImports` (NG8113) an error.
+A directive, component or pipe in the `imports` of a standalone component that its template does
+not use fails the build, in application code and in test host components. Remove the import.
 
 ## Testing Library rules
 

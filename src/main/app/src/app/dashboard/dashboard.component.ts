@@ -18,6 +18,7 @@ import {
   Component,
   effect,
   ElementRef,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
@@ -37,12 +38,16 @@ import { MatIcon } from "@angular/material/icon";
 import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatSlideToggle } from "@angular/material/slide-toggle";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectIsFetching } from "@tanstack/angular-query-experimental";
+import {
+  injectIsFetching,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { injectMutation } from "../shared/http/inject-mutation";
+import { runQuery } from "../shared/http/run-query";
 import { I18nKeyPipe } from "../shared/pipes/i18n-key.pipe";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -99,6 +104,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   );
 
   private readonly fetchingCount = injectIsFetching();
+  private readonly queryClient = inject(QueryClient);
 
   private resizeObserver?: ResizeObserver;
   private syncScheduled = false;
@@ -195,7 +201,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadCards(SessionStorageUtil.getItem("dashboardWidth", 3));
     // TODO instead of session storage use userpreferences in a db
     SessionStorageUtil.setItem("dashboardOpened", moment());
-    this.signaleringenService.updateSignaleringen();
+    void this.signaleringenService.invalidateLatestSignalering();
   }
 
   private readonly onWindowResize = () => this.scheduleRowSync();
@@ -313,8 +319,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     forkJoin([
       this.gebruikersvoorkeurenService.listDashboardCards(),
-      this.signaleringenService.listDashboardSignaleringTypen(),
-    ]).subscribe(([dashboardInstellingen, signaleringInstellingen]) => {
+      runQuery(
+        this.queryClient,
+        this.signaleringenService.listDashboardSignaleringTypen(),
+      ),
+    ]).subscribe(([dashboardInstellingen, cachedSignaleringInstellingen]) => {
+      const signaleringInstellingen = [...cachedSignaleringInstellingen];
       this.instellingen = dashboardInstellingen;
       this.addExistingCards(dashboardInstellingen, signaleringInstellingen);
       this.addNewCards(signaleringInstellingen);

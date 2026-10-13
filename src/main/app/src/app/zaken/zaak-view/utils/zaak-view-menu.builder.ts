@@ -318,6 +318,16 @@ function createKoppelingenMenuItems(
     );
   }
 
+  if (zaak.isZaakspecifiekGeautoriseerd && zaak.rechten.canWijzigen) {
+    menu.push(
+      new ButtonMenuItem(
+        "actie.zaakspecifiek-geautoriseerde-medewerker.koppelen",
+        open,
+        "person_add",
+      ),
+    );
+  }
+
   if (zaak.rechten.canWijzigenLocatie && !zaak.zaakgeometrie) {
     menu.push(
       new ButtonMenuItem(
@@ -330,16 +340,6 @@ function createKoppelingenMenuItems(
 
   if (zaak.rechten.canWijzigen) {
     menu.push(new ButtonMenuItem("actie.zaak.koppelen", open, "account_tree"));
-  }
-
-  if (zaak.isZaakspecifiekGeautoriseerd && zaak.rechten.canWijzigen) {
-    menu.push(
-      new ButtonMenuItem(
-        "actie.zaakspecifiek-geautoriseerde-medewerker.toevoegen",
-        open,
-        "person_add",
-      ),
-    );
   }
 
   return menu;

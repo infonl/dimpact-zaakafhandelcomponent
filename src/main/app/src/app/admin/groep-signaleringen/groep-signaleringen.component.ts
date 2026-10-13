@@ -4,7 +4,14 @@
  */
 
 import { AsyncPipe, NgClass } from "@angular/common";
-import { Component, inject, OnInit, viewChild } from "@angular/core";
+import {
+  Component,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -16,7 +23,7 @@ import {
 } from "@angular/material/sidenav";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { finalize, Observable } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -55,9 +62,8 @@ export class GroepSignaleringenComponent
   protected readonly menuSidenav =
     viewChild.required<MatSidenav>("menuSidenav");
 
-  protected isLoadingResults = false;
   protected groepen!: Observable<GeneratedType<"RestGroup">[]>;
-  protected groepId: string | undefined;
+  protected readonly groepId = signal<string | undefined>(undefined);
   protected columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
   protected readonly settingPerColumn: Record<
     string,
@@ -72,6 +78,11 @@ export class GroepSignaleringenComponent
 
   private readonly queryClient = inject(QueryClient);
 
+  protected readonly instellingenQuery = injectQuery(() => ({
+    ...this.service.list(this.groepId()!),
+    enabled: this.groepId() != null,
+  }));
+
   constructor(
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
@@ -79,6 +90,10 @@ export class GroepSignaleringenComponent
     private service: SignaleringenSettingsBeheerService,
   ) {
     super(utilService, configuratieService);
+
+    effect(() => {
+      this.dataSource.data = this.instellingenQuery.data() ?? [];
+    });
   }
 
   ngOnInit(): void {
@@ -87,12 +102,7 @@ export class GroepSignaleringenComponent
   }
 
   protected laadSignaleringSettings(groep: GeneratedType<"RestGroup">): void {
-    this.isLoadingResults = true;
-    this.service.list(groep.id).subscribe((instellingen) => {
-      this.dataSource.data = instellingen;
-      this.groepId = groep.id;
-      this.isLoadingResults = false;
-    });
+    this.groepId.set(groep.id);
   }
 
   protected changed(
@@ -100,10 +110,11 @@ export class GroepSignaleringenComponent
     column: string,
     checked: boolean,
   ): void {
-    if (!this.groepId) return;
+    const groepId = this.groepId();
+    if (!groepId) return;
     this.utilService.setLoading(true);
     row[this.settingPerColumn[column]] = checked;
-    runMutation(this.queryClient, this.service.put(this.groepId), row)
+    runMutation(this.queryClient, this.service.put(groepId), row)
       .pipe(finalize(() => this.utilService.setLoading(false)))
       .subscribe({ error: () => undefined });
   }
