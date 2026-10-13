@@ -17,7 +17,8 @@
     "test:watch": "ng test --watch --verbose --silent=false",
     "test:report": "ng test --coverage",
     "test:scripts": "node --test scripts/generate-icon-font.test.mjs",
-    "lint": "ng lint",
+    "lint": "ng lint && npm run lint:spec-templates",
+    "lint:spec-templates": "npm run generate:types:zac-openapi && ngc -p tsconfig.spec.json --noEmit",
     "lint:unused": "npx ngx-unused . -p tsconfig.json",
     "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.json -o ./src/generated/types/zac-openapi-types.d.ts",
     "generate:icon-font": "node scripts/generate-icon-font.mjs"
