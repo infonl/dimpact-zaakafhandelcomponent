@@ -16,9 +16,8 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
  */
 fun NietNatuurlijkPersoonIdentificatie.toIdentificatieType(): IdentificatieType? =
     when {
-        innNnpId?.isNotBlank() == true ||
-            (kvkNummer?.isNotBlank() == true && vestigingsNummer.isNullOrBlank()) -> IdentificatieType.RSIN
         vestigingsNummer?.isNotBlank() == true -> IdentificatieType.VN
+        innNnpId?.isNotBlank() == true || kvkNummer?.isNotBlank() == true -> IdentificatieType.RSIN
         else -> null
     }
 
