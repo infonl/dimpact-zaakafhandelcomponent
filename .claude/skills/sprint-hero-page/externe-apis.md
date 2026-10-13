@@ -10,7 +10,9 @@ Public release notes. Strip the HTML tags and ignore the `__NEXT_DATA__` JSON; t
 
 - KVK Zoeken: https://developers.kvk.nl/documentation/release-notes/zoeken-api
 - KVK Basisprofiel: https://developers.kvk.nl/documentation/release-notes/basisprofiel-api
-- KVK Vestigingsprofiel: https://developers.kvk.nl/documentation/release-notes/vestigingsprofiel-api. The page contains a 2022 fix labelled "1.4.1", but this is not an API version; report 1.4.0 as latest unless a newer real API version appears, and mention the misleading label in a remark.
+- KVK Vestigingsprofiel: https://developers.kvk.nl/documentation/release-notes/vestigingsprofiel-api
+- KVK sometimes labels a bug fix with a version number without releasing a new API version. For every KVK API, read the text of the newest release note: if it only describes a fix and no new or changed specification, report the previous real version as Latest and mention the label in a remark.
+- When Latest is higher than our version, say a human should confirm it is a real API version, so a changed page or label is noticed instead of silently giving a wrong number.
 - BRP: https://brp-api.github.io/Haal-Centraal-BRP-bevragen/releasenotes, the highest "versie X.Y.Z".
 
 ## 2. Our Version on TEST

@@ -23,7 +23,7 @@ Public repo `Dimpact-Samenwerking/helm-charts`, file `charts/podiumd/values.yaml
 - List all tags via `gh api --paginate "repos/Dimpact-Samenwerking/helm-charts/tags?per_page=100" --jq '.[].name'` and all branches via `gh api --paginate "repos/Dimpact-Samenwerking/helm-charts/branches?per_page=100" --jq '.[].name'`.
 - Read the selected ref via `https://raw.githubusercontent.com/Dimpact-Samenwerking/helm-charts/<tag-or-branch>/charts/podiumd/values.yaml`.
 
-- Per PodiumD release `4.N`: use the highest `podiumd-4.N.x` tag. If there is no tag yet, use branch `feature/podiumd-4.N.0` and say the column is unreleased and can still change.
+- Per PodiumD release `X.Y` (from the user's table): use the highest `podiumd-X.Y.z` tag. If there is no tag yet, use branch `feature/podiumd-X.Y.0` and say the column is unreleased and can still change.
 - Per top-level section, take the uncommented `tag:` that belongs to the app image itself; strip `@sha256…`. Sections hold more images (nginx, redis, exporters, config-cli, …), so pair each `tag:` with its `repository:` and never just take the first tag.
 - Sections: `openformulieren` (the image is pinned here, not under `openforms`), `openarchiefbeheer`, `openklant`, `opennotificaties`, `openzaak`, `keycloak` (may use the YAML anchor `&keycloakImageVersion`; its value is the version).
 - Open Object: `-` while the release still uses `objecten` with image `maykinmedia/objects-api`; the `objecten` tag once that section uses image `maykinmedia/open-object`.
