@@ -54,9 +54,13 @@ The story names the zaakbehandelaar, the recordmanager and the beheerder. They a
 
 ## Risks / Trade-offs
 
-- [A taak is assigned to the medewerker while they are being ontkoppeld] → Taak assignment grants the ZGM rol
-  under the same per-zaak lock, and ontkoppelen reads the open taken under it, so one of the two wins
-  cleanly. Across pods the lock is in memory: the same trade-off as for adding.
+- [A taak is assigned to the medewerker while they are being ontkoppeld] → Assigning an existing taak grants
+  the ZGM rol and assigns the taak under the per-zaak lock, and ontkoppelen reads the open taken under it, so
+  on one pod one of the two wins cleanly. Two windows remain: starting a taak from a plan item grants the rol
+  before it creates the taak, and the lock is in memory, so two pods are not serialised. In both cases a new
+  taakbehandelaar can lose access to the zaak while their taak stays assigned; reassigning the taak restores
+  it. Holding the lock while a plan item starts would also hold it while mail is sent, and a lock across pods
+  needs a shared store, so this is accepted, like the same trade-off for adding.
 - [An employee ontkoppelt themselves] → Allowed. They lose access, which is what they asked for.
 
 ## Migration Plan

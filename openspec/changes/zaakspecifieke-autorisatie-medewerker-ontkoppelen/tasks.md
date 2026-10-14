@@ -9,8 +9,11 @@
       `ZaakspecifiekeAutorisatieRestService`, asserting `wijzigen`.
 - [ ] 1.5 Unit tests for 1.1-1.4.
 - [ ] 1.6 Integration test: ontkoppel an added medewerker and check the rol is gone, access is refused, the
-      medewerker no longer finds the zaak through `zoeken/list`, the zaakhistorie, and that the zaakbehandelaar
-      is refused.
+      medewerker no longer finds the zaak, its taak and its document through `zoeken/list` (the endpoint
+      behind the werkvoorraden and zoekresultaten; koppelen zaken uses the same `SearchService` filter), the
+      zaakhistorie, and that the zaakbehandelaar and a blank reden are refused.
+- [ ] 1.7 Assign an existing taak under the per-zaak lock, so ontkoppelen cannot run between granting the rol
+      and assigning the taak.
 
 ## 2. Frontend
 
