@@ -412,8 +412,12 @@
         "lockFileMaintenance"
       ],
       "automerge": true,
+      "automergeSchedule": [
+        "* 2-5 * * *"
+      ],
       "description": [
-        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review"
+        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review",
+        "Automerge only between 02:00 and 06:00 UTC, after the nightly E2E run at 01:00, so no deploy disturbs it"
       ]
     },
     {
