@@ -1654,6 +1654,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
             every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+            every { indexingService.commit() } just runs
 
             `when`("the medewerker is ontkoppeld") {
                 zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
@@ -1670,12 +1671,13 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     verify(exactly = 2) { zrcClientService.deleteRol(any(), any()) }
                 }
 
-                and("the zaak, its taken and its documenten are reindexed, so the medewerker no longer finds them") {
+                and("the zaak, its taken and its documenten are reindexed and committed, so the medewerker no longer finds them") {
                     verifyOrder {
                         zrcClientService.deleteRol(any(), any())
                         indexingService.addOrUpdateZaak(zaak.uuid, false)
                         indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                         indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                        indexingService.commit()
                     }
                 }
             }

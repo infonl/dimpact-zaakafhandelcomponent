@@ -286,6 +286,8 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         }
         indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
         reindexDependents(zaak)
+        // Revoked access must leave the search results now, not at Solr's next auto-commit.
+        indexingService.commit()
     }
 
     /**
