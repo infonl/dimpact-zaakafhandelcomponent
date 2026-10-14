@@ -413,6 +413,37 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
 
+        given("A zaak with an initiator of role niet-natuurlijk persoon with only a blank vestigingsnummer") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    vestigingsnummer = " ",
+                    kvkNummer = null
+                )
+            )
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+
+            `when`("the variables are resolved with a text containing placeholders for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator placeholders are replaced by empty text without a KVK lookup") {
+                    resolvedText shouldBe "fakeText, , "
+                    verify(exactly = 0) { kvkClientService.findVestiging(" ") }
+                }
+            }
+        }
+
         given("A zaak with zaakdata and a mail template body containing '{ZAAKDATA:key}' placeholders") {
             val zaak = createZaak()
             every { zaakVariabelenService.readZaakdata(zaak.uuid) } returns mapOf(
