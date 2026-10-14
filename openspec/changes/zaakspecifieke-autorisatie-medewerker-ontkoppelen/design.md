@@ -30,8 +30,15 @@ betrokkenen tab. It opens the shared reden dialog with a required, multiline red
 ### The backend decides which rows can be ontkoppeld
 
 Each `RestGeautoriseerdeMedewerker` gets `isOntkoppelbaar`: true for a ZGM rol whose medewerker is neither the
-zaakbehandelaar nor the behandelaar of an open taak of the zaak. The frontend shows the action for those rows
-when the employee has `wijzigen`. It needs no knowledge of taken or roltypen.
+zaakbehandelaar, nor the behandelaar of an open taak of the zaak, nor the logged-in employee. The frontend shows
+the action for those rows when the employee has `wijzigen`. It needs no knowledge of taken, roltypen or who is
+logged in.
+
+### Nobody can ontkoppel themselves
+
+Ontkoppelen yourself would take away your own access to the zaak you are looking at, after which the zaak view
+can no longer refresh. The list never marks the logged-in employee as ontkoppelbaar, and the endpoint refuses it
+with `ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES`, so the API and the screen agree.
 
 ### Ontkoppelen works per medewerker, not per rol
 
@@ -70,7 +77,6 @@ would split adding and ontkoppelen across two policies.
   taakbehandelaar can lose access to the zaak while their taak stays assigned; reassigning the taak restores
   it. Holding the lock while a plan item starts would also hold it while mail is sent, and a lock across pods
   needs a shared store, so this is accepted, like the same trade-off for adding.
-- [An employee ontkoppelt themselves] → Allowed. They lose access, which is what they asked for.
 - [Reindexing one of the zaak, its taken or its documenten fails after the rollen are deleted] → The request
   still succeeds and the failure is logged, as for adding a medewerker and assigning a taak, which use the same
   reindex. Opening the object is refused at once anyway, because the policy reads the rollen live; only its

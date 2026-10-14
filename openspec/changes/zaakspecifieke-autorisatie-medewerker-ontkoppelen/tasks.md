@@ -1,7 +1,7 @@
 ## 1. Backend
 
-- [ ] 1.1 Add `ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD` and
-      `ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD` with their exceptions.
+- [ ] 1.1 Add `ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`, `ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD`
+      and `ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES` with their exceptions.
 - [ ] 1.2 `ZaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(zaak, zaakAutorisatieGegevens, medewerkerId, reden)`:
       validate, then under the lock delete every ZGM rol of the medewerker with the reden, reindex the zaak, its
       taken and its documenten, and commit Solr.

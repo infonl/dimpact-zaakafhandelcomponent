@@ -33,11 +33,12 @@ medewerker from the zaak in Open Zaak, with the reden as audit toelichting, befo
   the zaak
 - **THEN** the request fails with `ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD`
 
-### Requirement: The zaakbehandelaar and the behandelaars of open taken cannot be ontkoppeld
+### Requirement: The zaakbehandelaar, the behandelaars of open taken and the employee themselves cannot be ontkoppeld
 
 ZAC SHALL refuse to ontkoppel the current zaakbehandelaar or the behandelaar of an open taak of the zaak with
-`ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`, and SHALL then delete no rol. The list of medewerkers with access
-SHALL mark a medewerker as `isOntkoppelbaar` only when they could be ontkoppeld.
+`ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`, and an employee who ontkoppelt themselves with
+`ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES`, and SHALL then delete no rol. The list of medewerkers with
+access SHALL mark a medewerker as `isOntkoppelbaar` only when the employee who asks could ontkoppel them.
 
 #### Scenario: Ontkoppelen the zaakbehandelaar
 - **WHEN** an employee ontkoppelt the zaakbehandelaar
@@ -55,6 +56,13 @@ SHALL mark a medewerker as `isOntkoppelbaar` only when they could be ontkoppeld.
 - **WHEN** an employee lists the medewerkers with access to the zaak
 - **THEN** A is listed once
 - **AND** ontkoppelen A deletes both rollen
+
+#### Scenario: Ontkoppelen yourself
+- **GIVEN** employee E, who holds a *Zaakspecifiek geautoriseerde medewerker* rol on the zaak and `wijzigen` on it
+- **WHEN** E lists the medewerkers with access to the zaak
+- **THEN** E is not `isOntkoppelbaar`
+- **AND** when E ontkoppelt themselves anyway, the request fails with
+  `ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES` and no rol is deleted
 
 #### Scenario: Which medewerkers are ontkoppelbaar
 - **GIVEN** zaakbehandelaar Z, taakbehandelaar T of an open taak, and medewerker A who was added by hand
