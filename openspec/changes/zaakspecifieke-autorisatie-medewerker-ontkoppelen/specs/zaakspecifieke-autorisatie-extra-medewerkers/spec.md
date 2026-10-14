@@ -63,9 +63,21 @@ SHALL mark a medewerker as `isOntkoppelbaar` only when they could be ontkoppeld.
 
 ### Requirement: An ontkoppelde medewerker loses access
 
-An ontkoppelde medewerker SHALL no longer get any rechten on the zaak through the zaakspecifieke autorisatie.
-They SHALL no longer find the zaak, its taken and its documenten in the werkvoorraden, the zoekresultaten and
-when koppelen zaken, without a manual reindex. They SHALL no longer be listed in the *Medewerkers* tab.
+An ontkoppelde medewerker SHALL lose the access that their *Zaakspecifiek geautoriseerde medewerker* rol gave.
+Unless they hold the `zaakspecifiek_geautoriseerd` application role for the zaaktype, they SHALL no longer get
+any rechten on the zaak and SHALL no longer find the zaak, its taken and its documenten in the werkvoorraden,
+the zoekresultaten and when koppelen zaken, without a manual reindex. They SHALL no longer be listed in the
+*Medewerkers* tab.
+
+Ontkoppelen SHALL NOT change access that comes from the `zaakspecifiek_geautoriseerd` application role: that
+role is granted per zaaktype in the PABC, so a medewerker who holds it keeps access to the zaak.
+
+#### Scenario: Ontkoppelen a medewerker who also holds the zaakspecifiek_geautoriseerd application role
+- **GIVEN** medewerker B, who holds a *Zaakspecifiek geautoriseerde medewerker* rol on the zaak and the
+  `zaakspecifiek_geautoriseerd` application role for the zaaktype
+- **WHEN** an employee ontkoppelt B
+- **THEN** the rol of B is deleted
+- **AND** B keeps access to the zaak through the application role
 
 #### Scenario: The ontkoppelde medewerker no longer finds the zaak
 - **GIVEN** medewerker A, with `behandelaar` but not `zaakspecifiek_geautoriseerd`, who was ontkoppeld from
