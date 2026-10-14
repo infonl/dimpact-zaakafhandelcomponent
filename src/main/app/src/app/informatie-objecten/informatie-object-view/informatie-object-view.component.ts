@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Location } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -143,6 +144,7 @@ export class InformatieObjectViewComponent
     private readonly utilService: UtilService,
     private websocketService: WebsocketService,
     private router: Router,
+    private readonly location: Location,
     private translate: TranslateService,
     private dialog: MatDialog,
     private zakenService: ZakenService,
@@ -435,17 +437,7 @@ export class InformatieObjectViewComponent
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
             document: this.infoObject.titel,
           });
-          const origin = findOrigin(this.router);
-          const originIsThisDocument = origin
-            ?.toString()
-            .startsWith(`/informatie-objecten/${this.infoObject.uuid}`);
-          void this.router.navigateByUrl(
-            origin && !originIsThisDocument
-              ? origin
-              : this.zaak
-                ? `/zaken/${this.zaak.identificatie}`
-                : "/documenten/ontkoppelde",
-          );
+          void this.router.navigateByUrl(findOrigin(this.location) ?? "/");
         }
       });
   }

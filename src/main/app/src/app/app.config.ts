@@ -50,6 +50,7 @@ import { RouteReuseStrategyService } from "./informatie-objecten/route-reuse-str
 import { provideZacDateAdapter } from "./shared/form/date/provide-zac-date-adapter";
 import { QUERY_CLIENT } from "./shared/http/query-client";
 import { shouldDehydrateQuery } from "./shared/http/should-dehydrate-query";
+import { provideNavigationTrail } from "./shared/navigation/navigation-origin";
 import { paginatorLanguageInitializerFactory } from "./shared/paginator/paginator-language-initializer";
 import { PaginatorTranslator } from "./shared/paginator/paginator-translator";
 
@@ -61,6 +62,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideRouter(APP_ROUTES),
     { provide: TitleStrategy, useClass: ZacTitleStrategy },
+    provideNavigationTrail(),
     // When a resolver fails on the first page load, Angular resets the address bar to the
     // root url. Keep the url the user asked for, so a reload retries it. This listens to the
     // public router events because they fire after that reset; withNavigationErrorHandler
