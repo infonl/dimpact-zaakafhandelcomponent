@@ -1721,7 +1721,10 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     }
                 }
 
-                and("the index is updated under the lock of the zaak, so a concurrent taak assignment cannot overwrite it with older rollen") {
+                and(
+                    "the index is updated under the lock of the zaak, so a concurrent taak assignment cannot " +
+                        "overwrite it with older rollen"
+                ) {
                     isZaakLockHeldWhileCommitting shouldBe true
                 }
             }
