@@ -247,6 +247,48 @@ describe(ZakenService.name, () => {
     });
   });
 
+  describe("deleteZaakspecifiekGeautoriseerdeMedewerker", () => {
+    const variables = { medewerkerId: "fakeMedewerkerId", reden: "fakeReden" };
+
+    it("addresses the medewerker of the zaak and sends the reden as the body", async () => {
+      const request = service.deleteZaakspecifiekGeautoriseerdeMedewerker(
+        "fakeZaakUuid",
+      ).mutationFn!(variables, fromPartial<MutationFunctionContext>({}));
+      const httpRequest = httpTestingController.expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers/fakeMedewerkerId",
+      );
+      httpRequest.flush(null);
+
+      expect(httpRequest.request.method).toBe("DELETE");
+      expect(httpRequest.request.body).toEqual({ reden: "fakeReden" });
+      await request;
+    });
+
+    it("refreshes the medewerkers, the kandidaten and the historie of the zaak, because they all changed", async () => {
+      const invalidateQueries = jest.spyOn(
+        testQueryClient,
+        "invalidateQueries",
+      );
+      const invalidateHistorie = jest.spyOn(service, "invalidateHistorie");
+
+      await runMutationOnSuccess(
+        service.deleteZaakspecifiekGeautoriseerdeMedewerker("fakeZaakUuid"),
+        variables,
+      );
+
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey:
+          service.listGeautoriseerdeMedewerkersQuery("fakeZaakUuid").queryKey,
+      });
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: [
+          "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+        ],
+      });
+      expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid");
+    });
+  });
+
   describe.each([
     ["updateZaak", () => service.updateZaak("fakeZaakUuid1")],
     ["suspendZaak", () => service.suspendZaak("fakeZaakUuid1")],
