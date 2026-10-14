@@ -11,7 +11,10 @@ import { UtilService } from "../core/service/util.service";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { findOrigin } from "../shared/navigation/navigation-origin";
+import {
+  findOrigin,
+  navigateToBreadcrumb,
+} from "../shared/navigation/navigation-origin";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -102,7 +105,10 @@ export class TakenService {
     if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
       return;
 
-    return this.router.navigateByUrl(findOrigin(this.location) ?? "/");
+    const origin = findOrigin(this.location);
+    return origin
+      ? navigateToBreadcrumb(origin, this.router)
+      : this.router.navigateByUrl("/");
   }
 
   verdelenVanuitLijst() {

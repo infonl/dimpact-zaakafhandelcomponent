@@ -48,7 +48,10 @@ import { DocumentViewerComponent } from "../../shared/document-viewer/document-v
 import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { findOrigin } from "../../shared/navigation/navigation-origin";
+import {
+  findOrigin,
+  navigateToBreadcrumb,
+} from "../../shared/navigation/navigation-origin";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -439,7 +442,10 @@ export class InformatieObjectViewComponent
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
             document: this.infoObject.titel,
           });
-          void this.router.navigateByUrl(findOrigin(this.location) ?? "/");
+          const origin = findOrigin(this.location);
+          void (origin
+            ? navigateToBreadcrumb(origin, this.router)
+            : this.router.navigateByUrl("/"));
         }
       });
   }

@@ -11,7 +11,7 @@ export function translatedTitle(key: string): ResolveFn<string> {
   return () => inject(TranslateService).get(key);
 }
 
-export type Breadcrumb = { title: string; url: string };
+export type Breadcrumb = { title: string; url: string; key?: string };
 
 export const BREADCRUMB_ORIGIN = { breadcrumbs: "origin" } as const;
 export const BREADCRUMB_DETAIL = { breadcrumbs: "detail" } as const;
