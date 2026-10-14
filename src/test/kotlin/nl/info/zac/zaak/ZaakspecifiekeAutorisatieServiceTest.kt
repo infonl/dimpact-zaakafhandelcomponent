@@ -1114,6 +1114,43 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         }
     }
 
+    context("Listing a medewerker who holds two zaakspecifiek geautoriseerde medewerker rollen") {
+        given("a zaakspecifiek geautoriseerde zaak on which two pods each added the same medewerker") {
+            val zaak = createZaak()
+            val geautoriseerdeMedewerkerRolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType()
+            val geautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = geautoriseerdeMedewerkerRolType,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId")
+            )
+            val duplicateGeautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = geautoriseerdeMedewerkerRolType,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId")
+            )
+            val rollen = listOf<Rol<*>>(geautoriseerdeMedewerkerRol, duplicateGeautoriseerdeMedewerkerRol)
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns listOf(geautoriseerdeMedewerkerRol, duplicateGeautoriseerdeMedewerkerRol)
+            every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns emptyList()
+
+            `when`("the geautoriseerde medewerkers are listed") {
+                val geautoriseerdeMedewerkerRollen = zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
+                    zaak = zaak,
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens
+                )
+
+                then("the medewerker is listed once, since ontkoppelen removes both rollen together") {
+                    geautoriseerdeMedewerkerRollen.map { it.rol.identificatienummer } shouldContainExactly
+                        listOf("fakeMedewerkerId")
+                }
+            }
+        }
+    }
+
     context("Listing a zaakspecifiek geautoriseerde medewerker rol that identifies no medewerker") {
         given("a zaakspecifiek geautoriseerde zaak with such a rol, created outside ZAC") {
             val zaak = createZaak()
@@ -1654,7 +1691,10 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
             every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
-            every { indexingService.commit() } just runs
+            var isZaakLockHeldWhileCommitting = false
+            every { indexingService.commit() } answers {
+                isZaakLockHeldWhileCommitting = zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).isHeldByCurrentThread
+            }
 
             `when`("the medewerker is ontkoppeld") {
                 zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
@@ -1679,6 +1719,10 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
                         indexingService.commit()
                     }
+                }
+
+                and("the index is updated under the lock of the zaak, so a concurrent taak assignment cannot overwrite it with older rollen") {
+                    isZaakLockHeldWhileCommitting shouldBe true
                 }
             }
         }

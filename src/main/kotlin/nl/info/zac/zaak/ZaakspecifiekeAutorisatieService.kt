@@ -248,7 +248,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         val nietOntkoppelbareMedewerkerIds = listNietOntkoppelbareMedewerkerIds(zaak, zaakToewijzing)
         return (
             zaakToewijzing.behandelaarRollen.map { GeautoriseerdeMedewerkerRol(rol = it, isOntkoppelbaar = false) } +
-                zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers.map {
+                zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers.distinctBy { it.identificatienummer ?: it }.map {
                     GeautoriseerdeMedewerkerRol(
                         rol = it,
                         isOntkoppelbaar = it.identificatienummer
@@ -283,11 +283,12 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                 .filter { it.identificatienummer == medewerkerId }
                 .ifEmpty { throw MedewerkerNotZaakspecifiekGeautoriseerdException() }
                 .forEach { zrcClientService.deleteRol(it, reden) }
+            // Reindexing under the lock keeps a concurrent taak assignment from writing an older set of rollen
+            // to the index after this one. Revoked access must leave the search results now, so commit as well.
+            indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
+            reindexDependents(zaak)
+            indexingService.commit()
         }
-        indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
-        reindexDependents(zaak)
-        // Revoked access must leave the search results now, not at Solr's next auto-commit.
-        indexingService.commit()
     }
 
     /**
