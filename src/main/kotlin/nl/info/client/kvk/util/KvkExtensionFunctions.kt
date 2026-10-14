@@ -6,14 +6,14 @@ package nl.info.client.kvk.util
 
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 
-fun ResultaatItem.toAddressString(): String {
-    val binnenlandsAdres = this.getAdres().getBinnenlandsAdres()
-    return binnenlandsAdres.getStraatnaam() +
-        " " +
-        (binnenlandsAdres.getHuisnummer() ?: "") +
-        binnenlandsAdres.getHuisletter()?.takeIf { it.isNotBlank() }.orEmpty() +
-        ", " +
-        binnenlandsAdres.getPostcode()?.takeIf { it.isNotBlank() }.orEmpty() +
-        " " +
-        binnenlandsAdres.getPlaats()
-}
+fun ResultaatItem.toAddressString(): String =
+    this.getAdres()?.getBinnenlandsAdres()?.let { binnenlandsAdres ->
+        binnenlandsAdres.getStraatnaam() +
+            " " +
+            (binnenlandsAdres.getHuisnummer() ?: "") +
+            binnenlandsAdres.getHuisletter()?.takeIf { it.isNotBlank() }.orEmpty() +
+            ", " +
+            binnenlandsAdres.getPostcode()?.takeIf { it.isNotBlank() }.orEmpty() +
+            " " +
+            binnenlandsAdres.getPlaats()
+    }.orEmpty()

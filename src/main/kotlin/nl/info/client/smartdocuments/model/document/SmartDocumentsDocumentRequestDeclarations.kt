@@ -141,18 +141,18 @@ data class ZaakData(
 )
 
 fun ResultaatItem.toAanvragerDataBedrijf() =
-    this.adres.binnenlandsAdres.let {
+    this.adres?.binnenlandsAdres.let {
         AanvragerData(
             naam = this.naam,
-            straat = it.straatnaam,
+            straat = it?.straatnaam,
             huisnummer = this.toHuisnummer(),
-            postcode = it.postcode,
-            woonplaats = it.plaats
+            postcode = it?.postcode,
+            woonplaats = it?.plaats
         )
     }
 
 fun ResultaatItem.toHuisnummer(): String? =
     StringUtil.joinNonBlank(
-        this.adres.binnenlandsAdres.huisnummer?.toString(),
-        this.adres.binnenlandsAdres.huisletter
+        this.adres?.binnenlandsAdres?.huisnummer?.toString(),
+        this.adres?.binnenlandsAdres?.huisletter
     )
