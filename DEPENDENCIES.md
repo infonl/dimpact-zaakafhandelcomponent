@@ -25,7 +25,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-object**: 4.1.1
 - **open-klant**: 2.15.0
 - **open-forms**: 3.5.10
-- **open-notificaties**: 1.16.2
+- **open-notificaties**: 1.17.0
 - **open-archiefbeheer**: 2.0.0
 - **pabc-migrations**: 2.1.0
 - **pabc-api**: 2.1.0

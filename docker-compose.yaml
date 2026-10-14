@@ -527,7 +527,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties:
-    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
+    image: openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -570,7 +570,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-init:
-    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
+    image: openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -586,7 +586,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery:
-    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
+    image: openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -602,7 +602,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery-beat:
-    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
+    image: openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_beat.sh
