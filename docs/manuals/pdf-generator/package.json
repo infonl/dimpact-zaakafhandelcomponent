@@ -1,0 +1,13 @@
+{
+  "name": "zac-manual-pdf-generator",
+  "private": true,
+  "type": "module",
+  "description": "Generates the PDF files of the ZAC manuals from their Markdown",
+  "license": "EUPL-1.2",
+  "dependencies": {
+    "github-markdown-css": "5.8.1",
+    "marked": "14.1.4",
+    "marked-gfm-heading-id": "4.1.1",
+    "playwright": "1.64.0"
+  }
+}

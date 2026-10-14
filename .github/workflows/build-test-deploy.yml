@@ -802,6 +802,16 @@ jobs:
           allowUpdates: true
           makeLatest: ${{ env.RELEASE_TYPE == 'release' }}
 
+  generate-manual-pdfs:
+    needs: [determine-version, create-release]
+    if: ${{ needs.determine-version.outputs.release-type == 'release' || needs.determine-version.outputs.release-type == 'hotfix' }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/generate-manual-pdfs.yml
+    with:
+      version: ${{ needs.determine-version.outputs.version }}
+      release-tag: ${{ needs.determine-version.outputs.tag }}
+
   trigger-provision:
     needs: [determine-version, push-docker-image, create-release]
     env:
