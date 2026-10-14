@@ -45,12 +45,21 @@ when the employee has `wijzigen`. It needs no knowledge of taken or roltypen.
 4. deletes every ZGM rol of the medewerker with the reden as audit toelichting, and reindexes.
 
 Deleting every rol covers the duplicate a concurrent addition on two pods can leave behind (see the PZ-12023
-design). Keying on the medewerker rather than the rol UUID also keeps the frontend free of rol UUIDs.
+design). Keying on the medewerker rather than the rol UUID also keeps the frontend free of rol UUIDs. For the
+same reason the list of medewerkers shows such a medewerker once.
+
+The deletion, the reindex and the Solr commit all happen under the per-zaak lock, so a concurrent taak
+assignment on the same pod cannot write an older set of rollen to the index after them. The commit makes the
+medewerker leave the search results at once instead of at Solr's next auto-commit.
 
 ### Who may ontkoppelen
 
-The story names the zaakbehandelaar, the recordmanager and the beheerder. They are exactly the roles that get
-`wijzigen` on a zaak, so ontkoppelen asserts `wijzigen`, as adding does.
+The story names the zaakbehandelaar, the recordmanager and the beheerder. Ontkoppelen asserts `wijzigen`, as
+adding does, so the same employees can add and ontkoppel. That right is a little broader than the story: the
+`coordinator` also has it on an open zaak, and `systeemrol_behandelaar_alle_zaaktypen` on every zaak (see
+`docs/solution-architecture/accessControlPolicies.md`). This is accepted: a coordinator can already hand the
+zaak to another behandelaar, which changes who has access just as much, and a separate right for one action
+would split adding and ontkoppelen across two policies.
 
 ## Risks / Trade-offs
 

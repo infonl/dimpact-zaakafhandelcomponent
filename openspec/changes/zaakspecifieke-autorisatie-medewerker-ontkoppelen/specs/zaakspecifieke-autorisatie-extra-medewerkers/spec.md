@@ -50,6 +50,12 @@ SHALL mark a medewerker as `isOntkoppelbaar` only when they could be ontkoppeld.
 - **THEN** the request fails with `ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`
 - **AND** T keeps the rol
 
+#### Scenario: A medewerker with two rollen is listed once
+- **GIVEN** medewerker A, who holds two *Zaakspecifiek geautoriseerde medewerker* rollen on the zaak
+- **WHEN** an employee lists the medewerkers with access to the zaak
+- **THEN** A is listed once
+- **AND** ontkoppelen A deletes both rollen
+
 #### Scenario: Which medewerkers are ontkoppelbaar
 - **GIVEN** zaakbehandelaar Z, taakbehandelaar T of an open taak, and medewerker A who was added by hand
 - **WHEN** an employee lists the medewerkers with access to the zaak
