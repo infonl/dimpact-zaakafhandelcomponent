@@ -13,6 +13,10 @@ type ResolvedParameters = ObservedValueOf<
   ReturnType<ZaakafhandelParametersResolver["resolve"]>
 >;
 
+type ResolvedMailtemplate = Awaited<
+  ReturnType<MailtemplateResolver["resolve"]>
+>;
+
 export const ADMIN_ROUTES: Routes = [
   { path: "", redirectTo: "check", pathMatch: "full" },
   {
@@ -79,26 +83,39 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: "mailtemplates",
     title: translatedTitle("title.mailtemplates"),
-    loadComponent: () =>
-      import("./mailtemplates/mailtemplates.component").then(
-        (module) => module.MailtemplatesComponent,
-      ),
+    children: [
+      {
+        path: "",
+        loadComponent: () =>
+          import("./mailtemplates/mailtemplates.component").then(
+            (module) => module.MailtemplatesComponent,
+          ),
+      },
+      {
+        path: "toevoegen",
+        title: translatedTitle("actie.toevoegen"),
+        loadComponent: () =>
+          import("./mailtemplate/mailtemplate.component").then(
+            (module) => module.MailtemplateComponent,
+          ),
+      },
+      {
+        path: ":id",
+        resolve: { template: MailtemplateResolver },
+        children: [
+          {
+            path: "",
+            title: (route) =>
+              (route.data["template"] as ResolvedMailtemplate).mailTemplateNaam,
+            loadComponent: () =>
+              import("./mailtemplate/mailtemplate.component").then(
+                (module) => module.MailtemplateComponent,
+              ),
+          },
+        ],
+      },
+    ],
   },
-  {
-    path: "mailtemplate/:id",
-    title: translatedTitle("title.mailtemplate"),
-    loadComponent: () =>
-      import("./mailtemplate/mailtemplate.component").then(
-        (module) => module.MailtemplateComponent,
-      ),
-    resolve: { template: MailtemplateResolver },
-  },
-  {
-    path: "mailtemplate",
-    title: translatedTitle("title.mailtemplate"),
-    loadComponent: () =>
-      import("./mailtemplate/mailtemplate.component").then(
-        (module) => module.MailtemplateComponent,
-      ),
-  },
+  { path: "mailtemplate", redirectTo: "mailtemplates/toevoegen" },
+  { path: "mailtemplate/:id", redirectTo: "mailtemplates/:id" },
 ];

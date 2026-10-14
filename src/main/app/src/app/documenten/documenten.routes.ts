@@ -4,13 +4,17 @@
  */
 
 import { Routes } from "@angular/router";
-import { translatedTitle } from "../core/breadcrumbs/route-title";
+import {
+  BREADCRUMB_ORIGIN,
+  translatedTitle,
+} from "../core/breadcrumbs/route-title";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list/inbox-documenten-list.component";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list/ontkoppelde-documenten-list.component";
 
 export const DOCUMENTEN_ROUTES: Routes = [
+  { path: "", redirectTo: "inbox", pathMatch: "full" },
   {
     path: "ontkoppelde",
     title: translatedTitle("title.documenten.ontkoppelde-documenten"),
@@ -18,6 +22,7 @@ export const DOCUMENTEN_ROUTES: Routes = [
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
       werklijst: "ONTKOPPELDE_DOCUMENTEN" satisfies GeneratedType<"Werklijst">,
+      ...BREADCRUMB_ORIGIN,
     },
   },
   {
@@ -27,6 +32,7 @@ export const DOCUMENTEN_ROUTES: Routes = [
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
       werklijst: "INBOX_DOCUMENTEN" satisfies GeneratedType<"Werklijst">,
+      ...BREADCRUMB_ORIGIN,
     },
   },
 ];

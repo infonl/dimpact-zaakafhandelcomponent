@@ -25,3 +25,13 @@ li + li::before {
   content: "|";
   margin: 0 8px;
 }
+
+a {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}

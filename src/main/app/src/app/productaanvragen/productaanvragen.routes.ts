@@ -4,7 +4,10 @@
  */
 
 import { Routes } from "@angular/router";
-import { translatedTitle } from "../core/breadcrumbs/route-title";
+import {
+  BREADCRUMB_ORIGIN,
+  translatedTitle,
+} from "../core/breadcrumbs/route-title";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-list/inbox-productaanvragen-list.component";
@@ -17,6 +20,7 @@ export const PRODUCTAANVRAGEN_ROUTES: Routes = [
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
       werklijst: "INBOX_PRODUCTAANVRAGEN" satisfies GeneratedType<"Werklijst">,
+      ...BREADCRUMB_ORIGIN,
     },
   },
 ];

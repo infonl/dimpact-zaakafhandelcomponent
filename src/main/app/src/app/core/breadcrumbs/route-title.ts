@@ -11,8 +11,20 @@ export function translatedTitle(key: string): ResolveFn<string> {
   return () => inject(TranslateService).get(key);
 }
 
-export function breadcrumbTitles(root: ActivatedRouteSnapshot) {
-  const titles: string[] = [];
+export type Breadcrumb = { title: string; url: string[] };
+
+export const BREADCRUMB_ORIGIN = { breadcrumbs: "origin" } as const;
+export const BREADCRUMB_DETAIL = { breadcrumbs: "detail" } as const;
+
+export function breadcrumbKind(root: ActivatedRouteSnapshot) {
+  let route = root;
+  while (route.firstChild) route = route.firstChild;
+  const kind: unknown = route.data["breadcrumbs"];
+  return kind === "origin" || kind === "detail" ? kind : null;
+}
+
+export function breadcrumbs(root: ActivatedRouteSnapshot) {
+  const crumbs: Breadcrumb[] = [];
   for (
     let route: ActivatedRouteSnapshot | null = root;
     route;
@@ -20,8 +32,16 @@ export function breadcrumbTitles(root: ActivatedRouteSnapshot) {
   ) {
     // A route without a title of its own inherits the title of its parent.
     if (route.routeConfig?.title !== undefined && route.title) {
-      titles.push(route.title);
+      crumbs.push({
+        title: route.title,
+        url: [
+          "/",
+          ...route.pathFromRoot.flatMap(({ url }) =>
+            url.map(({ path }) => path),
+          ),
+        ],
+      });
     }
   }
-  return titles;
+  return crumbs;
 }
