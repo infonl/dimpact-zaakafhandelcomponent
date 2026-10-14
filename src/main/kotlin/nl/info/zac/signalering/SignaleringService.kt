@@ -196,13 +196,20 @@ class SignaleringService @Inject constructor(
     @Transactional(REQUIRED)
     fun deleteSignaleringen(parameters: SignaleringZoekParameters): Int {
         val signaleringen = listSignaleringen(parameters)
-        signaleringen.forEach(entityManager::remove)
-        // only send separate screen events when signalering target and/or type differ
-        signaleringen.associateBy { it.target + ';' + it.type.type }.values
-            .forEach { value ->
-                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(value))
-            }
-        return signaleringen.size
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createCriteriaDelete(Signalering::class.java)
+        val root = query.from(Signalering::class.java)
+        query.where(getSignaleringWhere(parameters, builder, root))
+        // a bulk delete, because removing the entities one by one fails when a concurrent request already deleted them
+        val deletedCount = entityManager.createQuery(query).executeUpdate()
+        if (deletedCount > 0) {
+            // only send separate screen events when signalering target and/or type differ
+            signaleringen.associateBy { it.target + ';' + it.type.type }.values
+                .forEach { value ->
+                    eventingService.send(ScreenEventType.SIGNALERINGEN.updated(value))
+                }
+        }
+        return deletedCount
     }
 
     /**
