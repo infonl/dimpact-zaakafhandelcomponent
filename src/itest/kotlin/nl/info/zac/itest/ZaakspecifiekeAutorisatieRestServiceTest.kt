@@ -298,8 +298,8 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("the zaakbehandelaar is ontkoppeld") {
-            val response = removeMedewerker(zaakUuid, BEHANDELAAR_1, BEHANDELAAR_1)
+        `when`("the added medewerker ontkoppelt the zaakbehandelaar") {
+            val response = removeMedewerker(zaakUuid, BEHANDELAAR_1, BEHANDELAAR_1_EN_BRP_ZOEKER_2)
 
             then("the request is refused and the zaakbehandelaar keeps access") {
                 response.code shouldBe HTTP_BAD_REQUEST
