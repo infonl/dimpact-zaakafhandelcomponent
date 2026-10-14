@@ -923,6 +923,7 @@
   "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppeld": "{{medewerker}} no longer has access to this zaak",
   "msg.error.medewerker.not.zaakspecifiek.geautoriseerd": "This employee has no access to this zaak that can be unlinked.",
   "msg.error.medewerker.cannot.be.ontkoppeld": "The zaak behandelaar and the behandelaars of open tasks cannot be unlinked.",
+  "msg.error.medewerker.cannot.ontkoppel.themselves": "You cannot unlink yourself from this zaak.",
   "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
   "msg.hint.kvk.outdated": "The registered involved is not found at the CoC.",
   "msg.hint.kvk.other-error": "An error occurred while retrieving the KvK data",
