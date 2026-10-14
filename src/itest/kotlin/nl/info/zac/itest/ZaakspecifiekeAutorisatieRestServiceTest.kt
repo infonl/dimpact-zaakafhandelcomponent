@@ -325,8 +325,8 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                         (0 until lines.length())
                             .map(lines::getJSONObject)
                             .filter { it.getString("attribuutLabel") == ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
-                            .map { it.getString("actie") to it.optString("toelichting") }
-                    } shouldContain ("ONTKOPPELD" to "itestReden")
+                            .map { listOf(it.getString("actie"), it.optString("oudeWaarde"), it.optString("toelichting")) }
+                    } shouldContain listOf("ONTKOPPELD", BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName, "itestReden")
                 }
             }
         }
