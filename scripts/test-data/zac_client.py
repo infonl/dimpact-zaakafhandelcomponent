@@ -25,8 +25,8 @@ from typing import Any
 
 # Local Docker Compose Keycloak fixtures — the same values as in .env.example and the committed
 # realm import. Overridable so the scripts can target a differently-configured local realm.
-KEYCLOAK_REALM = os.environ.get("ZAC_TESTDATA_KEYCLOAK_REALM", "zaakafhandelcomponent")
-KEYCLOAK_CLIENT_ID = os.environ.get("ZAC_TESTDATA_KEYCLOAK_CLIENT_ID", "zaakafhandelcomponent")
+KEYCLOAK_REALM = os.environ.get("ZAC_TESTDATA_KEYCLOAK_REALM", "podiumd")
+KEYCLOAK_CLIENT_ID = os.environ.get("ZAC_TESTDATA_KEYCLOAK_CLIENT_ID", "zac")
 KEYCLOAK_CLIENT_SECRET = os.environ.get(
     "ZAC_TESTDATA_KEYCLOAK_CLIENT_SECRET", "keycloakZaakafhandelcomponentClientSecret"
 )

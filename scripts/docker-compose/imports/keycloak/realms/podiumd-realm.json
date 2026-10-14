@@ -1,6 +1,6 @@
 {
-  "id": "zaakafhandelcomponent",
-  "realm": "zaakafhandelcomponent",
+  "id": "podiumd",
+  "realm": "podiumd",
   "displayName": "Zaakafhandelcomponent",
   "notBefore": 1692023336,
   "defaultSignatureAlgorithm": "RS256",
@@ -52,7 +52,7 @@
         "description": "${role_offline-access}",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -67,7 +67,7 @@
           }
         },
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -76,7 +76,7 @@
         "description": "${role_uma_authorization}",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -85,7 +85,7 @@
         "description": "Raadpleger functional role for domain 'domein_test_1'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -94,7 +94,7 @@
         "description": "Raadpleger functional role for domain 'domein_test_2'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -103,7 +103,7 @@
         "description": "Behandelaar functional role for domain 'domein_test_1'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -112,7 +112,7 @@
         "description": "Behandelaar functional role for domain 'domein_test_2'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -121,7 +121,7 @@
         "description": "Coordinator functional role for domain 'domein_test_1'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -130,7 +130,7 @@
         "description": "Coordinator functional role for domain 'domein_test_2'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -139,7 +139,7 @@
         "description": "Recordmanager functional role for domain 'domein_test_1'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -148,7 +148,7 @@
         "description": "Recordmanager functional role for domain 'domein_test_2'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -157,7 +157,7 @@
         "description": "Recordmanager functional role for domains 'domein_test_1' and 'domein_test_2'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -166,7 +166,7 @@
         "description": "Beheerder functional role for all domains",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -175,7 +175,7 @@
         "description": "Zaakspecifiek autorisatie behandelaar functional role for domain 'domein_test_1'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -184,7 +184,7 @@
         "description": "BRP zoeker functional role for domain 'domein_test_2'",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       },
       {
@@ -193,7 +193,7 @@
         "description": "Functional role for domain 'domein_test_1' that only maps to application roles without read rights",
         "composite": false,
         "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
+        "containerId": "podiumd",
         "attributes": {}
       }
     ],
@@ -656,7 +656,7 @@
     "description": "${role_default-roles}",
     "composite": true,
     "clientRole": false,
-    "containerId": "zaakafhandelcomponent"
+    "containerId": "podiumd"
   },
   "requiredCredentials": ["password"],
   "otpPolicyType": "totp",
@@ -714,12 +714,12 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/zaakafhandelcomponent/account/",
+      "baseUrl": "/realms/podiumd/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/realms/zaakafhandelcomponent/account/*"],
+      "redirectUris": ["/realms/podiumd/account/*"],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -745,12 +745,12 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/zaakafhandelcomponent/account/",
+      "baseUrl": "/realms/podiumd/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/realms/zaakafhandelcomponent/account/*"],
+      "redirectUris": ["/realms/podiumd/account/*"],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -874,12 +874,12 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/zaakafhandelcomponent/console/",
+      "baseUrl": "/admin/podiumd/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/admin/zaakafhandelcomponent/console/*"],
+      "redirectUris": ["/admin/podiumd/console/*"],
       "webOrigins": ["+"],
       "notBefore": 0,
       "bearerOnly": false,
@@ -920,7 +920,7 @@
     },
     {
       "id": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-      "clientId": "zaakafhandelcomponent",
+      "clientId": "zac",
       "name": "Zaakafhandelcomponent",
       "rootUrl": "",
       "surrogateAuthRequired": false,
@@ -1460,7 +1460,7 @@
             "access.token.claim": "true",
             "claim.name": "roles",
             "jsonType.label": "String",
-            "usermodel.clientRoleMapping.clientId": "zaakafhandelcomponent"
+            "usermodel.clientRoleMapping.clientId": "zac"
           }
         }
       ]

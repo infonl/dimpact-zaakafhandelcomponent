@@ -9,10 +9,10 @@ auth {
 auth:oauth2 {
   grant_type: authorization_code
   callback_url: {{baseUrl}}
-  authorization_url: {{keycloakBaseUrl}}/realms/zaakafhandelcomponent/protocol/openid-connect/auth
-  access_token_url: {{keycloakBaseUrl}}/realms/zaakafhandelcomponent/protocol/openid-connect/token
+  authorization_url: {{keycloakBaseUrl}}/realms/{{keycloakRealm}}/protocol/openid-connect/auth
+  access_token_url: {{keycloakBaseUrl}}/realms/{{keycloakRealm}}/protocol/openid-connect/token
   refresh_token_url: 
-  client_id: zaakafhandelcomponent
+  client_id: {{keycloakClientId}}
   client_secret: {{keycloakClientSecret}}
   scope: openid
   state: 

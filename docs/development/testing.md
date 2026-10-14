@@ -253,7 +253,7 @@ You can use these users to log in to ZAC when running it locally.
 
 For all of these local test users the password is equal to the username.
 
-You can find the set of these local test users in the [ZAC Keycloak realm import file](../../scripts/docker-compose/imports/keycloak/realms/zaakafhandelcomponent-realm.json) 
+You can find the set of these local test users in the [ZAC Keycloak realm import file](../../scripts/docker-compose/imports/keycloak/realms/podiumd-realm.json) 
 or in the set of [integration test user constants](../../src/itest/kotlin/nl/info/zac/itest/config/TestUsers.kt). 
 
 ### Using Postman
@@ -304,9 +304,9 @@ Next in the collection you have created set up authorization at the top level of
 | Token name            |                                    Keycloak                                    |
 | Grant type            |                               Authorization code                               |
 | Callback URL          |                                  {{baseUrl}}                                   |
-| Auth URL              | {{keycloakBaseUrl}}/realms/zaakafhandelcomponent/protocol/openid-connect/auth  |
-| Access Token URL      | {{keycloakBaseUrl}}/realms/zaakafhandelcomponent/protocol/openid-connect/token |
-| Client ID             |                             zaakafhandelcomponent                              |
+| Auth URL              |        {{keycloakBaseUrl}}/realms/podiumd/protocol/openid-connect/auth         |
+| Access Token URL      |        {{keycloakBaseUrl}}/realms/podiumd/protocol/openid-connect/token        |
+| Client ID             |                                      zac                                       |
 | Client secret         |                            {{keycloakClientSecret}}                            |
 | Scope                 |                                     openid                                     |
 | State                 |                                    (empty)                                     |

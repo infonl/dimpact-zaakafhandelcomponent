@@ -43,14 +43,16 @@ Each environment defines these variables, which the OAuth2 configuration in `col
 | Variable | Description |
 |---|---|
 | `baseUrl` | The ZAC base URL, also used as the OAuth2 callback URL |
-| `keycloakBaseUrl` | The Keycloak base URL; the realm is always `zaakafhandelcomponent` |
-| `keycloakClientSecret` | The client secret of the `zaakafhandelcomponent` Keycloak client |
+| `keycloakBaseUrl` | The Keycloak base URL |
+| `keycloakRealm` | The Keycloak realm of ZAC: `podiumd` locally, `zaakafhandelcomponent` on INFO TEST |
+| `keycloakClientId` | The Keycloak client of ZAC: `zac` locally, `zaakafhandelcomponent` on INFO TEST |
+| `keycloakClientSecret` | The client secret of the ZAC Keycloak client |
 
 To set `keycloakClientSecret` for `ZAC INFO TEST`:
-1. Look up the client secret of the `zaakafhandelcomponent` client in Keycloak on the INFO TEST environment.
+1. Look up the client secret of the `zaakafhandelcomponent` client in the `zaakafhandelcomponent` realm in Keycloak on the INFO TEST environment.
 2. In Bruno, open the environment settings, select `ZAC INFO TEST` and enter the client secret as the value of `keycloakClientSecret`.
 
 The environment file declares `keycloakClientSecret` as a secret variable, so Bruno stores its value encrypted on your machine and not in the environment file.
 Keep the `Secret` checkbox of the variable ticked, so that the client secret never ends up in Git.
 
-To connect to another environment, add an environment in Bruno with the same three variables.
+To connect to another environment, add an environment in Bruno with the same five variables.
