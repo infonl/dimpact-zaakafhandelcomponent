@@ -163,8 +163,7 @@ Notes:
 - **An employee with `wijzigen` on a zaakspecifiek geautoriseerde zaak can ontkoppel such a medewerker again**:
   ZAC deletes the medewerker's `Zaakspecifiek geautoriseerde medewerker` rol, with the given reden as audit
   toelichting, and the medewerker loses the access that rol gave; access through `zaakspecifiek_geautoriseerd`
-  stays. The zaakbehandelaar and the behandelaars of open taken of the zaak cannot be ontkoppeld, and nobody can
-  ontkoppel themselves.
+  stays. The zaakbehandelaar and the behandelaars of open taken of the zaak cannot be ontkoppeld.
 - **Other employees are able to access zaakspecifiek geautoriseerde zaken** by being granted
   `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration, exactly like any other
   application role. Granting them that mapping is therefore a deployment prerequisite: without it, they cannot

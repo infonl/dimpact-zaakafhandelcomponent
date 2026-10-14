@@ -21,7 +21,6 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
 import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.MedewerkerCannotBeOntkoppeldException
-import nl.info.zac.app.zaak.exception.MedewerkerCannotOntkoppelThemselvesException
 import nl.info.zac.app.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
@@ -235,17 +234,15 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     /**
      * Lists the behandelaar and zaakspecifiek geautoriseerde medewerker rollen of the zaakspecifiek geautoriseerde
      * [zaak], sorted by name. Medewerkers who have access to all zaakspecifiek geautoriseerde zaken of the zaaktype
-     * through their application role are left out, since they hold no rol on the zaak. The rol of [loggedInUserId]
-     * is never ontkoppelbaar, since nobody can ontkoppel themselves.
+     * through their application role are left out, since they hold no rol on the zaak.
      */
     fun listGeautoriseerdeMedewerkerRollen(
         zaak: Zaak,
-        zaakAutorisatieGegevens: ZaakAutorisatieGegevens,
-        loggedInUserId: String
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens
     ): List<GeautoriseerdeMedewerkerRol> {
         assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
         val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-        val nietOntkoppelbareMedewerkerIds = listNietOntkoppelbareMedewerkerIds(zaak, zaakToewijzing) + loggedInUserId
+        val nietOntkoppelbareMedewerkerIds = listNietOntkoppelbareMedewerkerIds(zaak, zaakToewijzing)
         return (
             zaakToewijzing.behandelaarRollen.map { GeautoriseerdeMedewerkerRol(rol = it, isOntkoppelbaar = false) } +
                 zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers.distinctBy { it.identificatienummer ?: it }.map {
@@ -266,18 +263,14 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
      * @throws MedewerkerCannotBeOntkoppeldException when the medewerker is the zaakbehandelaar or the behandelaar
      * of an open taak of the zaak
      * @throws MedewerkerNotZaakspecifiekGeautoriseerdException when the medewerker holds no such rol
-     * @throws MedewerkerCannotOntkoppelThemselvesException when [medewerkerId] is [loggedInUserId]
      */
-    @Suppress("ThrowsCount")
     fun removeZaakspecifiekGeautoriseerdeMedewerker(
         zaak: Zaak,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens,
         medewerkerId: String,
-        reden: String,
-        loggedInUserId: String
+        reden: String
     ) {
         assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
-        if (medewerkerId == loggedInUserId) throw MedewerkerCannotOntkoppelThemselvesException()
         lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
             if (medewerkerId in listNietOntkoppelbareMedewerkerIds(zaak, zaakToewijzing)) {

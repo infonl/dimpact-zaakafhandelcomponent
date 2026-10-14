@@ -80,7 +80,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                 )
             } returns createZaakRechten(wijzigen = false)
             every {
-                zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(zaak, any(), loggedInUser.id)
+                zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(zaak, any())
             } returns listOf(GeautoriseerdeMedewerkerRol(rol = geautoriseerdeMedewerkerRol, isOntkoppelbaar = true))
 
             `when`("the geautoriseerde medewerkers are listed") {
@@ -121,7 +121,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
 
                 then("the geautoriseerde medewerkers are not read") {
                     verify(exactly = 0) {
-                        zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(any(), any(), any())
+                        zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(any(), any())
                     }
                 }
             }
@@ -304,8 +304,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                     zaak = zaak,
                     zaakAutorisatieGegevens = any(),
                     medewerkerId = "fakeMedewerkerId",
-                    reden = "fakeReden",
-                    loggedInUserId = loggedInUser.id
+                    reden = "fakeReden"
                 )
             } just runs
 
@@ -322,8 +321,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                             zaak = zaak,
                             zaakAutorisatieGegevens = any(),
                             medewerkerId = "fakeMedewerkerId",
-                            reden = "fakeReden",
-                            loggedInUserId = loggedInUser.id
+                            reden = "fakeReden"
                         )
                     }
                 }
@@ -358,8 +356,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                             zaak = any(),
                             zaakAutorisatieGegevens = any(),
                             medewerkerId = any(),
-                            reden = any(),
-                            loggedInUserId = any()
+                            reden = any()
                         )
                     }
                 }

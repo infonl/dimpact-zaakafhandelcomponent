@@ -288,16 +288,6 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("the added medewerker ontkoppelt themselves") {
-            val response = removeMedewerker(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2, BEHANDELAAR_1_EN_BRP_ZOEKER_2)
-
-            then("the request is refused and the medewerker keeps access") {
-                response.code shouldBe HTTP_BAD_REQUEST
-                response.bodyAsString shouldContain "msg.error.medewerker.cannot.ontkoppel.themselves"
-                readZaak(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2).code shouldBe HTTP_OK
-            }
-        }
-
         `when`("the added medewerker ontkoppelt the zaakbehandelaar") {
             val response = removeMedewerker(zaakUuid, BEHANDELAAR_1, BEHANDELAAR_1_EN_BRP_ZOEKER_2)
 

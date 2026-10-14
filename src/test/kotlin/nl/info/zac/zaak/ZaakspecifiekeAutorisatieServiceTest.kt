@@ -39,7 +39,6 @@ import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerR
 import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
 import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.MedewerkerCannotBeOntkoppeldException
-import nl.info.zac.app.zaak.exception.MedewerkerCannotOntkoppelThemselvesException
 import nl.info.zac.app.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
@@ -1033,8 +1032,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
                     zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
                         zaak = zaak,
-                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() },
-                        loggedInUserId = "fakeLoggedInUserId"
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() }
                     )
                 }
 
@@ -1096,8 +1094,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             `when`("the geautoriseerde medewerkers are listed") {
                 val geautoriseerdeMedewerkerRollen = zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
                     zaak = zaak,
-                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
-                    loggedInUserId = "fakeLoggedInUserId"
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens
                 )
 
                 then("the behandelaar and the individually authorised medewerkers are returned, sorted by name regardless of case") {
@@ -1143,44 +1140,12 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             `when`("the geautoriseerde medewerkers are listed") {
                 val geautoriseerdeMedewerkerRollen = zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
                     zaak = zaak,
-                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
-                    loggedInUserId = "fakeLoggedInUserId"
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens
                 )
 
                 then("the medewerker is listed once, since ontkoppelen removes both rollen together") {
                     geautoriseerdeMedewerkerRollen.map { it.rol.identificatienummer } shouldContainExactly
                         listOf("fakeMedewerkerId")
-                }
-            }
-        }
-    }
-
-    context("Listing the medewerkers of a zaak for a logged-in user who holds a zaakspecifiek geautoriseerde medewerker rol") {
-        given("a zaakspecifiek geautoriseerde zaak on which the logged-in user is an individually authorised medewerker") {
-            val zaak = createZaak()
-            val rolOfLoggedInUser = createRolMedewerker(
-                zaakURI = zaak.url,
-                rolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType(),
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeLoggedInUserId")
-            )
-            val rollen = listOf<Rol<*>>(rolOfLoggedInUser)
-            every { zrcClientService.listRollen(zaak) } returns rollen
-            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
-            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
-            every {
-                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
-            } returns listOf(rolOfLoggedInUser)
-            every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns emptyList()
-
-            `when`("the geautoriseerde medewerkers are listed") {
-                val geautoriseerdeMedewerkerRollen = zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
-                    zaak = zaak,
-                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
-                    loggedInUserId = "fakeLoggedInUserId"
-                )
-
-                then("the logged-in user cannot be ontkoppeld, since nobody can ontkoppel themselves") {
-                    geautoriseerdeMedewerkerRollen.single().isOntkoppelbaar shouldBe false
                 }
             }
         }
@@ -1206,8 +1171,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             `when`("the geautoriseerde medewerkers are listed") {
                 val geautoriseerdeMedewerkerRollen = zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
                     zaak = zaak,
-                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
-                    loggedInUserId = "fakeLoggedInUserId"
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens
                 )
 
                 then("the rol cannot be ontkoppeld, since ontkoppelen needs the id of the medewerker") {
@@ -1647,37 +1611,13 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         zaak = zaak,
                         zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() },
                         medewerkerId = "fakeMedewerkerId",
-                        reden = "fakeReden",
-                        loggedInUserId = "fakeLoggedInUserId"
+                        reden = "fakeReden"
                     )
                 }
 
                 then("the request is refused with the error code that the frontend translates") {
                     zaakNotZaakspecifiekGeautoriseerdException.errorCode shouldBe
                         ErrorCode.ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD
-                }
-
-                and("no rol is deleted") {
-                    verify(exactly = 0) { zrcClientService.deleteRol(any(), any()) }
-                }
-            }
-        }
-
-        given("a zaakspecifiek geautoriseerde zaak and a logged-in user who holds a zaakspecifiek geautoriseerde medewerker rol on it") {
-            `when`("the logged-in user ontkoppelt themselves") {
-                val medewerkerCannotOntkoppelThemselvesException = shouldThrow<MedewerkerCannotOntkoppelThemselvesException> {
-                    zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
-                        zaak = zaak,
-                        zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
-                        medewerkerId = "fakeMedewerkerId",
-                        reden = "fakeReden",
-                        loggedInUserId = "fakeMedewerkerId"
-                    )
-                }
-
-                then("the request is refused with the error code that the frontend translates") {
-                    medewerkerCannotOntkoppelThemselvesException.errorCode shouldBe
-                        ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES
                 }
 
                 and("no rol is deleted") {
@@ -1695,8 +1635,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         zaak = zaak,
                         zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                         medewerkerId = "fakeZaakbehandelaarId",
-                        reden = "fakeReden",
-                        loggedInUserId = "fakeLoggedInUserId"
+                        reden = "fakeReden"
                     )
                 }
 
@@ -1720,8 +1659,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         zaak = zaak,
                         zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                         medewerkerId = "fakeTaakbehandelaarId",
-                        reden = "fakeReden",
-                        loggedInUserId = "fakeLoggedInUserId"
+                        reden = "fakeReden"
                     )
                 }
 
@@ -1743,8 +1681,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             zaak = zaak,
                             zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                             medewerkerId = "fakeOtherMedewerkerId",
-                            reden = "fakeReden",
-                            loggedInUserId = "fakeLoggedInUserId"
+                            reden = "fakeReden"
                         )
                     }
 
@@ -1771,8 +1708,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaak = zaak,
                     zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
                     medewerkerId = "fakeMedewerkerId",
-                    reden = "fakeReden",
-                    loggedInUserId = "fakeLoggedInUserId"
+                    reden = "fakeReden"
                 )
 
                 then("both rollen of the medewerker are deleted with the reden as audit toelichting, and no other rol") {
