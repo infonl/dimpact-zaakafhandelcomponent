@@ -11,7 +11,7 @@ export function translatedTitle(key: string): ResolveFn<string> {
   return () => inject(TranslateService).get(key);
 }
 
-export type Breadcrumb = { title: string; url: string[] };
+export type Breadcrumb = { title: string; url: string };
 
 export const BREADCRUMB_ORIGIN = { breadcrumbs: "origin" } as const;
 export const BREADCRUMB_DETAIL = { breadcrumbs: "detail" } as const;
@@ -34,12 +34,11 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
     if (route.routeConfig?.title !== undefined && route.title) {
       crumbs.push({
         title: route.title,
-        url: [
-          "/",
-          ...route.pathFromRoot.flatMap(({ url }) =>
-            url.map(({ path }) => path),
-          ),
-        ],
+        url:
+          "/" +
+          route.pathFromRoot
+            .flatMap(({ url }) => url.map(({ path }) => path))
+            .join("/"),
       });
     }
   }

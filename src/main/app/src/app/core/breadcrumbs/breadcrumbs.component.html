@@ -11,7 +11,7 @@
           <li aria-current="page">{{ breadcrumb.title }}</li>
         } @else {
           <li>
-            <a [routerLink]="breadcrumb.url">{{ breadcrumb.title }}</a>
+            <a [routerLink]="breadcrumb.link">{{ breadcrumb.title }}</a>
           </li>
         }
       }
