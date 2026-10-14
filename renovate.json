@@ -413,11 +413,12 @@
       ],
       "automerge": true,
       "automergeSchedule": [
-        "* 2-5 * * *"
+        "* 0,3-23 * * 1-5",
+        "* * * * 0,6"
       ],
       "description": [
         "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review",
-        "Automerge only between 02:00 and 06:00 UTC, after the nightly E2E run at 01:00, so no deploy disturbs it"
+        "No automerge 01:00-03:00 UTC on weekdays, so no deploy disturbs the nightly E2E run that starts at 01:00 (see run-e2e.yml)"
       ]
     },
     {
