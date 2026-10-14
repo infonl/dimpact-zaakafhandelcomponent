@@ -58,7 +58,11 @@ class ZaakspecifiekeAutorisatieRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakAutorisatieGegevens = readZaakAutorisatieGegevensAndAssertRecht(zaak, zaakType) { it.canLezen }
         return zaakspecifiekeAutorisatieService
-            .listGeautoriseerdeMedewerkerRollen(zaak, zaakAutorisatieGegevens)
+            .listGeautoriseerdeMedewerkerRollen(
+                zaak = zaak,
+                zaakAutorisatieGegevens = zaakAutorisatieGegevens,
+                loggedInUserId = loggedInUserInstance.get().id
+            )
             .map { it.toRestGeautoriseerdeMedewerker() }
     }
 
@@ -105,7 +109,8 @@ class ZaakspecifiekeAutorisatieRestService @Inject constructor(
             zaak = zaak,
             zaakAutorisatieGegevens = zaakAutorisatieGegevens,
             medewerkerId = medewerkerId,
-            reden = restReden.reden
+            reden = restReden.reden,
+            loggedInUserId = loggedInUserInstance.get().id
         )
     }
 
