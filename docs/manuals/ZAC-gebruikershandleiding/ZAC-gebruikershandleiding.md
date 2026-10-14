@@ -620,6 +620,7 @@ De behandelaar van de zaak en de behandelaars van open taken van de zaak kun je 
 4 Klik op Medewerker ontkoppelen
 
 De medewerker heeft vanaf dan geen toegang meer tot de zaak. De medewerker ziet de zaak, de taken en de documenten van de zaak niet meer in de werklijsten en de zoekresultaten.
+Heeft de medewerker de rol Zaakspecifiek geautoriseerd voor het zaaktype, dan houdt de medewerker via die rol wel toegang. Deze medewerkers staan niet in het tabblad ‘Medewerkers’.
 Het tabblad ‘Medewerkers’ toont de medewerker niet meer. De zaakhistorie toont dat de Zaakspecifiek geautoriseerde medewerker is ontkoppeld, met de reden.
 
 ## Locatie koppelen

@@ -156,6 +156,14 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     ).toBe(ontkoppelButtons[0]);
   });
 
+  it("offers no ontkoppelen for a medewerker without an id, since the backend needs it to ontkoppel", () => {
+    renderTab([{ ...addedMedewerker, id: null }], true);
+
+    expect(
+      screen().queryByRole("button", { name: ontkoppelLabel }),
+    ).not.toBeInTheDocument();
+  });
+
   it("offers no ontkoppelen to a user who may not change the zaak", () => {
     renderTab([behandelaar, addedMedewerker], false);
 

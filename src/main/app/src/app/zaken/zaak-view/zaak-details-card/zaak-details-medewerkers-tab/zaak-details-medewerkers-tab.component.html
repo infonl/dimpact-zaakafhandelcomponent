@@ -18,7 +18,7 @@
     <ng-container matColumnDef="actions" stickyEnd>
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let medewerker">
-        @if (medewerker.isOntkoppelbaar) {
+        @if (medewerker.isOntkoppelbaar && medewerker.id) {
           <button
             mat-icon-button
             (click)="ontkoppelMedewerker(medewerker)"

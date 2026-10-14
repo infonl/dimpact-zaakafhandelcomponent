@@ -75,9 +75,9 @@ export class ZaakDetailsMedewerkersTabComponent {
   );
 
   protected ontkoppelMedewerker(
-    medewerker: GeneratedType<"RestGeautoriseerdeMedewerker">,
+    medewerker: GeneratedType<"RestGeautoriseerdeMedewerker"> & { id: string },
   ) {
-    const naam = medewerker.naam ?? medewerker.id ?? "";
+    const naam = medewerker.naam ?? medewerker.id;
     this.zaakDialogService
       .openOntkoppelZaakspecifiekGeautoriseerdeMedewerker(naam, (reden) =>
         runMutation(
@@ -85,7 +85,7 @@ export class ZaakDetailsMedewerkersTabComponent {
           this.zakenService.deleteZaakspecifiekGeautoriseerdeMedewerker(
             this.zaakUuid(),
           ),
-          { medewerkerId: medewerker.id!, reden },
+          { medewerkerId: medewerker.id, reden },
         ),
       )
       .afterClosed()
