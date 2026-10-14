@@ -74,8 +74,9 @@ would split adding and ontkoppelen across two policies.
   the ZGM rol and assigns the taak under the per-zaak lock, and ontkoppelen reads the open taken under it, so
   on one pod one of the two wins cleanly. Two windows remain: starting a taak from a plan item grants the rol
   before it creates the taak, and the lock is in memory, so two pods are not serialised. In both cases a new
-  taakbehandelaar can lose access to the zaak while their taak stays assigned; reassigning the taak restores
-  it. Holding the lock while a plan item starts would also hold it while mail is sent, and a lock across pods
+  taakbehandelaar can lose access to the zaak while their taak stays assigned. Releasing the taak and assigning
+  it to them again restores it; assigning it to the same medewerker without releasing it first does not, since
+  an unchanged assignee gets no new rol. Holding the lock while a plan item starts would also hold it while mail is sent, and a lock across pods
   needs a shared store, so this is accepted, like the same trade-off for adding.
 - [Reindexing one of the zaak, its taken or its documenten fails after the rollen are deleted] → The request
   still succeeds and the failure is logged, as for adding a medewerker and assigning a taak, which use the same

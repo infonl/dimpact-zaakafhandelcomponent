@@ -3,8 +3,10 @@
 - [ ] 1.1 Add `ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`, `ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD`
       and `ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES` with their exceptions.
 - [ ] 1.2 `ZaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(zaak, zaakAutorisatieGegevens, medewerkerId, reden)`:
-      validate, then under the lock delete every ZGM rol of the medewerker with the reden, reindex the zaak, its
-      taken and its documenten, and commit Solr.
+      refuse a zaak that is not zaakspecifiek geautoriseerd and ontkoppelen yourself; then, under the lock, read
+      the rollen and open taken, refuse the zaakbehandelaar, a behandelaar of an open taak and a medewerker
+      without a ZGM rol, delete every ZGM rol of the medewerker with the reden, reindex the zaak, its taken and
+      its documenten, and commit Solr.
 - [ ] 1.3 `isOntkoppelbaar` on `RestGeautoriseerdeMedewerker`, worked out by the service. The list shows a
       medewerker with several ZGM rollen once.
 - [ ] 1.4 `DELETE zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/{medewerkerId}` in
