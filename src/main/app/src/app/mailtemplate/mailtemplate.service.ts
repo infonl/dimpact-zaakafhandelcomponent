@@ -4,6 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -12,6 +13,7 @@ import { GeneratedType } from "../shared/utils/generated-types";
 })
 export class MailtemplateService {
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient, { optional: true });
 
   findMailtemplate(mailtemplateEnum: GeneratedType<"Mail">, zaakUUID: string) {
     return this.zacQueryClient.GET(
@@ -20,5 +22,11 @@ export class MailtemplateService {
         path: { mailtemplateEnum, zaakUUID },
       },
     );
+  }
+
+  invalidateFoundMailtemplates() {
+    return this.queryClient?.invalidateQueries({
+      queryKey: ["/rest/mailtemplates/{mailtemplateEnum}/{zaakUUID}"],
+    });
   }
 }

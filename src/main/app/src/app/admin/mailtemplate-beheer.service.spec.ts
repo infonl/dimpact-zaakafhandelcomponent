@@ -17,6 +17,7 @@ import {
 import { testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
+import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { MailtemplateBeheerService } from "./mailtemplate-beheer.service";
 
 describe(MailtemplateBeheerService.name, () => {
@@ -95,15 +96,36 @@ describe(MailtemplateBeheerService.name, () => {
       },
     );
 
-    it("invalidates only the lists for a template it created", async () => {
+    it("does not invalidate a single template for a template it created", async () => {
       const invalidateQueries = jest
         .spyOn(testQueryClient, "invalidateQueries")
         .mockResolvedValue(undefined);
 
       await runMutationOnSuccess(service.saveMailtemplate(null));
 
-      expect(invalidateQueries).toHaveBeenCalledTimes(2);
+      expect(invalidateQueries).not.toHaveBeenCalledWith({
+        queryKey: expect.arrayContaining(["/rest/beheer/mailtemplates/{id}"]),
+      });
     });
+
+    it.each([
+      ["created", null],
+      ["updated", 1],
+    ])(
+      "makes zaken fetch their mailtemplate again after a template is %s, as it may be the default",
+      async (_, id) => {
+        const invalidateFoundMailtemplates = jest
+          .spyOn(
+            TestBed.inject(MailtemplateService),
+            "invalidateFoundMailtemplates",
+          )
+          .mockResolvedValue(undefined);
+
+        await runMutationOnSuccess(service.saveMailtemplate(id));
+
+        expect(invalidateFoundMailtemplates).toHaveBeenCalled();
+      },
+    );
   });
 
   describe("deleteMailtemplate", () => {
@@ -140,6 +162,19 @@ describe(MailtemplateBeheerService.name, () => {
       expect(invalidateQueries).toHaveBeenCalledWith({
         queryKey: service.listKoppelbareMailtemplates().queryKey,
       });
+    });
+
+    it("makes zaken fetch their mailtemplate again", async () => {
+      const invalidateFoundMailtemplates = jest
+        .spyOn(
+          TestBed.inject(MailtemplateService),
+          "invalidateFoundMailtemplates",
+        )
+        .mockResolvedValue(undefined);
+
+      await runMutationOnSuccess(service.deleteMailtemplate(), 1);
+
+      expect(invalidateFoundMailtemplates).toHaveBeenCalled();
     });
   });
 });

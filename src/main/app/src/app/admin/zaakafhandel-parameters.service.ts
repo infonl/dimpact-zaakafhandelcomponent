@@ -6,6 +6,7 @@
 import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
+import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
@@ -22,6 +23,7 @@ export class ZaakafhandelParametersService {
   private readonly mailtemplateKoppelingService = inject(
     MailtemplateKoppelingService,
   );
+  private readonly mailtemplateService = inject(MailtemplateService);
   private readonly queryClient = inject(QueryClient, { optional: true });
 
   listZaakafhandelParameters() {
@@ -77,6 +79,7 @@ export class ZaakafhandelParametersService {
               this.mailtemplateKoppelingService.listMailtemplateKoppelingen()
                 .queryKey,
           });
+          void this.mailtemplateService.invalidateFoundMailtemplates();
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );

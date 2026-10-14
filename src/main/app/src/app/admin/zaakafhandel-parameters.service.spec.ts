@@ -9,6 +9,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
+import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { runMutation } from "../shared/http/run-mutation";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
@@ -52,6 +53,19 @@ describe(ZaakafhandelParametersService.name, () => {
           MailtemplateKoppelingService,
         ).listMailtemplateKoppelingen().queryKey,
       });
+    });
+
+    it("makes zaken fetch their mailtemplate again, as the koppelingen choose it", async () => {
+      const invalidateFoundMailtemplates = jest
+        .spyOn(
+          TestBed.inject(MailtemplateService),
+          "invalidateFoundMailtemplates",
+        )
+        .mockResolvedValue(undefined);
+
+      await runMutationOnSuccess(service.updateZaakafhandelparameters());
+
+      expect(invalidateFoundMailtemplates).toHaveBeenCalled();
     });
   });
 

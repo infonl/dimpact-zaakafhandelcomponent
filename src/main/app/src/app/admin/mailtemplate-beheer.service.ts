@@ -10,6 +10,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
+import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { PostBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -21,6 +22,7 @@ import { GeneratedType } from "../shared/utils/generated-types";
 export class MailtemplateBeheerService {
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
+  private readonly mailtemplateService = inject(MailtemplateService);
   private readonly queryClient = inject(QueryClient, { optional: true });
 
   readMailtemplateQuery(id: number) {
@@ -45,6 +47,7 @@ export class MailtemplateBeheerService {
       this.queryClient?.invalidateQueries({
         queryKey: this.listKoppelbareMailtemplates().queryKey,
       }),
+      this.mailtemplateService.invalidateFoundMailtemplates(),
     ]);
   }
 
