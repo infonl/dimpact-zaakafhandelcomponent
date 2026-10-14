@@ -8,6 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
@@ -372,6 +373,42 @@ class MailTemplateHelperTest : BehaviorSpec({
 
                 then("the initiator placeholder is replaced by the name of the rechtspersoon found by KVK number") {
                     resolvedText shouldBe "fakeText, ${resultaatItem.naam}"
+                }
+            }
+        }
+
+        given("A zaak with an initiator of role niet-natuurlijk persoon with an RSIN and a KVK number") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val rsin = "fakeRsin"
+            val kvkNummer = "fakeKvkNummer"
+            val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    innNnpId = rsin,
+                    kvkNummer = kvkNummer
+                )
+            )
+            val resultaatItem = createResultaatItem()
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+            every { kvkClientService.findRechtspersoonByRsin(rsin) } returns resultaatItem
+
+            `when`("the variables are resolved with a text containing a placeholder for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator placeholder is replaced by the name of the rechtspersoon found by RSIN") {
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}"
+                    verify(exactly = 1) { kvkClientService.findRechtspersoonByRsin(rsin) }
+                    verify(exactly = 0) { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) }
                 }
             }
         }
