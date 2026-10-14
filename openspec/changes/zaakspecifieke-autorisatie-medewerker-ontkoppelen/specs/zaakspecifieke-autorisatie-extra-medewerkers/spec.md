@@ -33,12 +33,11 @@ medewerker from the zaak in Open Zaak, with the reden as audit toelichting, befo
   the zaak
 - **THEN** the request fails with `ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD`
 
-### Requirement: The zaakbehandelaar, the behandelaars of open taken and the employee themselves cannot be ontkoppeld
+### Requirement: The zaakbehandelaar and the behandelaars of open taken cannot be ontkoppeld
 
 ZAC SHALL refuse to ontkoppel the current zaakbehandelaar or the behandelaar of an open taak of the zaak with
-`ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`, and an employee who ontkoppelt themselves with
-`ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES`, and SHALL then delete no rol. The list of medewerkers with
-access SHALL mark a medewerker as `isOntkoppelbaar` only when none of these refusals applies to them.
+`ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`, and SHALL then delete no rol. The list of medewerkers with access
+SHALL mark a medewerker as `isOntkoppelbaar` only when this refusal does not apply to them.
 `isOntkoppelbaar` says nothing about the rights of the employee who asks: the zaak view combines it with
 `wijzigen`, and the endpoint checks `wijzigen` itself.
 
@@ -61,10 +60,9 @@ access SHALL mark a medewerker as `isOntkoppelbaar` only when none of these refu
 
 #### Scenario: Ontkoppelen yourself
 - **GIVEN** employee E, who holds a *Zaakspecifiek geautoriseerde medewerker* rol on the zaak and `wijzigen` on it
-- **WHEN** E lists the medewerkers with access to the zaak
-- **THEN** E is not `isOntkoppelbaar`
-- **AND** when E ontkoppelt themselves anyway, the request fails with
-  `ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES` and no rol is deleted
+- **WHEN** E ontkoppelt themselves in the *Medewerkers* tab
+- **THEN** the rol of E is deleted
+- **AND** the zaak view goes to the dashboard instead of refreshing the zaak E may no longer see
 
 #### Scenario: Which medewerkers are ontkoppelbaar
 - **GIVEN** zaakbehandelaar Z, taakbehandelaar T of an open taak, and medewerker A who was added by hand

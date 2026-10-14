@@ -11,7 +11,7 @@ added. [PZ-12046](https://dimpact.atlassian.net/browse/PZ-12046) adds it.
   geautoriseerde zaak, only for an employee with `wijzigen` on it. It asks for a reden.
 - **Only medewerkers with a *Zaakspecifiek geautoriseerde medewerker* rol can be ontkoppeld**: manually added
   medewerkers and previous zaak- and taakbehandelaars. The current zaakbehandelaar and the behandelaars of
-  open taken of the zaak cannot, and nobody can ontkoppel themselves.
+  open taken of the zaak cannot. A medewerker can ontkoppel themselves.
 - **Ontkoppelen deletes the rol** from the zaak in Open Zaak, with the reden as audit toelichting. The
   medewerker loses access at once, no longer finds the zaak in werkvoorraden and zoekresultaten, and is no
   longer listed in the *Medewerkers* tab. The zaakhistorie shows the removal.
@@ -30,7 +30,7 @@ None.
 
 - **Backend**: a new function in `ZaakspecifiekeAutorisatieService`, a `DELETE` endpoint in
   `ZaakspecifiekeAutorisatieRestService`, an `isOntkoppelbaar` field on `RestGeautoriseerdeMedewerker`,
-  three error codes.
+  two error codes.
 - **Frontend**: an action column in the *Medewerkers* tab, a reden dialog, i18n texts.
 - **Docs**: gebruikershandleiding.
 - **Solr, OPA, Open Zaak catalogus**: no change.

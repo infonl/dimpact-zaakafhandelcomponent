@@ -30,15 +30,14 @@ betrokkenen tab. It opens the shared reden dialog with a required, multiline red
 ### The backend decides which rows can be ontkoppeld
 
 Each `RestGeautoriseerdeMedewerker` gets `isOntkoppelbaar`: true for a ZGM rol whose medewerker is neither the
-zaakbehandelaar, nor the behandelaar of an open taak of the zaak, nor the logged-in employee. The frontend shows
-the action for those rows when the employee has `wijzigen`. It needs no knowledge of taken, roltypen or who is
-logged in.
+zaakbehandelaar nor the behandelaar of an open taak of the zaak. The frontend shows the action for those rows
+when the employee has `wijzigen`. It needs no knowledge of taken or roltypen.
 
-### Nobody can ontkoppel themselves
+### A medewerker can ontkoppel themselves
 
-Ontkoppelen yourself would take away your own access to the zaak you are looking at, after which the zaak view
-can no longer refresh. The list never marks the logged-in employee as ontkoppelbaar, and the endpoint refuses it
-with `ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES`, so the API and the screen agree.
+A zaakspecifiek geautoriseerde medewerker who no longer needs the zaak can ontkoppel themselves. The zaak keeps
+its behandelaar, who cannot be ontkoppeld. Afterwards the employee usually has no access to the zaak they are
+looking at, so the zaak view does not refresh it but goes to the dashboard.
 
 ### Ontkoppelen works per medewerker, not per rol
 

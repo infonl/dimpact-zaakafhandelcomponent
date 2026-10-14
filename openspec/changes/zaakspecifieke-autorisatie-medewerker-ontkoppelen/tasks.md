@@ -1,9 +1,9 @@
 ## 1. Backend
 
-- [ ] 1.1 Add `ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`, `ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD`
-      and `ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES` with their exceptions.
+- [ ] 1.1 Add `ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD` and
+      `ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD` with their exceptions.
 - [ ] 1.2 `ZaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(zaak, zaakAutorisatieGegevens, medewerkerId, reden)`:
-      refuse a zaak that is not zaakspecifiek geautoriseerd and ontkoppelen yourself; then, under the lock, read
+      refuse a zaak that is not zaakspecifiek geautoriseerd; then, under the lock, read
       the rollen and open taken, refuse the zaakbehandelaar, a behandelaar of an open taak and a medewerker
       without a ZGM rol, delete every ZGM rol of the medewerker with the reden, reindex the zaak, its taken and
       its documenten, and commit Solr.
@@ -26,8 +26,9 @@
 - [ ] 2.1 `ZakenService.deleteZaakspecifiekGeautoriseerdeMedewerker`.
 - [ ] 2.2 `ZaakDialogService.openOntkoppelZaakspecifiekGeautoriseerdeMedewerker`.
 - [ ] 2.3 Action column in the *Medewerkers* tab, only when the employee has `wijzigen`, with the action on the
-      rows that are `isOntkoppelbaar`; snackbar and refresh on success.
-- [ ] 2.4 i18n texts in `nl.json` and `en.json`, including the three new error codes.
+      rows that are `isOntkoppelbaar`; snackbar and refresh on success, or go to the dashboard after ontkoppelen
+      yourself.
+- [ ] 2.4 i18n texts in `nl.json` and `en.json`, including the two new error codes.
 - [ ] 2.5 Specs for the tab, including an employee without `wijzigen` who sees no action, for the dialog
       configuration (required, multiline reden) and for the `DELETE` request (path and `{ reden }` body) and
       what it refreshes.
