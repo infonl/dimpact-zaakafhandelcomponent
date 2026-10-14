@@ -217,21 +217,18 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
      */
     fun grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak: Zaak, medewerkerId: String): Boolean {
         if (!isZaakspecifiekGeautoriseerd(zaak)) return false
-        val isGranted = lockForZaak(zaak.uuid).withLock {
+        return lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            zaakToewijzing.behandelaarRollen.none { it.identificatienummer == medewerkerId } &&
+            val isGranted = zaakToewijzing.behandelaarRollen.none { it.identificatienummer == medewerkerId } &&
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = readMedewerkerIdentificatie(medewerkerId),
                     reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
+            if (isGranted) reindexZaakAndDependents(zaak)
+            isGranted
         }
-        if (isGranted) {
-            indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
-            reindexDependents(zaak)
-        }
-        return isGranted
     }
 
     /**
@@ -283,10 +280,8 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                 .filter { it.identificatienummer == medewerkerId }
                 .ifEmpty { throw MedewerkerNotZaakspecifiekGeautoriseerdException() }
                 .forEach { zrcClientService.deleteRol(it, reden) }
-            // Reindexing under the lock keeps a concurrent taak assignment from writing an older set of rollen
-            // to the index after this one. Revoked access must leave the search results now, so commit as well.
-            indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
-            reindexDependents(zaak)
+            // Revoked access must leave the search results now, not at Solr's next auto-commit.
+            reindexZaakAndDependents(zaak)
             indexingService.commit()
         }
     }
@@ -329,7 +324,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         if (medewerkerId in listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)) {
             throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
         }
-        val medewerker = lockForZaak(zaak.uuid).withLock {
+        return lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
             if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
                 throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
@@ -341,11 +336,9 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                     reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
+                reindexZaakAndDependents(zaak)
             }
         }
-        indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
-        reindexDependents(zaak)
-        return medewerker
     }
 
     fun markZaakspecifiekGeautoriseerd(zaak: Zaak) {
@@ -401,6 +394,15 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         identificatie = this@toMedewerkerIdentificatie.id
         voorletters = firstName
         achternaam = lastName
+    }
+
+    /**
+     * Callers that change the zaakspecifiek geautoriseerde medewerker rollen hold the lock of the zaak while they
+     * call this, so that the index ends with the rollen of the last change rather than of the slowest writer.
+     */
+    private fun reindexZaakAndDependents(zaak: Zaak) {
+        indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
+        reindexDependents(zaak)
     }
 
     private fun reindexDependents(zaak: Zaak) {

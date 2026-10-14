@@ -1520,7 +1520,10 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             } returns createRolMedewerker()
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
             every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
-            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+            var isZaakLockHeldWhileReindexing = false
+            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } answers {
+                isZaakLockHeldWhileReindexing = zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).isHeldByCurrentThread
+            }
 
             `when`("the medewerker is added") {
                 val addedMedewerker = zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
@@ -1551,6 +1554,10 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                         indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
                     }
+                }
+
+                and("the index is updated under the lock of the zaak, so a concurrent ontkoppeling cannot be undone") {
+                    isZaakLockHeldWhileReindexing shouldBe true
                 }
             }
         }
