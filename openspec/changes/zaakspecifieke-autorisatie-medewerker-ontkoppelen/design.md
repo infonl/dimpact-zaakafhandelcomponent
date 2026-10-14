@@ -71,12 +71,17 @@ would split adding and ontkoppelen across two policies.
 
 - [A taak is assigned to the medewerker while they are being ontkoppeld] → Assigning an existing taak grants
   the ZGM rol and assigns the taak under the per-zaak lock, and ontkoppelen reads the open taken under it, so
-  on one pod one of the two wins cleanly. Two windows remain: starting a taak from a plan item grants the rol
-  before it creates the taak, and the lock is in memory, so two pods are not serialised. In both cases a new
-  taakbehandelaar can lose access to the zaak while their taak stays assigned. Releasing the taak and assigning
-  it to them again restores it; assigning it to the same medewerker without releasing it first does not, since
-  an unchanged assignee gets no new rol. Holding the lock while a plan item starts would also hold it while mail is sent, and a lock across pods
-  needs a shared store, so this is accepted, like the same trade-off for adding.
+  on one pod one of the two wins cleanly. Some windows remain: starting a taak from a plan item grants the rol
+  before it creates the taak; the lock is in memory, so two pods are not serialised; an assignment reads the
+  taak before it takes the lock, so a second, concurrent assignment of the same taak plus an ontkoppeling can
+  interleave; and the taak is reindexed after the lock is released, so its search entry can briefly show an
+  older set of rollen. In these cases a new taakbehandelaar can lose access to the zaak while their taak stays
+  assigned, or an ontkoppelde medewerker can still find a taak in the search results, which they cannot open.
+  Releasing the taak and assigning it to them again restores access; assigning it to the same medewerker
+  without releasing it first does not, since an unchanged assignee gets no new rol. Each case needs several
+  employees acting on the same zaak at the same moment. Closing them would mean holding the lock across the
+  whole taak assignment and plan item flow, including sending mail, or a lock shared between pods, so they are
+  accepted, like the same trade-off for adding.
 - [Reindexing one of the zaak, its taken or its documenten fails after the rollen are deleted] → The request
   still succeeds and the failure is logged, as for adding a medewerker and assigning a taak, which use the same
   reindex. Opening the object is refused at once anyway, because the policy reads the rollen live; only its

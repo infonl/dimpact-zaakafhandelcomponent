@@ -80,8 +80,9 @@ the zoekresultaten and when koppelen zaken, without a manual reindex. They SHALL
 
 Ontkoppelen SHALL NOT change access that comes from the `zaakspecifiek_geautoriseerd` application role. That
 role grants no rechten on its own; together with a role that does, such as `behandelaar`, it gives access to
-every zaakspecifiek geautoriseerde zaak of the zaaktype. Both are granted per zaaktype in the PABC, so a
-medewerker who holds them keeps that access after ontkoppelen.
+every zaakspecifiek geautoriseerde zaak of the zaaktype. The PABC grants each role for the zaaktype or for all
+zaaktypen, and ZAC combines both, so a medewerker who holds them either way keeps that access after
+ontkoppelen.
 
 #### Scenario: Ontkoppelen a medewerker who also holds the zaakspecifiek_geautoriseerd application role
 - **GIVEN** medewerker B, who holds a *Zaakspecifiek geautoriseerde medewerker* rol on the zaak, and the
