@@ -10,6 +10,7 @@ import jakarta.inject.Singleton
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
@@ -24,6 +25,7 @@ import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.identity.model.toRestUser
 import nl.info.zac.app.identity.model.toRestUsers
 import nl.info.zac.app.zaak.model.RestGeautoriseerdeMedewerker
+import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakspecifiekGeautoriseerdeMedewerker
 import nl.info.zac.app.zaak.model.toRestGeautoriseerdeMedewerker
 import nl.info.zac.authentication.LoggedInUser
@@ -88,6 +90,23 @@ class ZaakspecifiekeAutorisatieRestService @Inject constructor(
             groepId = restZaakspecifiekGeautoriseerdeMedewerker.groepId,
             medewerkerId = restZaakspecifiekGeautoriseerdeMedewerker.medewerkerId
         ).toRestUser()
+    }
+
+    @DELETE
+    @Path("zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/{medewerkerId}")
+    fun removeZaakspecifiekGeautoriseerdeMedewerker(
+        @PathParam("uuid") zaakUUID: UUID,
+        @PathParam("medewerkerId") medewerkerId: String,
+        restReden: RestReden
+    ) {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakAutorisatieGegevens = readZaakAutorisatieGegevensAndAssertWijzigen(zaak, zaakType)
+        zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
+            zaak = zaak,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens,
+            medewerkerId = medewerkerId,
+            reden = restReden.reden
+        )
     }
 
     private fun readZaakAutorisatieGegevensAndAssertWijzigen(zaak: Zaak, zaakType: ZaakType) =

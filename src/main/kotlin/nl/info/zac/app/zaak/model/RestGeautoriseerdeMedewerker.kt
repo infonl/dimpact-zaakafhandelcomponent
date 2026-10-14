@@ -4,16 +4,20 @@
  */
 package nl.info.zac.app.zaak.model
 
-import nl.info.client.zgw.zrc.model.RolMedewerker
+import jakarta.json.bind.annotation.JsonbProperty
+import nl.info.zac.zaak.model.GeautoriseerdeMedewerkerRol
 
 data class RestGeautoriseerdeMedewerker(
     val id: String?,
     val naam: String?,
-    val roltype: String
+    val roltype: String,
+    @get:JsonbProperty("isOntkoppelbaar")
+    val isOntkoppelbaar: Boolean
 )
 
-fun RolMedewerker.toRestGeautoriseerdeMedewerker() = RestGeautoriseerdeMedewerker(
-    id = identificatienummer,
-    naam = naam,
-    roltype = omschrijving
+fun GeautoriseerdeMedewerkerRol.toRestGeautoriseerdeMedewerker() = RestGeautoriseerdeMedewerker(
+    id = rol.identificatienummer,
+    naam = rol.naam,
+    roltype = rol.omschrijving,
+    isOntkoppelbaar = isOntkoppelbaar
 )

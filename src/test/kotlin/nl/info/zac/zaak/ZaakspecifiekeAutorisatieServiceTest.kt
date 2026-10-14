@@ -38,6 +38,8 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
 import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
+import nl.info.zac.app.zaak.exception.MedewerkerCannotBeOntkoppeldException
+import nl.info.zac.app.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
@@ -1045,30 +1047,49 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             }
         }
 
-        given("a zaakspecifiek geautoriseerde zaak with a behandelaar and two individually authorised medewerkers") {
+        given(
+            "a zaakspecifiek geautoriseerde zaak with a behandelaar, an individually authorised taakbehandelaar of an " +
+                "open taak and an individually authorised medewerker"
+        ) {
             val zaak = createZaak()
             val behandelaarRol = createRolMedewerker(
                 zaakURI = zaak.url,
-                medewerkerIdentificatie = createMedewerkerIdentificatie(voorletters = "Mila", achternaam = "Visser")
+                medewerkerIdentificatie = createMedewerkerIdentificatie(
+                    identificatie = "fakeZaakbehandelaarId",
+                    voorletters = "Mila",
+                    achternaam = "Visser"
+                )
             )
             val geautoriseerdeMedewerkerRolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType()
-            val geautoriseerdeMedewerkerRolZ = createRolMedewerker(
+            val taakbehandelaarRol = createRolMedewerker(
                 zaakURI = zaak.url,
                 rolType = geautoriseerdeMedewerkerRolType,
-                medewerkerIdentificatie = createMedewerkerIdentificatie(voorletters = "Zoe", achternaam = "Bakker")
+                medewerkerIdentificatie = createMedewerkerIdentificatie(
+                    identificatie = "fakeTaakbehandelaarId",
+                    voorletters = "Zoe",
+                    achternaam = "Bakker"
+                )
             )
-            val geautoriseerdeMedewerkerRolA = createRolMedewerker(
+            val geautoriseerdeMedewerkerRol = createRolMedewerker(
                 zaakURI = zaak.url,
                 rolType = geautoriseerdeMedewerkerRolType,
-                medewerkerIdentificatie = createMedewerkerIdentificatie(voorletters = "anna", achternaam = "Smit")
+                medewerkerIdentificatie = createMedewerkerIdentificatie(
+                    identificatie = "fakeMedewerkerId",
+                    voorletters = "anna",
+                    achternaam = "Smit"
+                )
             )
-            val rollen = listOf<Rol<*>>(behandelaarRol, geautoriseerdeMedewerkerRolZ, geautoriseerdeMedewerkerRolA)
+            val rollen = listOf<Rol<*>>(behandelaarRol, taakbehandelaarRol, geautoriseerdeMedewerkerRol)
             every { zrcClientService.listRollen(zaak) } returns rollen
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns listOf(behandelaarRol)
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
-            } returns listOf(geautoriseerdeMedewerkerRolZ, geautoriseerdeMedewerkerRolA)
+            } returns listOf(taakbehandelaarRol, geautoriseerdeMedewerkerRol)
+            every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(
+                createTestTask(assignee = "fakeTaakbehandelaarId"),
+                createTestTask(assignee = null)
+            )
 
             `when`("the geautoriseerde medewerkers are listed") {
                 val geautoriseerdeMedewerkerRollen = zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
@@ -1077,8 +1098,13 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
 
                 then("the behandelaar and the individually authorised medewerkers are returned, sorted by name regardless of case") {
-                    geautoriseerdeMedewerkerRollen shouldContainExactly
-                        listOf(geautoriseerdeMedewerkerRolA, behandelaarRol, geautoriseerdeMedewerkerRolZ)
+                    geautoriseerdeMedewerkerRollen.map { it.rol } shouldContainExactly
+                        listOf(geautoriseerdeMedewerkerRol, behandelaarRol, taakbehandelaarRol)
+                }
+
+                and("only the medewerker who is neither zaak- nor taakbehandelaar can be ontkoppeld") {
+                    geautoriseerdeMedewerkerRollen.map { it.isOntkoppelbaar } shouldContainExactly
+                        listOf(true, false, false)
                 }
 
                 and("whether the zaak is zaakspecifiek geautoriseerd is not read again") {
@@ -1454,6 +1480,169 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 and("the zaak, its taken and its documenten are reindexed, so the medewerker finds them") {
                     verifyOrder {
                         zrcClientService.createRol(any(), any())
+                        indexingService.addOrUpdateZaak(zaak.uuid, false)
+                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
+                        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                    }
+                }
+            }
+        }
+    }
+
+    context("Ontkoppelen a medewerker from a zaakspecifiek geautoriseerde zaak") {
+        val zaak = createZaak()
+        val behandelaarRol = createRolMedewerker(
+            zaakURI = zaak.url,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeZaakbehandelaarId")
+        )
+        val geautoriseerdeMedewerkerRolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType()
+        val taakbehandelaarRol = createRolMedewerker(
+            zaakURI = zaak.url,
+            rolType = geautoriseerdeMedewerkerRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeTaakbehandelaarId")
+        )
+        val geautoriseerdeMedewerkerRol = createRolMedewerker(
+            zaakURI = zaak.url,
+            rolType = geautoriseerdeMedewerkerRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId")
+        )
+        val duplicateGeautoriseerdeMedewerkerRol = createRolMedewerker(
+            zaakURI = zaak.url,
+            rolType = geautoriseerdeMedewerkerRolType,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId")
+        )
+        val rollen = listOf<Rol<*>>(
+            behandelaarRol,
+            taakbehandelaarRol,
+            geautoriseerdeMedewerkerRol,
+            duplicateGeautoriseerdeMedewerkerRol
+        )
+
+        fun stubZaakToewijzingAndOpenTaken() {
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns listOf(behandelaarRol)
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns listOf(taakbehandelaarRol, geautoriseerdeMedewerkerRol, duplicateGeautoriseerdeMedewerkerRol)
+            every {
+                flowableTaskService.listOpenTasksForZaak(zaak.uuid)
+            } returns listOf(createTestTask(assignee = "fakeTaakbehandelaarId"))
+        }
+
+        given("a zaak that is not zaakspecifiek geautoriseerd") {
+            `when`("a medewerker is ontkoppeld") {
+                val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
+                    zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
+                        zaak = zaak,
+                        zaakAutorisatieGegevens = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = false) { emptyList() },
+                        medewerkerId = "fakeMedewerkerId",
+                        reden = "fakeReden"
+                    )
+                }
+
+                then("the request is refused with the error code that the frontend translates") {
+                    zaakNotZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD
+                }
+
+                and("no rol is deleted") {
+                    verify(exactly = 0) { zrcClientService.deleteRol(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and its zaakbehandelaar") {
+            stubZaakToewijzingAndOpenTaken()
+
+            `when`("the zaakbehandelaar is ontkoppeld") {
+                val medewerkerCannotBeOntkoppeldException = shouldThrow<MedewerkerCannotBeOntkoppeldException> {
+                    zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
+                        zaak = zaak,
+                        zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                        medewerkerId = "fakeZaakbehandelaarId",
+                        reden = "fakeReden"
+                    )
+                }
+
+                then("the request is refused with the error code that the frontend translates") {
+                    medewerkerCannotBeOntkoppeldException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD
+                }
+
+                and("no rol is deleted") {
+                    verify(exactly = 0) { zrcClientService.deleteRol(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and the individually authorised behandelaar of one of its open taken") {
+            stubZaakToewijzingAndOpenTaken()
+
+            `when`("the taakbehandelaar is ontkoppeld") {
+                val medewerkerCannotBeOntkoppeldException = shouldThrow<MedewerkerCannotBeOntkoppeldException> {
+                    zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
+                        zaak = zaak,
+                        zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                        medewerkerId = "fakeTaakbehandelaarId",
+                        reden = "fakeReden"
+                    )
+                }
+
+                then("the request is refused, so the taakbehandelaar keeps access to the zaak of their taak") {
+                    medewerkerCannotBeOntkoppeldException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD
+                    verify(exactly = 0) { zrcClientService.deleteRol(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and a medewerker without a zaakspecifiek geautoriseerde medewerker rol") {
+            stubZaakToewijzingAndOpenTaken()
+
+            `when`("the medewerker is ontkoppeld") {
+                val medewerkerNotZaakspecifiekGeautoriseerdException =
+                    shouldThrow<MedewerkerNotZaakspecifiekGeautoriseerdException> {
+                        zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
+                            zaak = zaak,
+                            zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                            medewerkerId = "fakeOtherMedewerkerId",
+                            reden = "fakeReden"
+                        )
+                    }
+
+                then("the request is refused with the error code that the frontend translates") {
+                    medewerkerNotZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and a medewerker who holds two zaakspecifiek geautoriseerde medewerker rollen") {
+            stubZaakToewijzingAndOpenTaken()
+            every { zrcClientService.deleteRol(any(), "fakeReden") } just runs
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
+            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+
+            `when`("the medewerker is ontkoppeld") {
+                zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
+                    zaak = zaak,
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                    medewerkerId = "fakeMedewerkerId",
+                    reden = "fakeReden"
+                )
+
+                then("both rollen of the medewerker are deleted with the reden as audit toelichting, and no other rol") {
+                    verify(exactly = 2) {
+                        zrcClientService.deleteRol(match { it.identificatienummer == "fakeMedewerkerId" }, "fakeReden")
+                    }
+                    verify(exactly = 2) { zrcClientService.deleteRol(any(), any()) }
+                }
+
+                and("the zaak, its taken and its documenten are reindexed, so the medewerker no longer finds them") {
+                    verifyOrder {
+                        zrcClientService.deleteRol(any(), any())
                         indexingService.addOrUpdateZaak(zaak.uuid, false)
                         indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                         indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
