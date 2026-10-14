@@ -38,7 +38,9 @@ medewerker from the zaak in Open Zaak, with the reden as audit toelichting, befo
 ZAC SHALL refuse to ontkoppel the current zaakbehandelaar or the behandelaar of an open taak of the zaak with
 `ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD`, and an employee who ontkoppelt themselves with
 `ERROR_CODE_MEDEWERKER_CANNOT_ONTKOPPEL_THEMSELVES`, and SHALL then delete no rol. The list of medewerkers with
-access SHALL mark a medewerker as `isOntkoppelbaar` only when the employee who asks could ontkoppel them.
+access SHALL mark a medewerker as `isOntkoppelbaar` only when none of these refusals applies to them.
+`isOntkoppelbaar` says nothing about the rights of the employee who asks: the zaak view combines it with
+`wijzigen`, and the endpoint checks `wijzigen` itself.
 
 #### Scenario: Ontkoppelen the zaakbehandelaar
 - **WHEN** an employee ontkoppelt the zaakbehandelaar
