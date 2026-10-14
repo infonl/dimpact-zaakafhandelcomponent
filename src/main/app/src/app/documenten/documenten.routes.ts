@@ -4,6 +4,7 @@
  */
 
 import { Routes } from "@angular/router";
+import { translatedTitle } from "../core/breadcrumbs/route-title";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list/inbox-documenten-list.component";
@@ -12,6 +13,7 @@ import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-lis
 export const DOCUMENTEN_ROUTES: Routes = [
   {
     path: "ontkoppelde",
+    title: translatedTitle("title.documenten.ontkoppelde-documenten"),
     component: OntkoppeldeDocumentenListComponent,
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
@@ -20,6 +22,7 @@ export const DOCUMENTEN_ROUTES: Routes = [
   },
   {
     path: "inbox",
+    title: translatedTitle("title.documenten.inbox-documenten"),
     component: InboxDocumentenListComponent,
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {

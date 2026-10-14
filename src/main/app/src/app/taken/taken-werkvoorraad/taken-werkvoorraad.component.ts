@@ -167,7 +167,6 @@ export class TakenWerkvoorraadComponent
 
   override ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.taken.werkvoorraad");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

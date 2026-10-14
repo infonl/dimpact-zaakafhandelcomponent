@@ -37,7 +37,6 @@ describe(SignaleringenSettingsComponent.name, () => {
   let httpTestingController: HttpTestingController;
 
   const utilService = fromPartial<UtilService>({
-    setTitle: jest.fn(),
     setLoading: jest.fn(),
   });
 
@@ -72,15 +71,6 @@ describe(SignaleringenSettingsComponent.name, () => {
   function checkbox(name: string) {
     return screen.getByRole("checkbox", { name });
   }
-
-  it("sets the page title", async () => {
-    await renderComponent();
-    await respondWith([]);
-
-    expect(utilService.setTitle).toHaveBeenCalledWith(
-      "title.signaleringen.settings",
-    );
-  });
 
   it("marks the table as busy while the settings are still loading", async () => {
     await renderComponent();

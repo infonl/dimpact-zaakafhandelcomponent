@@ -126,7 +126,6 @@ export class ZakenAfgehandeldComponent
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.utilService.setTitle("title.zaken.afgehandeld");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

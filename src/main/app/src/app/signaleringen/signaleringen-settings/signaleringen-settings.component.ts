@@ -4,7 +4,7 @@
  */
 
 import { NgClass } from "@angular/common";
-import { Component, effect, OnInit } from "@angular/core";
+import { Component, effect } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
@@ -34,7 +34,7 @@ const SETTING_PER_COLUMN = {
     TranslateModule,
   ],
 })
-export class SignaleringenSettingsComponent implements OnInit {
+export class SignaleringenSettingsComponent {
   protected readonly columns = [
     "subjecttype",
     "type",
@@ -59,10 +59,6 @@ export class SignaleringenSettingsComponent implements OnInit {
     effect(() => {
       this.dataSource.data = this.instellingenQuery.data() ?? [];
     });
-  }
-
-  ngOnInit() {
-    this.utilService.setTitle("title.signaleringen.settings");
   }
 
   protected changed(

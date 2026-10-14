@@ -49,7 +49,6 @@ describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
-  let utilService: UtilService;
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
@@ -144,9 +143,6 @@ describe(ZaakCreateComponent.name, () => {
           }),
         ]),
       );
-
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockImplementation(jest.fn());
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     jest

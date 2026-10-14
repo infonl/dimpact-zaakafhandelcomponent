@@ -1,0 +1,27 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+@import "../../../variables";
+
+nav {
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid @border-color;
+}
+
+ol {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+li + li::before {
+  content: "|";
+  margin: 0 8px;
+}

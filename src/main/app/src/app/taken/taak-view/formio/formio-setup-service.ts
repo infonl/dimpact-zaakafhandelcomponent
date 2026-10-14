@@ -101,9 +101,6 @@ export class FormioSetupService {
       formioFormulier.components,
       taak,
     );
-    this.utilService.setTitle("title.taak", {
-      taak: formioFormulier.title,
-    });
   }
 
   setFormioChangeData(data: Record<string, string>) {

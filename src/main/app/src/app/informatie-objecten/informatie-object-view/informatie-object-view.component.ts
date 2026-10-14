@@ -168,9 +168,6 @@ export class InformatieObjectViewComponent
         this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
           this.infoObject.formaat as FileFormat,
         );
-        this.utilService.setTitle("title.document", {
-          document: this.infoObject.identificatie,
-        });
 
         this.documentListener = this.websocketService.addListener(
           Opcode.UPDATED,
