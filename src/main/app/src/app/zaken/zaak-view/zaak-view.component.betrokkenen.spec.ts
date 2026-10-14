@@ -139,7 +139,6 @@ describe(ZaakViewComponent.name, () => {
     }).compileComponents();
 
     utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
     jest

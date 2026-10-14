@@ -21,7 +21,6 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantKoppelComponent } from "../../klanten/koppel/klanten/klant-koppel/klant-koppel.component";
@@ -64,7 +63,6 @@ import { ZakenService } from "../zaken.service";
 })
 export class ZaakCreateComponent {
   private readonly zakenService = inject(ZakenService);
-  private readonly utilService = inject(UtilService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
   private readonly translateService = inject(TranslateService);
@@ -130,7 +128,6 @@ export class ZaakCreateComponent {
   });
 
   constructor() {
-    this.utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();

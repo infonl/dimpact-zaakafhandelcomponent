@@ -26,8 +26,6 @@ class BagZakenTabelStubComponent {
 }
 
 describe(BAGViewComponent.name, () => {
-  const setTitle = jest.fn();
-
   function zaakSearchedFor() {
     return screen
       .getByText(/^zaken of:/)
@@ -47,24 +45,12 @@ describe(BAGViewComponent.name, () => {
         {
           provide: UtilService,
           useValue: fromPartial<UtilService>({
-            setTitle,
             setLoading: jest.fn(),
           }),
         },
       ],
     });
   }
-
-  it("titles the page after the bag object it shows", async () => {
-    await setup(
-      fromPartial<GeneratedType<"RestBagObject">>({
-        bagObjectType: "WOONPLAATS",
-        identificatie: "3594",
-      }),
-    );
-
-    expect(setTitle).toHaveBeenCalledWith("bagobjectgegevens");
-  });
 
   it("shows an adres and the zaken it is linked to", async () => {
     await setup(

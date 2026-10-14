@@ -9,7 +9,6 @@ import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
-import { UtilService } from "../../core/service/util.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -32,11 +31,7 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
 export class PersoonViewComponent {
   protected persoon: GeneratedType<"RestPersoon"> | null = null;
 
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly route: ActivatedRoute,
-  ) {
-    this.utilService.setTitle("persoonsgegevens");
+  constructor(private readonly route: ActivatedRoute) {
     this.route.data.subscribe((data) => {
       this.persoon = data.persoon;
     });

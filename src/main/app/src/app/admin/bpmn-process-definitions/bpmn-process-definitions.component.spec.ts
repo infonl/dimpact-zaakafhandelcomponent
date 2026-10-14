@@ -61,10 +61,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     | "uploadProcessDefinitionForm"
     | "deleteProcessDefinitionForm"
   >;
-  let utilService: Pick<
-    UtilService,
-    "setLoading" | "setTitle" | "openSnackbar"
-  >;
+  let utilService: Pick<UtilService, "setLoading" | "openSnackbar">;
   let foutAfhandelingService: Pick<FoutAfhandelingService, "foutAfhandelen">;
   let deleteProcessDefinitionMutation: ReturnType<
     typeof createMutationOptions<object, { key: string; name: string }>
@@ -163,7 +160,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     };
     utilService = {
       setLoading: jest.fn(),
-      setTitle: jest.fn(),
       openSnackbar: jest.fn(),
     };
     foutAfhandelingService = { foutAfhandelen: jest.fn() };
@@ -177,10 +173,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
   it("sets the title and shows a row per process definition", async () => {
     await setup();
 
-    expect(utilService.setTitle).toHaveBeenCalledWith(
-      "title.bpmn-procesdefinities",
-      undefined,
-    );
     expect(screen.getByRole("button", { name: "Process A" })).toBeVisible();
   });
 

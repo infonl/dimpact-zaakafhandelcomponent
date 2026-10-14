@@ -1,0 +1,14 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+@if (titles().length) {
+  <nav [attr.aria-label]="'breadcrumbs' | translate">
+    <ol>
+      @for (title of titles(); track $index) {
+        <li [attr.aria-current]="$last ? 'page' : null">{{ title }}</li>
+      }
+    </ol>
+  </nav>
+}

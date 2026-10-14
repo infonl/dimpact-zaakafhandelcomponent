@@ -177,7 +177,6 @@ export class ZakenWerkvoorraadComponent
 
   override ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.zaken.werkvoorraad");
     this.dataSource.initColumns(this.defaultColumns());
   }
 
