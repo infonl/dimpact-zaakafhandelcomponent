@@ -605,7 +605,7 @@ Bij een zaakspecifiek geautoriseerde zaak kun je de toegang van een Zaakspecifie
 Bijvoorbeeld als per ongeluk de verkeerde medewerker is toegevoegd.
 
 Je kunt deze medewerkers ontkoppelen: handmatig toegevoegde medewerkers, vorige behandelaars en vorige taakbehandelaars.
-De behandelaar van de zaak en de behandelaars van open taken van de zaak kun je niet ontkoppelen.
+De behandelaar van de zaak en de behandelaars van open taken van de zaak kun je niet ontkoppelen. Je kunt ook jezelf ontkoppelen: je hebt daarna meestal geen toegang meer tot de zaak, en ZAC brengt je naar het dashboard.
 
 > De optie is alleen beschikbaar bij een zaakspecifiek geautoriseerde zaak, en alleen als je de zaak mag wijzigen.
 

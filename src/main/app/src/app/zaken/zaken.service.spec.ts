@@ -287,6 +287,20 @@ describe(ZakenService.name, () => {
       });
       expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid");
     });
+
+    it("refreshes nothing after the logged-in user ontkoppelt themselves, because they may no longer read the zaak", async () => {
+      const invalidateQueries = jest.spyOn(
+        testQueryClient,
+        "invalidateQueries",
+      );
+
+      await runMutationOnSuccess(
+        service.deleteZaakspecifiekGeautoriseerdeMedewerker("fakeZaakUuid"),
+        { ...variables, isLoggedInUser: true },
+      );
+
+      expect(invalidateQueries).not.toHaveBeenCalled();
+    });
   });
 
   describe.each([

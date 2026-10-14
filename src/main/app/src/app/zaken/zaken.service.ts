@@ -333,13 +333,22 @@ export class ZakenService {
     return mergeMutationOptions(
       this.zacQueryClient.DELETE(
         "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/{medewerkerId}",
-        ({ medewerkerId, reden }: { medewerkerId: string; reden: string }) => ({
+        ({
+          medewerkerId,
+          reden,
+        }: {
+          medewerkerId: string;
+          reden: string;
+          isLoggedInUser?: boolean;
+        }) => ({
           parameters: { path: { uuid, medewerkerId } },
           body: { reden },
         }),
       ),
       {
-        onSuccess: () => {
+        onSuccess: (_data, { isLoggedInUser }) => {
+          // The logged-in user just lost access to this zaak, so refetching it would only fail.
+          if (isLoggedInUser) return;
           this.queryClient.invalidateQueries({
             queryKey: [
               "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",

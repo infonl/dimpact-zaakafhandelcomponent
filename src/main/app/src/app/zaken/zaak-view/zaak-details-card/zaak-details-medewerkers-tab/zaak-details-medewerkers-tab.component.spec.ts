@@ -7,6 +7,7 @@ import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
+import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
@@ -15,6 +16,7 @@ import { Observable, of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../../setupJest";
 import { UtilService } from "../../../../core/service/util.service";
+import { IdentityService } from "../../../../identity/identity.service";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZaakDialogService } from "../../../zaak-dialog.service";
 import { ZakenService } from "../../../zaken.service";
@@ -188,13 +190,18 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
       zakenService.deleteZaakspecifiekGeautoriseerdeMedewerker,
     ).toHaveBeenCalledWith(zaakUuid);
     expect(deleteMedewerkerMutation.mutationFn).toHaveBeenCalledWith(
-      { medewerkerId: "fake-medewerker-id", reden: "fake-reden" },
+      {
+        medewerkerId: "fake-medewerker-id",
+        reden: "fake-reden",
+        isLoggedInUser: false,
+      },
       expect.anything(),
     );
   });
 
-  it("confirms the ontkoppeling once the dialog closes successfully", () => {
+  it("confirms the ontkoppeling once the dialog closes successfully and stays on the zaak", () => {
     jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+    const navigateByUrl = jest.spyOn(TestBed.inject(Router), "navigateByUrl");
     renderTab([addedMedewerker], true);
 
     screen().getByRole("button", { name: ontkoppelLabel }).click();
@@ -203,6 +210,35 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
       "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppeld",
       { medewerker: "Emma Jansen" },
     );
+    expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it("goes to the dashboard after the user ontkoppelt themselves, since they may no longer see the zaak", async () => {
+    jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+    const navigateByUrl = jest
+      .spyOn(TestBed.inject(Router), "navigateByUrl")
+      .mockResolvedValue(true);
+    testQueryClient.setQueryData(
+      TestBed.inject(IdentityService).readLoggedInUser().queryKey,
+      fromPartial<GeneratedType<"RestLoggedInUser">>({
+        id: "fake-medewerker-id",
+      }),
+    );
+    renderTab([addedMedewerker], true);
+
+    screen().getByRole("button", { name: ontkoppelLabel }).click();
+    const [, callback] = openOntkoppelSpy.mock.calls[0] as [
+      string,
+      (reden: string) => Observable<unknown>,
+    ];
+    callback("fake-reden").subscribe();
+    await new Promise(requestAnimationFrame);
+
+    expect(deleteMedewerkerMutation.mutationFn).toHaveBeenCalledWith(
+      expect.objectContaining({ isLoggedInUser: true }),
+      expect.anything(),
+    );
+    expect(navigateByUrl).toHaveBeenCalledWith("/");
   });
 
   it("shows no confirmation when the dialog is cancelled", () => {
