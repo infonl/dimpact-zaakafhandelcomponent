@@ -114,6 +114,34 @@ object ItestTimingReport : BeforeSpecListener, AfterSpecListener {
             .sortedWith(compareBy(nullsLast()) { it.startedAt })
     }
 
+    /**
+     * SPIKE: the kind equivalent of [collectContainerTimings]. Reads the start time of every
+     * pod container and the time at which the pod became Ready from the Kubernetes API.
+     */
+    fun collectPodTimings() {
+        try {
+            val pods = org.json.JSONObject(ItestPlatform.kubectl("get", "pods", "--all-namespaces", "-o", "json"))
+                .getJSONArray("items")
+            containerTimings = (0 until pods.length()).map { index ->
+                val pod = pods.getJSONObject(index)
+                val metadata = pod.getJSONObject("metadata")
+                val status = pod.getJSONObject("status")
+                val readyAt = status.optJSONArray("conditions")?.let { conditions ->
+                    (0 until conditions.length()).map { conditions.getJSONObject(it) }
+                        .firstOrNull { it.getString("type") == "Ready" && it.getString("status") == "True" }
+                        ?.optString("lastTransitionTime")?.toInstant()
+                }
+                ContainerTiming(
+                    serviceName = "${metadata.getString("namespace")}/${metadata.getString("name")}",
+                    startedAt = metadata.optString("creationTimestamp").takeIf { it.isNotEmpty() }?.toInstant(),
+                    readyAt = readyAt
+                )
+            }.sortedWith(compareBy(nullsLast()) { it.startedAt })
+        } catch (illegalStateException: IllegalStateException) {
+            logger.warn { "Could not collect the pod timings: ${illegalStateException.message}" }
+        }
+    }
+
     fun writeReport() {
         val report = renderMarkdown()
         REPORT_FILE.parentFile.mkdirs()

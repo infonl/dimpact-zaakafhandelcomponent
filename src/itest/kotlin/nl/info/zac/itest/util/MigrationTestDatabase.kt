@@ -5,6 +5,7 @@
 package nl.info.zac.itest.util
 
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DATABASE_CONTAINER_SERVICE_NAME
+import nl.info.zac.itest.config.ItestPlatform
 import nl.info.zac.itest.config.dockerComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.GenericContainer
@@ -31,9 +32,9 @@ const val ZAC_SCHEMA = "zaakafhandelcomponent"
  */
 class MigrationTestDatabase : AutoCloseable {
     private val databaseName = "zac_migration_test_${UUID.randomUUID().toString().replace("-", "")}"
-    private val zacDatabaseContainer = dockerComposeContainer
-        .getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME)
-        .get()
+    private val zacDatabaseContainer by lazy {
+        dockerComposeContainer.getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME).get()
+    }
 
     init {
         runPsql(ZAC_DATABASE_NAME, "CREATE DATABASE $databaseName")
@@ -54,21 +55,15 @@ class MigrationTestDatabase : AutoCloseable {
         val flywayVersion = checkNotNull(System.getProperty("flywayVersion")) {
             "System property 'flywayVersion' is not set"
         }
+        if (ItestPlatform.isKind) {
+            return ItestPlatform.runFlyway(flywayVersion, flywayArguments(databaseHost = "postgres", version = version))
+        }
         val flywayOutput = ToStringConsumer()
         val flywayContainer = GenericContainer<Nothing>(DockerImageName.parse("$FLYWAY_IMAGE:$flywayVersion")).apply {
             // shares the network namespace of the database container, so that Flyway reaches it on localhost
             withNetworkMode("container:${zacDatabaseContainer.containerId}")
             withCopyFileToContainer(MountableFile.forHostPath("src/main/resources/schemas"), "/flyway/sql")
-            withCommand(
-                "-url=jdbc:postgresql://localhost:5432/$databaseName",
-                "-user=$DATABASE_USER",
-                "-password=$DATABASE_PASSWORD",
-                "-schemas=$ZAC_SCHEMA",
-                "-placeholders.schema=$ZAC_SCHEMA",
-                "-locations=filesystem:/flyway/sql",
-                "-target=$version",
-                "migrate"
-            )
+            withCommand(flywayArguments(databaseHost = "localhost", version = version).joinToString(" "))
             withStartupCheckStrategy(OneShotStartupCheckStrategy().withTimeout(FLYWAY_TIMEOUT))
             withLogConsumer(flywayOutput)
         }
@@ -85,6 +80,17 @@ class MigrationTestDatabase : AutoCloseable {
         }
     }
 
+    private fun flywayArguments(databaseHost: String, version: String) = listOf(
+        "-url=jdbc:postgresql://$databaseHost:5432/$databaseName",
+        "-user=$DATABASE_USER",
+        "-password=$DATABASE_PASSWORD",
+        "-schemas=$ZAC_SCHEMA",
+        "-placeholders.schema=$ZAC_SCHEMA",
+        "-locations=filesystem:/flyway/sql",
+        "-target=$version",
+        "migrate"
+    )
+
     fun execute(sql: String) {
         runPsql(databaseName, sql)
     }
@@ -97,8 +103,9 @@ class MigrationTestDatabase : AutoCloseable {
             .filter { it.isNotEmpty() }
             .map { row -> row.split(COLUMN_SEPARATOR).map { it.takeUnless { value -> value == NULL_VALUE } } }
 
+    @Suppress("SpreadOperator")
     private fun runPsql(database: String, sql: String): String {
-        val execResult = zacDatabaseContainer.execInContainer(
+        val psqlCommand = listOf(
             "psql",
             "--username=$DATABASE_USER",
             "--dbname=$database",
@@ -111,6 +118,12 @@ class MigrationTestDatabase : AutoCloseable {
             "--command=SET search_path TO $ZAC_SCHEMA, public",
             "--command=$sql"
         )
+        if (ItestPlatform.isKind) {
+            return ItestPlatform.kubectl(
+                "exec", "--namespace", ItestPlatform.PODIUMD_NAMESPACE, "deploy/postgres", "--", *psqlCommand.toTypedArray()
+            )
+        }
+        val execResult = zacDatabaseContainer.execInContainer(*psqlCommand.toTypedArray())
         check(execResult.exitCode == 0) { "psql failed: ${execResult.stderr}" }
         return execResult.stdout
     }

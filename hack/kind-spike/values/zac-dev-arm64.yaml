@@ -1,0 +1,8 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): arm64 builds of the amd64-only images in charts/zac-dev, see podiumd-arm64.yaml
+images:
+  postgres: ghcr.io/infonl/postgis:17-3.5@sha256:62657ab3cdacebf7d99184ac2a6777ce34815447dfd819f5d11e1bf074dd6876
+  objecten: ghcr.io/infonl/open-object:4.1.1@sha256:8bda80d7de276ddd381ff45ac2c5e0b52b43787bf4c02f42d1b069b5e823ebdf

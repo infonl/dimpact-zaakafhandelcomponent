@@ -1,0 +1,231 @@
+{{- if eq .Values.part "zac" }}
+{{- /* WireMock test doubles. Their mappings and files are ConfigMaps that up.sh creates straight from
+       scripts/docker-compose/imports, so that the Docker Compose stack and kind share one copy. */}}
+{{- range $wiremock := list
+  (dict "name" "smartdocuments-wiremock" "files" true "templating" true)
+  (dict "name" "kvk-wiremock" "files" true "templating" true)
+  (dict "name" "bag-wiremock" "files" true "templating" true)
+  (dict "name" "brp-personen-wiremock" "files" false "templating" false) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $wiremock.name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $wiremock.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $wiremock.name }}
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: wiremock
+          image: {{ $.Values.images.wiremock }}
+          args:
+            {{- if $wiremock.templating }}
+            - --global-response-templating
+            {{- end }}
+            - --disable-gzip
+            - --verbose
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /__admin/health
+              port: 8080
+            periodSeconds: 2
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+          volumeMounts:
+            - name: mappings
+              mountPath: /home/wiremock/mappings
+            {{- if $wiremock.files }}
+            - name: files
+              mountPath: /home/wiremock/__files
+            {{- end }}
+      volumes:
+        - name: mappings
+          configMap:
+            name: {{ $wiremock.name }}-mappings
+        {{- if $wiremock.files }}
+        - name: files
+          configMap:
+            name: {{ $wiremock.name }}-files
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $wiremock.name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  selector:
+    app: {{ $wiremock.name }}
+  ports:
+    - port: 8080
+      targetPort: 8080
+{{- end }}
+---
+# The BRP WireMock proxies to http://brp-personen-mock:5010; the mock itself comes from the umbrella chart
+apiVersion: v1
+kind: Service
+metadata:
+  name: brp-personen-mock
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ExternalName
+  externalName: brp-personen-mock.{{ .Values.podiumdNamespace }}.svc.cluster.local
+  ports:
+    - port: 5010
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greenmail
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greenmail
+  template:
+    metadata:
+      labels:
+        app: greenmail
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: greenmail
+          image: {{ .Values.images.greenmail }}
+          env:
+            - name: GREENMAIL_OPTS
+              value: >-
+                -Dgreenmail.smtp.hostname=0.0.0.0
+                -Dgreenmail.smtp.port=25
+                -Dgreenmail.hostname=0.0.0.0
+                -Dgreenmail.auth.disabled
+                -Dgreenmail.verbose
+          ports:
+            - containerPort: 25
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 2
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greenmail
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: greenmail
+  ports:
+    - name: smtp
+      port: 25
+      targetPort: 25
+    - name: api
+      port: 8080
+      targetPort: 8080
+---
+# Standalone Solr with basic authentication and a pre-created 'zac' core, as in Docker Compose.
+# The ZAC chart's own option, SolrCloud through the solr-operator with three ZooKeepers, is too heavy for CI.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: solr-security
+  namespace: {{ .Release.Namespace }}
+data:
+  security.json: |
+    {
+      "authentication": {
+        "class": "solr.BasicAuthPlugin",
+        "blockUnknown": true,
+        "realm": "ZAC Solr",
+        "forwardCredentials": false,
+        "credentials": {
+          "zac": "kaRw7O6j389zsDJZuoVFhbs0dcPJwiwTF+iRgf4pqpc= l8fGJV+B/9hxHZ5w7DIJriNspi5C+JEqraTovjMV3f4="
+        }
+      },
+      "authorization": {
+        "class": "solr.RuleBasedAuthorizationPlugin",
+        "permissions": [{ "name": "all", "role": "admin" }],
+        "user-role": { "zac": "admin" }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solr
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solr
+  template:
+    metadata:
+      labels:
+        app: solr
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        fsGroup: 8983
+      initContainers:
+        - name: security
+          image: {{ .Values.images.solr }}
+          command: ["sh", "-c", "mkdir -p /var/solr/data && cp /opt/zac/security.json /var/solr/data/security.json"]
+          volumeMounts:
+            - name: data
+              mountPath: /var/solr
+            - name: security
+              mountPath: /opt/zac
+      containers:
+        - name: solr
+          image: {{ .Values.images.solr }}
+          command: ["solr-precreate", "zac"]
+          ports:
+            - containerPort: 8983
+          readinessProbe:
+            tcpSocket:
+              port: 8983
+            periodSeconds: 2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/solr
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: security
+          configMap:
+            name: solr-security
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solr
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: solr
+  ports:
+    - port: 8983
+      targetPort: 8983
+{{- end }}

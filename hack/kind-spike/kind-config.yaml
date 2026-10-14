@@ -1,0 +1,28 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): kind cluster for running the ZAC integration tests on Kubernetes.
+# The same config is used locally and in CI, so the host ports are identical everywhere.
+# Every host port is the Docker Compose host port + 20000, so that the kind stack can run
+# next to a running Docker Compose stack. Each host port maps to a fixed NodePort.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    # The itests diff the ZAC container log before and after a request; the kubelet default of rotating
+    # container logs at 10Mi would make `kubectl logs` lose the prefix that such a diff relies on.
+    kubeadmConfigPatches:
+      - |
+        kind: KubeletConfiguration
+        containerLogMaxSize: 500Mi
+        # the kubelet pulls one image at a time by default, which serialises the ~30 cold pulls
+        serializeImagePulls: false
+    extraPortMappings:
+      - { containerPort: 30080, hostPort: 28080, protocol: TCP } # ZAC http
+      - { containerPort: 30990, hostPort: 29990, protocol: TCP } # ZAC WildFly management (health)
+      - { containerPort: 30081, hostPort: 28081, protocol: TCP } # Keycloak http (token endpoint)
+      - { containerPort: 30901, hostPort: 29001, protocol: TCP } # Keycloak management (health)
+      - { containerPort: 30801, hostPort: 28001, protocol: TCP } # Open Zaak (via openzaak-nginx)
+      - { containerPort: 30083, hostPort: 38083, protocol: TCP } # GreenMail API
+      - { containerPort: 30084, hostPort: 38084, protocol: TCP } # BRP personen WireMock admin
