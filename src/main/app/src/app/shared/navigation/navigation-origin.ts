@@ -4,77 +4,34 @@
  */
 
 import { Location } from "@angular/common";
-import {
-  DestroyRef,
-  inject,
-  provideEnvironmentInitializer,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NavigationEnd, Router } from "@angular/router";
-import { filter } from "rxjs";
-import {
-  Breadcrumb,
-  breadcrumbKind,
-  breadcrumbs,
-} from "../../core/breadcrumbs/route-title";
+import { Router } from "@angular/router";
+import { Breadcrumb } from "../../core/breadcrumbs/route-title";
 
 export const openedFromSearchState = { origin: "zoeken" } as const;
 
-type NavigationState = {
+export type NavigationState = {
   origin?: string;
   navigationTrail?: Breadcrumb[];
 } | null;
-
-/**
- * Keeps the trail of pages that led to the current page in the browser history state, so the
- * trail survives a reload and moves along with the back and forward buttons.
- */
-export function provideNavigationTrail() {
-  return provideEnvironmentInitializer(() => {
-    const router = inject(Router);
-    const location = inject(Location);
-    let originTrail: Breadcrumb[] | null = null;
-
-    router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        takeUntilDestroyed(inject(DestroyRef)),
-      )
-      .subscribe(() => {
-        const root = router.routerState.snapshot.root;
-        const kind = breadcrumbKind(root);
-        const state = location.getState() as NavigationState;
-        let trail = state?.navigationTrail;
-        if (!trail) {
-          const routeTrail = breadcrumbs(root);
-          const page = routeTrail.pop();
-          trail = !page
-            ? []
-            : kind === "detail" &&
-                originTrail &&
-                state?.origin !== openedFromSearchState.origin
-              ? continueTrail(originTrail, { ...page, url: router.url })
-              : [...routeTrail, { ...page, url: router.url }];
-          location.replaceState(location.path(), "", {
-            ...state,
-            navigationTrail: trail,
-          });
-        }
-        originTrail = kind ? trail : null;
-      });
-  });
-}
 
 export function navigationTrail(location: Location) {
   return (location.getState() as NavigationState)?.navigationTrail ?? [];
 }
 
-/** The page that the automatic "back" after an action returns to */
+/** The breadcrumb before the current page: where "back" goes after an action */
 export function findOrigin(location: Location) {
-  return navigationTrail(location).at(-2)?.url ?? null;
+  return navigationTrail(location).at(-2) ?? null;
 }
 
-function continueTrail(trail: Breadcrumb[], page: Breadcrumb) {
+export function navigateToBreadcrumb(breadcrumb: Breadcrumb, router: Router) {
+  const { key, url } = breadcrumb;
+  if (key && window.navigation.entries().some((entry) => entry.key === key))
+    return window.navigation.traverseTo(key).finished.then(() => true);
+
+  return router.navigateByUrl(url);
+}
+
+export function continueTrail(trail: Breadcrumb[], page: Breadcrumb) {
   const last = trail.at(-1);
   if (last && isVersionOf(last.url, page.url))
     return [...trail.slice(0, -1), page];

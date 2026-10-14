@@ -11,7 +11,6 @@ import { provideRouter, Router, TitleStrategy } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { provideNavigationTrail } from "../../shared/navigation/navigation-origin";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
 import {
   BREADCRUMB_DETAIL,
@@ -93,7 +92,6 @@ describe(BreadcrumbsComponent.name, () => {
         ]),
         { provide: TitleStrategy, useClass: ZacTitleStrategy },
         provideLocationMocks(),
-        provideNavigationTrail(),
       ],
     });
     TestBed.inject(TranslateService).setTranslation("nl", {
