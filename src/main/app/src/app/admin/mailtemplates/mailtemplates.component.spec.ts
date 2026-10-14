@@ -183,6 +183,24 @@ describe(MailtemplatesComponent.name, () => {
       ).toBeDisabled();
     });
 
+    it("does not offer to delete a mailtemplate before it is known whether a zaaktype uses it", async () => {
+      const { fixture } = await renderMailtemplates();
+      await respondWithMailtemplates([mailtemplate()]);
+      for (let round = 0; round < 5; round++) {
+        await sleep();
+        fixture.detectChanges();
+        await fixture.whenStable();
+      }
+
+      expect(
+        screen.queryByRole("button", { name: "actie.verwijderen" }),
+      ).not.toBeInTheDocument();
+
+      httpTestingController
+        .expectOne("/rest/beheer/mailtemplatekoppeling")
+        .flush([koppeling]);
+    });
+
     it("does not offer to delete the default mailtemplate", async () => {
       await setup({
         mailtemplates: [mailtemplate({ defaultMailtemplate: true })],
