@@ -54,11 +54,18 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
   const renderTab = (
     medewerkers: GeneratedType<"RestGeautoriseerdeMedewerker">[],
     canOntkoppelen = false,
+    loggedInUserId: string | null = "fake-logged-in-user-id",
   ) => {
     testQueryClient.setQueryData(
       zakenService.listGeautoriseerdeMedewerkersQuery(zaakUuid).queryKey,
       medewerkers,
     );
+    if (loggedInUserId) {
+      testQueryClient.setQueryData(
+        TestBed.inject(IdentityService).readLoggedInUser().queryKey,
+        fromPartial<GeneratedType<"RestLoggedInUser">>({ id: loggedInUserId }),
+      );
+    }
     fixture = TestBed.createComponent(ZaakDetailsMedewerkersTabComponent);
     fixture.componentRef.setInput("zaakUuid", zaakUuid);
     fixture.componentRef.setInput("canOntkoppelen", canOntkoppelen);
@@ -166,6 +173,14 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     ).not.toBeInTheDocument();
   });
 
+  it("offers no ontkoppelen until the logged-in user is known, so ontkoppelen yourself can never refresh the zaak", () => {
+    renderTab([addedMedewerker], true, null);
+
+    expect(
+      screen().queryByRole("button", { name: ontkoppelLabel }),
+    ).not.toBeInTheDocument();
+  });
+
   it("offers no ontkoppelen to a user who may not change the zaak", () => {
     renderTab([behandelaar, addedMedewerker], false);
 
@@ -218,13 +233,7 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     const navigateByUrl = jest
       .spyOn(TestBed.inject(Router), "navigateByUrl")
       .mockResolvedValue(true);
-    testQueryClient.setQueryData(
-      TestBed.inject(IdentityService).readLoggedInUser().queryKey,
-      fromPartial<GeneratedType<"RestLoggedInUser">>({
-        id: "fake-medewerker-id",
-      }),
-    );
-    renderTab([addedMedewerker], true);
+    renderTab([addedMedewerker], true, "fake-medewerker-id");
 
     screen().getByRole("button", { name: ontkoppelLabel }).click();
     const [, callback] = openOntkoppelSpy.mock.calls[0] as [

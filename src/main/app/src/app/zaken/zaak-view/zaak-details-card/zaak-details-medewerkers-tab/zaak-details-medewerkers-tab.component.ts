@@ -76,8 +76,9 @@ export class ZaakDetailsMedewerkersTabComponent {
     () => this.medewerkersQuery.data() ?? [],
   );
 
+  // Ontkoppelen waits for the logged-in user, since ontkoppelen yourself must leave the zaak instead of refreshing it.
   protected readonly columns = computed(() =>
-    this.canOntkoppelen()
+    this.canOntkoppelen() && this.loggedInUserQuery.isSuccess()
       ? ["naam", "roltype", "actions"]
       : ["naam", "roltype"],
   );
