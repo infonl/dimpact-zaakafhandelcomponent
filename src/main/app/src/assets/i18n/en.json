@@ -921,7 +921,7 @@
   "msg.zaakspecifiek-geautoriseerde-medewerker.geen-kandidaten": "All employees of this group already have access to this zaak.",
   "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen.bevestigen": "Revoke the access of {{medewerker}} to this zaak?",
   "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppeld": "{{medewerker}} has been unlinked from this zaak",
-  "msg.error.medewerker.not.zaakspecifiek.geautoriseerd": "This employee has no access to this zaak that can be unlinked.",
+  "msg.error.medewerker.not.zaakspecifiek.geautoriseerd": "This employee is not a zaakspecifiek geautoriseerde medewerker of this zaak and cannot be unlinked.",
   "msg.error.medewerker.cannot.be.ontkoppeld": "The zaak behandelaar and the behandelaars of open tasks cannot be unlinked.",
   "msg.error.medewerker.cannot.ontkoppel.themselves": "You cannot unlink yourself from this zaak.",
   "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
