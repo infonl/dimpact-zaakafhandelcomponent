@@ -91,6 +91,7 @@
           <ng-template matTabContent>
             <zac-zaak-details-medewerkers-tab
               [zaakUuid]="zaak().uuid"
+              [canOntkoppelen]="zaak().rechten.canWijzigen"
             ></zac-zaak-details-medewerkers-tab>
           </ng-template>
         </mat-tab>

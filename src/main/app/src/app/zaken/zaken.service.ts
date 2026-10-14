@@ -329,6 +329,31 @@ export class ZakenService {
     );
   }
 
+  deleteZaakspecifiekGeautoriseerdeMedewerker(uuid: string) {
+    return mergeMutationOptions(
+      this.zacQueryClient.DELETE(
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/{medewerkerId}",
+        ({ medewerkerId, reden }: { medewerkerId: string; reden: string }) => ({
+          parameters: { path: { uuid, medewerkerId } },
+          body: { reden },
+        }),
+      ),
+      {
+        onSuccess: () => {
+          this.queryClient.invalidateQueries({
+            queryKey: [
+              "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+            ],
+          });
+          this.queryClient.invalidateQueries({
+            queryKey: this.listGeautoriseerdeMedewerkersQuery(uuid).queryKey,
+          });
+          this.invalidateHistorie(uuid);
+        },
+      },
+    );
+  }
+
   listBetrokkenenVoorZaakQuery(uuid: string) {
     return queryOptions({
       ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/betrokkene", {

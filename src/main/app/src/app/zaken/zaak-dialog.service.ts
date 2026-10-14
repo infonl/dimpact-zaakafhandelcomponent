@@ -120,6 +120,25 @@ export class ZaakDialogService {
     });
   }
 
+  openOntkoppelZaakspecifiekGeautoriseerdeMedewerker(
+    medewerker: string,
+    callback: RedenCallback,
+  ) {
+    return this.openReden({
+      titleKey: "actie.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen",
+      icon: "link_off",
+      label: "reden",
+      multiline: true,
+      melding: this.translateService.instant(
+        "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen.bevestigen",
+        { medewerker },
+      ),
+      confirmButtonActionKey:
+        "actie.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen",
+      callback,
+    });
+  }
+
   openVerwijderBagObject(
     omschrijving: string | null | undefined,
     callback: RedenCallback,

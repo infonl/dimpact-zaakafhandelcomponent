@@ -89,6 +89,24 @@ describe(ZaakDialogService.name, () => {
     expect(data.multiline).toBe(true);
   });
 
+  it("ontkoppelZaakspecifiekGeautoriseerdeMedewerker opens a multiline reden dialog naming the medewerker", () => {
+    const { service, open } = setup();
+
+    service.openOntkoppelZaakspecifiekGeautoriseerdeMedewerker(
+      "Emma Jansen",
+      jest.fn(),
+    );
+
+    const data = openedRedenData(open);
+    expect(data.titleKey).toBe(
+      "actie.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen",
+    );
+    expect(data.multiline).toBe(true);
+    expect(data.melding).toBe(
+      "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen.bevestigen",
+    );
+  });
+
   it("verwijderBagObject opens a reden dialog with uitleg and maxlength 80", () => {
     const { service, open } = setup();
 

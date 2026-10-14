@@ -6,25 +6,52 @@
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialogRef } from "@angular/material/dialog";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { within } from "@testing-library/angular";
+import { Observable, of } from "rxjs";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../../setupJest";
+import { UtilService } from "../../../../core/service/util.service";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { ZaakDialogService } from "../../../zaak-dialog.service";
 import { ZakenService } from "../../../zaken.service";
 import { ZaakDetailsMedewerkersTabComponent } from "./zaak-details-medewerkers-tab.component";
 
 describe(ZaakDetailsMedewerkersTabComponent.name, () => {
   let fixture: ComponentFixture<ZaakDetailsMedewerkersTabComponent>;
   let zakenService: ZakenService;
+  let utilService: UtilService;
+  let dialogRef: MatDialogRef<unknown>;
+  let openOntkoppelSpy: jest.Mock;
+  let deleteMedewerkerMutation: ReturnType<
+    typeof createMutationOptions<void, { medewerkerId: string; reden: string }>
+  >;
 
   const zaakUuid = "fake-zaak-uuid";
+  const ontkoppelLabel =
+    "actie.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen";
+
+  const behandelaar: GeneratedType<"RestGeautoriseerdeMedewerker"> = {
+    id: "fake-behandelaar-id",
+    naam: "Anna de Vries",
+    roltype: "Behandelaar",
+    isOntkoppelbaar: false,
+  };
+  const addedMedewerker: GeneratedType<"RestGeautoriseerdeMedewerker"> = {
+    id: "fake-medewerker-id",
+    naam: "Emma Jansen",
+    roltype: "Zaakspecifiek geautoriseerde medewerker",
+    isOntkoppelbaar: true,
+  };
 
   const screen = () => within(fixture.nativeElement as HTMLElement);
 
   const renderTab = (
     medewerkers: GeneratedType<"RestGeautoriseerdeMedewerker">[],
+    canOntkoppelen = false,
   ) => {
     testQueryClient.setQueryData(
       zakenService.listGeautoriseerdeMedewerkersQuery(zaakUuid).queryKey,
@@ -32,11 +59,16 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     );
     fixture = TestBed.createComponent(ZaakDetailsMedewerkersTabComponent);
     fixture.componentRef.setInput("zaakUuid", zaakUuid);
+    fixture.componentRef.setInput("canOntkoppelen", canOntkoppelen);
     fixture.detectChanges();
   };
 
   beforeEach(async () => {
     notifyManager.setScheduler((fn) => fn());
+    dialogRef = fromPartial<MatDialogRef<unknown>>({
+      afterClosed: jest.fn().mockReturnValue(of(false)),
+    });
+    openOntkoppelSpy = jest.fn().mockReturnValue(dialogRef);
 
     await TestBed.configureTestingModule({
       imports: [ZaakDetailsMedewerkersTabComponent, TranslateModule.forRoot()],
@@ -44,10 +76,26 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
+        {
+          provide: ZaakDialogService,
+          useValue: {
+            openOntkoppelZaakspecifiekGeautoriseerdeMedewerker:
+              openOntkoppelSpy,
+          },
+        },
       ],
     }).compileComponents();
 
     zakenService = TestBed.inject(ZakenService);
+    utilService = TestBed.inject(UtilService);
+    jest.spyOn(utilService, "openSnackbar").mockImplementation();
+    deleteMedewerkerMutation = createMutationOptions<
+      void,
+      { medewerkerId: string; reden: string }
+    >(undefined);
+    jest
+      .spyOn(zakenService, "deleteZaakspecifiekGeautoriseerdeMedewerker")
+      .mockReturnValue(deleteMedewerkerMutation as never);
   });
 
   afterEach(() => {
@@ -56,18 +104,7 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
   });
 
   it("shows each medewerker with access to the zaak together with their rol, in the order the backend sorted them", () => {
-    renderTab([
-      {
-        id: "fake-behandelaar-id",
-        naam: "Anna de Vries",
-        roltype: "Behandelaar",
-      },
-      {
-        id: "fake-medewerker-id",
-        naam: "Emma Jansen",
-        roltype: "Zaakspecifiek geautoriseerde medewerker",
-      },
-    ]);
+    renderTab([behandelaar, addedMedewerker]);
 
     const rows = screen().getAllByRole("row").slice(1);
     expect(
@@ -103,5 +140,68 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     ]);
 
     expect(screen().getByRole("cell", { name: "-" })).toBeInTheDocument();
+  });
+
+  it("offers ontkoppelen only for the medewerkers the backend marks as ontkoppelbaar", () => {
+    renderTab([behandelaar, addedMedewerker], true);
+
+    const ontkoppelButtons = screen().getAllByRole("button", {
+      name: ontkoppelLabel,
+    });
+    expect(ontkoppelButtons).toHaveLength(1);
+    expect(
+      within(screen().getAllByRole("row")[2]).getByRole("button", {
+        name: ontkoppelLabel,
+      }),
+    ).toBe(ontkoppelButtons[0]);
+  });
+
+  it("offers no ontkoppelen to a user who may not change the zaak", () => {
+    renderTab([behandelaar, addedMedewerker], false);
+
+    expect(
+      screen().queryByRole("button", { name: ontkoppelLabel }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("asks for a reden and ontkoppelt the medewerker with it", async () => {
+    renderTab([addedMedewerker], true);
+
+    screen().getByRole("button", { name: ontkoppelLabel }).click();
+    const [naam, callback] = openOntkoppelSpy.mock.calls[0] as [
+      string,
+      (reden: string) => Observable<unknown>,
+    ];
+    callback("fake-reden").subscribe();
+    await new Promise(requestAnimationFrame);
+
+    expect(naam).toBe("Emma Jansen");
+    expect(
+      zakenService.deleteZaakspecifiekGeautoriseerdeMedewerker,
+    ).toHaveBeenCalledWith(zaakUuid);
+    expect(deleteMedewerkerMutation.mutationFn).toHaveBeenCalledWith(
+      { medewerkerId: "fake-medewerker-id", reden: "fake-reden" },
+      expect.anything(),
+    );
+  });
+
+  it("confirms the ontkoppeling once the dialog closes successfully", () => {
+    jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+    renderTab([addedMedewerker], true);
+
+    screen().getByRole("button", { name: ontkoppelLabel }).click();
+
+    expect(utilService.openSnackbar).toHaveBeenCalledWith(
+      "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppeld",
+      { medewerker: "Emma Jansen" },
+    );
+  });
+
+  it("shows no confirmation when the dialog is cancelled", () => {
+    renderTab([addedMedewerker], true);
+
+    screen().getByRole("button", { name: ontkoppelLabel }).click();
+
+    expect(utilService.openSnackbar).not.toHaveBeenCalled();
   });
 });
