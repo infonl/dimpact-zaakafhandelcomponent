@@ -16,7 +16,7 @@ ZAC test doubles and seed data for a kind cluster (spike, not released)
 | images.postgres | string | `"postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5"` | ghcr.io/infonl/postgis is the arm64 build that the Docker Compose arm64 override uses as well |
 | images.solr | string | `"solr:9.11.0-slim@sha256:c8a5ad7d951c00f15d5847ba0a94c1ab212de42de10668b80848831b72d75b9f"` |  |
 | images.wiremock | string | `"wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3"` |  |
-| part | string | `"infra"` | what to install: 'infra' (the shared Postgres, installed before PodiumD) or 'zac' (test doubles, seed jobs and NodePorts, installed after PodiumD). Two releases of this chart, so that the umbrella chart finds its database on its first install. |
+| part | string | `"infra"` | what to install: 'infra' (the shared Postgres, installed before PodiumD), 'zac' (test doubles, seed jobs and NodePorts, installed after PodiumD) or 'keycloak' (the ZAC layer of the PodiumD realm, installed once the PodiumD realm import has finished, because that import overwrites realm settings). Two releases of this chart, so that the umbrella chart finds its database on its first install. |
 | podiumdNamespace | string | `"podiumd"` | namespace of the PodiumD umbrella release; the URLs inside PodiumD hardcode 'podiumd' |
 
 ----------------------------------------------
