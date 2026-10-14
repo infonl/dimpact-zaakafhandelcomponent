@@ -40,7 +40,7 @@ class IdentificationServiceTest : BehaviorSpec({
             then("it should return a BetrokkeneIdentificatie with type BSN and the replaced temporaryPersonId") {
                 with(result) {
                     type shouldBe IdentificatieType.BSN
-                    bsn shouldBe bsn
+                    this.bsn shouldBe bsn
                     temporaryPersonId shouldBe uuid
                     kvkNummer shouldBe null
                     rsin shouldBe null
@@ -79,7 +79,7 @@ class IdentificationServiceTest : BehaviorSpec({
             then("it should return a BetrokkeneIdentificatie with type RSIN") {
                 with(result) {
                     type shouldBe IdentificatieType.RSIN
-                    rsin shouldBe rsin
+                    this.rsin shouldBe rsin
                 }
             }
         }
@@ -88,7 +88,7 @@ class IdentificationServiceTest : BehaviorSpec({
             val kvkNummer = "12345678"
             val nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
                 innNnpId = null,
-                kvkNummer = "12344321",
+                kvkNummer = kvkNummer,
                 vestigingsnummer = null
             )
             val initiatorRole = createRolNietNatuurlijkPersoon(
@@ -100,7 +100,7 @@ class IdentificationServiceTest : BehaviorSpec({
             then("it should return a BetrokkeneIdentificatie with type RSIN") {
                 with(result) {
                     type shouldBe IdentificatieType.RSIN
-                    kvkNummer shouldBe kvkNummer
+                    this.kvkNummer shouldBe kvkNummer
                     vestigingsnummer shouldBe null
                 }
             }
@@ -121,8 +121,33 @@ class IdentificationServiceTest : BehaviorSpec({
             then("it should return a BetrokkeneIdentificatie with type VN") {
                 with(result) {
                     type shouldBe IdentificatieType.VN
-                    vestigingsnummer shouldBe vestigingsnummer
+                    this.vestigingsnummer shouldBe vestigingsnummer
                 }
+            }
+        }
+
+        `when`("the initiator is a Niet Natuurlijk Persoon without an RSIN, KVK number or vestigingsnummer") {
+            val initiatorRole = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    kvkNummer = null,
+                    annIdentificatie = "fakeAnnIdentificatie"
+                )
+            )
+
+            val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)
+
+            then("it should return no BetrokkeneIdentificatie") {
+                result shouldBe null
+            }
+        }
+
+        `when`("the initiator is a Niet Natuurlijk Persoon without a betrokkene identificatie") {
+            val initiatorRole = createRolNietNatuurlijkPersoon(nietNatuurlijkPersoonIdentificatie = null)
+
+            val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)
+
+            then("it should return no BetrokkeneIdentificatie") {
+                result shouldBe null
             }
         }
     }

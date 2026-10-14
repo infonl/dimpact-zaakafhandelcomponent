@@ -26,6 +26,8 @@ import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.identification.findRechtspersoonOrVestiging
+import nl.info.zac.identification.toIdentificatieType
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
@@ -287,27 +289,23 @@ class MailTemplateHelper @Inject constructor(
                     kvkClientService.findVestiging(identificatie)
                 )
 
-            BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
-                val resultaatItem = (initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
-                    when {
-                        it.innNnpId?.isNotBlank() == true -> kvkClientService.findRechtspersoonByRsin(
-                            identificatie
-                        )
-                        it.vestigingsNummer?.isNotBlank() == true -> kvkClientService.findVestiging(
-                            identificatie
-                        )
-                        else -> {
-                            LOG.warning { "Unsupported niet-natuurlijk persoon identificatie: '$it'" }
-                            null
-                        }
-                    }
-                }
-                replaceInitiatorVariablesResultaatItem(resolvedText, resultaatItem)
-            }
+            BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON ->
+                replaceInitiatorVariablesResultaatItem(
+                    resolvedText,
+                    findResultaatItem(initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie)
+                )
 
             else -> error("Unsupported betrokkene type '${initiatorRole.betrokkeneType}'")
         }
     }
+
+    private fun findResultaatItem(nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie) =
+        if (nietNatuurlijkPersoonIdentificatie.toIdentificatieType() == null) {
+            LOG.warning { "Unsupported niet-natuurlijk persoon identificatie: '$nietNatuurlijkPersoonIdentificatie'" }
+            null
+        } else {
+            kvkClientService.findRechtspersoonOrVestiging(nietNatuurlijkPersoonIdentificatie)
+        }
 
     private fun replaceInitiatorVariablesPersoon(
         resolvedTekst: String,
