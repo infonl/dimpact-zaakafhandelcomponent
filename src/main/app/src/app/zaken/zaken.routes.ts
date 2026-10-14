@@ -4,7 +4,11 @@
  */
 
 import { Routes } from "@angular/router";
-import { translatedTitle } from "../core/breadcrumbs/route-title";
+import {
+  BREADCRUMB_DETAIL,
+  BREADCRUMB_ORIGIN,
+  translatedTitle,
+} from "../core/breadcrumbs/route-title";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakIdentificatieResolver } from "./zaak-identificatie-resolver.service";
@@ -23,7 +27,10 @@ export const ZAKEN_ROUTES: Routes = [
         (m) => m.ZakenMijnComponent,
       ),
     resolve: { tabelGegevens: TabelGegevensResolver },
-    data: { werklijst: "MIJN_ZAKEN" satisfies GeneratedType<"Werklijst"> },
+    data: {
+      werklijst: "MIJN_ZAKEN" satisfies GeneratedType<"Werklijst">,
+      ...BREADCRUMB_ORIGIN,
+    },
   },
   {
     path: "werkvoorraad",
@@ -35,6 +42,7 @@ export const ZAKEN_ROUTES: Routes = [
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
       werklijst: "WERKVOORRAAD_ZAKEN" satisfies GeneratedType<"Werklijst">,
+      ...BREADCRUMB_ORIGIN,
     },
   },
   {
@@ -55,6 +63,7 @@ export const ZAKEN_ROUTES: Routes = [
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
       werklijst: "AFGEHANDELDE_ZAKEN" satisfies GeneratedType<"Werklijst">,
+      ...BREADCRUMB_ORIGIN,
     },
   },
   {
@@ -65,5 +74,6 @@ export const ZAKEN_ROUTES: Routes = [
         (m) => m.ZaakViewComponent,
       ),
     resolve: { zaak: ZaakIdentificatieResolver },
+    data: BREADCRUMB_DETAIL,
   },
 ];

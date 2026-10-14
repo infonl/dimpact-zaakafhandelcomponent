@@ -4,12 +4,16 @@
  */
 
 import { Routes } from "@angular/router";
-import { translatedTitle } from "./core/breadcrumbs/route-title";
+import {
+  BREADCRUMB_ORIGIN,
+  translatedTitle,
+} from "./core/breadcrumbs/route-title";
 
 export const APP_ROUTES: Routes = [
   {
     path: "",
     title: translatedTitle("title.dashboard"),
+    data: BREADCRUMB_ORIGIN,
     loadComponent: () =>
       import("./dashboard/dashboard.component").then(
         (m) => m.DashboardComponent,

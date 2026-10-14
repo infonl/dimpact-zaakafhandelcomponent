@@ -4,7 +4,11 @@
  */
 
 import { Routes } from "@angular/router";
-import { translatedTitle } from "../core/breadcrumbs/route-title";
+import {
+  BREADCRUMB_DETAIL,
+  BREADCRUMB_ORIGIN,
+  translatedTitle,
+} from "../core/breadcrumbs/route-title";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { TaakResolver } from "./taak.resolver";
@@ -25,6 +29,7 @@ export const TAKEN_ROUTES: Routes = [
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
       werklijst: "WERKVOORRAAD_TAKEN" satisfies GeneratedType<"Werklijst">,
+      ...BREADCRUMB_ORIGIN,
     },
   },
   {
@@ -35,7 +40,10 @@ export const TAKEN_ROUTES: Routes = [
         (m) => m.TakenMijnComponent,
       ),
     resolve: { tabelGegevens: TabelGegevensResolver },
-    data: { werklijst: "MIJN_TAKEN" satisfies GeneratedType<"Werklijst"> },
+    data: {
+      werklijst: "MIJN_TAKEN" satisfies GeneratedType<"Werklijst">,
+      ...BREADCRUMB_ORIGIN,
+    },
   },
   {
     path: ":id",
@@ -43,6 +51,7 @@ export const TAKEN_ROUTES: Routes = [
     children: [
       {
         path: "",
+        data: BREADCRUMB_DETAIL,
         title: (route) =>
           (route.data["taak"] as GeneratedType<"RestTask">).naam ?? "",
         loadComponent: () =>

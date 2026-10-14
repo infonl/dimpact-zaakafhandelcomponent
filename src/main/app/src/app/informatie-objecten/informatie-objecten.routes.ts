@@ -4,6 +4,7 @@
  */
 
 import { ResolveFn, Routes } from "@angular/router";
+import { BREADCRUMB_DETAIL } from "../core/breadcrumbs/route-title";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
 import { InformatieObjectResolver } from "./informatie-object.resolver";
@@ -16,14 +17,29 @@ const title: ResolveFn<string> = (route) =>
   ).identificatie ?? "";
 
 export const INFORMATIE_OBJECTEN_ROUTES: Routes = [
+  { path: "", redirectTo: "/documenten/inbox", pathMatch: "full" },
   {
     path: ":uuid",
     resolve: { informatieObject: InformatieObjectResolver },
-    children: [{ path: "", title, component: InformatieObjectViewComponent }],
+    children: [
+      {
+        path: "",
+        title,
+        data: BREADCRUMB_DETAIL,
+        component: InformatieObjectViewComponent,
+      },
+    ],
   },
   {
     path: ":uuid/:versie",
     resolve: { informatieObject: InformatieObjectResolver },
-    children: [{ path: "", title, component: InformatieObjectViewComponent }],
+    children: [
+      {
+        path: "",
+        title,
+        data: BREADCRUMB_DETAIL,
+        component: InformatieObjectViewComponent,
+      },
+    ],
   },
 ];

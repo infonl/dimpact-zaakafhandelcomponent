@@ -4,6 +4,7 @@
  */
 
 import { Routes } from "@angular/router";
+import { BREADCRUMB_DETAIL } from "../core/breadcrumbs/route-title";
 import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 import { BedrijfResolverService } from "./bedrijf-view/bedrijf-resolver.service";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
@@ -21,6 +22,7 @@ export const PERSOON_ROUTES: Routes = [
   {
     path: ":temporaryPersonId",
     canMatch: [PersoonResolverGuard],
+    data: BREADCRUMB_DETAIL,
     component: PersoonViewComponent,
     resolve: { persoon: PersoonResolverService },
   },
@@ -39,11 +41,13 @@ export const PERSOON_ROUTES: Routes = [
 export const BEDRIJF_ROUTES: Routes = [
   {
     path: ":id", // This can only be a valid `RSIN` or `KVK` number
+    data: BREADCRUMB_DETAIL,
     component: BedrijfViewComponent,
     resolve: { bedrijf: BedrijfResolverService },
   },
   {
     path: ":id/vestiging/:vestigingsnummer", // `id` must be a `kvkNummer`
+    data: BREADCRUMB_DETAIL,
     component: BedrijfViewComponent,
     resolve: { bedrijf: BedrijfResolverService },
   },
