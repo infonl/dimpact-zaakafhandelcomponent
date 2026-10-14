@@ -15,6 +15,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.spyk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
@@ -518,10 +519,11 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
-    fun stubDeleteSignaleringen(
+    val pathId = mockk<Path<Long>>()
+
+    fun stubListSignaleringen(
         signaleringenZoekParameters: SignaleringZoekParameters,
-        listedSignaleringen: List<Signalering>,
-        deletedCount: Int
+        listedSignaleringen: List<Signalering>
     ) {
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
@@ -538,11 +540,34 @@ class SignaleringServiceTest : BehaviorSpec({
         every { criteriaQuery.orderBy(any<Order>()) } returns criteriaQuery
         every { criteriaBuilder.desc(pathTarget) } returns order
         every { entityManager.createQuery(any<CriteriaQuery<Signalering>>()).resultList } returns listedSignaleringen
+    }
+
+    fun stubDeleteSignaleringenWithIds(signaleringIds: List<Long>, deletedCount: Int) {
         every { criteriaBuilder.createCriteriaDelete(Signalering::class.java) } returns criteriaDeleteSignalering
         every { criteriaDeleteSignalering.from(Signalering::class.java) } returns rootSignalering
-        every { criteriaDeleteSignalering.where(any<Predicate>()) } returns criteriaDeleteSignalering
+        every { rootSignalering.get<Long>("id") } returns pathId
+        every { pathId.`in`(signaleringIds) } returns predicate
+        every { criteriaDeleteSignalering.where(predicate) } returns criteriaDeleteSignalering
         every { entityManager.createQuery(criteriaDeleteSignalering) } returns query
         every { query.executeUpdate() } returns deletedCount
+    }
+
+    fun createSignaleringWithId(signaleringId: Long) =
+        spyk(createSignalering(targetUser = createUser(id = "fakeId1"))) { every { id } returns signaleringId }
+
+    given("No zaak signaleringen for the given signalering zoek parameters with a subject type and subject") {
+        val signaleringenZoekParameters = createSignaleringZoekParameters()
+        stubListSignaleringen(signaleringenZoekParameters = signaleringenZoekParameters, listedSignaleringen = emptyList())
+
+        `when`("signaleringen are requested to be deleted") {
+            val deletedCount = signaleringService.deleteSignaleringen(signaleringenZoekParameters)
+
+            then("nothing is deleted, no delete query is run and no screen event is sent") {
+                deletedCount shouldBe 0
+                verify(exactly = 0) { pathId.`in`(any<Collection<*>>()) }
+                verify(exactly = 0) { eventingService.send(any<ScreenEvent>()) }
+            }
+        }
     }
 
     given(
@@ -552,11 +577,11 @@ class SignaleringServiceTest : BehaviorSpec({
         """
     ) {
         val signaleringenZoekParameters = createSignaleringZoekParameters()
-        stubDeleteSignaleringen(
+        stubListSignaleringen(
             signaleringenZoekParameters = signaleringenZoekParameters,
-            listedSignaleringen = listOf(createSignalering(targetUser = createUser(id = "fakeId1"))),
-            deletedCount = 0
+            listedSignaleringen = listOf(createSignaleringWithId(1L))
         )
+        stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L), deletedCount = 0)
 
         `when`("signaleringen are requested to be deleted") {
             val deletedCount = signaleringService.deleteSignaleringen(signaleringenZoekParameters)
@@ -574,21 +599,24 @@ class SignaleringServiceTest : BehaviorSpec({
         """
     ) {
         val signaleringenZoekParameters = createSignaleringZoekParameters()
-        stubDeleteSignaleringen(
+        stubListSignaleringen(
             signaleringenZoekParameters = signaleringenZoekParameters,
-            listedSignaleringen = listOf(
-                createSignalering(targetUser = createUser(id = "fakeId1")),
-                createSignalering(targetUser = createUser(id = "fakeId1"))
-            ),
-            deletedCount = 2
+            listedSignaleringen = listOf(createSignaleringWithId(1L), createSignaleringWithId(2L))
         )
+        stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L, 2L), deletedCount = 2)
         every { eventingService.send(any<ScreenEvent>()) } returns Unit
 
         `when`("signaleringen are requested to be deleted") {
             val deletedCount = signaleringService.deleteSignaleringen(signaleringenZoekParameters)
 
-            then("the two signaleringen are deleted in one bulk delete") {
+            then(
+                """
+                only the two listed signaleringen are deleted in one bulk delete, so a signalering that is created
+                after the listing is not deleted
+                """
+            ) {
                 deletedCount shouldBe 2
+                verify(exactly = 1) { pathId.`in`(listOf(1L, 2L)) }
             }
             and("only one screen event is sent, because both signaleringen have the same target and type") {
                 verify(exactly = 1) { eventingService.send(any<ScreenEvent>()) }
