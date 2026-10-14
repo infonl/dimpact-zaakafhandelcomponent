@@ -185,7 +185,13 @@ mark zac-dev-installed
 # ZAC records boot errors and stays unhealthy until the liveness probe restarts it (16 x 30s) when Keycloak,
 # Open Zaak or PABC are not there yet when it boots; Docker Compose has depends_on for this.
 step "waiting for the ZAC dependencies"
-kc -n podiumd wait --for=condition=complete job/seed-keycloak-zac --timeout=1200s > /dev/null
+# keycloak-config-cli updates the realm settings at the end of its import, which would undo the ZAC layer
+until import_job=$(kc -n podiumd get jobs -o name | grep import-podiumd-realm-job); do sleep 2; done
+kc -n podiumd wait --for=condition=complete "$import_job" --timeout=1200s > /dev/null
+mark keycloak-realm-imported
+helm --kube-context "$CONTEXT" upgrade --install zac-dev-keycloak "$ROOT/charts/zac-dev" -n podiumd \
+  --set part=keycloak "${ZAC_DEV_VALUES[@]}" > /dev/null
+kc -n podiumd wait --for=condition=complete job/seed-keycloak-zac --timeout=600s > /dev/null
 kc -n podiumd wait --for=condition=available deploy/openzaak deploy/openzaak-nginx deploy/pabc deploy/objecten deploy/openklant --timeout=600s > /dev/null
 mark zac-dependencies-ready
 wait "${PREPULL_PIDS[@]}"

@@ -120,7 +120,9 @@ spec:
         - name: fixtures
           configMap:
             name: seed-objecten-fixtures
----
+{{- end }}
+{{- if eq .Values.part "keycloak" }}
+{{- $podiumd := .Values.podiumdNamespace }}
 # The ZAC layer of the PodiumD Keycloak realm: test users, groups and roles from the Docker Compose realm,
 # and the client settings that the itests need. Runs once the PodiumD realm import has created the 'zac' client.
 apiVersion: batch/v1

@@ -6,8 +6,9 @@
 # -- namespace of the PodiumD umbrella release; the URLs inside PodiumD hardcode 'podiumd'
 podiumdNamespace: podiumd
 
-# -- what to install: 'infra' (the shared Postgres, installed before PodiumD) or 'zac' (test doubles,
-# seed jobs and NodePorts, installed after PodiumD). Two releases of this chart, so that the umbrella
+# -- what to install: 'infra' (the shared Postgres, installed before PodiumD), 'zac' (test doubles,
+# seed jobs and NodePorts, installed after PodiumD) or 'keycloak' (the ZAC layer of the PodiumD realm,
+# installed once the PodiumD realm import has finished, because that import overwrites realm settings). Two releases of this chart, so that the umbrella
 # chart finds its database on its first install.
 part: infra
 
