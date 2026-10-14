@@ -71,6 +71,11 @@ would split adding and ontkoppelen across two policies.
   it. Holding the lock while a plan item starts would also hold it while mail is sent, and a lock across pods
   needs a shared store, so this is accepted, like the same trade-off for adding.
 - [An employee ontkoppelt themselves] → Allowed. They lose access, which is what they asked for.
+- [Reindexing one of the zaak, its taken or its documenten fails after the rollen are deleted] → The request
+  still succeeds and the failure is logged, as for adding a medewerker and assigning a taak, which use the same
+  reindex. Opening the object is refused at once anyway, because the policy reads the rollen live; only its
+  search result stays visible until the next reindex. Failing the request instead would leave the rollen
+  deleted and give the user an error that a retry cannot fix.
 
 ## Migration Plan
 
