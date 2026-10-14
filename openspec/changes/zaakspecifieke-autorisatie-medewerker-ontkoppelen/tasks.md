@@ -23,10 +23,12 @@
 
 - [ ] 2.1 `ZakenService.deleteZaakspecifiekGeautoriseerdeMedewerker`.
 - [ ] 2.2 `ZaakDialogService.openOntkoppelZaakspecifiekGeautoriseerdeMedewerker`.
-- [ ] 2.3 Action column in the *Medewerkers* tab; snackbar and refresh on success.
+- [ ] 2.3 Action column in the *Medewerkers* tab, only when the employee has `wijzigen`, with the action on the
+      rows that are `isOntkoppelbaar`; snackbar and refresh on success.
 - [ ] 2.4 i18n texts in `nl.json` and `en.json`, including the three new error codes.
-- [ ] 2.5 Specs for the tab, for the dialog configuration (required, multiline reden) and for the `DELETE`
-      request (path and `{ reden }` body) and what it refreshes.
+- [ ] 2.5 Specs for the tab, including an employee without `wijzigen` who sees no action, for the dialog
+      configuration (required, multiline reden) and for the `DELETE` request (path and `{ reden }` body) and
+      what it refreshes.
 
 ## 3. Wrap-up
 

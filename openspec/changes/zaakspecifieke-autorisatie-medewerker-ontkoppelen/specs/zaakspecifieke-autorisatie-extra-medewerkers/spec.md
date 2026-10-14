@@ -74,20 +74,23 @@ access SHALL mark a medewerker as `isOntkoppelbaar` only when none of these refu
 ### Requirement: An ontkoppelde medewerker loses access
 
 An ontkoppelde medewerker SHALL lose the access that their *Zaakspecifiek geautoriseerde medewerker* rol gave.
-Unless they hold the `zaakspecifiek_geautoriseerd` application role for the zaaktype, they SHALL no longer get
+Unless they hold the `zaakspecifiek_geautoriseerd` application role for the zaaktype, together with a role that
+grants rechten on it, they SHALL no longer get
 any rechten on the zaak and SHALL no longer find the zaak, its taken and its documenten in the werkvoorraden,
 the zoekresultaten and when koppelen zaken, without a manual reindex. They SHALL no longer be listed in the
 *Medewerkers* tab.
 
-Ontkoppelen SHALL NOT change access that comes from the `zaakspecifiek_geautoriseerd` application role: that
-role is granted per zaaktype in the PABC, so a medewerker who holds it keeps access to the zaak.
+Ontkoppelen SHALL NOT change access that comes from the `zaakspecifiek_geautoriseerd` application role. That
+role grants no rechten on its own; together with a role that does, such as `behandelaar`, it gives access to
+every zaakspecifiek geautoriseerde zaak of the zaaktype. Both are granted per zaaktype in the PABC, so a
+medewerker who holds them keeps that access after ontkoppelen.
 
 #### Scenario: Ontkoppelen a medewerker who also holds the zaakspecifiek_geautoriseerd application role
-- **GIVEN** medewerker B, who holds a *Zaakspecifiek geautoriseerde medewerker* rol on the zaak and the
-  `zaakspecifiek_geautoriseerd` application role for the zaaktype
+- **GIVEN** medewerker B, who holds a *Zaakspecifiek geautoriseerde medewerker* rol on the zaak, and the
+  `behandelaar` and `zaakspecifiek_geautoriseerd` application roles for the zaaktype
 - **WHEN** an employee ontkoppelt B
 - **THEN** the rol of B is deleted
-- **AND** B keeps access to the zaak through the application role
+- **AND** B keeps access to the zaak through those application roles
 
 #### Scenario: The ontkoppelde medewerker no longer finds the zaak
 - **GIVEN** medewerker A, with `behandelaar` but not `zaakspecifiek_geautoriseerd`, who was ontkoppeld from
