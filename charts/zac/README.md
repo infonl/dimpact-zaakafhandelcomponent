@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.348](https://img.shields.io/badge/Version-1.0.348-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
+![Version: 1.0.349](https://img.shields.io/badge/Version-1.0.349-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -110,6 +110,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
+| extraEnv | list | `[]` | Extra environment variables for the ZAC container, for example `APP_ENV` for the integration tests |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |
