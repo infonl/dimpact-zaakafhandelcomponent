@@ -1114,6 +1114,36 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         }
     }
 
+    context("Listing a zaakspecifiek geautoriseerde medewerker rol that identifies no medewerker") {
+        given("a zaakspecifiek geautoriseerde zaak with such a rol, created outside ZAC") {
+            val zaak = createZaak()
+            val rolWithoutMedewerker = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = createZaakspecifiekGeautoriseerdeMedewerkerRolType(),
+                medewerkerIdentificatie = null
+            )
+            val rollen = listOf<Rol<*>>(rolWithoutMedewerker)
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns listOf(rolWithoutMedewerker)
+            every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns emptyList()
+
+            `when`("the geautoriseerde medewerkers are listed") {
+                val geautoriseerdeMedewerkerRollen = zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(
+                    zaak = zaak,
+                    zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens
+                )
+
+                then("the rol cannot be ontkoppeld, since ontkoppelen needs the id of the medewerker") {
+                    geautoriseerdeMedewerkerRollen.single().isOntkoppelbaar shouldBe false
+                }
+            }
+        }
+    }
+
     context("Listing the medewerkers of a groep who can be added to a zaakspecifiek geautoriseerde zaak") {
         given("a zaak that is not zaakspecifiek geautoriseerd") {
 

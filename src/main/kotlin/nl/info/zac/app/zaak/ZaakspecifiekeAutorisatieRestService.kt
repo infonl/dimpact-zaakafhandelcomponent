@@ -97,7 +97,7 @@ class ZaakspecifiekeAutorisatieRestService @Inject constructor(
     fun removeZaakspecifiekGeautoriseerdeMedewerker(
         @PathParam("uuid") zaakUUID: UUID,
         @PathParam("medewerkerId") medewerkerId: String,
-        restReden: RestReden
+        @Valid restReden: RestReden
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakAutorisatieGegevens = readZaakAutorisatieGegevensAndAssertWijzigen(zaak, zaakType)

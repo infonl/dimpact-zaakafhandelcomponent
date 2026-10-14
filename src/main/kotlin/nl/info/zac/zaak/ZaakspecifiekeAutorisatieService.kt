@@ -251,7 +251,8 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                 zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers.map {
                     GeautoriseerdeMedewerkerRol(
                         rol = it,
-                        isOntkoppelbaar = it.identificatienummer !in nietOntkoppelbareMedewerkerIds
+                        isOntkoppelbaar = it.identificatienummer
+                            ?.let { medewerkerId -> medewerkerId !in nietOntkoppelbareMedewerkerIds } == true
                     )
                 }
             ).sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.rol.naam.orEmpty() })

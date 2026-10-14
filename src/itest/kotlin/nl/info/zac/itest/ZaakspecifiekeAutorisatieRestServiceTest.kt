@@ -274,6 +274,20 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             }
         }
 
+        `when`("a medewerker is ontkoppeld without a reden") {
+            val response = itestHttpClient.performDeleteRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers/" +
+                    BEHANDELAAR_1_EN_BRP_ZOEKER_2.username,
+                requestBodyAsString = """{ "reden": " " }""",
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the request is refused as invalid and the medewerker keeps access") {
+                response.code shouldBe HTTP_BAD_REQUEST
+                zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldContain BEHANDELAAR_1_EN_BRP_ZOEKER_2.username
+            }
+        }
+
         `when`("the zaakbehandelaar is ontkoppeld") {
             val response = removeMedewerker(zaakUuid, BEHANDELAAR_1, BEHANDELAAR_1)
 

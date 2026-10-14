@@ -4,11 +4,13 @@
  */
 package nl.info.zac.app.zaak.model
 
+import jakarta.validation.constraints.NotBlank
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
 data class RestReden(
+    @field:NotBlank
     var reden: String
 )
