@@ -66,6 +66,13 @@ for node in $(kc get nodes -o jsonpath='{.items[*].metadata.name}'); do
   fi
 done
 
+# charts/zac depends on two charts that are not in git (disabled here, but Helm still wants them)
+if ! ls "$ROOT"/charts/zac/charts/*.tgz > /dev/null 2>&1; then
+  helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts > /dev/null 2>&1 || true
+  helm repo add solr https://solr.apache.org/charts > /dev/null 2>&1 || true
+  helm dependency build "$ROOT/charts/zac" > /dev/null
+fi
+
 # ZAC calls its OPA sidecar while it boots, and Kubernetes starts the sidecar only after the ZAC container; a cold
 # pull of the OPA image makes ZAC boot with errors and wait for a liveness restart. Pull the images of the ZAC pod
 # up front, in the background.
