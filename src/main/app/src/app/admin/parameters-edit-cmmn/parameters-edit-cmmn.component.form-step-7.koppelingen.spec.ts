@@ -131,7 +131,7 @@ describe("Koppelingen form step", () => {
         {
           provide: MailtemplateBeheerService,
           useValue: fromPartial<MailtemplateBeheerService>({
-            listKoppelbareMailtemplates: () => of([]),
+            listKoppelbareMailtemplates: () => createQueryOptions([]) as never,
           }),
         },
         {

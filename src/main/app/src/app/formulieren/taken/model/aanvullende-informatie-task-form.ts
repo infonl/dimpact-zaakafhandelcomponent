@@ -65,7 +65,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
 
     verzenderControl.setValue(defaultAfzender ?? null);
 
-    const mailTemplate = await lastValueFrom(
+    const mailTemplate = await this.queryClient.fetchQuery(
       this.mailtemplateService.findMailtemplate(
         "TAAK_AANVULLENDE_INFORMATIE",
         zaak.uuid,

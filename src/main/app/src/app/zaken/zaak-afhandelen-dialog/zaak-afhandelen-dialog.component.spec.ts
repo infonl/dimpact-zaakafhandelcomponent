@@ -148,9 +148,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     jest
       .spyOn(TestBed.inject(ZakenService), "listAfzendersVoorZaak")
       .mockReturnValue(of(afzenders));
-    jest
-      .spyOn(TestBed.inject(MailtemplateService), "findMailtemplate")
-      .mockReturnValue(of(mailtemplate));
 
     return rendered;
   }
@@ -162,7 +159,15 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     );
     testQueryClient.setQueryData(["afzenders", zaakToHandle.uuid], afzenders);
     testQueryClient.setQueryData(
-      ["mailtemplate", zaakToHandle.uuid],
+      [
+        "/rest/mailtemplates/{mailtemplateEnum}/{zaakUUID}",
+        {
+          path: {
+            mailtemplateEnum: "ZAAK_AFGEHANDELD",
+            zaakUUID: zaakToHandle.uuid,
+          },
+        },
+      ],
       mailtemplate,
     );
 

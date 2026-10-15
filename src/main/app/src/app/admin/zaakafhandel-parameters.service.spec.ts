@@ -9,8 +9,10 @@ import { TranslateModule } from "@ngx-translate/core";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
+import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { runMutation } from "../shared/http/run-mutation";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
 describe(ZaakafhandelParametersService.name, () => {
@@ -37,6 +39,33 @@ describe(ZaakafhandelParametersService.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaakafhandelparameters.opgeslagen",
       );
+    });
+
+    it("invalidates the mailtemplate koppelingen, which the parameters hold", async () => {
+      const invalidateQueries = jest
+        .spyOn(testQueryClient, "invalidateQueries")
+        .mockResolvedValue(undefined);
+
+      await runMutationOnSuccess(service.updateZaakafhandelparameters());
+
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: TestBed.inject(
+          MailtemplateKoppelingService,
+        ).listMailtemplateKoppelingen().queryKey,
+      });
+    });
+
+    it("makes zaken fetch their mailtemplate again, as the koppelingen choose it", async () => {
+      const invalidateFoundMailtemplates = jest
+        .spyOn(
+          TestBed.inject(MailtemplateService),
+          "invalidateFoundMailtemplates",
+        )
+        .mockResolvedValue(undefined);
+
+      await runMutationOnSuccess(service.updateZaakafhandelparameters());
+
+      expect(invalidateFoundMailtemplates).toHaveBeenCalled();
     });
   });
 

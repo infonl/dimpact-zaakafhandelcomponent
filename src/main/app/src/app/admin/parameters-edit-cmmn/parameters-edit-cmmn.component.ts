@@ -9,6 +9,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  inject,
   input,
   OnDestroy,
   output,
@@ -45,6 +46,7 @@ import { MatStepperModule } from "@angular/material/stepper";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { forkJoin, Subject, Subscription, takeUntil } from "rxjs";
 import {
   ConfirmDialogComponent,
@@ -58,6 +60,7 @@ import { ZacRadio } from "../../shared/form/radio/radio";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacToggle } from "../../shared/form/toggle/toggle";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -267,6 +270,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "statusmail.optie.niet-beschikbaar", value: "NIET_BESCHIKBAAR" },
   ];
 
+  private readonly queryClient = inject(QueryClient);
   private readonly updateZaakafhandelparametersMutation = injectMutation(
     () => this.zaakafhandelParametersService.updateZaakafhandelparameters(),
     {
@@ -336,7 +340,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         referentieTabelService.listAfzenders(),
         zaakafhandelParametersService.listReplyTos(),
         zaakafhandelParametersService.listZaakbeeindigRedenen(),
-        mailtemplateBeheerService.listKoppelbareMailtemplates(),
+        runQuery(
+          this.queryClient,
+          mailtemplateBeheerService.listKoppelbareMailtemplates(),
+        ),
         zaakafhandelParametersService.listResultaattypes(
           this.parameters.zaaktype.uuid ?? "",
         ),

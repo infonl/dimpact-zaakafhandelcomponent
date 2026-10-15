@@ -29,6 +29,7 @@ import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -65,8 +66,18 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
-  zaakOntvankelijkMail?: GeneratedType<"RestMailtemplate">;
-  zaakNietOntvankelijkMail?: GeneratedType<"RestMailtemplate">;
+  protected readonly zaakOntvankelijkMailQuery = injectQuery(() =>
+    this.mailtemplateService.findMailtemplate(
+      "ZAAK_ONTVANKELIJK",
+      this.data.zaak.uuid,
+    ),
+  );
+  protected readonly zaakNietOntvankelijkMailQuery = injectQuery(() =>
+    this.mailtemplateService.findMailtemplate(
+      "ZAAK_NIET_ONTVANKELIJK",
+      this.data.zaak.uuid,
+    ),
+  );
   mailBeschikbaar = false;
   sendMailDefault = false;
   protected readonly contactEmailAddress = injectContactEmail(
@@ -101,16 +112,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.afzenders = this.zakenService.listAfzendersVoorZaak(
       this.data.zaak.uuid,
     );
-    this.mailtemplateService
-      .findMailtemplate("ZAAK_ONTVANKELIJK", this.data.zaak.uuid)
-      .subscribe((mailtemplate) => {
-        this.zaakOntvankelijkMail = mailtemplate;
-      });
-    this.mailtemplateService
-      .findMailtemplate("ZAAK_NIET_ONTVANKELIJK", this.data.zaak.uuid)
-      .subscribe((mailtemplate) => {
-        this.zaakNietOntvankelijkMail = mailtemplate;
-      });
 
     const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
     this.mailBeschikbaar = zap?.intakeMail !== "NIET_BESCHIKBAAR";
@@ -175,8 +176,8 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.dialogRef.disableClose = true;
     const values = this.formGroup.value;
     const mailtemplate = values.ontvankelijk
-      ? this.zaakOntvankelijkMail
-      : this.zaakNietOntvankelijkMail;
+      ? this.zaakOntvankelijkMailQuery.data()
+      : this.zaakNietOntvankelijkMailQuery.data();
 
     this.afrondenMutation.mutate({
       actie: "INTAKE_AFRONDEN",
