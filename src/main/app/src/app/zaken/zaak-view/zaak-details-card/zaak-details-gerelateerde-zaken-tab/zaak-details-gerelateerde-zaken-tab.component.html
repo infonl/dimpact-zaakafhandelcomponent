@@ -14,6 +14,11 @@
           {{ "gerelateerde.zaak." + column | i18nKey | translate }}
         </th>
         <td mat-cell *matCellDef="let row">
+          @if (column === "identificatie") {
+            <zac-zaakspecifiek-geautoriseerd-icon
+              [isZaakspecifiekGeautoriseerd]="row.isZaakspecifiekGeautoriseerd"
+            />
+          }
           {{ row[column] | empty | datum }}
         </td>
       </ng-container>

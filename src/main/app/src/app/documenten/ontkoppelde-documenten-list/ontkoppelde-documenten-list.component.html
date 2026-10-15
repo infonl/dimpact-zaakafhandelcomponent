@@ -120,7 +120,14 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>
               {{ "zaak" | translate }}
             </th>
-            <td mat-cell *matCellDef="let row">{{ row.zaakID }}</td>
+            <td mat-cell *matCellDef="let row">
+              <zac-zaakspecifiek-geautoriseerd-icon
+                [isZaakspecifiekGeautoriseerd]="
+                  row.isZaakspecifiekGeautoriseerd
+                "
+              />
+              {{ row.zaakID }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="ontkoppeldDoor">

@@ -14,13 +14,9 @@
     <section class="flex-row space-between items-center">
       <div>
         <mat-card-title>
-          @if (zaak().isZaakspecifiekGeautoriseerd) {
-            <mat-icon
-              title="{{ 'zaak.is-zaakspecifiek-geautoriseerd' | translate }}"
-              class="zaakspecifiek-geautoriseerd-icon"
-              >lock</mat-icon
-            >
-          }
+          <zac-zaakspecifiek-geautoriseerd-icon
+            [isZaakspecifiekGeautoriseerd]="zaak().isZaakspecifiekGeautoriseerd"
+          />
           {{ zaak().identificatie }}
         </mat-card-title>
         <mat-card-subtitle>{{

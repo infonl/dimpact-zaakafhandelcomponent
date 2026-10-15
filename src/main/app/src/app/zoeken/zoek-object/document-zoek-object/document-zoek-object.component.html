@@ -24,7 +24,12 @@
     <zac-static-text
       label="zaak-identificatie"
       [value]="document().zaakIdentificatie"
-    />
+    >
+      <zac-zaakspecifiek-geautoriseerd-icon
+        position="content-before"
+        [isZaakspecifiekGeautoriseerd]="document().isZaakspecifiekGeautoriseerd"
+      />
+    </zac-static-text>
     <zac-static-text label="document-type" [value]="document().documentType" />
     <zac-static-text label="auteur" [value]="document().auteur" />
   </div>

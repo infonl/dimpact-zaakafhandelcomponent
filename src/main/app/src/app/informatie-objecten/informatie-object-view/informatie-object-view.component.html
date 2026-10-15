@@ -309,6 +309,11 @@
               <mat-card-title-group>
                 <mat-card-title
                   >{{ "zaak" | translate }}
+                  <zac-zaakspecifiek-geautoriseerd-icon
+                    [isZaakspecifiekGeautoriseerd]="
+                      zaak.isZaakspecifiekGeautoriseerd
+                    "
+                  />
                   {{ zaak.zaakIdentificatie }}</mat-card-title
                 >
                 <mat-card-subtitle>{{
