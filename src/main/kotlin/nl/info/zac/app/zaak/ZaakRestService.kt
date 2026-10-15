@@ -652,6 +652,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("zaak/{uuid}")
+    @Suppress("LongMethod")
     fun updateZaak(
         @PathParam("uuid") zaakUUID: UUID,
         @Valid restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens
@@ -691,6 +692,8 @@ class ZaakRestService @Inject constructor(
             currentAndRequestedBehandelaarIds = setOfNotNull(currentBehandelaarId, requestedAssignment?.behandelaarId),
             loggedInUser = loggedInUser
         )
+        val shouldZaakspecifiekeAutorisatieBeLifted = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
+            restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd == false
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
@@ -698,6 +701,9 @@ class ZaakRestService @Inject constructor(
         )
         if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
             zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+        }
+        if (shouldZaakspecifiekeAutorisatieBeLifted) {
+            zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, restZaakEditMetRedenGegevens.reden)
         }
         zaakAssignment?.let {
             zaakService.assignZaak(zaak = zaak, zaakAssignment = it, reason = restZaakEditMetRedenGegevens.reden)

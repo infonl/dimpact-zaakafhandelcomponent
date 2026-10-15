@@ -259,6 +259,12 @@ class ZrcClientService @Inject constructor(
         zaakEigenschap: ZaakEigenschap
     ): ZaakEigenschap = zrcClient.zaakEigenschapUpdate(zaakUUID, uuid, zaakEigenschap)
 
+    fun deleteZaakeigenschap(zaakUUID: UUID, zaakeigenschapUUID: UUID, auditExplanation: String?) {
+        zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
+            zrcClient.zaakeigenschapDelete(zaakUUID, zaakeigenschapUUID)
+        }
+    }
+
     /**
      * A non-`Point` `zaakgeometrie` (e.g. a `Polygon`) fails JSON-B deserialization before the
      * response reaches this class, since `GeoJSONGeometry.coordinates` only models a flat point

@@ -15,6 +15,7 @@ import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -26,6 +27,7 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
 import nl.info.zac.itest.config.BEHEERDER_1
@@ -1408,22 +1410,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            `when`("an attempt is made to lift the marking") {
-                val response = updateZaak(
-                    zaakUuid = zaakUuid,
-                    zaakFields = """"omschrijving": "itestOmschrijving", "isZaakspecifiekGeautoriseerd": false""",
-                    testUser = BEHANDELAAR_1
-                )
-
-                then("the request is refused with its own error code and the zaak stays marked") {
-                    response.code shouldBe HTTP_BAD_REQUEST
-                    JSONObject(response.bodyAsString).getString("message") shouldBe
-                        "msg.error.zaakspecifieke.autorisatie.cannot.be.lifted"
-                    JSONObject(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1).bodyAsString)
-                        .getBoolean("isZaakspecifiekGeautoriseerd") shouldBe true
-                }
-            }
-
             `when`("an attempt is made to release the zaak") {
                 val response = itestHttpClient.performPatchRequest(
                     url = "$ZAC_API_URI/zaken/toekennen",
@@ -1546,6 +1532,99 @@ class ZaakRestServiceTest : BehaviorSpec({
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                     }
+                }
+            }
+        }
+    }
+
+    context("Lifting the zaakspecifieke autorisatie of a zaak") {
+        given(
+            """
+            a zaakspecifiek geautoriseerde zaak with behandelaar BEHANDELAAR_1 and BEHANDELAAR_1_EN_BRP_ZOEKER_2 as
+            zaakspecifiek geautoriseerde medewerker
+            """
+        ) {
+            val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                group = GROUP_BEHANDELAARS_TEST_1,
+                indexZaak = true,
+                testUser = BEHANDELAAR_1,
+                behandelaarId = BEHANDELAAR_1.username,
+                behandelaarName = BEHANDELAAR_1.displayName
+            )
+            markZaakspecifiekGeautoriseerd(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
+            itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers",
+                requestBodyAsString = """
+                    { "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}", "medewerkerId": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}" }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1
+            ).code shouldBe HTTP_OK
+
+            `when`("the zaakspecifiek geautoriseerde medewerker lifts the marking") {
+                val response = updateZaak(
+                    zaakUuid = zaakUuid,
+                    zaakFields = """"omschrijving": "itestOmschrijving", "isZaakspecifiekGeautoriseerd": false""",
+                    testUser = BEHANDELAAR_1_EN_BRP_ZOEKER_2
+                )
+
+                then("the zaak reports itself as no longer zaakspecifiek geautoriseerd") {
+                    logger.info { "Response: ${response.bodyAsString}" }
+                    response.code shouldBe HTTP_OK
+                    JSONObject(response.bodyAsString).getBoolean("isZaakspecifiekGeautoriseerd") shouldBe false
+                }
+
+                and("the marking and the zaakspecifiek geautoriseerde medewerker rol are gone, the behandelaar stays") {
+                    val zaakeigenschappen = JSONArray(openZaakClient.getZaakeigenschappenForZaak(zaakUuid).bodyAsString)
+                    (0 until zaakeigenschappen.length())
+                        .map(zaakeigenschappen::getJSONObject)
+                        .count { it.getString("naam") == "ZAAK_GEAUTORISEERD" } shouldBe 0
+                    rolIdentificaties(
+                        rollenForZaak(zaakUuid),
+                        ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                        "medewerker"
+                    ) shouldBe emptySet()
+                    rolIdentificaties(rollenForZaak(zaakUuid), ROLTYPE_NAME_BEHANDELAAR, "medewerker") shouldBe
+                        setOf(BEHANDELAAR_1.username)
+                }
+
+                and("a colleague with an application role for the zaaktype opens and finds the zaak again") {
+                    zacClient.retrieveZaak(zaakUuid, COORDINATOR_1).code shouldBe HTTP_OK
+                    eventually(30.seconds) {
+                        with(findZaakInWerklijst(zaakIdentificatie, COORDINATOR_1)) {
+                            code shouldBe HTTP_OK
+                            JSONObject(bodyAsString).getInt("totaal") shouldBe 1
+                        }
+                    }
+                }
+
+                and("the zaakhistorie shows that the zaakspecifiek geautoriseerde medewerker was ontkoppeld with the reden") {
+                    itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
+                        testUser = BEHANDELAAR_1
+                    ).let { historieResponse ->
+                        historieResponse.code shouldBe HTTP_OK
+                        JSONArray(historieResponse.bodyAsString).let { lines ->
+                            (0 until lines.length())
+                                .map(lines::getJSONObject)
+                                .filter { it.getString("attribuutLabel") == ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
+                                .map { listOf(it.getString("actie"), it.optString("oudeWaarde"), it.optString("toelichting")) }
+                        } shouldContain listOf("ONTKOPPELD", BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName, "fakeReason")
+                    }
+                }
+            }
+
+            `when`("the behandelaar marks the zaak again") {
+                val response = markZaakspecifiekGeautoriseerd(zaakUuid, BEHANDELAAR_1)
+
+                then("the earlier zaakspecifiek geautoriseerde medewerker does not get access back") {
+                    response.code shouldBe HTTP_OK
+                    rolIdentificaties(
+                        rollenForZaak(zaakUuid),
+                        ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                        "medewerker"
+                    ) shouldBe emptySet()
+                    zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2).code shouldBe HTTP_FORBIDDEN
                 }
             }
         }

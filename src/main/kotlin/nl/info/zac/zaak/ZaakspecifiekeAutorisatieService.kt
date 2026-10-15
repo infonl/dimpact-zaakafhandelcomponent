@@ -16,6 +16,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.zrc.util.markZaakspecifiekGeautoriseerd
+import nl.info.client.zgw.zrc.util.unmarkZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
@@ -24,7 +25,6 @@ import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
 import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -112,12 +112,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         currentAndRequestedBehandelaarIds: Set<String>,
         loggedInUser: LoggedInUser
     ): Boolean = when {
-        requestedMarking == null -> false
-        !requestedMarking -> {
-            if (isAlreadyZaakspecifiekGeautoriseerd) throw ZaakspecifiekeAutorisatieCannotBeLiftedException()
-            false
-        }
-        isAlreadyZaakspecifiekGeautoriseerd -> false
+        requestedMarking != true || isAlreadyZaakspecifiekGeautoriseerd -> false
         else -> {
             if (!isZaakspecifiekAutoriseerbaar(zaakType)) throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
             if (currentAndRequestedBehandelaarIds.isEmpty()) throw ZaakWithoutBehandelaarCannotBeMarkedException()
@@ -315,6 +310,22 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             }
         indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
         reindexDependents(zaak)
+    }
+
+    /**
+     * Makes [zaak] a normal zaak again. The rollen go before the marking, so that a failure halfway leaves a zaak
+     * that is still marked, rather than an unmarked zaak whose rollen would grant access again once it is marked
+     * anew.
+     */
+    fun liftZaakspecifiekeAutorisatie(zaak: Zaak, reason: String?) {
+        lockForZaak(zaak.uuid).withLock {
+            zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak)
+                .forEach { zrcClientService.deleteRol(it, reason) }
+            zrcClientService.unmarkZaakspecifiekGeautoriseerd(zaak.uuid, reason)
+            indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
+            reindexDependents(zaak)
+            indexingService.commit()
+        }
     }
 
     fun reindexZaakspecifiekeAutorisatieDependents(zaak: Zaak) {

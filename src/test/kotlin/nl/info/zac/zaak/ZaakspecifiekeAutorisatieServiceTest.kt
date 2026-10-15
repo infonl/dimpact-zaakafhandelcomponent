@@ -42,7 +42,6 @@ import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
 import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.authentication.createLoggedInUser
@@ -368,21 +367,17 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
 
-            `when`("an attempt is made to lift the marking") {
-                val zaakspecifiekeAutorisatieCannotBeLiftedException =
-                    shouldThrow<ZaakspecifiekeAutorisatieCannotBeLiftedException> {
-                        zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
-                            zaakType = zaakType,
-                            requestedMarking = false,
-                            isAlreadyZaakspecifiekGeautoriseerd = true,
-                            currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                            loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
-                        )
-                    }
+            `when`("the marking is to be lifted") {
+                val shouldMark = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
+                    zaakType = zaakType,
+                    requestedMarking = false,
+                    isAlreadyZaakspecifiekGeautoriseerd = true,
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
+                    loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                )
 
-                then("the request is refused with its own error code") {
-                    zaakspecifiekeAutorisatieCannotBeLiftedException.errorCode shouldBe
-                        ErrorCode.ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_CANNOT_BE_LIFTED
+                then("the zaak is not marked") {
+                    shouldMark shouldBe false
                 }
             }
         }
@@ -1559,6 +1554,67 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any())
                     }
+                }
+            }
+        }
+    }
+
+    context("Lifting the zaakspecifieke autorisatie of a zaak") {
+        given("a marked zaak with two zaakspecifiek geautoriseerde medewerkers") {
+            val zaak = createZaak()
+            val firstGeautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId1")
+            )
+            val secondGeautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId2")
+            )
+            val otherZaakEigenschap = createZaakEigenschap(naam = "fakeOtherEigenschapNaam")
+            var isLockHeldDuringCommit = false
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak)
+            } returns listOf(firstGeautoriseerdeMedewerkerRol, secondGeautoriseerdeMedewerkerRol)
+            every { zrcClientService.deleteRol(any(), "fakeReden") } just runs
+            every {
+                zrcClientService.listZaakeigenschappen(zaak.uuid)
+            } returns listOf(geautoriseerdZaakEigenschap, otherZaakEigenschap)
+            every {
+                zrcClientService.deleteZaakeigenschap(zaak.uuid, geautoriseerdZaakEigenschap.uuid, "fakeReden")
+            } just runs
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
+            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+            every { indexingService.commit() } answers {
+                isLockHeldDuringCommit = zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).isHeldByCurrentThread
+            }
+
+            `when`("the zaakspecifieke autorisatie is lifted") {
+                zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, "fakeReden")
+
+                then("every zaakspecifiek geautoriseerde medewerker rol is deleted before the marking, with the reden") {
+                    verifyOrder {
+                        zrcClientService.deleteRol(firstGeautoriseerdeMedewerkerRol, "fakeReden")
+                        zrcClientService.deleteRol(secondGeautoriseerdeMedewerkerRol, "fakeReden")
+                        zrcClientService.deleteZaakeigenschap(zaak.uuid, geautoriseerdZaakEigenschap.uuid, "fakeReden")
+                    }
+                }
+
+                and("other zaakeigenschappen are kept") {
+                    verify(exactly = 0) {
+                        zrcClientService.deleteZaakeigenschap(zaak.uuid, otherZaakEigenschap.uuid, any())
+                    }
+                }
+
+                and("the zaak, its taken and its documenten are reindexed and committed under the lock") {
+                    verifyOrder {
+                        zrcClientService.deleteZaakeigenschap(any(), any(), any())
+                        indexingService.addOrUpdateZaak(zaak.uuid, false)
+                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
+                        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                        indexingService.commit()
+                    }
+                    isLockHeldDuringCommit shouldBe true
                 }
             }
         }
