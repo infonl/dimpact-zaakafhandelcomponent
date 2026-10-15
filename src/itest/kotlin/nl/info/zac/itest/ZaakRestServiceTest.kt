@@ -70,6 +70,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
@@ -568,6 +569,37 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
             }
+
+            `when`("the create zaak endpoint is called with a due date for a zaaktype without a servicenorm") {
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/zaken/zaak",
+                    requestBodyAsString = """
+                    {
+                        "zaak": {
+                            "zaaktype": { "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID" },
+                            "startdatum": "$DATE_TIME_2020_01_01",
+                            "einddatumGepland": "$DATE_2021_01_01",
+                            "groep": {
+                                "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                                "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                            },
+                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
+                            "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
+                            "omschrijving": "$ZAAK_DESCRIPTION_2"
+                        },
+                        "bagObjecten": []
+                    }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the response should be a 400 HTTP response with the 'case cannot have due date' error") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    JSONObject(responseBody).getString("message") shouldBe "msg.error.case.cannot.have.due.date"
+                }
+            }
         }
     }
 
@@ -682,6 +714,21 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "returnValueViolations" : [ ]
                     }
                     """.trimIndent()
+                }
+            }
+
+            `when`("the 'update zaak' endpoint is called with a due date for a zaaktype without a servicenorm") {
+                val response = updateZaak(
+                    zaakUuid = zaak2UUID,
+                    zaakFields = """"einddatumGepland": "$fatalDateNew"""",
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the response should be a 400 HTTP response with the 'case cannot have due date' error") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    JSONObject(responseBody).getString("message") shouldBe "msg.error.case.cannot.have.due.date"
                 }
             }
 
@@ -927,6 +974,34 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getString("identificatieType") shouldBe "BSN"
                         }
                     }
+                }
+            }
+        }
+    }
+
+    context("Updating the due date of a zaak") {
+        given("a zaak of a zaaktype with a servicenorm") {
+            val zaakUuid = zacClient.createZaakAndRetrieve(
+                zaakTypeUUID = ZAAKTYPE_BPMN_TEST_4_UUID,
+                groupId = GROUP_BEHANDELAARS_TEST_1.name,
+                groupName = GROUP_BEHANDELAARS_TEST_1.description,
+                startDate = DATE_TIME_2020_01_01,
+                testUser = BEHANDELAAR_1
+            ).let { JSONObject(it.bodyAsString).getString("uuid").let(UUID::fromString) }
+            val newDueDate = DATE_2021_01_01
+
+            `when`("the 'update zaak' endpoint is called with a new due date") {
+                val response = updateZaak(
+                    zaakUuid = zaakUuid,
+                    zaakFields = """"einddatumGepland": "$newDueDate"""",
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the response should be a 200 HTTP response with the new due date") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody.shouldContainJsonKeyValue("einddatumGepland", newDueDate.toString())
                 }
             }
         }
