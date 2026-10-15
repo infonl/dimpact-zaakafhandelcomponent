@@ -150,7 +150,7 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     expect(screen().getByRole("cell", { name: "-" })).toBeInTheDocument();
   });
 
-  it("offers detaching only for the medewerkers the backend marks as ontkoppelbaar", () => {
+  it("offers detaching only for the medewerkers the backend marks as detachable", () => {
     renderTab([behandelaar, addedMedewerker], true);
 
     const detachButtons = screen().getAllByRole("button", {
