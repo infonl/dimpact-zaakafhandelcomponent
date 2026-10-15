@@ -112,20 +112,10 @@ class SearchService @Inject constructor(
         return solrSearch(query)
     }
 
-    fun listZaakspecifiekGeautoriseerdeTaakIds(taakIds: Collection<String>) =
-        listZaakspecifiekGeautoriseerdeWaarden(type = ZoekObjectType.TAAK, veld = "id", waarden = taakIds)
-
-    fun listZaakspecifiekGeautoriseerdeZaakIdentificaties(zaakIdentificaties: Collection<String>) =
-        listZaakspecifiekGeautoriseerdeWaarden(
-            type = ZoekObjectType.ZAAK,
-            veld = ZoekVeld.ZAAK_IDENTIFICATIE.veld,
-            waarden = zaakIdentificaties
-        )
-
-    private fun listZaakspecifiekGeautoriseerdeWaarden(
-        type: ZoekObjectType,
-        veld: String,
-        waarden: Collection<String>
+    fun listZaakspecifiekGeautoriseerdeWaarden(
+        waarden: Collection<String>,
+        type: ZoekObjectType = ZoekObjectType.ZAAK,
+        veld: String = ZoekVeld.ZAAK_IDENTIFICATIE.veld
     ): Set<String> {
         val distinctWaarden = waarden.toSet()
         if (distinctWaarden.isEmpty()) return emptySet()

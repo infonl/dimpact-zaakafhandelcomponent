@@ -72,7 +72,7 @@ class DetachedDocumentRestService @Inject constructor(
             results = restDetachedDocumentConverter.convertToRestDetachedDocuments(
                 documenten = ontkoppeldeDocumenten,
                 informatieobjectTypeUUIDs = informationObjectTypeUUIDs,
-                zaakspecifiekGeautoriseerdeZaakIDs = searchService.listZaakspecifiekGeautoriseerdeZaakIdentificaties(
+                zaakspecifiekGeautoriseerdeZaakIDs = searchService.listZaakspecifiekGeautoriseerdeWaarden(
                     ontkoppeldeDocumenten.map { it.zaakID }
                 )
             ),

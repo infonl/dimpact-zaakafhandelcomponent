@@ -16,6 +16,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.solr.SolrClientFactory
 import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -53,8 +54,10 @@ class SearchServiceZaakspecifiekGeautoriseerdTest : BehaviorSpec({
             }
 
             `when`("the zaakspecifiek geautoriseerde task IDs are looked up") {
-                val taakIds = zoekService.listZaakspecifiekGeautoriseerdeTaakIds(
-                    listOf(zaakspecifiekGeautoriseerdeTaakId, otherTaakId)
+                val taakIds = zoekService.listZaakspecifiekGeautoriseerdeWaarden(
+                    waarden = listOf(zaakspecifiekGeautoriseerdeTaakId, otherTaakId),
+                    type = ZoekObjectType.TAAK,
+                    veld = "id"
                 )
 
                 then("only the task ID found in the index is returned") {
@@ -86,7 +89,7 @@ class SearchServiceZaakspecifiekGeautoriseerdTest : BehaviorSpec({
             }
 
             `when`("the zaakspecifiek geautoriseerde zaaknummers are looked up") {
-                val zaakIdentificaties = zoekService.listZaakspecifiekGeautoriseerdeZaakIdentificaties(
+                val zaakIdentificaties = zoekService.listZaakspecifiekGeautoriseerdeWaarden(
                     listOf(zaakIdentificatie, zaakIdentificatie)
                 )
 
@@ -112,7 +115,11 @@ class SearchServiceZaakspecifiekGeautoriseerdTest : BehaviorSpec({
             clearMocks(solrClient)
 
             `when`("the zaakspecifiek geautoriseerde task IDs are looked up") {
-                val taakIds = zoekService.listZaakspecifiekGeautoriseerdeTaakIds(emptyList())
+                val taakIds = zoekService.listZaakspecifiekGeautoriseerdeWaarden(
+                    waarden = emptyList(),
+                    type = ZoekObjectType.TAAK,
+                    veld = "id"
+                )
 
                 then("nothing is returned and the search index is not queried") {
                     taakIds shouldBe emptySet()
