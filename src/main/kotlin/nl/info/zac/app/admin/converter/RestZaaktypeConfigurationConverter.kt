@@ -10,6 +10,7 @@ import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
@@ -51,15 +52,18 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     @Suppress("LongMethod")
     fun toRestZaaktypeConfiguration(
         zaaktypeConfiguration: ZaaktypeConfiguration,
-        inclusiefRelaties: Boolean
+        inclusiefRelaties: Boolean,
+        zaaktype: ZaakType? = null
     ): RestZaaktypeConfiguration {
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeConfiguration.zaaktypeUuid)
+        val resolvedZaaktype = zaaktype ?: ztcClientService.readZaaktype(zaaktypeConfiguration.zaaktypeUuid)
         val isBpmn = zaaktypeConfiguration.getProcessEngine() == ProcessEngine.BPMN
         val cmmnExtension = zaaktypeConfiguration.cmmnExtension.takeUnless { isBpmn } ?: ZaaktypeCmmnExtension()
         val restZaaktypeConfiguration = RestZaaktypeConfiguration(
             id = zaaktypeConfiguration.id,
-            zaaktype = zaaktype.toRestZaaktypeOverzicht(),
-            isZaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(zaaktype),
+            zaaktype = resolvedZaaktype.toRestZaaktypeOverzicht(),
+            isZaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(
+                resolvedZaaktype
+            ),
             defaultGroepId = zaaktypeConfiguration.groepID,
             defaultBehandelaarId = zaaktypeConfiguration.defaultBehandelaarId,
             einddatumGeplandWaarschuwing = zaaktypeConfiguration.einddatumGeplandWaarschuwing,
