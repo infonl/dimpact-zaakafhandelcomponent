@@ -15,11 +15,28 @@
       <th mat-header-cell *matHeaderCellDef>{{ "rol" | translate }}</th>
       <td mat-cell *matCellDef="let medewerker">{{ medewerker.roltype }}</td>
     </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    <ng-container matColumnDef="actions" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let medewerker">
+        @if (medewerker.isDetachable) {
+          <button
+            mat-icon-button
+            (click)="detachMedewerker(medewerker)"
+            title="{{
+              'actie.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen'
+                | translate
+            }}"
+          >
+            <mat-icon>link_off</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns(); sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns()"></tr>
     <tr class="mat-row" *matNoDataRow>
       @if (medewerkersQuery.isSuccess()) {
-        <td class="mat-cell text-center" [attr.colspan]="columns.length">
+        <td class="mat-cell text-center" [attr.colspan]="columns().length">
           {{ "msg.geen.gegevens.gevonden" | translate }}
         </td>
       }
