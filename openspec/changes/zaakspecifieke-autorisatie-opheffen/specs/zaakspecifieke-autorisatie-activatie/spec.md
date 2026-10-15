@@ -56,9 +56,20 @@ longer be shown.
 - **WHEN** the marking is lifted and B searches for the zaak and opens it
 - **THEN** B finds the zaak and gets the rechten of a behandelaar on it
 
-#### Scenario: Releasing in the same update that lifts the marking
-- **WHEN** an employee lifts the marking and removes the behandelaar in the same update
-- **THEN** the update succeeds and the zaak has no behandelaar
+#### Scenario: Releasing after lifting the marking
+- **WHEN** an employee lifts the marking and then releases the zaak
+- **THEN** the zaak is released and has no behandelaar
+
+#### Scenario: Handing over in the same update that lifts the marking
+- **GIVEN** a zaakspecifiek geautoriseerde zaak with behandelaar Z
+- **WHEN** an employee lifts the marking and hands the zaak to behandelaar N in the same update
+- **THEN** N is the behandelaar and Z has no *Zaakspecifiek geautoriseerde medewerker* rol
+
+#### Scenario: A medewerker is added while the marking is lifted
+- **WHEN** an employee adds a medewerker to the zaak, or a taak of the zaak is assigned, while another employee
+  lifts the marking
+- **THEN** once both are done, the zaak has no *Zaakspecifiek geautoriseerde medewerker* rol, on a single ZAC
+  instance
 
 ### Requirement: Marking a lifted zaak again starts without extra medewerkers
 
