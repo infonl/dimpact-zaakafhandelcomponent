@@ -709,11 +709,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns restEnkelvoudigInformatieobjectVoorZaak
         every { zrcClientService.readZaak(gerelateerdeZaakUri) } returns gerelateerdeZaak
         every { zrcClientService.listZaakinformatieobjecten(gerelateerdeZaak) } returns gerelateerdeZaakInformatieobjecten
+        every { zrcClientService.listZaakeigenschappen(gerelateerdeZaak.uuid) } returns emptyList()
         every {
             restInformatieobjectConverter.convertToREST(
-                gerelateerdeZaakInformatieobjecten[0],
-                RelatieType.GERELATEERD,
-                gerelateerdeZaak
+                zaakInformatieObject = gerelateerdeZaakInformatieobjecten[0],
+                relatieType = RelatieType.GERELATEERD,
+                zaak = gerelateerdeZaak,
+                isZaakspecifiekGeautoriseerd = false
             )
         } returns restGekoppeldeZaakEnkelvoudigInformatieObject
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -1835,8 +1837,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every {
-            policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            policyService.readZaakRechten(
+                zaak = zaak,
+                zaaktype = zaakType,
+                loggedInUser = loggedInUser,
+                zaakAutorisatieGegevens = any()
+            )
         } returns createZaakRechten(lezen = true)
 
         `when`("listZaakInformatieobjecten is called") {
@@ -1876,8 +1884,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every {
-            policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            policyService.readZaakRechten(
+                zaak = zaak,
+                zaaktype = zaakType,
+                loggedInUser = loggedInUser,
+                zaakAutorisatieGegevens = any()
+            )
         } returns createZaakRechtenAllDeny()
 
         `when`("listZaakInformatieobjecten is called") {

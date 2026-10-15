@@ -54,6 +54,7 @@ import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.createMailTemplate
+import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.signalering.model.createSignalering
@@ -84,6 +85,7 @@ class SignaleringServiceTest : BehaviorSpec({
     val predicate = mockk<Predicate>()
     val order = mockk<Order>()
     val typedQuery = mockk<TypedQuery<Signalering>>()
+    val searchService = mockk<SearchService>()
     val signaleringService = SignaleringService(
         entityManager = entityManager,
         drcClientService = drcClientService,
@@ -95,6 +97,7 @@ class SignaleringServiceTest : BehaviorSpec({
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         restInformatieobjectConverter = restInformatieobjectConverter,
         loggedInUserInstance = loggedInUserInstance,
+        searchService = searchService,
         dispatcher = Dispatchers.IO
     )
 

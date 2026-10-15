@@ -83,6 +83,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "resultaten" : [ {
                         "id" : "$teKoppelenZaakUuid",
                         "identificatie" : "$teKoppelenZaakIdentification",
+                        "isZaakspecifiekGeautoriseerd" : false,
                         "omschrijving" : "$toBeLinkedZaakDescription",
                         "statustypeOmschrijving" : "Intake",
                         "type" : "ZAAK",
@@ -129,6 +130,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "resultaten" : [ {
                         "id" : "$teKoppelenZaakUuid",
                         "identificatie" : "$teKoppelenZaakIdentification",
+                        "isZaakspecifiekGeautoriseerd" : false,
                         "nietKoppelbaarReden" : "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK",
                         "omschrijving" : "$toBeLinkedZaakDescription",
                         "statustypeOmschrijving" : "Intake",
@@ -210,6 +212,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "resultaten" : [ {
                         "id" : "$teKoppelenZaakUuid",
                         "identificatie" : "$teKoppelenZaakIdentification",
+                        "isZaakspecifiekGeautoriseerd" : false,
                         "omschrijving" : "$toBeLinkedZaakDescription",
                         "statustypeOmschrijving" : "Intake",
                         "type" : "ZAAK",

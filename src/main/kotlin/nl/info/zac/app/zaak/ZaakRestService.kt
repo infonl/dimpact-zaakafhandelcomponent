@@ -446,7 +446,7 @@ class ZaakRestService @Inject constructor(
                     uiterlijkeEinddatumAfdoeningWaarschuwing = uiterlijkeEinddatumAfdoeningWaarschuwing
                 )
             }
-            .map { restZaakOverzichtConverter.convert(zaak = it, loggedInUser = loggedInUser) }
+            .map { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak = it, loggedInUser = loggedInUser) }
     }
 
     @GET

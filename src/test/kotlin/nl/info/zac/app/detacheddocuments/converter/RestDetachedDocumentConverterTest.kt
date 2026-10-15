@@ -48,7 +48,11 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         every { lockService.findLock(uuid) } returns lock
 
         `when`("convert is invoked") {
-            val result = converter.convert(detachedDocument, informatieobjectTypeUUID)
+            val result = converter.convertToRestDetachedDocument(
+                detachedDocument = detachedDocument,
+                informatieobjectTypeUUID = informatieobjectTypeUUID,
+                isZaakspecifiekGeautoriseerd = false
+            )
 
             then("the result should have the expected values") {
                 result.id shouldBe 1L
@@ -89,7 +93,11 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         every { lockService.findLock(uuid) } returns null
 
         `when`("convert is invoked") {
-            val result = converter.convert(detachedDocument, UUID.randomUUID())
+            val result = converter.convertToRestDetachedDocument(
+                detachedDocument = detachedDocument,
+                informatieobjectTypeUUID = UUID.randomUUID(),
+                isZaakspecifiekGeautoriseerd = false
+            )
 
             then("isVergrendeld should be false in the result") {
                 result.isVergrendeld shouldBe false
