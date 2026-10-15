@@ -77,4 +77,4 @@ jobs:
           git commit -m "chore: prune e2e reports and squash gh-pages history"
           git branch -D gh-pages
           git branch -m gh-pages
-          git push -f origin gh-pages
+          git push --force-with-lease="refs/heads/gh-pages:$(git rev-parse refs/remotes/origin/gh-pages)" origin gh-pages
