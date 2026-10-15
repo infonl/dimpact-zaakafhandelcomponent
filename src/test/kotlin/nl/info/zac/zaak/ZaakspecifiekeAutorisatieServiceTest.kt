@@ -367,7 +367,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
 
-            `when`("the marking is to be lifted") {
+            `when`("the marking is to be removed") {
                 val shouldMark = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
                     zaakType = zaakType,
                     requestedMarking = false,
@@ -1015,7 +1015,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
         }
-        given("a zaak whose marking is lifted before the taakbehandelaar is granted access under the lock") {
+        given("a zaak whose marking is removed before the taakbehandelaar is granted access under the lock") {
             val zaak = createZaak()
             val rollen = emptyList<Rol<*>>()
             every {
@@ -1488,7 +1488,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
         }
-        given("a zaak whose marking was lifted after the request read it") {
+        given("a zaak whose marking was removed after the request read it") {
             val zaak = createZaak()
             val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
             val rollen = emptyList<Rol<*>>()
@@ -1631,7 +1631,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         }
     }
 
-    context("Lifting the zaakspecifieke autorisatie of a zaak") {
+    context("Removing the zaakspecifieke autorisatie of a zaak") {
         given("a marked zaak with two zaakspecifiek geautoriseerde medewerkers") {
             val zaak = createZaak()
             val firstGeautoriseerdeMedewerkerRol = createRolMedewerker(
@@ -1661,8 +1661,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 isLockHeldDuringCommit = zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).isHeldByCurrentThread
             }
 
-            `when`("the zaakspecifieke autorisatie is lifted") {
-                zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, "fakeReden")
+            `when`("the zaakspecifieke autorisatie is removed") {
+                zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, "fakeReden")
 
                 then("every zaakspecifiek geautoriseerde medewerker rol is deleted before the marking, with the reden") {
                     verifyOrder {

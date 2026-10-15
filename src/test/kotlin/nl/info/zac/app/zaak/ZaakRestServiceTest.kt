@@ -3314,14 +3314,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
-                then("the update succeeds and there is nothing to lift") {
+                then("the update succeeds and there is nothing to remove") {
                     verify(exactly = 1) { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) }
-                    verify(exactly = 0) { zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(any(), any()) }
+                    verify(exactly = 0) { zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(any(), any()) }
                 }
             }
         }
 
-        given("a zaak that is zaakspecifiek geautoriseerd and an update that lifts the marking") {
+        given("a zaak that is zaakspecifiek geautoriseerd and an update that removes the marking") {
             val changeDescription = "fakeReden"
             val zaak = createZaak()
             val zaakType = createZaakType()
@@ -3365,7 +3365,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns false
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, changeDescription) } just runs
+            every { zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription) } just runs
             every {
                 restZaakConverter.toRestZaak(
                     zaak = patchedZaak,
@@ -3382,16 +3382,16 @@ class ZaakRestServiceTest : BehaviorSpec({
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
-                then("the zaak is patched and then its zaakspecifieke autorisatie is lifted with the reden") {
+                then("the zaak is patched and then its zaakspecifieke autorisatie is removed with the reden") {
                     verifyOrder {
                         zrcClientService.patchZaak(zaak.uuid, any(), changeDescription)
-                        zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, changeDescription)
+                        zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription)
                     }
                 }
 
-                and("the returned zaak is converted only after the lifting") {
+                and("the returned zaak is converted only after the removal") {
                     verifyOrder {
-                        zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, changeDescription)
+                        zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription)
                         restZaakConverter.toRestZaak(
                             zaak = patchedZaak,
                             zaakType = zaakType,
@@ -3403,7 +3403,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("a zaak that is zaakspecifiek geautoriseerd and an update that lifts the marking and hands it over") {
+        given("a zaak that is zaakspecifiek geautoriseerd and an update that removes the marking and hands it over") {
             val changeDescription = "fakeReden"
             val zaak = createZaak()
             val zaakType = createZaakType()
@@ -3465,7 +3465,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns zaakAssignment
             every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, changeDescription) } just runs
+            every { zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription) } just runs
             every {
                 restZaakConverter.toRestZaak(
                     zaak = patchedZaak,
@@ -3482,9 +3482,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
-                then("the marking is lifted before the zaak is handed over, so the previous behandelaar gets no rol") {
+                then("the marking is removed before the zaak is handed over, so the previous behandelaar gets no rol") {
                     verifyOrder {
-                        zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, changeDescription)
+                        zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription)
                         zaakService.assignZaak(zaak, zaakAssignment, changeDescription)
                     }
                 }

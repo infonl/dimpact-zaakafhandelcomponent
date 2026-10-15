@@ -315,11 +315,11 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     }
 
     /**
-     * Makes [zaak] a normal zaak again. The rollen go before the marking, so that a failure halfway leaves a zaak
-     * that is still marked, rather than an unmarked zaak whose rollen would grant access again once it is marked
-     * anew.
+     * Removes zaakspecifieke autorisatie from a [zaak]. The rollen go before the marking, so that a failure halfway
+     * leaves a zaak that is still marked, rather than an unmarked zaak whose rollen would grant access again once it
+     * is marked anew.
      */
-    fun liftZaakspecifiekeAutorisatie(zaak: Zaak, reason: String?) {
+    fun removeZaakspecifiekeAutorisatie(zaak: Zaak, reason: String) {
         lockForZaak(zaak.uuid).withLock {
             zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak)
                 .forEach { zrcClientService.deleteRol(it, reason) }

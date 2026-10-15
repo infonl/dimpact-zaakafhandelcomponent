@@ -32,7 +32,7 @@ fun ZrcClientService.markZaakspecifiekGeautoriseerd(zaak: Zaak, ztcClientService
     }
 }
 
-fun ZrcClientService.unmarkZaakspecifiekGeautoriseerd(zaakUUID: UUID, auditExplanation: String?) =
+fun ZrcClientService.unmarkZaakspecifiekGeautoriseerd(zaakUUID: UUID, auditExplanation: String) =
     listZaakeigenschappen(zaakUUID)
         .filter { it.naam == ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD }
         .forEach { deleteZaakeigenschap(zaakUUID, it.uuid, auditExplanation) }
