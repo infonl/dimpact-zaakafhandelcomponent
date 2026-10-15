@@ -49,7 +49,8 @@ class RestZaaktypeConverter @Inject constructor(
             zaakafhandelparameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
                 zaaktypeConfiguration = zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
                     ?: ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid },
-                inclusiefRelaties = true
+                inclusiefRelaties = true,
+                zaaktype = zaaktype,
             )
         )
     }

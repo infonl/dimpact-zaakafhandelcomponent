@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
@@ -44,6 +45,7 @@ import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import java.time.LocalDate
+import java.util.UUID
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val caseDefinitionConverter = mockk<RestCaseDefinitionConverter>()
@@ -331,6 +333,40 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
             then("the zaaktype configuration is not marked as 'zaakspecifiek autoriseerbaar'") {
                 restZaakafhandelParameters.isZaakspecifiekAutoriseerbaar shouldBe false
+            }
+        }
+    }
+
+    given("a zaaktype CMMN configuration and the zaaktype it belongs to") {
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+        val zaakType = createZaakType()
+        val resultaatType = createResultaatType()
+
+        every {
+            resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeCmmnConfiguration)
+        } returns resultaatType
+        every {
+            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
+        } returns emptyList()
+        every { smartDocumentsService.isEnabled() } returns true
+        every {
+            caseDefinitionConverter.convertToRestCaseDefinition("fakeCaseDefinitionId", true)
+        } returns restCaseDefinition
+        every {
+            restHumanTaskParametersConverter.convertHumanTaskParametersCollection(any(), emptyList())
+        } returns emptyList()
+        every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns null
+
+        `when`("converted to REST representation with the zaaktype passed in") {
+            val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
+                zaaktypeCmmnConfiguration,
+                true,
+                zaakType
+            )
+
+            then("the passed zaaktype is used and the zaaktype is not retrieved from the ZTC") {
+                restZaakafhandelParameters.zaaktype.uuid shouldBe zaakType.url.extractUuid()
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
             }
         }
     }
