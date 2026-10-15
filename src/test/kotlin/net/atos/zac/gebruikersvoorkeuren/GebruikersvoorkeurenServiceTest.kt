@@ -149,10 +149,13 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { zoekopdrachtTypedQuery.resultList } returns listOf(createZoekopdracht())
 
             `when`("the create zoekopdracht function is called") {
-                then("it should throw a RuntimeException") {
-                    shouldThrow<RuntimeException> {
-                        gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
-                    }
+                val runtimeException = shouldThrow<RuntimeException> {
+                    gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
+                }
+
+                then("it should throw a RuntimeException that names the zoekopdracht, lijst and medewerker") {
+                    runtimeException.message shouldBe "Er bestaat al een zoekopdracht met naam " +
+                        "'${zoekopdracht.naam}' en lijst '${zoekopdracht.lijstID}' en medewerker: '${zoekopdracht.medewerkerID}'"
                 }
             }
         }
@@ -238,7 +241,47 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         }
     }
 
+    context("Listing zoekopdrachten without filters") {
+        given("List parameters without a lijst and with a blank medewerker") {
+            val zoekopdracht = createZoekopdracht(id = 1L)
+
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(Zoekopdracht::class.java) } returns zoekopdrachtCriteriaQuery
+            every { zoekopdrachtCriteriaQuery.from(Zoekopdracht::class.java) } returns zoekopdrachtRoot
+            every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+            every { entityManager.createQuery(zoekopdrachtCriteriaQuery) } returns zoekopdrachtTypedQuery
+            every { zoekopdrachtTypedQuery.resultList } returns listOf(zoekopdracht)
+
+            `when`("listZoekopdrachten is called") {
+                val result = gebruikersvoorkeurenService.listZoekopdrachten(ZoekopdrachtListParameters(null, " "))
+
+                then("it should not filter on lijst or medewerker") {
+                    result shouldBe listOf(zoekopdracht)
+                    verify(exactly = 0) { criteriaBuilder.equal(any(), any<Any>()) }
+                }
+            }
+        }
+    }
+
     context("Setting the active zoekopdracht") {
+        given("A list of zoekopdrachten where the target is already the active one") {
+            val targetZoekopdracht = createZoekopdracht(id = 1L, actief = true)
+            val inactiveZoekopdracht = createZoekopdracht(id = 2L, actief = false)
+
+            setupZoekopdrachtCriteriaChain()
+            every { zoekopdrachtTypedQuery.resultList } returns listOf(targetZoekopdracht, inactiveZoekopdracht)
+
+            `when`("setActief is called for the target zoekopdracht") {
+                gebruikersvoorkeurenService.setActief(targetZoekopdracht)
+
+                then("nothing changes, so no zoekopdracht is merged") {
+                    targetZoekopdracht.isActief shouldBe true
+                    inactiveZoekopdracht.isActief shouldBe false
+                    verify(exactly = 0) { entityManager.merge(any<Zoekopdracht>()) }
+                }
+            }
+        }
+
         given("A list of zoekopdrachten where one is currently active") {
             val targetZoekopdracht = createZoekopdracht(id = 2L, actief = false)
             val activeZoekopdracht = createZoekopdracht(id = 1L, actief = true)
