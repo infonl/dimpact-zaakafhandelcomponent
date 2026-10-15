@@ -13,7 +13,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
+import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
 import net.atos.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -27,12 +27,12 @@ import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTZoekopdrachtConverter
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTTabelGegevens;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
-import net.atos.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService;
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
 import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
 import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
 import nl.info.zac.authentication.LoggedInUser;
+import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton
