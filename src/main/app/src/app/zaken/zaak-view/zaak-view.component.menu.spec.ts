@@ -194,7 +194,6 @@ describe(ZaakViewComponent.name, () => {
       .compileComponents();
 
     utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
     // Invalidating the zaak query refetches it; serve the refetch from the

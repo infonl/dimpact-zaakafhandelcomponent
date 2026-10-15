@@ -20,7 +20,6 @@ import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 
 import { sleep, testQueryClient } from "../../../setupJest";
-import { UtilService } from "../core/service/util.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { toI18nKey } from "../shared/utils/i18n-key";
 import { DashboardComponent } from "./dashboard.component";
@@ -161,7 +160,6 @@ describe(DashboardComponent.name, () => {
         provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
-        { provide: UtilService, useValue: { setTitle: jest.fn() } },
       ],
     });
 

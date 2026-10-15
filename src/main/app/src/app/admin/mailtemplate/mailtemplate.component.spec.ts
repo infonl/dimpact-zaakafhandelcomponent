@@ -38,7 +38,7 @@ describe(MailtemplateComponent.name, () => {
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let router: Router;
   let httpTestingController: HttpTestingController;
-  let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
+  let utilServiceMock: Pick<UtilService, "openSnackbar">;
   let detectChanges: () => void;
 
   const user = userEvent.setup({ delay: null });
@@ -143,16 +143,7 @@ describe(MailtemplateComponent.name, () => {
   }
 
   beforeEach(() => {
-    utilServiceMock = { setTitle: jest.fn(), openSnackbar: jest.fn() };
-  });
-
-  it("sets the title", async () => {
-    await setup();
-
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
-      "title.mailtemplate",
-      undefined,
-    );
+    utilServiceMock = { openSnackbar: jest.fn() };
   });
 
   it("only offers to save once every required field is filled in", async () => {

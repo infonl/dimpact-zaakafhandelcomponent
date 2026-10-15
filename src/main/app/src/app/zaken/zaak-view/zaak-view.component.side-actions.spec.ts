@@ -17,7 +17,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { of, ReplaySubject } from "rxjs";
-import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
@@ -58,7 +57,6 @@ describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let sideActions: ZaakSideActionService;
 
-  let utilService: UtilService;
   let zakenService: ZakenService;
   let bagService: BAGService;
   let planItemsService: PlanItemsService;
@@ -147,9 +145,6 @@ describe(ZaakViewComponent.name, () => {
         },
       })
       .compileComponents();
-
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
     jest

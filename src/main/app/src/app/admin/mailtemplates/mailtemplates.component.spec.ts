@@ -37,10 +37,7 @@ describe(MailtemplatesComponent.name, () => {
   >;
   let mailtemplateKoppelingService: MailtemplateKoppelingService;
   let dialog: MatDialog;
-  let utilServiceMock: Pick<
-    UtilService,
-    "setTitle" | "openSnackbar" | "setLoading"
-  >;
+  let utilServiceMock: Pick<UtilService, "openSnackbar" | "setLoading">;
 
   const mailtemplate: GeneratedType<"RestMailtemplate"> = {
     id: 1,
@@ -64,7 +61,6 @@ describe(MailtemplatesComponent.name, () => {
 
   beforeEach(async () => {
     utilServiceMock = {
-      setTitle: jest.fn(),
       openSnackbar: jest.fn(),
       setLoading: jest.fn(),
     };
@@ -113,11 +109,7 @@ describe(MailtemplatesComponent.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  it("should call setTitle and load mailtemplates on init", () => {
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
-      "title.mailtemplates",
-      undefined,
-    );
+  it("should load mailtemplates on init", () => {
     expect(mailtemplateBeheerService.listMailtemplates).toHaveBeenCalled();
     expect(
       mailtemplateKoppelingService.listMailtemplateKoppelingen,

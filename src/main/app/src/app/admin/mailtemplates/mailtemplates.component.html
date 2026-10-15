@@ -82,7 +82,7 @@
             <th mat-header-cell *matHeaderCellDef>
               <button
                 mat-icon-button
-                [routerLink]="['/admin/mailtemplate']"
+                [routerLink]="['/admin/mailtemplates/toevoegen']"
                 id="toevoegen"
                 title="{{ 'actie.toevoegen' | translate }}"
               >
@@ -92,7 +92,7 @@
             <td mat-cell *matCellDef="let row">
               <a
                 mat-icon-button
-                [routerLink]="['/admin/mailtemplate/', row.id]"
+                [routerLink]="['/admin/mailtemplates', row.id]"
                 id="edit"
                 title="{{ 'actie.bewerken' | translate }}"
               >
