@@ -1,0 +1,80 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Cleanup e2e gh-pages reports
+on:
+  schedule:
+    # Runs weekly on Saturday at 03:00 AM UTC, well outside the nightly e2e run (01:00 AM UTC Mon-Fri).
+    - cron: "0 3 * * 6"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Never prune/force-push while another cleanup is in flight.
+  group: cleanup-e2e-gh-pages
+  cancel-in-progress: false
+
+env:
+  # Reports whose folder-name date is older than this are removed.
+  MAIN_RETENTION_DAYS: 30
+  BRANCH_RETENTION_DAYS: 14
+
+jobs:
+  cleanup:
+    name: "Prune e2e reports and squash gh-pages history"
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+
+      - name: Prune old reports
+        run: |
+          set -euo pipefail
+
+          # Folder names start with a "YYYY-MM-DD-HH-MM" timestamp. We prune on that
+          # name rather than on filesystem mtime, which is reset by the checkout.
+          prune_by_name() {
+            parent="$1"
+            retention_days="$2"
+            [ -d "$parent" ] || return 0
+            cutoff_epoch=$(date -u -d "-${retention_days} days" +%s)
+            for dir in "$parent"/*/; do
+              [ -d "$dir" ] || continue
+              name=$(basename "$dir")
+              stamp=$(printf '%s\n' "$name" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}-[0-9]{2}' || true)
+              if [ -z "$stamp" ]; then
+                echo "Skipping (no date prefix): $name"
+                continue
+              fi
+              # Turn "YYYY-MM-DD-HH-MM" into something date(1) understands.
+              iso=$(printf '%s\n' "$stamp" | sed -E 's/^([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2})$/\1-\2-\3 \4:\5/')
+              dir_epoch=$(date -u -d "$iso" +%s)
+              if [ "$dir_epoch" -lt "$cutoff_epoch" ]; then
+                echo "Removing $dir (dated $stamp)"
+                rm -rf "$dir"
+              else
+                echo "Keeping  $dir (dated $stamp)"
+              fi
+            done
+          }
+
+          prune_by_name "." "${MAIN_RETENTION_DAYS}"
+          prune_by_name "branches" "${BRANCH_RETENTION_DAYS}"
+
+      - name: Squash history into a single orphan commit and force-push
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout --orphan fresh-gh-pages
+          git add -A
+          git commit -m "chore: prune e2e reports and squash gh-pages history"
+          git branch -D gh-pages
+          git branch -m gh-pages
+          git push -f origin gh-pages
