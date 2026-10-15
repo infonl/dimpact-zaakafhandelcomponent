@@ -17,6 +17,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import { MatBadge } from "@angular/material/badge";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
@@ -24,6 +25,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTooltip } from "@angular/material/tooltip";
 import { Router, RouterLink } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
@@ -52,6 +54,7 @@ import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { ZacNarrowMatCheckboxDirective } from "../../shared/material/narrow-checkbox.directive";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -60,7 +63,10 @@ const LIST_QUERY_KEY = "/rest/informatieobjecten/informatieobjectenList";
 
 const BASE_COLUMNS = [
   "downloaden",
+  "preview",
+  "bestandstype",
   "titel",
+  "identificatie",
   "informatieobjectTypeOmschrijving",
   "bestandsomvang",
   "status",
@@ -73,7 +79,10 @@ const BASE_COLUMNS = [
 
 const GEKOPPELDE_COLUMNS = [
   "downloaden",
+  "preview",
+  "bestandstype",
   "titel",
+  "identificatie",
   "zaakIdentificatie",
   "relatieType",
   "informatieobjectTypeOmschrijving",
@@ -95,15 +104,18 @@ const GEKOPPELDE_COLUMNS = [
   imports: [
     NgClass,
     RouterLink,
+    MatBadge,
     MatCardModule,
     MatSlideToggleModule,
     MatTableModule,
     MatSortModule,
     MatCheckbox,
+    ZacNarrowMatCheckboxDirective,
     MatIconModule,
     MatIconAnchor,
     MatIconButton,
     MatMenuModule,
+    MatTooltip,
     TranslatePipe,
     DocumentIconComponent,
     DocumentViewerComponent,
@@ -348,6 +360,19 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   isPreviewBeschikbaar(formaat: FileFormat) {
     return FileFormatUtil.isPreviewAvailable(formaat);
+  }
+
+  protected togglePreview(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ) {
+    this.documentPreviewRow =
+      this.documentPreviewRow === document ? null : document;
+  }
+
+  protected onLinkedDocumentsToggle(enabled: boolean) {
+    this.linkedDocumentsEnabled.set(enabled);
+    this.downloadAlsZipSelection.clear();
+    this.selectAll = false;
   }
 
   updateSelected(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {

@@ -12,7 +12,7 @@
       <mat-slide-toggle
         [checked]="linkedDocumentsEnabled()"
         [disabled]="isLoadingResults()"
-        (change)="linkedDocumentsEnabled.set($event.checked)"
+        (change)="onLinkedDocumentsToggle($event.checked)"
         color="primary"
         class="flex-row"
         id="gekoppeldeZaakDocumentenToon_toggle"
@@ -35,6 +35,7 @@
         <ng-container matColumnDef="downloaden">
           <th mat-header-cell *matHeaderCellDef>
             <mat-checkbox
+              zacNarrowMatCheckbox
               [aria-label]="'actie.alles.selecteren' | translate"
               (click)="$event.stopPropagation()"
               (change)="updateAll($event)"
@@ -44,12 +45,41 @@
           </th>
           <td mat-cell *matCellDef="let document">
             <mat-checkbox
+              zacNarrowMatCheckbox
               [aria-label]="'actie.selecteren' | translate"
               (click)="$event.stopPropagation()"
               (change)="updateSelected(document)"
               [checked]="downloadAlsZipSelection.isSelected(document)"
             >
             </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="preview">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td
+            mat-cell
+            *matCellDef="let row"
+            (click)="togglePreview(row)"
+            [ngClass]="{ pointer: isPreviewBeschikbaar(row.formaat) }"
+          >
+            @if (isPreviewBeschikbaar(row.formaat)) {
+              <mat-icon
+                class="preview-chevron"
+                [class.open]="documentPreviewRow === row"
+                [matTooltip]="'document.preview' | translate"
+                >expand_more</mat-icon
+              >
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="bestandstype">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <zac-document-icon
+              [bestandsnaam]="row.bestandsnaam"
+            ></zac-document-icon>
           </td>
         </ng-container>
 
@@ -60,30 +90,25 @@
           <td
             mat-cell
             *matCellDef="let row"
-            (click)="
-              documentPreviewRow = documentPreviewRow === row ? null : row
-            "
+            (click)="togglePreview(row)"
             [ngClass]="{ pointer: isPreviewBeschikbaar(row.formaat) }"
           >
-            <zac-document-icon
-              [bestandsnaam]="row.bestandsnaam"
-            ></zac-document-icon>
-            {{ row.titel }}
-            @if (isPreviewBeschikbaar(row.formaat)) {
-              <mat-icon outlined>plagiarism</mat-icon>
-            }
-            @if (row.startformulier) {
-              <mat-icon
-                title="{{ 'startformulier' | translate }}"
-                class="gold-star"
-                >star</mat-icon
-              >
-            }
+            <div class="titel flex-row items-center gap-5">
+              <span>{{ row.titel }}</span>
+              @if (row.startformulier) {
+                <mat-icon
+                  title="{{ 'startformulier' | translate }}"
+                  class="gold-star"
+                  >star</mat-icon
+                >
+              }
+            </div>
           </td>
         </ng-container>
 
         @for (
           column of [
+            "identificatie",
             "zaakIdentificatie",
             "relatieType",
             "informatieobjectTypeOmschrijving",
@@ -100,19 +125,22 @@
               {{ column | i18nKey | translate }}
             </th>
             <td mat-cell *matCellDef="let row">
-              @if (column == "zaakIdentificatie") {
+              @if (column === "identificatie") {
                 {{ row[column] | empty }}
               }
-              @if (column == "relatieType") {
+              @if (column === "zaakIdentificatie") {
                 {{ row[column] | empty }}
               }
-              @if (column == "informatieobjectTypeOmschrijving") {
+              @if (column === "relatieType") {
                 {{ row[column] | empty }}
               }
-              @if (column == "bestandsomvang") {
+              @if (column === "informatieobjectTypeOmschrijving") {
+                {{ row[column] | empty }}
+              }
+              @if (column === "bestandsomvang") {
                 {{ row[column] | bestandsomvang | empty }}
               }
-              @if (column == "status") {
+              @if (column === "status") {
                 {{
                   (row[column] ? "informatieobject.status." + row[column] : "")
                     | i18nKey
@@ -120,7 +148,7 @@
                     | empty
                 }}
               }
-              @if (column == "vertrouwelijkheidaanduiding") {
+              @if (column === "vertrouwelijkheidaanduiding") {
                 {{
                   (row[column] ? row[column] : "")
                     | vertrouwelijkaanduidingToTranslationKey
@@ -128,10 +156,10 @@
                     | empty
                 }}
               }
-              @if (column == "registratiedatumTijd") {
+              @if (column === "registratiedatumTijd") {
                 {{ row[column] | datum: "short" | empty }}
               }
-              @if (column == "auteur") {
+              @if (column === "auteur") {
                 {{ row[column] | empty }}
               }
             </td>
@@ -153,23 +181,38 @@
         <ng-container matColumnDef="url" stickyEnd>
           <th mat-header-cell *matHeaderCellDef>
             <div class="flex-row items-center">
-              <button
-                mat-icon-button
-                id="downloadZip_button"
-                (click)="downloadAlsZip()"
-                [disabled]="downloadAlsZipSelection.isEmpty()"
-                title="{{ 'actie.downloaden.zip' | translate }}"
+              <span
+                class="flex-row"
+                [matTooltip]="
+                  (downloadAlsZipSelection.isEmpty()
+                    ? 'actie.downloaden.zip.geen-selectie'
+                    : 'actie.downloaden.zip'
+                  ) | translate
+                "
               >
-                <mat-icon>folder_zip</mat-icon>
-              </button>
-              {{ downloadAlsZipSelection.selected.length }}
+                <button
+                  mat-icon-button
+                  id="downloadZip_button"
+                  (click)="downloadAlsZip()"
+                  [disabled]="downloadAlsZipSelection.isEmpty()"
+                  [attr.aria-label]="'actie.downloaden.zip' | translate"
+                >
+                  <mat-icon
+                    [matBadgeHidden]="downloadAlsZipSelection.isEmpty()"
+                    [matBadge]="downloadAlsZipSelection.selected.length"
+                    matBadgeColor="accent"
+                    >folder_zip</mat-icon
+                  >
+                </button>
+              </span>
             </div>
           </th>
           <td mat-cell *matCellDef="let row">
-            <div class="flex-row">
+            <div class="acties grid">
               @if (row.rechten.canLezen) {
                 <a
                   mat-icon-button
+                  class="bekijken"
                   [routerLink]="['/informatie-objecten', row.uuid]"
                   title="{{ 'actie.document.bekijken' | translate }}"
                 >
@@ -179,6 +222,7 @@
               @if (isBewerkenToegestaan(row)) {
                 <button
                   mat-icon-button
+                  class="bewerken"
                   (click)="bewerken(row)"
                   title="{{ 'actie.document.bewerken' | translate }}"
                 >
@@ -187,49 +231,54 @@
               }
               <button
                 mat-icon-button
+                class="menu"
                 [matMenuTriggerFor]="menu"
                 [attr.aria-label]="'actie.menu.openen' | translate"
               >
                 <mat-icon>more_vert</mat-icon>
               </button>
-              <mat-menu #menu="matMenu">
-                @if (
-                  row.rechten.canWijzigen &&
-                  !row.isBesluitDocument &&
-                  !row.relatieType
-                ) {
-                  <button mat-menu-item (click)="documentOntkoppelen(row)">
-                    <mat-icon>link_off</mat-icon>
-                    <span>{{ "actie.document.ontkoppelen" | translate }}</span>
-                  </button>
-                }
-                @if (
-                  row.rechten.canWijzigen &&
-                  !row.isBesluitDocument &&
-                  !row.relatieType
-                ) {
-                  <button mat-menu-item (click)="emitDocumentMove(row)">
-                    <mat-icon>move_item</mat-icon>
-                    <span>{{ "actie.document.verplaatsen" | translate }}</span>
-                  </button>
-                }
-                <a mat-menu-item [href]="getDownloadURL(row)">
-                  <mat-icon>download</mat-icon>
-                  <span>{{ "actie.document.downloaden" | translate }}</span>
-                </a>
-              </mat-menu>
             </div>
+            <mat-menu #menu="matMenu">
+              @if (
+                row.rechten.canWijzigen &&
+                !row.isBesluitDocument &&
+                !row.relatieType
+              ) {
+                <button mat-menu-item (click)="documentOntkoppelen(row)">
+                  <mat-icon>link_off</mat-icon>
+                  <span>{{ "actie.document.ontkoppelen" | translate }}</span>
+                </button>
+              }
+              @if (
+                row.rechten.canWijzigen &&
+                !row.isBesluitDocument &&
+                !row.relatieType
+              ) {
+                <button mat-menu-item (click)="emitDocumentMove(row)">
+                  <mat-icon>move_item</mat-icon>
+                  <span>{{ "actie.document.verplaatsen" | translate }}</span>
+                </button>
+              }
+              <a mat-menu-item [href]="getDownloadURL(row)">
+                <mat-icon>download</mat-icon>
+                <span>{{ "actie.document.downloaden" | translate }}</span>
+              </a>
+            </mat-menu>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="expandedDetail">
-          <td mat-cell *matCellDef="let row" colspan="8">
+          <td
+            mat-cell
+            *matCellDef="let row"
+            [attr.colspan]="documentColumns().length"
+          >
             <div
               [@detailExpand]="
-                row == documentPreviewRow ? 'expanded' : 'collapsed'
+                row === documentPreviewRow ? 'expanded' : 'collapsed'
               "
             >
-              @if (row == documentPreviewRow) {
+              @if (row === documentPreviewRow) {
                 <zac-document-viewer [document]="row"></zac-document-viewer>
               }
             </div>
