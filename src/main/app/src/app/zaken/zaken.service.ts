@@ -315,15 +315,7 @@ export class ZakenService {
             "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd",
             { medewerker: medewerker.naam },
           );
-          this.queryClient.invalidateQueries({
-            queryKey: [
-              "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
-            ],
-          });
-          this.queryClient.invalidateQueries({
-            queryKey: this.listGeautoriseerdeMedewerkersQuery(uuid).queryKey,
-          });
-          this.invalidateHistorie(uuid);
+          this.invalidateGeautoriseerdeMedewerkers(uuid);
         },
       },
     );
@@ -347,20 +339,22 @@ export class ZakenService {
       ),
       {
         onSuccess: (_data, { isLoggedInUser }) => {
-          // The logged-in user just lost access to this zaak, so refetching it would only fail.
-          if (isLoggedInUser) return;
-          this.queryClient.invalidateQueries({
-            queryKey: [
-              "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
-            ],
-          });
-          this.queryClient.invalidateQueries({
-            queryKey: this.listGeautoriseerdeMedewerkersQuery(uuid).queryKey,
-          });
-          this.invalidateHistorie(uuid);
+          if (!isLoggedInUser) this.invalidateGeautoriseerdeMedewerkers(uuid);
         },
       },
     );
+  }
+
+  private invalidateGeautoriseerdeMedewerkers(uuid: string) {
+    this.queryClient.invalidateQueries({
+      queryKey: [
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+      ],
+    });
+    this.queryClient.invalidateQueries({
+      queryKey: this.listGeautoriseerdeMedewerkersQuery(uuid).queryKey,
+    });
+    this.invalidateHistorie(uuid);
   }
 
   listBetrokkenenVoorZaakQuery(uuid: string) {

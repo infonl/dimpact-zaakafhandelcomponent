@@ -120,7 +120,7 @@ export class ZaakDialogService {
     });
   }
 
-  openOntkoppelZaakspecifiekGeautoriseerdeMedewerker(
+  openDetachZaakspecifiekGeautoriseerdeMedewerker(
     medewerker: string,
     callback: RedenCallback,
   ) {

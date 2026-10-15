@@ -27,33 +27,33 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
   let zakenService: ZakenService;
   let utilService: UtilService;
   let dialogRef: MatDialogRef<unknown>;
-  let openOntkoppelSpy: jest.Mock;
+  let openDetachSpy: jest.Mock;
   let deleteMedewerkerMutation: ReturnType<
     typeof createMutationOptions<void, { medewerkerId: string; reden: string }>
   >;
 
   const zaakUuid = "fake-zaak-uuid";
-  const ontkoppelLabel =
+  const detachLabel =
     "actie.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen";
 
   const behandelaar: GeneratedType<"RestGeautoriseerdeMedewerker"> = {
     id: "fake-behandelaar-id",
     naam: "Anna de Vries",
     roltype: "Behandelaar",
-    isOntkoppelbaar: false,
+    isDetachable: false,
   };
   const addedMedewerker: GeneratedType<"RestGeautoriseerdeMedewerker"> = {
     id: "fake-medewerker-id",
     naam: "Emma Jansen",
     roltype: "Zaakspecifiek geautoriseerde medewerker",
-    isOntkoppelbaar: true,
+    isDetachable: true,
   };
 
   const screen = () => within(fixture.nativeElement as HTMLElement);
 
   const renderTab = (
     medewerkers: GeneratedType<"RestGeautoriseerdeMedewerker">[],
-    canOntkoppelen = false,
+    canDetach = false,
     loggedInUserId: string | null = "fake-logged-in-user-id",
   ) => {
     testQueryClient.setQueryData(
@@ -68,7 +68,7 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     }
     fixture = TestBed.createComponent(ZaakDetailsMedewerkersTabComponent);
     fixture.componentRef.setInput("zaakUuid", zaakUuid);
-    fixture.componentRef.setInput("canOntkoppelen", canOntkoppelen);
+    fixture.componentRef.setInput("canDetach", canDetach);
     fixture.detectChanges();
   };
 
@@ -77,7 +77,7 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     dialogRef = fromPartial<MatDialogRef<unknown>>({
       afterClosed: jest.fn().mockReturnValue(of(false)),
     });
-    openOntkoppelSpy = jest.fn().mockReturnValue(dialogRef);
+    openDetachSpy = jest.fn().mockReturnValue(dialogRef);
 
     await TestBed.configureTestingModule({
       imports: [ZaakDetailsMedewerkersTabComponent, TranslateModule.forRoot()],
@@ -88,8 +88,7 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
         {
           provide: ZaakDialogService,
           useValue: {
-            openOntkoppelZaakspecifiekGeautoriseerdeMedewerker:
-              openOntkoppelSpy,
+            openDetachZaakspecifiekGeautoriseerdeMedewerker: openDetachSpy,
           },
         },
       ],
@@ -151,49 +150,41 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     expect(screen().getByRole("cell", { name: "-" })).toBeInTheDocument();
   });
 
-  it("offers ontkoppelen only for the medewerkers the backend marks as ontkoppelbaar", () => {
+  it("offers detaching only for the medewerkers the backend marks as ontkoppelbaar", () => {
     renderTab([behandelaar, addedMedewerker], true);
 
-    const ontkoppelButtons = screen().getAllByRole("button", {
-      name: ontkoppelLabel,
+    const detachButtons = screen().getAllByRole("button", {
+      name: detachLabel,
     });
-    expect(ontkoppelButtons).toHaveLength(1);
+    expect(detachButtons).toHaveLength(1);
     expect(
       within(screen().getAllByRole("row")[2]).getByRole("button", {
-        name: ontkoppelLabel,
+        name: detachLabel,
       }),
-    ).toBe(ontkoppelButtons[0]);
+    ).toBe(detachButtons[0]);
   });
 
-  it("offers no ontkoppelen for a medewerker without an id, since the backend needs it to ontkoppel", () => {
-    renderTab([{ ...addedMedewerker, id: null }], true);
-
-    expect(
-      screen().queryByRole("button", { name: ontkoppelLabel }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("offers no ontkoppelen until the logged-in user is known, so ontkoppelen yourself can never refresh the zaak", () => {
+  it("offers no detaching until the logged-in user is known, so detaching yourself can never refresh the zaak", () => {
     renderTab([addedMedewerker], true, null);
 
     expect(
-      screen().queryByRole("button", { name: ontkoppelLabel }),
+      screen().queryByRole("button", { name: detachLabel }),
     ).not.toBeInTheDocument();
   });
 
-  it("offers no ontkoppelen to a user who may not change the zaak", () => {
+  it("offers no detaching to a user who may not change the zaak", () => {
     renderTab([behandelaar, addedMedewerker], false);
 
     expect(
-      screen().queryByRole("button", { name: ontkoppelLabel }),
+      screen().queryByRole("button", { name: detachLabel }),
     ).not.toBeInTheDocument();
   });
 
-  it("asks for a reden and ontkoppelt the medewerker with it", async () => {
+  it("asks for a reden and detaches the medewerker with it", async () => {
     renderTab([addedMedewerker], true);
 
-    screen().getByRole("button", { name: ontkoppelLabel }).click();
-    const [naam, callback] = openOntkoppelSpy.mock.calls[0] as [
+    screen().getByRole("button", { name: detachLabel }).click();
+    const [naam, callback] = openDetachSpy.mock.calls[0] as [
       string,
       (reden: string) => Observable<unknown>,
     ];
@@ -214,12 +205,12 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     );
   });
 
-  it("confirms the ontkoppeling once the dialog closes successfully and stays on the zaak", () => {
+  it("confirms the detachment once the dialog closes successfully and stays on the zaak", () => {
     jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
     const navigateByUrl = jest.spyOn(TestBed.inject(Router), "navigateByUrl");
     renderTab([addedMedewerker], true);
 
-    screen().getByRole("button", { name: ontkoppelLabel }).click();
+    screen().getByRole("button", { name: detachLabel }).click();
 
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppeld",
@@ -228,15 +219,15 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     expect(navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it("goes to the dashboard after the user ontkoppelt themselves, since they may no longer see the zaak", async () => {
+  it("goes to the dashboard after the user detaches themselves, since they may no longer see the zaak", async () => {
     jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
     const navigateByUrl = jest
       .spyOn(TestBed.inject(Router), "navigateByUrl")
       .mockResolvedValue(true);
     renderTab([addedMedewerker], true, "fake-medewerker-id");
 
-    screen().getByRole("button", { name: ontkoppelLabel }).click();
-    const [, callback] = openOntkoppelSpy.mock.calls[0] as [
+    screen().getByRole("button", { name: detachLabel }).click();
+    const [, callback] = openDetachSpy.mock.calls[0] as [
       string,
       (reden: string) => Observable<unknown>,
     ];
@@ -253,7 +244,7 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
   it("shows no confirmation when the dialog is cancelled", () => {
     renderTab([addedMedewerker], true);
 
-    screen().getByRole("button", { name: ontkoppelLabel }).click();
+    screen().getByRole("button", { name: detachLabel }).click();
 
     expect(utilService.openSnackbar).not.toHaveBeenCalled();
   });

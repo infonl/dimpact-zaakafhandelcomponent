@@ -62,7 +62,7 @@ export class ZaakDetailsMedewerkersTabComponent {
   private readonly router = inject(Router);
 
   readonly zaakUuid = input.required<string>();
-  readonly canOntkoppelen = input(false);
+  readonly canDetach = input.required<boolean>();
 
   protected readonly medewerkersQuery = injectQuery(() =>
     this.zakenService.listGeautoriseerdeMedewerkersQuery(this.zaakUuid()),
@@ -76,20 +76,19 @@ export class ZaakDetailsMedewerkersTabComponent {
     () => this.medewerkersQuery.data() ?? [],
   );
 
-  // Ontkoppelen waits for the logged-in user, since ontkoppelen yourself must leave the zaak instead of refreshing it.
   protected readonly columns = computed(() =>
-    this.canOntkoppelen() && this.loggedInUserQuery.isSuccess()
+    this.canDetach() && this.loggedInUserQuery.isSuccess()
       ? ["naam", "roltype", "actions"]
       : ["naam", "roltype"],
   );
 
-  protected ontkoppelMedewerker(
-    medewerker: GeneratedType<"RestGeautoriseerdeMedewerker"> & { id: string },
+  protected detachMedewerker(
+    medewerker: GeneratedType<"RestGeautoriseerdeMedewerker">,
   ) {
     const naam = medewerker.naam ?? medewerker.id;
     const isLoggedInUser = medewerker.id === this.loggedInUserQuery.data()?.id;
     this.zaakDialogService
-      .openOntkoppelZaakspecifiekGeautoriseerdeMedewerker(naam, (reden) =>
+      .openDetachZaakspecifiekGeautoriseerdeMedewerker(naam, (reden) =>
         runMutation(
           this.queryClient,
           this.zakenService.deleteZaakspecifiekGeautoriseerdeMedewerker(

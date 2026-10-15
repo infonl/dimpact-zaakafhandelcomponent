@@ -922,7 +922,7 @@
   "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen.bevestigen": "De toegang van {{medewerker}} tot deze zaak intrekken?",
   "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppeld": "{{medewerker}} is ontkoppeld van deze zaak",
   "msg.error.medewerker.not.zaakspecifiek.geautoriseerd": "Deze medewerker is geen zaakspecifiek geautoriseerde medewerker van deze zaak en kan niet ontkoppeld worden.",
-  "msg.error.medewerker.cannot.be.ontkoppeld": "De zaakbehandelaar en de behandelaars van openstaande taken kunnen niet ontkoppeld worden.",
+  "msg.error.medewerker.cannot.be.detached": "De zaakbehandelaar en de behandelaars van openstaande taken kunnen niet ontkoppeld worden.",
   "msg.hint.kvk.unknown": "Herkoppel de betrokkene met een bekend KvK-nummer.",
   "msg.hint.kvk.outdated": "De gekoppelde betrokkene is niet meer bekend bij de KvK.",
   "msg.hint.kvk.other-error": "Er is een fout opgetreden bij het ophalen van de KvK-gegevens.",

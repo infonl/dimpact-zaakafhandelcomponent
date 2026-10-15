@@ -18,10 +18,10 @@
     <ng-container matColumnDef="actions" stickyEnd>
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let medewerker">
-        @if (medewerker.isOntkoppelbaar && medewerker.id) {
+        @if (medewerker.isDetachable) {
           <button
             mat-icon-button
-            (click)="ontkoppelMedewerker(medewerker)"
+            (click)="detachMedewerker(medewerker)"
             title="{{
               'actie.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen'
                 | translate

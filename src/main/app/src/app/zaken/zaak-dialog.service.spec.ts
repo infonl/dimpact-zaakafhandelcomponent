@@ -89,10 +89,10 @@ describe(ZaakDialogService.name, () => {
     expect(data.multiline).toBe(true);
   });
 
-  it("ontkoppelZaakspecifiekGeautoriseerdeMedewerker opens a multiline reden dialog naming the medewerker", () => {
+  it("detachZaakspecifiekGeautoriseerdeMedewerker opens a multiline reden dialog naming the medewerker", () => {
     const { service, open } = setup();
 
-    service.openOntkoppelZaakspecifiekGeautoriseerdeMedewerker(
+    service.openDetachZaakspecifiekGeautoriseerdeMedewerker(
       "Emma Jansen",
       jest.fn(),
     );
