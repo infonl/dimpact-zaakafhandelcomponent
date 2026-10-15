@@ -25,7 +25,7 @@ commons-io = "2.22.0"
 opencsv = "5.12.0"
 flowable = "8.0.0"
 slf4j = "2.0.20"
-auth0-java-jwt = "4.6.1"
+auth0-java-jwt = "4.6.2"
 javax-cache = "1.1.1"
 google-guava = "33.7.2-jre"
 flyway = "13.10.0"
@@ -59,7 +59,7 @@ jakarta-jakartaee = "11.0.0"
 
 eclipse-yasson = "3.0.5"
 
-kotest = "6.2.5"
+kotest = "6.2.6"
 mockk = "1.14.11"
 
 testcontainers = "2.0.5"

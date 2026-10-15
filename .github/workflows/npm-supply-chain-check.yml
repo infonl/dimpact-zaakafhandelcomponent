@@ -12,6 +12,8 @@ on:
       - "src/main/app/package-lock.json"
       - "src/e2e/package.json"
       - "src/e2e/package-lock.json"
+      - "docs/manuals/pdf-generator/package.json"
+      - "docs/manuals/pdf-generator/package-lock.json"
   push:
     branches: [main]
     paths:
@@ -19,6 +21,8 @@ on:
       - "src/main/app/package-lock.json"
       - "src/e2e/package.json"
       - "src/e2e/package-lock.json"
+      - "docs/manuals/pdf-generator/package.json"
+      - "docs/manuals/pdf-generator/package-lock.json"
 
 permissions:
   contents: read
@@ -38,6 +42,8 @@ jobs:
             working-directory: src/main/app
           - name: e2e
             working-directory: src/e2e
+          - name: manual-pdf-generator
+            working-directory: docs/manuals/pdf-generator
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -61,6 +67,8 @@ jobs:
             working-directory: src/main/app
           - name: e2e
             working-directory: src/e2e
+          - name: manual-pdf-generator
+            working-directory: docs/manuals/pdf-generator
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

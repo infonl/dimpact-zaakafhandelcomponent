@@ -15,17 +15,17 @@ This document lists the Docker images and versions that the corresponding versio
 - **otel/opentelemetry-collector-contrib**: 0.162.0
 - **grafana/tempo**: 3.1.0
 - **prom/prometheus**: v3.15.0
-- **grafana/grafana**: 13.2.3
+- **grafana/grafana**: 13.2.4
 - **greenmail/standalone**: 2.1.14
 - **nginxinc/nginx-unprivileged**: 1.31.6
 
 ## Common Ground components
 
-- **open-zaak**: 1.29.3
+- **open-zaak**: 1.31.0
 - **open-object**: 4.1.1
 - **open-klant**: 2.15.0
 - **open-forms**: 3.5.10
-- **open-notificaties**: 1.16.2
+- **open-notificaties**: 1.17.0
 - **open-archiefbeheer**: 2.0.0
 - **pabc-migrations**: 2.1.0
 - **pabc-api**: 2.1.0

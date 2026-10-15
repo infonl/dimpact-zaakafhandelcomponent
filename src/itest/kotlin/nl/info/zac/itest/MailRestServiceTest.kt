@@ -17,8 +17,13 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_KVK
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
@@ -252,6 +257,70 @@ class MailRestServiceTest : BehaviorSpec({
                     shouldContain(ZAAKTYPE_CMMN_TEST_2_DESCRIPTION_GENERIC)
                     shouldNotContain("{ZAAKTYPE_OMSCHRIJVING}")
                     shouldNotContain("{ZAAKTYPE_OMSCHRIJVING_GENERIEK}")
+                }
+            }
+        }
+    }
+
+    given("A zaak with a rechtspersoon initiator that is identified by only a KVK number") {
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHEERDER_1
+        )
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/initiator",
+            requestBodyAsString = """
+                {
+                    "betrokkeneIdentificatie": {
+                        "kvkNummer": "$TEST_KVK_NUMMER_1",
+                        "type": "$BETROKKENE_IDENTIFICATION_TYPE_KVK"
+                    },
+                    "zaakUUID": "$zaakUuid"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        ).code shouldBe HTTP_OK
+
+        `when`("a mail is sent whose body contains the initiator variables") {
+            val receiverMail = "rechtspersoonInitiatorReceiverTest@example.com"
+
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/mail/send/$zaakUuid",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json"
+                ),
+                requestBodyAsString = """{
+                    "verzender": "sender@example.com",
+                    "ontvanger": "$receiverMail",
+                    "onderwerp": "subject",
+                    "body": "<p>Beste {ZAAK_INITIATOR},</p><p>{ZAAK_INITIATOR_ADRES}</p>",
+                    "bijlagen": "",
+                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+                }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the response should be 'no-content'") {
+                response.code shouldBe HTTP_NO_CONTENT
+            }
+
+            and("the delivered mail contains the name and address of the rechtspersoon found in the KVK") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
+                    testUser = BEHANDELAAR_1
+                )
+                receivedMailsResponse.code shouldBe HTTP_OK
+
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                receivedMails.length() shouldBeGreaterThan 0
+                with(receivedMails.getJSONObject(receivedMails.length() - 1).getString("mimeMessage")) {
+                    shouldContain("Beste $TEST_KVK_NAAM_1,")
+                    shouldContain(TEST_KVK_ADRES_1)
+                    shouldContain(TEST_KVK_PLAATS_1)
+                    shouldNotContain("{ZAAK_INITIATOR}")
+                    shouldNotContain("{ZAAK_INITIATOR_ADRES}")
                 }
             }
         }

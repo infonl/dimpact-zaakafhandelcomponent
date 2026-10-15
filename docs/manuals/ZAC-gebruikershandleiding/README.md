@@ -2,7 +2,9 @@
 
 The most recent version of the end-user manual is in [ZAC-gebruikershandleiding.md](./ZAC-gebruikershandleiding.md) (Dutch only).
 
-Versions for specific releases of ZAC can be found as PDF files in this folder.
+The pipeline generates a PDF version of this manual for every ZAC release and attaches it to the [GitHub release](https://github.com/infonl/dimpact-zaakafhandelcomponent/releases).
+PDF versions for older releases of ZAC can be found in this folder.
+See [pdf-generator](../pdf-generator/README.md) to generate the PDF locally.
 
 ## Updating the table of contents
 

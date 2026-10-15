@@ -61,21 +61,13 @@ class IdentificationService @Inject constructor(
         when (val betrokkeneType = initiatorRole.betrokkeneType) {
             NATUURLIJK_PERSOON -> IdentificatieType.BSN
             VESTIGING -> IdentificatieType.VN
-            // the 'niet_natuurlijk_persoon' rol type is used both for rechtspersonen ('RSIN') and vestigingen
             NIET_NATUURLIJK_PERSOON -> (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.let {
-                when {
-                    // we support 'legacy' RSIN-type initiators with only an RSIN (no KVK nor vestigings number)
-                    it.innNnpId?.isNotBlank() == true ||
-                        (it.kvkNummer?.isNotBlank() == true && it.vestigingsNummer.isNullOrBlank()) -> IdentificatieType.RSIN
-                    // as well as new 'RSIN-type' initiators with only a KVK number (but no vestigingsnummer)
-                    it.vestigingsNummer?.isNotBlank() == true -> IdentificatieType.VN
-                    else -> {
-                        LOG.warning(
-                            "Unsupported identification fields for betrokkene type '$betrokkeneType' " +
-                                "for role with UUID '${initiatorRole.uuid}'"
-                        )
-                        null
-                    }
+                it.toIdentificatieType() ?: run {
+                    LOG.warning(
+                        "Unsupported identification fields for betrokkene type '$betrokkeneType' " +
+                            "for role with UUID '${initiatorRole.uuid}'"
+                    )
+                    null
                 }
             }
             // betrokkeneType may be null in the ZGW API

@@ -12,6 +12,8 @@ import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.zac.app.klant.model.contactdetails.toContactDetails
+import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.identification.toIdentificatieType
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -89,14 +91,20 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
                 flowableHelper.klantClientService.findDigitalAddressesForNaturalPerson(identificatie)
 
             BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
-                val nnpId = initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie
-                if (nnpId.vestigingsNummer?.isNotBlank() == true && nnpId.kvkNummer?.isNotBlank() == true) {
-                    flowableHelper.klantClientService.findDigitalAddressesForVestiging(
-                        nnpId.vestigingsNummer,
-                        nnpId.kvkNummer
-                    )
-                } else {
-                    flowableHelper.klantClientService.findDigitalAddressesForNonNaturalPerson(identificatie)
+                val nietNatuurlijkPersoonIdentificatie =
+                    initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie
+                when (nietNatuurlijkPersoonIdentificatie.toIdentificatieType()) {
+                    IdentificatieType.RSIN ->
+                        flowableHelper.klantClientService.findDigitalAddressesForNonNaturalPerson(identificatie)
+                    IdentificatieType.VN -> nietNatuurlijkPersoonIdentificatie.kvkNummer
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let {
+                            flowableHelper.klantClientService.findDigitalAddressesForVestiging(
+                                nietNatuurlijkPersoonIdentificatie.vestigingsNummer,
+                                it
+                            )
+                        }.orEmpty()
+                    else -> emptyList()
                 }
             }
 

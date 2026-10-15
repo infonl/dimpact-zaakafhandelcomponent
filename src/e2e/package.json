@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.1",
   "engines": {
-    "node": "24.21.0",
+    "node": "24.22.0",
     "npm": "11.21.0"
   },
   "scripts": {
@@ -17,7 +17,7 @@
   "dependencies": {
     "@cucumber/cucumber": "13.3.0",
     "pdf-parse": "2.4.5",
-    "zod": "4.6.5"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",

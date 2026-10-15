@@ -412,8 +412,14 @@
         "lockFileMaintenance"
       ],
       "automerge": true,
+      "platformAutomerge": false,
+      "automergeSchedule": [
+        "* 0,4-23 * * 1-5",
+        "* * * * 0,6"
+      ],
       "description": [
-        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review"
+        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review",
+        "No automerge 01:00-04:00 UTC on weekdays, so no deploy disturbs the nightly E2E run that starts at 01:00 (see run-e2e.yml)"
       ]
     },
     {
@@ -633,7 +639,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.30.0",
+      "allowedVersions": "< 1.32.0",
       "prBodyNotes": [
         "After merging the Docker Compose change, regenerate the pre-migrated Open Zaak database dump by running `scripts/docker-compose/regenerate-openzaak-database-dump.sh` and commit the result, so that Open Zaak keeps starting without pending database migrations."
       ],
@@ -650,7 +656,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.17.0",
+      "allowedVersions": "< 1.18.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]

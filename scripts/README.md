@@ -19,6 +19,9 @@ Contains Linux override to workaround `host.docker.internal`
 ## [github](github)
 Test GitHub Workflow using [ACT](https://github.com/nektos/act)
 
+## [open-zaak](open-zaak)
+Delete a zaak with a given zaaknummer from Open Zaak.
+
 ## [productaanvraag](productaanvraag)
 Script to notify ZAC about a new product request.
 
