@@ -15,6 +15,7 @@ import {
   createQueryOptions,
   fromPartial,
 } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -83,6 +84,8 @@ describe("Koppelingen form step", () => {
   }
 
   async function setup(parameters = createParameters()) {
+    const updateZaakafhandelparameters = createMutationOptions(parameters);
+
     const { fixture } = await render(ParametersEditCmmnComponent, {
       imports: [TranslateModule.forRoot(), RouterModule, NoopAnimationsModule],
       providers: [
@@ -105,8 +108,7 @@ describe("Koppelingen form step", () => {
             listReplyTos: () => of([{ mail: "reply1@example.com" }]),
             listZaakbeeindigRedenen: () => of([]),
             listResultaattypes: () => of([]),
-            updateZaakafhandelparameters: () =>
-              createMutationOptions(parameters),
+            updateZaakafhandelparameters: () => updateZaakafhandelparameters,
           }),
         },
         {
@@ -164,7 +166,7 @@ describe("Koppelingen form step", () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    return fixture;
+    return { updateZaakafhandelparameters };
   }
 
   async function goToStep(label: string) {
@@ -318,6 +320,63 @@ describe("Koppelingen form step", () => {
       expect(
         within(koppelingen).getByText("msg.smartdocuments.form.disabled"),
       ).toBeVisible();
+    });
+
+    it("keeps SmartDocuments switched on for the zaaktype when saving without opening the koppelingen step", async () => {
+      const { updateZaakafhandelparameters } = await setup(
+        createParameters({
+          smartDocuments: {
+            isEnabledGlobally: true,
+            isEnabledForZaaktype: true,
+          },
+        }),
+      );
+      const mail = await goToStep("gegevens.mail");
+
+      await user.click(
+        within(mail).getByRole("button", { name: "actie.opslaan" }),
+      );
+      await sleep();
+
+      expect(updateZaakafhandelparameters.mutationFn.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          smartDocuments: {
+            isEnabledGlobally: true,
+            isEnabledForZaaktype: true,
+          },
+        }),
+      );
+    });
+
+    it("saves SmartDocuments switched off for the zaaktype once it is switched off in the koppelingen step", async () => {
+      const { updateZaakafhandelparameters } = await setup(
+        createParameters({
+          smartDocuments: {
+            isEnabledGlobally: true,
+            isEnabledForZaaktype: true,
+          },
+        }),
+      );
+      const koppelingen = await goToStep("gegevens.koppelingen");
+
+      await user.click(
+        within(koppelingen).getByRole("switch", {
+          name: "title.smartdocuments.form",
+        }),
+      );
+      await user.click(
+        within(koppelingen).getByRole("button", { name: "actie.opslaan" }),
+      );
+      await sleep();
+
+      expect(updateZaakafhandelparameters.mutationFn.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          smartDocuments: {
+            isEnabledGlobally: true,
+            isEnabledForZaaktype: false,
+          },
+        }),
+      );
     });
   });
 

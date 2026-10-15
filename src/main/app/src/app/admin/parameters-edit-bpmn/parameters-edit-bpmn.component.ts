@@ -540,6 +540,8 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
             false,
           isEnabledForZaaktype:
             this.smartDocumentsFormComponent()?.enabledForZaaktypeValue ??
+            this.bpmnZaakafhandelParameters.smartDocuments
+              ?.isEnabledForZaaktype ??
             false,
         },
       },
