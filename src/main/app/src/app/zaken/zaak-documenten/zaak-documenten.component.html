@@ -57,12 +57,7 @@
 
         <ng-container matColumnDef="preview">
           <th mat-header-cell *matHeaderCellDef></th>
-          <td
-            mat-cell
-            *matCellDef="let row"
-            (click)="togglePreview(row)"
-            [ngClass]="{ pointer: isPreviewBeschikbaar(row.formaat) }"
-          >
+          <td mat-cell *matCellDef="let row">
             @if (isPreviewBeschikbaar(row.formaat)) {
               <mat-icon
                 class="preview-chevron"
@@ -87,23 +82,7 @@
           <th mat-sort-header mat-header-cell *matHeaderCellDef>
             {{ "titel" | translate }}
           </th>
-          <td
-            mat-cell
-            *matCellDef="let row"
-            (click)="togglePreview(row)"
-            [ngClass]="{ pointer: isPreviewBeschikbaar(row.formaat) }"
-          >
-            <div class="titel flex-row items-center gap-5">
-              <span>{{ row.titel }}</span>
-              @if (row.startformulier) {
-                <mat-icon
-                  title="{{ 'startformulier' | translate }}"
-                  class="gold-star"
-                  >star</mat-icon
-                >
-              }
-            </div>
-          </td>
+          <td mat-cell *matCellDef="let row">{{ row.titel }}</td>
         </ng-container>
 
         @for (
@@ -207,14 +186,19 @@
               </span>
             </div>
           </th>
-          <td mat-cell *matCellDef="let row">
+          <td
+            mat-cell
+            *matCellDef="let row"
+            (click)="$event.stopPropagation()"
+          >
             <div class="acties grid">
               @if (row.rechten.canLezen) {
                 <a
                   mat-icon-button
                   class="bekijken"
                   [routerLink]="['/informatie-objecten', row.uuid]"
-                  title="{{ 'actie.document.bekijken' | translate }}"
+                  [attr.aria-label]="'actie.document.bekijken' | translate"
+                  [matTooltip]="'actie.document.bekijken' | translate"
                 >
                   <mat-icon>visibility</mat-icon>
                 </a>
@@ -224,7 +208,8 @@
                   mat-icon-button
                   class="bewerken"
                   (click)="bewerken(row)"
-                  title="{{ 'actie.document.bewerken' | translate }}"
+                  [attr.aria-label]="'actie.document.bewerken' | translate"
+                  [matTooltip]="'actie.document.bewerken' | translate"
                 >
                   <mat-icon>edit</mat-icon>
                 </button>
@@ -289,6 +274,8 @@
           mat-row
           *matRowDef="let row; columns: documentColumns()"
           [class.expanded-row]="documentPreviewRow === row"
+          [class.pointer]="isPreviewBeschikbaar(row.formaat)"
+          (click)="togglePreview(row)"
         ></tr>
         <tr
           mat-row

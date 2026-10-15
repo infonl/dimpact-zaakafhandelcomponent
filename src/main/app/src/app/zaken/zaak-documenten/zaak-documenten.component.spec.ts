@@ -841,6 +841,28 @@ describe(ZaakDocumentenComponent.name, () => {
       expect(screen.getByTitle("Test document")).toBeVisible();
     });
 
+    it("shows the preview when clicking anywhere in the row", async () => {
+      await setup();
+
+      await user.click(
+        within(documentRow("Test document")).getByRole("cell", {
+          name: "DOCUMENT-2026-0000000002",
+        }),
+      );
+      fixture.detectChanges();
+
+      expect(screen.getByTitle("Test document")).toBeVisible();
+    });
+
+    it("does not toggle the preview when opening the row menu", async () => {
+      await setup();
+
+      await openRowMenu("Test document");
+      fixture.detectChanges();
+
+      expect(screen.queryByTitle("Test document")).toBeNull();
+    });
+
     it("explains the preview icon in a tooltip", async () => {
       await setup();
 
