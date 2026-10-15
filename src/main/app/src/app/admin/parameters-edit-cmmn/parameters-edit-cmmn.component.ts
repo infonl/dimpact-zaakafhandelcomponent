@@ -1048,7 +1048,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
 
     this.parameters.smartDocuments.isEnabledForZaaktype =
-      this.smartDocumentsFormComponent()?.enabledForZaaktypeValue ?? false;
+      this.smartDocumentsFormComponent()?.enabledForZaaktypeValue ??
+      this.parameters.smartDocuments.isEnabledForZaaktype ??
+      false;
 
     this.parameters.betrokkeneKoppelingen = {
       isKvkKoppelenEnabled: Boolean(
