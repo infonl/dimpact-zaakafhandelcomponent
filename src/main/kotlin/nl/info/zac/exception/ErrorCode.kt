@@ -81,6 +81,7 @@ enum class ErrorCode(val value: String) {
     ),
     ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD("msg.error.zaak.not.zaakspecifiek.geautoriseerd"),
     ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD("msg.error.medewerker.already.zaakspecifiek.geautoriseerd"),
+    ERROR_CODE_ZOEKOPDRACHT_WITH_SAME_NAME_ALREADY_EXISTS("msg.error.zoekopdracht.with.same.name.already.exists"),
     ERROR_CODE_GROUP_NOT_BEHANDELAAR_FOR_ZAAKTYPE("msg.error.group.not.behandelaar.for.zaaktype"),
     ERROR_CODE_MAIL_TEMPLATE_NOT_CONFIGURED("msg.error.mailtemplate.not.configured"),
     ERROR_CODE_CATALOGUS_NOT_CONFIGURED("msg.error.catalogus.not.configured"),
