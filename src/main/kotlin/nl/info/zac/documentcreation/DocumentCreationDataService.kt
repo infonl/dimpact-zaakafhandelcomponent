@@ -138,8 +138,8 @@ class DocumentCreationDataService @Inject constructor(
     private fun convertToHuisnummer(verblijfadres: VerblijfadresBinnenland) =
         listOf(
             verblijfadres.huisnummer?.toString(),
-            verblijfadres.huisnummertoevoeging,
-            verblijfadres.huisletter
+            verblijfadres.huisletter,
+            verblijfadres.huisnummertoevoeging
         ).joinNonBlank()
 
     private fun createAanvragerDataVestiging(vestigingsnummer: String): AanvragerData? =

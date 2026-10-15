@@ -106,8 +106,28 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
             `when`("the address string is created") {
                 val addressString = resultaatItem.toAddressString()
 
-                then("it is empty") {
-                    addressString shouldBe ""
+                then("it contains the street and house number, postal code and city and country") {
+                    addressString shouldBe "Hauptstrasse 1, 10115 Berlin, Duitsland"
+                }
+            }
+        }
+
+        given("A KVK result with only a buitenlands adres without a postal code and city") {
+            val resultaatItem = createResultaatItem(
+                adres = Adres().apply {
+                    buitenlandsAdres = BuitenlandsAdres().apply {
+                        straatHuisnummer = "Hauptstrasse 1"
+                        postcodeWoonplaats = " "
+                        land = "Duitsland"
+                    }
+                }
+            )
+
+            `when`("the address string is created") {
+                val addressString = resultaatItem.toAddressString()
+
+                then("the blank postal code and city are left out") {
+                    addressString shouldBe "Hauptstrasse 1, Duitsland"
                 }
             }
         }

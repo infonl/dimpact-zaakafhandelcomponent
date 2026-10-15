@@ -4,17 +4,22 @@
  */
 package nl.info.client.kvk.util
 
+import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
+import nl.info.client.kvk.zoeken.model.generated.BuitenlandsAdres
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.util.joinNonBlank
 
-fun ResultaatItem.toAddressString(): String {
-    val binnenlandsAdres = this.getAdres()?.getBinnenlandsAdres() ?: return ""
-    val huisnummerWithSuffix = listOf(
-        binnenlandsAdres.getHuisnummer()?.toString(),
-        binnenlandsAdres.getHuisletter()
-    ).joinNonBlank()
+fun ResultaatItem.toAddressString() =
+    this.getAdres()?.getBinnenlandsAdres()?.toAddressString()
+        ?: this.getAdres()?.getBuitenlandsAdres()?.toAddressString().orEmpty()
+
+private fun BinnenlandsAdres.toAddressString(): String {
+    val huisnummerWithSuffix = listOf(this.getHuisnummer()?.toString(), this.getHuisletter()).joinNonBlank()
     return listOf(
-        listOf(binnenlandsAdres.getStraatnaam(), huisnummerWithSuffix).joinNonBlank(" "),
-        listOf(binnenlandsAdres.getPostcode(), binnenlandsAdres.getPlaats()).joinNonBlank(" ")
+        listOf(this.getStraatnaam(), huisnummerWithSuffix).joinNonBlank(" "),
+        listOf(this.getPostcode(), this.getPlaats()).joinNonBlank(" ")
     ).joinNonBlank(", ")
 }
+
+private fun BuitenlandsAdres.toAddressString() =
+    listOf(this.getStraatHuisnummer(), this.getPostcodeWoonplaats(), this.getLand()).joinNonBlank(", ")
