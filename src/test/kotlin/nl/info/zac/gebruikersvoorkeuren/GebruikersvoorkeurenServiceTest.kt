@@ -2,13 +2,11 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.gebruikersvoorkeuren
+package nl.info.zac.gebruikersvoorkeuren
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.optional.shouldBeEmpty
-import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -170,8 +168,8 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             `when`("findZoekopdracht is called with that ID") {
                 val result = gebruikersvoorkeurenService.findZoekopdracht(zoekopdracht.id!!)
 
-                then("it should return an Optional containing the zoekopdracht") {
-                    result.shouldBePresent { it shouldBe zoekopdracht }
+                then("it should return the zoekopdracht") {
+                    result shouldBe zoekopdracht
                 }
             }
         }
@@ -184,8 +182,8 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             `when`("findZoekopdracht is called with that ID") {
                 val result = gebruikersvoorkeurenService.findZoekopdracht(id)
 
-                then("it should return an empty Optional") {
-                    result.shouldBeEmpty()
+                then("it should return null") {
+                    result shouldBe null
                 }
             }
         }
@@ -199,7 +197,7 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { entityManager.remove(zoekopdracht) } just Runs
 
             `when`("deleteZoekopdracht is called with that ID") {
-                gebruikersvoorkeurenService.deleteZoekopdracht(zoekopdracht.id)
+                gebruikersvoorkeurenService.deleteZoekopdracht(zoekopdracht.id!!)
 
                 then("it should remove the zoekopdracht") {
                     verify(exactly = 1) { entityManager.remove(zoekopdracht) }

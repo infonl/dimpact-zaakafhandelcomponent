@@ -2,213 +2,173 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.gebruikersvoorkeuren;
+package nl.info.zac.gebruikersvoorkeuren
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardInstelling;
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
-import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
-import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
-import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
-import nl.info.zac.signalering.SignaleringService;
-import nl.info.zac.signalering.model.SignaleringInstellingen;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.persistence.criteria.Predicate
+import jakarta.transaction.Transactional
+import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
+import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
+import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht
+import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
+import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.util.Locale
 
 @ApplicationScoped
 @Transactional
-public class GebruikersvoorkeurenService {
-    private EntityManager entityManager;
-    private SignaleringService signaleringService;
-
-    /**
-     * No-arg constructor for CDI.
-     */
-    public GebruikersvoorkeurenService() {
+@NoArgConstructor
+@AllOpen
+@Suppress("TooManyFunctions")
+class GebruikersvoorkeurenService @Inject constructor(
+    private val entityManager: EntityManager,
+    private val signaleringService: SignaleringService
+) {
+    @Suppress("TooGenericExceptionThrown")
+    fun createZoekopdracht(zoekopdracht: Zoekopdracht): Zoekopdracht {
+        if (zoekopdracht.id != null) {
+            return entityManager.merge(zoekopdracht)
+        }
+        if (existsZoekopdracht(zoekopdracht)) {
+            throw RuntimeException(
+                "Er bestaat al een zoekopdracht met naam '${zoekopdracht.naam}' en lijst '${zoekopdracht.lijstID}' " +
+                    "en medewerker: '${zoekopdracht.medewerkerID}'"
+            )
+        }
+        zoekopdracht.isActief = true
+        entityManager.persist(zoekopdracht)
+        setActief(zoekopdracht)
+        return zoekopdracht
     }
 
-    @Inject
-    public GebruikersvoorkeurenService(
-            EntityManager entityManager,
-            SignaleringService signaleringService
-    ) {
-        this.entityManager = entityManager;
-        this.signaleringService = signaleringService;
+    fun findZoekopdracht(id: Long): Zoekopdracht? = entityManager.find(Zoekopdracht::class.java, id)
+
+    @Suppress("SpreadOperator")
+    fun listZoekopdrachten(listParameters: ZoekopdrachtListParameters): List<Zoekopdracht> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(Zoekopdracht::class.java)
+        val root = query.from(Zoekopdracht::class.java)
+        val predicates = mutableListOf<Predicate>()
+        listParameters.lijstID?.let {
+            predicates.add(builder.equal(root.get<Werklijst>(Zoekopdracht.LIJST_ID), it))
+        }
+        if (!listParameters.medewerkerID.isNullOrBlank()) {
+            predicates.add(builder.equal(root.get<String>(Zoekopdracht.MEDEWERKER_ID), listParameters.medewerkerID))
+        }
+        query.where(builder.and(*predicates.toTypedArray()))
+        return entityManager.createQuery(query).resultList
     }
 
-    public Zoekopdracht createZoekopdracht(final Zoekopdracht zoekopdracht) {
-        if (zoekopdracht.getId() != null) {
-            return entityManager.merge(zoekopdracht);
-        } else {
-            if (existsZoekopdracht(zoekopdracht)) {
-                throw new RuntimeException(
-                        "Er bestaat al een zoekopdracht met naam '%s' en lijst '%s' en medewerker: '%s'"
-                                .formatted(zoekopdracht.getNaam(), zoekopdracht.getLijstID(),
-                                        zoekopdracht.getMedewerkerID()));
+    @Suppress("SpreadOperator")
+    fun readTabelInstellingen(lijstID: Werklijst, medewerkerID: String): TabelInstellingen {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(TabelInstellingen::class.java)
+        val root = query.from(TabelInstellingen::class.java)
+        val predicates = arrayOf(
+            builder.equal(root.get<Werklijst>(TabelInstellingen.LIJST_ID), lijstID),
+            builder.equal(root.get<String>(TabelInstellingen.MEDEWERKER_ID), medewerkerID)
+        )
+        query.where(builder.and(*predicates))
+        return entityManager.createQuery(query).resultList.firstOrNull() ?: TabelInstellingen().apply {
+            this.lijstID = lijstID
+            this.medewerkerID = medewerkerID
+            aantalPerPagina = TabelInstellingen.AANTAL_PER_PAGINA_DEFAULT
+        }
+    }
+
+    fun updateTabelInstellingen(tabelInstellingen: TabelInstellingen) {
+        val bestaandeTabelInstellingen = readTabelInstellingen(tabelInstellingen.lijstID, tabelInstellingen.medewerkerID)
+        bestaandeTabelInstellingen.aantalPerPagina = tabelInstellingen.aantalPerPagina
+        entityManager.merge(bestaandeTabelInstellingen)
+    }
+
+    @Suppress("SpreadOperator")
+    private fun existsZoekopdracht(zoekopdracht: Zoekopdracht): Boolean {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(Zoekopdracht::class.java)
+        val root = query.from(Zoekopdracht::class.java)
+        val predicates = arrayOf(
+            builder.equal(root.get<Werklijst>(Zoekopdracht.LIJST_ID), zoekopdracht.lijstID),
+            builder.equal(root.get<String>(Zoekopdracht.MEDEWERKER_ID), zoekopdracht.medewerkerID),
+            builder.equal(builder.lower(root.get(Zoekopdracht.NAAM)), zoekopdracht.naam.lowercase(Locale.ROOT))
+        )
+        query.where(builder.and(*predicates))
+        return entityManager.createQuery(query).resultList.isNotEmpty()
+    }
+
+    fun deleteZoekopdracht(id: Long) {
+        findZoekopdracht(id)?.let(entityManager::remove)
+    }
+
+    fun setActief(zoekopdracht: Zoekopdracht) {
+        listZoekopdrachten(ZoekopdrachtListParameters(zoekopdracht.lijstID, zoekopdracht.medewerkerID)).forEach {
+            val isActief = it.id == zoekopdracht.id
+            if (it.isActief != isActief) {
+                it.isActief = isActief
+                entityManager.merge(it)
             }
-            zoekopdracht.setActief(true);
-            entityManager.persist(zoekopdracht);
-            setActief(zoekopdracht);
-        }
-        return zoekopdracht;
-    }
-
-    public Optional<Zoekopdracht> findZoekopdracht(final long id) {
-        final var zoekopdracht = entityManager.find(Zoekopdracht.class, id);
-        return zoekopdracht != null ? Optional.of(zoekopdracht) : Optional.empty();
-    }
-
-    public List<Zoekopdracht> listZoekopdrachten(final ZoekopdrachtListParameters listParameters) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Zoekopdracht> query = builder.createQuery(Zoekopdracht.class);
-        final Root<Zoekopdracht> root = query.from(Zoekopdracht.class);
-        final List<Predicate> predicates = new ArrayList<>();
-        if (listParameters.getLijstID() != null) {
-            predicates.add(builder.equal(root.get(Zoekopdracht.LIJST_ID), listParameters.getLijstID()));
-        }
-        if (StringUtils.isNotBlank(listParameters.getMedewerkerID())) {
-            predicates.add(builder.equal(root.get(Zoekopdracht.MEDEWERKER_ID), listParameters.getMedewerkerID()));
-        }
-        query.where(builder.and(predicates.toArray(new Predicate[0])));
-        final TypedQuery<Zoekopdracht> emQuery = entityManager.createQuery(query);
-        return emQuery.getResultList();
-    }
-
-    public TabelInstellingen readTabelInstellingen(final Werklijst lijstID, final String medewerkerID) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<TabelInstellingen> query = builder.createQuery(TabelInstellingen.class);
-        final Root<TabelInstellingen> root = query.from(TabelInstellingen.class);
-        final List<Predicate> predicates = new ArrayList<>();
-        predicates.add(builder.equal(root.get(TabelInstellingen.LIJST_ID), lijstID));
-        predicates.add(builder.equal(root.get(TabelInstellingen.MEDEWERKER_ID), medewerkerID));
-        query.where(builder.and(predicates.toArray(new Predicate[0])));
-        final List<TabelInstellingen> resultList = entityManager.createQuery(query).getResultList();
-        if (!resultList.isEmpty()) {
-            return resultList.getFirst();
-        } else {
-            final TabelInstellingen tabelInstellingen = new TabelInstellingen();
-            tabelInstellingen.setLijstID(lijstID);
-            tabelInstellingen.setMedewerkerID(medewerkerID);
-            tabelInstellingen.setAantalPerPagina(TabelInstellingen.AANTAL_PER_PAGINA_DEFAULT);
-            return tabelInstellingen;
         }
     }
 
-    public void updateTabelInstellingen(final TabelInstellingen tabelInstellingen) {
-        final TabelInstellingen bestaandeTabelInstellingen = readTabelInstellingen(tabelInstellingen.getLijstID(), tabelInstellingen
-                .getMedewerkerID());
-        bestaandeTabelInstellingen.setAantalPerPagina(tabelInstellingen.getAantalPerPagina());
-        entityManager.merge(bestaandeTabelInstellingen);
+    fun removeActief(zoekopdrachtListParameters: ZoekopdrachtListParameters) {
+        listZoekopdrachten(zoekopdrachtListParameters).filter { it.isActief }.forEach {
+            it.isActief = false
+            entityManager.merge(it)
+        }
     }
 
-    private boolean existsZoekopdracht(final Zoekopdracht zoekopdracht) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Zoekopdracht> query = builder.createQuery(Zoekopdracht.class);
-        final Root<Zoekopdracht> root = query.from(Zoekopdracht.class);
-        final List<Predicate> predicates = new ArrayList<>();
-        predicates.add(builder.equal(root.get(Zoekopdracht.LIJST_ID), zoekopdracht.getLijstID()));
-        predicates.add(builder.equal(root.get(Zoekopdracht.MEDEWERKER_ID), zoekopdracht.getMedewerkerID()));
-        predicates.add(builder.equal(builder.lower(root.get(Zoekopdracht.NAAM)),
-                zoekopdracht.getNaam().toLowerCase(Locale.ROOT)));
-        query.where(builder.and(predicates.toArray(new Predicate[0])));
-        final TypedQuery<Zoekopdracht> emQuery = entityManager.createQuery(query);
-        return CollectionUtils.isNotEmpty(emQuery.getResultList());
+    fun listDashboardCards(medewerkerId: String): List<DashboardCardInstelling> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(DashboardCardInstelling::class.java)
+        val root = query.from(DashboardCardInstelling::class.java)
+        query.where(builder.and(builder.equal(root.get<String>("medewerkerId"), medewerkerId)))
+        query.orderBy(builder.asc(root.get<Int>("volgorde")))
+        return entityManager.createQuery(query).resultList
     }
 
-    public void deleteZoekopdracht(final Long id) {
-        findZoekopdracht(id).ifPresent(entityManager::remove);
-    }
-
-    public void setActief(final Zoekopdracht zoekopdracht) {
-        final List<Zoekopdracht> zoekopdrachten = listZoekopdrachten(
-                new ZoekopdrachtListParameters(zoekopdracht.getLijstID(), zoekopdracht.getMedewerkerID()));
-        zoekopdrachten.forEach(z -> {
-            final boolean huidigeWaarde = z.isActief();
-            z.setActief(z.getId().equals(zoekopdracht.getId()));
-            if (huidigeWaarde != z.isActief()) {
-                entityManager.merge(z);
-            }
-        });
-    }
-
-    public void removeActief(final ZoekopdrachtListParameters zoekopdrachtListParameters) {
-        listZoekopdrachten(zoekopdrachtListParameters).stream().filter(Zoekopdracht::isActief).forEach(zoekopdracht -> {
-            zoekopdracht.setActief(false);
-            entityManager.merge(zoekopdracht);
-        });
-    }
-
-    public List<DashboardCardInstelling> listDashboardCards(final String medewerkerId) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<DashboardCardInstelling> query = builder.createQuery(DashboardCardInstelling.class);
-        final Root<DashboardCardInstelling> root = query.from(DashboardCardInstelling.class);
-        final List<Predicate> predicates = new ArrayList<>();
-        predicates.add(builder.equal(root.get("medewerkerId"), medewerkerId));
-        query.where(builder.and(predicates.toArray(new Predicate[0])));
-        query.orderBy(builder.asc(root.get("volgorde")));
-        final TypedQuery<DashboardCardInstelling> emQuery = entityManager.createQuery(query);
-        return emQuery.getResultList();
-    }
-
-    public void updateDashboardCards(final String medewerkerId, final List<DashboardCardInstelling> cards) {
-        final List<DashboardCardInstelling> existingCards = listDashboardCards(medewerkerId);
-        existingCards.forEach(existingCard -> {
-            final Optional<DashboardCardInstelling> updatedCard = cards.stream()
-                    .filter(card -> existingCard.getCardId().equals(card.getCardId()))
-                    .findAny();
-            if (updatedCard.isPresent()) {
-                existingCard.setKolom(updatedCard.get().getKolom());
-                existingCard.setVolgorde(updatedCard.get().getVolgorde());
-                entityManager.persist(existingCard);
+    fun updateDashboardCards(medewerkerId: String, cards: List<DashboardCardInstelling>) {
+        listDashboardCards(medewerkerId).forEach { existingCard ->
+            val updatedCard = cards.firstOrNull { it.cardId == existingCard.cardId }
+            if (updatedCard != null) {
+                existingCard.kolom = updatedCard.kolom
+                existingCard.volgorde = updatedCard.volgorde
+                entityManager.persist(existingCard)
             } else {
-                entityManager.remove(existingCard);
+                entityManager.remove(existingCard)
             }
-        });
-        cards.stream()
-                .filter(card -> card.getId() == null)
-                .forEach(newCard -> {
-                    newCard.setMedewerkerId(medewerkerId);
-                    entityManager.persist(newCard);
-                });
-    }
-
-    public void addDashboardCard(final String medewerkerId, final DashboardCardInstelling card) {
-        if (card.getSignaleringType() != null) {
-            final SignaleringInstellingen instellingen = signaleringService.readInstellingenUser(
-                    card.getSignaleringType(), medewerkerId);
-            instellingen.setDashboard(true);
-            signaleringService.createUpdateOrDeleteInstellingen(instellingen);
         }
-        if (card.getId() == null) {
-            card.setMedewerkerId(medewerkerId);
-            entityManager.persist(card);
+        cards.filter { it.id == null }.forEach {
+            it.medewerkerId = medewerkerId
+            entityManager.persist(it)
         }
     }
 
-    public void deleteDashboardCard(final String medewerkerId, final DashboardCardInstelling card) {
-        if (card.getSignaleringType() != null) {
-            final SignaleringInstellingen instellingen = signaleringService.readInstellingenUser(
-                    card.getSignaleringType(), medewerkerId);
-            instellingen.setDashboard(false);
-            signaleringService.createUpdateOrDeleteInstellingen(instellingen);
+    fun addDashboardCard(medewerkerId: String, card: DashboardCardInstelling) {
+        card.signaleringType?.let { signaleringType ->
+            signaleringService.readInstellingenUser(signaleringType, medewerkerId).let {
+                it.isDashboard = true
+                signaleringService.createUpdateOrDeleteInstellingen(it)
+            }
         }
-        if (card.getId() != null) {
-            entityManager.remove(entityManager.find(DashboardCardInstelling.class, card.getId()));
+        if (card.id == null) {
+            card.medewerkerId = medewerkerId
+            entityManager.persist(card)
+        }
+    }
+
+    fun deleteDashboardCard(medewerkerId: String, card: DashboardCardInstelling) {
+        card.signaleringType?.let { signaleringType ->
+            signaleringService.readInstellingenUser(signaleringType, medewerkerId).let {
+                it.isDashboard = false
+                signaleringService.createUpdateOrDeleteInstellingen(it)
+            }
+        }
+        card.id?.let {
+            entityManager.remove(entityManager.find(DashboardCardInstelling::class.java, it))
         }
     }
 }
