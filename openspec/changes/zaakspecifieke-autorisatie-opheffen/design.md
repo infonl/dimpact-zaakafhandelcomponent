@@ -34,8 +34,9 @@ only the employees with access to it have `wijzigen`. Marking stays limited to t
 
 Under the per-zaak lock, ZAC deletes every ZGM rol of the zaak and then every `ZAAK_GEAUTORISEERD`
 zaakeigenschap, each with the reden as audit toelichting; then it reindexes the zaak, its taken and its
-documenten, and commits Solr. If a call fails halfway, the zaak stays marked and the employee can save again.
-The other order could leave an unmarked zaak with ZGM rollen that would grant access again once the zaak is
+documenten, and commits Solr. If a call fails halfway, the zaak stays marked and can be lifted again. The
+employee who lifted it may have lost their own ZGM rol by then; the behandelaar, who always keeps access, can
+then lift it. The other order could leave an unmarked zaak with ZGM rollen that would grant access again once the zaak is
 marked anew, which the story rules out.
 
 Deleting the eigenschap, rather than setting it to `false`, keeps the zaakregister as it was before the
@@ -43,9 +44,10 @@ marking, so marking again simply creates a new one.
 
 ### Lifting happens before a behandelaar change in the same update
 
-The update lifts the marking before it assigns the zaak. A handover in the same save then gives the previous
-behandelaar no ZGM rol that would be deleted at once, and releasing the zaak in the same save is allowed, since
-the release guard reads the marking live.
+The update lifts the marking before it assigns the zaak, so a handover in the same save gives the previous
+behandelaar no ZGM rol that would be deleted at once. For the same reason, a handover in the same save does not
+need the ZGM roltype on the zaaktype, which a handover of a marked zaak does. The zaak update cannot release a
+zaak; vrijgeven after the lifting can, since the release guard reads the marking live.
 
 ### Confirmation without a reden
 
@@ -55,12 +57,11 @@ to unticked, with the buttons *Opheffen* and *Sluiten*. *Sluiten* leaves the for
 ## Risks / Trade-offs
 
 - [A medewerker is added, or a taak assigned, while the marking is lifted] → Adding a medewerker and granting a
-  taakbehandelaar access read the rollen under the same per-zaak lock, so on one pod they either run before the
-  lifting, and their rol is deleted, or after it. Granting a taakbehandelaar checks the marking before it takes
-  the lock, so it can still add a ZGM rol right after the lifting; that rol grants nothing on an unmarked zaak,
-  but it would return if the zaak were marked again. Across pods the lock does not serialise. Both need two
-  employees acting on the same zaak at the same moment and are accepted, like the same trade-off for adding
-  and ontkoppelen.
+  taakbehandelaar access read the marking and the rollen again under the same per-zaak lock, so on one pod they
+  either run before the lifting, and their rol is deleted, or after it, and then add no rol. Across pods the
+  lock does not serialise, so such a rol can remain; it grants nothing on an unmarked zaak, but it would return
+  if the zaak were marked again. That needs two employees acting on the same zaak at the same moment on
+  different pods and is accepted, like the same trade-off for adding and ontkoppelen.
 - [Reindexing fails after the lifting] → The request still succeeds and the failure is logged, as for marking.
   The rechten follow the zaakregister at once; only the search results lag until the next reindex.
 
