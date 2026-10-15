@@ -4,8 +4,7 @@ Only the zaakdetailpagina shows that a zaak is zaakspecifiek geautoriseerd, with
 zaaknummer. Everywhere else a zaaknummer appears (zoekresultaten, werklijsten, dashboard cards, the taak and document
 detail pages, the persoon, bedrijf and BAG pages, and the zaak koppelen screen) an employee cannot see it.
 [PZ-12078](https://dimpact.atlassian.net/browse/PZ-12078) asks for the same indication in all those places, so an
-employee sees at a glance which zaken are zaakspecifiek geautoriseerd. The Figma design
-([Slotjes](https://www.figma.com/design/hwqjMzbwU1gqPIWeOqg8hb/Dimpact---Confidential?node-id=6113-119054)) places
+employee sees at a glance which zaken are zaakspecifiek geautoriseerd. The Figma design (section *Slotjes*) places
 the lock directly in front of the zaaknummer.
 
 ## What Changes
