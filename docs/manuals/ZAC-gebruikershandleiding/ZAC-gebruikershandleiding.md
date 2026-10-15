@@ -84,6 +84,7 @@ Versiegeschiedenis:
     - [Werken met een zaakspecifiek geautoriseerde zaak](#werken-met-een-zaakspecifiek-geautoriseerde-zaak)
     - [Medewerkers](#medewerkers)
     - [Medewerker toevoegen](#medewerker-toevoegen)
+    - [Zaakspecifieke autorisatie opheffen](#zaakspecifieke-autorisatie-opheffen)
   - [Locatie koppelen](#locatie-koppelen)
   - [Locatie wijzigen](#locatie-wijzigen)
   - [Locatie ontkoppelen](#locatie-ontkoppelen)
