@@ -49,8 +49,9 @@ The Solr documents `ZaakZoekObject`, `TaakZoekObject` and `DocumentZoekObject` a
 ### 1. Shared component with a single boolean input
 A standalone component `ZaakspecifiekGeautoriseerdIconComponent` (selector `zac-zaakspecifiek-geautoriseerd-icon`)
 in `src/main/app/src/app/shared/zaakspecifiek-geautoriseerd-icon/`, with one required signal input
-`isZaakspecifiekGeautoriseerd: boolean | undefined`. The generated frontend types make every backend boolean optional
-(also `RestZaak.isZaakspecifiekGeautoriseerd`), so the input accepts `undefined`, which shows no lock, like `false`. Its template is the current markup of the zaakdetailpagina, with the input
+`isZaakspecifiekGeautoriseerd: boolean | null | undefined`. The generated frontend types make every backend boolean
+optional, and some also nullable (such as `RestZaak.isZaakspecifiekGeautoriseerd`), so the input accepts `null` and
+`undefined`, which show no lock, like `false`. Its template is the current markup of the zaakdetailpagina, with the input
 in place of `zaak().isZaakspecifiekGeautoriseerd`:
 
 ```html
