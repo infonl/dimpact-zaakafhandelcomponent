@@ -8,7 +8,6 @@ import jakarta.annotation.Nullable
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.ztc.model.generated.RolType
-import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.util.Objects
 import java.util.UUID
@@ -44,13 +43,13 @@ class RolMedewerker : Rol<MedewerkerIdentificatie> {
     override val naam: String?
         get() {
             val medewerker = betrokkeneIdentificatie ?: return null
-            return if (StringUtils.isNotBlank(medewerker.achternaam)) {
+            return if (!medewerker.achternaam.isNullOrBlank()) {
                 buildString {
-                    if (StringUtils.isNotBlank(medewerker.voorletters)) {
-                        append(medewerker.voorletters).append(StringUtils.SPACE)
+                    if (!medewerker.voorletters.isNullOrBlank()) {
+                        append(medewerker.voorletters).append(" ")
                     }
-                    if (StringUtils.isNotBlank(medewerker.voorvoegselAchternaam)) {
-                        append(medewerker.voorvoegselAchternaam).append(StringUtils.SPACE)
+                    if (!medewerker.voorvoegselAchternaam.isNullOrBlank()) {
+                        append(medewerker.voorvoegselAchternaam).append(" ")
                     }
                     append(medewerker.achternaam)
                 }

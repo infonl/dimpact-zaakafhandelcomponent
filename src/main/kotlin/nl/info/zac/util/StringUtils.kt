@@ -13,3 +13,6 @@ fun String.isPureAscii(): Boolean = StandardCharsets.US_ASCII.newEncoder().canEn
 
 fun Iterable<String?>.joinNonBlank(separator: String = "") =
     this.filterNot { it.isNullOrBlank() }.joinToString(separator)
+
+fun String.abbreviate(maxWidth: Int, ellipsis: String = "...") =
+    if (length <= maxWidth) this else take(maxWidth - ellipsis.length) + ellipsis

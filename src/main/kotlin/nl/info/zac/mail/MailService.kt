@@ -39,8 +39,8 @@ import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.abbreviate
 import nl.info.zac.util.toBase64String
-import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
@@ -108,7 +108,7 @@ class MailService @Inject constructor(
             }
             ?.let { mailTemplateHelper.readZaakdata(it) }.orEmpty()
         val subject =
-            StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen, zaakdata), SUBJECT_MAX_WIDTH)
+            resolveVariabelen(mailGegevens.subject, bronnen, zaakdata).abbreviate(SUBJECT_MAX_WIDTH)
         val body = resolveVariabelen(mailGegevens.body, bronnen, zaakdata)
         val attachments = getAttachments(mailGegevens.attachments)
         val fromAddress = mailGegevens.from.toAddress()

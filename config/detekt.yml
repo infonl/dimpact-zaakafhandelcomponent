@@ -59,3 +59,8 @@ style:
         value: 'TODO:'
       - reason: 'Jira ticket references belong in commit messages and pull request descriptions, not in code.'
         value: '\b(PZ|DRT)-'
+  ForbiddenImport:
+    active: true
+    forbiddenImports:
+      - reason: 'Use the Kotlin standard library string functions, or the extensions in nl.info.zac.util.'
+        value: 'org.apache.commons.lang3.StringUtils'

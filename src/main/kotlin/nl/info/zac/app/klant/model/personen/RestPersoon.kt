@@ -35,7 +35,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NON_BREAKING_SPACE
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.joinNonBlank
-import org.apache.commons.lang3.StringUtils
 import java.util.EnumSet
 import java.util.Locale
 import java.util.UUID
@@ -110,7 +109,7 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
             it.land?.omschrijving
         )
             .joinNonBlank(", ")
-            .replace(StringUtils.SPACE, NON_BREAKING_SPACE)
+            .replace(" ", NON_BREAKING_SPACE)
     },
 ).apply {
     if (inOnderzoek != null) {
@@ -152,7 +151,7 @@ fun PersonenQueryResponse.toRestPersonen(): List<RestPersoon> =
 fun List<RestPersoon>.toRestResultaat() = RESTResultaat(this)
 
 private fun Waardetabel.toDescription(): String =
-    if (StringUtils.isNotBlank(this.omschrijving)) this.omschrijving else this.code
+    if (!this.omschrijving.isNullOrBlank()) this.omschrijving else this.code
 
 private fun AbstractDatum.toStringRepresentation(): String? =
     when (this) {
@@ -193,7 +192,7 @@ private fun VerblijfadresBinnenland.toStringRepresentation() =
     ).joinNonBlank(NON_BREAKING_SPACE).let { address ->
         listOf(address, this.postcode, this.woonplaats)
             .joinNonBlank(", ")
-            .replace(StringUtils.SPACE, NON_BREAKING_SPACE)
+            .replace(" ", NON_BREAKING_SPACE)
     }
 
 private fun VerblijfadresBuitenland.toStringRepresentation() =
@@ -204,4 +203,4 @@ private fun VerblijfadresBuitenland.toStringRepresentation() =
         land?.omschrijving
     )
         .joinNonBlank(", ")
-        .replace(StringUtils.SPACE, NON_BREAKING_SPACE)
+        .replace(" ", NON_BREAKING_SPACE)
