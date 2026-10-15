@@ -160,6 +160,11 @@ Notes:
   pick a medewerker of a behandelaar groep of the zaaktype who has no access yet, and ZAC gives that medewerker
   the `Zaakspecifiek geautoriseerde medewerker` rol on the zaak. The medewerker then has the same access as a
   previous zaak- or taakbehandelaar.
+- **An employee with `wijzigen` on a zaakspecifiek geautoriseerde zaak can remove its zaakspecifieke
+  autorisatie** while editing the zaakgegevens. ZAC then deletes every `Zaakspecifiek geautoriseerde medewerker`
+  rol and the `ZAAK_GEAUTORISEERD` zaakeigenschap of the zaak, so it is a normal zaak again: every medewerker
+  with an application role for the zaaktype gets the rights of that role on it. Marking the zaak again later
+  does not give the removed medewerkers their access back.
 - **Other employees are able to access zaakspecifiek geautoriseerde zaken** by being granted
   `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration, exactly like any other
   application role. Granting them that mapping is therefore a deployment prerequisite: without it, they cannot
