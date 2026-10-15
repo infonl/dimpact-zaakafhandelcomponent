@@ -29,12 +29,11 @@ class CmmnDeployer @Inject constructor(
     }
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) =
-        readCmmnResource(CMMN_MODELS_FILE_NAME).bufferedReader().useLines { lines ->
-            lines.filter { it.isNotBlank() }.forEach(::checkModel)
-        }
+        javaClass.classLoader.readNonBlankResourceLines("$CMMN_MODELS_FOLDER_NAME/$CMMN_MODELS_FILE_NAME")
+            .forEach(::checkModel)
 
     private fun checkModel(modelFileName: String) {
-        val modelBytes = readCmmnResource(modelFileName).use { it.readAllBytes() }
+        val modelBytes = javaClass.classLoader.readResourceBytes("$CMMN_MODELS_FOLDER_NAME/$modelFileName")
         val modelXml = modelBytes.inputStream().use { modelInputStream ->
             DocumentBuilderFactory.newInstance().apply {
                 // disallow doctype declaration, external entity declarations and prohibit the
@@ -73,8 +72,4 @@ class CmmnDeployer @Inject constructor(
         cmmnRepositoryService.createDeployment().key(key).name(name).addBytes(modelFileName, modelBytes).deploy()
         LOG.info { "Successfully deployed CMMN model with key '$key' and name '$name' from file '$modelFileName'" }
     }
-
-    private fun readCmmnResource(fileName: String) =
-        javaClass.classLoader.getResourceAsStream("$CMMN_MODELS_FOLDER_NAME/$fileName")
-            ?: error("Resource '$CMMN_MODELS_FOLDER_NAME/$fileName' not found")
 }

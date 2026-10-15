@@ -23,18 +23,13 @@ class PoliciesDeployer @Inject constructor(
     }
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) =
-        readPoliciesResource(POLICIES_FILE_NAME).bufferedReader().useLines { lines ->
-            lines.filter { it.isNotBlank() }.forEach(::deployPolicy)
-        }
+        javaClass.classLoader.readNonBlankResourceLines("$POLICIES_FOLDER_NAME/$POLICIES_FILE_NAME")
+            .forEach(::deployPolicy)
 
     private fun deployPolicy(policyFileName: String) {
-        val policy = readPoliciesResource(policyFileName).use { String(it.readAllBytes(), Charsets.UTF_8) }
+        val policy = javaClass.classLoader.readResourceBytes("$POLICIES_FOLDER_NAME/$policyFileName").decodeToString()
         val moduleId = policyFileName.substringBefore(POLICIES_FILE_EXTENSION)
         LOG.info { "Deploying policy module: $moduleId" }
         opaAdminClient.policyUpdate(moduleId, policy)
     }
-
-    private fun readPoliciesResource(fileName: String) =
-        javaClass.classLoader.getResourceAsStream("$POLICIES_FOLDER_NAME/$fileName")
-            ?: error("Resource '$POLICIES_FOLDER_NAME/$fileName' not found")
 }

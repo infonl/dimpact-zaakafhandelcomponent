@@ -71,6 +71,19 @@ class SignaleringInstellingenTest : BehaviorSpec({
             }
         }
 
+        given("instellingen with a group and a blank user") {
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.GROUP, "fakeGroupId")
+                .apply { medewerker = " " }
+
+            `when`("they are validated") {
+                val isValid = signaleringInstellingen.isValid
+
+                then("they are valid, because a blank user does not count") {
+                    isValid shouldBe true
+                }
+            }
+        }
+
         given("instellingen with a blank group and a user") {
             val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
                 .apply { groep = " " }
@@ -98,6 +111,19 @@ class SignaleringInstellingenTest : BehaviorSpec({
             }
         }
 
+        given("instellingen with only dashboard") {
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
+                .apply { isDashboard = true }
+
+            `when`("it is checked whether they are empty") {
+                val isEmpty = signaleringInstellingen.isEmpty
+
+                then("they are not empty") {
+                    isEmpty shouldBe false
+                }
+            }
+        }
+
         given("instellingen with only mail") {
             val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
                 .apply { isMail = true }
@@ -107,6 +133,32 @@ class SignaleringInstellingenTest : BehaviorSpec({
 
                 then("they are not empty") {
                     isEmpty shouldBe false
+                }
+            }
+        }
+    }
+
+    context("Describing signalering instellingen") {
+        given("instellingen of a group") {
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.GROUP, "fakeGroupId")
+
+            `when`("they are described") {
+                val description = signaleringInstellingen.toString()
+
+                then("the description names the type and the group") {
+                    description shouldBe "$signaleringType-signaleringinstellingen voor fakeGroupId"
+                }
+            }
+        }
+
+        given("instellingen of a user") {
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
+
+            `when`("they are described") {
+                val description = signaleringInstellingen.toString()
+
+                then("the description names the type and the user") {
+                    description shouldBe "$signaleringType-signaleringinstellingen voor fakeUserId"
                 }
             }
         }
