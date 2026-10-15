@@ -45,6 +45,7 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
@@ -55,6 +56,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakspecifiekGeautoriseerdIconComponent,
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
