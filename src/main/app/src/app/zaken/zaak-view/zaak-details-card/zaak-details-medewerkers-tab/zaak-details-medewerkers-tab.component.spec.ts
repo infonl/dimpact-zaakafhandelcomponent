@@ -98,7 +98,9 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
   });
 
   it("shows a placeholder for a medewerker whose name is unknown", () => {
-    renderTab([{ id: null, naam: null, roltype: "Behandelaar" }]);
+    renderTab([
+      { id: "fake-behandelaar-id", naam: null, roltype: "Behandelaar" },
+    ]);
 
     expect(screen().getByRole("cell", { name: "-" })).toBeInTheDocument();
   });
