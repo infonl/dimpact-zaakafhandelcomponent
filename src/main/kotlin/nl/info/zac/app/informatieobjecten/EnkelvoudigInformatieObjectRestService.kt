@@ -616,7 +616,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                             zaakInformatieObject = it,
                             relatieType = relatieType,
                             zaak = zaak,
-                            isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd
+                            zaakAutorisatieGegevens = zaakAutorisatieGegevens
                         )
                     }
                 }

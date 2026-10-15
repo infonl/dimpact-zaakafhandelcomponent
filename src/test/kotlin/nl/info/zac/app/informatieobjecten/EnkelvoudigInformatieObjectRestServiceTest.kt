@@ -715,7 +715,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 zaakInformatieObject = gerelateerdeZaakInformatieobjecten[0],
                 relatieType = RelatieType.GERELATEERD,
                 zaak = gerelateerdeZaak,
-                isZaakspecifiekGeautoriseerd = false
+                zaakAutorisatieGegevens = match { !it.isZaakspecifiekGeautoriseerd }
             )
         } returns restGekoppeldeZaakEnkelvoudigInformatieObject
         every { loggedInUserInstance.get() } returns loggedInUser
