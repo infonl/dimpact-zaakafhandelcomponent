@@ -11,7 +11,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
 import org.json.JSONArray
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -123,8 +123,10 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             `when`("a zoekopdracht is created with the same name in other letter case") {
                 val response = createZoekopdracht("FAKEZOEKOPDRACHT1")
 
-                then("the zoekopdracht is not created") {
-                    response.code shouldBe HTTP_INTERNAL_ERROR
+                then("the zoekopdracht is not created and the error code for the frontend is returned") {
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    JSONObject(response.bodyAsString).getString("message") shouldBe
+                        "msg.error.zoekopdracht.with.same.name.already.exists"
                     listZoekopdrachten().size shouldBe 1
                 }
             }
