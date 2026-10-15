@@ -5,10 +5,10 @@
 package nl.info.zac.app.klant.model.bedrijven
 
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.util.StringUtil
-import net.atos.zac.util.StringUtil.NON_BREAKING_SPACE
 import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
 import nl.info.client.kvk.zoeken.model.generated.BuitenlandsAdres
+import nl.info.zac.util.NON_BREAKING_SPACE
+import nl.info.zac.util.joinNonBlank
 import java.util.Locale
 import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres as VestigingsprofielAdres
@@ -49,79 +49,70 @@ fun String.isIndicatie(): Boolean =
     }
 
 internal fun BinnenlandsAdres.toFormattedAddress(): String = when {
-    postbusnummer != null -> StringUtil.joinNonBlankWith(
-        ", ",
+    postbusnummer != null -> listOf(
         "Postbus $postbusnummer",
-        StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, postcode, plaats)
+        listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
             .replace(" ", NON_BREAKING_SPACE)
-    )
+    ).joinNonBlank(", ")
     else -> {
         val huisnummerStr = listOfNotNull(huisnummer?.toString(), huisletter).joinToString("")
-        StringUtil.joinNonBlankWith(
-            ", ",
-            StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, straatnaam, huisnummerStr)
+        listOf(
+            listOf(straatnaam, huisnummerStr).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE),
-            StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, postcode, plaats)
+            listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE)
-        )
+        ).joinNonBlank(", ")
     }
 }
 
-internal fun BuitenlandsAdres.toFormattedAddress(): String = StringUtil.joinNonBlankWith(
-    ", ",
+internal fun BuitenlandsAdres.toFormattedAddress(): String = listOf(
     straatHuisnummer?.replace(" ", NON_BREAKING_SPACE),
     postcodeWoonplaats?.replace(" ", NON_BREAKING_SPACE),
     land
-)
+).joinNonBlank(", ")
 
 internal fun BasisprofielAdres.toFormattedAddress(): String = when {
-    postbusnummer != null -> StringUtil.joinNonBlankWith(
-        ", ",
+    postbusnummer != null -> listOf(
         "Postbus $postbusnummer",
-        StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, postcode, plaats)
+        listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
             .replace(" ", NON_BREAKING_SPACE)
-    )
-    straatHuisnummer != null -> StringUtil.joinNonBlankWith(
-        ", ",
-        StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, straatHuisnummer, toevoegingAdres)
+    ).joinNonBlank(", ")
+    straatHuisnummer != null -> listOf(
+        listOf(straatHuisnummer, toevoegingAdres).joinNonBlank(NON_BREAKING_SPACE)
             .replace(" ", NON_BREAKING_SPACE),
         postcodeWoonplaats?.replace(" ", NON_BREAKING_SPACE),
         land
-    )
+    ).joinNonBlank(", ")
     else -> {
         val huisnummerStr = listOfNotNull(huisnummer?.toString(), huisletter).joinToString("")
-        StringUtil.joinNonBlankWith(
-            ", ",
-            StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, straatnaam, huisnummerStr, huisnummerToevoeging)
+        listOf(
+            listOf(straatnaam, huisnummerStr, huisnummerToevoeging).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE),
-            StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, postcode, plaats)
+            listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE)
-        )
+        ).joinNonBlank(", ")
     }
 }
 
 internal fun VestigingsprofielAdres.toFormattedAddress(): String = when {
-    postbusnummer != null -> StringUtil.joinNonBlankWith(
-        ", ",
+    postbusnummer != null -> listOf(
         "Postbus $postbusnummer",
-        StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, postcode, plaats)
+        listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
             .replace(" ", NON_BREAKING_SPACE)
-    )
-    straatHuisnummer != null -> StringUtil.joinNonBlankWith(
-        ", ",
-        StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, straatHuisnummer, toevoegingAdres)
+    ).joinNonBlank(", ")
+    straatHuisnummer != null -> listOf(
+        listOf(straatHuisnummer, toevoegingAdres).joinNonBlank(NON_BREAKING_SPACE)
             .replace(" ", NON_BREAKING_SPACE),
         postcodeWoonplaats?.replace(" ", NON_BREAKING_SPACE),
         land
-    )
+    ).joinNonBlank(", ")
     else -> {
         val huisnummerStr = listOfNotNull(huisnummer?.toString(), huisletter).joinToString("")
-        StringUtil.joinNonBlankWith(
-            ", ",
-            StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, straatnaam, huisnummerStr, huisnummerToevoeging)
+        listOf(
+            listOf(straatnaam, huisnummerStr, huisnummerToevoeging).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE),
-            StringUtil.joinNonBlankWith(NON_BREAKING_SPACE, postcode, plaats)
+            listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE)
-        )
+        ).joinNonBlank(", ")
     }
 }

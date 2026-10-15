@@ -60,6 +60,3 @@ fun createHuisnummerWeergave(huisnummer: Int, huisletter: String?, huisnummertoe
             append("-").append(huisnummertoevoeging)
         }
     }.trim()
-
-internal fun joinNonBlank(separator: String, vararg parts: String?) =
-    parts.filterNot { it.isNullOrBlank() }.joinToString(separator).ifEmpty { null }

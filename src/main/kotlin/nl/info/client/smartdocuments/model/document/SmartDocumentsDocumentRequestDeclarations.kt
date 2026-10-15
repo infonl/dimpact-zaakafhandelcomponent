@@ -7,6 +7,7 @@ package nl.info.client.smartdocuments.model.document
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
+import nl.info.zac.util.joinNonBlank
 import java.time.LocalDate
 
 private const val DATE_FORMAT = "dd-MM-yyyy"
@@ -151,6 +152,4 @@ fun ResultaatItem.toAanvragerDataBedrijf() =
     }
 
 fun ResultaatItem.toHuisnummer() =
-    listOfNotNull(this.adres?.binnenlandsAdres?.huisnummer?.toString(), this.adres?.binnenlandsAdres?.huisletter)
-        .filter(String::isNotBlank)
-        .joinToString("")
+    listOf(this.adres?.binnenlandsAdres?.huisnummer?.toString(), this.adres?.binnenlandsAdres?.huisletter).joinNonBlank()

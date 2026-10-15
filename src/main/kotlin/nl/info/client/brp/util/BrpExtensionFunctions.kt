@@ -9,6 +9,7 @@ import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.brp.model.generated.VerblijfadresBuitenland
 import nl.info.client.brp.model.generated.VerblijfplaatsBuitenland
+import nl.info.zac.util.joinNonBlank
 
 fun Persoon.toAddressString(): String {
     val verblijfplaats = this.getVerblijfplaats()
@@ -22,21 +23,16 @@ fun Persoon.toAddressString(): String {
 }
 
 private fun VerblijfadresBinnenland.toAddressString(): String {
-    val huisnummerWithSuffix = listOfNotNull(
+    val huisnummerWithSuffix = listOf(
         this.getHuisnummer()?.toString(),
         this.getHuisletter(),
         this.getHuisnummertoevoeging()
-    ).filter(String::isNotBlank).joinToString("")
-    val streetLine = listOfNotNull(this.getOfficieleStraatnaam(), huisnummerWithSuffix)
-        .filter(String::isNotBlank)
-        .joinToString(" ")
-    val cityLine = listOfNotNull(this.getPostcode(), this.getWoonplaats())
-        .filter(String::isNotBlank)
-        .joinToString(" ")
-    return listOf(streetLine, cityLine).filter(String::isNotBlank).joinToString(", ")
+    ).joinNonBlank()
+    return listOf(
+        listOf(this.getOfficieleStraatnaam(), huisnummerWithSuffix).joinNonBlank(" "),
+        listOf(this.getPostcode(), this.getWoonplaats()).joinNonBlank(" ")
+    ).joinNonBlank(", ")
 }
 
 private fun VerblijfadresBuitenland.toAddressString() =
-    listOfNotNull(this.getRegel1(), this.getRegel2(), this.getRegel3())
-        .filter(String::isNotBlank)
-        .joinToString(", ")
+    listOf(this.getRegel1(), this.getRegel2(), this.getRegel3()).joinNonBlank(", ")

@@ -9,7 +9,6 @@ import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.util.StringUtil
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Persoon
@@ -42,8 +41,8 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.joinNonBlank
 import java.net.URI
-import java.util.Objects
 import java.util.UUID
 
 @NoArgConstructor
@@ -137,11 +136,11 @@ class DocumentCreationDataService @Inject constructor(
         )
 
     private fun convertToHuisnummer(verblijfadres: VerblijfadresBinnenland) =
-        StringUtil.joinNonBlank(
-            Objects.toString(verblijfadres.huisnummer, null),
+        listOf(
+            verblijfadres.huisnummer?.toString(),
             verblijfadres.huisnummertoevoeging,
             verblijfadres.huisletter
-        )
+        ).joinNonBlank()
 
     private fun createAanvragerDataVestiging(vestigingsnummer: String): AanvragerData? =
         kvkClientService.findVestiging(vestigingsnummer)?.toAanvragerDataBedrijf()
