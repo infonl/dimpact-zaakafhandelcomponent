@@ -5,9 +5,12 @@
 - [ ] 1.3 `ZaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, reden)`: under the lock, delete
       every ZGM rol, then every `ZAAK_GEAUTORISEERD` zaakeigenschap, with the reden; reindex the zaak, its
       taken and its documenten, and commit Solr.
-- [ ] 1.4 `ZaakRestService.updateZaak` lifts the marking, for `false` on a marked zaak, before it assigns the zaak.
-- [ ] 1.5 Unit tests for 1.1-1.4.
-- [ ] 1.6 Integration test: lift the marking and check the rollen and zaakeigenschap are gone, another
+- [ ] 1.4 `ZaakRestService.updateZaak` lifts the marking, for `false` on a marked zaak, before it assigns the zaak,
+      and does not require the ZGM roltype for a handover in that update.
+- [ ] 1.5 Adding a medewerker and granting a taakbehandelaar read the marking again under the lock, and add no
+      rol to a zaak that is no longer marked.
+- [ ] 1.6 Unit tests for 1.1-1.5.
+- [ ] 1.7 Integration test: lift the marking and check the rollen and zaakeigenschap are gone, another
       behandelaar of the zaaktype finds and opens the zaak, the zaakhistorie line with the reden, and that
       marking again does not bring the extra medewerker back. Replace the test that expects the refusal.
 

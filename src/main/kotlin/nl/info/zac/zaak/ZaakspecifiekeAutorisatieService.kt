@@ -210,8 +210,9 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     fun grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak: Zaak, medewerkerId: String): Boolean {
         if (!isZaakspecifiekGeautoriseerd(zaak)) return false
         val isGranted = lockForZaak(zaak.uuid).withLock {
-            val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            zaakToewijzing.behandelaarRollen.none { it.identificatienummer == medewerkerId } &&
+            val zaakToewijzing = readZaakToewijzing(zaak = zaak)
+            zaakToewijzing.isZaakspecifiekGeautoriseerd &&
+                zaakToewijzing.behandelaarRollen.none { it.identificatienummer == medewerkerId } &&
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = readMedewerkerIdentificatie(medewerkerId),
@@ -235,7 +236,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         zaak: Zaak,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens
     ): List<RolMedewerker> {
-        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd)
         return readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true).let {
             it.behandelaarRollen + it.zaakspecifiekGeautoriseerdeMedewerkers
         }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.naam.orEmpty() })
@@ -250,7 +251,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         zaakType: ZaakType,
         groepId: String
     ): List<User> {
-        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd)
         assertBehandelaarGroep(zaakType, groepId)
         val medewerkerIdsWithAccess = zaakAutorisatieGegevens.geautoriseerdeMedewerkers.toSet() +
             listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)
@@ -273,14 +274,15 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         groepId: String,
         medewerkerId: String
     ): User {
-        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
+        assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd)
         assertBehandelaarGroep(zaakType, groepId)
         identityService.validateIfUserIsInGroup(medewerkerId, groepId)
         if (medewerkerId in listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)) {
             throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
         }
         val medewerker = lockForZaak(zaak.uuid).withLock {
-            val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
+            val zaakToewijzing = readZaakToewijzing(zaak = zaak)
+            assertZaakspecifiekGeautoriseerd(zaakToewijzing.isZaakspecifiekGeautoriseerd)
             if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
                 throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
             }
@@ -340,8 +342,8 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                     "for zaaktype '${zaak.zaaktype}' of zaak with UUID '${zaak.uuid}'"
             )
 
-    private fun assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens: ZaakAutorisatieGegevens) {
-        if (!zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd) throw ZaakNotZaakspecifiekGeautoriseerdException()
+    private fun assertZaakspecifiekGeautoriseerd(isZaakspecifiekGeautoriseerd: Boolean) {
+        if (!isZaakspecifiekGeautoriseerd) throw ZaakNotZaakspecifiekGeautoriseerdException()
     }
 
     private fun assertBehandelaarGroep(zaakType: ZaakType, groepId: String) {

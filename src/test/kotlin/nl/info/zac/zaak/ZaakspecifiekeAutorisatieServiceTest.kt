@@ -1015,6 +1015,34 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
         }
+        given("a zaak whose marking is lifted before the taakbehandelaar is granted access under the lock") {
+            val zaak = createZaak()
+            val rollen = emptyList<Rol<*>>()
+            every {
+                zrcClientService.listZaakeigenschappen(zaak.uuid)
+            } returnsMany listOf(listOf(geautoriseerdZaakEigenschap), emptyList())
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns emptyList()
+
+            `when`("the taakbehandelaar is granted access") {
+                val isGranted = zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak,
+                    "fakeTaakbehandelaarId"
+                )
+
+                then("no rol is added that would return when the zaak is marked again, and nothing is reindexed") {
+                    isGranted shouldBe false
+                    verify(exactly = 0) {
+                        zrcClientService.createRol(any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
+                }
+            }
+        }
     }
 
     context("Listing the medewerkers who are individually authorised for a zaakspecifiek geautoriseerde zaak") {
@@ -1266,6 +1294,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
             } returns emptySet()
             every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns listOf(behandelaarRol)
             every {
@@ -1311,6 +1340,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
             } returns emptySet()
             every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
             every {
@@ -1352,6 +1382,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
             } returns emptySet()
             every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
             every {
@@ -1401,6 +1432,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
             } returns emptySet()
             every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
             every {
@@ -1453,6 +1485,46 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                         indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
                     }
+                }
+            }
+        }
+        given("a zaak whose marking was lifted after the request read it") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            val rollen = emptyList<Rol<*>>()
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
+            every {
+                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+                    "fakeZaaktypeOmschrijving"
+                )
+            } returns emptySet()
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns emptyList()
+
+            `when`("a medewerker is added") {
+                val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
+                    zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                        zaak = zaak,
+                        zaakType = zaakType,
+                        zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                        groepId = "fakeGroepId",
+                        medewerkerId = "fakeMedewerkerId"
+                    )
+                }
+
+                then("the request is refused and no rol is added that would return when the zaak is marked again") {
+                    zaakNotZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD
+                    verify(exactly = 0) { zrcClientService.createRol(any(), any()) }
                 }
             }
         }
