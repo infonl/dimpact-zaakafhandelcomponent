@@ -1047,10 +1047,11 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       )?.value;
     }
 
-    this.parameters.smartDocuments.isEnabledForZaaktype =
-      this.smartDocumentsFormComponent()?.enabledForZaaktypeValue ??
-      this.parameters.smartDocuments.isEnabledForZaaktype ??
-      false;
+    const smartDocumentsFormComponent = this.smartDocumentsFormComponent();
+    if (smartDocumentsFormComponent) {
+      this.parameters.smartDocuments.isEnabledForZaaktype =
+        smartDocumentsFormComponent.enabledForZaaktypeValue;
+    }
 
     this.parameters.betrokkeneKoppelingen = {
       isKvkKoppelenEnabled: Boolean(
@@ -1091,7 +1092,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       },
     });
 
-    const smartDocumentsFormComponent = this.smartDocumentsFormComponent();
     if (smartDocumentsFormComponent?.enabledForZaaktypeValue) {
       smartDocumentsFormComponent.saveSmartDocumentsMapping();
     }
