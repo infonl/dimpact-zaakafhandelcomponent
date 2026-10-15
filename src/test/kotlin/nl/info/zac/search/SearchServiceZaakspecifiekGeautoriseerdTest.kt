@@ -32,7 +32,7 @@ class SearchServiceZaakspecifiekGeautoriseerdTest : BehaviorSpec({
     }
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyService = mockk<PolicyService>()
-    val zoekService = SearchService(
+    val searchService = SearchService(
         loggedInUserInstance = loggedInUserInstance,
         policyService = policyService,
         solrClientFactory = solrClientFactory
@@ -54,7 +54,7 @@ class SearchServiceZaakspecifiekGeautoriseerdTest : BehaviorSpec({
             }
 
             `when`("the zaakspecifiek geautoriseerde task IDs are looked up") {
-                val taakIds = zoekService.listZaakspecifiekGeautoriseerdeWaarden(
+                val taakIds = searchService.listZaakspecifiekGeautoriseerdeWaarden(
                     waarden = listOf(zaakspecifiekGeautoriseerdeTaakId, otherTaakId),
                     type = ZoekObjectType.TAAK,
                     veld = "id"
@@ -89,7 +89,7 @@ class SearchServiceZaakspecifiekGeautoriseerdTest : BehaviorSpec({
             }
 
             `when`("the zaakspecifiek geautoriseerde zaaknummers are looked up") {
-                val zaakIdentificaties = zoekService.listZaakspecifiekGeautoriseerdeWaarden(
+                val zaakIdentificaties = searchService.listZaakspecifiekGeautoriseerdeWaarden(
                     listOf(zaakIdentificatie, zaakIdentificatie)
                 )
 
@@ -115,7 +115,7 @@ class SearchServiceZaakspecifiekGeautoriseerdTest : BehaviorSpec({
             clearMocks(solrClient)
 
             `when`("the zaakspecifiek geautoriseerde task IDs are looked up") {
-                val taakIds = zoekService.listZaakspecifiekGeautoriseerdeWaarden(
+                val taakIds = searchService.listZaakspecifiekGeautoriseerdeWaarden(
                     waarden = emptyList(),
                     type = ZoekObjectType.TAAK,
                     veld = "id"
