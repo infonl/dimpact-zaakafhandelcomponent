@@ -675,14 +675,14 @@ class ZaakRestService @Inject constructor(
             restZaak = restZaakEditMetRedenGegevens.zaak,
             currentBehandelaarId = currentBehandelaarId
         )
-        val shouldZaakspecifiekeAutorisatieBeLifted = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
+        val shouldZaakspecifiekeAutorisatieBeRemoved = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
             restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd == false
         val zaakAssignment = requestedAssignment?.let {
             assertPolicy(zaakRechten.canToekennen)
             zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                 zaak = zaak,
                 isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
-                    !shouldZaakspecifiekeAutorisatieBeLifted,
+                    !shouldZaakspecifiekeAutorisatieBeRemoved,
                 currentBehandelaarId = currentBehandelaarId,
                 requestedBehandelaarId = it.behandelaarId
             )
@@ -703,8 +703,8 @@ class ZaakRestService @Inject constructor(
         if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
             zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
         }
-        if (shouldZaakspecifiekeAutorisatieBeLifted) {
-            zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, restZaakEditMetRedenGegevens.reden)
+        if (shouldZaakspecifiekeAutorisatieBeRemoved) {
+            zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, restZaakEditMetRedenGegevens.reden)
         }
         zaakAssignment?.let {
             zaakService.assignZaak(zaak = zaak, zaakAssignment = it, reason = restZaakEditMetRedenGegevens.reden)

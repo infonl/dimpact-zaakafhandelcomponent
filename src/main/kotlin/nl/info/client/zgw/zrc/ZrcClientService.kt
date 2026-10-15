@@ -259,7 +259,7 @@ class ZrcClientService @Inject constructor(
         zaakEigenschap: ZaakEigenschap
     ): ZaakEigenschap = zrcClient.zaakEigenschapUpdate(zaakUUID, uuid, zaakEigenschap)
 
-    fun deleteZaakeigenschap(zaakUUID: UUID, zaakeigenschapUUID: UUID, auditExplanation: String?) {
+    fun deleteZaakeigenschap(zaakUUID: UUID, zaakeigenschapUUID: UUID, auditExplanation: String) {
         zgwClientHeadersFactory.withAuditExplanation(auditExplanation) {
             zrcClient.zaakeigenschapDelete(zaakUUID, zaakeigenschapUUID)
         }

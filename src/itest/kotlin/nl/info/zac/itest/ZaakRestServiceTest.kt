@@ -1537,7 +1537,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    context("Lifting the zaakspecifieke autorisatie of a zaak") {
+    context("Removing the zaakspecifieke autorisatie of a zaak") {
         given(
             """
             a zaakspecifiek geautoriseerde zaak with behandelaar BEHANDELAAR_1 and BEHANDELAAR_1_EN_BRP_ZOEKER_2 as
@@ -1561,7 +1561,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             ).code shouldBe HTTP_OK
 
-            `when`("the zaakspecifiek geautoriseerde medewerker lifts the marking") {
+            `when`("the zaakspecifiek geautoriseerde medewerker removes the marking") {
                 val response = updateZaak(
                     zaakUuid = zaakUuid,
                     zaakFields = """"omschrijving": "itestOmschrijving", "isZaakspecifiekGeautoriseerd": false""",
