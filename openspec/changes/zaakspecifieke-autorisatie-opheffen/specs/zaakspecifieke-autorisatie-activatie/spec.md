@@ -74,13 +74,22 @@ longer be shown.
 ### Requirement: Marking a lifted zaak again starts without extra medewerkers
 
 When a zaak whose marking was lifted is marked as zaakspecifiek geautoriseerd again, only the medewerkers that
-marking grants access to SHALL have individual access; the *Zaakspecifiek geautoriseerde medewerkers* of the
-earlier marking SHALL NOT get it back.
+the new marking grants access to SHALL have individual access, such as the behandelaars of its open taken (see
+`zaakspecifieke-autorisatie-taakbehandelaar`). A *Zaakspecifiek geautoriseerde medewerker* of the earlier marking
+SHALL NOT get access back only because they held that rol.
 
 #### Scenario: Marking again
 - **GIVEN** a zaak whose marking was lifted while medewerker A was a *Zaakspecifiek geautoriseerde medewerker*
+- **AND** A is not the behandelaar of an open taak of the zaak
 - **WHEN** the behandelaar marks the zaak again
 - **THEN** A has no *Zaakspecifiek geautoriseerde medewerker* rol on the zaak
+
+#### Scenario: Marking again while a former medewerker has an open taak
+- **GIVEN** a zaak whose marking was lifted while medewerker T was a *Zaakspecifiek geautoriseerde medewerker*
+- **AND** T is the behandelaar of an open taak of the zaak
+- **WHEN** the behandelaar marks the zaak again
+- **THEN** T gets a *Zaakspecifiek geautoriseerde medewerker* rol again, as every taakbehandelaar of an open taak
+  does
 
 ### Requirement: The lifting shows in the zaakhistorie
 
