@@ -28,6 +28,7 @@ import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.search.SearchService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.jetty.http.HttpStatus
@@ -45,7 +46,8 @@ class DetachedDocumentRestService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val restDetachedDocumentConverter: RestDetachedDocumentConverter,
     private val userConverter: RestUserConverter,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val searchService: SearchService
 ) {
     companion object {
         private val LOG = Logger.getLogger(DetachedDocumentRestService::class.java.name)
@@ -67,7 +69,13 @@ class DetachedDocumentRestService @Inject constructor(
                 .extractUuid()
         }
         val restDetachedDocumentResult = RestDetachedDocumentResult(
-            results = restDetachedDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
+            results = restDetachedDocumentConverter.convertToRestDetachedDocuments(
+                documenten = ontkoppeldeDocumenten,
+                informatieobjectTypeUUIDs = informationObjectTypeUUIDs,
+                zaakspecifiekGeautoriseerdeZaakIDs = searchService.listZaakspecifiekGeautoriseerdeZaakIdentificaties(
+                    ontkoppeldeDocumenten.map { it.zaakID }
+                )
+            ),
             resultCount = resultaat.count
         )
         val ontkoppeldDoor = resultaat.detachedByFilter

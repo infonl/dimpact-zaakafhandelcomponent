@@ -46,6 +46,7 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.util.AllOpen
@@ -72,6 +73,7 @@ class SignaleringService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val searchService: SearchService,
     dispatcher: CoroutineDispatcher
 ) {
     companion object {
@@ -513,7 +515,12 @@ class SignaleringService @Inject constructor(
                 listSignaleringen(it)
             }
             .map { flowableTaskService.readTask(it.subject) }
-            .map { it.toRestSignaleringTaakSummary() }
+            .let { taken ->
+                val zaakspecifiekGeautoriseerdeTaakIds = searchService.listZaakspecifiekGeautoriseerdeTaakIds(
+                    taken.map { it.id }
+                )
+                taken.map { it.toRestSignaleringTaakSummary(it.id in zaakspecifiekGeautoriseerdeTaakIds) }
+            }
             .also {
                 LOG.fine { "Successfully listed taken signaleringen of type '$signaleringsType'." }
             }

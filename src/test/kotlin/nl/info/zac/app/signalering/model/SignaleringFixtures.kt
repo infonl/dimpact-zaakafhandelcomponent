@@ -17,6 +17,7 @@ fun createRestSignaleringTaskSummary(
     id = id,
     naam = naam,
     zaakIdentificatie = zaakIdentificatie,
+    isZaakspecifiekGeautoriseerd = false,
     zaaktypeOmschrijving = zaaktypeOmschrijving,
     creatiedatumTijd = creatiedatumTijd
 )

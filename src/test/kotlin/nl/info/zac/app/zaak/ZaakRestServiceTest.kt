@@ -1152,7 +1152,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     countValue = 2,
                     resultsValue = listOf(zaakNearItsDeadline, zaakFarFromItsDeadline)
                 )
-                every { restZaakOverzichtConverter.convert(zaakNearItsDeadline, loggedInUser) } returns restZaakOverzicht
+                every { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaakNearItsDeadline, loggedInUser) } returns restZaakOverzicht
 
                 `when`("the zaak warnings are listed") {
                     val zaakWarnings = zaakRestService.listZaakWarnings()
@@ -1194,7 +1194,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 resultsValue = listOf(zaakNearItsEinddatumGepland, zaakFarFromItsEinddatumGepland)
             )
             every {
-                restZaakOverzichtConverter.convert(zaakNearItsEinddatumGepland, loggedInUser)
+                restZaakOverzichtConverter.convertToRestZaakOverzicht(zaakNearItsEinddatumGepland, loggedInUser)
             } returns restZaakOverzicht
 
             `when`("the zaak warnings are listed") {

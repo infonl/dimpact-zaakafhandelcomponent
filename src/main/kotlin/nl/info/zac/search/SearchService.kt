@@ -58,6 +58,8 @@ class SearchService @Inject constructor(
         // terms query's values cannot be told apart from the rest of the query.
         private const val ZAAKTYPEN_ZONDER_ZAAKSPECIFIEK_GEAUTORISEERD_PARAMETER =
             "zaaktypenZonderZaakspecifiekGeautoriseerd"
+
+        private const val GEZOCHTE_WAARDEN_PARAMETER = "gezochteWaarden"
     }
 
     init {
@@ -108,6 +110,42 @@ class SearchService @Inject constructor(
         query.addSort("id", SolrQuery.ORDER.desc)
 
         return solrSearch(query)
+    }
+
+    fun listZaakspecifiekGeautoriseerdeTaakIds(taakIds: Collection<String>) =
+        listZaakspecifiekGeautoriseerdeWaarden(type = ZoekObjectType.TAAK, veld = "id", waarden = taakIds)
+
+    fun listZaakspecifiekGeautoriseerdeZaakIdentificaties(zaakIdentificaties: Collection<String>) =
+        listZaakspecifiekGeautoriseerdeWaarden(
+            type = ZoekObjectType.ZAAK,
+            veld = ZoekVeld.ZAAK_IDENTIFICATIE.veld,
+            waarden = zaakIdentificaties
+        )
+
+    private fun listZaakspecifiekGeautoriseerdeWaarden(
+        type: ZoekObjectType,
+        veld: String,
+        waarden: Collection<String>
+    ): Set<String> {
+        val distinctWaarden = waarden.toSet()
+        if (distinctWaarden.isEmpty()) return emptySet()
+        val query = SolrQuery("*:*").apply {
+            addFilterQuery("type:$type")
+            addFilterQuery("${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}:true")
+            set(GEZOCHTE_WAARDEN_PARAMETER, distinctWaarden.joinToString(TERMS_SEPARATOR))
+            addFilterQuery("{!terms f=$veld separator='$TERMS_SEPARATOR' v=\$$GEZOCHTE_WAARDEN_PARAMETER}")
+            setFields(veld)
+            rows = distinctWaarden.size
+        }
+        try {
+            return solrClient.query(query, SolrRequest.METHOD.POST).results
+                .map { it.getFieldValue(veld).toString() }
+                .toSet()
+        } catch (ioException: IOException) {
+            throw SearchException("Failed to look up zaakspecifiek geautoriseerde $type objects", ioException)
+        } catch (solrServerException: SolrServerException) {
+            throw SearchException("Failed to look up zaakspecifiek geautoriseerde $type objects", solrServerException)
+        }
     }
 
     private fun solrSearch(query: SolrQuery): ZoekResultaat<out ZoekObject> {
