@@ -221,6 +221,16 @@ class RestBagObjectTest : BehaviorSpec({
             }
         }
 
+        given("A huisnummer with a huisnummertoevoeging with a trailing space") {
+            `when`("the huisnummer weergave is created") {
+                val huisnummerWeergave = createHuisnummerWeergave(12, null, "bis ")
+
+                then("the trailing space is trimmed") {
+                    huisnummerWeergave shouldBe "12-bis"
+                }
+            }
+        }
+
         given("A huisnummer with only a huisnummertoevoeging") {
             `when`("the huisnummer weergave is created") {
                 val huisnummerWeergave = createHuisnummerWeergave(12, null, "bis")

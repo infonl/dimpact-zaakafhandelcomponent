@@ -52,4 +52,4 @@ fun Zaakobject.toRestBagObject(): RestBagObject? =
     }
 
 fun createHuisnummerWeergave(huisnummer: Int, huisletter: String?, huisnummertoevoeging: String?) =
-    listOf(listOf(huisnummer.toString(), huisletter).joinNonBlank(), huisnummertoevoeging).joinNonBlank("-")
+    listOf(listOf(huisnummer.toString(), huisletter).joinNonBlank(), huisnummertoevoeging).joinNonBlank("-").trim()
