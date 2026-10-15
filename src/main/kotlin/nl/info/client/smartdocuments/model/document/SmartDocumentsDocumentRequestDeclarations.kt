@@ -6,7 +6,6 @@ package nl.info.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.util.StringUtil
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import java.time.LocalDate
 
@@ -151,8 +150,7 @@ fun ResultaatItem.toAanvragerDataBedrijf() =
         )
     }
 
-fun ResultaatItem.toHuisnummer(): String? =
-    StringUtil.joinNonBlank(
-        this.adres?.binnenlandsAdres?.huisnummer?.toString(),
-        this.adres?.binnenlandsAdres?.huisletter
-    )
+fun ResultaatItem.toHuisnummer() =
+    listOfNotNull(this.adres?.binnenlandsAdres?.huisnummer?.toString(), this.adres?.binnenlandsAdres?.huisletter)
+        .filter(String::isNotBlank)
+        .joinToString("")
