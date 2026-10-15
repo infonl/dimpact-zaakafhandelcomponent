@@ -47,8 +47,8 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
             `when`("the address string is created") {
                 val addressString = resultaatItem.toAddressString()
 
-                then("it contains only the street and city") {
-                    addressString shouldBe "Kerkstraat ,  Amsterdam"
+                then("it contains only the street and city, without extra spaces") {
+                    addressString shouldBe "Kerkstraat, Amsterdam"
                 }
             }
         }
@@ -67,8 +67,27 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
             `when`("the address string is created") {
                 val addressString = resultaatItem.toAddressString()
 
-                then("the blank house letter and postal code are left out") {
-                    addressString shouldBe "Kerkstraat 12,  Amsterdam"
+                then("the blank house letter and postal code are left out, without extra spaces") {
+                    addressString shouldBe "Kerkstraat 12, Amsterdam"
+                }
+            }
+        }
+
+        given("A KVK result with a binnenlands adres with only a postal code and city") {
+            val resultaatItem = createResultaatItem(
+                adres = Adres().apply {
+                    binnenlandsAdres = BinnenlandsAdres().apply {
+                        postcode = "1234AB"
+                        plaats = "Amsterdam"
+                    }
+                }
+            )
+
+            `when`("the address string is created") {
+                val addressString = resultaatItem.toAddressString()
+
+                then("it contains only the postal code and city, without a leading separator") {
+                    addressString shouldBe "1234AB Amsterdam"
                 }
             }
         }

@@ -4,16 +4,15 @@
  */
 package nl.info.client.kvk.util
 
+import net.atos.zac.util.StringUtil.joinNonBlank
+import net.atos.zac.util.StringUtil.joinNonBlankWith
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 
 fun ResultaatItem.toAddressString(): String =
-    this.getAdres()?.getBinnenlandsAdres()?.let { binnenlandsAdres ->
-        binnenlandsAdres.getStraatnaam() +
-            " " +
-            (binnenlandsAdres.getHuisnummer() ?: "") +
-            binnenlandsAdres.getHuisletter()?.takeIf { it.isNotBlank() }.orEmpty() +
-            ", " +
-            binnenlandsAdres.getPostcode()?.takeIf { it.isNotBlank() }.orEmpty() +
-            " " +
-            binnenlandsAdres.getPlaats()
+    this.getAdres()?.getBinnenlandsAdres()?.let {
+        joinNonBlankWith(
+            ", ",
+            joinNonBlankWith(" ", it.getStraatnaam(), joinNonBlank(it.getHuisnummer()?.toString(), it.getHuisletter())),
+            joinNonBlankWith(" ", it.getPostcode(), it.getPlaats())
+        )
     }.orEmpty()
