@@ -39,6 +39,7 @@ import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen.component";
 
@@ -820,7 +821,7 @@ describe(CaseDetailsEditComponent.name, () => {
       ).toBe(false);
     });
 
-    it("cannot be unset again once the zaak is marked, because the marking cannot be lifted", () => {
+    it("is checked and enabled on a marked zaak, so that the marking can be lifted", () => {
       renderComponent({
         zaaktype: fromPartial<GeneratedType<"RestZaaktype">>(
           autoriseerbaarZaaktype,
@@ -828,14 +829,29 @@ describe(CaseDetailsEditComponent.name, () => {
         isZaakspecifiekGeautoriseerd: true,
       });
 
+      const checkbox = screen.getByRole("checkbox", {
+        name: /is-zaakspecifiek-geautoriseerd/i,
+      });
+      expect(checkbox).toBeEnabled();
+      expect(checkbox).toBeChecked();
+    });
+
+    it("is disabled on a marked zaak for an employee who may not change it", () => {
+      renderComponent({
+        zaaktype: fromPartial<GeneratedType<"RestZaaktype">>(
+          autoriseerbaarZaaktype,
+        ),
+        isZaakspecifiekGeautoriseerd: true,
+        rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
+          canWijzigen: false,
+        }),
+      });
+
       expect(
         screen.getByRole("checkbox", {
           name: /is-zaakspecifiek-geautoriseerd/i,
         }),
       ).toBeDisabled();
-      expect(component["form"].getRawValue().isZaakspecifiekGeautoriseerd).toBe(
-        true,
-      );
     });
 
     it("sends the marking in the update request when the control is checked", async () => {
@@ -876,6 +892,76 @@ describe(CaseDetailsEditComponent.name, () => {
       expect(
         request.request.body.zaak?.isZaakspecifiekGeautoriseerd,
       ).toBeUndefined();
+      request.flush({});
+    });
+  });
+  describe("lifting the zaakspecifieke autorisatie", () => {
+    const markedZaak = {
+      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+        uuid: "zaaktype-123",
+        omschrijving: "Test zaaktype",
+        zaakafhandelparameters: { isZaakspecifiekAutoriseerbaar: true },
+      }),
+      isZaakspecifiekGeautoriseerd: true,
+    };
+
+    const mockOpheffenDialog = (isConfirmed: boolean) =>
+      jest
+        .spyOn(
+          TestBed.inject(ZaakDialogService),
+          "openZaakspecifiekeAutorisatieOpheffen",
+        )
+        .mockReturnValue(fromPartial({ afterClosed: () => of(isConfirmed) }));
+
+    const submitWithReden = async () => {
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("fakeReden");
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+    };
+
+    it("asks for confirmation and then sends the lifting in the update request", async () => {
+      const openOpheffenDialog = mockOpheffenDialog(true);
+      renderComponent(markedZaak);
+      component["form"].controls.isZaakspecifiekGeautoriseerd.setValue(false);
+
+      await submitWithReden();
+
+      expect(openOpheffenDialog).toHaveBeenCalledTimes(1);
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.zaak).toEqual(
+        expect.objectContaining({ isZaakspecifiekGeautoriseerd: false }),
+      );
+      request.flush({});
+    });
+
+    it("saves nothing and keeps the form open when the dialog is closed", async () => {
+      jest.mocked(mockSideNav.close).mockClear();
+      mockOpheffenDialog(false);
+      renderComponent(markedZaak);
+      component["form"].controls.isZaakspecifiekGeautoriseerd.setValue(false);
+
+      await submitWithReden();
+
+      httpTestingController.expectNone(
+        (request) =>
+          request.method === "PATCH" &&
+          request.url.includes("/rest/zaken/zaak/zaak-123"),
+      );
+      expect(mockSideNav.close).not.toHaveBeenCalled();
+    });
+
+    it("asks for no confirmation when the marking stays", async () => {
+      const openOpheffenDialog = mockOpheffenDialog(true);
+      renderComponent(markedZaak);
+
+      await submitWithReden();
+
+      expect(openOpheffenDialog).not.toHaveBeenCalled();
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.zaak?.isZaakspecifiekGeautoriseerd).toBe(
+        true,
+      );
       request.flush({});
     });
   });

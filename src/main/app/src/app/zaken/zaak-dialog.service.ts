@@ -16,11 +16,12 @@ import {
   ZaakAfbrekenDialogData,
   ZaakAfbrekenDialogFormComponent,
 } from "./zaak-afbreken-dialog-form/zaak-afbreken-dialog-form.component";
+import { ZaakspecifiekeAutorisatieOpheffenDialogComponent } from "./zaakspecifieke-autorisatie-opheffen-dialog/zaakspecifieke-autorisatie-opheffen-dialog.component";
 
 type RedenCallback = (reden: string) => Observable<unknown>;
 
 /**
- * Opens the zaak confirmation dialogs (a reden field + confirm/cancel).
+ * Opens the zaak confirmation dialogs (mostly a reden field + confirm/cancel).
  * The presentation config (title, icon, message keys) lives here; callers pass
  * only the dynamic values and the business callback, and handle `afterClosed()`.
  */
@@ -136,5 +137,13 @@ export class ZaakDialogService {
       confirmButtonActionKey: "actie.bag-object.ontkoppelen",
       callback,
     });
+  }
+
+  openZaakspecifiekeAutorisatieOpheffen() {
+    return this.dialog.open<
+      ZaakspecifiekeAutorisatieOpheffenDialogComponent,
+      void,
+      boolean
+    >(ZaakspecifiekeAutorisatieOpheffenDialogComponent);
   }
 }
