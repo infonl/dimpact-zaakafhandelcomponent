@@ -20,7 +20,7 @@
       zaak in `EnkelvoudigInformatieObjectRestService` and pass its flag to `RestInformatieobjectConverter`.
 - [x] 1.10 `RestDetachedDocument`: add the field; in `DetachedDocumentRestService` look up the zaaknummers of the page
       with 1.6 and pass the flag per row to `RestDetachedDocumentConverter`.
-- [ ] 1.11 Regenerate the OpenAPI spec and check that the nine DTOs carry the new field.
+- [x] 1.11 Regenerate the OpenAPI spec and check that the nine DTOs carry the new field.
 
 ## 2. Frontend: shared lock component
 
@@ -47,7 +47,7 @@
 
 - [x] 4.1 Make the existing backend unit tests work again with the changed constructors, signatures and calls (stubs
       and calls only; test names and logic unchanged).
-- [x] 4.2 Unit tests in `SearchServiceTest` for the zaakspecifiek geautoriseerd lookup of 1.6.
+- [x] 4.2 Unit tests in `SearchServiceZaakspecifiekGeautoriseerdTest` for the zaakspecifiek geautoriseerd lookup of 1.6.
 - [ ] 4.3 Integration test: the 1.6 lookup finds a zaakspecifiek geautoriseerde zaak by zaaknummer and its taak by task
       ID, also for a user without the `zaakspecifiek_geautoriseerd` role.
 - [x] 4.4 Frontend spec for `ZaakspecifiekGeautoriseerdIconComponent`: lock with title when `true`, nothing when
