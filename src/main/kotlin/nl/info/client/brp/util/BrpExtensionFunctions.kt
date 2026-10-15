@@ -22,16 +22,20 @@ fun Persoon.toAddressString(): String {
     }
 }
 
-private fun VerblijfadresBinnenland.toAddressString() =
-    this.getOfficieleStraatnaam()?.takeIf { it.isNotBlank() }.orEmpty() +
-        " " +
-        (this.getHuisnummer() ?: "") +
-        this.getHuisletter()?.takeIf { it.isNotBlank() }.orEmpty() +
-        this.getHuisnummertoevoeging()?.takeIf { it.isNotBlank() }.orEmpty() +
-        ", " +
-        this.getPostcode()?.takeIf { it.isNotBlank() }.orEmpty() +
-        " " +
-        this.getWoonplaats()
+private fun VerblijfadresBinnenland.toAddressString(): String =
+    StringUtil.joinNonBlankWith(
+        ", ",
+        StringUtil.joinNonBlankWith(
+            " ",
+            this.getOfficieleStraatnaam(),
+            StringUtil.joinNonBlank(
+                this.getHuisnummer()?.toString(),
+                this.getHuisletter(),
+                this.getHuisnummertoevoeging()
+            )
+        ),
+        StringUtil.joinNonBlankWith(" ", this.getPostcode(), this.getWoonplaats())
+    )
 
 private fun VerblijfadresBuitenland.toAddressString(): String =
     StringUtil.joinNonBlankWith(", ", this.getRegel1(), this.getRegel2(), this.getRegel3())
