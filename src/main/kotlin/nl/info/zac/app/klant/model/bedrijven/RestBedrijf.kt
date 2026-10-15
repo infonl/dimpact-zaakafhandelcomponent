@@ -5,12 +5,12 @@
 package nl.info.zac.app.klant.model.bedrijven
 
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.util.StringUtil
 import nl.info.client.kvk.zoeken.model.generated.AdresType
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.klant.model.klant.RestKlant
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NON_BREAKING_SPACE
 import nl.info.zac.util.NoArgConstructor
 import java.util.Locale
 
@@ -66,7 +66,7 @@ fun ResultaatItem.toRestBedrijf(): RestBedrijf {
 fun List<RestBedrijf>.toRestResultaat() = RESTResultaat(this)
 
 private fun ResultaatItem.toName(): String =
-    this.naam.replace(" ", StringUtil.NON_BREAKING_SPACE)
+    this.naam.replace(" ", NON_BREAKING_SPACE)
 
 private fun ResultaatItem.toAddress(): String? =
     this.adres?.binnenlandsAdres?.toFormattedAddress()

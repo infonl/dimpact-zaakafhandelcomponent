@@ -8,8 +8,6 @@
 package nl.info.zac.app.klant.model.personen
 
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.util.StringUtil
-import net.atos.zac.util.StringUtil.ONBEKEND
 import nl.info.client.brp.model.generated.AbstractDatum
 import nl.info.client.brp.model.generated.AbstractVerblijfplaats
 import nl.info.client.brp.model.generated.Adres
@@ -34,12 +32,15 @@ import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanIn
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.klant.model.klant.RestKlant
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NON_BREAKING_SPACE
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.joinNonBlank
 import org.apache.commons.lang3.StringUtils
 import java.util.EnumSet
 import java.util.Locale
-import java.util.Objects
 import java.util.UUID
+
+private const val ONBEKEND = "<onbekend>"
 
 @AllOpen
 @NoArgConstructor
@@ -102,14 +103,14 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
     naam = this.naam?.volledigeNaam,
     verblijfplaats = this.adressering?.let {
-        listOfNotNull(
+        listOf(
             it.adresregel1,
             it.adresregel2,
             it.adresregel3,
             it.land?.omschrijving
         )
-            .joinToString()
-            .replace(StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+            .joinNonBlank(", ")
+            .replace(StringUtils.SPACE, NON_BREAKING_SPACE)
     },
 ).apply {
     if (inOnderzoek != null) {
@@ -184,23 +185,23 @@ private fun AbstractVerblijfplaats.toStringRepresentation(): String? =
     }
 
 private fun VerblijfadresBinnenland.toStringRepresentation() =
-    listOfNotNull(
+    listOf(
         this.officieleStraatnaam,
-        Objects.toString(this.huisnummer, null),
+        this.huisnummer?.toString(),
         this.huisnummertoevoeging,
         this.huisletter,
-    ).joinToString(StringUtil.NON_BREAKING_SPACE).let { address ->
-        listOfNotNull(address, this.postcode, this.woonplaats)
-            .joinToString()
-            .replace(StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+    ).joinNonBlank(NON_BREAKING_SPACE).let { address ->
+        listOf(address, this.postcode, this.woonplaats)
+            .joinNonBlank(", ")
+            .replace(StringUtils.SPACE, NON_BREAKING_SPACE)
     }
 
 private fun VerblijfadresBuitenland.toStringRepresentation() =
-    listOfNotNull(
+    listOf(
         this.regel1,
         this.regel2,
         this.regel3,
         land?.omschrijving
     )
-        .joinToString()
-        .replace(StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+        .joinNonBlank(", ")
+        .replace(StringUtils.SPACE, NON_BREAKING_SPACE)
