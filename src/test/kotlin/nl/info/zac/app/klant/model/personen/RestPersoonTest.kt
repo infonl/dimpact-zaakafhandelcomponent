@@ -401,4 +401,38 @@ class RestPersoonTest : BehaviorSpec({
             }
         }
     }
+
+    given("BRP Persoon with a geslacht that has an omschrijving") {
+        val persoon = createPersoon().apply {
+            geslacht = Waardetabel().apply {
+                code = "V"
+                omschrijving = "vrouw"
+            }
+        }
+
+        `when`("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            then("the geslacht is the omschrijving") {
+                restPersoon.geslacht shouldBe "vrouw"
+            }
+        }
+    }
+
+    given("BRP Persoon with a geslacht that has a blank omschrijving") {
+        val persoon = createPersoon().apply {
+            geslacht = Waardetabel().apply {
+                code = "V"
+                omschrijving = " "
+            }
+        }
+
+        `when`("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            then("the geslacht is the code") {
+                restPersoon.geslacht shouldBe "V"
+            }
+        }
+    }
 })
