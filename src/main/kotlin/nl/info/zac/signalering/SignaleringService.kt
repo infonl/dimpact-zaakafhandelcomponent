@@ -49,6 +49,7 @@ import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
@@ -516,8 +517,10 @@ class SignaleringService @Inject constructor(
             }
             .map { flowableTaskService.readTask(it.subject) }
             .let { taken ->
-                val zaakspecifiekGeautoriseerdeTaakIds = searchService.listZaakspecifiekGeautoriseerdeTaakIds(
-                    taken.map { it.id }
+                val zaakspecifiekGeautoriseerdeTaakIds = searchService.listZaakspecifiekGeautoriseerdeWaarden(
+                    waarden = taken.map { it.id },
+                    type = ZoekObjectType.TAAK,
+                    veld = "id"
                 )
                 taken.map { it.toRestSignaleringTaakSummary(it.id in zaakspecifiekGeautoriseerdeTaakIds) }
             }

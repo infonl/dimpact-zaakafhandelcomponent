@@ -239,7 +239,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
             } returns informatieObject
             every {
-                searchService.listZaakspecifiekGeautoriseerdeZaakIdentificaties(listOf(detachedDocument.zaakID))
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(detachedDocument.zaakID))
             } returns emptySet()
             every {
                 restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(detachedDocument), any(), emptySet())
@@ -271,7 +271,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
-                searchService.listZaakspecifiekGeautoriseerdeZaakIdentificaties(listOf(document.zaakID))
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(document.zaakID))
             } returns emptySet()
             every {
                 restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(document), any(), emptySet())
@@ -304,7 +304,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
-                searchService.listZaakspecifiekGeautoriseerdeZaakIdentificaties(listOf(document.zaakID))
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(document.zaakID))
             } returns emptySet()
             every {
                 restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(document), any(), emptySet())
