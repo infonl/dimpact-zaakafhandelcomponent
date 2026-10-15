@@ -57,6 +57,7 @@ import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters
@@ -623,6 +624,79 @@ class SignaleringServiceTest : BehaviorSpec({
             }
             and("only one screen event is sent, because both signaleringen have the same target and type") {
                 verify(exactly = 1) { eventingService.send(any<ScreenEvent>()) }
+            }
+        }
+    }
+
+    given(
+        """
+        Two taken signaleringen of type TAAK_OP_NAAM of which only the taak of the first belongs to a zaakspecifiek
+        geautoriseerde zaak
+        """
+    ) {
+        val loggedInUser = createLoggedInUser()
+        val taakSignaleringType = createSignaleringType(
+            type = SignaleringType.Type.TAAK_OP_NAAM,
+            subjecttype = SignaleringSubject.TAAK
+        )
+        val zaakspecifiekGeautoriseerdeTaak = createTestTask(
+            id = "fakeTaakId1",
+            caseVariables = mapOf(
+                "zaakIdentificatie" to "fakeZaakIdentificatie1",
+                "zaaktypeOmschrijving" to "fakeZaaktypeOmschrijving"
+            )
+        )
+        val otherTaak = createTestTask(
+            id = "fakeTaakId2",
+            caseVariables = mapOf(
+                "zaakIdentificatie" to "fakeZaakIdentificatie2",
+                "zaaktypeOmschrijving" to "fakeZaaktypeOmschrijving"
+            )
+        )
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, SignaleringSubject.TAAK) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaBuilder.desc(pathTijdstip) } returns order
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(order) } returns criteriaQuery
+        every { rootSignalering.get<Any>("targettype") } returns pathTarget
+        every { rootSignalering.get<Any>("target") } returns pathTarget
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+        every { pathTarget.get<Any>("id") } returns pathTarget
+        every { pathTarget.`in`(listOf("TAAK_OP_NAAM")) } returns predicate
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+        every { typedQuery.resultList } returns listOf(
+            createSignalering(type = taakSignaleringType, zaak = null, taskInfo = zaakspecifiekGeautoriseerdeTaak),
+            createSignalering(type = taakSignaleringType, zaak = null, taskInfo = otherTaak)
+        )
+        every { flowableTaskService.readTask("fakeTaakId1") } returns zaakspecifiekGeautoriseerdeTaak
+        every { flowableTaskService.readTask("fakeTaakId2") } returns otherTaak
+        every {
+            searchService.listZaakspecifiekGeautoriseerdeWaarden(
+                waarden = listOf("fakeTaakId1", "fakeTaakId2"),
+                type = ZoekObjectType.TAAK,
+                veld = "id"
+            )
+        } returns setOf("fakeTaakId1")
+
+        `when`("the taken signaleringen are listed") {
+            val restSignaleringTaskSummaries = signaleringService.listTakenSignaleringenPage(
+                SignaleringType.Type.TAAK_OP_NAAM
+            )
+
+            then("only the taak of the zaakspecifiek geautoriseerde zaak is marked as such") {
+                restSignaleringTaskSummaries.map { it.id to it.isZaakspecifiekGeautoriseerd } shouldBe listOf(
+                    "fakeTaakId1" to true,
+                    "fakeTaakId2" to false
+                )
             }
         }
     }
