@@ -7,6 +7,6 @@ package nl.info.zac.app.zaak.exception
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 
-class MedewerkerCannotBeOntkoppeldException : InputValidationFailedException(
-    errorCode = ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD
+class MedewerkerCannotBeDetachedException : InputValidationFailedException(
+    errorCode = ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_BE_DETACHED
 )

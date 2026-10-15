@@ -6,7 +6,8 @@ package nl.info.zac.zaak.model
 
 import nl.info.client.zgw.zrc.model.RolMedewerker
 
-data class GeautoriseerdeMedewerkerRol(
+data class ZaakspecifiekGeautoriseerdeMedewerkerRol(
+    val medewerkerId: String,
     val rol: RolMedewerker,
-    val isOntkoppelbaar: Boolean
+    val isDetachable: Boolean
 )

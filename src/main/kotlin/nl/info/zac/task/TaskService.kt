@@ -81,7 +81,6 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser
     ): Task {
         val assignedTask = when {
-            // Granting and assigning under one lock, so ontkoppelen the taakbehandelaar cannot slip in between.
             userId != null -> zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
                 grantZaakspecifiekeAutorisatieToNewAssignee(task, userId)
                 flowableTaskService.assignTaskToUser(task.id, userId, reason)

@@ -780,7 +780,7 @@ class TaskServiceTest : BehaviorSpec({
                     }
                 }
 
-                and("the task is assigned under the lock of the zaak, so the new assignee cannot be ontkoppeld in between") {
+                and("the task is assigned under the lock of the zaak, so the new assignee cannot be detached in between") {
                     isZaakLockHeldWhileAssigning shouldBe true
                 }
             }

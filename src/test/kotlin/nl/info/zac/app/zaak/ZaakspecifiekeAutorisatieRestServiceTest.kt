@@ -34,7 +34,7 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
-import nl.info.zac.zaak.model.GeautoriseerdeMedewerkerRol
+import nl.info.zac.zaak.model.ZaakspecifiekGeautoriseerdeMedewerkerRol
 
 class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -81,20 +81,24 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             } returns createZaakRechten(wijzigen = false)
             every {
                 zaakspecifiekeAutorisatieService.listGeautoriseerdeMedewerkerRollen(zaak, any())
-            } returns listOf(GeautoriseerdeMedewerkerRol(rol = geautoriseerdeMedewerkerRol, isOntkoppelbaar = true))
+            } returns listOf(ZaakspecifiekGeautoriseerdeMedewerkerRol(
+                    medewerkerId = "fakeMedewerkerId",
+                    rol = geautoriseerdeMedewerkerRol,
+                    isDetachable = true
+                ))
 
             `when`("the geautoriseerde medewerkers are listed") {
                 val restGeautoriseerdeMedewerkers = zaakspecifiekeAutorisatieRestService.listGeautoriseerdeMedewerkers(
                     zaak.uuid
                 )
 
-                then("each medewerker is returned with the roltype that gives them access and whether they can be ontkoppeld") {
+                then("each medewerker is returned with the roltype that gives them access and whether they can be detached") {
                     restGeautoriseerdeMedewerkers shouldBe listOf(
                         RestGeautoriseerdeMedewerker(
                             id = "fakeMedewerkerId",
                             naam = "Emma Jansen",
                             roltype = ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
-                            isOntkoppelbaar = true
+                            isDetachable = true
                         )
                     )
                 }
@@ -286,7 +290,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
         }
     }
 
-    context("Ontkoppelen a medewerker from a zaakspecifiek geautoriseerde zaak") {
+    context("Detaching a medewerker from a zaakspecifiek geautoriseerde zaak") {
         given("a user with the 'wijzigen' right on the zaak") {
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -308,14 +312,14 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            `when`("a medewerker is ontkoppeld with a reden") {
+            `when`("a medewerker is detached with a reden") {
                 zaakspecifiekeAutorisatieRestService.removeZaakspecifiekGeautoriseerdeMedewerker(
                     zaak.uuid,
                     "fakeMedewerkerId",
                     RestReden(reden = "fakeReden")
                 )
 
-                then("the medewerker is ontkoppeld from the zaak with the reden") {
+                then("the medewerker is detached from the zaak with the reden") {
                     verify(exactly = 1) {
                         zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
                             zaak = zaak,
@@ -341,7 +345,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                 )
             } returns createZaakRechten(wijzigen = false)
 
-            `when`("a medewerker is ontkoppeld") {
+            `when`("a medewerker is detached") {
                 shouldThrow<PolicyException> {
                     zaakspecifiekeAutorisatieRestService.removeZaakspecifiekGeautoriseerdeMedewerker(
                         zaak.uuid,
@@ -350,7 +354,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                     )
                 }
 
-                then("no medewerker is ontkoppeld") {
+                then("no medewerker is detached") {
                     verify(exactly = 0) {
                         zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
                             zaak = any(),

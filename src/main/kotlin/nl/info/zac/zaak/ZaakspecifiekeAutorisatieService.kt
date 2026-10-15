@@ -20,7 +20,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
 import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.MedewerkerCannotBeOntkoppeldException
+import nl.info.zac.app.zaak.exception.MedewerkerCannotBeDetachedException
 import nl.info.zac.app.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
@@ -38,7 +38,7 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.zaak.model.GeautoriseerdeMedewerkerRol
+import nl.info.zac.zaak.model.ZaakspecifiekGeautoriseerdeMedewerkerRol
 import nl.info.zac.zaak.model.ZaakToewijzing
 import java.util.UUID
 import java.util.concurrent.locks.ReentrantLock
@@ -226,41 +226,37 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                     reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
-            if (isGranted) reindexZaakAndDependents(zaak)
+            if (isGranted) indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
             isGranted
         }
     }
 
     /**
      * Lists the behandelaar and zaakspecifiek geautoriseerde medewerker rollen of the zaakspecifiek geautoriseerde
-     * [zaak], sorted by name. Medewerkers who have access to all zaakspecifiek geautoriseerde zaken of the zaaktype
-     * through their application role are left out, since they hold no rol on the zaak.
+     * [zaak], sorted by name, with one row per medewerker. Medewerkers who have access to all zaakspecifiek
+     * geautoriseerde zaken of the zaaktype through their application role are left out, since they hold no rol on
+     * the zaak, and so are rollen without a medewerker identificatie, which only come from outside ZAC.
      */
     fun listGeautoriseerdeMedewerkerRollen(
         zaak: Zaak,
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens
-    ): List<GeautoriseerdeMedewerkerRol> {
+    ): List<ZaakspecifiekGeautoriseerdeMedewerkerRol> {
         assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
         val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-        val nietOntkoppelbareMedewerkerIds = listNietOntkoppelbareMedewerkerIds(zaak, zaakToewijzing)
-        return (
-            zaakToewijzing.behandelaarRollen.map { GeautoriseerdeMedewerkerRol(rol = it, isOntkoppelbaar = false) } +
-                zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers.distinctBy { it.identificatienummer ?: it }.map {
-                    GeautoriseerdeMedewerkerRol(
-                        rol = it,
-                        isOntkoppelbaar = it.identificatienummer
-                            ?.let { medewerkerId -> medewerkerId !in nietOntkoppelbareMedewerkerIds } == true
-                    )
-                }
-            ).sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.rol.naam.orEmpty() })
+        val nonDetachableMedewerkerIds = listNonDetachableMedewerkerIds(zaak, zaakToewijzing)
+        val behandelaars = zaakToewijzing.behandelaarRollen.toZaakspecifiekGeautoriseerdeMedewerkerRollen { false }
+        val geautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
+            .toZaakspecifiekGeautoriseerdeMedewerkerRollen { medewerkerId -> medewerkerId !in nonDetachableMedewerkerIds }
+        return (behandelaars + geautoriseerdeMedewerkers)
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.rol.naam.orEmpty() })
     }
 
     /**
      * Takes away the individual access of [medewerkerId] to the zaakspecifiek geautoriseerde [zaak], by deleting
-     * every zaakspecifiek geautoriseerde medewerker rol they hold on it. A concurrent addition on another pod can
-     * have left more than one.
+     * every zaakspecifiek geautoriseerde medewerker rol they hold on it. A concurrent addition can have left more
+     * than one.
      *
-     * @throws MedewerkerCannotBeOntkoppeldException when the medewerker is the zaakbehandelaar or the behandelaar
+     * @throws MedewerkerCannotBeDetachedException when the medewerker is the zaakbehandelaar or the behandelaar
      * of an open taak of the zaak
      * @throws MedewerkerNotZaakspecifiekGeautoriseerdException when the medewerker holds no such rol
      */
@@ -273,15 +269,14 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         assertZaakspecifiekGeautoriseerd(zaakAutorisatieGegevens)
         lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            if (medewerkerId in listNietOntkoppelbareMedewerkerIds(zaak, zaakToewijzing)) {
-                throw MedewerkerCannotBeOntkoppeldException()
+            if (medewerkerId in listNonDetachableMedewerkerIds(zaak, zaakToewijzing)) {
+                throw MedewerkerCannotBeDetachedException()
             }
             zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 .filter { it.identificatienummer == medewerkerId }
                 .ifEmpty { throw MedewerkerNotZaakspecifiekGeautoriseerdException() }
                 .forEach { zrcClientService.deleteRol(it, reden) }
-            // Revoked access must leave the search results now, not at Solr's next auto-commit.
-            reindexZaakAndDependents(zaak)
+            indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
             indexingService.commit()
         }
     }
@@ -336,7 +331,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                     reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
-                reindexZaakAndDependents(zaak)
+                indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
             }
         }
     }
@@ -351,13 +346,12 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                     taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(it, it.assignee)
                 }
             }
-        indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
-        reindexDependents(zaak)
+        indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
     }
 
     fun reindexZaakspecifiekeAutorisatieDependents(zaak: Zaak) {
         if (!isZaakspecifiekGeautoriseerd(zaak)) return
-        reindexDependents(zaak)
+        indexingService.addOrUpdateTakenAndInformatieobjectenForZaak(zaak.uuid)
     }
 
     private fun readZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak: Zaak) =
@@ -383,7 +377,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             zaaktypeDescription = zaakType.omschrijving
         )
 
-    private fun listNietOntkoppelbareMedewerkerIds(zaak: Zaak, zaakToewijzing: ZaakToewijzing) =
+    private fun listNonDetachableMedewerkerIds(zaak: Zaak, zaakToewijzing: ZaakToewijzing) =
         zaakToewijzing.behandelaarRollen.mapNotNull { it.identificatienummer }.toSet() +
             flowableTaskService.listOpenTasksForZaak(zaak.uuid).mapNotNull { it.assignee }
 
@@ -396,19 +390,17 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         achternaam = lastName
     }
 
-    /**
-     * Callers that change the zaakspecifiek geautoriseerde medewerker rollen hold the lock of the zaak while they
-     * call this, so that the index ends with the rollen of the last change rather than of the slowest writer.
-     */
-    private fun reindexZaakAndDependents(zaak: Zaak) {
-        indexingService.addOrUpdateZaak(zaak.uuid, inclusiefTaken = false)
-        reindexDependents(zaak)
-    }
-
-    private fun reindexDependents(zaak: Zaak) {
-        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
-        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
-    }
+    private fun List<RolMedewerker>.toZaakspecifiekGeautoriseerdeMedewerkerRollen(
+        isDetachable: (medewerkerId: String) -> Boolean
+    ) = mapNotNull { rol -> rol.identificatienummer?.let { medewerkerId -> medewerkerId to rol } }
+        .distinctBy { (medewerkerId) -> medewerkerId }
+        .map { (medewerkerId, rol) ->
+            ZaakspecifiekGeautoriseerdeMedewerkerRol(
+                medewerkerId = medewerkerId,
+                rol = rol,
+                isDetachable = isDetachable(medewerkerId)
+            )
+        }
 
     private fun LoggedInUser.isZaakspecifiekGeautoriseerdFor(zaaktypeOmschrijving: String) =
         ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in overallRoles ||

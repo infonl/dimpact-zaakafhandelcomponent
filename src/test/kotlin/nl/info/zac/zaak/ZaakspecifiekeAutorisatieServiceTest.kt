@@ -38,7 +38,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
 import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.MedewerkerCannotBeOntkoppeldException
+import nl.info.zac.app.zaak.exception.MedewerkerCannotBeDetachedException
 import nl.info.zac.app.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
@@ -926,7 +926,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     isGranted shouldBe false
                     verify(exactly = 0) {
                         zrcClientService.createRol(any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(any())
                     }
                 }
             }
@@ -959,9 +959,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     "Zaakspecifiek geautoriseerde medewerker van de zaak"
                 )
             } returns createRolMedewerker()
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
-            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
-            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+            every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } just runs
 
             `when`("the taakbehandelaar is granted access") {
                 val isGranted = zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
@@ -985,9 +983,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 and("the zaak, its taken and its documenten are reindexed, so the taakbehandelaar finds them") {
                     verifyOrder {
                         zrcClientService.createRol(any(), any())
-                        indexingService.addOrUpdateZaak(zaak.uuid, false)
-                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
-                        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                        indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
                     }
                 }
             }
@@ -1102,8 +1098,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         listOf(geautoriseerdeMedewerkerRol, behandelaarRol, taakbehandelaarRol)
                 }
 
-                and("only the medewerker who is neither zaak- nor taakbehandelaar can be ontkoppeld") {
-                    geautoriseerdeMedewerkerRollen.map { it.isOntkoppelbaar } shouldContainExactly
+                and("only the medewerker who is neither zaak- nor taakbehandelaar can be detached") {
+                    geautoriseerdeMedewerkerRollen.map { it.isDetachable } shouldContainExactly
                         listOf(true, false, false)
                 }
 
@@ -1143,7 +1139,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens
                 )
 
-                then("the medewerker is listed once, since ontkoppelen removes both rollen together") {
+                then("the medewerker is listed once, since detaching removes both rollen together") {
                     geautoriseerdeMedewerkerRollen.map { it.rol.identificatienummer } shouldContainExactly
                         listOf("fakeMedewerkerId")
                 }
@@ -1174,8 +1170,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens
                 )
 
-                then("the rol cannot be ontkoppeld, since ontkoppelen needs the id of the medewerker") {
-                    geautoriseerdeMedewerkerRollen.single().isOntkoppelbaar shouldBe false
+                then("the rol is left out, since every listed medewerker needs an id") {
+                    geautoriseerdeMedewerkerRollen.shouldBeEmpty()
                 }
             }
         }
@@ -1475,7 +1471,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                         ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND
                     verify(exactly = 0) {
                         zrcClientService.createRol(any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(any())
                     }
                 }
             }
@@ -1518,10 +1514,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     "Zaakspecifiek geautoriseerde medewerker van de zaak"
                 )
             } returns createRolMedewerker()
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
-            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
-            var isZaakLockHeldWhileReindexing = false
-            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } answers {
+                        var isZaakLockHeldWhileReindexing = false
+            every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } answers {
                 isZaakLockHeldWhileReindexing = zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).isHeldByCurrentThread
             }
 
@@ -1550,20 +1544,18 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 and("the zaak, its taken and its documenten are reindexed, so the medewerker finds them") {
                     verifyOrder {
                         zrcClientService.createRol(any(), any())
-                        indexingService.addOrUpdateZaak(zaak.uuid, false)
-                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
-                        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                        indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
                     }
                 }
 
-                and("the index is updated under the lock of the zaak, so a concurrent ontkoppeling cannot be undone") {
+                and("the index is updated under the lock of the zaak, so a concurrent detachment cannot be undone") {
                     isZaakLockHeldWhileReindexing shouldBe true
                 }
             }
         }
     }
 
-    context("Ontkoppelen a medewerker from a zaakspecifiek geautoriseerde zaak") {
+    context("Detaching a medewerker from a zaakspecifiek geautoriseerde zaak") {
         val zaak = createZaak()
         val behandelaarRol = createRolMedewerker(
             zaakURI = zaak.url,
@@ -1605,7 +1597,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         }
 
         given("a zaak that is not zaakspecifiek geautoriseerd") {
-            `when`("a medewerker is ontkoppeld") {
+            `when`("a medewerker is detached") {
                 val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
                     zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
                         zaak = zaak,
@@ -1629,8 +1621,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         given("a zaakspecifiek geautoriseerde zaak and its zaakbehandelaar") {
             stubZaakToewijzingAndOpenTaken()
 
-            `when`("the zaakbehandelaar is ontkoppeld") {
-                val medewerkerCannotBeOntkoppeldException = shouldThrow<MedewerkerCannotBeOntkoppeldException> {
+            `when`("the zaakbehandelaar is detached") {
+                val medewerkerCannotBeDetachedException = shouldThrow<MedewerkerCannotBeDetachedException> {
                     zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
                         zaak = zaak,
                         zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
@@ -1640,8 +1632,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
 
                 then("the request is refused with the error code that the frontend translates") {
-                    medewerkerCannotBeOntkoppeldException.errorCode shouldBe
-                        ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD
+                    medewerkerCannotBeDetachedException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_BE_DETACHED
                 }
 
                 and("no rol is deleted") {
@@ -1653,8 +1645,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         given("a zaakspecifiek geautoriseerde zaak and the individually authorised behandelaar of one of its open taken") {
             stubZaakToewijzingAndOpenTaken()
 
-            `when`("the taakbehandelaar is ontkoppeld") {
-                val medewerkerCannotBeOntkoppeldException = shouldThrow<MedewerkerCannotBeOntkoppeldException> {
+            `when`("the taakbehandelaar is detached") {
+                val medewerkerCannotBeDetachedException = shouldThrow<MedewerkerCannotBeDetachedException> {
                     zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
                         zaak = zaak,
                         zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
@@ -1664,8 +1656,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
 
                 then("the request is refused, so the taakbehandelaar keeps access to the zaak of their taak") {
-                    medewerkerCannotBeOntkoppeldException.errorCode shouldBe
-                        ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_BE_ONTKOPPELD
+                    medewerkerCannotBeDetachedException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_MEDEWERKER_CANNOT_BE_DETACHED
                     verify(exactly = 0) { zrcClientService.deleteRol(any(), any()) }
                 }
             }
@@ -1674,7 +1666,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         given("a zaakspecifiek geautoriseerde zaak and a medewerker without a zaakspecifiek geautoriseerde medewerker rol") {
             stubZaakToewijzingAndOpenTaken()
 
-            `when`("the medewerker is ontkoppeld") {
+            `when`("the medewerker is detached") {
                 val medewerkerNotZaakspecifiekGeautoriseerdException =
                     shouldThrow<MedewerkerNotZaakspecifiekGeautoriseerdException> {
                         zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
@@ -1695,15 +1687,13 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         given("a zaakspecifiek geautoriseerde zaak and a medewerker who holds two zaakspecifiek geautoriseerde medewerker rollen") {
             stubZaakToewijzingAndOpenTaken()
             every { zrcClientService.deleteRol(any(), "fakeReden") } just runs
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
-            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
-            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+            every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } just runs
             var isZaakLockHeldWhileCommitting = false
             every { indexingService.commit() } answers {
                 isZaakLockHeldWhileCommitting = zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).isHeldByCurrentThread
             }
 
-            `when`("the medewerker is ontkoppeld") {
+            `when`("the medewerker is detached") {
                 zaakspecifiekeAutorisatieService.removeZaakspecifiekGeautoriseerdeMedewerker(
                     zaak = zaak,
                     zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
@@ -1721,9 +1711,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 and("the zaak, its taken and its documenten are reindexed and committed, so the medewerker no longer finds them") {
                     verifyOrder {
                         zrcClientService.deleteRol(any(), any())
-                        indexingService.addOrUpdateZaak(zaak.uuid, false)
-                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
-                        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                        indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
                         indexingService.commit()
                     }
                 }
@@ -1747,9 +1735,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every { ztcClientService.readEigenschap(zaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns eigenschap
             every { zrcClientService.createEigenschap(zaak.uuid, capture(zaakEigenschapSlot)) } returns createZaakEigenschap()
             every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns emptyList()
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
-            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
-            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+            every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } just runs
 
             `when`("the zaak is marked") {
                 zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
@@ -1765,9 +1751,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 and("the zaak, its taken and its documenten are reindexed right away, in that order") {
                     verifyOrder {
                         zrcClientService.createEigenschap(zaak.uuid, any())
-                        indexingService.addOrUpdateZaak(zaak.uuid, false)
-                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
-                        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                        indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
                     }
                 }
             }
@@ -1814,9 +1798,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     "fakeTaakbehandelaarId"
                 )
             } just runs
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } returns true
-            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
-            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+            every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } just runs
 
             `when`("the zaak is marked") {
                 zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
@@ -1843,16 +1825,14 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
         given("a zaakspecifiek geautoriseerde zaak") {
             val markedZaak = createZaak()
             every { zrcClientService.listZaakeigenschappen(markedZaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
-            every { indexingService.addOrUpdateTakenForZaak(markedZaak.uuid) } just runs
-            every { indexingService.addOrUpdateInformatieobjectenForZaak(markedZaak.uuid) } just runs
+            every { indexingService.addOrUpdateTakenAndInformatieobjectenForZaak(markedZaak.uuid) } just runs
 
             `when`("its dependents are reindexed") {
                 zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(markedZaak)
 
                 then("its taken and documenten are reindexed so their authorisation data is not stale") {
                     verify(exactly = 1) {
-                        indexingService.addOrUpdateTakenForZaak(markedZaak.uuid)
-                        indexingService.addOrUpdateInformatieobjectenForZaak(markedZaak.uuid)
+                        indexingService.addOrUpdateTakenAndInformatieobjectenForZaak(markedZaak.uuid)
                     }
                 }
             }
@@ -1867,8 +1847,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
 
                 then("nothing is reindexed, because its taken and documenten carry no authorisation data") {
                     verify(exactly = 0) {
-                        indexingService.addOrUpdateTakenForZaak(any())
-                        indexingService.addOrUpdateInformatieobjectenForZaak(any())
+                        indexingService.addOrUpdateTakenAndInformatieobjectenForZaak(any())
                     }
                 }
             }

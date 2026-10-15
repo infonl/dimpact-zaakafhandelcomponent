@@ -77,7 +77,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
     fun removeMedewerker(zaakUuid: UUID, medewerker: TestUser, testUser: TestUser) =
         itestHttpClient.performDeleteRequest(
             url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers/${medewerker.username}",
-            requestBodyAsString = """{ "reden": "itestReden" }""",
+            requestBodyAsString = """{ "reden": "fakeReden" }""",
             testUser = testUser
         )
 
@@ -260,12 +260,12 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            then("only the added medewerkers can be ontkoppeld, not the zaakbehandelaar") {
+            then("only the added medewerkers can be detached, not the zaakbehandelaar") {
                 response.code shouldBe HTTP_OK
                 JSONArray(response.bodyAsString).let { medewerkers ->
                     (0 until medewerkers.length())
                         .map(medewerkers::getJSONObject)
-                        .associate { it.getString("id") to it.getBoolean("isOntkoppelbaar") }
+                        .associate { it.getString("id") to it.getBoolean("isDetachable") }
                 } shouldBe mapOf(
                     BEHANDELAAR_1.username to false,
                     BEHANDELAAR_1_EN_BRP_ZOEKER_2.username to true,
@@ -274,7 +274,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("a medewerker is ontkoppeld without a reden") {
+        `when`("a medewerker is detached without a reden") {
             val response = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers/" +
                     BEHANDELAAR_1_EN_BRP_ZOEKER_2.username,
@@ -288,17 +288,17 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("the added medewerker ontkoppelt the zaakbehandelaar") {
+        `when`("the added medewerker detaches the zaakbehandelaar") {
             val response = removeMedewerker(zaakUuid, BEHANDELAAR_1, BEHANDELAAR_1_EN_BRP_ZOEKER_2)
 
             then("the request is refused and the zaakbehandelaar keeps access") {
                 response.code shouldBe HTTP_BAD_REQUEST
-                response.bodyAsString shouldContain "msg.error.medewerker.cannot.be.ontkoppeld"
+                response.bodyAsString shouldContain "msg.error.medewerker.cannot.be.detached"
                 readZaak(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
             }
         }
 
-        `when`("the zaakbehandelaar ontkoppelt the first added medewerker with a reden") {
+        `when`("the zaakbehandelaar detaches the first added medewerker with a reden") {
             val response = removeMedewerker(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2, BEHANDELAAR_1)
 
             then("the medewerker is no longer a zaakspecifiek geautoriseerde medewerker of the zaak in Open Zaak") {
@@ -315,7 +315,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                 }
             }
 
-            and("the zaakhistorie shows that the zaakspecifiek geautoriseerde medewerker was ontkoppeld with the reden") {
+            and("the zaakhistorie shows that the zaakspecifiek geautoriseerde medewerker was detached with the reden") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
                     testUser = BEHANDELAAR_1
@@ -326,12 +326,12 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                             .map(lines::getJSONObject)
                             .filter { it.getString("attribuutLabel") == ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
                             .map { listOf(it.getString("actie"), it.optString("oudeWaarde"), it.optString("toelichting")) }
-                    } shouldContain listOf("ONTKOPPELD", BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName, "itestReden")
+                    } shouldContain listOf("ONTKOPPELD", BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName, "fakeReden")
                 }
             }
         }
 
-        `when`("the ontkoppelde medewerker is ontkoppeld again") {
+        `when`("the detached medewerker is detached again") {
             val response = removeMedewerker(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2, BEHANDELAAR_1)
 
             then("the request is refused, because the medewerker holds no zaakspecifiek geautoriseerde medewerker rol") {
