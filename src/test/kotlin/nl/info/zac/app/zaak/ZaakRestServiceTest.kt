@@ -3455,7 +3455,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                     zaak = zaak,
-                    isZaakspecifiekGeautoriseerd = true,
+                    isZaakspecifiekGeautoriseerd = false,
                     currentBehandelaarId = "fakeBehandelaarId",
                     requestedBehandelaarId = "fakeOtherUserId"
                 )
@@ -3486,6 +3486,17 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verifyOrder {
                         zaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, changeDescription)
                         zaakService.assignZaak(zaak, zaakAssignment, changeDescription)
+                    }
+                }
+
+                and("the handover is checked as one of a zaak that is not zaakspecifiek geautoriseerd") {
+                    verify(exactly = 1) {
+                        zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                            zaak = zaak,
+                            isZaakspecifiekGeautoriseerd = false,
+                            currentBehandelaarId = "fakeBehandelaarId",
+                            requestedBehandelaarId = "fakeOtherUserId"
+                        )
                     }
                 }
             }

@@ -675,11 +675,14 @@ class ZaakRestService @Inject constructor(
             restZaak = restZaakEditMetRedenGegevens.zaak,
             currentBehandelaarId = currentBehandelaarId
         )
+        val shouldZaakspecifiekeAutorisatieBeLifted = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
+            restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd == false
         val zaakAssignment = requestedAssignment?.let {
             assertPolicy(zaakRechten.canToekennen)
             zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                 zaak = zaak,
-                isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
+                isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
+                    !shouldZaakspecifiekeAutorisatieBeLifted,
                 currentBehandelaarId = currentBehandelaarId,
                 requestedBehandelaarId = it.behandelaarId
             )
@@ -692,8 +695,6 @@ class ZaakRestService @Inject constructor(
             currentAndRequestedBehandelaarIds = setOfNotNull(currentBehandelaarId, requestedAssignment?.behandelaarId),
             loggedInUser = loggedInUser
         )
-        val shouldZaakspecifiekeAutorisatieBeLifted = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
-            restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd == false
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
