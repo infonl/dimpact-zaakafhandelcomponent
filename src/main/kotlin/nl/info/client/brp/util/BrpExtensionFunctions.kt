@@ -4,7 +4,6 @@
  */
 package nl.info.client.brp.util
 
-import net.atos.zac.util.StringUtil
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
@@ -22,16 +21,22 @@ fun Persoon.toAddressString(): String {
     }
 }
 
-private fun VerblijfadresBinnenland.toAddressString() =
-    this.getOfficieleStraatnaam()?.takeIf { it.isNotBlank() }.orEmpty() +
-        " " +
-        (this.getHuisnummer() ?: "") +
-        this.getHuisletter()?.takeIf { it.isNotBlank() }.orEmpty() +
-        this.getHuisnummertoevoeging()?.takeIf { it.isNotBlank() }.orEmpty() +
-        ", " +
-        this.getPostcode()?.takeIf { it.isNotBlank() }.orEmpty() +
-        " " +
-        this.getWoonplaats()
+private fun VerblijfadresBinnenland.toAddressString(): String {
+    val huisnummerWithSuffix = listOfNotNull(
+        this.getHuisnummer()?.toString(),
+        this.getHuisletter(),
+        this.getHuisnummertoevoeging()
+    ).filter(String::isNotBlank).joinToString("")
+    val streetLine = listOfNotNull(this.getOfficieleStraatnaam(), huisnummerWithSuffix)
+        .filter(String::isNotBlank)
+        .joinToString(" ")
+    val cityLine = listOfNotNull(this.getPostcode(), this.getWoonplaats())
+        .filter(String::isNotBlank)
+        .joinToString(" ")
+    return listOf(streetLine, cityLine).filter(String::isNotBlank).joinToString(", ")
+}
 
-private fun VerblijfadresBuitenland.toAddressString(): String =
-    StringUtil.joinNonBlankWith(", ", this.getRegel1(), this.getRegel2(), this.getRegel3())
+private fun VerblijfadresBuitenland.toAddressString() =
+    listOfNotNull(this.getRegel1(), this.getRegel2(), this.getRegel3())
+        .filter(String::isNotBlank)
+        .joinToString(", ")
