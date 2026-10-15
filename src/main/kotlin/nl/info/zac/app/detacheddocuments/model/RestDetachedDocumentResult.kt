@@ -8,8 +8,8 @@ import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.app.identity.model.RestUser
 
 class RestDetachedDocumentResult(
-    resultaten: Collection<RestDetachedDocument>,
-    aantalTotaal: Long
-) : RestResultaat<RestDetachedDocument>(resultaten, aantalTotaal) {
+    results: Collection<RestDetachedDocument>,
+    resultCount: Long
+) : RestResultaat<RestDetachedDocument>(results, resultCount) {
     var filterOntkoppeldDoor: List<RestUser> = emptyList()
 }

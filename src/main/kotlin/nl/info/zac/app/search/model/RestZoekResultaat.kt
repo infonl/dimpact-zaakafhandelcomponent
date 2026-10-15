@@ -14,10 +14,10 @@ import java.util.TreeMap
 
 data class RestZoekResultaat<TYPE>(
     @get:JsonbProperty("resultaten")
-    var results: Collection<TYPE>,
+    override var results: Collection<TYPE>,
 
     @get:JsonbProperty("totaal")
-    var resultCount: Long,
+    override var resultCount: Long,
 
     var filters: TreeMap<FilterVeld, MutableList<FilterResultaat>> =
         TreeMap<FilterVeld, MutableList<FilterResultaat>>(Comparator.comparingInt { it.ordinal })

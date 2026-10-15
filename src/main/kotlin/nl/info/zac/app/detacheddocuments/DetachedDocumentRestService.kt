@@ -67,8 +67,8 @@ class DetachedDocumentRestService @Inject constructor(
                 .extractUuid()
         }
         val restDetachedDocumentResult = RestDetachedDocumentResult(
-            resultaten = restDetachedDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
-            aantalTotaal = resultaat.count
+            results = restDetachedDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
+            resultCount = resultaat.count
         )
         val ontkoppeldDoor = resultaat.detachedByFilter
         if (ontkoppeldDoor.isEmpty()) {

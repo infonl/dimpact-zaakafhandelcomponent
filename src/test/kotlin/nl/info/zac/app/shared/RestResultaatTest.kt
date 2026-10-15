@@ -7,6 +7,7 @@ package nl.info.zac.app.shared
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import jakarta.json.bind.JsonbBuilder
 
 class RestResultaatTest : BehaviorSpec({
     context("Constructing a REST resultaat") {
@@ -15,8 +16,8 @@ class RestResultaatTest : BehaviorSpec({
                 val restResultaat = RestResultaat(listOf("fakeResult1", "fakeResult2"))
 
                 then("the total is the number of results and there is no error message") {
-                    restResultaat.totaal shouldBe 2f
-                    restResultaat.foutmelding shouldBe ""
+                    restResultaat.resultCount shouldBe 2L
+                    restResultaat.errorMessage shouldBe ""
                 }
             }
         }
@@ -26,7 +27,7 @@ class RestResultaatTest : BehaviorSpec({
                 val restResultaat = RestResultaat(listOf("fakeResult1"), 10)
 
                 then("the given total is used") {
-                    restResultaat.totaal shouldBe 10f
+                    restResultaat.resultCount shouldBe 10L
                 }
             }
         }
@@ -36,8 +37,22 @@ class RestResultaatTest : BehaviorSpec({
                 val restResultaat = RestResultaat<String>()
 
                 then("it has no results and a total of zero") {
-                    restResultaat.resultaten.shouldBeEmpty()
-                    restResultaat.totaal shouldBe 0f
+                    restResultaat.results.shouldBeEmpty()
+                    restResultaat.resultCount shouldBe 0L
+                }
+            }
+        }
+    }
+
+    context("Serializing a REST resultaat to JSON") {
+        given("a resultaat with results") {
+            val restResultaat = RestResultaat(listOf("fakeResult"))
+
+            `when`("it is serialized") {
+                val json = JsonbBuilder.create().use { it.toJson(restResultaat) }
+
+                then("the JSON uses the Dutch field names that the frontend expects") {
+                    json shouldBe """{"foutmelding":"","resultaten":["fakeResult"],"totaal":1}"""
                 }
             }
         }

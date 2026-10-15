@@ -4,10 +4,15 @@
  */
 package nl.info.zac.app.shared
 
+import jakarta.json.bind.annotation.JsonbProperty
+
 open class RestResultaat<T>(
-    val resultaten: Collection<T> = emptyList(),
-    aantalTotaal: Long = resultaten.size.toLong(),
-    val foutmelding: String = ""
-) {
-    val totaal = aantalTotaal.toFloat()
-}
+    @get:JsonbProperty("resultaten")
+    open val results: Collection<T> = emptyList(),
+
+    @get:JsonbProperty("totaal")
+    open val resultCount: Long = results.size.toLong(),
+
+    @get:JsonbProperty("foutmelding")
+    val errorMessage: String = ""
+)
