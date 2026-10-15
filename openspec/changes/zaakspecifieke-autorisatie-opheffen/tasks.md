@@ -1,12 +1,11 @@
 ## 1. Backend
 
 - [ ] 1.1 `ZrcClient.zaakeigenschapDelete` and `ZrcClientService.deleteZaakeigenschap(zaakUUID, uuid, auditExplanation)`.
-- [ ] 1.2 `shouldMarkZaakspecifiekGeautoriseerd` no longer throws; add `shouldLiftZaakspecifiekeAutorisatie`.
-      Remove `ZaakspecifiekeAutorisatieCannotBeLiftedException` and its error code.
+- [ ] 1.2 `shouldMarkZaakspecifiekGeautoriseerd` no longer throws. Remove `ZaakspecifiekeAutorisatieCannotBeLiftedException` and its error code.
 - [ ] 1.3 `ZaakspecifiekeAutorisatieService.liftZaakspecifiekeAutorisatie(zaak, reden)`: under the lock, delete
       every ZGM rol, then every `ZAAK_GEAUTORISEERD` zaakeigenschap, with the reden; reindex the zaak, its
       taken and its documenten, and commit Solr.
-- [ ] 1.4 `ZaakRestService.updateZaak` lifts the marking before it assigns the zaak.
+- [ ] 1.4 `ZaakRestService.updateZaak` lifts the marking, for `false` on a marked zaak, before it assigns the zaak.
 - [ ] 1.5 Unit tests for 1.1-1.4.
 - [ ] 1.6 Integration test: lift the marking and check the rollen and zaakeigenschap are gone, another
       behandelaar of the zaaktype finds and opens the zaak, the zaakhistorie line with the reden, and that

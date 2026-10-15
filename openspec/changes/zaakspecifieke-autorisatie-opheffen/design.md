@@ -22,7 +22,7 @@ policy right for lifting.
 
 The edit form sends `isZaakspecifiekGeautoriseerd: false`, as it sends `true` to mark. The update already
 asserts `wijzigen` and requires a reden, so lifting needs no new endpoint. `shouldMarkZaakspecifiekGeautoriseerd`
-no longer throws; a new `shouldLiftZaakspecifiekeAutorisatie` is true only for `false` on a marked zaak.
+no longer throws; the update lifts the marking only for `false` on a marked zaak.
 
 ### Who may lift
 
