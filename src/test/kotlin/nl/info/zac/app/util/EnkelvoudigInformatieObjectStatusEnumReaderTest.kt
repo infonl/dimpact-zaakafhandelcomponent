@@ -3,89 +3,102 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.util
+package nl.info.zac.app.util
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.MultivaluedHashMap
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 
-class EnkelvoudigInformatieObjectStatusEnumReaderTest : DescribeSpec({
+class EnkelvoudigInformatieObjectStatusEnumReaderTest : BehaviorSpec({
     val statusReader = EnkelvoudigInformatieObjectStatusEnumReader()
 
-    describe("isReadable") {
-        it("can read StatusEnum class") {
-            statusReader.isReadable(null, StatusEnum::class.java, null, null) shouldBe true
+    fun readFrom(value: String) = statusReader.readFrom(
+        type = StatusEnum::class.java,
+        genericType = StatusEnum::class.java,
+        annotations = emptyArray(),
+        mediaType = MediaType.TEXT_PLAIN_TYPE,
+        httpHeaders = MultivaluedHashMap(),
+        entityStream = value.byteInputStream()
+    )
+
+    context("isReadable") {
+        given("the StatusEnum type") {
+            `when`("it is checked whether the reader can read it") {
+                val isReadable = statusReader.isReadable(
+                    type = StatusEnum::class.java,
+                    genericType = StatusEnum::class.java,
+                    annotations = emptyArray(),
+                    mediaType = MediaType.TEXT_PLAIN_TYPE
+                )
+
+                then("the reader can read it") {
+                    isReadable shouldBe true
+                }
+            }
         }
 
-        it("cannot read unknown classes") {
-            statusReader.isReadable(null, String::class.java, null, null) shouldBe false
-        }
+        given("another type") {
+            `when`("it is checked whether the reader can read it") {
+                val isReadable = statusReader.isReadable(
+                    type = String::class.java,
+                    genericType = String::class.java,
+                    annotations = emptyArray(),
+                    mediaType = MediaType.TEXT_PLAIN_TYPE
+                )
 
-        it("cannot read null as type") {
-            statusReader.isReadable(null, null, null, null) shouldBe false
+                then("the reader cannot read it") {
+                    isReadable shouldBe false
+                }
+            }
         }
     }
 
-    describe("readFrom") {
-        it("parses a well formatted fully specified enum value") {
-            statusReader.readFrom(
-                null,
-                null,
-                null,
-                null,
-                null,
-                "nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.in_bewerking".byteInputStream()
-            ) shouldBe StatusEnum.valueOf("IN_BEWERKING")
-        }
+    context("readFrom") {
+        given("a fully specified enum value") {
+            `when`("it is read") {
+                val status = readFrom(
+                    "nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.in_bewerking"
+                )
 
-        it("parses a well formatted enum value") {
-            statusReader.readFrom(
-                null,
-                null,
-                null,
-                null,
-                null,
-                "in_bewerking".byteInputStream()
-            ) shouldBe StatusEnum.valueOf("IN_BEWERKING")
-        }
-
-        describe("with mis-formatted data") {
-            it("errors on missing data") {
-                shouldThrow<NullPointerException> {
-                    statusReader.readFrom(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                    )
+                then("the class prefix is removed and the enum value is returned") {
+                    status shouldBe StatusEnum.IN_BEWERKING
                 }
             }
-            it("errors on empty string") {
-                shouldThrow<IllegalArgumentException> {
-                    statusReader.readFrom(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        "".byteInputStream()
-                    )
+        }
+
+        given("an enum value without class prefix") {
+            `when`("it is read") {
+                val status = readFrom("in_bewerking")
+
+                then("the enum value is returned") {
+                    status shouldBe StatusEnum.IN_BEWERKING
                 }
             }
+        }
 
-            it("errors on mis-formatted string") {
-                shouldThrow<IllegalArgumentException> {
-                    statusReader.readFrom(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        "missingPackage.unknownStatus".byteInputStream()
-                    )
+        given("an empty string") {
+            `when`("it is read") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> { readFrom("") }
+
+                then("an exception is thrown that no enum constant matches") {
+                    illegalArgumentException.message shouldBe
+                        "No enum constant nl.info.client.zgw.drc.model.generated.StatusEnum."
+                }
+            }
+        }
+
+        given("a value with an unknown prefix") {
+            `when`("it is read") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                    readFrom("missingPackage.unknownStatus")
+                }
+
+                then("an exception is thrown that no enum constant matches") {
+                    illegalArgumentException.message shouldBe
+                        "No enum constant nl.info.client.zgw.drc.model.generated.StatusEnum.MISSINGPACKAGE.UNKNOWNSTATUS"
                 }
             }
         }

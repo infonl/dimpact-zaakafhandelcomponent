@@ -5,7 +5,7 @@
 package nl.info.zac.app.signalering.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringTarget
 import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
 import nl.info.zac.identity.model.Group

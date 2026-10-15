@@ -4,13 +4,13 @@
  */
 package nl.info.zac.app.productaanvraag.model
 
-import net.atos.zac.app.shared.RESTResultaat
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.util.AllOpen
 
 @AllOpen
 class RestInboxProductaanvraagResultaat(
     resultaten: List<RestInboxProductaanvraag>,
     aantalTotaal: Long
-) : RESTResultaat<RestInboxProductaanvraag>(resultaten, aantalTotaal) {
+) : RestResultaat<RestInboxProductaanvraag>(resultaten, aantalTotaal) {
     var filterType: List<String> = emptyList()
 }

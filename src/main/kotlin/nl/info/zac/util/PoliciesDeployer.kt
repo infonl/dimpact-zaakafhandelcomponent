@@ -1,62 +1,40 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.util
 
-package net.atos.zac.util;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.Initialized
+import jakarta.enterprise.event.Observes
+import jakarta.inject.Inject
+import nl.info.client.opa.OpaAdminClient
+import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.logging.Logger
 
-import static java.lang.String.format;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Initialized;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
-import nl.info.client.opa.OpaAdminClient;
-
-public class PoliciesDeployer {
-
-    private static final String POLICIES_FOLDER_NAME = "policies";
-
-    private static final String POLICIES_FILE_NAME = "policies";
-
-    private static final String POLICIES_FILE_EXTENSION = ".rego";
-
-    private static final Logger LOG = Logger.getLogger(PoliciesDeployer.class.getName());
-
-    @Inject
-    @RestClient
-    private OpaAdminClient opaAdminClient;
-
-    public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
-        try (final InputStream policiesInputStream = getClass().getClassLoader().getResourceAsStream(format("%s/%s", POLICIES_FOLDER_NAME,
-                POLICIES_FILE_NAME));
-             final BufferedReader policiesReader = new BufferedReader(new InputStreamReader(policiesInputStream, StandardCharsets.UTF_8))) {
-            policiesReader.lines().filter(StringUtils::isNotBlank).forEach(this::deployPolicy);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
+class PoliciesDeployer @Inject constructor(
+    @RestClient private val opaAdminClient: OpaAdminClient
+) {
+    companion object {
+        private const val POLICIES_FOLDER_NAME = "policies"
+        private const val POLICIES_FILE_NAME = "policies"
+        private const val POLICIES_FILE_EXTENSION = ".rego"
+        private val LOG = Logger.getLogger(PoliciesDeployer::class.java.name)
     }
 
-    private void deployPolicy(final String policyFileName) {
-        try (final InputStream policyInputStream = getClass().getClassLoader().getResourceAsStream(format("%s/%s", POLICIES_FOLDER_NAME,
-                policyFileName))) {
-            final String policy = new String(policyInputStream.readAllBytes(), StandardCharsets.UTF_8);
-            final String moduleId = StringUtils.substringBefore(policyFileName, POLICIES_FILE_EXTENSION);
-            LOG.info(String.format("Deploying policy module: %s", moduleId));
-            opaAdminClient.policyUpdate(moduleId, policy);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
+    fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) =
+        readPoliciesResource(POLICIES_FILE_NAME).bufferedReader().useLines { lines ->
+            lines.filter { it.isNotBlank() }.forEach(::deployPolicy)
         }
+
+    private fun deployPolicy(policyFileName: String) {
+        val policy = readPoliciesResource(policyFileName).use { String(it.readAllBytes(), Charsets.UTF_8) }
+        val moduleId = policyFileName.substringBefore(POLICIES_FILE_EXTENSION)
+        LOG.info { "Deploying policy module: $moduleId" }
+        opaAdminClient.policyUpdate(moduleId, policy)
     }
+
+    private fun readPoliciesResource(fileName: String) =
+        javaClass.classLoader.getResourceAsStream("$POLICIES_FOLDER_NAME/$fileName")
+            ?: error("Resource '$POLICIES_FOLDER_NAME/$fileName' not found")
 }

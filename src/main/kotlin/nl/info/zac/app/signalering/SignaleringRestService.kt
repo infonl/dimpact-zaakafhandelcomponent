@@ -15,8 +15,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.app.shared.RestResultaat
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
@@ -66,7 +66,7 @@ class SignaleringRestService @Inject constructor(
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @Valid restSignaleringPageParameters: RestSignaleringPageParameters
-    ): RESTResultaat<RestZaakOverzicht> {
+    ): RestResultaat<RestZaakOverzicht> {
         val loggedInUser = loggedInUserInstance.get()
         return signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
             objectsCount.maxPages(restSignaleringPageParameters.rows).let { maxPages ->
@@ -76,7 +76,7 @@ class SignaleringRestService @Inject constructor(
                     )
                 }
             }
-            RESTResultaat(
+            RestResultaat(
                 signaleringService.listZakenSignaleringenPage(
                     signaleringsType = signaleringsType,
                     pageParameters = restSignaleringPageParameters,

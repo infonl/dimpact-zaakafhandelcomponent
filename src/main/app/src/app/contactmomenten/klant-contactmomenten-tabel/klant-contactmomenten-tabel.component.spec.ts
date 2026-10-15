@@ -20,7 +20,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   const user = userEvent.setup();
 
   let pendingSearches: ((
-    resultaat: GeneratedType<"RESTResultaatRestContactmoment">,
+    resultaat: GeneratedType<"RestResultaatRestContactmoment">,
   ) => void)[] = [];
   let detectChanges: () => void;
   let setLoading: jest.SpyInstance;
@@ -36,7 +36,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     ) => ({
       queryKey: ["contactmomenten", ++searchCount],
       queryFn: () =>
-        new Promise<GeneratedType<"RESTResultaatRestContactmoment">>(
+        new Promise<GeneratedType<"RestResultaatRestContactmoment">>(
           (resolve) => pendingSearches.push(resolve),
         ),
     }),
@@ -77,7 +77,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   }
 
   function resolveContactmomenten(
-    resultaat: GeneratedType<"RESTResultaatRestContactmoment">,
+    resultaat: GeneratedType<"RestResultaatRestContactmoment">,
   ) {
     pendingSearches.forEach((resolve) => resolve(resultaat));
     pendingSearches = [];
@@ -88,7 +88,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     totaal = resultaten.length,
   ) {
     resolveContactmomenten(
-      fromPartial<GeneratedType<"RESTResultaatRestContactmoment">>({
+      fromPartial<GeneratedType<"RestResultaatRestContactmoment">>({
         resultaten,
         totaal,
       }),
@@ -99,7 +99,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   afterEach(async () => {
     // a search still in flight is cancelled when the query cache is cleared, which rejects into the next test
     resolveContactmomenten(
-      fromPartial<GeneratedType<"RESTResultaatRestContactmoment">>({}),
+      fromPartial<GeneratedType<"RestResultaatRestContactmoment">>({}),
     );
     await sleep();
   });
@@ -219,7 +219,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await setup({ bsn: "999993896" });
 
     resolveContactmomenten(
-      fromPartial<GeneratedType<"RESTResultaatRestContactmoment">>({}),
+      fromPartial<GeneratedType<"RestResultaatRestContactmoment">>({}),
     );
     await sleep();
 
