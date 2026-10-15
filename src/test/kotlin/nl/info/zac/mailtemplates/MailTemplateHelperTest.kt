@@ -158,6 +158,25 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
 
+        given("A zaak without a status, such as a BPMN zaak before its first status change") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url, status = null)
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+
+            `when`("a text containing the status placeholder is resolved") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, Status: {ZAAK_STATUS}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the placeholder is replaced by an empty string") {
+                    resolvedText shouldBe "fakeText, Status: "
+                }
+            }
+        }
+
         given("A zaaktype with a generic description") {
             val zaakType = createZaakType(omschrijvingGeneriek = "fakeZaakTypeOmschrijvingGeneriek")
             val zaak = createZaak(zaaktypeUri = zaakType.url)
