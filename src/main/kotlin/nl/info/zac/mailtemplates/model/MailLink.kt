@@ -4,7 +4,6 @@
  */
 package nl.info.zac.mailtemplates.model
 
-import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringEscapeUtils
 import java.net.URI
 
@@ -13,13 +12,9 @@ class MailLink(identificatie: String, url: URI, prefix: String?, suffix: String?
 
     val url: String = StringEscapeUtils.escapeHtml4(url.toString())
 
-    val prefix: String = StringEscapeUtils.escapeHtml4(
-        prefix ?: StringUtils.EMPTY
-    ).plus(if (prefix != null) " " else "")
+    val prefix: String = StringEscapeUtils.escapeHtml4(prefix.orEmpty()).plus(if (prefix != null) " " else "")
 
-    val suffix: String = StringEscapeUtils.escapeHtml4(
-        suffix ?: StringUtils.EMPTY
-    ).let { if (suffix != null) " $it" else it }
+    val suffix: String = StringEscapeUtils.escapeHtml4(suffix.orEmpty()).let { if (suffix != null) " $it" else it }
 
     // Make sure that what is returned is FULLY encoded HTML (no injection vulnerabilities)
     fun toHtml() = "Klik om naar $prefix<a href=\"$url\" title=\"de zaakafhandelcomponent...\">$identificatie</a>$suffix te gaan."

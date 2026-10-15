@@ -59,4 +59,24 @@ class StringUtilsTest : BehaviorSpec({
             }
         }
     }
+
+    context("abbreviate") {
+        given("A string that is not longer than the maximum width") {
+            `when`("it is abbreviated") {
+                then("it is returned unchanged") {
+                    "Kerkstraat".abbreviate(10) shouldBe "Kerkstraat"
+                }
+            }
+        }
+
+        given("A string that is longer than the maximum width") {
+            `when`("it is abbreviated") {
+                val abbreviated = "Kerkstraat 12".abbreviate(10)
+
+                then("it is cut off and ends with an ellipsis, so that it is exactly the maximum width") {
+                    abbreviated shouldBe "Kerkstr..."
+                }
+            }
+        }
+    }
 })

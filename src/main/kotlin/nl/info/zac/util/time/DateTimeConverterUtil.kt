@@ -4,7 +4,6 @@
  */
 package nl.info.zac.util.time
 
-import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -28,7 +27,7 @@ fun convertToDate(zonedDateTime: ZonedDateTime): Date =
     Date.from(zonedDateTime.withZoneSameInstant(DEFAULT_ZONE_ID).toInstant())
 
 fun convertToDate(isoString: String): Date? =
-    if (StringUtils.isNotBlank(isoString)) convertToDate(ZonedDateTime.parse(isoString)) else null
+    if (isoString.isNotBlank()) convertToDate(ZonedDateTime.parse(isoString)) else null
 
 fun convertToLocalDateTime(zonedDateTime: ZonedDateTime): LocalDateTime =
     zonedDateTime.withZoneSameInstant(DEFAULT_ZONE_ID).toLocalDateTime()

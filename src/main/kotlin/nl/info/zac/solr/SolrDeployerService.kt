@@ -17,7 +17,6 @@ import nl.info.zac.solr.FieldType.STRING
 import nl.info.zac.solr.exception.SolrDeploymentException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.lang3.StringUtils
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.request.SolrPing
@@ -101,7 +100,7 @@ class SolrDeployerService @Inject constructor(
     private fun getCurrentVersion(): Int =
         SchemaRequest.Fields().process(solrClient).fields
             .map { it[NAME].toString() }.firstOrNull { it.startsWith(VERSION_FIELD_PREFIX) }
-            ?.let { StringUtils.substringAfter(it, VERSION_FIELD_PREFIX).toInt() }
+            ?.let { it.substringAfter(VERSION_FIELD_PREFIX).toInt() }
             ?: 0
 
     private fun apply(schemaUpdate: SolrSchemaUpdate) {
