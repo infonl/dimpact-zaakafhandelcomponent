@@ -136,6 +136,28 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
+    given("BRP Persoon with a domestic address with a blank house number addition and a blank postal code") {
+        val persoon = createPersoon(
+            verblijfplaats = Adres().apply {
+                verblijfadres = VerblijfadresBinnenland().apply {
+                    officieleStraatnaam = "street name"
+                    huisnummer = 11
+                    huisnummertoevoeging = " "
+                    postcode = " "
+                    woonplaats = "city"
+                }
+            }
+        )
+
+        `when`("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            then("the blank address details are left out, so no separator is doubled") {
+                restPersoon.verblijfplaats shouldBe "street\u00A0name\u00A011,\u00A0city"
+            }
+        }
+    }
+
     given("BRP Persoon with foreign address") {
         val persoon = createPersoon(
             verblijfplaats = VerblijfplaatsBuitenland().apply {

@@ -199,4 +199,36 @@ class RestBagObjectTest : BehaviorSpec({
             }
         }
     }
+
+    context("createHuisnummerWeergave") {
+        given("A huisnummer with a huisletter and a huisnummertoevoeging") {
+            `when`("the huisnummer weergave is created") {
+                val huisnummerWeergave = createHuisnummerWeergave(12, "A", "bis")
+
+                then("the huisletter follows the huisnummer and the huisnummertoevoeging follows a hyphen") {
+                    huisnummerWeergave shouldBe "12A-bis"
+                }
+            }
+        }
+
+        given("A huisnummer with a blank huisletter and a blank huisnummertoevoeging") {
+            `when`("the huisnummer weergave is created") {
+                val huisnummerWeergave = createHuisnummerWeergave(12, " ", " ")
+
+                then("only the huisnummer is shown") {
+                    huisnummerWeergave shouldBe "12"
+                }
+            }
+        }
+
+        given("A huisnummer with only a huisnummertoevoeging") {
+            `when`("the huisnummer weergave is created") {
+                val huisnummerWeergave = createHuisnummerWeergave(12, null, "bis")
+
+                then("the huisnummertoevoeging follows the huisnummer after a hyphen") {
+                    huisnummerWeergave shouldBe "12-bis"
+                }
+            }
+        }
+    }
 })

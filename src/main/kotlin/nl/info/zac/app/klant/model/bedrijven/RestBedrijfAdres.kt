@@ -55,9 +55,9 @@ internal fun BinnenlandsAdres.toFormattedAddress(): String = when {
             .replace(" ", NON_BREAKING_SPACE)
     ).joinNonBlank(", ")
     else -> {
-        val huisnummerStr = listOfNotNull(huisnummer?.toString(), huisletter).joinToString("")
+        val huisnummerMetHuisletter = listOf(huisnummer?.toString(), huisletter).joinNonBlank()
         listOf(
-            listOf(straatnaam, huisnummerStr).joinNonBlank(NON_BREAKING_SPACE)
+            listOf(straatnaam, huisnummerMetHuisletter).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE),
             listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE)
@@ -84,9 +84,9 @@ internal fun BasisprofielAdres.toFormattedAddress(): String = when {
         land
     ).joinNonBlank(", ")
     else -> {
-        val huisnummerStr = listOfNotNull(huisnummer?.toString(), huisletter).joinToString("")
+        val huisnummerMetHuisletter = listOf(huisnummer?.toString(), huisletter).joinNonBlank()
         listOf(
-            listOf(straatnaam, huisnummerStr, huisnummerToevoeging).joinNonBlank(NON_BREAKING_SPACE)
+            listOf(straatnaam, huisnummerMetHuisletter, huisnummerToevoeging).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE),
             listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE)
@@ -107,9 +107,9 @@ internal fun VestigingsprofielAdres.toFormattedAddress(): String = when {
         land
     ).joinNonBlank(", ")
     else -> {
-        val huisnummerStr = listOfNotNull(huisnummer?.toString(), huisletter).joinToString("")
+        val huisnummerMetHuisletter = listOf(huisnummer?.toString(), huisletter).joinNonBlank()
         listOf(
-            listOf(straatnaam, huisnummerStr, huisnummerToevoeging).joinNonBlank(NON_BREAKING_SPACE)
+            listOf(straatnaam, huisnummerMetHuisletter, huisnummerToevoeging).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE),
             listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
                 .replace(" ", NON_BREAKING_SPACE)
