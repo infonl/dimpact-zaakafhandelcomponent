@@ -34,10 +34,12 @@
 
 ## 3. Layer 3: one process model step (`feature/PZ-12754-step-proces-model`)
 
-- [ ] 3.1 Create `parameters-step-proces-model`. It offers CMMN or BPMN and then a definition for an unsaved
-      configuration, and offers only definitions of the bound engine for a saved one. Verify both cases with a spec.
-- [ ] 3.2 Replace step 1 of both edit components and `parameters-select-process-model-method` with the step.
-      Delete `parameters-select-process-model-method` and move its spec into the step spec. Verify `npm test`.
+- [x] 3.1 Create `parameters-step-proces-model`. It offers CMMN or BPMN for an unsaved configuration, and shows the
+      bound engine without a choice for a saved one. The definition stays in the algemeen step (layer 4). Verify both
+      cases with a spec.
+- [x] 3.2 Replace step 1 of both edit components and the markup of `parameters-select-process-model-method` with the
+      step. The select component stays as the thin wrapper that the shell renders until layer 5 deletes the shell.
+      Move its heading test to the step spec. Verify `npm test`.
 - [ ] 3.3 Run `./gradlew spotlessApply` and open the PR (`refactor(admin): …`, `Solves PZ-12754`).
 
 ## 4. Layer 4: shared algemeen step (`feature/PZ-12754-step-algemeen`)
@@ -74,7 +76,8 @@
 - [ ] 5.8 Frontend: change the resolver to one `GET`. Use TanStack `queryOptions()` and `mutationOptions()` in
       `zaakafhandel-parameters.service.ts` for the read and the `PUT`, and point the `parameters/:uuid` route at the
       container. Verify the resolver spec and `npm test`.
-- [ ] 5.9 Delete `parameters-edit-cmmn`, `parameters-edit-bpmn`, and `parameters-edit-shell`, after moving their
+- [ ] 5.9 Delete `parameters-edit-cmmn`, `parameters-edit-bpmn`, `parameters-edit-shell`, and
+      `parameters-select-process-model-method`, after moving their
       remaining specs (humantasks, acties, mail, all-steps, selected-index-start) to the steps or the container.
       Verify `npm test`, `npm run lint`, and `ngc -p tsconfig.app.json`.
 - [ ] 5.10 Run the e2e admin scenarios with the local Docker stack, and save one CMMN and one BPMN configuration

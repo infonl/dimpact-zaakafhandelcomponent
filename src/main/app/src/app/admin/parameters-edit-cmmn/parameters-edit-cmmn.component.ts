@@ -51,7 +51,6 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacInput } from "../../shared/form/input/input";
-import { ZacRadio } from "../../shared/form/radio/radio";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacToggle } from "../../shared/form/toggle/toggle";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -62,10 +61,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { toI18nKey } from "../../shared/utils/i18n-key";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
-import {
-  ProcessModelMethod,
-  ProcessModelMethodSelection,
-} from "../model/parameters/process-model-method";
+import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
 import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
 import { ParametersStepBeeindigingComponent } from "../parameters-edit/steps/parameters-step-beeindiging/parameters-step-beeindiging.component";
 import {
@@ -78,6 +74,8 @@ import {
   toBrpDoelbindingen,
 } from "../parameters-edit/steps/parameters-step-koppelingen/koppelingen-form";
 import { ParametersStepKoppelingenComponent } from "../parameters-edit/steps/parameters-step-koppelingen/parameters-step-koppelingen.component";
+import { ParametersStepProcesModelComponent } from "../parameters-edit/steps/parameters-step-proces-model/parameters-step-proces-model.component";
+import { createProcessModelForm } from "../parameters-edit/steps/parameters-step-proces-model/process-model-form";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
@@ -105,13 +103,13 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
     TranslateModule,
     ZacSelect,
     ZacToggle,
-    ZacRadio,
     ZacInput,
     NgClass,
     StaticTextComponent,
     SmartDocumentsFormComponent,
     ParametersStepBeeindigingComponent,
     ParametersStepKoppelingenComponent,
+    ParametersStepProcesModelComponent,
   ],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
@@ -167,20 +165,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   >();
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
-  protected readonly modellingMethodOptions: Array<{
-    label: ProcessModelMethod;
-    value: ProcessModelMethod;
-  }> = [
-    { label: "CMMN", value: "CMMN" },
-    { label: "BPMN", value: "BPMN" },
-  ];
-
-  protected cmmnBpmnFormGroup = this.formBuilder.group({
-    options: this.formBuilder.control<{
-      label: ProcessModelMethod;
-      value: ProcessModelMethod;
-    }>({ label: "CMMN", value: "CMMN" }, []),
-  });
+  protected cmmnBpmnFormGroup = createProcessModelForm("CMMN");
 
   algemeenFormGroup = this.formBuilder.group({
     caseDefinition:

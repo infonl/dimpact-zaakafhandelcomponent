@@ -5,18 +5,14 @@
 
 import { Component, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
-import { MatIconModule } from "@angular/material/icon";
 import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { ZacRadio } from "src/app/shared/form/radio/radio";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import {
-  ProcessModelMethod,
-  ProcessModelMethodSelection,
-} from "../model/parameters/process-model-method";
+import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
+import { ParametersStepProcesModelComponent } from "../parameters-edit/steps/parameters-step-proces-model/parameters-step-proces-model.component";
+import { createProcessModelForm } from "../parameters-edit/steps/parameters-step-proces-model/process-model-form";
 
 @Component({
   selector: "zac-parameters-select-process-model-method",
@@ -24,22 +20,13 @@ import {
   standalone: true,
   imports: [
     MatStepperModule,
-    MatIconModule,
     MatButtonModule,
     TranslateModule,
-    ZacRadio,
+    ParametersStepProcesModelComponent,
   ],
 })
 export class ParameterSelectProcessModelMethodComponent {
   readonly switchModellingMethod = output<ProcessModelMethodSelection>();
-
-  protected readonly modellingMethodOptions: Array<{
-    label: string;
-    value: ProcessModelMethod;
-  }> = [
-    { label: "CMMN", value: "CMMN" },
-    { label: "BPMN", value: "BPMN" },
-  ];
 
   protected caseParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
@@ -60,17 +47,9 @@ export class ParameterSelectProcessModelMethodComponent {
     zaakbeeindigParameters: [],
   };
 
-  protected cmmnBpmnFormGroup = this.formBuilder.group({
-    options: this.formBuilder.control<{
-      value: ProcessModelMethod;
-      label: string;
-    } | null>(null, [Validators.required]),
-  });
+  protected cmmnBpmnFormGroup = createProcessModelForm(null);
 
-  constructor(
-    private readonly formBuilder: FormBuilder,
-    private readonly route: ActivatedRoute,
-  ) {
+  constructor(private readonly route: ActivatedRoute) {
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       this.caseParameters = data.parameters.zaakafhandelParameters;
     });
