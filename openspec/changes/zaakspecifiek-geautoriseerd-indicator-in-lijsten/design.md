@@ -33,7 +33,6 @@ The Solr documents `ZaakZoekObject`, `TaakZoekObject` and `DocumentZoekObject` a
 
 **Non-Goals:**
 - A page title with the zaaknummer on the zaakdetailpagina (the Figma frame shows one; ZAC does not have it).
-- A new or different tooltip or screen-reader text; the existing title text is reused as is.
 - The header of the procesverloop side panel on the zaakdetailpagina: it belongs to the zaak that is already open,
   whose zaak details card shows the lock.
 - A zaaknummer inside running text, such as the explanation "Koppel zaak 'X' aan een andere zaak"; the Figma design
@@ -52,18 +51,31 @@ A standalone component `ZaakspecifiekGeautoriseerdIconComponent` (selector `zac-
 in `src/main/app/src/app/shared/zaakspecifiek-geautoriseerd-icon/`, with one required signal input
 `isZaakspecifiekGeautoriseerd: boolean | null | undefined`. The generated frontend types make every backend boolean
 optional, and some also nullable (such as `RestZaak.isZaakspecifiekGeautoriseerd`), so the input accepts `null` and
-`undefined`, which show no lock, like `false`. Its template is the current markup of the zaakdetailpagina, with the input
-in place of `zaak().isZaakspecifiekGeautoriseerd`:
+`undefined`, which show no lock, like `false`. Its template starts from the current markup of the zaakdetailpagina,
+with the input in place of `zaak().isZaakspecifiekGeautoriseerd`:
 
 ```html
 @if (isZaakspecifiekGeautoriseerd()) {
   <mat-icon
-    title="{{ 'zaak.is-zaakspecifiek-geautoriseerd' | translate }}"
+    aria-hidden="false"
+    role="img"
+    [attr.aria-label]="'zaak.is-zaakspecifiek-geautoriseerd' | translate"
+    [matTooltip]="'zaak.is-zaakspecifiek-geautoriseerd' | translate"
     class="zaakspecifiek-geautoriseerd-icon"
     >lock</mat-icon
   >
 }
 ```
+
+The existing text `zaak.is-zaakspecifiek-geautoriseerd` is now used in two ways instead of as a `title`:
+- As the accessible name of the lock. `MatIcon` hides every icon from screen readers by default, and a `title` on a
+  hidden icon is not announced either, so the lock on the zaakdetailpagina never reached screen reader users. With
+  `aria-hidden="false"`, `role="img"` and the text as `aria-label`, the lock is announced as an image with that name.
+  Now that the lock appears in many places, leaving it out of the accessibility tree would hide the information in
+  all of them.
+- As a Material tooltip on hover, in the same style as the other tooltips in ZAC, instead of the browser's native
+  `title` tooltip. The tooltip adds no second description, because Material skips it when it equals the
+  `aria-label`.
 
 The `.zaakspecifiek-geautoriseerd-icon` style moves from `zaak-details-card.component.less` to the component.
 `zaak-details-card` uses the component, so there is one lock in the code base.
