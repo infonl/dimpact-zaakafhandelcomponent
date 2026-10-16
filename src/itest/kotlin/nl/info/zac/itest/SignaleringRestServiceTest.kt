@@ -10,6 +10,7 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
@@ -83,6 +84,27 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
                 then("the response should be 'ok'") {
                     response.code shouldBe HTTP_OK
+                }
+            }
+        }
+
+        `when`("the signalering types for which the dashboard is turned on are requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/signaleringen/typen/dashboard",
+                testUser = BEHANDELAAR_1
+            )
+
+            then("all signalering types for which the dashboard was turned on are returned") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                with(JSONArray(responseBody)) {
+                    (0 until length()).map(::getString) shouldContainExactlyInAnyOrder listOf(
+                        "ZAAK_DOCUMENT_TOEGEVOEGD",
+                        "ZAAK_OP_NAAM",
+                        "ZAAK_VERLOPEND",
+                        "TAAK_OP_NAAM"
+                    )
                 }
             }
         }
