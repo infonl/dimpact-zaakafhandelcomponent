@@ -3256,6 +3256,252 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
+        given("an unmarked zaak and an update that asks for the zaak not to be marked") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val patchedZaak = createZaak()
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = false
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                )
+            } returns zaakRechten
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zgwApiService.findGroepForZaak(zaak) } returns createRolOrganisatorischeEenheid(
+                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(identificatie = "fakeId")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+            every {
+                zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
+                    zaakType = zaakType,
+                    requestedMarking = false,
+                    isAlreadyZaakspecifiekGeautoriseerd = false,
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
+                    loggedInUser = loggedInUser
+                )
+            } returns false
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every {
+                restZaakConverter.toRestZaak(
+                    zaak = patchedZaak,
+                    zaakType = zaakType,
+                    zaakRechten = zaakRechten,
+                    loggedInUser = loggedInUser
+                )
+            } returns createRestZaak()
+            every {
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
+
+            `when`("the update is requested") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the update succeeds and there is nothing to remove") {
+                    verify(exactly = 1) { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) }
+                    verify(exactly = 0) { zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaak that is zaakspecifiek geautoriseerd and an update that removes the marking") {
+            val changeDescription = "fakeReden"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val patchedZaak = createZaak()
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = false
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                )
+            } returns zaakRechten
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zgwApiService.findGroepForZaak(zaak) } returns createRolOrganisatorischeEenheid(
+                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(identificatie = "fakeId")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+            every {
+                zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
+                    zaakType = zaakType,
+                    requestedMarking = false,
+                    isAlreadyZaakspecifiekGeautoriseerd = true,
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
+                    loggedInUser = loggedInUser
+                )
+            } returns false
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every { zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription) } just runs
+            every {
+                restZaakConverter.toRestZaak(
+                    zaak = patchedZaak,
+                    zaakType = zaakType,
+                    zaakRechten = zaakRechten,
+                    loggedInUser = loggedInUser
+                )
+            } returns createRestZaak()
+            every {
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
+
+            `when`("the update is requested") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the zaak is patched and then its zaakspecifieke autorisatie is removed with the reden") {
+                    verifyOrder {
+                        zrcClientService.patchZaak(zaak.uuid, any(), changeDescription)
+                        zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription)
+                    }
+                }
+
+                and("the returned zaak is converted only after the removal") {
+                    verifyOrder {
+                        zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription)
+                        restZaakConverter.toRestZaak(
+                            zaak = patchedZaak,
+                            zaakType = zaakType,
+                            zaakRechten = zaakRechten,
+                            loggedInUser = loggedInUser
+                        )
+                    }
+                }
+            }
+        }
+
+        given("a zaak that is zaakspecifiek geautoriseerd and an update that removes the marking and hands it over") {
+            val changeDescription = "fakeReden"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val restGroup = createRestGroup(id = "fakeNewGroupId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeOtherUserId"),
+                restGroup = restGroup,
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = false
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+            val patchedZaak = createZaak()
+            val zaakAssignment = createZaakAssignment(
+                group = createGroup(id = restGroup.id),
+                user = createUser(id = "fakeOtherUserId")
+            )
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(
+                    zaak = zaak,
+                    zaaktype = zaakType,
+                    loggedInUser = loggedInUser,
+                    zaakAutorisatieGegevens = any()
+                )
+            } returns zaakRechten
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zgwApiService.findGroepForZaak(zaak) } returns createRolOrganisatorischeEenheid(
+                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheidIdentificatie(identificatie = "fakeId")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+            every {
+                zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
+                    zaakType = zaakType,
+                    requestedMarking = false,
+                    isAlreadyZaakspecifiekGeautoriseerd = true,
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId", "fakeOtherUserId"),
+                    loggedInUser = loggedInUser
+                )
+            } returns false
+            every {
+                zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                    zaak = zaak,
+                    isZaakspecifiekGeautoriseerd = false,
+                    currentBehandelaarId = "fakeBehandelaarId",
+                    requestedBehandelaarId = "fakeOtherUserId"
+                )
+            } just runs
+            every {
+                zaakService.readZaakAssignment(groupId = restGroup.id, userName = "fakeOtherUserId")
+            } returns zaakAssignment
+            every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every { zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription) } just runs
+            every {
+                restZaakConverter.toRestZaak(
+                    zaak = patchedZaak,
+                    zaakType = zaakType,
+                    zaakRechten = zaakRechten,
+                    loggedInUser = loggedInUser
+                )
+            } returns createRestZaak()
+            every {
+                zaaktypeConfigurationService.findConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { zaakProcessService.updateCommunicatiekanaal(any(), any()) } just runs
+
+            `when`("the update is requested") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the marking is removed before the zaak is handed over, so the previous behandelaar gets no rol") {
+                    verifyOrder {
+                        zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, changeDescription)
+                        zaakService.assignZaak(zaak, zaakAssignment, changeDescription)
+                    }
+                }
+
+                and("the handover is checked as one of a zaak that is not zaakspecifiek geautoriseerd") {
+                    verify(exactly = 1) {
+                        zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
+                            zaak = zaak,
+                            isZaakspecifiekGeautoriseerd = false,
+                            currentBehandelaarId = "fakeBehandelaarId",
+                            requestedBehandelaarId = "fakeOtherUserId"
+                        )
+                    }
+                }
+            }
+        }
+
         given("a zaak that is zaakspecifiek geautoriseerd and an update naming a different behandelaar") {
             val changeDescription = "change description"
             val zaak = createZaak()

@@ -44,7 +44,6 @@ import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
 import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
 import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.authentication.createLoggedInUser
@@ -370,21 +369,17 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
 
-            `when`("an attempt is made to lift the marking") {
-                val zaakspecifiekeAutorisatieCannotBeLiftedException =
-                    shouldThrow<ZaakspecifiekeAutorisatieCannotBeLiftedException> {
-                        zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
-                            zaakType = zaakType,
-                            requestedMarking = false,
-                            isAlreadyZaakspecifiekGeautoriseerd = true,
-                            currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                            loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
-                        )
-                    }
+            `when`("the marking is to be removed") {
+                val shouldMark = zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
+                    zaakType = zaakType,
+                    requestedMarking = false,
+                    isAlreadyZaakspecifiekGeautoriseerd = true,
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
+                    loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                )
 
-                then("the request is refused with its own error code") {
-                    zaakspecifiekeAutorisatieCannotBeLiftedException.errorCode shouldBe
-                        ErrorCode.ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_CANNOT_BE_LIFTED
+                then("the zaak is not marked") {
+                    shouldMark shouldBe false
                 }
             }
         }
@@ -1018,6 +1013,34 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
         }
+        given("a zaak whose marking is removed before the taakbehandelaar is granted access under the lock") {
+            val zaak = createZaak()
+            val rollen = emptyList<Rol<*>>()
+            every {
+                zrcClientService.listZaakeigenschappen(zaak.uuid)
+            } returnsMany listOf(listOf(geautoriseerdZaakEigenschap), emptyList())
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns emptyList()
+
+            `when`("the taakbehandelaar is granted access") {
+                val isGranted = zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak,
+                    "fakeTaakbehandelaarId"
+                )
+
+                then("no rol is added that would return when the zaak is marked again, and nothing is reindexed") {
+                    isGranted shouldBe false
+                    verify(exactly = 0) {
+                        zrcClientService.createRol(any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
+                }
+            }
+        }
     }
 
     context("Listing the medewerkers who are individually authorised for a zaakspecifiek geautoriseerde zaak") {
@@ -1360,6 +1383,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
             } returns emptySet()
             every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns listOf(behandelaarRol)
             every {
@@ -1405,6 +1429,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
             } returns emptySet()
             every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
             every {
@@ -1446,6 +1471,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
             } returns emptySet()
             every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
             every {
@@ -1495,6 +1521,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
             } returns emptySet()
             every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
             every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
             every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
             every {
@@ -1724,6 +1751,46 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 }
             }
         }
+        given("a zaak whose marking was removed after the request read it") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
+            val rollen = emptyList<Rol<*>>()
+            every {
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
+            } returns listOf(createGroup(id = "fakeGroepId"))
+            every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
+            every {
+                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                    ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
+                    "fakeZaaktypeOmschrijving"
+                )
+            } returns emptySet()
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns emptyList()
+
+            `when`("a medewerker is added") {
+                val zaakNotZaakspecifiekGeautoriseerdException = shouldThrow<ZaakNotZaakspecifiekGeautoriseerdException> {
+                    zaakspecifiekeAutorisatieService.addZaakspecifiekGeautoriseerdeMedewerker(
+                        zaak = zaak,
+                        zaakType = zaakType,
+                        zaakAutorisatieGegevens = geautoriseerdeZaakAutorisatieGegevens,
+                        groepId = "fakeGroepId",
+                        medewerkerId = "fakeMedewerkerId"
+                    )
+                }
+
+                then("the request is refused and no rol is added that would return when the zaak is marked again") {
+                    zaakNotZaakspecifiekGeautoriseerdException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD
+                    verify(exactly = 0) { zrcClientService.createRol(any(), any()) }
+                }
+            }
+        }
     }
 
     context("Marking a zaak as zaakspecifiek geautoriseerd") {
@@ -1816,6 +1883,63 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any())
                     }
+                }
+            }
+        }
+    }
+
+    context("Removing the zaakspecifieke autorisatie of a zaak") {
+        given("a marked zaak with two zaakspecifiek geautoriseerde medewerkers") {
+            val zaak = createZaak()
+            val firstGeautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId1")
+            )
+            val secondGeautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeMedewerkerId2")
+            )
+            val otherZaakEigenschap = createZaakEigenschap(naam = "fakeOtherEigenschapNaam")
+            var isLockHeldDuringCommit = false
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak)
+            } returns listOf(firstGeautoriseerdeMedewerkerRol, secondGeautoriseerdeMedewerkerRol)
+            every { zrcClientService.deleteRol(any(), "fakeReden") } just runs
+            every {
+                zrcClientService.listZaakeigenschappen(zaak.uuid)
+            } returns listOf(geautoriseerdZaakEigenschap, otherZaakEigenschap)
+            every {
+                zrcClientService.deleteZaakeigenschap(zaak.uuid, geautoriseerdZaakEigenschap.uuid, "fakeReden")
+            } just runs
+            every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } just runs
+            every { indexingService.commit() } answers {
+                isLockHeldDuringCommit = zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).isHeldByCurrentThread
+            }
+
+            `when`("the zaakspecifieke autorisatie is removed") {
+                zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, "fakeReden")
+
+                then("every zaakspecifiek geautoriseerde medewerker rol is deleted before the marking, with the reden") {
+                    verifyOrder {
+                        zrcClientService.deleteRol(firstGeautoriseerdeMedewerkerRol, "fakeReden")
+                        zrcClientService.deleteRol(secondGeautoriseerdeMedewerkerRol, "fakeReden")
+                        zrcClientService.deleteZaakeigenschap(zaak.uuid, geautoriseerdZaakEigenschap.uuid, "fakeReden")
+                    }
+                }
+
+                and("other zaakeigenschappen are kept") {
+                    verify(exactly = 0) {
+                        zrcClientService.deleteZaakeigenschap(zaak.uuid, otherZaakEigenschap.uuid, any())
+                    }
+                }
+
+                and("the zaak, its taken and its documenten are reindexed and committed under the lock") {
+                    verifyOrder {
+                        zrcClientService.deleteZaakeigenschap(any(), any(), any())
+                        indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
+                        indexingService.commit()
+                    }
+                    isLockHeldDuringCommit shouldBe true
                 }
             }
         }

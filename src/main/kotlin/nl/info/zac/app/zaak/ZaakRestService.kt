@@ -652,6 +652,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("zaak/{uuid}")
+    @Suppress("LongMethod")
     fun updateZaak(
         @PathParam("uuid") zaakUUID: UUID,
         @Valid restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens
@@ -674,11 +675,14 @@ class ZaakRestService @Inject constructor(
             restZaak = restZaakEditMetRedenGegevens.zaak,
             currentBehandelaarId = currentBehandelaarId
         )
+        val shouldZaakspecifiekeAutorisatieBeRemoved = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
+            restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd == false
         val zaakAssignment = requestedAssignment?.let {
             assertPolicy(zaakRechten.canToekennen)
             zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                 zaak = zaak,
-                isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
+                isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
+                    !shouldZaakspecifiekeAutorisatieBeRemoved,
                 currentBehandelaarId = currentBehandelaarId,
                 requestedBehandelaarId = it.behandelaarId
             )
@@ -698,6 +702,9 @@ class ZaakRestService @Inject constructor(
         )
         if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
             zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+        }
+        if (shouldZaakspecifiekeAutorisatieBeRemoved) {
+            zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, restZaakEditMetRedenGegevens.reden)
         }
         zaakAssignment?.let {
             zaakService.assignZaak(zaak = zaak, zaakAssignment = it, reason = restZaakEditMetRedenGegevens.reden)

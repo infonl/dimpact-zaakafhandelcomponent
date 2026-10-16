@@ -9,7 +9,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import nl.info.client.zgw.model.createZaak
@@ -84,6 +86,32 @@ class ZaakspecifiekGeautoriseerdTest : BehaviorSpec({
             then("the marking fails and nothing is recorded in the zaakregister") {
                 exception.message shouldBe "fakeMessage"
                 verify(exactly = 0) { zrcClientService.createEigenschap(any(), any()) }
+            }
+        }
+    }
+
+    given("a zaak with the zaakspecifiek geautoriseerd eigenschap and another eigenschap") {
+        val zaak = createZaak()
+        val geautoriseerdZaakEigenschap = createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        val otherZaakEigenschap = createZaakEigenschap(naam = "fakeOtherEigenschapNaam")
+
+        every {
+            zrcClientService.listZaakeigenschappen(zaak.uuid)
+        } returns listOf(geautoriseerdZaakEigenschap, otherZaakEigenschap)
+        every {
+            zrcClientService.deleteZaakeigenschap(zaak.uuid, geautoriseerdZaakEigenschap.uuid, "fakeReden")
+        } just runs
+
+        `when`("the zaak is unmarked") {
+            zrcClientService.unmarkZaakspecifiekGeautoriseerd(zaak.uuid, "fakeReden")
+
+            then("only the zaakspecifiek geautoriseerd eigenschap is deleted, with the reden") {
+                verify(exactly = 1) {
+                    zrcClientService.deleteZaakeigenschap(zaak.uuid, geautoriseerdZaakEigenschap.uuid, "fakeReden")
+                }
+                verify(exactly = 0) {
+                    zrcClientService.deleteZaakeigenschap(zaak.uuid, otherZaakEigenschap.uuid, any())
+                }
             }
         }
     }

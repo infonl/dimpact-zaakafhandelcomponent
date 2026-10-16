@@ -172,6 +172,10 @@ interface ZrcClient {
         zaakeigenschap: ZaakEigenschap
     ): ZaakEigenschap
 
+    @DELETE
+    @Path("zaken/{zaak_uuid}/zaakeigenschappen/{uuid}")
+    fun zaakeigenschapDelete(@PathParam("zaak_uuid") zaakUUID: UUID, @PathParam("uuid") uuid: UUID)
+
     @POST
     @Path("zaak_afsluiten/{uuid}")
     fun zaakAfsluiten(@PathParam("uuid") uuid: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten
