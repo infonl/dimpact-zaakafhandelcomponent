@@ -79,7 +79,6 @@ class HealthCheckService @Inject constructor(
         }
 
     fun controleerZaaktype(zaaktypeUrl: URI): ZaaktypeInrichtingscheck {
-        ztcClientService.resetCacheTimeToNow()
         ztcClientService.readZaaktype(zaaktypeUrl).let { zaaktype ->
             zaaktype.url.extractUuid().let {
                 return inrichtingscheck(it, zaaktype)

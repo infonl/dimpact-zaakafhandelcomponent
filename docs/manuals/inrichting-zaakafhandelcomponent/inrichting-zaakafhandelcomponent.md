@@ -690,6 +690,7 @@ ZAC gebruikt het roltype voor de medewerkers die toegang houden tot de zaak, zoa
 Medewerkers met dit roltype verschijnen niet in het tabblad 'Betrokkenen' van de zaak, en een medewerker kan ze daar niet ontkoppelen.
 
 ZAC haalt de gewijzigde gegevens op zodra Open Zaak een notificatie over het gewijzigde zaaktype stuurt.
+Wil je de gegevens direct ophalen, open dan als functioneel beheerder `https://<zac-host>/rest/admin/util/cache/ztc/clear` in de browser.
 
 In de zaakafhandelparameters van het zaaktype toont het veld 'Zaakspecifiek autoriseerbaar' of het zaaktype zaakspecifiek autoriseerbaar is ('Ja' of 'Nee').
 De beheerder kan dit veld niet wijzigen. ZAC bepaalt de waarde uit de zaaktypecatalogus.

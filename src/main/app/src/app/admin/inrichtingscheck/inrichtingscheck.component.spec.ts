@@ -429,14 +429,6 @@ describe(InrichtingscheckComponent.name, () => {
     expect(screen.getByText("msg.loading")).toBeInTheDocument();
   });
 
-  it("should not offer a button to synchronise the zaaktype catalogus", () => {
-    expect(
-      screen.queryByRole("button", {
-        name: "health-check.synchroniseer.ztc.button",
-      }),
-    ).not.toBeInTheDocument();
-  });
-
   it("should show 'geen gegevens' message when data source is empty and not loading", () => {
     component["dataSource"].data = [];
     component["loadingZaaktypes"] = false;

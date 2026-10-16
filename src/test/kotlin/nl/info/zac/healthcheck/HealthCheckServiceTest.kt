@@ -31,7 +31,6 @@ import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuration.ConfigurationService
 import java.net.URI
-import java.time.ZonedDateTime
 import java.util.Optional
 import java.util.UUID
 
@@ -62,7 +61,6 @@ class HealthCheckServiceTest : BehaviorSpec({
             ztcClientService
         )
 
-        every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
             zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
@@ -170,7 +168,6 @@ class HealthCheckServiceTest : BehaviorSpec({
             ztcClientService
         )
 
-        every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
             zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
@@ -275,7 +272,6 @@ class HealthCheckServiceTest : BehaviorSpec({
             ztcClientService
         )
 
-        every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
             zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
@@ -372,7 +368,6 @@ class HealthCheckServiceTest : BehaviorSpec({
             ztcClientService
         )
 
-        every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
             zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
