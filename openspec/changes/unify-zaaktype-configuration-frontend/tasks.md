@@ -1,6 +1,6 @@
 ## 0. Baseline and stack
 
-- [ ] 0.1 Read `PZ-12754-rfc-unify-zaaktype-configuration.md` from PZ-12754. Record every difference with design.md
+- [x] 0.1 Read `PZ-12754-rfc-unify-zaaktype-configuration.md` from PZ-12754. Record every difference with design.md
       in this change before layer 5 starts, or record that there is none.
 - [x] 0.2 The bottom layer of the stack is the branch that holds this OpenSpec change
       (`PZ-12754-zaakafhandelparameters-za-ps-frontend-backend-api-code-voor-bpmn-en-cmmn-vereenvoudigen`).
