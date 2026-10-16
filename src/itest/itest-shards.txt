@@ -109,3 +109,4 @@ nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnSmartDocumentsTest
 nl.info.zac.itest.ZaaktypeConfigurationRestServiceTest
 nl.info.zac.itest.ZaaktypeConfigurationRestServiceRoundTripTest
 nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnProductaanvraagtypeTest
+nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnMailTest

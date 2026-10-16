@@ -48,7 +48,6 @@ export class ParametersStepAlgemeenComponent {
   readonly form = input.required<AlgemeenForm>();
   readonly zaaktype = input.required<Zaaktype>();
   readonly isZaakspecifiekAutoriseerbaar = input(false);
-  readonly showWarningWindows = input(true);
 
   private readonly identityService = inject(IdentityService);
 

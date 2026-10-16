@@ -226,5 +226,18 @@
         </mat-card-content>
       }
     </mat-card>
+  } @else {
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{ "gegevens.mail.ontvangstbevestiging" | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <p>
+          {{ "gegevens.mail.ontvangstbevestiging.door-proces" | translate }}
+        </p>
+      </mat-expansion-panel>
+    </mat-accordion>
   }
 </div>
