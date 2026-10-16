@@ -16,11 +16,13 @@ composed payloads (see design.md, D1).
 
 - **BREAKING (internal API)** One REST resource for the configuration of a zaaktype:
   `GET` and `PUT /zaakafhandelparameters/{zaaktypeUUID}`, and `GET /zaakafhandelparameters` for the list.
-  - `RestZaaktypeConfiguration` holds the engine-agnostic settings, a `processEngine` field, and one
-    engine-specific block: `cmmn` or `bpmn`.
-  - The `cmmn` block holds the case definition, the humantask parameters, the user event listener parameters,
-    the intake and afronden mail options, and the automatic confirmation email.
-  - The `bpmn` block holds the process definition key.
+  - `RestZaaktypeConfiguration` is one flat payload for both engines. Its `caseDefinition` becomes
+    `processDefinition`, which names the engine, the key, the name, and the plan item definitions of the process
+    definition. It is the only field that names an engine.
+  - The plan item settings (humantask parameters, user event listener parameters, intake and afronden mail)
+    stay at the top level. A process definition without plan items, such as a BPMN process, has none.
+  - `GET /zaakafhandelparameters/process-definitions` lists the process definitions of both engines, and
+    replaces `GET /zaakafhandelparameters/case-definitions` and `GET /zaakafhandelparameters/case-definitions/{key}`.
   - `PUT /zaakafhandelparameters` (without a path key) and the `/zaaktype-bpmn-configuration` resource are
     removed, together with `RestZaaktypeBpmnConfiguration` and its `groepNaam` field.
   - Only this repository calls these endpoints, so no external client breaks.
@@ -36,10 +38,11 @@ composed payloads (see design.md, D1).
   - the mailtemplate koppelingen
   - the zaakafzenders and their reply-to addresses
   - a collapsed confirmation email section that states that the BPMN process sends the confirmation of receipt
-- The humantask, user event listener, and intake/afronden mail settings stay CMMN only. The screen does not
-  show them for a BPMN zaaktype.
-- A beheerder chooses the engine once, for a zaaktype configuration that was never saved. After the first save
-  the screen does not offer the choice again, and the backend keeps rejecting a change of engine.
+- The screen shows the humantask, user event listener, and intake/afronden mail settings when the chosen process
+  definition has those plan items, so not for a BPMN zaaktype. The confirmation email stays CMMN only.
+- A beheerder chooses the process definition from one list, with the definitions of both engines, in place of an
+  engine choice followed by a definition. A saved configuration offers only the definitions of its engine, and the
+  backend keeps rejecting a change of engine.
 - The admin service uses TanStack `queryOptions()` and `mutationOptions()` for every endpoint that the step
   components call.
 
@@ -52,27 +55,28 @@ request. Layer 6 adds the BPMN settings to the screen.
 ### New Capabilities
 
 - `zaaktype-configuration-admin-screen`: the admin screen in which a beheerder views and edits the
-  configuration of a zaaktype, for both engines: which steps it shows per engine, how the engine is chosen, and
-  what it shows for the BPMN confirmation email.
+  configuration of a zaaktype, for both engines: which steps it shows for a process definition, how the process
+  definition is chosen, and what it shows for the BPMN confirmation email.
 
 ### Modified Capabilities
 
 - `zaaktype-configuration`:
-  - The requirement "The configuration REST contract stays unchanged" is replaced by one REST resource with
-    engine blocks.
-  - The requirement "A BPMN update preserves settings that its payload does not carry" now covers only the
-    confirmation email parameters. These are the only engine-agnostic setting that the BPMN payload does not
-    carry.
+  - The requirement "The configuration REST contract stays unchanged" is replaced by one REST resource with one
+    payload for both engines, and one list of the process definitions of both engines.
+  - The requirement "A BPMN update preserves settings that its payload does not carry" is removed: the payload
+    of a BPMN configuration now carries every setting.
   - "Engine-agnostic settings apply to BPMN zaken" adds the mailtemplate koppelingen and the zaakafzenders.
-- `zaaktype-process-binding`: "A zaaktype configuration is bound to at most one engine" refers to the one REST
-  resource and its engine blocks, in place of the two resources.
+- `zaaktype-process-binding`: "A zaaktype configuration is bound to at most one engine" refers to the
+  `processDefinition` of the one REST resource, in place of the two resources.
 
 ## Impact
 
 - **REST API**:
   - `ZaaktypeConfigurationRestService` serves both engines.
   - `ZaaktypeBpmnConfigurationRestService` and `RestZaaktypeBpmnConfiguration` are deleted.
-  - `RestZaaktypeConfiguration` and `RestZaaktypeConfigurationConverter` get the engine blocks.
+  - `RestZaaktypeConfiguration` and `RestZaaktypeConfigurationConverter` get the `processDefinition`.
+  - `RESTCaseDefinition` and `RestCaseDefinitionConverter` give way to `RestProcessDefinition` and
+    `RestProcessDefinitionConverter`.
   - The generated OpenAPI spec changes. The generated frontend types change with it.
   - `BpmnProcessDefinitionRestService` does not change.
 - **Backend tests**: the unit tests of both REST services, and the itests that call

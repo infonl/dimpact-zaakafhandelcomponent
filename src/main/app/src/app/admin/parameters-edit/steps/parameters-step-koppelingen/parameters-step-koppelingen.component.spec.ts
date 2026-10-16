@@ -45,18 +45,10 @@ const switchedOn = {
   },
 };
 
-describe.each([
-  [
-    "CMMN",
-    (stored: typeof switchedOff) =>
-      fromPartial<GeneratedType<"RestZaaktypeConfiguration">>(stored),
-  ],
-  [
-    "BPMN",
-    (stored: typeof switchedOff) =>
-      fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>(stored),
-  ],
-])("Koppelingen step of a %s zaaktype", (_engine, configuration) => {
+const configuration = (stored: typeof switchedOff) =>
+  fromPartial<GeneratedType<"RestZaaktypeConfiguration">>(stored);
+
+describe("Koppelingen step", () => {
   const user = userEvent.setup();
 
   async function setup({

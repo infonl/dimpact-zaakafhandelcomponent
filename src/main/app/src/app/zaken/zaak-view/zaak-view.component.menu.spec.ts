@@ -1011,7 +1011,10 @@ describe(ZaakViewComponent.name, () => {
         zaakafhandelparameters: fromPartial<
           GeneratedType<"RestZaaktypeConfiguration">
         >({
-          caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
+          processDefinition: fromPartial<
+            GeneratedType<"RestProcessDefinition">
+          >({
+            processEngine: "CMMN",
             key: "fakeCaseDefinitionKey",
           }),
           smartDocuments: {

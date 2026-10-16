@@ -1,26 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2021 Atos, 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { forkJoin, from, map } from "rxjs";
-import { ConfiguratieService } from "../configuratie/configuratie.service";
-import { BpmnService } from "./bpmn.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class ZaakafhandelParametersResolver {
-  constructor(
-    private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
-    private readonly bpmnService: BpmnService,
-    private readonly configuratieService: ConfiguratieService,
-    private readonly queryClient: QueryClient,
-  ) {}
+  private readonly zaakafhandelParametersService = inject(
+    ZaakafhandelParametersService,
+  );
+  private readonly queryClient = inject(QueryClient);
 
   resolve(route: ActivatedRouteSnapshot) {
     const uuid = route.paramMap.get("uuid");
@@ -31,49 +26,9 @@ export class ZaakafhandelParametersResolver {
       );
     }
 
-    return forkJoin({
-      zaakafhandelParameters:
-        this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
-      bpmnProcessConfigurations:
-        this.zaakafhandelParametersService.getZaaktypeBpmnConfiguration(),
-      bpmnProcessDefinitions: from(
-        this.queryClient.fetchQuery(
-          this.bpmnService.listProcessDefinitionsQuery(false),
-        ),
-      ),
-    }).pipe(
-      map(
-        ({
-          zaakafhandelParameters,
-          bpmnProcessConfigurations,
-          bpmnProcessDefinitions,
-        }) => {
-          const bpmnZaakafhandelParameters = bpmnProcessConfigurations?.find(
-            (item) =>
-              item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
-          );
-          const isBpmn = !!bpmnZaakafhandelParameters;
-          const isSavedZaakafhandelParameters =
-            isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (group id initially null but set on save)
-          return {
-            zaakafhandelParameters,
-            bpmnZaakafhandelParameters: {
-              ...bpmnZaakafhandelParameters,
-              zaaktype: zaakafhandelParameters.zaaktype,
-              isZaakspecifiekAutoriseerbaar:
-                zaakafhandelParameters.isZaakspecifiekAutoriseerbaar,
-              zaakbeeindigParameters:
-                zaakafhandelParameters.zaakbeeindigParameters,
-              smartDocuments:
-                bpmnZaakafhandelParameters?.smartDocuments ??
-                zaakafhandelParameters.smartDocuments,
-            },
-            bpmnProcessDefinitions,
-            isBpmn,
-            isSavedZaakafhandelParameters,
-          };
-        },
-      ),
-    );
+    return this.queryClient.fetchQuery({
+      ...this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
+      staleTime: 0,
+    });
   }
 }

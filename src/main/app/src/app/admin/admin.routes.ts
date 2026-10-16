@@ -46,11 +46,11 @@ export const ADMIN_ROUTES: Routes = [
             path: "",
             title: (route) =>
               (route.data["parameters"] as ResolvedParameters)
-                .zaakafhandelParameters.zaaktype.omschrijving ?? "",
+                .zaaktype.omschrijving ?? "",
             loadComponent: () =>
-              import(
-                "./parameters-edit-shell/parameters-edit-shell.component"
-              ).then((module) => module.ParametersEditShellComponent),
+              import("./parameters-edit/parameters-edit.component").then(
+                (module) => module.ParametersEditComponent,
+              ),
           },
         ],
       },
