@@ -8,7 +8,6 @@ import nl.info.client.klanten.model.generated.Actor
 import nl.info.client.klanten.model.generated.Klantcontact
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.lang3.StringUtils
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -37,10 +36,10 @@ private fun List<Actor>.toCommaSeparatedString(): String? {
     }
     val result = StringBuilder()
     for (actor in this) {
-        if (StringUtils.isNotBlank(result)) {
+        if (result.isNotBlank()) {
             result.append(",")
         }
-        if (StringUtils.isNotBlank(actor.naam)) {
+        if (!actor.naam.isNullOrBlank()) {
             result.append(actor.naam)
         } else {
             val actoridentificator = actor.actoridentificator

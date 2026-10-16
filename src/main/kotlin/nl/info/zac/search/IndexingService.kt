@@ -329,6 +329,21 @@ class IndexingService @Inject constructor(
             .forEach { addOrUpdateTaak(it, zaakAutorisatieGegevens) }
     }
 
+    /**
+     * Reindexes a zaak together with everything whose search visibility follows from it, e.g. after the medewerkers
+     * who may see a zaakspecifiek geautoriseerde zaak changed. The taken go through [addOrUpdateTakenForZaak] rather
+     * than the `inclusiefTaken` flag, so completed taken are reindexed as well.
+     */
+    fun addOrUpdateZaakWithTakenAndInformatieobjecten(zaakUUID: UUID) {
+        addOrUpdateZaak(zaakUUID, inclusiefTaken = false)
+        addOrUpdateTakenAndInformatieobjectenForZaak(zaakUUID)
+    }
+
+    fun addOrUpdateTakenAndInformatieobjectenForZaak(zaakUUID: UUID) {
+        addOrUpdateTakenForZaak(zaakUUID)
+        addOrUpdateInformatieobjectenForZaak(zaakUUID)
+    }
+
     fun addOrUpdateInformatieobject(informatieobjectUUID: UUID) =
         indexeerDirect(informatieobjectUUID.toString(), ZoekObjectType.DOCUMENT, false)
 

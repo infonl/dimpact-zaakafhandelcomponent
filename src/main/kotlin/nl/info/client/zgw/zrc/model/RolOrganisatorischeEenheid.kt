@@ -7,7 +7,6 @@ package nl.info.client.zgw.zrc.model
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.ztc.model.generated.RolType
-import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.util.Objects
 import java.util.UUID
@@ -53,7 +52,7 @@ class RolOrganisatorischeEenheid : Rol<OrganisatorischeEenheidIdentificatie> {
     override val naam: String?
         get() {
             val identificatie = betrokkeneIdentificatie ?: return null
-            return if (StringUtils.isNotEmpty(identificatie.naam)) identificatie.naam else identificatienummer
+            return if (!identificatie.naam.isNullOrEmpty()) identificatie.naam else identificatienummer
         }
 
     override val identificatienummer: String?

@@ -18,6 +18,7 @@
           </section>
           <mat-slide-toggle
             formControlName="enabledForZaaktype"
+            [aria-label]="'title.smartdocuments.form' | translate"
             (click)="$event.stopPropagation()"
             color="primary"
           ></mat-slide-toggle>

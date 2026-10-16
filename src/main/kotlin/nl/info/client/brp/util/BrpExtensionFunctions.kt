@@ -4,12 +4,12 @@
  */
 package nl.info.client.brp.util
 
-import net.atos.zac.util.StringUtil
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.brp.model.generated.VerblijfadresBuitenland
 import nl.info.client.brp.model.generated.VerblijfplaatsBuitenland
+import nl.info.zac.util.joinNonBlank
 
 fun Persoon.toAddressString(): String {
     val verblijfplaats = this.getVerblijfplaats()
@@ -22,16 +22,17 @@ fun Persoon.toAddressString(): String {
     }
 }
 
-private fun VerblijfadresBinnenland.toAddressString() =
-    this.getOfficieleStraatnaam()?.takeIf { it.isNotBlank() }.orEmpty() +
-        " " +
-        (this.getHuisnummer() ?: "") +
-        this.getHuisletter()?.takeIf { it.isNotBlank() }.orEmpty() +
-        this.getHuisnummertoevoeging()?.takeIf { it.isNotBlank() }.orEmpty() +
-        ", " +
-        this.getPostcode()?.takeIf { it.isNotBlank() }.orEmpty() +
-        " " +
-        this.getWoonplaats()
+private fun VerblijfadresBinnenland.toAddressString(): String {
+    val huisnummerWithSuffix = listOf(
+        this.getHuisnummer()?.toString(),
+        this.getHuisletter(),
+        this.getHuisnummertoevoeging()
+    ).joinNonBlank()
+    return listOf(
+        listOf(this.getOfficieleStraatnaam(), huisnummerWithSuffix).joinNonBlank(" "),
+        listOf(this.getPostcode(), this.getWoonplaats()).joinNonBlank(" ")
+    ).joinNonBlank(", ")
+}
 
-private fun VerblijfadresBuitenland.toAddressString(): String =
-    StringUtil.joinNonBlankWith(", ", this.getRegel1(), this.getRegel2(), this.getRegel3())
+private fun VerblijfadresBuitenland.toAddressString() =
+    listOf(this.getRegel1(), this.getRegel2(), this.getRegel3()).joinNonBlank(", ")

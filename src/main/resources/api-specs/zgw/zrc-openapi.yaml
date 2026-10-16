@@ -129,7 +129,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - klantcontacten
@@ -772,7 +773,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - resultaten
@@ -1941,7 +1943,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - rollen
@@ -2790,7 +2793,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - statussen
@@ -3323,7 +3327,8 @@ paths:
       - in: query
         name: status
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de hoofdSTATUS.
       - in: query
         name: tijdstip__gt
@@ -3352,7 +3357,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - substatussen
@@ -4245,7 +4251,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - zaakcontactmomenten
@@ -4835,7 +4842,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - zaakinformatieobjecten
@@ -5899,7 +5907,8 @@ paths:
       - in: query
         name: gerelateerdAan
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       - in: query
         name: notitieType
@@ -7074,6 +7083,7 @@ paths:
           - organisatorische_eenheid
           - overige
           - pand
+          - product
           - spoorbaandeel
           - status
           - terrein_gebouwd_object
@@ -7106,7 +7116,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - zaakobjecten
@@ -8031,7 +8042,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - zaakverzoeken
@@ -12360,142 +12372,6 @@ paths:
         description: Content type van de verzoekinhoud.
         required: true
       - in: query
-        name: archiefactiedatum
-        schema:
-          type: string
-          format: date
-        description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
-          worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt
-          automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan
-          deze ZAAK indien nog leeg.
-      - in: query
-        name: archiefactiedatum__gt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
-          worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt
-          automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan
-          deze ZAAK indien nog leeg.
-      - in: query
-        name: archiefactiedatum__isnull
-        schema:
-          type: boolean
-        description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
-          worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt
-          automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan
-          deze ZAAK indien nog leeg.
-      - in: query
-        name: archiefactiedatum__lt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
-          worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt
-          automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan
-          deze ZAAK indien nog leeg.
-      - in: query
-        name: archiefnominatie
-        schema:
-          type: string
-          nullable: true
-          enum:
-          - blijvend_bewaren
-          - vernietigen
-        description: |+
-          Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
-
-      - in: query
-        name: archiefnominatie__in
-        schema:
-          type: array
-          items:
-            type: string
-        description: Meerdere waarden kunnen gescheiden worden door komma's.
-        explode: false
-        style: form
-      - in: query
-        name: archiefstatus
-        schema:
-          type: string
-          enum:
-          - gearchiveerd
-          - gearchiveerd_procestermijn_onbekend
-          - nog_te_archiveren
-          - overgedragen
-        description: |+
-          Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
-
-      - in: query
-        name: archiefstatus__in
-        schema:
-          type: array
-          items:
-            type: string
-        description: Meerdere waarden kunnen gescheiden worden door komma's.
-        explode: false
-        style: form
-      - in: query
-        name: bronorganisatie
-        schema:
-          type: string
-        description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
-          die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
-          en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
-      - in: query
-        name: bronorganisatie__in
-        schema:
-          type: array
-          items:
-            type: string
-        description: Meerdere waarden kunnen gescheiden worden door komma's.
-        explode: false
-        style: form
-      - in: query
-        name: einddatum
-        schema:
-          type: string
-          format: date
-        description: De datum waarop de uitvoering van de zaak afgerond is.
-      - in: query
-        name: einddatumGepland
-        schema:
-          type: string
-          format: date
-        description: De datum waarop volgens de planning verwacht wordt dat de zaak
-          afgerond wordt.
-      - in: query
-        name: einddatumGepland__gt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop volgens de planning verwacht wordt dat de zaak
-          afgerond wordt.
-      - in: query
-        name: einddatumGepland__lt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop volgens de planning verwacht wordt dat de zaak
-          afgerond wordt.
-      - in: query
-        name: einddatum__gt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop de uitvoering van de zaak afgerond is.
-      - in: query
-        name: einddatum__isnull
-        schema:
-          type: boolean
-        description: De datum waarop de uitvoering van de zaak afgerond is.
-      - in: query
-        name: einddatum__lt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop de uitvoering van de zaak afgerond is.
-      - in: query
         name: expand
         schema:
           type: array
@@ -12534,77 +12410,7 @@ paths:
             - zaakobjecten
             - zaaktype
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
-        explode: false
-        style: form
-      - in: query
-        name: identificatie
-        schema:
-          type: string
-        description: De unieke identificatie van de ZAAK binnen de organisatie die
-          verantwoordelijk is voor de behandeling van de ZAAK.
-      - in: query
-        name: identificatie__icontains
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** De unieke identificatie van de ZAAK (bevat
-          de identificatie de gegeven waarden (hoofdletterongevoelig))'
-      - in: query
-        name: kenmerk
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een bron-kenmerk combinatie van de zaak. format:
-          <bron>:<kenmerk>'
-      - in: query
-        name: kenmerk__bron
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** De aanduiding van de administratie waar het
-          kenmerk op slaat.'
-      - in: query
-        name: maximaleVertrouwelijkheidaanduiding
-        schema:
-          type: string
-          enum:
-          - beperkt_openbaar
-          - confidentieel
-          - geheim
-          - intern
-          - openbaar
-          - vertrouwelijk
-          - zaakvertrouwelijk
-          - zeer_geheim
-        description: |+
-          Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
-
-      - in: query
-        name: omschrijving
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een korte omschrijving van de ZAAK (bevat
-          de omschrijving de gegeven waarden (hoofdletterongevoelig))'
-      - in: query
-        name: ordering
-        schema:
-          type: array
-          items:
-            type: string
-            enum:
-            - -archiefactiedatum
-            - -einddatum
-            - -identificatie
-            - -publicatiedatum
-            - -registratiedatum
-            - -startdatum
-            - archiefactiedatum
-            - einddatum
-            - identificatie
-            - publicatiedatum
-            - registratiedatum
-            - startdatum
-        description: |+
-          Het veld waarop de resultaten geordend worden.
-
+          \ \n\n (samengevoegd met evt. expand in body)"
         explode: false
         style: form
       - name: page
@@ -12620,244 +12426,6 @@ paths:
           maximum: 500).'
         schema:
           type: integer
-      - in: query
-        name: registratiedatum
-        schema:
-          type: string
-          format: date
-        description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
-          geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
-          gebruikt.
-      - in: query
-        name: registratiedatum__gt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
-          geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
-          gebruikt.
-      - in: query
-        name: registratiedatum__lt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
-          geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
-          gebruikt.
-      - in: query
-        name: resultaat__resultaattype
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Filter Zaken waarbij het resultaat het opgegeven
-          resultaattype (URL) heeft.'
-      - in: query
-        name: rol__betrokkene
-        schema:
-          type: string
-        description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
-      - in: query
-        name: rol__betrokkeneIdentificatie__medewerker__identificatie
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
-          Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
-          in plaats van 24'
-      - in: query
-        name: rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
-        schema:
-          type: string
-        description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
-          NATUURLIJK PERSOON
-      - in: query
-        name: rol__betrokkeneIdentificatie__natuurlijkPersoon__inpA_nummer
-        schema:
-          type: string
-        description: Het administratienummer van de persoon, bedoeld in de Wet BRP
-      - in: query
-        name: rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn
-        schema:
-          type: string
-        description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene
-          bepalingen burgerservicenummer.
-      - in: query
-        name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie
-        schema:
-          type: string
-        description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
-          NIET-NATUURLIJK PERSOON
-      - in: query
-        name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId
-        schema:
-          type: string
-        description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
-          PERSOON
-      - in: query
-        name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
-          Koophandel'
-      - in: query
-        name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
-      - in: query
-        name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
-          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
-          toegestaan in plaats van 24'
-      - in: query
-        name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** **DEPRECATED** Een uniek nummer gekoppeld
-          aan de onderneming.'
-      - in: query
-        name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** **DEPRECATED** Een korte unieke aanduiding
-          van de Vestiging.'
-      - in: query
-        name: rol__betrokkeneType
-        schema:
-          type: string
-          enum:
-          - medewerker
-          - natuurlijk_persoon
-          - niet_natuurlijk_persoon
-          - organisatorische_eenheid
-          - vestiging
-        description: |+
-          Type van de `betrokkene`.
-
-      - in: query
-        name: rol__machtiging
-        schema:
-          type: string
-          enum:
-          - eigen
-          - gemachtigde
-          - machtiginggever
-        description: |+
-          **EXPERIMENTEEL** filter objecten op basis van `indicatieMachtiging`:
-          * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
-          * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
-          * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
-
-
-      - in: query
-        name: rol__machtiging__loa
-        schema:
-          type: string
-          enum:
-          - urn:etoegang:core:assurance-class:loa1
-          - urn:etoegang:core:assurance-class:loa2
-          - urn:etoegang:core:assurance-class:loa2plus
-          - urn:etoegang:core:assurance-class:loa3
-          - urn:etoegang:core:assurance-class:loa4
-          - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
-          - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
-          - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
-          - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
-        description: "**EXPERIMENTEEL** Enkel Zaken met een `rol.authenticatieContext.levelOfAssurance`\
-          \ die lager is dan of gelijk is aan de aangegeven aanduiding worden teruggeven\
-          \ als resultaten.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
-          \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
-          \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
-          \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
-          \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
-          \ - Niet bestaand (1)\n* `urn:etoegang:core:assurance-class:loa2` - Laag\
-          \ (2)\n* `urn:etoegang:core:assurance-class:loa2plus` - Laag (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
-          \ - Substantieel (3)\n* `urn:etoegang:core:assurance-class:loa4` - Hoog\
-          \ (4)\n\n"
-      - in: query
-        name: rol__omschrijvingGeneriek
-        schema:
-          type: string
-          enum:
-          - adviseur
-          - behandelaar
-          - belanghebbende
-          - beslisser
-          - initiator
-          - klantcontacter
-          - mede_initiator
-          - zaakcoordinator
-        description: |+
-          Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
-
-      - in: query
-        name: startdatum
-        schema:
-          type: string
-          format: date
-        description: De datum waarop met de uitvoering van de zaak is gestart
-      - in: query
-        name: startdatum__gt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop met de uitvoering van de zaak is gestart
-      - in: query
-        name: startdatum__gte
-        schema:
-          type: string
-          format: date
-        description: De datum waarop met de uitvoering van de zaak is gestart
-      - in: query
-        name: startdatum__lt
-        schema:
-          type: string
-          format: date
-        description: De datum waarop met de uitvoering van de zaak is gestart
-      - in: query
-        name: startdatum__lte
-        schema:
-          type: string
-          format: date
-        description: De datum waarop met de uitvoering van de zaak is gestart
-      - in: query
-        name: status__statustype
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Filter Zaken waarbij de huidige status het
-          opgegeven statustype (URL) heeft.'
-      - in: query
-        name: uiterlijkeEinddatumAfdoening
-        schema:
-          type: string
-          format: date
-        description: De laatste datum waarop volgens wet- en regelgeving de zaak afgerond
-          dient te zijn.
-      - in: query
-        name: uiterlijkeEinddatumAfdoening__gt
-        schema:
-          type: string
-          format: date
-        description: De laatste datum waarop volgens wet- en regelgeving de zaak afgerond
-          dient te zijn.
-      - in: query
-        name: uiterlijkeEinddatumAfdoening__lt
-        schema:
-          type: string
-          format: date
-        description: De laatste datum waarop volgens wet- en regelgeving de zaak afgerond
-          dient te zijn.
-      - in: query
-        name: zaaktype
-        schema:
-          type: string
-        description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
-      - in: query
-        name: zaaktype__omschrijving
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Omschrijving van de aard van ZAAKen van het
-          ZAAKTYPE(bevat de zaaktype omschrijving de gegeven waarden (hoofdletterongevoelig))'
       tags:
       - zaken
       requestBody:
@@ -13560,8 +13128,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         betrokkene:
           type: string
           format: uri
@@ -13597,7 +13165,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -13649,8 +13218,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
@@ -13685,8 +13254,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         betrokkene:
           type: string
           format: uri
@@ -13782,8 +13351,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         betrokkene:
           type: string
           format: uri
@@ -13819,7 +13388,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -13871,8 +13441,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
@@ -13996,8 +13566,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         betrokkene:
           type: string
           format: uri
@@ -14033,7 +13603,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -14085,8 +13656,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
@@ -14213,8 +13784,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         object:
           type: string
           format: uri
@@ -14247,6 +13818,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -14299,8 +13871,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         object:
           type: string
           format: uri
@@ -14333,6 +13905,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -14397,8 +13970,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         object:
           type: string
           format: uri
@@ -14431,6 +14004,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -14511,6 +14085,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -15088,8 +14663,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         identificatie:
           type: string
           description: De unieke aanduiding van een KLANTCONTACT
@@ -15122,8 +14697,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         identificatie:
           type: string
           minLength: 1
@@ -16155,6 +15730,7 @@ components:
       - medewerker
       - natuurlijk_persoon
       - niet_natuurlijk_persoon
+      - product
       - openbare_ruimte
       - organisatorische_eenheid
       - pand
@@ -16511,6 +16087,17 @@ components:
       required:
       - avgAard
       - identificatie
+    OmschrijvingGeneriekEnum:
+      enum:
+      - adviseur
+      - behandelaar
+      - belanghebbende
+      - beslisser
+      - initiator
+      - klantcontacter
+      - zaakcoordinator
+      - mede_initiator
+      type: string
     OneOrMultipleZaakIdentificaties:
       oneOf:
       - $ref: '#/components/schemas/ReserveZaakIdentificatie'
@@ -16805,8 +16392,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         resultaattype:
           type: string
           minLength: 1
@@ -16854,8 +16441,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -16878,8 +16465,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
     PatchedZaakNotitieRequest:
       type: object
       properties:
@@ -16924,6 +16511,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/product_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/pand_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
@@ -16958,6 +16546,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+          product: '#/components/schemas/product_ZaakObjectSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
           pand: '#/components/schemas/pand_ZaakObjectSerializerRequest'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
@@ -17137,8 +16726,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         relevanteAndereZaken:
           type: array
           items:
@@ -17381,8 +16970,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         relevanteAndereZaken:
           type: array
           items:
@@ -17676,8 +17265,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         resultaattype:
           type: string
           description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
@@ -17700,8 +17289,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         resultaattype:
           type: string
           minLength: 1
@@ -17736,8 +17325,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         resultaattype:
           type: string
           description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
@@ -17988,8 +17577,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
@@ -18017,15 +17606,15 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaakinformatieobjecten:
           type: array
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
       required:
@@ -18048,8 +17637,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           minLength: 1
@@ -18072,8 +17661,8 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - datumStatusGezet
       - statustype
@@ -18099,8 +17688,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
@@ -18128,15 +17717,15 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaakinformatieobjecten:
           type: array
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
       required:
@@ -18172,8 +17761,8 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - datumStatusGezet
       - statustype
@@ -18197,15 +17786,15 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         status:
           type: string
           format: uri
           nullable: true
           description: URL-referentie naar de hoofdSTATUS.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           description: Een, voor de initiator van de zaak relevante, toelichting op
@@ -18234,15 +17823,15 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         status:
           type: string
           format: uri
           nullable: true
           description: URL-referentie naar de hoofdSTATUS.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -18518,6 +18107,7 @@ components:
           maxLength: 200
         duur:
           type: string
+          format: duration
           description: Het aantal werkbare dagen waarmee de doorlooptijd van de behandeling
             van de ZAAK is verlengd (of verkort) ten opzichte van de eerder gecommuniceerde
             doorlooptijd.
@@ -18534,6 +18124,7 @@ components:
           maxLength: 200
         duur:
           type: string
+          format: duration
           description: Het aantal werkbare dagen waarmee de doorlooptijd van de behandeling
             van de ZAAK is verlengd (of verkort) ten opzichte van de eerder gecommuniceerde
             doorlooptijd.
@@ -18874,8 +18465,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         deelzaken:
           type: array
           items:
@@ -19132,8 +18723,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         contactmoment:
           type: string
           format: uri
@@ -19151,8 +18742,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         contactmoment:
           type: string
           format: uri
@@ -19257,8 +18848,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         aardRelatieWeergave:
           allOf:
           - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
@@ -19292,8 +18883,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - aardRelatieWeergave
       - informatieobject
@@ -19315,8 +18906,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -19339,8 +18930,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - informatieobject
       - zaak
@@ -19371,8 +18962,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         aardRelatieWeergave:
           allOf:
           - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
@@ -19406,8 +18997,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - aardRelatieWeergave
       - informatieobject
@@ -19447,8 +19038,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - informatieobject
     ZaakKenmerk:
@@ -19579,6 +19170,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializer'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializer'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializer'
+      - $ref: '#/components/schemas/product_ZaakObjectSerializer'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializer'
       - $ref: '#/components/schemas/pand_ZaakObjectSerializer'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializer'
@@ -19613,6 +19205,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializer'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializer'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializer'
+          product: '#/components/schemas/product_ZaakObjectSerializer'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializer'
           pand: '#/components/schemas/pand_ZaakObjectSerializer'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializer'
@@ -19646,6 +19239,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/product_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/pand_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
@@ -19680,6 +19274,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+          product: '#/components/schemas/product_ZaakObjectSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
           pand: '#/components/schemas/pand_ZaakObjectSerializerRequest'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
@@ -19713,6 +19308,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/product_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/pand_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializer'
@@ -19747,6 +19343,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializer'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializer'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializer'
+          product: '#/components/schemas/product_ZaakObjectSubSerializer'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializer'
           pand: '#/components/schemas/pand_ZaakObjectSubSerializer'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializer'
@@ -19780,6 +19377,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/product_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/pand_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializerRequest'
@@ -19814,6 +19412,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializerRequest'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializerRequest'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializerRequest'
+          product: '#/components/schemas/product_ZaakObjectSubSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializerRequest'
           pand: '#/components/schemas/pand_ZaakObjectSubSerializerRequest'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializerRequest'
@@ -20061,8 +19660,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         deelzaken:
           type: array
           items:
@@ -20471,8 +20070,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         relevanteAndereZaken:
           type: array
           items:
@@ -20750,8 +20349,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         deelzaken:
           type: array
           items:
@@ -21059,8 +20658,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         relevanteAndereZaken:
           type: array
           items:
@@ -21380,8 +20979,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         deelzaken:
           type: array
           items:
@@ -21600,8 +21199,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         verzoek:
           type: string
           format: uri
@@ -21619,8 +21218,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         verzoek:
           type: string
           format: uri
@@ -22501,6 +22100,18 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/object_identificatie_ObjectPandRequest'
+    product_ZaakObjectSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
+    product_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+    product_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+    product_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
     spoorbaandeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'

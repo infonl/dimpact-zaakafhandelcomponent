@@ -12,6 +12,7 @@ import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 import nl.info.client.bag.model.generated.Verblijfsobject
 import nl.info.zac.app.zaak.model.RestGeometry
 import nl.info.zac.app.zaak.model.toRestGeometry
+import nl.info.zac.util.joinNonBlank
 
 class RestAdresseerbaarObject : RestBagObject() {
     var typeAdresseerbaarObject: TypeAdresseerbaarObject? = null
@@ -28,7 +29,7 @@ class RestAdresseerbaarObject : RestBagObject() {
         get() = BagObjectType.ADRESSEERBAAR_OBJECT
 
     override val omschrijving
-        get() = joinNonBlank(" ", typeAdresseerbaarObject?.toString(), identificatie)
+        get() = listOf(typeAdresseerbaarObject?.toString(), identificatie).joinNonBlank(" ").ifEmpty { null }
 }
 
 fun AdresseerbaarObjectIOHal.toRestAdresseerbaarObject() =

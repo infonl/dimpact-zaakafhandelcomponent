@@ -14,6 +14,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduidingRequest
+import nl.info.zac.util.joinNonBlank
 import java.net.URI
 
 class RestNummeraanduiding : RestBagObject() {
@@ -39,7 +40,7 @@ class RestNummeraanduiding : RestBagObject() {
         get() = BagObjectType.NUMMERAANDUIDING
 
     override val omschrijving
-        get() = joinNonBlank(" ", huisnummerWeergave, postcode)
+        get() = listOf(huisnummerWeergave, postcode).joinNonBlank(" ").ifEmpty { null }
 }
 
 fun NummeraanduidingIOHalBasis.toRestNummeraanduiding() = nummeraanduiding.toRestNummeraanduiding().apply {
