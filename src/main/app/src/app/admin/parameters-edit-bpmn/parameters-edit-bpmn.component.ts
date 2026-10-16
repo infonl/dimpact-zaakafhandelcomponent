@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { SelectionModel } from "@angular/cdk/collections";
-
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -25,10 +23,6 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import {
-  MatCheckboxChange,
-  MatCheckboxModule,
-} from "@angular/material/checkbox";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
@@ -39,7 +33,6 @@ import { MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { forkJoin, Subject, takeUntil } from "rxjs";
-import { UtilService } from "src/app/core/service/util.service";
 import { IdentityService } from "src/app/identity/identity.service";
 import {
   ConfirmDialogComponent,
@@ -57,25 +50,13 @@ import {
   ProcessModelMethodSelection,
 } from "../model/parameters/process-model-method";
 import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
+import { ParametersStepBeeindigingComponent } from "../parameters-edit/steps/parameters-step-beeindiging/parameters-step-beeindiging.component";
+import {
+  createZaakbeeindigingForm,
+  toZaakbeeindigParameters,
+} from "../parameters-edit/steps/parameters-step-beeindiging/zaakbeeindiging-form";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-
-/**
- * Form-local variant of RestZaakbeeindigParameter where zaakbeeindigReden and resultaattype
- * are optional. This is needed because:
- * - The "niet ontvankelijk" row has no zaakbeeindigReden (only a resultaattype)
- * - Newly added redenen start without a resultaattype (user must pick one)
- *
- * In opslaan(), normal parameters are guaranteed to have both fields set by form validation
- * before being pushed to the backend as GeneratedType<"RestZaakbeeindigParameter">.
- */
-type RestPristineZaakbeeindigParameterFormData = Omit<
-  GeneratedType<"RestZaakbeeindigParameter">,
-  "zaakbeeindigReden" | "resultaattype"
-> & {
-  zaakbeeindigReden?: GeneratedType<"RestZaakbeeindigReden">;
-  resultaattype?: GeneratedType<"RestResultaattype"> | null;
-};
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -88,7 +69,6 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MatCheckboxModule,
     MatDialogModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -100,6 +80,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     ZacInput,
     StaticTextComponent,
     SmartDocumentsFormComponent,
+    ParametersStepBeeindigingComponent,
   ],
 })
 export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
@@ -176,19 +157,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-  protected zaakbeeindigParameters: RestPristineZaakbeeindigParameterFormData[] =
-    [];
-
-  protected zaakbeeindigFormGroup = this.formBuilder.record<
-    FormControl<GeneratedType<"RestResultaattype"> | null | undefined>
-  >({});
-
-  protected selection =
-    new SelectionModel<RestPristineZaakbeeindigParameterFormData>(true);
-
-  protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-
-  protected zaakbeeindigRedenen: GeneratedType<"RestZaakbeeindigReden">[] = [];
+  protected zaakbeeindigFormGroup = createZaakbeeindigingForm({});
 
   protected brpConsultingValues: string[] = [];
   protected brpSearchValues: string[] = [];
@@ -216,7 +185,6 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
     private readonly cdr: ChangeDetectorRef,
     private readonly identityService: IdentityService,
-    protected readonly utilService: UtilService,
     private readonly configuratieService: ConfiguratieService,
     private readonly referentieTabelService: ReferentieTabelService,
   ) {
@@ -236,10 +204,6 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
         configuratieService.readBrpDoelbindingSetupEnabled(),
-        this.zaakafhandelParametersService.listZaakbeeindigRedenen(),
-        this.zaakafhandelParametersService.listResultaattypes(
-          this.bpmnZaakafhandelParameters.zaaktype.uuid,
-        ),
         this.identityService.listBehandelaarGroupsForZaaktype(
           this.bpmnZaakafhandelParameters.zaaktype.omschrijving!,
         ),
@@ -249,16 +213,12 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           brpViewValues,
           brpProcessingValues,
           brpDoelbindingSetupEnabled,
-          zaakbeeindigRedenen,
-          resultaattypes,
           groepen,
         ]) => {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
           this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
-          this.zaakbeeindigRedenen = zaakbeeindigRedenen;
-          this.resultaattypes = resultaattypes;
           this.groepen = groepen;
           await this.createForm();
         },
@@ -324,7 +284,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     }
 
     this.createBetrokkeneKoppelingenForm();
-    this.createZaakbeeindigForm();
+    this.zaakbeeindigFormGroup = createZaakbeeindigingForm(
+      this.bpmnZaakafhandelParameters,
+    );
 
     if (this.brpDoelbindingSetupEnabled) {
       this.createBrpDoelbindingForm();
@@ -389,97 +351,6 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  protected isZaaknietontvankelijkParameter(
-    restZaakbeeindigParameter: RestPristineZaakbeeindigParameterFormData,
-  ) {
-    return restZaakbeeindigParameter.zaakbeeindigReden === undefined;
-  }
-
-  protected changeSelection(
-    $event: MatCheckboxChange,
-    parameter: RestPristineZaakbeeindigParameterFormData,
-  ): void {
-    if ($event) {
-      this.selection.toggle(parameter);
-      this.updateZaakbeeindigForm(parameter);
-    }
-  }
-
-  protected getZaakbeeindigControl(
-    parameter: RestPristineZaakbeeindigParameterFormData,
-    field: string,
-  ) {
-    return this.zaakbeeindigFormGroup.controls[
-      `${parameter.zaakbeeindigReden?.id}__${field}`
-    ];
-  }
-
-  private createZaakbeeindigForm() {
-    this.zaakbeeindigFormGroup = this.formBuilder.record<
-      FormControl<GeneratedType<"RestResultaattype"> | null | undefined>
-    >({});
-    this.addZaakbeeindigParameter(
-      this.getZaaknietontvankelijkParameter(this.bpmnZaakafhandelParameters),
-    );
-    for (const reden of this.zaakbeeindigRedenen) {
-      this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
-    }
-  }
-
-  private addZaakbeeindigParameter(
-    parameter: RestPristineZaakbeeindigParameterFormData,
-  ): void {
-    this.zaakbeeindigParameters.push(parameter);
-    this.zaakbeeindigFormGroup.addControl(
-      parameter.zaakbeeindigReden?.id + "__beeindigResultaat",
-      new FormControl(parameter.resultaattype),
-    );
-    this.updateZaakbeeindigForm(parameter);
-  }
-
-  private getZaaknietontvankelijkParameter(
-    zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration">,
-  ) {
-    const parameter: RestPristineZaakbeeindigParameterFormData = {
-      resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
-    };
-    this.selection.select(parameter);
-    return parameter;
-  }
-
-  private getZaakbeeindigParameter(
-    reden: GeneratedType<"RestZaakbeeindigReden">,
-  ) {
-    let parameter: RestPristineZaakbeeindigParameterFormData | null = null;
-    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters ??
-      []) {
-      if (this.compareObject(item.zaakbeeindigReden, reden)) {
-        parameter = item;
-        this.selection.select(parameter);
-        break;
-      }
-    }
-    if (parameter === null) {
-      parameter = { zaakbeeindigReden: reden };
-    }
-    return parameter;
-  }
-
-  private updateZaakbeeindigForm(
-    parameter: RestPristineZaakbeeindigParameterFormData,
-  ) {
-    const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
-    if (this.selection.isSelected(parameter)) {
-      control?.addValidators([Validators.required]);
-    } else {
-      control?.clearValidators();
-    }
-    control?.updateValueAndValidity({ emitEvent: false });
-  }
-
-  protected compareObject = (a: unknown, b: unknown) =>
-    this.utilService.compare(a, b);
-
   protected opslaan() {
     const bpmnProcessDefinitionKey =
       this.algemeenFormGroup.value.bpmnDefinition?.key;
@@ -499,21 +370,10 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     this.bpmnZaakafhandelParameters.brpDoelbindingen =
       this.brpDoelbindingenFormGroup.value;
 
-    this.bpmnZaakafhandelParameters.zaakbeeindigParameters = [];
-    this.selection.selected.forEach((param) => {
-      if (this.isZaaknietontvankelijkParameter(param)) {
-        this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
-          this.getZaakbeeindigControl(param, "beeindigResultaat")?.value;
-      } else {
-        param.resultaattype = this.getZaakbeeindigControl(
-          param,
-          "beeindigResultaat",
-        )?.value;
-        this.bpmnZaakafhandelParameters.zaakbeeindigParameters!.push(
-          param as GeneratedType<"RestZaakbeeindigParameter">,
-        );
-      }
-    });
+    this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
+      this.zaakbeeindigFormGroup.controls.zaakNietOntvankelijkResultaattype.value;
+    this.bpmnZaakafhandelParameters.zaakbeeindigParameters =
+      toZaakbeeindigParameters(this.zaakbeeindigFormGroup);
 
     this.createOrUpdateBpmnZaakafhandelparametersMutation.mutate(
       {

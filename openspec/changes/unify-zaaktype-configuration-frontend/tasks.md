@@ -2,21 +2,21 @@
 
 - [ ] 0.1 Read `PZ-12754-rfc-unify-zaaktype-configuration.md` from PZ-12754. Record every difference with design.md
       in this change before layer 5 starts, or record that there is none.
-- [ ] 0.2 The bottom layer of the stack is the branch that holds this OpenSpec change
+- [x] 0.2 The bottom layer of the stack is the branch that holds this OpenSpec change
       (`PZ-12754-zaakafhandelparameters-za-ps-frontend-backend-api-code-voor-bpmn-en-cmmn-vereenvoudigen`).
       Verify that `openspec validate unify-zaaktype-configuration-frontend --strict` passes on it.
-- [ ] 0.3 On `main`, run `./gradlew generateOpenApiSpec` and copy the generated `openapi.json` to the scratchpad as the
+- [x] 0.3 On `main`, run `./gradlew generateOpenApiSpec` and copy the generated `openapi.json` to the scratchpad as the
       contract baseline for layer 5. Record `wc -l` of `parameters-edit-cmmn.component.ts` and
       `parameters-edit-bpmn.component.ts` (1176 + 604 today) for the PR bodies.
 
 ## 1. Layer 1: shared beëindiging step (`feature/PZ-12754-step-beeindiging`)
 
-- [ ] 1.1 Create `parameters-edit/steps/parameters-step-beeindiging` with a signal `input.required` for its `FormGroup`
+- [x] 1.1 Create `parameters-edit/steps/parameters-step-beeindiging` with a signal `input.required` for its `FormGroup`
       and its own query for zaakbeeindigredenen and resultaattypen (design D4). Verify `npm run lint` reports no
       `@Input`/`@Output`.
-- [ ] 1.2 Replace the beëindiging markup and form code in `parameters-edit-cmmn` and `parameters-edit-bpmn` with the step
+- [x] 1.2 Replace the beëindiging markup and form code in `parameters-edit-cmmn` and `parameters-edit-bpmn` with the step
       component. Verify that both components render the step with the same fields as before.
-- [ ] 1.3 Move `parameters-edit-cmmn.component.form-step-6.beeindiging.spec.ts` to a spec of the step component,
+- [x] 1.3 Move `parameters-edit-cmmn.component.form-step-6.beeindiging.spec.ts` to a spec of the step component,
       parameterised by engine with `it.each`. Verify with `npm test` that it passes for CMMN and BPMN.
 - [ ] 1.4 Run `./gradlew spotlessApply` and `npm test`, and open the PR. Title:
       `refactor(admin): share the zaak beëindiging step between the CMMN and BPMN screens`. The body ends with
