@@ -75,7 +75,7 @@
     "@testing-library/angular": "18.1.1",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
-    "@testing-library/user-event": "14.6.7",
+    "@testing-library/user-event": "14.6.8",
     "@types/dom-navigation": "1.0.7",
     "@types/jest": "29.5.14",
     "@types/node": "24.19.2",
