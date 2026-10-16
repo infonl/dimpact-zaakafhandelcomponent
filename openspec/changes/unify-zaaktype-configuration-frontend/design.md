@@ -103,7 +103,7 @@ Alternatives considered:
 
 ```
 parameters-edit                  container: route data, one typed FormGroup, submit, engine guards
- ├─ parameters-step-proces-model   engine + definition; replaces 3 copies
+ ├─ parameters-step-proces-model   engine; replaces 3 copies
  ├─ parameters-step-algemeen       groep/behandelaar cascade, warning windows, productaanvraagtype,
  │                                 definition slot (case definition | process definition)
  ├─ parameters-step-humantasks     @if CMMN
