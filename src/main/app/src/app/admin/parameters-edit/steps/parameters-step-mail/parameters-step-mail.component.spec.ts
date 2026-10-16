@@ -142,6 +142,21 @@ describe(ParametersStepMailComponent.name, () => {
         screen.queryByRole("switch", { name: /ontvangstbevestiging/i }),
       ).not.toBeInTheDocument();
     });
+
+    it("explains in a collapsed section that the process sends the confirmation of receipt", async () => {
+      await setupWithoutThoseSettings();
+      const section = screen.getByRole("button", {
+        name: "gegevens.mail.ontvangstbevestiging",
+      });
+
+      expect(section).toHaveAttribute("aria-expanded", "false");
+
+      await user.click(section);
+
+      expect(
+        screen.getByText("gegevens.mail.ontvangstbevestiging.door-proces"),
+      ).toBeVisible();
+    });
   });
 
   describe("zaakafzenders", () => {

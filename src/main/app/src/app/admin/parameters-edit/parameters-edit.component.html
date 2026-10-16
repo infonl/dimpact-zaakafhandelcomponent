@@ -67,9 +67,6 @@
                   [isZaakspecifiekAutoriseerbaar]="
                     configuration().isZaakspecifiekAutoriseerbaar ?? false
                   "
-                  [showWarningWindows]="
-                    processDefinition.processEngine === 'CMMN'
-                  "
                 />
                 <zac-parameters-step-buttons
                   [canSave]="canSave(form)"
@@ -117,7 +114,7 @@
             </mat-step>
           }
 
-          @if (processDefinition?.processEngine === "CMMN") {
+          @if (processDefinition) {
             <mat-step
               [stepControl]="form.controls.mail"
               [hasError]="form.controls.mail.invalid"
@@ -133,9 +130,7 @@
                 />
               </ng-template>
             </mat-step>
-          }
 
-          @if (processDefinition) {
             <mat-step
               [stepControl]="form.controls.beeindiging"
               [hasError]="form.controls.beeindiging.invalid"

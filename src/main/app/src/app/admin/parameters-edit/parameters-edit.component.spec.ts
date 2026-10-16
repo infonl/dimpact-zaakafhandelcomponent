@@ -92,6 +92,7 @@ const caseDefinitionSteps = [
 const bpmnProcessDefinitionSteps = [
   "gegevens.procesmodel",
   "gegevens.algemeen",
+  "gegevens.mail",
   "gegevens.beeindiging",
   "gegevens.koppelingen",
 ];
@@ -277,6 +278,32 @@ describe(ParametersEditComponent.name, () => {
             isEnabledGlobally: true,
             isEnabledForZaaktype: false,
           },
+        }),
+        expect.anything(),
+      ),
+    );
+  });
+
+  it("stores the deadline warning window that a beheerder sets for a BPMN zaaktype", async () => {
+    const { updateZaakafhandelparameters } = await setup(bpmnConfiguration);
+
+    const algemeen = screen.getByRole("tabpanel", {
+      name: /gegevens.algemeen/,
+    });
+    await user.type(
+      within(algemeen).getByLabelText(
+        /uiterlijke-einddatum-afdoening-waarschuwing/i,
+      ),
+      "2",
+    );
+    await user.click(
+      within(algemeen).getByRole("button", { name: "actie.opslaan" }),
+    );
+
+    await waitFor(() =>
+      expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uiterlijkeEinddatumAfdoeningWaarschuwing: 2,
         }),
         expect.anything(),
       ),

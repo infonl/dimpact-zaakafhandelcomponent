@@ -91,14 +91,17 @@
 
 - [ ] 6.1 Show the two warning windows in the algemeen step for BPMN. Verify with a spec, and with an itest that a
       BPMN zaak with a stored window is listed by the zaak warnings endpoint.
-- [ ] 6.2 Create `parameters-step-mail`. It shows the mailtemplate koppelingen and the zaakafzenders for both
+      The screen and the spec are done. The itest is open: the existing "Listing zaak warnings" itest expects exactly
+      one warned zaak of BEHANDELAAR_1, so a BPMN variant needs a user of its own.
+- [x] 6.2 Create `parameters-step-mail`. It shows the mailtemplate koppelingen and the zaakafzenders for both
       engines, and the intake/afronden mail and the confirmation email only for CMMN. Verify with `it.each` specs per
       engine, and move `form-step-5.mail.spec.ts` into it.
-- [ ] 6.3 For BPMN, show a collapsed confirmation email section without fields, with the text that the BPMN process
+- [x] 6.3 For BPMN, show a collapsed confirmation email section without fields, with the text that the BPMN process
       sends the confirmation of receipt. Add the text to the Dutch and English i18n files. Verify with a spec that
       no confirmation email field is in the DOM for BPMN.
 - [ ] 6.4 Add itests: a BPMN zaak uses its mailtemplate koppeling in `GET /mailtemplates/{mail}/{zaakUUID}`, and
       lists its default zaakafzender. Verify with `./gradlew itest`.
+      Written as `ZaaktypeConfigurationRestServiceBpmnMailTest`; not run yet.
 - [ ] 6.5 Run `./gradlew spotlessApply` and `npm test`, and open the PR. Title:
       `feat(admin): let a beheerder set the warning windows and mail settings of a BPMN zaaktype`. The body ends with
       `Solves PZ-12754`.

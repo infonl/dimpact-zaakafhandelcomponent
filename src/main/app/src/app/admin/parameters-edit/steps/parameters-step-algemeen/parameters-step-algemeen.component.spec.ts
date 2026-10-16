@@ -34,10 +34,7 @@ const stored: AlgemeenSettings = {
   productaanvraagtype: "productaanvraag-1",
 };
 
-describe.each([
-  { engine: "CMMN", showWarningWindows: true },
-  { engine: "BPMN", showWarningWindows: false },
-])("Algemeen step of a $engine zaaktype", ({ showWarningWindows }) => {
+describe(ParametersStepAlgemeenComponent.name, () => {
   const user = userEvent.setup();
 
   async function setup({
@@ -59,7 +56,6 @@ describe.each([
           hasServicenorm: true,
         },
         isZaakspecifiekAutoriseerbaar,
-        showWarningWindows,
       },
       providers: [
         {
@@ -175,12 +171,10 @@ describe.each([
     expect(form.valid).toBe(false);
   });
 
-  it(`${showWarningWindows ? "shows" : "hides"} the deadline warning windows`, async () => {
+  it("lets the beheerder set both deadline warning windows of a zaaktype with a servicenorm", async () => {
     await setup();
 
-    expect(screen.queryAllByLabelText(/waarschuwing/i)).toHaveLength(
-      showWarningWindows ? 2 : 0,
-    );
+    expect(screen.getAllByLabelText(/waarschuwing/i)).toHaveLength(2);
   });
 
   it("stores the productaanvraagtype as it is filled in", async () => {
