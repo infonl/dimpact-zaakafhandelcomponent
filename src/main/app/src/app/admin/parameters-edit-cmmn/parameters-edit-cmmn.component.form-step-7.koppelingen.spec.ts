@@ -34,10 +34,6 @@ describe("Koppelingen form step", () => {
     naam: "Case Definition 1",
   });
 
-  const brpSearchValues = ["zoeken-1", "zoeken-2"];
-  const brpViewValues = ["raadplegen-1", "raadplegen-2"];
-  const brpProcessingValues = ["verwerken-1", "verwerken-2"];
-
   function createParameters(
     overrides: Partial<GeneratedType<"RestZaaktypeConfiguration">> = {},
   ) {
@@ -114,9 +110,9 @@ describe("Koppelingen form step", () => {
           useValue: fromPartial<ReferentieTabelService>({
             listReferentieTabellen: () => of([]),
             listAfzenders: () => of(["other@example.com"]),
-            listBrpSearchValues: () => of(brpSearchValues),
-            listBrpViewValues: () => of(brpViewValues),
-            listBrpProcessingValues: () => of(brpProcessingValues),
+            listBrpSearchValues: () => createQueryOptions([]),
+            listBrpViewValues: () => createQueryOptions([]),
+            listBrpProcessingValues: () => createQueryOptions([]),
           }),
         },
         {
@@ -171,125 +167,6 @@ describe("Koppelingen form step", () => {
     await user.click(screen.getByRole("tab", { name: new RegExp(label) }));
     return screen.getByRole("tabpanel", { name: new RegExp(label) });
   }
-
-  describe("Landelijke koppelingen", () => {
-    it("starts with both koppelingen switched off", async () => {
-      await setup();
-      const koppelingen = await goToStep("gegevens.koppelingen");
-
-      expect(
-        within(koppelingen).getByRole("switch", {
-          name: "gegevens.koppelen.brp",
-        }),
-      ).not.toBeChecked();
-      expect(
-        within(koppelingen).getByRole("switch", {
-          name: "gegevens.koppelen.kvk",
-        }),
-      ).not.toBeChecked();
-    });
-
-    it("asks for the BRP doelbinding values once BRP koppelen is switched on", async () => {
-      await setup();
-      const koppelingen = await goToStep("gegevens.koppelingen");
-
-      expect(
-        within(koppelingen).queryByRole("combobox", {
-          name: "brp-doelbinding.zoek-waarde",
-        }),
-      ).not.toBeInTheDocument();
-
-      await user.click(
-        within(koppelingen).getByRole("switch", {
-          name: "gegevens.koppelen.brp",
-        }),
-      );
-
-      expect(
-        within(koppelingen).getByRole("combobox", {
-          name: "brp-doelbinding.zoek-waarde",
-        }),
-      ).toBeVisible();
-      expect(
-        within(koppelingen).getByRole("combobox", {
-          name: "brp-doelbinding.raadpleeg-waarde",
-        }),
-      ).toBeVisible();
-      expect(
-        within(koppelingen).getByRole("combobox", {
-          name: "brp-doelbinding.verwerkingregister-waarde",
-        }),
-      ).toBeVisible();
-    });
-
-    it("blocks saving until every BRP doelbinding value is chosen", async () => {
-      await setup();
-      const koppelingen = await goToStep("gegevens.koppelingen");
-      const opslaan = within(koppelingen).getByRole("button", {
-        name: "actie.opslaan",
-      });
-
-      await user.click(
-        within(koppelingen).getByRole("switch", {
-          name: "gegevens.koppelen.brp",
-        }),
-      );
-
-      expect(opslaan).toBeDisabled();
-
-      await chooseBrpDoelbinding(koppelingen, {
-        "brp-doelbinding.zoek-waarde": brpSearchValues[0],
-        "brp-doelbinding.raadpleeg-waarde": brpViewValues[0],
-        "brp-doelbinding.verwerkingregister-waarde": brpProcessingValues[0],
-      });
-
-      expect(opslaan).toBeEnabled();
-    });
-
-    it("allows saving again when BRP koppelen is switched back off", async () => {
-      await setup();
-      const koppelingen = await goToStep("gegevens.koppelingen");
-      const brpKoppelen = within(koppelingen).getByRole("switch", {
-        name: "gegevens.koppelen.brp",
-      });
-      const opslaan = within(koppelingen).getByRole("button", {
-        name: "actie.opslaan",
-      });
-
-      await user.click(brpKoppelen);
-      expect(opslaan).toBeDisabled();
-
-      await user.click(brpKoppelen);
-
-      expect(
-        within(koppelingen).queryByRole("combobox", {
-          name: "brp-doelbinding.zoek-waarde",
-        }),
-      ).not.toBeInTheDocument();
-      expect(opslaan).toBeEnabled();
-    });
-
-    it("forgets the chosen BRP doelbinding values when BRP koppelen is switched off", async () => {
-      await setup();
-      const koppelingen = await goToStep("gegevens.koppelingen");
-      const brpKoppelen = within(koppelingen).getByRole("switch", {
-        name: "gegevens.koppelen.brp",
-      });
-
-      await user.click(brpKoppelen);
-      await chooseBrpDoelbinding(koppelingen, {
-        "brp-doelbinding.zoek-waarde": brpSearchValues[0],
-      });
-      await user.click(brpKoppelen);
-      await user.click(brpKoppelen);
-
-      expect(
-        within(koppelingen).getByRole("combobox", {
-          name: "brp-doelbinding.zoek-waarde",
-        }),
-      ).not.toHaveTextContent(brpSearchValues[0]);
-    });
-  });
 
   describe("SmartDocuments", () => {
     it("hides the SmartDocuments form when SmartDocuments is not enabled globally", async () => {
@@ -422,16 +299,4 @@ describe("Koppelingen form step", () => {
       ).toBeEnabled();
     });
   });
-
-  async function chooseBrpDoelbinding(
-    koppelingen: HTMLElement,
-    values: Record<string, string>,
-  ) {
-    for (const [label, value] of Object.entries(values)) {
-      await user.click(
-        within(koppelingen).getByRole("combobox", { name: label }),
-      );
-      await user.click(screen.getByRole("option", { name: value }));
-    }
-  }
 });

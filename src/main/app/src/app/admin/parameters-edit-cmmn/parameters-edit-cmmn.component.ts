@@ -27,7 +27,6 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -73,6 +72,12 @@ import {
   createZaakbeeindigingForm,
   toZaakbeeindigParameters,
 } from "../parameters-edit/steps/parameters-step-beeindiging/zaakbeeindiging-form";
+import {
+  createKoppelingenForm,
+  toBetrokkeneKoppelingen,
+  toBrpDoelbindingen,
+} from "../parameters-edit/steps/parameters-step-koppelingen/koppelingen-form";
+import { ParametersStepKoppelingenComponent } from "../parameters-edit/steps/parameters-step-koppelingen/parameters-step-koppelingen.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
@@ -86,7 +91,6 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
-    MatCheckboxModule,
     MatDividerModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -107,6 +111,7 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
     StaticTextComponent,
     SmartDocumentsFormComponent,
     ParametersStepBeeindigingComponent,
+    ParametersStepKoppelingenComponent,
   ],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
@@ -213,17 +218,12 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     intakeMail: this.formBuilder.control(null),
     afrondenMail: this.formBuilder.control(null),
   });
-  brpProtocoleringFormGroup = new FormGroup({
-    zoekWaarde: new FormControl(""),
-    raadpleegWaarde: new FormControl(""),
-    verwerkingregisterWaarde: new FormControl(""),
-  });
 
   protected zaakbeeindigFormGroup = createZaakbeeindigingForm({});
-  protected betrokkeneKoppelingen = new FormGroup({
-    brpKoppelen: new FormControl(false),
-    kvkKoppelen: new FormControl(false),
-  });
+  protected koppelingenForm = createKoppelingenForm(
+    {},
+    { isBrpDoelbindingSetupEnabled: false },
+  );
   protected filteredMedewerkerMail: GeneratedType<"RestReplyTo">[] = [];
   protected ontvangstBevestigingsMailtemplates: GeneratedType<"RestMailtemplate">[] =
     [];
@@ -270,9 +270,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected replyTos: GeneratedType<"RestReplyTo">[] = [];
   protected isLoading = false;
   protected subscriptions$: Subscription[] = [];
-  protected brpConsultingValues: string[] = [];
-  protected brpSearchValues: string[] = [];
-  protected brpProcessingValues: string[] = [];
   protected brpDoelbindingSetupEnabled = false;
 
   constructor(
@@ -320,9 +317,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.queryClient,
           mailtemplateBeheerService.listKoppelbareMailtemplates(),
         ),
-        referentieTabelService.listBrpSearchValues(),
-        referentieTabelService.listBrpViewValues(),
-        referentieTabelService.listBrpProcessingValues(),
         configuratieService.readBrpDoelbindingSetupEnabled(),
         identityService.listBehandelaarGroupsForZaaktype(
           this.parameters.zaaktype.omschrijving!,
@@ -334,9 +328,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           afzenders,
           replyTos,
           mailtemplates,
-          brpSearchValues,
-          brpViewValues,
-          brpProcessingValues,
           brpDoelbindingSetupEnabled,
           groepen,
         ]) => {
@@ -345,9 +336,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.mailtemplates = mailtemplates;
           this.zaakAfzenders = afzenders;
           this.replyTos = replyTos;
-          this.brpSearchValues = brpSearchValues;
-          this.brpConsultingValues = brpViewValues;
-          this.brpProcessingValues = brpProcessingValues;
           this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
           this.groepen = groepen;
           await this.createForm();
@@ -477,11 +465,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.createUserEventListenerForm();
     this.createMailForm();
     this.createZaakbeeindigForm();
-    this.createBetrokkeneKoppelingenForm();
-
-    if (this.brpDoelbindingSetupEnabled) {
-      this.createBrpDoelbindingForm();
-    }
+    this.koppelingenForm = createKoppelingenForm(this.parameters, {
+      isBrpDoelbindingSetupEnabled: this.brpDoelbindingSetupEnabled,
+    });
     this.createAutomatischeOntvangstbevestigingForm();
   }
 
@@ -609,56 +595,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.ontvangstBevestigingsMailtemplates = this.getAvailableMailtemplates(
       "TAAK_ONTVANGSTBEVESTIGING",
     );
-  }
-
-  private createBetrokkeneKoppelingenForm() {
-    this.betrokkeneKoppelingen = this.formBuilder.group({
-      kvkKoppelen: [
-        this.parameters.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false,
-      ],
-      brpKoppelen: [
-        this.parameters.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false,
-      ],
-    });
-
-    this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        for (const control of Object.values(
-          this.brpProtocoleringFormGroup.controls,
-        )) {
-          control.setValidators(value ? [Validators.required] : []);
-          // revalidating the group alone leaves each field on its previous status
-          control.updateValueAndValidity({ emitEvent: false });
-        }
-
-        if (value) return;
-
-        this.brpProtocoleringFormGroup.reset();
-      });
-  }
-
-  private createBrpDoelbindingForm() {
-    this.brpProtocoleringFormGroup = this.formBuilder.group({
-      raadpleegWaarde: [
-        this.parameters.brpDoelbindingen!.raadpleegWaarde ?? "",
-        this.betrokkeneKoppelingen.controls.brpKoppelen.value
-          ? [Validators.required]
-          : [],
-      ],
-      zoekWaarde: [
-        this.parameters.brpDoelbindingen!.zoekWaarde ?? "",
-        this.betrokkeneKoppelingen.controls.brpKoppelen.value
-          ? [Validators.required]
-          : [],
-      ],
-      verwerkingregisterWaarde: [
-        this.parameters.brpDoelbindingen!.verwerkingregisterWaarde ?? "",
-        this.betrokkeneKoppelingen.controls.brpKoppelen.value
-          ? [Validators.required]
-          : [],
-      ],
-    });
   }
 
   private createAutomatischeOntvangstbevestigingForm() {
@@ -810,8 +746,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.mailFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
       this.automatischeOntvangstbevestigingFormGroup.valid &&
-      this.betrokkeneKoppelingen.valid &&
-      this.brpProtocoleringFormGroup.valid
+      this.koppelingenForm.valid
     );
   }
 
@@ -821,8 +756,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.humanTasksFormGroup.dirty ||
       this.zaakbeeindigFormGroup.dirty ||
       this.automatischeOntvangstbevestigingFormGroup.dirty ||
-      this.betrokkeneKoppelingen.dirty ||
-      this.brpProtocoleringFormGroup.dirty
+      this.koppelingenForm.dirty
     );
   }
 
@@ -928,16 +862,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         smartDocumentsFormComponent.enabledForZaaktypeValue;
     }
 
-    this.parameters.betrokkeneKoppelingen = {
-      isKvkKoppelenEnabled: Boolean(
-        this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
-      ),
-      isBrpKoppelenEnabled: Boolean(
-        this.betrokkeneKoppelingen.controls.brpKoppelen.value,
-      ),
-    };
-
-    this.parameters.brpDoelbindingen = this.brpProtocoleringFormGroup.value;
+    this.parameters.betrokkeneKoppelingen = toBetrokkeneKoppelingen(
+      this.koppelingenForm,
+    );
+    this.parameters.brpDoelbindingen = toBrpDoelbindingen(this.koppelingenForm);
 
     const { templateName, emailSender, emailReply, enabled } =
       this.automatischeOntvangstbevestigingFormGroup.value;

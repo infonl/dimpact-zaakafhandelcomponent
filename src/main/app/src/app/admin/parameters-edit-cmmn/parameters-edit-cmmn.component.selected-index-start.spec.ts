@@ -96,9 +96,6 @@ describe(ParametersEditCmmnComponent.name, () => {
           useValue: fromPartial<ReferentieTabelService>({
             listReferentieTabellen: () => of([]),
             listAfzenders: () => of([]),
-            listBrpSearchValues: () => of([]),
-            listBrpViewValues: () => of([]),
-            listBrpProcessingValues: () => of([]),
           }),
         },
         {
