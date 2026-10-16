@@ -46,6 +46,7 @@ Versiegeschiedenis:
 | 1.10.1 | Toevoeging tabblad Medewerkers bij zaakspecifieke autorisatie                                                                              |
 | 1.10.2 | Toevoeging zaakspecifieke autorisatie bij taken                                                                                            |
 | 1.10.3 | Toevoeging medewerker ontkoppelen bij zaakspecifieke autorisatie                                                                           |
+| 1.10.4 | Toevoeging zaakspecifieke autorisatie opheffen                                                                                             |
 
 <div style="page-break-after: always"></div>
 
@@ -85,6 +86,7 @@ Versiegeschiedenis:
     - [Medewerkers](#medewerkers)
     - [Medewerker toevoegen](#medewerker-toevoegen)
     - [Medewerker ontkoppelen](#medewerker-ontkoppelen)
+    - [Zaakspecifieke autorisatie opheffen](#zaakspecifieke-autorisatie-opheffen)
   - [Locatie koppelen](#locatie-koppelen)
   - [Locatie wijzigen](#locatie-wijzigen)
   - [Locatie ontkoppelen](#locatie-ontkoppelen)
@@ -544,7 +546,7 @@ Die rol bepaalt wat de medewerker met de zaak mag doen.
 
 ![Zaak zaakspecifiek autoriseren](./images/zaak-zaakspecifiek-autoriseren.png)
 
-> Let op! <br>Je kunt de zaakspecifieke autorisatie niet meer ongedaan maken.
+Je kunt de zaakspecifieke autorisatie later weer opheffen. Zie [Zaakspecifieke autorisatie opheffen](#zaakspecifieke-autorisatie-opheffen).
 
 Alleen de behandelaar van de zaak en medewerkers met de rol Zaakspecifiek geautoriseerd kunnen een zaak zaakspecifiek autoriseren.
 Je kunt in dezelfde stap ook een andere behandelaar kiezen. Dan geldt de nieuwe behandelaar als behandelaar.
@@ -627,6 +629,33 @@ De medewerker heeft vanaf dan geen toegang meer tot de zaak. De medewerker ziet 
 Het tabblad ‘Medewerkers’ toont de medewerker niet meer. De zaakhistorie toont dat de Zaakspecifiek geautoriseerde medewerker is ontkoppeld, met de reden.
 
 Heeft de medewerker de rol Zaakspecifiek geautoriseerd voor het zaaktype, dan houdt de medewerker via die rol wel toegang. Deze medewerkers staan niet in het tabblad ‘Medewerkers’.
+
+### Zaakspecifieke autorisatie opheffen
+
+Heeft een zaak geen zaakspecifieke autorisatie meer nodig, dan kun je deze opheffen. De zaak is daarna weer een gewone zaak.
+
+> De optie is alleen beschikbaar als je de zaak mag wijzigen.
+
+**Stappen**
+
+1 In een zaak in het tabblad ‘Gegevens’ klik je op het potlood
+
+2 Zet het vinkje bij ‘Zaak zaakspecifiek autoriseren’ uit
+
+3 Geef de verplichte reden voor de aanpassing op
+
+4 Klik op Opslaan
+
+5 ZAC vraagt of je de zaakspecifieke autorisatie wilt opheffen. Klik op Opheffen. Klik je op Sluiten, dan slaat ZAC niets op.
+
+Na het opheffen:
+
+- hebben alle medewerkers met een rol voor het zaaktype weer toegang tot de zaak, met de rechten van die rol
+- verdwijnen het slot-icoon en het tabblad ‘Medewerkers’
+- kun je de zaak weer vrijgeven
+- haalt ZAC alle Zaakspecifiek geautoriseerde medewerkers van de zaak. De zaakhistorie toont dit, met de reden.
+
+Autoriseer je de zaak later opnieuw zaakspecifiek, dan hebben de eerder toegevoegde medewerkers geen toegang meer. Voeg ze zo nodig opnieuw toe.
 
 ## Locatie koppelen
 

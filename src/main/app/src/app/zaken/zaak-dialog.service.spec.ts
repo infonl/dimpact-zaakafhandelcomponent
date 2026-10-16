@@ -15,6 +15,7 @@ import {
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakAfbrekenDialogFormComponent } from "./zaak-afbreken-dialog-form/zaak-afbreken-dialog-form.component";
 import { ZaakDialogService } from "./zaak-dialog.service";
+import { ZaakspecifiekeAutorisatieOpheffenDialogComponent } from "./zaakspecifieke-autorisatie-opheffen-dialog/zaakspecifieke-autorisatie-opheffen-dialog.component";
 
 const setup = () => {
   const open = jest.fn().mockReturnValue({ afterClosed: () => of(true) });
@@ -134,5 +135,15 @@ describe(ZaakDialogService.name, () => {
     const data = open.mock.calls.at(-1)![1].data;
     expect(data.options).toBe(options);
     expect(data.callback).toBe(callback);
+  });
+
+  it("zaakspecifiekeAutorisatieOpheffen opens the dedicated confirmation dialog without a reden", () => {
+    const { service, open } = setup();
+
+    service.openZaakspecifiekeAutorisatieOpheffen();
+
+    expect(open).toHaveBeenCalledWith(
+      ZaakspecifiekeAutorisatieOpheffenDialogComponent,
+    );
   });
 });
