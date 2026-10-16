@@ -140,7 +140,9 @@ describe(ZaakDetailsCardComponent.name, () => {
       renderCard({ zaak: { ...zaak, isZaakspecifiekGeautoriseerd: true } });
 
       expect(
-        screen().getByTitle("zaak.is-zaakspecifiek-geautoriseerd"),
+        screen().getByRole("img", {
+          name: "zaak.is-zaakspecifiek-geautoriseerd",
+        }),
       ).toBeInTheDocument();
     });
 

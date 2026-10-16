@@ -5,7 +5,10 @@
 
 @if (isZaakspecifiekGeautoriseerd()) {
   <mat-icon
-    title="{{ 'zaak.is-zaakspecifiek-geautoriseerd' | translate }}"
+    aria-hidden="false"
+    role="img"
+    [attr.aria-label]="'zaak.is-zaakspecifiek-geautoriseerd' | translate"
+    [matTooltip]="'zaak.is-zaakspecifiek-geautoriseerd' | translate"
     class="zaakspecifiek-geautoriseerd-icon"
     >lock</mat-icon
   >
