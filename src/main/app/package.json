@@ -50,7 +50,7 @@
     "openapi-fetch": "0.17.0",
     "proj4": "2.22.0",
     "rxjs": "7.8.2",
-    "ts-pattern": "5.9.0",
+    "ts-pattern": "5.9.1",
     "zone.js": "0.15.1"
   },
   "overrides": {
