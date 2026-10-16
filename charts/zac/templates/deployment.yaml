@@ -106,9 +106,14 @@ spec:
           {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if not .Values.solr.url }}
+          {{- if or (not .Values.solr.url) .Values.extraEnv }}
           env:
+            {{- if not .Values.solr.url }}
             {{- include "zaakafhandelcomponent.solr.credentialsEnv" . | nindent 12 }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
           envFrom:
             - configMapRef:

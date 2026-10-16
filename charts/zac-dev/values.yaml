@@ -1,0 +1,28 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
+# -- namespace of the PodiumD umbrella release; the URLs inside PodiumD hardcode 'podiumd'
+podiumdNamespace: podiumd
+
+# -- what to install: 'infra' (the shared Postgres, installed before PodiumD), 'zac' (test doubles,
+# seed jobs and NodePorts, installed after PodiumD) or 'keycloak' (the ZAC layer of the PodiumD realm,
+# installed once the PodiumD realm import has finished, because that import overwrites realm settings). Two releases of this chart, so that the umbrella
+# chart finds its database on its first install.
+part: infra
+
+images:
+  # -- ghcr.io/infonl/postgis is the arm64 build that the Docker Compose arm64 override uses as well
+  postgres: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+  wiremock: wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3
+  greenmail: greenmail/standalone:2.1.14@sha256:1ef95a966418cd09b7ea91d504d8c0826bbe7a2f6e679a75c601a831587c1626
+  solr: solr:9.11.0-slim@sha256:c8a5ad7d951c00f15d5847ba0a94c1ab212de42de10668b80848831b72d75b9f
+  keycloak: quay.io/keycloak/keycloak:26.7.3@sha256:ff4257d0d64efbe99ed1ddfaf07765cc3c36dc7518bf8324d41961327f441c54
+  objecten: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
+  busybox: busybox:1.38.0-glibc
+
+# -- the BAG API URL and key that the Open Zaak test data stores, as in the itest Docker Compose setup
+bagApi:
+  url: http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/
+  key: fakeBagApiKey

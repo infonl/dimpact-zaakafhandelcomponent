@@ -216,7 +216,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         logger.info {
             "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
         }
-        if (!shouldSkipDockerComposeStart) {
+        if (ItestPlatform.isKind) {
+            logger.info { "SPIKE: running against the kind cluster brought up by hack/kind-spike/up.sh" }
+        } else if (!shouldSkipDockerComposeStart) {
             dockerComposeContainer = createDockerComposeContainer()
             try {
                 dockerComposeContainer.start()
@@ -259,7 +261,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
         ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
         logger.info { "ZAC is healthy" }
-        if (!shouldSkipDockerComposeStart) {
+        if (ItestPlatform.isKind || !shouldSkipDockerComposeStart) {
             createTestSetupData()
             ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
         }
@@ -268,6 +270,11 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
         try {
+            if (ItestPlatform.isKind) {
+                // SPIKE: the kind cluster outlives the test run; JaCoCo coverage is not collected
+                ItestTimingReport.collectPodTimings()
+                return
+            }
             if (shouldSkipDockerComposeStart) {
                 logger.warn {
                     "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"

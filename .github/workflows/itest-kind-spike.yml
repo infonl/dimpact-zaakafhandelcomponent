@@ -1,0 +1,156 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059), do not merge: runs one integration test shard against a kind cluster with the PodiumD
+# umbrella chart instead of Docker Compose, and reports the boot time and memory use.
+name: Spike - itests on kind
+
+on:
+  workflow_dispatch:
+    inputs:
+      shard:
+        description: 'Integration test shard to run'
+        default: '3'
+  pull_request:
+    paths:
+      - '.github/workflows/itest-kind-spike.yml'
+      - 'hack/kind-spike/**'
+      - 'charts/zac-dev/**'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: "25.0.4"
+  ZAC_IMAGE: ghcr.io/infonl/zaakafhandelcomponent:kind-spike
+  SHARD: ${{ github.event.inputs.shard || '3' }}
+  KIND_VERSION: v0.33.0
+  REPORT_DIR: build/reports/kind-spike
+
+jobs:
+  itest-on-kind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
+      READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Runner resources
+        run: |
+          mkdir -p "$REPORT_DIR"
+          echo "start_epoch=$(date +%s)" | tee "$REPORT_DIR/job.env"
+          nproc; free -m; df -h / | tail -1; docker version --format '{{.Server.Version}}'
+
+      - name: Authenticate with Docker Hub to avoid rate limiting issues
+        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: v4.3.0
+
+      - name: Install kind
+        run: |
+          curl -fsSLo kind "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64"
+          chmod +x kind && sudo mv kind /usr/local/bin/kind
+          kind version
+
+      # The cluster bring-up runs in the background while the ZAC image is built, the same way the
+      # Docker Compose itest job pulls its images while the image is built. up.sh waits for the ZAC image.
+      - name: Start the kind cluster and the PodiumD stack in the background
+        run: |
+          nohup hack/kind-spike/sample-memory.sh "$REPORT_DIR/memory.tsv" > /dev/null 2>&1 &
+          echo $! > "$RUNNER_TEMP/sampler.pid"
+          (while true; do printf '%s\t%s\n' "$(date +%s)" "$(free -m | awk '/Mem:/ {print $3}')"; sleep 3; done) \
+            > "$REPORT_DIR/runner-memory-used-mb.tsv" 2>&1 &
+          echo $! > "$RUNNER_TEMP/runner-sampler.pid"
+          TIMINGS_FILE="$REPORT_DIR/timings.tsv" nohup hack/kind-spike/up.sh < /dev/null > "$REPORT_DIR/up.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/up.pid"
+
+      - name: Setup JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      # The Docker Compose itest shards build their image from the JAR of the 'build' job. This spike changes no
+      # ZAC code, so it uses the image of the latest successful main build instead of building one.
+      - name: Pull the ZAC Docker image of the latest main build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "image_pull_start=$(date +%s)" >> "$REPORT_DIR/job.env"
+          run_number=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow build-test-deploy.yml --branch main \
+            --event push --status success --limit 1 --json number --jq '.[0].number')
+          docker pull --quiet "ghcr.io/infonl/zaakafhandelcomponent:main-$run_number"
+          docker tag "ghcr.io/infonl/zaakafhandelcomponent:main-$run_number" "$ZAC_IMAGE"
+          echo "image_pull_end=$(date +%s)" >> "$REPORT_DIR/job.env"
+
+      # The Docker Compose itest shards get the compiled classes from the 'build' job; compile them here while
+      # the stack comes up, so that the itest step below measures the shard and not the compilation.
+      - name: Compile the integration tests
+        run: |
+          echo "compile_start=$(date +%s)" >> "$REPORT_DIR/job.env"
+          ./gradlew itestClasses
+          echo "compile_end=$(date +%s)" >> "$REPORT_DIR/job.env"
+
+      - name: Wait for the kind stack
+        run: |
+          while kill -0 "$(cat "$RUNNER_TEMP/up.pid")" 2> /dev/null; do sleep 2; done
+          echo "stack_ready=$(date +%s)" >> "$REPORT_DIR/job.env"
+          cat "$REPORT_DIR/up.log"
+          # up.sh has finished; it failed when 'all-ready' is missing from its timings
+          grep -q '^all-ready' "$REPORT_DIR/timings.tsv"
+
+      - name: Run integration test shard ${{ env.SHARD }} against kind
+        run: |
+          echo "itest_start=$(date +%s)" >> "$REPORT_DIR/job.env"
+          ./gradlew -PitestPlatform=kind -PitestShard="$SHARD" \
+            -PitestLogFile=build/reports/itest/itest.log \
+            -x buildDockerImage itest
+          echo "itest_end=$(date +%s)" >> "$REPORT_DIR/job.env"
+
+      - name: Report timings and memory
+        if: ${{ !cancelled() }}
+        run: |
+          kill "$(cat "$RUNNER_TEMP/sampler.pid")" "$(cat "$RUNNER_TEMP/runner-sampler.pid")" 2> /dev/null || true
+          python3 hack/kind-spike/report.py "$REPORT_DIR" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ -f build/reports/itest/timings.md ]; then
+            tee --append "$GITHUB_STEP_SUMMARY" < build/reports/itest/timings.md
+          fi
+
+      - name: Dump the cluster state
+        if: ${{ failure() }}
+        run: |
+          kubectl --context kind-zac-spike get pods -A -o wide || true
+          kubectl --context kind-zac-spike get events -A --sort-by=.lastTimestamp | tail -80 || true
+          mkdir -p "$REPORT_DIR/logs"
+          for pod in $(kubectl --context kind-zac-spike get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{end}' | grep -E '^(podiumd|zac)/'); do
+            kubectl --context kind-zac-spike logs -n "${pod%%/*}" "${pod##*/}" --all-containers --prefix > "$REPORT_DIR/logs/${pod//\//_}.log" 2>&1 || true
+          done
+
+      - name: Upload the spike reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: itest-kind-spike-reports
+          path: |
+            build/reports/kind-spike
+            build/reports/itest
+          if-no-files-found: ignore
+          retention-days: 7

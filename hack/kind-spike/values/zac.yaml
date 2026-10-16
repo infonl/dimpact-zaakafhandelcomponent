@@ -1,0 +1,148 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): values for charts/zac (release 'zac', namespace 'zac') in the kind cluster, mirroring the
+# ZAC service and the itest overrides of the Docker Compose stack (see ZacItestProjectConfig).
+fullnameOverride: zac
+
+image:
+  repository: ghcr.io/infonl/zaakafhandelcomponent
+  tag: kind-spike
+  # loaded into the kind node with 'kind load docker-image'
+  pullPolicy: Never
+
+contextUrl: http://localhost:8080
+# as in Docker Compose; the chart default sizes the heap from the memory limit instead
+javaOptions: "-Xms1024m -Xmx1024m -Xlog:gc::time,uptime"
+maxInMemoryFileSizeMB: 10
+
+db:
+  host: postgres.podiumd.svc.cluster.local
+  name: zac
+  user: zac
+  password: password
+
+auth:
+  server: http://keycloak-service.podiumd.svc.cluster.local:8080
+  realm: podiumd
+  clientId: zac
+  secret: keycloakZaakafhandelcomponentClientSecret
+  sslRequired: none
+  enablePkce: true
+
+keycloak:
+  adminClient:
+    id: zaakafhandelcomponent-admin-client
+    secret: zaakafhandelcomponentAdminClientSecret
+
+gemeente:
+  code: "9999"
+  naam: FakeZacGemeente
+  mail: gemeente-zac-test@example.com
+
+mail:
+  smtp:
+    server: greenmail
+    port: "25"
+
+zgwApis:
+  url: http://openzaak.local:8000/
+  clientId: zac-client
+  secret: openzaakZaakafhandelcomponentClientSecret
+
+notificationsSecretKey: openNotificatiesApiSecretKey
+
+klantinteractiesApi:
+  url: http://openklant.local:8000
+  token: fakeToken
+
+objectenApi:
+  url: http://open-object.local:8000
+  token: fakeZacObjectsToken
+
+brpApi:
+  url: http://brp-personen-wiremock:8080/haalcentraal/api/brp
+  apiKey:
+    value: ""
+    header: ""
+  protocollering:
+    enabled: true
+    doelbinding:
+      perZaaktype: true
+      zoekmet: BRPACT-Totaal
+      raadpleegmet: BRPACT-Totaal
+      header: x-doelbinding
+    originOin:
+      oin: "123443210"
+      header: x-origin-oin
+    verwerking:
+      register: Algemeen
+      extendWithZaaktype: "true"
+      header: x-verwerking
+    toepassing:
+      value: ZAC
+      header: x-toepassing
+    gebruiker:
+      header: x-gebruiker
+    systemUser: ZacSystemUser
+
+kvkApi:
+  url: http://kvk-wiremock:8080
+  apiKey: fakeKvkApiKey
+
+bagApi:
+  url: http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/
+  apiKey: fakeBagApiKey
+
+openForms:
+  url: http://localhost:9999
+
+pabcApi:
+  url: http://pabc.podiumd.svc.cluster.local
+  apiKey: zac-test-api-key
+
+# as ZacItestProjectConfig overrides it for Docker Compose
+zacInternalEndpointsApiKey: zacItestInternalEndpointsApiKey
+
+smartDocuments:
+  enabled: true
+  url: http://smartdocuments-wiremock:8080
+  authentication: fakeSmartDocumentsAuthentication
+
+signaleringen:
+  deleteOlderThanDays: "0"
+
+solr:
+  url: http://solr:8983
+  createZacCore: false
+  username: zac
+  password: fakeSolrPassword
+
+office_converter:
+  username: zac
+  password: fakeOfficeConverterPassword
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+
+organizations:
+  verantwoordelijke:
+    rsin: "316245124"
+  bron:
+    rsin: "123443210"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1536Mi
+    ephemeral-storage: 512Mi
+  limits:
+    # as in Docker Compose
+    memory: 4Gi
+    ephemeral-storage: 4Gi
+
+extraEnv:
+  - name: APP_ENV
+    value: itest

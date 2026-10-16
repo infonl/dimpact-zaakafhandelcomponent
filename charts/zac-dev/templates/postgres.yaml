@@ -1,0 +1,115 @@
+{{- if eq .Values.part "infra" }}
+# One Postgres server for every component, as on a PodiumD environment (one managed Postgres server with
+# a database per component). Data lives in an emptyDir: every itest run starts from the seed data.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  namespace: {{ .Values.podiumdNamespace }}
+data:
+  00-roles-and-databases.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    # user:password:database. Every role is a superuser: this is a throwaway test database, and the
+    # Open Zaak dump creates the postgis and pg_trgm extensions.
+    for spec in keycloak:keycloak:keycloak openzaak:openzaak:openzaak openklant:openklant:openklant \
+                objects:objects:objects pabc:pabc:Pabc zac:password:zac; do
+      IFS=: read -r user password database <<< "$spec"
+      psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres \
+        -c "CREATE ROLE \"$user\" LOGIN SUPERUSER PASSWORD '$password'" \
+        -c "CREATE DATABASE \"$database\" OWNER \"$user\""
+    done
+  10-openzaak.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    echo ">>>> Restoring the pre-migrated Open Zaak database and the ZAC test data"
+    psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 --quiet \
+      --file /seed/openzaak-dump/00-restore-migrated-database.sql > /dev/null
+    for file in /seed/openzaak-data/*.sql; do
+      echo "Running $file ..."
+      psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 \
+        --set BAG_API_CLIENT_MP_REST_URL={{ .Values.bagApi.url | quote }} \
+        --set BAG_API_KEY={{ .Values.bagApi.key | quote }} \
+        --file "$file"
+    done
+  20-zac.sql: |
+    \connect zac zac
+    CREATE SCHEMA flowable;
+    GRANT CREATE, USAGE ON SCHEMA flowable TO zac;
+    CREATE SCHEMA zaakafhandelcomponent;
+    GRANT CREATE, USAGE ON SCHEMA zaakafhandelcomponent to zac;
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: {{ .Values.podiumdNamespace }}
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: postgres
+          image: {{ .Values.images.postgres }}
+          args: ["-c", "max_connections=400"]
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            exec:
+              # TCP on purpose: during the init scripts Postgres only listens on its Unix socket
+              command: ["pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+            periodSeconds: 2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+            - name: openzaak-dump
+              mountPath: /seed/openzaak-dump
+            - name: openzaak-data
+              mountPath: /seed/openzaak-data
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: initdb
+          configMap:
+            name: postgres-initdb
+        - name: openzaak-dump
+          configMap:
+            name: seed-openzaak-dump
+        - name: openzaak-data
+          configMap:
+            name: seed-openzaak-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: {{ .Values.podiumdNamespace }}
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+{{- end }}

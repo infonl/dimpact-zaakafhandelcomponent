@@ -1,0 +1,52 @@
+{{- if eq .Values.part "zac" }}
+{{- /*
+  Fixed NodePorts, mapped to host ports (Docker Compose host port + 20000) by hack/kind-spike/kind-config.yaml.
+*/}}
+{{- $podiumd := .Values.podiumdNamespace }}
+{{- range $nodePort := list
+  (dict "name" "zac-nodeport" "namespace" $.Release.Namespace "selector" (dict "app.kubernetes.io/name" "zaakafhandelcomponent" "app.kubernetes.io/instance" "zac") "ports" (list (dict "name" "http" "port" 8080 "nodePort" 30080) (dict "name" "management" "port" 9990 "nodePort" 30990)))
+  (dict "name" "keycloak-nodeport" "namespace" $podiumd "selector" (dict "app" "keycloak" "app.kubernetes.io/managed-by" "keycloak-operator") "ports" (list (dict "name" "http" "port" 8080 "nodePort" 30081) (dict "name" "management" "port" 9000 "nodePort" 30901)))
+  (dict "name" "openzaak-nodeport" "namespace" $podiumd "selector" (dict "app.kubernetes.io/name" "openzaak-nginx") "ports" (list (dict "name" "http" "port" 8080 "nodePort" 30801)))
+  (dict "name" "greenmail-nodeport" "namespace" $.Release.Namespace "selector" (dict "app" "greenmail") "ports" (list (dict "name" "api" "port" 8080 "nodePort" 30083)))
+  (dict "name" "brp-personen-wiremock-nodeport" "namespace" $.Release.Namespace "selector" (dict "app" "brp-personen-wiremock") "ports" (list (dict "name" "http" "port" 8080 "nodePort" 30084))) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $nodePort.name }}
+  namespace: {{ $nodePort.namespace }}
+spec:
+  type: NodePort
+  selector:
+    {{- toYaml $nodePort.selector | nindent 4 }}
+  ports:
+    {{- range $nodePort.ports }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .port }}
+      nodePort: {{ .nodePort }}
+    {{- end }}
+{{- end }}
+{{- /*
+  Docker Compose host names that the ZAC test data and the itests contain (http://openzaak.local:8000 and so on).
+  CoreDNS rewrites each name to one of these Services (see up.sh), which listen on the Docker Compose port.
+  With the PodiumD URLs (http://openzaak-nginx.podiumd.svc.cluster.local) in the test data these can go.
+*/}}
+{{- range $alias := list
+  (dict "name" "openzaak-local" "selector" "openzaak-nginx" "port" 8000 "targetPort" 8080)
+  (dict "name" "open-object-local" "selector" "objecten" "port" 8000 "targetPort" 8000)
+  (dict "name" "openklant-local" "selector" "openklant" "port" 8000 "targetPort" 8000) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $alias.name }}
+  namespace: {{ $podiumd }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ $alias.selector }}
+  ports:
+    - port: {{ $alias.port }}
+      targetPort: {{ $alias.targetPort }}
+{{- end }}
+{{- end }}
