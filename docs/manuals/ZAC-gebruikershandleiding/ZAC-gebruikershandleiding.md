@@ -45,7 +45,8 @@ Versiegeschiedenis:
 | 1.10   | Toevoeging zaakspecifieke autorisatie                                                                                                      |
 | 1.10.1 | Toevoeging tabblad Medewerkers bij zaakspecifieke autorisatie                                                                              |
 | 1.10.2 | Toevoeging zaakspecifieke autorisatie bij taken                                                                                            |
-| 1.10.3 | Toevoeging zaakspecifieke autorisatie opheffen                                                                                             |
+| 1.10.3 | Toevoeging medewerker ontkoppelen bij zaakspecifieke autorisatie                                                                           |
+| 1.10.4 | Toevoeging zaakspecifieke autorisatie opheffen                                                                                             |
 
 <div style="page-break-after: always"></div>
 
@@ -84,6 +85,7 @@ Versiegeschiedenis:
     - [Werken met een zaakspecifiek geautoriseerde zaak](#werken-met-een-zaakspecifiek-geautoriseerde-zaak)
     - [Medewerkers](#medewerkers)
     - [Medewerker toevoegen](#medewerker-toevoegen)
+    - [Medewerker ontkoppelen](#medewerker-ontkoppelen)
     - [Zaakspecifieke autorisatie opheffen](#zaakspecifieke-autorisatie-opheffen)
   - [Locatie koppelen](#locatie-koppelen)
   - [Locatie wijzigen](#locatie-wijzigen)
@@ -598,6 +600,35 @@ Bij een zaakspecifiek geautoriseerde zaak kun je extra medewerkers toegang geven
 De toegevoegde medewerker heeft vanaf dan toegang tot de zaak, met de rechten van de eigen rol voor het zaaktype.
 De zaakhistorie toont dat de medewerker is toegevoegd als Zaakspecifiek geautoriseerde medewerker. Het tabblad ‘Medewerkers’ toont de medewerker ook.
 Een toegevoegde medewerker die de zaak mag wijzigen, kan zelf ook medewerkers toevoegen.
+
+### Medewerker ontkoppelen
+
+Bij een zaakspecifiek geautoriseerde zaak kun je de toegang van een Zaakspecifiek geautoriseerde medewerker weer intrekken.
+Bijvoorbeeld als per ongeluk de verkeerde medewerker is toegevoegd.
+
+Je kunt deze medewerkers ontkoppelen: handmatig toegevoegde medewerkers, vorige behandelaars en vorige taakbehandelaars.
+De behandelaar van de zaak en de behandelaars van open taken van de zaak kun je niet ontkoppelen. Je kunt ook jezelf ontkoppelen: je hebt daarna meestal geen toegang meer tot de zaak, en ZAC brengt je naar het dashboard.
+
+> De optie is alleen beschikbaar bij een zaakspecifiek geautoriseerde zaak, en alleen als je de zaak mag wijzigen.
+
+**Stappen**
+
+1 Ga in de zaak naar het tabblad ‘Medewerkers’
+
+2 Klik bij de medewerker op het ontkoppel-icoon. Alleen medewerkers die je kunt ontkoppelen hebben dit icoon.
+
+![Tabblad Medewerkers met ontkoppel-icoon](./images/zaak-tabblad-medewerkers-ontkoppelen.png)
+
+3 Geef de verplichte reden op
+
+4 Klik op Medewerker ontkoppelen
+
+![Medewerker ontkoppelen](./images/medewerker-ontkoppelen.png)
+
+De medewerker heeft vanaf dan geen toegang meer tot de zaak. De medewerker ziet de zaak, de taken en de documenten van de zaak niet meer in de werklijsten en de zoekresultaten.
+Het tabblad ‘Medewerkers’ toont de medewerker niet meer. De zaakhistorie toont dat de Zaakspecifiek geautoriseerde medewerker is ontkoppeld, met de reden.
+
+Heeft de medewerker de rol Zaakspecifiek geautoriseerd voor het zaaktype, dan houdt de medewerker via die rol wel toegang. Deze medewerkers staan niet in het tabblad ‘Medewerkers’.
 
 ### Zaakspecifieke autorisatie opheffen
 

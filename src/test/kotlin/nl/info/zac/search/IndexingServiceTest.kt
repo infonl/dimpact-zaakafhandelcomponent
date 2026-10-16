@@ -596,6 +596,63 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
+    given("A zaak with an open taak, a completed taak and a document, whose search visibility changed") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val completedTask = mockk<Task>().apply { every { id } returns "fakeCompletedTaskId" }
+        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaak.url)
+        val documentUUID = zaakInformatieobject.informatieobject.extractUuid().toString()
+        every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns createZaakZoekObject()
+        every { ctx.flowableTaskService.listTasksForZaak(zaak.uuid) } returns listOf(openTask, completedTask)
+        every { ctx.taakZoekObjectConverter.convert(any(), any()) } returns createTaakZoekObject()
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns listOf(zaakInformatieobject)
+        every { ctx.documentZoekObjectConverter.convert(documentUUID, any()) } returns createDocumentZoekObject()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        `when`("the zaak is reindexed with its taken and informatieobjecten") {
+            ctx.indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
+
+            then("the zaak, both its open and its completed taak, and its document are reindexed") {
+                verify(exactly = 1) {
+                    ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any())
+                    ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any())
+                    ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any())
+                    ctx.documentZoekObjectConverter.convert(documentUUID, any())
+                }
+            }
+        }
+    }
+
+    given("A zaak with a taak and a document, whose zaak itself did not change") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val task = mockk<Task>().apply { every { id } returns "fakeTaskId" }
+        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaak.url)
+        val documentUUID = zaakInformatieobject.informatieobject.extractUuid().toString()
+        every { ctx.flowableTaskService.listTasksForZaak(zaak.uuid) } returns listOf(task)
+        every { ctx.taakZoekObjectConverter.convert("fakeTaskId", any()) } returns createTaakZoekObject()
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns listOf(zaakInformatieobject)
+        every { ctx.documentZoekObjectConverter.convert(documentUUID, any()) } returns createDocumentZoekObject()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        `when`("only the taken and informatieobjecten of the zaak are reindexed") {
+            ctx.indexingService.addOrUpdateTakenAndInformatieobjectenForZaak(zaak.uuid)
+
+            then("the taak and the document are reindexed, but not the zaak itself") {
+                verify(exactly = 1) {
+                    ctx.taakZoekObjectConverter.convert("fakeTaskId", any())
+                    ctx.documentZoekObjectConverter.convert(documentUUID, any())
+                }
+                verify(exactly = 0) {
+                    ctx.zaakZoekObjectConverter.convert(any<String>(), any<(UUID) -> ZaakAutorisatieGegevens>())
+                }
+            }
+        }
+    }
+
     given("Solr indexing exists") {
         val ctx = setupContext()
         val queryResponse = mockk<QueryResponse>()

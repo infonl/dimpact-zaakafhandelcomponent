@@ -13,6 +13,7 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
+import nl.info.zac.util.joinNonBlank
 import org.apache.commons.lang3.NotImplementedException
 import java.net.URI
 
@@ -51,15 +52,4 @@ fun Zaakobject.toRestBagObject(): RestBagObject? =
     }
 
 fun createHuisnummerWeergave(huisnummer: Int, huisletter: String?, huisnummertoevoeging: String?) =
-    buildString {
-        append(huisnummer)
-        if (!huisletter.isNullOrBlank()) {
-            append(huisletter)
-        }
-        if (!huisnummertoevoeging.isNullOrBlank()) {
-            append("-").append(huisnummertoevoeging)
-        }
-    }.trim()
-
-internal fun joinNonBlank(separator: String, vararg parts: String?) =
-    parts.filterNot { it.isNullOrBlank() }.joinToString(separator).ifEmpty { null }
+    listOf(listOf(huisnummer.toString(), huisletter).joinNonBlank(), huisnummertoevoeging).joinNonBlank("-").trim()

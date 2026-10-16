@@ -7,7 +7,6 @@ package nl.info.client.zgw.util
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import org.apache.commons.lang3.StringUtils
 import java.lang.reflect.Type
 import java.net.URI
 import java.net.URISyntaxException
@@ -17,7 +16,7 @@ class UriJsonbDeserializer : JsonbDeserializer<URI> {
     override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): URI? =
         try {
             val uri = parser.string
-            if (StringUtils.isNotEmpty(uri)) URI(uri) else null
+            if (!uri.isNullOrEmpty()) URI(uri) else null
         } catch (illegalStateException: IllegalStateException) {
             // ignore this exception for now. workaround for the following error:
             // "RESTEASY008200: JSON Binding deserialization error: jakarta.json.bind.JsonbException:

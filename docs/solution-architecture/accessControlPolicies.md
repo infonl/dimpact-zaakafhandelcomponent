@@ -160,6 +160,10 @@ Notes:
   pick a medewerker of a behandelaar groep of the zaaktype who has no access yet, and ZAC gives that medewerker
   the `Zaakspecifiek geautoriseerde medewerker` rol on the zaak. The medewerker then has the same access as a
   previous zaak- or taakbehandelaar.
+- **An employee with `wijzigen` on a zaakspecifiek geautoriseerde zaak can detach such a medewerker again**:
+  ZAC deletes the medewerker's `Zaakspecifiek geautoriseerde medewerker` rol, with the given reden as audit
+  toelichting, and the medewerker loses the access that rol gave; access through `zaakspecifiek_geautoriseerd`
+  stays. The zaakbehandelaar and the behandelaars of open taken of the zaak cannot be detached.
 - **An employee with `wijzigen` on a zaakspecifiek geautoriseerde zaak can remove its zaakspecifieke
   autorisatie** while editing the zaakgegevens. ZAC then deletes every `Zaakspecifiek geautoriseerde medewerker`
   rol and the `ZAAK_GEAUTORISEERD` zaakeigenschap of the zaak, so it is a normal zaak again: every medewerker

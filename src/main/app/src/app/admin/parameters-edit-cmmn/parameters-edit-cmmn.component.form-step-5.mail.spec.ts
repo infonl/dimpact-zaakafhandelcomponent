@@ -12,7 +12,11 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { createMutationOptions, fromPartial } from "src/test-helpers";
+import {
+  createMutationOptions,
+  createQueryOptions,
+  fromPartial,
+} from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -131,7 +135,7 @@ describe("Mailgegevens form step", () => {
         {
           provide: MailtemplateBeheerService,
           useValue: fromPartial<MailtemplateBeheerService>({
-            listKoppelbareMailtemplates: () => of([]),
+            listKoppelbareMailtemplates: () => createQueryOptions([]) as never,
           }),
         },
         {

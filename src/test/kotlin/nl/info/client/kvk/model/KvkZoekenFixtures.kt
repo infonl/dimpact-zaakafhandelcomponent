@@ -35,7 +35,7 @@ fun createAdresWithBinnenlandsAdres(
 
 @Suppress("LongParameterList")
 fun createResultaatItem(
-    adres: Adres = createAdresWithBinnenlandsAdres(),
+    adres: Adres? = createAdresWithBinnenlandsAdres(),
     naam: String = "fakeNaam",
     kvkNummer: String? = "fakeKvkNummer",
     rsin: String? = "fakeRsin",
