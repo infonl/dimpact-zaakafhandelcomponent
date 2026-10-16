@@ -44,10 +44,10 @@
 
 ## 4. Layer 4: shared algemeen step (`feature/PZ-12754-step-algemeen`)
 
-- [ ] 4.1 Create `parameters-step-algemeen` with the groep/behandelaar cascade, productaanvraagtype, the two warning
+- [x] 4.1 Create `parameters-step-algemeen` with the groep/behandelaar cascade, productaanvraagtype, the two warning
       windows, and a definition slot (case definition or process definition). Hide the warning windows for BPMN
       in this layer, to keep it free of behaviour changes. Verify the groep cascade with a spec per engine.
-- [ ] 4.2 Use the step in both edit components. Verify that `form-step-2.algemeen.spec.ts`, now moved to the step spec
+- [x] 4.2 Use the step in both edit components. Verify that `form-step-2.algemeen.spec.ts`, now moved to the step spec
       with `it.each`, passes for both engines.
 - [ ] 4.3 Run `./gradlew spotlessApply` and `npm test`, and open the PR (`refactor(admin): …`, `Solves PZ-12754`).
 

@@ -50,19 +50,22 @@ import {
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacToggle } from "../../shared/form/toggle/toggle";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { runQuery } from "../../shared/http/run-query";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { toI18nKey } from "../../shared/utils/i18n-key";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
 import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
+import {
+  createAlgemeenForm,
+  toAlgemeenSettings,
+} from "../parameters-edit/steps/parameters-step-algemeen/algemeen-form";
+import { ParametersStepAlgemeenComponent } from "../parameters-edit/steps/parameters-step-algemeen/parameters-step-algemeen.component";
 import { ParametersStepBeeindigingComponent } from "../parameters-edit/steps/parameters-step-beeindiging/parameters-step-beeindiging.component";
 import {
   createZaakbeeindigingForm,
@@ -103,10 +106,9 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
     TranslateModule,
     ZacSelect,
     ZacToggle,
-    ZacInput,
     NgClass,
-    StaticTextComponent,
     SmartDocumentsFormComponent,
+    ParametersStepAlgemeenComponent,
     ParametersStepBeeindigingComponent,
     ParametersStepKoppelingenComponent,
     ParametersStepProcesModelComponent,
@@ -167,26 +169,12 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected cmmnBpmnFormGroup = createProcessModelForm("CMMN");
 
-  algemeenFormGroup = this.formBuilder.group({
-    caseDefinition:
-      this.formBuilder.control<GeneratedType<"RESTCaseDefinition"> | null>(
-        null,
-        [Validators.required],
-      ),
-    defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
+  algemeenFormGroup = new FormGroup({
+    caseDefinition: new FormControl<GeneratedType<"RESTCaseDefinition"> | null>(
       null,
       [Validators.required],
     ),
-    defaultBehandelaar:
-      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
-    einddatumGeplandWaarschuwing: this.formBuilder.control<number | null>(
-      null,
-      [Validators.min(0), Validators.max(31)],
-    ),
-    uiterlijkeEinddatumAfdoeningWaarschuwing: this.formBuilder.control<
-      number | null
-    >(null, [Validators.min(0)]),
-    productaanvraagtype: this.formBuilder.control<string | null>(null),
+    algemeen: createAlgemeenForm(),
   });
 
   humanTasksFormGroup = new FormGroup({});
@@ -247,7 +235,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
   protected groepen: GeneratedType<"RestGroup">[] = [];
-  protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   protected formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] =
     [];
   protected referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
@@ -407,36 +394,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.cmmnBpmnFormGroup.disable({ emitEvent: false });
     }
 
-    this.algemeenFormGroup.patchValue(this.parameters);
-
-    const { defaultGroepId, defaultBehandelaarId } = this.parameters;
-
-    this.algemeenFormGroup.controls.defaultGroep.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((group) => {
-        if (!group) return;
-
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-          this.medewerkers = users;
-          const pickedUserId =
-            this.algemeenFormGroup.controls.defaultBehandelaar.value?.id;
-          const defaultUser = users.find(
-            ({ id }) => id === (pickedUserId ?? defaultBehandelaarId),
-          );
-          this.algemeenFormGroup.controls.defaultBehandelaar.setValue(
-            defaultUser ?? null,
-          );
-        });
-      });
-
-    if (defaultGroepId) {
-      const defaultGroup = this.groepen?.find(
-        ({ id }) => id === defaultGroepId,
-      );
-      this.algemeenFormGroup.controls.defaultGroep.setValue(
-        defaultGroup ?? null,
-      );
-    }
+    this.algemeenFormGroup.setControl(
+      "algemeen",
+      createAlgemeenForm(this.parameters),
+    );
+    this.algemeenFormGroup.controls.caseDefinition.setValue(
+      this.parameters.caseDefinition ?? null,
+    );
 
     this.algemeenFormGroup.controls.caseDefinition.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -749,9 +713,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.isLoading = true;
     this.parameters = {
       ...this.parameters,
-      ...this.algemeenFormGroup.value,
-      defaultGroepId: this.algemeenFormGroup.value.defaultGroep?.id ?? null,
-      defaultBehandelaarId: this.algemeenFormGroup.value.defaultBehandelaar?.id,
+      ...toAlgemeenSettings(this.algemeenFormGroup.controls.algemeen),
+      caseDefinition: this.algemeenFormGroup.controls.caseDefinition.value,
     };
 
     this.humanTaskParameters.forEach((param) => {

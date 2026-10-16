@@ -16,7 +16,11 @@ import { TranslateModule } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { createMutationOptions, fromPartial } from "src/test-helpers";
+import {
+  createMutationOptions,
+  createQueryOptions,
+  fromPartial,
+} from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -114,22 +118,21 @@ describe(ParametersEditBpmnComponent.name, () => {
     );
     identityService = TestBed.inject(IdentityService);
     jest
-      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-      .mockReturnValue(
-        of([
+      .spyOn(identityService, "listBehandelaarGroupsForZaaktypeQuery")
+      .mockReturnValue({
+        ...createQueryOptions([
           { id: "test-group-id", naam: "test-group" },
           { id: "test-group-id-2", naam: "test-group-2" },
         ]),
-      );
-    jest
-      .spyOn(identityService, "listUsersInGroup")
-      .mockReturnValueOnce(
-        of([
-          { id: "test-user-id", naam: "test-user" },
-          { id: "test-user-id-2", naam: "test-user-2" },
-        ]),
-      )
-      .mockReturnValue(of([]));
+        queryKey: ["behandelaarGroups"],
+      } as never);
+    jest.spyOn(identityService, "listUsersInGroupQuery").mockReturnValue({
+      ...createQueryOptions([
+        { id: "test-user-id", naam: "test-user" },
+        { id: "test-user-id-2", naam: "test-user-2" },
+      ]),
+      queryKey: ["usersInGroup"],
+    } as never);
 
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "compare").mockReturnValue(true);
@@ -210,6 +213,10 @@ describe(ParametersEditBpmnComponent.name, () => {
     });
 
     it("should set the case handlers selected group", async () => {
+      // the groepen arrive through a query after the step renders
+      await sleep();
+      fixture.detectChanges();
+
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
       const processDefinitionField = selectFields[0];
 

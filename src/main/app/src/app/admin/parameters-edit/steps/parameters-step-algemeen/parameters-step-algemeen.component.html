@@ -1,0 +1,105 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<form [formGroup]="form()">
+  <fieldset>
+    <section class="row">
+      <zac-static-text
+        class="col-12 col-lg-6"
+        label="zaaktype-omschrijving"
+        [value]="zaaktype().omschrijving"
+      />
+      <zac-static-text
+        class="col-12 col-lg-6"
+        label="doel"
+        [value]="zaaktype().doel"
+      />
+    </section>
+    <section class="row">
+      <zac-static-text
+        class="col-12 col-lg-6"
+        label="identificatie"
+        [value]="zaaktype().identificatie"
+      />
+      <zac-static-text
+        class="col-12 col-lg-6"
+        label="uuid"
+        [value]="zaaktype().uuid"
+      />
+    </section>
+    <section class="row">
+      <zac-static-text
+        class="col-12 col-lg-6"
+        label="zaakspecifiek-autoriseerbaar"
+        [value]="
+          (isZaakspecifiekAutoriseerbaar() ? 'actie.ja' : 'actie.nee')
+            | translate
+        "
+      />
+    </section>
+  </fieldset>
+  <fieldset class="my-5">
+    <section class="row">
+      <ng-content />
+    </section>
+    <section class="row">
+      <zac-select
+        class="col-12 col-lg-6"
+        key="defaultGroepId"
+        label="groep.standaard"
+        [optionDisplayValue]="groepNaam"
+        [form]="form()"
+        [options]="groepIds()"
+      >
+      </zac-select>
+
+      <zac-select
+        class="col-12 col-lg-6"
+        key="defaultBehandelaarId"
+        label="behandelaar.standaard"
+        [optionDisplayValue]="medewerkerNaam"
+        [form]="form()"
+        [options]="medewerkerIds()"
+      >
+      </zac-select>
+    </section>
+    @if (showWarningWindows()) {
+      <section class="row">
+        <zac-input
+          class="col-12 col-lg-6"
+          key="uiterlijkeEinddatumAfdoeningWaarschuwing"
+          [form]="form()"
+        >
+          <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+        </zac-input>
+        @if (zaaktype().hasServicenorm) {
+          <zac-input
+            class="col-12 col-lg-6"
+            key="einddatumGeplandWaarschuwing"
+            [form]="form()"
+          >
+            <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+          </zac-input>
+        }
+      </section>
+    }
+    <section class="row">
+      <zac-input
+        class="col-12 col-lg-6"
+        key="productaanvraagtype"
+        [form]="form()"
+      >
+        <mat-hint>{{
+          "msg.zaakafhandelparameters.productaanvraagtype" | translate
+        }}</mat-hint>
+      </zac-input>
+    </section>
+  </fieldset>
+
+  <div class="flex-row items-center gap-10 ml-3 mt-3">
+    <mat-icon color="warn" class="pr-3">warning</mat-icon>
+    <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>
+  </div>
+</form>

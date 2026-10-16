@@ -121,8 +121,18 @@ describe(ParametersEditCmmnComponent.name, () => {
           useValue: fromPartial<IdentityService>({
             listBehandelaarGroupsForZaaktype: () =>
               of([{ id: "test-group-id", naam: "test-group" }]),
-            listUsersInGroup: () =>
-              of([{ id: "test-user-id", naam: "test-user" }]),
+            listBehandelaarGroupsForZaaktypeQuery: () => ({
+              ...createQueryOptions([
+                { id: "test-group-id", naam: "test-group" },
+              ]),
+              queryKey: ["behandelaarGroups"],
+            }),
+            listUsersInGroupQuery: () => ({
+              ...createQueryOptions([
+                { id: "test-user-id", naam: "test-user" },
+              ]),
+              queryKey: ["usersInGroup"],
+            }),
           }),
         },
         {
