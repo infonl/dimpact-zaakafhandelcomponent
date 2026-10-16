@@ -5,13 +5,14 @@
 
 import { Component, input } from "@angular/core";
 import { MatIcon } from "@angular/material/icon";
+import { MatTooltip } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
 
 @Component({
   selector: "zac-zaakspecifiek-geautoriseerd-icon",
   templateUrl: "./zaakspecifiek-geautoriseerd-icon.component.html",
   styleUrls: ["./zaakspecifiek-geautoriseerd-icon.component.less"],
-  imports: [MatIcon, TranslatePipe],
+  imports: [MatIcon, MatTooltip, TranslatePipe],
 })
 export class ZaakspecifiekGeautoriseerdIconComponent {
   readonly isZaakspecifiekGeautoriseerd = input.required<
