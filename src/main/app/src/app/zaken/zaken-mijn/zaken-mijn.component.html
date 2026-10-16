@@ -544,7 +544,12 @@
                     [value]="row.identificatie"
                     class="flex-1 w33"
                     [label]="column | i18nKey"
-                  />
+                  >
+                    <zac-zaakspecifiek-geautoriseerd-icon
+                      position="content-before"
+                      [isZaakspecifiekGeautoriseerd]="row.isZaakspecifiekGeautoriseerd"
+                    />
+                  </zac-static-text>
                 }
                 @case (zoekenColumn.GROEP) {
                   <zac-static-text
