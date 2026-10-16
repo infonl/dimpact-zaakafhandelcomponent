@@ -114,13 +114,6 @@ describe(ParametersEditBpmnComponent.name, () => {
     zaakafhandelParametersService = TestBed.inject(
       ZaakafhandelParametersService,
     );
-    jest
-      .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listResultaattypes")
-      .mockReturnValue(of([]));
-
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     jest
       .spyOn(referentieTabelService, "listBrpViewValues")
