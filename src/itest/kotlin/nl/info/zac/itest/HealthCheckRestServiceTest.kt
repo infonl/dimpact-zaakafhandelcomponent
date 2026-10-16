@@ -180,7 +180,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
                           "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
-                          "hasServicenorm": false,
+                          "hasServicenorm": true,
                           "uuid": "$ZAAKTYPE_BPMN_TEST_4_UUID",
                           "versiedatum": "$DATE_2025_01_01",
                           "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"

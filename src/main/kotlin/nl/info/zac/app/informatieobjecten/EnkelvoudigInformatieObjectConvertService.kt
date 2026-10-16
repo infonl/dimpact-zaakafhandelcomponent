@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.informatieobjecten
@@ -19,7 +19,6 @@ import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
-import org.apache.commons.lang3.StringUtils
 import java.util.UUID
 
 @ApplicationScoped
@@ -53,7 +52,7 @@ class EnkelvoudigInformatieObjectConvertService @Inject constructor(
                 val inhoud = fileSizeConfiguration.readWithinInMemoryLimit(pdfInputStream)
                 pdf.inhoud = inhoud.toBase64String()
                 pdf.formaat = MediaTypes.Application.PDF.mediaType
-                pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"
+                pdf.bestandsnaam = document.bestandsnaam.substringBeforeLast(".") + ".pdf"
                 pdf.bestandsomvang = inhoud.size
                 enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                     document.url.extractUuid(),

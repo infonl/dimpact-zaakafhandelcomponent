@@ -24,7 +24,7 @@ enum class MailTemplateVariables(val shouldResolveVariableAsEmptyString: Boolean
     ZAAK_OMSCHRIJVING(false),
     ZAAK_REGISTRATIEDATUM(false),
     ZAAK_STARTDATUM(false),
-    ZAAK_STATUS(false),
+    ZAAK_STATUS(true),
     ZAAK_STREEFDATUM(true),
     ZAAK_TOELICHTING(true),
     ZAAK_URL(false),

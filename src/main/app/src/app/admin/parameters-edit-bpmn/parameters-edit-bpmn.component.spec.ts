@@ -14,8 +14,10 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -257,6 +259,56 @@ describe(ParametersEditBpmnComponent.name, () => {
         MatButtonHarness.with({ text: /actie\.opslaan/ }),
       );
       expect(await opslaanButton.isDisabled()).toBe(true);
+    });
+  });
+
+  describe("SmartDocuments", () => {
+    it("keeps SmartDocuments switched on for the zaaktype when saving without opening the koppelingen step", async () => {
+      TestBed.inject(ActivatedRoute).data = of({
+        parameters: {
+          zaakafhandelParameters,
+          bpmnZaakafhandelParameters: {
+            ...bpmnZaakafhandelParameters,
+            bpmnProcessDefinitionKey: bpmnProcessDefinitions[0].key,
+            zaakNietOntvankelijkResultaattype: fromPartial({
+              id: "resultaat-1",
+            }),
+            smartDocuments: {
+              isEnabledGlobally: true,
+              isEnabledForZaaktype: true,
+            },
+          },
+          bpmnProcessDefinitions,
+          isSavedZaakafhandelParameters: true,
+        },
+      });
+      const createOrUpdateBpmnZaakafhandelparameters = createMutationOptions(
+        fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({}),
+      );
+      jest
+        .spyOn(
+          zaakafhandelParametersService,
+          "createOrUpdateBpmnZaakafhandelparameters",
+        )
+        .mockReturnValue(createOrUpdateBpmnZaakafhandelparameters as never);
+      await createComponent();
+      fixture.detectChanges();
+
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "actie.opslaan" }));
+      await sleep();
+
+      expect(
+        createOrUpdateBpmnZaakafhandelparameters.mutationFn.mock.calls[0][0],
+      ).toEqual(
+        expect.objectContaining({
+          smartDocuments: {
+            isEnabledGlobally: true,
+            isEnabledForZaaktype: true,
+          },
+        }),
+      );
     });
   });
 

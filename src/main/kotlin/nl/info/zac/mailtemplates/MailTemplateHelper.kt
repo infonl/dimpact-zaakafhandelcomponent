@@ -108,10 +108,10 @@ class MailTemplateHelper @Inject constructor(
         )
         if (resolvedTekst.contains(MailTemplateVariables.ZAAK_STATUS.getVariable())) {
             val statusOmschrijving = zaak.getStatus()
-                .let(zrcClientService::readStatus)
-                .getStatustype()
-                .let(ztcClientService::readStatustype)
-                .getOmschrijving()
+                ?.let(zrcClientService::readStatus)
+                ?.getStatustype()
+                ?.let(ztcClientService::readStatustype)
+                ?.getOmschrijving()
             resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_STATUS, statusOmschrijving)
         }
         if (MailTemplateVariables.ZAAKTYPE_OMSCHRIJVING.getVariable() in resolvedTekst ||

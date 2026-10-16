@@ -317,7 +317,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202610130804@sha256:5fd80ccd6ce6736912a96b948813a68b0faf32f0eff830da744ffe7c1b36a058
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202610151043@sha256:518ec324db88bb76a9dfd460e3cd48a79e2b40d4604abf487658b03416441d38
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -413,7 +413,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: gotenberg/gotenberg:8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769
+    image: gotenberg/gotenberg:8.38.1@sha256:aa552cc115db488e0f0bcb07446aac13071ad51505b642c84bb894500907b42b
     # Disable Chromium routes since we only use LibreOffice for document conversion.
     command:
       - "gotenberg"

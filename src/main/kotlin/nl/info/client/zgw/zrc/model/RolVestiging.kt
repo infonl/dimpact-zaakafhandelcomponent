@@ -7,7 +7,6 @@ package nl.info.client.zgw.zrc.model
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.ztc.model.generated.RolType
-import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.util.Objects
 
@@ -48,7 +47,7 @@ class RolVestiging : Rol<VestigingIdentificatie> {
         get() {
             val identificatie = betrokkeneIdentificatie ?: return null
             val namen = identificatie.handelsnaam?.joinToString("; ")
-            return if (StringUtils.isNotEmpty(namen)) namen else identificatienummer
+            return if (!namen.isNullOrEmpty()) namen else identificatienummer
         }
 
     override val identificatienummer: String?

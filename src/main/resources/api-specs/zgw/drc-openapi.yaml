@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: Documenten API
-  version: 1.4.2 (1)
+  version: 1.6.0 (1)
   description: |
     Een API om een documentregistratiecomponent (DRC) te benaderen.
 
@@ -1550,7 +1550,6 @@ paths:
         - correcte `lock` waarde
         - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
         - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-        - status NIET `definitief`
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT in zijn geheel bij.
       parameters:
       - in: header
@@ -1731,7 +1730,6 @@ paths:
         - correcte `lock` waarde
         - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
         - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-        - status NIET `definitief`
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.
       parameters:
       - in: header
@@ -2552,39 +2550,6 @@ paths:
         description: Content type van de verzoekinhoud.
         required: true
       - in: query
-        name: auteur
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** De persoon of organisatie die dit informatie
-          object heeft aangemaakt (bevat de auteur de gegeven waarden (hoofdletterongevoelig)).'
-      - in: query
-        name: beschrijving
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** De beschrijving van dit informatie object
-          (bevat de beschrijving de gegeven waarden (hoofdletterongevoelig)).'
-      - in: query
-        name: bronorganisatie
-        schema:
-          type: string
-        description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
-          die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
-          in een samenwerkingsketen heeft vastgelegd.
-      - in: query
-        name: creatiedatum__gte
-        schema:
-          type: string
-          format: date
-        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
-          (groter of gelijk aan de gegeven datum).'
-      - in: query
-        name: creatiedatum__lte
-        schema:
-          type: string
-          format: date
-        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
-          (kleiner of gelijk aan de gegeven datum).'
-      - in: query
         name: expand
         schema:
           type: array
@@ -2593,69 +2558,7 @@ paths:
             enum:
             - informatieobjecttype
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
-        explode: false
-        style: form
-      - in: query
-        name: identificatie
-        schema:
-          type: string
-        description: Een binnen een gegeven context ondubbelzinnige referentie naar
-          het INFORMATIEOBJECT.
-      - in: query
-        name: informatieobjecttype
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde informatieobjecttype
-          (in deze of een andere API).'
-      - in: query
-        name: locked
-        schema:
-          type: boolean
-        description: '**EXPERIMENTEEL** De indicatie of dit informatie object gelocked
-          is of niet.'
-      - in: query
-        name: objectinformatieobjecten__object
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde OBJECT
-          (in deze of een andere API).'
-      - in: query
-        name: objectinformatieobjecten__objectType
-        schema:
-          type: string
-          title: Objecttype
-          enum:
-          - besluit
-          - verzoek
-          - zaak
-        description: |+
-          **EXPERIMENTEEL** Het type van het gerelateerde OBJECT.
-
-      - in: query
-        name: ordering
-        schema:
-          type: array
-          items:
-            type: string
-            enum:
-            - -auteur
-            - -bestandsomvang
-            - -creatiedatum
-            - -formaat
-            - -status
-            - -titel
-            - -vertrouwelijkheidaanduiding
-            - auteur
-            - bestandsomvang
-            - creatiedatum
-            - formaat
-            - status
-            - titel
-            - vertrouwelijkheidaanduiding
-        description: |+
-          **EXPERIMENTEEL** Sorteer op.
-
+          \ \n\n (samengevoegd met evt. expand in body)"
         explode: false
         style: form
       - name: page
@@ -2671,48 +2574,6 @@ paths:
           maximum: 500).'
         schema:
           type: integer
-      - in: query
-        name: titel
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** De titel van het informatie object (bevat
-          de titel de gegeven waarden (hoofdletterongevoelig)).'
-      - in: query
-        name: trefwoorden
-        schema:
-          type: array
-          items:
-            type: string
-        description: Een lijst van trefwoorden gescheiden door comma's.
-        explode: false
-        style: form
-      - in: query
-        name: trefwoorden__overlap
-        schema:
-          type: array
-          items:
-            type: string
-        description: '**EXPERIMENTEEL** Een lijst van trefwoorden gescheiden door
-          komma''s, geeft alle EnkelvoudigInformatieObjecten terug die ten minste
-          een van de opgegeven trefwoorden hebben'
-        explode: false
-        style: form
-      - in: query
-        name: vertrouwelijkheidaanduiding
-        schema:
-          type: string
-          enum:
-          - beperkt_openbaar
-          - confidentieel
-          - geheim
-          - intern
-          - openbaar
-          - vertrouwelijk
-          - zaakvertrouwelijk
-          - zeer_geheim
-        description: |+
-          **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
-
       tags:
       - enkelvoudiginformatieobjecten
       requestBody:
@@ -2727,108 +2588,15 @@ paths:
                     type: string
                     format: uuid
                   description: Lijst van unieke resource identifiers (UUID4)
-                auteur:
-                  type: string
-                  description: '**EXPERIMENTEEL** De persoon of organisatie die dit
-                    informatie object heeft aangemaakt (bevat de auteur de gegeven
-                    waarden (hoofdletterongevoelig)).'
-                beschrijving:
-                  type: string
-                  description: '**EXPERIMENTEEL** De beschrijving van dit informatie
-                    object (bevat de beschrijving de gegeven waarden (hoofdletterongevoelig)).'
                 bronorganisatie:
                   type: string
                   description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
                     die het informatieobject heeft gecreëerd of heeft ontvangen en
                     als eerste in een samenwerkingsketen heeft vastgelegd.
-                creatiedatum__gte:
-                  type: string
-                  format: date
-                  description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie
-                    object (groter of gelijk aan de gegeven datum).'
-                creatiedatum__lte:
-                  type: string
-                  format: date
-                  description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie
-                    object (kleiner of gelijk aan de gegeven datum).'
                 identificatie:
                   type: string
                   description: Een binnen een gegeven context ondubbelzinnige referentie
                     naar het INFORMATIEOBJECT.
-                informatieobjecttype:
-                  type: string
-                  description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde
-                    informatieobjecttype (in deze of een andere API).'
-                locked:
-                  type: boolean
-                  description: '**EXPERIMENTEEL** De indicatie of dit informatie object
-                    gelocked is of niet.'
-                ordering:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                    - -auteur
-                    - -bestandsomvang
-                    - -creatiedatum
-                    - -formaat
-                    - -status
-                    - -titel
-                    - -vertrouwelijkheidaanduiding
-                    - auteur
-                    - bestandsomvang
-                    - creatiedatum
-                    - formaat
-                    - status
-                    - titel
-                    - vertrouwelijkheidaanduiding
-                  description: |+
-                    **EXPERIMENTEEL** Sorteer op.
-
-                titel:
-                  type: string
-                  description: '**EXPERIMENTEEL** De titel van het informatie object
-                    (bevat de titel de gegeven waarden (hoofdletterongevoelig)).'
-                trefwoorden:
-                  type: array
-                  items:
-                    type: string
-                  description: Een lijst van trefwoorden gescheiden door comma's.
-                trefwoorden__overlap:
-                  type: array
-                  items:
-                    type: string
-                  description: '**EXPERIMENTEEL** Een lijst van trefwoorden gescheiden
-                    door komma''s, geeft alle EnkelvoudigInformatieObjecten terug
-                    die ten minste een van de opgegeven trefwoorden hebben'
-                vertrouwelijkheidaanduiding:
-                  type: string
-                  enum:
-                  - beperkt_openbaar
-                  - confidentieel
-                  - geheim
-                  - intern
-                  - openbaar
-                  - vertrouwelijk
-                  - zaakvertrouwelijk
-                  - zeer_geheim
-                  description: |+
-                    **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
-
-                objectinformatieobjecten__object:
-                  type: string
-                  description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde
-                    OBJECT (in deze of een andere API).'
-                objectinformatieobjecten__objectType:
-                  type: string
-                  title: Objecttype
-                  enum:
-                  - besluit
-                  - verzoek
-                  - zaak
-                  description: |+
-                    **EXPERIMENTEEL** Het type van het gerelateerde OBJECT.
-
                 expand:
                   type: array
                   items:
@@ -3007,13 +2775,15 @@ paths:
             - informatieobject
             - informatieobject.informatieobjecttype
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
         style: form
       - in: query
         name: informatieobject
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het INFORMATIEOBJECT.
       - in: query
         name: startdatum__gt
@@ -3371,7 +3141,8 @@ paths:
             - informatieobject
             - informatieobject.informatieobjecttype
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
         style: form
       - in: path
@@ -4188,8 +3959,9 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**, **opmerking**, **resultaat**. Voor deze actie is een APPLICATIE
-        nodig met `heeft_alle_autorisaties` ingeschakeld.'
+        **trefwoorden**, **inhoudIsVervallen**, **tonenAanInitiator**, **opmerking**,
+        **resultaat**. Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`
+        ingeschakeld.'
       summary: Het reportage bestand van een IMPORT downloaden.
       parameters:
       - in: path
@@ -4458,8 +4230,8 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**. Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`
-        ingeschakeld.'
+        **trefwoorden**, **inhoudIsVervallen**, **tonenAanInitiator**. Voor deze actie
+        is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Een IMPORT bestand uploaden
       parameters:
       - in: header
@@ -4467,7 +4239,7 @@ paths:
         schema:
           type: string
           enum:
-          - test/csv
+          - text/csv
         description: Content type van de verzoekinhoud.
         required: true
       - in: path
@@ -4753,9 +4525,24 @@ paths:
       summary: Alle OBJECT-INFORMATIEOBJECT relaties opvragen.
       parameters:
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
+        explode: false
+        style: form
+      - in: query
         name: informatieobject
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het INFORMATIEOBJECT.
       - in: query
         name: object
@@ -4781,7 +4568,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ObjectInformatieObject'
+                  $ref: '#/components/schemas/ExpandObjectInformatieObject'
           description: OK
         '400':
           headers:
@@ -5071,6 +4858,20 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -5100,7 +4901,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ObjectInformatieObject'
+                $ref: '#/components/schemas/ExpandObjectInformatieObject'
           description: OK
         '401':
           headers:
@@ -5427,13 +5228,15 @@ paths:
             - informatieobject
             - informatieobject.informatieobjecttype
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
         style: form
       - in: query
         name: informatieobject
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het informatieobject dat is ontvangen of
           verzonden.
       - name: page
@@ -5757,7 +5560,8 @@ paths:
             - informatieobject
             - informatieobject.informatieobjecttype
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
         style: form
       - in: path
@@ -7010,6 +6814,18 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
       required:
       - auteur
       - beginRegistratie
@@ -7183,6 +6999,18 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
       required:
       - auteur
       - bronorganisatie
@@ -7374,6 +7202,18 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
         lock:
           type: string
           readOnly: true
@@ -7551,6 +7391,18 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
       required:
       - auteur
       - bronorganisatie
@@ -7719,6 +7571,18 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
         lock:
           type: string
           writeOnly: true
@@ -7752,6 +7616,20 @@ components:
     ExpandGebruiksrechten:
       allOf:
       - $ref: '#/components/schemas/Gebruiksrechten'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              informatieobject:
+                allOf:
+                - $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+                description: URL-referentie naar het INFORMATIEOBJECT.
+    ExpandObjectInformatieObject:
+      allOf:
+      - $ref: '#/components/schemas/ObjectInformatieObject'
       - type: object
         properties:
           _expand:
@@ -8399,6 +8277,18 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
         lock:
           type: string
           writeOnly: true
@@ -8481,8 +8371,7 @@ components:
             documenten die van of naar andere personen ontvangen of verzonden zijn
             waarbij die personen niet deel uit maken van de behandeling van de zaak
             waarin het document een rol speelt. Vervangt het gelijknamige attribuut
-            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde'
-            heeft.
+            uit Informatieobject.
         contactPersoon:
           type: string
           format: uri
@@ -8719,8 +8608,7 @@ components:
             documenten die van of naar andere personen ontvangen of verzonden zijn
             waarbij die personen niet deel uit maken van de behandeling van de zaak
             waarin het document een rol speelt. Vervangt het gelijknamige attribuut
-            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde'
-            heeft.
+            uit Informatieobject.
         contactPersoon:
           type: string
           format: uri
@@ -8831,8 +8719,7 @@ components:
             documenten die van of naar andere personen ontvangen of verzonden zijn
             waarbij die personen niet deel uit maken van de behandeling van de zaak
             waarin het document een rol speelt. Vervangt het gelijknamige attribuut
-            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde'
-            heeft.
+            uit Informatieobject.
         contactPersoon:
           type: string
           format: uri
@@ -8928,8 +8815,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         aardRelatieWeergave:
           allOf:
           - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
@@ -8963,8 +8850,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - aardRelatieWeergave
       - informatieobject
@@ -8979,8 +8866,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -9003,8 +8890,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - zaak
   securitySchemes:

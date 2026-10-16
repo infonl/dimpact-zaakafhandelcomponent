@@ -158,6 +158,25 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
 
+        given("A zaak without a status, such as a BPMN zaak before its first status change") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url, status = null)
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+
+            `when`("a text containing the status placeholder is resolved") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, Status: {ZAAK_STATUS}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the placeholder is replaced by an empty string") {
+                    resolvedText shouldBe "fakeText, Status: "
+                }
+            }
+        }
+
         given("A zaaktype with a generic description") {
             val zaakType = createZaakType(omschrijvingGeneriek = "fakeZaakTypeOmschrijvingGeneriek")
             val zaak = createZaak(zaaktypeUri = zaakType.url)
@@ -373,6 +392,38 @@ class MailTemplateHelperTest : BehaviorSpec({
 
                 then("the initiator placeholder is replaced by the name of the rechtspersoon found by KVK number") {
                     resolvedText shouldBe "fakeText, ${resultaatItem.naam}"
+                }
+            }
+        }
+
+        given("A zaak with an initiator of role niet-natuurlijk persoon with only a KVK number and no KVK address") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val kvkNummer = "12345678"
+            val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    kvkNummer = kvkNummer
+                )
+            )
+            val resultaatItem = createResultaatItem(adres = null, type = "rechtspersoon")
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+            every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+
+            `when`("the variables are resolved with a text containing placeholders for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator name is filled in and the initiator address is replaced by empty text") {
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}, "
                 }
             }
         }

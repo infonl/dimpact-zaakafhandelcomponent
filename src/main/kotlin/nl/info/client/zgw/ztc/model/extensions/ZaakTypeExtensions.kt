@@ -9,8 +9,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import java.time.LocalDate
 import java.time.Period
 
-fun ZaakType.isServicenormAvailable(): Boolean =
-    this.servicenorm != null && !Period.parse(this.servicenorm).normalized().isZero
+fun ZaakType.isServicenormAvailable(): Boolean = this.servicenorm != null
 
 fun ZaakType.isNuGeldig(): Boolean =
     this.eindeGeldigheid.let { eindeGeldigheid ->

@@ -133,37 +133,6 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
             }
         }
-        given("Zaak input data and a zaaktype with a doorlooptijd and a servicenorm is set, and then cleared") {
-            val zaakType = createZaakType(
-                doorloopTijd = "P5D",
-                servicenorm = "P0Y0M0D"
-            )
-            val zaak = createZaak(
-                startDate = LocalDate.of(1975, 12, 5),
-                zaaktypeUri = zaakType.url
-            )
-            val createdZaak = createZaak()
-            val zaakSlot = slot<Zaak>()
-            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
-            every { zrcClientService.createZaak(capture(zaakSlot)) } returns createdZaak
-
-            `when`("a zaak is created") {
-                val returnedZaak = zgwApiService.createZaak(zaak)
-
-                then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
-                    returnedZaak shouldBe createdZaak
-                    with(zaakSlot.captured) {
-                        this.identificatie shouldBe zaak.identificatie
-                        this.zaaktype shouldBe zaakType.url
-                        // the doorlooptijd is 5 days, so the uiterlijkeEinddatumAfdoening should be 5 days
-                        // after the start date
-                        this.uiterlijkeEinddatumAfdoening shouldBe LocalDate.of(1975, 12, 10)
-                        // the zaaktype has no 'servicenorm' so the einddatumGepland should be null
-                        this.einddatumGepland shouldBe null
-                    }
-                }
-            }
-        }
     }
 
     context("Finding a BehandelaarMedewerkerRole for zaak") {

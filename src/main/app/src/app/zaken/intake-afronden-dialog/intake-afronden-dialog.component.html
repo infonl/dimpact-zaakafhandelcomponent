@@ -139,12 +139,12 @@
             @if (formGroup.get("ontvankelijk")?.value) {
               <div
                 class="readonly"
-                [innerHTML]="zaakOntvankelijkMail?.body"
+                [innerHTML]="zaakOntvankelijkMailQuery.data()?.body"
               ></div>
             } @else {
               <div
                 class="readonly"
-                [innerHTML]="zaakNietOntvankelijkMail?.body"
+                [innerHTML]="zaakNietOntvankelijkMailQuery.data()?.body"
               ></div>
             }
           </mat-expansion-panel>

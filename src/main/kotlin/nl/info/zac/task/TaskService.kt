@@ -28,6 +28,7 @@ import org.flowable.task.api.TaskInfo
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.concurrent.withLock
 
 @AllOpen
 class TaskService @Inject constructor(
@@ -80,12 +81,10 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser
     ): Task {
         val assignedTask = when {
-            userId != null -> {
+            userId != null -> zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
                 grantZaakspecifiekeAutorisatieToNewAssignee(task, userId)
-                flowableTaskService.assignTaskToUser(task.id, userId, reason).also {
-                    sendTaakOpNaamSignalering(it, loggedInUser)
-                }
-            }
+                flowableTaskService.assignTaskToUser(task.id, userId, reason)
+            }.also { sendTaakOpNaamSignalering(it, loggedInUser) }
             task.assignee != null -> releaseTask(task, reason, loggedInUser)
             else -> task
         }

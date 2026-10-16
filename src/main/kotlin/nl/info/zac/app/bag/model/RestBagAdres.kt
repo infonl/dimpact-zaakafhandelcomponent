@@ -11,6 +11,7 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdresRequest
 import nl.info.zac.app.zaak.model.RestGeometry
 import nl.info.zac.app.zaak.model.RestGeometryType
+import nl.info.zac.util.joinNonBlank
 import java.net.URI
 
 class RestBagAdres : RestBagObject() {
@@ -42,11 +43,10 @@ class RestBagAdres : RestBagObject() {
         get() = BagObjectType.ADRES
 
     override val omschrijving
-        get() = joinNonBlank(
-            ", ",
-            joinNonBlank(" ", openbareRuimteNaam, huisnummerWeergave),
-            joinNonBlank(" ", postcode, woonplaatsNaam)
-        )
+        get() = listOf(
+            listOf(openbareRuimteNaam, huisnummerWeergave).joinNonBlank(" "),
+            listOf(postcode, woonplaatsNaam).joinNonBlank(" ")
+        ).joinNonBlank(", ").ifEmpty { null }
 
     val geometry: RestGeometry?
         get() {

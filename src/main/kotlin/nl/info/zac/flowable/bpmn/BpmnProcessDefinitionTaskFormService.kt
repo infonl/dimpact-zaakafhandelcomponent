@@ -15,7 +15,6 @@ import nl.info.zac.flowable.bpmn.exception.BpmnTaskFormNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.lang3.StringUtils
 import org.flowable.engine.RepositoryService
 
 @ApplicationScoped
@@ -64,7 +63,7 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                 this.filename = filename
                 this.content = content
                 this.name = form.getJsonString("name")?.string ?: filename.removeSuffix(".json")
-                this.title = form.getJsonString("title")?.string ?: StringUtils.EMPTY
+                this.title = form.getJsonString("title")?.string.orEmpty()
                 findForm(processDefinition.key, processDefinition.version, name)?.let {
                     id = it.id
                 }
