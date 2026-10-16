@@ -172,55 +172,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         }
     }
 
-    given("The user has the required 'beheren' permissions") {
-        val now = ZonedDateTime.now()
-        every { policyService.readOverigeRechten().canBeheren } returns true
-        every { ztcClientService.resetCacheTimeToNow() } returns now
-        every { ztcClientService.clearCacheTime() } returns "fakeResult"
-        every { ztcClientService.clearZaaktypeCache() } returns "fakeResult"
-        every { ztcClientService.clearStatustypeCache() } returns "fakeResult"
-        every { ztcClientService.clearResultaattypeCache() } returns "fakeResult"
-        every { ztcClientService.clearInformatieobjecttypeCache() } returns "fakeResult"
-        every { ztcClientService.clearZaaktypeInformatieobjecttypeCache() } returns "fakeResult"
-        every { ztcClientService.clearRoltypeCache() } returns "fakeResult"
-        every { ztcClientService.clearEigenschapCache() } returns "fakeResult"
-        every { ztcClientService.clearBesluittypeCache() } returns "fakeResult"
-
-        `when`("clearZTCCaches is called") {
-            val result = healthCheckRestService.clearZTCCaches()
-
-            then("it should clear all ZTC caches and return the current cache reset time") {
-                verify(exactly = 1) {
-                    ztcClientService.clearZaaktypeCache()
-                    ztcClientService.clearStatustypeCache()
-                    ztcClientService.clearResultaattypeCache()
-                    ztcClientService.clearInformatieobjecttypeCache()
-                    ztcClientService.clearZaaktypeInformatieobjecttypeCache()
-                    ztcClientService.clearBesluittypeCache()
-                    ztcClientService.clearRoltypeCache()
-                    ztcClientService.clearEigenschapCache()
-                    ztcClientService.clearCacheTime()
-                    ztcClientService.resetCacheTimeToNow()
-                }
-                result shouldBe now
-            }
-        }
-    }
-
-    given("the user has the required permissions to manage rights") {
-        val now = ZonedDateTime.now()
-        every { policyService.readOverigeRechten().canBeheren } returns true
-        every { ztcClientService.resetCacheTimeToNow() } returns now
-
-        `when`("readZTCCacheTime is called") {
-            val result = healthCheckRestService.readZTCCacheTime()
-
-            then("it should return the current cache reset time") {
-                result shouldBe now
-            }
-        }
-    }
-
     given("build information is available") {
         val now = ZonedDateTime.now()
         val buildInformation = createBuildInformation(
@@ -251,25 +202,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                 healthCheckRestService.listZaaktypeInrichtingschecks()
             }
 
-            then("it should throw a PolicyException") {
-                exception shouldNotBe null
-            }
-        }
-
-        `when`("clearZTCCaches is called") {
-            val exception = shouldThrow<PolicyException> {
-                healthCheckRestService.clearZTCCaches()
-            }
-
-            then("it should throw a PolicyException") {
-                exception shouldNotBe null
-            }
-        }
-
-        `when`("readZTCCacheTime is called") {
-            val exception = shouldThrow<PolicyException> {
-                healthCheckRestService.readZTCCacheTime()
-            }
             then("it should throw a PolicyException") {
                 exception shouldNotBe null
             }

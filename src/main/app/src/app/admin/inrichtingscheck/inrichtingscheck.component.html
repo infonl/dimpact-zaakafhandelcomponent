@@ -21,47 +21,6 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{ "health-check.synchroniseer.ztc.title" | translate }}
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-expansion-panel hideToggle>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <button
-                (click)="clearZTCCache($event)"
-                [disabled]="loadingZaaktypes"
-                mat-raised-button
-                color="primary"
-              >
-                <mat-icon>{{
-                  loadingZaaktypes ? "sync_lock" : "sync"
-                }}</mat-icon>
-                {{ "health-check.synchroniseer.ztc.button" | translate }}
-              </button>
-            </mat-panel-title>
-            <mat-panel-description>
-              {{
-                "health-check.synchroniseer.ztc.description"
-                  | translate
-                    : {
-                        ztcCacheTime: (ztcCacheTime | datum: "medium"),
-                      }
-              }}
-            </mat-panel-description>
-            <mat-icon>help</mat-icon>
-          </mat-expansion-panel-header>
-          <p>
-            {{ "health-check.synchroniseer.ztc.uitleg.1" | translate }}
-            <br />{{ "health-check.synchroniseer.ztc.uitleg.2" | translate }}
-          </p>
-        </mat-expansion-panel>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
           {{ "health-check.zaaktype.inrichtingscheck" | translate }}
         </mat-card-title>
       </mat-card-header>

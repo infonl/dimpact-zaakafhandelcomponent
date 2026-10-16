@@ -50,7 +50,7 @@
     "openapi-fetch": "0.17.0",
     "proj4": "2.22.0",
     "rxjs": "7.8.2",
-    "ts-pattern": "5.9.1",
+    "ts-pattern": "5.9.0",
     "zone.js": "0.15.1"
   },
   "overrides": {
@@ -83,7 +83,7 @@
     "@typescript-eslint/parser": "8.71.2",
     "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "5.5.7",
+    "eslint-plugin-prettier": "5.5.6",
     "eslint-plugin-testing-library": "7.16.2",
     "expect-type": "1.4.0",
     "harfbuzzjs": "1.6.3",
