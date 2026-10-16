@@ -24,10 +24,10 @@
 
 ## 2. Layer 2: shared koppelingen step (`feature/PZ-12754-step-koppelingen`)
 
-- [ ] 2.1 Create `parameters-step-koppelingen` (betrokkene koppelingen and BRP doelbindingen). Restore the two
+- [x] 2.1 Create `parameters-step-koppelingen` (betrokkene koppelingen and BRP doelbindingen). Restore the two
       `aria-label`s that the BPMN copy lost. Verify that every field has an accessible name with a
       Testing Library `getByRole` query in the spec.
-- [ ] 2.2 Use the step in both edit components, and remove the duplicated form groups. Verify that the stored
+- [x] 2.2 Use the step in both edit components, and remove the duplicated form groups. Verify that the stored
       betrokkene and BRP values round-trip in both components with a spec per engine.
 - [ ] 2.3 Move `form-step-7.koppelingen.spec.ts` to the step spec with `it.each` over the engines. Run
       `./gradlew spotlessApply` and `npm test`, and open the PR (`refactor(admin): …`, `Solves PZ-12754`).

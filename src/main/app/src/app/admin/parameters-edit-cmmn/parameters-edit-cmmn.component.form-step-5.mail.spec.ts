@@ -116,9 +116,6 @@ describe("Mailgegevens form step", () => {
           useValue: fromPartial<ReferentieTabelService>({
             listReferentieTabellen: () => of([]),
             listAfzenders: () => of(["test@example.com", "other@example.com"]),
-            listBrpSearchValues: () => of([]),
-            listBrpViewValues: () => of([]),
-            listBrpProcessingValues: () => of([]),
           }),
         },
         {
