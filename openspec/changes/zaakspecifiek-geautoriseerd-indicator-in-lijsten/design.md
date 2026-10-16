@@ -42,7 +42,8 @@ The Solr documents `ZaakZoekObject`, `TaakZoekObject` and `DocumentZoekObject` a
 - Showing the lock depending on the user's rights on the zaak; a separate story will cover that. Until then the lock
   shows whenever the zaak is zaakspecifiek geautoriseerd.
 - Places outside the UI that show a zaaknummer, such as the CSV export, e-mails and generated documents.
-- Changing the lock on the zaakdetailpagina or the existing `zaakspecifiek-geautoriseerd-indicator` spec.
+- Changing the existing `zaakspecifiek-geautoriseerd-indicator` spec. The lock on the zaakdetailpagina does change
+  size and alignment, see decision 1.
 
 ## Decisions
 
@@ -66,6 +67,11 @@ in place of `zaak().isZaakspecifiekGeautoriseerd`:
 
 The `.zaakspecifiek-geautoriseerd-icon` style moves from `zaak-details-card.component.less` to the component.
 `zaak-details-card` uses the component, so there is one lock in the code base.
+
+The style itself changes, also on the zaakdetailpagina. The old style shifted a 24px icon by a fixed `top: 4px` and
+`left: -4px`, which only fitted the zaakdetailpagina. In a table cell the icon made the line higher, so the zaaknummer
+sat lower than the text in the other cells of the row. The new style follows the Figma design: a 16px lock,
+vertically centred on the zaaknummer, with a negative block margin so that the icon never makes the line higher.
 
 *Alternative*: input the whole zaak object. Rejected: the places use five different object types, and a boolean
 keeps the component independent of all of them.
@@ -99,10 +105,15 @@ otherwise reads it itself) and take `isZaakspecifiekGeautoriseerd` from it. That
 `listZaakeigenschappen` call per zaak.
 
 For the documenten table, `EnkelvoudigInformatieObjectRestService` lists the documents per zaak (the zaak itself and
-its gerelateerde zaken). It reads the `ZaakAutorisatieGegevens` once per gekoppelde zaak and passes its flag to
-`RestInformatieobjectConverter`, which sets it on each `RestGekoppeldeZaakEnkelvoudigInformatieObject` of that zaak.
+its gerelateerde zaken). It reads the `ZaakAutorisatieGegevens` once per gekoppelde zaak that has documents and
+passes them to `RestInformatieobjectConverter`. The converter hands them to `PolicyService.readDocumentRechten`, which
+otherwise reads them again for every document, and sets the flag from them on each
+`RestGekoppeldeZaakEnkelvoudigInformatieObject` of that zaak. So the gekoppelde zaak costs one `listZaakeigenschappen`
+call for all its documents.
 
 The field is set regardless of `canLezen`, like `identificatie`: it marks the zaaknummer that is already shown.
+The documenten table is the exception: there the zaaknummer (`zaakIdentificatie`) itself is only filled when the user
+may read the document, so the flag follows it and is only set when the zaaknummer is shown.
 *Alternative*: hide it without `canLezen`. Rejected: the werklijsten and dashboard only list zaken the user may
 read, and a lock that comes and goes per right would be inconsistent with the zoek objects, which always carry it.
 

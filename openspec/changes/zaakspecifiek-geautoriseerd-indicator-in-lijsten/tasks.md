@@ -4,20 +4,22 @@
       and copy it from `TaakZoekObject` in `toRestTaakZoekObject`.
 - [x] 1.2 `RestDocumentZoekObject`: same, copied from `DocumentZoekObject` in `toRestDocumentZoekObject`.
 - [x] 1.3 `RestZaakKoppelenZoekObject`: same, copied from `RestZaakZoekObject` in `toRestZaakKoppelenZoekObject`.
-- [x] 1.4 `RestZaakOverzicht`: add the field (`@get:` and `@set:JsonbProperty`, it is a `var` class). In
-      `RestZaakOverzichtConverter.convert` and `convertForDisplay`, read `ZaakAutorisatieGegevens` once with
-      `readZaakAutorisatieGegevens`, pass it to `readZaakRechten` and set the field from it.
+- [x] 1.4 `RestZaakOverzicht`: add the field (`@get:JsonbProperty`; the DTO is only sent, never received). In
+      `RestZaakOverzichtConverter.convertToRestZaakOverzicht` and `convertForDisplay`, read
+      `ZaakAutorisatieGegevens` once with `readZaakAutorisatieGegevens`, pass it to `readZaakRechten` and set the
+      field from it.
 - [x] 1.5 `RestZaakInformatieobject`: add the field and fill it the same way in
       `EnkelvoudigInformatieObjectRestService.toRestZaakInformatieobject`.
 - [x] 1.6 `SearchService`: add a function that, for a given object type, index field and set of values, returns the
       values whose object is zaakspecifiek geautoriseerd, in one Solr query and without the user-specific filters.
-- [x] 1.7 `RestSignaleringTaskSummary`: add the field (`@get:` and `@set:JsonbProperty`); give
+- [x] 1.7 `RestSignaleringTaskSummary`: add the field (`@get:JsonbProperty`); give
       `toRestSignaleringTaakSummary` an `isZaakspecifiekGeautoriseerd` parameter; in
       `SignaleringService.listTakenSignaleringenPage` look up the listed task IDs with 1.6.
 - [x] 1.8 `RestGerelateerdeZaak`: add the field and fill it in `RestGerelateerdeZaakConverter.convert` the same way
       as 1.4.
 - [x] 1.9 `RestGekoppeldeZaakEnkelvoudigInformatieObject`: add the field; read the `ZaakAutorisatieGegevens` once per
-      zaak in `EnkelvoudigInformatieObjectRestService` and pass its flag to `RestInformatieobjectConverter`.
+      zaak in `EnkelvoudigInformatieObjectRestService`, pass them to `RestInformatieobjectConverter`, which hands them
+      to `readDocumentRechten` and sets the field from them.
 - [x] 1.10 `RestDetachedDocument`: add the field; in `DetachedDocumentRestService` look up the zaaknummers of the page
       with 1.6 and pass the flag per row to `RestDetachedDocumentConverter`.
 - [x] 1.11 Regenerate the OpenAPI spec and check that the nine DTOs carry the new field.
@@ -26,7 +28,8 @@
 
 - [x] 2.1 Create the standalone `ZaakspecifiekGeautoriseerdIconComponent` (`zac-zaakspecifiek-geautoriseerd-icon`) in
       `shared/zaakspecifiek-geautoriseerd-icon/`, with one required signal input `isZaakspecifiekGeautoriseerd` and
-      the template from the zaakdetailpagina; move the `.zaakspecifiek-geautoriseerd-icon` style into it.
+      the template from the zaakdetailpagina; move the `.zaakspecifiek-geautoriseerd-icon` style into it and size
+      and align the lock as in the Figma design (16px, vertically centred on the zaaknummer).
 - [x] 2.2 `zaak-details-card`: replace the inline lock markup with the component and remove the moved style.
 - [x] 2.3 Add `isZaakspecifiekGeautoriseerd` to the hand-written `TaakZoekObject` and `DocumentZoekObject` types.
 
@@ -49,10 +52,14 @@
       and calls only; test names and logic unchanged).
 - [x] 4.2 Unit tests in `SearchServiceZaakspecifiekGeautoriseerdTest` for the zaakspecifiek geautoriseerd lookup of 1.6.
 - [ ] 4.3 Integration test: the 1.6 lookup finds a zaakspecifiek geautoriseerde zaak by zaaknummer and its taak by task
-      ID, also for a user without the `zaakspecifiek_geautoriseerd` role.
+      ID, also for a user without the `zaakspecifiek_geautoriseerd` role. Done for the zaaknummer (ontkoppelde
+      documenten); the task ID lookup is covered by unit tests only (4.6).
 - [x] 4.4 Frontend spec for `ZaakspecifiekGeautoriseerdIconComponent`: lock with title when `true`, nothing when
       `false`.
 - [x] 4.5 Make the existing frontend specs work again where the new field breaks their test data.
+- [x] 4.6 Unit tests that pass the lookup result on: `SignaleringServiceTest` (only the taak of a zaakspecifiek
+      geautoriseerde zaak is marked) and `RestDetachedDocumentConverterTest` (only the document of a zaakspecifiek
+      geautoriseerde zaak is marked).
 
 ## 5. Wrap-up
 
