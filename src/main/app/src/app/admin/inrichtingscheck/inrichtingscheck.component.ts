@@ -12,7 +12,6 @@ import {
 } from "@angular/animations";
 
 import { AfterViewInit, Component, OnInit, viewChild } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -28,7 +27,6 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -66,7 +64,6 @@ import { HealthCheckService } from "../health-check.service";
     MatSortModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
     TranslateModule,
     DatumPipe,
     SideNavComponent,
@@ -102,16 +99,6 @@ export class InrichtingscheckComponent
   protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   private filterValue = "";
   protected bestaatCommunicatiekanaalEformulier = false;
-  protected ztcCacheTime = "";
-  private readonly clearZTCCachesMutation = injectMutation(
-    () => this.healtCheckService.clearZTCCaches(),
-    {
-      onSuccess: (value) => {
-        this.ztcCacheTime = value;
-        this.checkZaaktypes();
-      },
-    },
-  );
 
   constructor(
     public utilService: UtilService,
@@ -154,9 +141,6 @@ export class InrichtingscheckComponent
       });
 
     this.checkZaaktypes();
-    this.healtCheckService.readZTCCacheTime().subscribe((value) => {
-      this.ztcCacheTime = value;
-    });
   }
 
   protected needsAttention(
@@ -184,11 +168,6 @@ export class InrichtingscheckComponent
       // toggleSwitch
       this.dataSource.filter = " " + this.filterValue;
     }
-  }
-
-  protected clearZTCCache($event: MouseEvent) {
-    $event.stopPropagation();
-    this.clearZTCCachesMutation.mutate();
   }
 
   private checkZaaktypes() {

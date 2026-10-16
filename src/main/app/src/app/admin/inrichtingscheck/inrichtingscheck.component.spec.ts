@@ -14,7 +14,6 @@ import {
   fakeAsync,
   tick,
 } from "@angular/core/testing";
-import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -32,8 +31,8 @@ import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { delay } from "rxjs/operators";
-import { sleep, testQueryClient } from "../../../../setupJest";
-import { createMutationOptions, fromPartial } from "../../../test-helpers";
+import { testQueryClient } from "../../../../setupJest";
+import { fromPartial } from "../../../test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -139,7 +138,6 @@ const zaaktypeZonderEigenschap = fromPartial<
     MatSortModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
     TranslateModule,
     DatumPipe,
     SideNavComponent,
@@ -155,7 +153,6 @@ describe(InrichtingscheckComponent.name, () => {
   let component: TestInrichtingscheckComponent;
   let loader: HarnessLoader;
   let healthCheckService: HealthCheckService;
-  let clearZTCCachesMutation: ReturnType<typeof createMutationOptions<string>>;
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
 
   const user = userEvent.setup();
@@ -213,19 +210,12 @@ describe(InrichtingscheckComponent.name, () => {
         >,
       );
     jest
-      .spyOn(healthCheckService, "readZTCCacheTime")
-      .mockReturnValue(of("2024-01-01T12:00:00").pipe(delay(0)));
-    jest
       .spyOn(healthCheckService, "readBuildInformatie")
       .mockReturnValue(
         of(null).pipe(delay(0)) as unknown as ReturnType<
           typeof healthCheckService.readBuildInformatie
         >,
       );
-    clearZTCCachesMutation = createMutationOptions("2024-03-19T10:00:00");
-    jest
-      .spyOn(healthCheckService, "clearZTCCaches")
-      .mockReturnValue(clearZTCCachesMutation as never);
   });
 
   beforeEach(fakeAsync(() => {
@@ -244,20 +234,15 @@ describe(InrichtingscheckComponent.name, () => {
     );
   });
 
-  it("should call all three health-check endpoints on init", () => {
+  it("should call both health-check endpoints on init", () => {
     expect(healthCheckService.listZaaktypeInrichtingschecks).toHaveBeenCalled();
     expect(
       healthCheckService.readBestaatCommunicatiekanaalEformulier,
     ).toHaveBeenCalled();
-    expect(healthCheckService.readZTCCacheTime).toHaveBeenCalled();
   });
 
   it("should populate dataSource with zaaktype data after init", () => {
     expect(component["dataSource"].data.length).toBe(4);
-  });
-
-  it("should store ztcCacheTime from service response", () => {
-    expect(component["ztcCacheTime"]).toBe("2024-01-01T12:00:00");
   });
 
   it("should store bestaatCommunicatiekanaalEformulier from service response", () => {
@@ -444,15 +429,12 @@ describe(InrichtingscheckComponent.name, () => {
     expect(screen.getByText("msg.loading")).toBeInTheDocument();
   });
 
-  it("should disable the sync button while zaaktypes are loading", () => {
-    component["loadingZaaktypes"] = true;
-    fixture.detectChanges();
-
+  it("should not offer a button to synchronise the zaaktype catalogus", () => {
     expect(
-      screen.getByRole("button", {
+      screen.queryByRole("button", {
         name: "health-check.synchroniseer.ztc.button",
       }),
-    ).toBeDisabled();
+    ).not.toBeInTheDocument();
   });
 
   it("should show 'geen gegevens' message when data source is empty and not loading", () => {
@@ -476,22 +458,5 @@ describe(InrichtingscheckComponent.name, () => {
     await doelHeader.click();
     expect(component["dataSource"].data[0].zaaktype.doel).toBe("Doel D");
     expect(component["dataSource"].data[3].zaaktype.doel).toBe("Doel A");
-  });
-
-  it("should reload zaaktypes and update cache time on clearZTCCache", async () => {
-    const listSpy =
-      healthCheckService.listZaaktypeInrichtingschecks as jest.Mock;
-    listSpy.mockClear();
-
-    const event = new MouseEvent("click");
-    jest.spyOn(event, "stopPropagation");
-
-    component["clearZTCCache"](event);
-    await sleep();
-
-    expect(event.stopPropagation).toHaveBeenCalled();
-    expect(clearZTCCachesMutation.mutationFn).toHaveBeenCalled();
-    expect(component["ztcCacheTime"]).toBe("2024-03-19T10:00:00");
-    expect(listSpy).toHaveBeenCalled();
   });
 });

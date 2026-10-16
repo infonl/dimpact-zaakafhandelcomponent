@@ -227,12 +227,9 @@ Als een procesdefinitie niet goed is geconfigureerd is dit zichtbaar door middel
 Dit onderdeel is bedoeld als hulpmiddel om de inrichting van een zaaktype in zowel de ZAC als de zaaktypecatalogus te controleren op minimaal benodigde inrichting.
 ![Inrichtingscheck](images/beheer_instellingen_inrchtingscheck.png)
 
-#### Zaaktypecatalogus synchronisatie
-Na het wijzigen van data in de zaaktypecatalogus in Open Zaak is het nodig om de gegevens te synchroniseren. Synchronisatie kan gestart worden door op de blauwe knop te klikken
-De volgende gegevens worden gesynchroniseerd: Zaaktypen, Informatieobjecttypen, Besluittypen, Zaaktype-informatieobjecttypen, Resultaattypen, Statustypen en Roltypen. 
-
 #### Zaaktype inrichtingscheck
 Hier kan voor een zaaktype dat nog niet volledig en correct is ingericht worden gecheckt welke onderdelen nog inrichting nodig hebben. Als een zaaktype niet in deze lijst voorkomt dan is de minimaal benodigde inrichting correct. Er wordt hier een validatie uitgevoerd op de ZAC zaakafhandelparameters en de zaaktypecatalogus implementatie.
+Zaaktypes waarvan in de zaakafhandelparameters BPMN is gekozen, worden niet gecontroleerd en niet getoond.
 Om een zaaktype in deze lijst te controleren klik je op de regel. Daarna worden alle inrichtingsonderdelen die aandacht nodig hebben geopend en wordt per onderdeel vermeld wat er niet correct is ingericht.
 Voor nu worden de volgende onderdelen gecheckt:
 - Zaakafhandelparameters | er wordt gecheckt of deze volledig zijn ingericht
@@ -692,7 +689,7 @@ In Open Zaak ziet het `Zaakspecifiek geautoriseerde medewerker` roltype er als v
 ZAC gebruikt het roltype voor de medewerkers die toegang houden tot de zaak, zoals de vorige behandelaar.
 Medewerkers met dit roltype verschijnen niet in het tabblad 'Betrokkenen' van de zaak, en een medewerker kan ze daar niet ontkoppelen.
 
-Synchroniseer de zaaktypecatalogus na de wijziging. Zie sectie [Zaaktypecatalogus synchronisatie](#zaaktypecatalogus-synchronisatie).
+ZAC haalt de gewijzigde gegevens op zodra Open Zaak een notificatie over het gewijzigde zaaktype stuurt.
 
 In de zaakafhandelparameters van het zaaktype toont het veld 'Zaakspecifiek autoriseerbaar' of het zaaktype zaakspecifiek autoriseerbaar is ('Ja' of 'Nee').
 De beheerder kan dit veld niet wijzigen. ZAC bepaalt de waarde uit de zaaktypecatalogus.
@@ -800,7 +797,7 @@ Doe dit alleen als de beheerder de inhoud van deze zaken echt moet zien.
 
 | Probleem                                                                                   | Mogelijke oorzaak                                                                                                                  |
 |--------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| De medewerker ziet het vinkje 'Zaak zaakspecifiek autoriseren' niet.                        | Het zaaktype heeft niet zowel de eigenschap `ZAAK_GEAUTORISEERD` als het roltype 'Zaakspecifiek geautoriseerde medewerker', of de catalogus is niet gesynchroniseerd. |
+| De medewerker ziet het vinkje 'Zaak zaakspecifiek autoriseren' niet.                        | Het zaaktype heeft niet zowel de eigenschap `ZAAK_GEAUTORISEERD` als het roltype 'Zaakspecifiek geautoriseerde medewerker', of Open Zaak heeft nog geen notificatie over het gewijzigde zaaktype gestuurd. |
 | De medewerker kan een zaak niet aan een andere behandelaar overdragen.                     | Het roltype 'Zaakspecifiek geautoriseerde medewerker' ontbreekt in de catalogus van het zaaktype.                                  |
 | De medewerker kan een taak niet aan een medewerker toekennen, of taken verdelen slaat een taak over. | Het roltype 'Zaakspecifiek geautoriseerde medewerker' ontbreekt in de catalogus van het zaaktype.                       |
 | Een medewerker met de applicatierol `zaakspecifiek_geautoriseerd` ziet de zaak niet.        | De medewerker heeft geen basis-applicatierol voor het zaaktype, de koppeling geldt voor een ander domein, of de medewerker meldde zich niet opnieuw aan na de wijziging. |
