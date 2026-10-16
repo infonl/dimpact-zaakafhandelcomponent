@@ -26,8 +26,8 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: "parameters/:uuid",
     loadComponent: () =>
-      import("./parameters-edit-shell/parameters-edit-shell.component").then(
-        (module) => module.ParametersEditShellComponent,
+      import("./parameters-edit/parameters-edit.component").then(
+        (module) => module.ParametersEditComponent,
       ),
     resolve: { parameters: ZaakafhandelParametersResolver },
   },

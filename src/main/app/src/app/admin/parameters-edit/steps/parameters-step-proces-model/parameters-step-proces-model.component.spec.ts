@@ -3,21 +3,74 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { ProcessModelMethod } from "../../../model/parameters/process-model-method";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { ZaakafhandelParametersService } from "../../../zaakafhandel-parameters.service";
 import { ParametersStepProcesModelComponent } from "./parameters-step-proces-model.component";
-import { createProcessModelForm, ProcessModelForm } from "./process-model-form";
+import {
+  createProcessModelForm,
+  ProcessDefinition,
+  ProcessModelForm,
+} from "./process-model-form";
+
+const caseDefinition: ProcessDefinition = {
+  processEngine: "CMMN",
+  key: "fakeCaseDefinitionKey",
+  naam: "Generiek zaakafhandelmodel",
+};
+
+const otherCaseDefinition: ProcessDefinition = {
+  processEngine: "CMMN",
+  key: "fakeOtherCaseDefinitionKey",
+  naam: "Ander zaakafhandelmodel",
+};
+
+const bpmnProcessDefinition: ProcessDefinition = {
+  processEngine: "BPMN",
+  key: "fakeProcessDefinitionKey",
+  naam: "Vergunningsproces",
+};
 
 describe(ParametersStepProcesModelComponent.name, () => {
   const user = userEvent.setup();
 
-  async function setup(form: ProcessModelForm) {
+  async function setup(
+    form: ProcessModelForm,
+    savedProcessDefinition: ProcessDefinition | null = null,
+  ) {
     await render(ParametersStepProcesModelComponent, {
-      imports: [TranslateModule.forRoot()],
-      inputs: { form, zaaktypeOmschrijving: "Test zaaktype omschrijving" },
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      inputs: {
+        form,
+        zaaktypeOmschrijving: "Test zaaktype omschrijving",
+        savedProcessDefinition,
+      },
+      providers: [
+        {
+          provide: ZaakafhandelParametersService,
+          useValue: fromPartial<ZaakafhandelParametersService>({
+            listProcessDefinitions: () => ({
+              ...createQueryOptions([
+                caseDefinition,
+                otherCaseDefinition,
+                bpmnProcessDefinition,
+              ]),
+              queryKey: ["processDefinitions"],
+            }),
+          }),
+        },
+      ],
     });
+  }
+
+  async function offeredProcessDefinitions() {
+    await user.click(screen.getByRole("combobox", { name: /procesmodel/i }));
+    return (await screen.findAllByRole("option")).map((option) =>
+      option.textContent?.trim(),
+    );
   }
 
   it("shows the zaaktype it configures", async () => {
@@ -29,50 +82,40 @@ describe(ParametersStepProcesModelComponent.name, () => {
   });
 
   describe("for a configuration that was never saved", () => {
-    it("offers both engines without choosing one", async () => {
+    it("offers the process definitions of every process engine, without choosing one", async () => {
       const form = createProcessModelForm(null);
       await setup(form);
 
-      expect(screen.getByRole("radio", { name: "CMMN" })).not.toBeChecked();
-      expect(screen.getByRole("radio", { name: "BPMN" })).not.toBeChecked();
+      expect(await offeredProcessDefinitions()).toEqual([
+        "Generiek zaakafhandelmodel",
+        "Ander zaakafhandelmodel",
+        "Vergunningsproces",
+      ]);
       expect(form.valid).toBe(false);
     });
 
-    it.each<ProcessModelMethod>(["CMMN", "BPMN"])(
-      "lets the beheerder choose %s",
-      async (engine) => {
-        const form = createProcessModelForm(null);
-        await setup(form);
+    it("lets the beheerder choose a process definition", async () => {
+      const form = createProcessModelForm(null);
+      await setup(form);
 
-        await user.click(screen.getByRole("radio", { name: engine }));
+      await offeredProcessDefinitions();
+      await user.click(
+        screen.getByRole("option", { name: "Vergunningsproces" }),
+      );
 
-        expect(form.value.options?.value).toBe(engine);
-        expect(form.valid).toBe(true);
-      },
-    );
+      expect(form.value.processDefinition).toEqual(bpmnProcessDefinition);
+      expect(form.valid).toBe(true);
+    });
   });
 
-  describe.each<ProcessModelMethod>(["CMMN", "BPMN"])(
-    "for a saved %s configuration",
-    (engine) => {
-      async function setupSaved() {
-        const form = createProcessModelForm(engine);
-        form.disable();
-        await setup(form);
-      }
+  describe("for a saved configuration", () => {
+    it("offers only the process definitions of the process engine that it is bound to", async () => {
+      await setup(createProcessModelForm(caseDefinition), caseDefinition);
 
-      it("shows its engine as chosen", async () => {
-        await setupSaved();
-
-        expect(screen.getByRole("radio", { name: engine })).toBeChecked();
-      });
-
-      it("offers no choice of engine", async () => {
-        await setupSaved();
-
-        expect(screen.getByRole("radio", { name: "CMMN" })).toBeDisabled();
-        expect(screen.getByRole("radio", { name: "BPMN" })).toBeDisabled();
-      });
-    },
-  );
+      expect(await offeredProcessDefinitions()).toEqual([
+        "Generiek zaakafhandelmodel",
+        "Ander zaakafhandelmodel",
+      ]);
+    });
+  });
 });

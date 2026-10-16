@@ -5,7 +5,6 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
@@ -14,7 +13,6 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
-import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeCmmnExtension
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
@@ -40,7 +38,7 @@ import java.time.ZonedDateTime
 @NoArgConstructor
 @Suppress("LongParameterList")
 class RestZaaktypeConfigurationConverter @Inject constructor(
-    val caseDefinitionConverter: RestCaseDefinitionConverter,
+    val processDefinitionConverter: RestProcessDefinitionConverter,
     val zaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
@@ -49,18 +47,19 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     val smartDocumentsService: SmartDocumentsService,
     val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
 ) {
-    @Suppress("LongMethod")
     fun toRestZaaktypeConfiguration(
         zaaktypeConfiguration: ZaaktypeConfiguration,
         inclusiefRelaties: Boolean,
         zaaktype: ZaakType? = null
     ): RestZaaktypeConfiguration {
         val resolvedZaaktype = zaaktype ?: ztcClientService.readZaaktype(zaaktypeConfiguration.zaaktypeUuid)
-        val isBpmn = zaaktypeConfiguration.getProcessEngine() == ProcessEngine.BPMN
-        val cmmnExtension = zaaktypeConfiguration.cmmnExtension.takeUnless { isBpmn } ?: ZaaktypeCmmnExtension()
+        val cmmnExtension = zaaktypeConfiguration.cmmnExtension
         val restZaaktypeConfiguration = RestZaaktypeConfiguration(
             id = zaaktypeConfiguration.id,
             zaaktype = resolvedZaaktype.toRestZaaktypeOverzicht(),
+            processDefinition = zaaktypeConfiguration.processBinding?.let {
+                processDefinitionConverter.toRestProcessDefinition(it, inclusiefRelaties)
+            },
             isZaakspecifiekAutoriseerbaar = zaakspecifiekeAutorisatieService.isZaakspecifiekAutoriseerbaar(
                 resolvedZaaktype
             ),
@@ -70,19 +69,15 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             uiterlijkeEinddatumAfdoeningWaarschuwing = zaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing,
             creatiedatum = zaaktypeConfiguration.creatiedatum,
             isValide = zaaktypeConfiguration.isValidForZaakCreation(),
-            caseDefinition = zaaktypeConfiguration.processBinding
-                ?.takeIf { it.processEngine == ProcessEngine.CMMN }
-                ?.let { caseDefinitionConverter.convertToRestCaseDefinition(it.definitionKey, inclusiefRelaties) },
-            intakeMail = cmmnExtension.intakeMail.takeUnless { isBpmn }?.let(ZaakafhandelparametersStatusMailOption::valueOf),
-            afrondenMail = cmmnExtension.afrondenMail.takeUnless { isBpmn }
-                ?.let(ZaakafhandelparametersStatusMailOption::valueOf),
             productaanvraagtype = zaaktypeConfiguration.productaanvraagtype,
-            smartDocuments = zaaktypeConfiguration.toRestSmartDocuments(smartDocumentsService.isEnabled()),
-            betrokkeneKoppelingen = zaaktypeConfiguration.getBetrokkeneParameters().toRestBetrokkeneKoppelingen(),
-            brpDoelbindingen = zaaktypeConfiguration.getBrpParameters().toRestBrpDoelbindingen(),
+            intakeMail = cmmnExtension?.intakeMail?.let(ZaakafhandelparametersStatusMailOption::valueOf),
+            afrondenMail = cmmnExtension?.afrondenMail?.let(ZaakafhandelparametersStatusMailOption::valueOf),
             automaticEmailConfirmation = zaaktypeConfiguration.getAutomaticEmailConfirmation()
                 ?.toRestAutomaticEmailConfirmation()
                 ?: RestAutomaticEmailConfirmation(),
+            smartDocuments = zaaktypeConfiguration.toRestSmartDocuments(smartDocumentsService.isEnabled()),
+            betrokkeneKoppelingen = zaaktypeConfiguration.getBetrokkeneParameters().toRestBetrokkeneKoppelingen(),
+            brpDoelbindingen = zaaktypeConfiguration.getBrpParameters().toRestBrpDoelbindingen(),
         )
         if (inclusiefRelaties) {
             restZaaktypeConfiguration.addRelatedData(zaaktypeConfiguration, cmmnExtension)
@@ -90,7 +85,11 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         return restZaaktypeConfiguration
     }
 
-    @Suppress("ThrowsCount")
+    /**
+     * Converts the REST configuration to the stored configuration of its zaaktype version, and updates that stored
+     * configuration when there is one. Only a configuration that is bound to a CMMN case definition stores the plan
+     * item settings, as only such a configuration has a CMMN extension.
+     */
     fun toZaaktypeConfiguration(restZaaktypeConfiguration: RestZaaktypeConfiguration): ZaaktypeConfiguration {
         val zaaktypeConfiguration =
             zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeConfiguration.zaaktype.uuid)
@@ -100,38 +99,20 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             zaaktypeUuid = restZaaktypeConfiguration.zaaktype.uuid
             zaaktypeOmschrijving = restZaaktypeConfiguration.zaaktype.omschrijving
                 ?: throw NullPointerException("restZaakafhandelParameters.zaaktype.omschrijving is null")
-            bindTo(
-                ProcessEngine.CMMN,
-                (
-                    restZaaktypeConfiguration.caseDefinition
-                        ?: throw NullPointerException("restZaakafhandelParameters.caseDefinition is null")
-                    ).key
-            )
             groepID = restZaaktypeConfiguration.defaultGroepId
                 ?: throw NullPointerException("restZaakafhandelParameters.defaultGroepId is null")
             uiterlijkeEinddatumAfdoeningWaarschuwing = restZaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
-            nietOntvankelijkResultaattypeOmschrijving = resultaattypeReferenceService.readOmschrijving(
-                restZaaktypeConfiguration.zaakNietOntvankelijkResultaattype?.id
-                    ?: throw NullPointerException("restZaakafhandelParameters.zaakNietOntvankelijkResultaattype is null")
-            )
+            nietOntvankelijkResultaattypeOmschrijving = restZaaktypeConfiguration.zaakNietOntvankelijkResultaattype
+                ?.let { resultaattypeReferenceService.readOmschrijving(it.id) }
             productaanvraagtype = restZaaktypeConfiguration.productaanvraagtype?.trim()
             defaultBehandelaarId = restZaaktypeConfiguration.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaaktypeConfiguration.einddatumGeplandWaarschuwing
             isSmartDocumentsEnabled = restZaaktypeConfiguration.smartDocuments.isEnabledForZaaktype
             creatiedatum = restZaaktypeConfiguration.creatiedatum ?: ZonedDateTime.now()
+            zaaktypeEmailParameters = restZaaktypeConfiguration.automaticEmailConfirmation
+                .toAutomaticEmailConfirmation(this)
         }.also {
-            it.getOrCreateCmmnExtension().apply {
-                intakeMail = restZaaktypeConfiguration.intakeMail?.name
-                afrondenMail = restZaaktypeConfiguration.afrondenMail?.name
-                setHumanTaskParametersCollection(
-                    humanTaskParametersConverter.convertRESTHumanTaskParameters(
-                        restZaaktypeConfiguration.humanTaskParameters
-                    )
-                )
-                setUserEventListenerParametersCollection(
-                    convertRESTUserEventListenerParameters(restZaaktypeConfiguration.userEventListenerParameters)
-                )
-            }
+            it.applyProcessDefinition(restZaaktypeConfiguration)
             it.setZaakbeeindigParameters(
                 zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(
                     restZaaktypeConfiguration.zaakbeeindigParameters
@@ -146,24 +127,40 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             it.zaaktypeBetrokkeneParameters =
                 restZaaktypeConfiguration.betrokkeneKoppelingen.toZaaktypeBetrokkenParameters(it)
             it.zaaktypeBrpParameters = restZaaktypeConfiguration.brpDoelbindingen.toZaaktypeBrpParameters(it)
-            it.zaaktypeEmailParameters =
-                restZaaktypeConfiguration.automaticEmailConfirmation.toAutomaticEmailConfirmation(it)
+        }
+    }
+
+    private fun ZaaktypeConfiguration.applyProcessDefinition(restZaaktypeConfiguration: RestZaaktypeConfiguration) {
+        val processDefinition = restZaaktypeConfiguration.processDefinition
+            ?: throw NullPointerException("restZaakafhandelParameters.processDefinition is null")
+        bindTo(processDefinition.processEngine, processDefinition.key)
+        cmmnExtension?.apply {
+            intakeMail = restZaaktypeConfiguration.intakeMail?.name
+            afrondenMail = restZaaktypeConfiguration.afrondenMail?.name
+            setHumanTaskParametersCollection(
+                humanTaskParametersConverter.convertRESTHumanTaskParameters(
+                    restZaaktypeConfiguration.humanTaskParameters
+                )
+            )
+            setUserEventListenerParametersCollection(
+                convertRESTUserEventListenerParameters(restZaaktypeConfiguration.userEventListenerParameters)
+            )
         }
     }
 
     private fun RestZaaktypeConfiguration.addRelatedData(
         zaaktypeConfiguration: ZaaktypeConfiguration,
-        cmmnExtension: ZaaktypeCmmnExtension
+        cmmnExtension: ZaaktypeCmmnExtension?
     ) {
-        this.caseDefinition?.let { caseDefinition ->
-            this.humanTaskParameters = humanTaskParametersConverter.convertHumanTaskParametersCollection(
-                cmmnExtension.getHumanTaskParametersCollection(),
-                caseDefinition.humanTaskDefinitions
+        processDefinition?.let {
+            humanTaskParameters = humanTaskParametersConverter.convertHumanTaskParametersCollection(
+                cmmnExtension?.getHumanTaskParametersCollection().orEmpty(),
+                it.humanTaskDefinitions
             )
-            this.userEventListenerParameters = RESTUserEventListenerParametersConverter
+            userEventListenerParameters = RESTUserEventListenerParametersConverter
                 .convertUserEventListenerParametersCollection(
-                    cmmnExtension.getUserEventListenerParametersCollection(),
-                    caseDefinition.userEventListenerDefinitions
+                    cmmnExtension?.getUserEventListenerParametersCollection().orEmpty(),
+                    it.userEventListenerDefinitions
                 )
         }
         resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)?.let {

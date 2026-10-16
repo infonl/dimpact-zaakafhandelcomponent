@@ -1,0 +1,108 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-accordion class="flex-col">
+  @for (humanTaskForm of form().controls; track humanTaskForm) {
+    <mat-expansion-panel
+      [formGroup]="humanTaskForm"
+      class="flex-col"
+      hideToggle
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          @if (humanTaskForm.valid) {
+            <mat-icon outlined color="primary">check_circle</mat-icon>
+          } @else {
+            <mat-icon outlined color="warn">error</mat-icon>
+          }
+          <span [ngClass]="{ disabled: !humanTaskForm.controls.actief.value }">
+            {{ humanTaskForm.controls.planItemDefinition.value.naam }}
+          </span>
+        </mat-panel-title>
+        <mat-slide-toggle
+          formControlName="actief"
+          [aria-label]="'actief' | translate"
+          (click)="$event.stopPropagation()"
+          color="primary"
+        ></mat-slide-toggle>
+      </mat-expansion-panel-header>
+      <div class="flex-row flex-wrap">
+        <mat-form-field class="w33 w100-md" floatLabel="always">
+          <mat-label>{{ "formulier-definitie" | translate }}</mat-label>
+          <mat-select
+            placeholder="{{ 'formulier-definitie.kies' | translate }}"
+            formControlName="formulierDefinitieId"
+            (selectionChange)="syncReferentieTabellen(humanTaskForm)"
+          >
+            @for (
+              formulierDefinitie of formulierDefinitiesQuery.data() ?? [];
+              track formulierDefinitie
+            ) {
+              <mat-option [value]="formulierDefinitie.id">{{
+                "formulier-definitie." + formulierDefinitie.id
+                  | i18nKey
+                  | translate
+              }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="flex-row flex-wrap">
+        <mat-form-field class="w33 w100-md" floatLabel="always">
+          <mat-label>{{ "groep.standaard" | translate }}</mat-label>
+          <mat-select
+            placeholder="{{ 'groep.geen' | translate }}"
+            formControlName="defaultGroepId"
+          >
+            <mat-option [value]="">{{ "groep.geen" | translate }}</mat-option>
+            @for (groep of groepenQuery.data() ?? []; track groep) {
+              <mat-option [value]="groep.id">{{ groep.naam }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="flex-row flex-wrap">
+        <mat-form-field class="w33 w100-md" floatLabel="always">
+          <mat-label>{{ "doorlooptijd" | translate }}</mat-label>
+          <input
+            matInput
+            type="number"
+            [attr.inputmode]="'numeric'"
+            min="0"
+            max="2147483647"
+            formControlName="doorlooptijd"
+          />
+          <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+        </mat-form-field>
+      </div>
+      @for (veld of veldDefinities(humanTaskForm); track veld) {
+        @if (
+          humanTaskForm.controls.referentieTabellen.controls[veld.naam ?? ""];
+          as referentieTabelForm
+        ) {
+          <div class="flex-row flex-wrap">
+            <mat-form-field class="w33 w100-md" floatLabel="always">
+              <mat-label>{{
+                "referentietabel." + veld.naam | i18nKey | translate
+              }}</mat-label>
+              <mat-select
+                placeholder="{{ 'referentietabel.geen' | translate }}"
+                [formControl]="referentieTabelForm.controls.tabel"
+                [compareWith]="compareObject"
+              >
+                @for (
+                  tabel of referentieTabellenQuery.data() ?? [];
+                  track tabel
+                ) {
+                  <mat-option [value]="tabel">{{ tabel.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+      }
+    </mat-expansion-panel>
+  }
+</mat-accordion>

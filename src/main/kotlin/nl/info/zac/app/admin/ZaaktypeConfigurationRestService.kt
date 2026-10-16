@@ -15,13 +15,11 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
+import nl.info.zac.app.admin.converter.RestProcessDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
-import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RestZaakbeeindigReden
-import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
@@ -33,12 +31,14 @@ import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.admin.model.RestProcessDefinition
 import nl.info.zac.app.admin.model.RestReplyTo
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.toRestReplyTos
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_VALIDATION_GENERIC
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
@@ -62,40 +62,24 @@ import java.util.UUID
 class ZaaktypeConfigurationRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
-    private val cmmnService: CmmnService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
     private val referenceTableService: ReferenceTableService,
     private val restZaaktypeConfigurationConverter: RestZaaktypeConfigurationConverter,
-    private val caseDefinitionConverter: RestCaseDefinitionConverter,
+    private val processDefinitionConverter: RestProcessDefinitionConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService,
     private val identityService: IdentityService
 ) {
     /**
-     * Retrieve all case definitions that can be linked to a ZAAKTYPE
-     *
-     * @return list of all case definitions
+     * Lists the process definitions of all process engines that a zaaktype can be bound to, each with the plan items
+     * that a beheerder can configure for it.
      */
     @GET
-    @Path("case-definitions")
-    fun listCaseDefinitions(): List<RESTCaseDefinition> {
+    @Path("process-definitions")
+    fun listBindableProcessDefinitions(): List<RestProcessDefinition> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return cmmnService.listCaseDefinitions()
-            .map { caseDefinitionConverter.convertToRestCaseDefinition(it, true) }
-    }
-
-    /**
-     * Retrieving a CASE_DEFINITION including its PLAN_ITEM_DEFINITIONs
-     *
-     * @param caseDefinitionKey id of the CASE_DEFINITION
-     * @return CASE_DEFINITION including its PLAN_ITEM_DEFINITIONs
-     */
-    @GET
-    @Path("case-definitions/{key}")
-    fun readCaseDefinition(@PathParam("key") caseDefinitionKey: String): RESTCaseDefinition {
-        assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return caseDefinitionConverter.convertToRestCaseDefinition(caseDefinitionKey, true)
+        return processDefinitionConverter.listProcessDefinitions()
     }
 
     @GET
@@ -117,18 +101,35 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     }
 
     /**
-     * Creates or updates the configuration of a zaaktype version and binds it to its CMMN case definition.
+     * Creates or updates the configuration of a zaaktype version and binds it to its process definition.
      *
+     * @param zaaktypeUUID the zaaktype version that the configuration belongs to
      * @param restZaaktypeConfiguration the configuration to store; when the zaaktype version already has a
      * configuration, that configuration is updated
-     * @throws InputValidationFailedException if the productaanvraagtype is already in use by another active zaaktype
-     * @throws InputValidationFailedException if the productaanvraagtype is an empty string
+     * @throws InputValidationFailedException if the configuration belongs to another zaaktype version than
+     * [zaaktypeUUID], if it names no process definition, if the productaanvraagtype is already in use by another active
+     * zaaktype, or if it binds a configuration to another engine than the one it is bound to
      */
     @PUT
-    fun createOrUpdateZaaktypeCmmnConfiguration(
+    @Path("{zaaktypeUUID}")
+    fun createOrUpdateZaaktypeConfiguration(
+        @PathParam("zaaktypeUUID") zaaktypeUUID: UUID,
         @Valid restZaaktypeConfiguration: RestZaaktypeConfiguration
     ): RestZaaktypeConfiguration {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
+        if (restZaaktypeConfiguration.zaaktype.uuid != zaaktypeUUID) {
+            throw InputValidationFailedException(
+                errorCode = ERROR_CODE_VALIDATION_GENERIC,
+                message = "The configuration belongs to zaaktype '${restZaaktypeConfiguration.zaaktype.uuid}' " +
+                    "and not to zaaktype '$zaaktypeUUID'"
+            )
+        }
+        if (restZaaktypeConfiguration.processDefinition == null) {
+            throw InputValidationFailedException(
+                errorCode = ERROR_CODE_VALIDATION_GENERIC,
+                message = "The configuration of zaaktype '$zaaktypeUUID' names no process definition"
+            )
+        }
         restZaaktypeConfiguration.productaanvraagtype?.also { productaanvraagtype ->
             zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
                 productaanvraagtype = productaanvraagtype,
