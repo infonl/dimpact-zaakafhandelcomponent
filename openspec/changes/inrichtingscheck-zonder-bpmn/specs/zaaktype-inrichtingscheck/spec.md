@@ -39,7 +39,8 @@ zaakafhandelparameters choose CMMN or it has no zaakafhandelparameters.
 ### Requirement: The inrichtingscheck offers no manual synchronisation
 
 The inrichtingscheck SHALL NOT offer an action to synchronise the zaaktypecatalogus or to clear the cached
-catalogue data, and SHALL NOT show when that was last done. ZAC SHALL NOT expose a REST operation for either.
+catalogue data, and SHALL NOT show when that was last done. The health-check REST operations SHALL NOT offer
+either. The admin operation that clears all caches of ZAC stays available as a manual fallback.
 
 #### Scenario: Opening the inrichtingscheck
 - **WHEN** a beheerder opens the inrichtingscheck
