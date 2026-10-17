@@ -1,0 +1,84 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-card>
+  <mat-card-content>
+    <h2>
+      {{ "gegevens.landelijk.koppelingen" | translate }}
+    </h2>
+    <p>
+      {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
+    </p>
+    <form class="flex-col gap-12" [formGroup]="form()">
+      <div class="flex-row items-center gap-8">
+        <mat-slide-toggle
+          formControlName="brpKoppelen"
+          [aria-label]="'gegevens.koppelen.brp' | translate"
+          (click)="$event.stopPropagation()"
+          color="primary"
+        ></mat-slide-toggle>
+        <p>{{ "gegevens.koppelen.brp" | translate }}</p>
+      </div>
+      @if (brpDoelbindingSetupEnabled() && form().controls.brpKoppelen.value) {
+        <section class="flex-col" formGroupName="brpDoelbindingen">
+          <p>
+            {{ "title.admin.parameters.step.brp-doelbinding" | translate }}
+          </p>
+          <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+            <mat-label>{{
+              "brp-doelbinding.zoek-waarde" | translate
+            }}</mat-label>
+            <mat-select
+              placeholder="{{ 'resultaat.kies' | translate }}"
+              formControlName="zoekWaarde"
+            >
+              @for (value of brpSearchValuesQuery.data() ?? []; track value) {
+                <mat-option [value]="value">{{ value }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+            <mat-label>{{
+              "brp-doelbinding.raadpleeg-waarde" | translate
+            }}</mat-label>
+            <mat-select
+              placeholder="{{ 'resultaat.kies' | translate }}"
+              formControlName="raadpleegWaarde"
+            >
+              @for (value of brpViewValuesQuery.data() ?? []; track value) {
+                <mat-option [value]="value">{{ value }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
+            <mat-label>{{
+              "brp-doelbinding.verwerkingregister-waarde" | translate
+            }}</mat-label>
+            <mat-select
+              placeholder="{{ 'resultaat.kies' | translate }}"
+              formControlName="verwerkingregisterWaarde"
+            >
+              @for (
+                value of brpProcessingValuesQuery.data() ?? [];
+                track value
+              ) {
+                <mat-option [value]="value">{{ value }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </section>
+      }
+      <div class="flex-row items-center gap-8">
+        <mat-slide-toggle
+          formControlName="kvkKoppelen"
+          [aria-label]="'gegevens.koppelen.kvk' | translate"
+          (click)="$event.stopPropagation()"
+          color="primary"
+        ></mat-slide-toggle>
+        <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

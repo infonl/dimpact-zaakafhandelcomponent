@@ -198,19 +198,19 @@ export class ReferentieTabelService {
   }
 
   listBrpSearchValues() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/referentietabellen/brp-doelbinding-zoek-waarde",
     );
   }
 
   listBrpViewValues() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/referentietabellen/brp-doelbinding-raadpleeg-waarde",
     );
   }
 
   listBrpProcessingValues() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/referentietabellen/brp-verwerkingregister-waarde",
     );
   }
