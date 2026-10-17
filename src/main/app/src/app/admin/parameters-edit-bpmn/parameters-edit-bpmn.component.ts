@@ -30,16 +30,12 @@ import {
   ConfirmDialogData,
 } from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { ZacInput } from "src/app/shared/form/input/input";
-import { ZacRadio } from "src/app/shared/form/radio/radio";
 import { ZacSelect } from "src/app/shared/form/select/select";
 import { injectMutation } from "src/app/shared/http/inject-mutation";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import {
-  ProcessModelMethod,
-  ProcessModelMethodSelection,
-} from "../model/parameters/process-model-method";
+import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
 import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
 import { ParametersStepBeeindigingComponent } from "../parameters-edit/steps/parameters-step-beeindiging/parameters-step-beeindiging.component";
 import {
@@ -52,6 +48,8 @@ import {
   toBrpDoelbindingen,
 } from "../parameters-edit/steps/parameters-step-koppelingen/koppelingen-form";
 import { ParametersStepKoppelingenComponent } from "../parameters-edit/steps/parameters-step-koppelingen/parameters-step-koppelingen.component";
+import { ParametersStepProcesModelComponent } from "../parameters-edit/steps/parameters-step-proces-model/parameters-step-proces-model.component";
+import { createProcessModelForm } from "../parameters-edit/steps/parameters-step-proces-model/process-model-form";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
 @Component({
@@ -69,12 +67,12 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
     MatFormFieldModule,
     TranslateModule,
     ZacSelect,
-    ZacRadio,
     ZacInput,
     StaticTextComponent,
     SmartDocumentsFormComponent,
     ParametersStepBeeindigingComponent,
     ParametersStepKoppelingenComponent,
+    ParametersStepProcesModelComponent,
   ],
 })
 export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
@@ -127,20 +125,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     zaakbeeindigParameters: [],
   };
 
-  protected readonly modellingMethodOptions: Array<{
-    label: string;
-    value: ProcessModelMethod;
-  }> = [
-    { label: "CMMN", value: "CMMN" },
-    { label: "BPMN", value: "BPMN" },
-  ];
-
-  protected cmmnBpmnFormGroup = this.formBuilder.group({
-    options: this.formBuilder.control<{
-      value: ProcessModelMethod;
-      label: string;
-    }>({ label: "BPMN", value: "BPMN" }, []),
-  });
+  protected cmmnBpmnFormGroup = createProcessModelForm("BPMN");
   protected koppelingenForm = createKoppelingenForm(
     {},
     { isBrpDoelbindingSetupEnabled: false },
