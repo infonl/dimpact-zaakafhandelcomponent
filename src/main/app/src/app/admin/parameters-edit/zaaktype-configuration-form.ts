@@ -92,8 +92,6 @@ export function applyProcessDefinition(
       mail.controls.automaticEmailConfirmation,
       processDefinition?.processEngine === "CMMN",
     ],
-    // The screen does not offer the mail step for a BPMN zaaktype.
-    [mail.controls.zaakAfzenders, processDefinition?.processEngine === "CMMN"],
   ];
 
   for (const [control, isInUse] of settingsInUse) {

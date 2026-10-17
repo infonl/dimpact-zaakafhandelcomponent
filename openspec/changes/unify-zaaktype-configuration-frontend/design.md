@@ -226,6 +226,9 @@ parameters-edit                  container: route data, one typed FormGroup, sub
   used by the mail dialog of the zaak, not by BPMN service tasks, which name their own template. The
   collapsed text in the mail step covers only the confirmation email. If beheerders get confused, the next step
   is help text per section, not a behaviour change.
+- [A BPMN configuration without a default zaakafzender can no longer be saved] → The mail step now shows the
+  zaakafzenders for BPMN, and demands a default one as it does for CMMN. A beheerder who opens such a
+  configuration sees the error on the mail step and picks one. The special afzenders are always offered.
 - [Removing `startenZaak` from the BPMN reads breaks an unknown caller] → `git grep` shows one caller outside the
   admin service and the itests: the zaak creation screen, which now reads the defaults from the zaaktype (D3). An
   itest checks that a user without `beheren` is refused.

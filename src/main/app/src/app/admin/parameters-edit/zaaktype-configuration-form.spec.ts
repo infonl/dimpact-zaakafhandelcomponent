@@ -235,7 +235,6 @@ describe("The configuration of a zaaktype in the admin screen", () => {
     expect(controls.mail.controls.automaticEmailConfirmation.disabled).toBe(
       true,
     );
-    expect(controls.mail.controls.zaakAfzenders.disabled).toBe(true);
     expect(valid).toBe(true);
   });
 
