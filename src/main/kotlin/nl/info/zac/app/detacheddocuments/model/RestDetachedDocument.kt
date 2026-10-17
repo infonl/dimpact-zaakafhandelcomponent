@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.detacheddocuments.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -19,6 +20,10 @@ data class RestDetachedDocument(
     var documentID: String? = null,
     var informatieobjectTypeUUID: UUID? = null,
     var zaakID: String? = null,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    var isZaakspecifiekGeautoriseerd: Boolean = false,
+
     var creatiedatum: LocalDate? = null,
     var titel: String? = null,
     var bestandsnaam: String? = null,

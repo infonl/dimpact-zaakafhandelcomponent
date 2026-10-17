@@ -35,6 +35,7 @@ import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocu
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
+import nl.info.zac.search.SearchService
 import java.net.URI
 import java.util.UUID
 
@@ -45,13 +46,15 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
     val restDetachedDocumentConverter = mockk<RestDetachedDocumentConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
+    val searchService = mockk<SearchService>()
     val detachedDocumentRestService = DetachedDocumentRestService(
         detachedDocumentService,
         drcClientService,
         zrcClientService,
         restDetachedDocumentConverter,
         userConverter,
-        policyService
+        policyService,
+        searchService
     )
 
     afterEach {
@@ -236,7 +239,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
             } returns informatieObject
             every {
-                restDetachedDocumentConverter.convert(listOf(detachedDocument), any())
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(detachedDocument.zaakID))
+            } returns emptySet()
+            every {
+                restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(detachedDocument), any(), emptySet())
             } returns listOf(restDocument)
 
             `when`("the list endpoint is called") {
@@ -265,7 +271,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
-                restDetachedDocumentConverter.convert(listOf(document), any())
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(document.zaakID))
+            } returns emptySet()
+            every {
+                restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(document), any(), emptySet())
             } returns listOf(restDocument)
 
             `when`("the list endpoint is called") {
@@ -295,7 +304,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
-                restDetachedDocumentConverter.convert(listOf(document), any())
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(document.zaakID))
+            } returns emptySet()
+            every {
+                restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(document), any(), emptySet())
             } returns listOf(restDocument)
             every { with(userConverter) { dbUserIds.convertUserIds() } } returns convertedUsers
 

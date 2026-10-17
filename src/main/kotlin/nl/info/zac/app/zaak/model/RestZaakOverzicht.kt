@@ -5,6 +5,7 @@
 package nl.info.zac.app.zaak.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.policy.model.RestZaakRechten
@@ -17,6 +18,9 @@ import java.util.UUID
 @AllOpen
 data class RestZaakOverzicht(
     var identificatie: String? = null,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    var isZaakspecifiekGeautoriseerd: Boolean = false,
 
     var toelichting: String? = null,
 
