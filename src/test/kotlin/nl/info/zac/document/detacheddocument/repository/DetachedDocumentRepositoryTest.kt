@@ -12,7 +12,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
+import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Expression
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
 import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
@@ -151,6 +153,42 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
 
                 then("zero is returned") {
                     result shouldBe 0
+                }
+            }
+        }
+    }
+
+    context("Filtering detached documents on zaak ID") {
+        given("list parameters with a zaak ID") {
+            val zaakIdEntityManager = mockk<EntityManager>(relaxed = true)
+            val criteriaBuilder = mockk<CriteriaBuilder>(relaxed = true)
+            every { zaakIdEntityManager.criteriaBuilder } returns criteriaBuilder
+            val zaakIdDetachedDocumentRepository = DetachedDocumentRepository(zaakIdEntityManager)
+
+            `when`("list is called") {
+                zaakIdDetachedDocumentRepository.list(DetachedDocumentListParameters().apply { zaakID = "fakeZaakID" })
+
+                then("the documents are filtered on that zaak ID") {
+                    verify(exactly = 1) {
+                        criteriaBuilder.like(any<Expression<String>>(), "%fakeZaakID%")
+                    }
+                }
+            }
+        }
+
+        given("list parameters with a blank zaak ID") {
+            val zaakIdEntityManager = mockk<EntityManager>(relaxed = true)
+            val criteriaBuilder = mockk<CriteriaBuilder>(relaxed = true)
+            every { zaakIdEntityManager.criteriaBuilder } returns criteriaBuilder
+            val zaakIdDetachedDocumentRepository = DetachedDocumentRepository(zaakIdEntityManager)
+
+            `when`("list is called") {
+                zaakIdDetachedDocumentRepository.list(DetachedDocumentListParameters().apply { zaakID = " " })
+
+                then("the documents are not filtered on zaak ID") {
+                    verify(exactly = 0) {
+                        criteriaBuilder.like(any<Expression<String>>(), any<String>())
+                    }
                 }
             }
         }

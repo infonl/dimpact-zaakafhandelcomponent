@@ -34,6 +34,24 @@ class RolMedewerkerTest : BehaviorSpec({
         }
     }
 
+    given("a MedewerkerIdentificatie with achternaam and blank voorletters and without voorvoegselAchternaam") {
+        val rol = createRolMedewerker(
+            medewerkerIdentificatie = createMedewerkerIdentificatie(
+                identificatie = "fakeIdentificatie",
+                achternaam = "Berg",
+                voorletters = " "
+            )
+        )
+
+        `when`("getNaam is called") {
+            val naam = rol.naam
+
+            then("it returns only the achternaam") {
+                naam shouldBe "Berg"
+            }
+        }
+    }
+
     given("a MedewerkerIdentificatie with a blank achternaam") {
         val rol = createRolMedewerker(
             medewerkerIdentificatie = createMedewerkerIdentificatie(
