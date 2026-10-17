@@ -7,7 +7,6 @@ package nl.info.zac.app.admin
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
-import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
@@ -27,7 +26,6 @@ import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
 
 @Singleton
 @Path("health-check")
@@ -55,29 +53,6 @@ class HealthCheckRestService @Inject constructor(
     fun readBestaatCommunicatiekanaalEformulier(): Boolean {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return healthCheckService.bestaatCommunicatiekanaalEformulier()
-    }
-
-    @DELETE
-    @Path("ztc-cache")
-    fun clearZTCCaches(): ZonedDateTime {
-        assertPolicy(policyService.readOverigeRechten().canBeheren)
-        ztcClientService.clearZaaktypeCache()
-        ztcClientService.clearStatustypeCache()
-        ztcClientService.clearResultaattypeCache()
-        ztcClientService.clearInformatieobjecttypeCache()
-        ztcClientService.clearZaaktypeInformatieobjecttypeCache()
-        ztcClientService.clearBesluittypeCache()
-        ztcClientService.clearRoltypeCache()
-        ztcClientService.clearEigenschapCache()
-        ztcClientService.clearCacheTime()
-        return ztcClientService.resetCacheTimeToNow()
-    }
-
-    @GET
-    @Path("ztc-cache")
-    fun readZTCCacheTime(): ZonedDateTime {
-        assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return ztcClientService.resetCacheTimeToNow()
     }
 
     /**

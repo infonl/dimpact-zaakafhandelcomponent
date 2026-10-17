@@ -75,8 +75,8 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     }
 
     /**
-     * Clears the ZTC caches for zaaktypen, roltypen, resultaattypen, statustypen and eigenschappen, and then
-     * creates or updates the configuration of the given zaaktype version, unless it is still a concept.
+     * Clears the ZTC catalogue caches, and then creates or updates the configuration of the given zaaktype version,
+     * unless it is still a concept.
      */
     @Transactional(REQUIRED)
     fun updateZaaktypeConfiguration(zaaktypeUri: URI) {
@@ -85,6 +85,9 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         ztcClientService.clearResultaattypeCache()
         ztcClientService.clearStatustypeCache()
         ztcClientService.clearEigenschapCache()
+        ztcClientService.clearInformatieobjecttypeCache()
+        ztcClientService.clearZaaktypeInformatieobjecttypeCache()
+        ztcClientService.clearBesluittypeCache()
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
         if (zaaktype.concept) {
             LOG.info { "Zaaktype '${zaaktype.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }
