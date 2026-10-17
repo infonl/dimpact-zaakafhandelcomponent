@@ -19,6 +19,7 @@ export type DocumentZoekObject =
     zaaktypeIdentificatie: string;
     zaaktypeOmschrijving: string;
     zaakIdentificatie: string;
+    isZaakspecifiekGeautoriseerd: boolean;
     zaakUuid: string;
     zaakRelatie: string;
     creatiedatum: string;

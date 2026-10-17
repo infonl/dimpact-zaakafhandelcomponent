@@ -1,0 +1,15 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+@if (isZaakspecifiekGeautoriseerd()) {
+  <mat-icon
+    aria-hidden="false"
+    role="img"
+    [attr.aria-label]="'zaak.is-zaakspecifiek-geautoriseerd' | translate"
+    [matTooltip]="'zaak.is-zaakspecifiek-geautoriseerd' | translate"
+    class="zaakspecifiek-geautoriseerd-icon"
+    >lock</mat-icon
+  >
+}
