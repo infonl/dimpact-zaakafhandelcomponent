@@ -49,7 +49,7 @@ services:
       - KC_DB_URL_DATABASE=keycloak
       - KC_DB_USERNAME=keycloak
       - KC_DB_PASSWORD=keycloak
-      - KC_IMPORT=/opt/keycloak/data/import/zaakafhandelcomponent-realm.json
+      - KC_IMPORT=/opt/keycloak/data/import/podiumd-realm.json
       - ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_TEST_1_EMAIL_ADDRESS:-raadpleger-test-1@example.com}
       - ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_TEST_2_EMAIL_ADDRESS:-raadpleger-test-2@example.com}
       - ZAC_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-behandelaar-test-1@example.com}
@@ -762,7 +762,7 @@ services:
       HTTP_PORTS: "8000"
       API_KEY__0: "zac-test-api-key"
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
-      Oidc__Authority: "http://keycloak:8080/realms/zaakafhandelcomponent/"
+      Oidc__Authority: "http://keycloak:8080/realms/podiumd/"
       Oidc__ClientId: "pabc"
       Oidc__ClientSecret: "pabcClientSecret"
       Oidc__FunctioneelBeheerderRole: "administrator"
@@ -814,8 +814,8 @@ services:
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
     environment:
       - AUTH_ENABLE_PKCE=true
-      - AUTH_REALM=zaakafhandelcomponent
-      - AUTH_RESOURCE=zaakafhandelcomponent
+      - AUTH_REALM=podiumd
+      - AUTH_RESOURCE=zac
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
       - AUTH_SERVER=http://keycloak:8080
       - AUTH_SSL_REQUIRED=${AUTH_SSL_REQUIRED:-none}

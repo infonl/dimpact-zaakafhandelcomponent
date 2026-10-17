@@ -14,8 +14,8 @@
 # -------------------------
 
 AUTH_ENABLE_PKCE=true
-AUTH_REALM=zaakafhandelcomponent
-AUTH_RESOURCE=zaakafhandelcomponent
+AUTH_REALM=podiumd
+AUTH_RESOURCE=zac
 AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
 AUTH_SERVER=http://localhost:8081
 AUTH_SSL_REQUIRED=none

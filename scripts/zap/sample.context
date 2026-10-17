@@ -66,9 +66,9 @@
             <pollfreq>60</pollfreq>
             <pollunits>REQUESTS</pollunits>
             <form>
-                <loginurl>https://my-keycloak.url/realms/zaakafhandelcomponent</loginurl>
+                <loginurl>https://my-keycloak.url/realms/podiumd</loginurl>
                 <loginbody>username=[%username%]&amp;password=[%password%]&amp;credentialId=</loginbody>
-                <loginpageurl>https://my-keycloak.url/realms/zaakafhandelcomponent</loginpageurl>
+                <loginpageurl>https://my-keycloak.url/realms/podiumd</loginpageurl>
             </form>
         </authentication>
         <users>

@@ -282,7 +282,7 @@ Deze functionele rollen kunnen in de toekomst door meerdere applicaties gebruikt
 zodra ook andere applicaties zijn aangesloten op de nieuwe IAM-architectuur.
 Functionele rollen worden beheerd in Keycloak, en worden in de PABC gebruikt voor autorisatie-koppelingen.
 
-1. Selecteer het realm waarin de `zaakafhandelcomponent` client zich bevindt.
+1. Selecteer het realm waarin de ZAC-client zich bevindt. In PodiumD is dat het realm `podiumd` met de client `zac`.
 2. Maak één of meerdere functionele rollen aan op het niveau van het realm (`Realm Roles` in Keycloak). 
 Bijvoorbeeld: 'behandelaar_domein_test_1' en 'raadpleger_domein_test_2'. 
 In werkelijkheid zal dit iets zijn als 'behandelaar_vergunningen' of 'raadpleger_fysieke_leefomgeving'.

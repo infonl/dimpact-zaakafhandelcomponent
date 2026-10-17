@@ -159,15 +159,15 @@ To log in to the Keycloak Admin Console:
 1. Go to: http://localhost:8081/auth/admin
 2. Log in with the Keycloak admin credentials that can be found in the Docker Compose file.
 
-ZAC uses the imported `zaakafhandelcomponent` Keycloak realm.
+ZAC uses the imported `podiumd` Keycloak realm, with the `zac` client. These are the same names that PodiumD uses.
 
-After making changes in Keycloak you can make a new realm export thereby overriding the existing `zaakafhandelcomponent-realm.json` file to
+After making changes in Keycloak you can make a new realm export thereby overriding the existing `podiumd-realm.json` file to
 be automatically imported. Because we include our test users in the realm this can unfortunately only be done using a 
 stand-alone Keycloak instance on your computer (which you downloaded and installed locally) and the Keycloak command line.
 For example to export the ZAC Keycloak realm including the users do the following:
 
 ```
-<KEYCLOAK_INSTALL_DIR>/bin/kc.sh export --dir <ZAC_GIT_REPO_DIR>/scripts/docker-compose/imports/keycloak --users realm_file --realm zaakafhandelcomponent
+<KEYCLOAK_INSTALL_DIR>/bin/kc.sh export --dir <ZAC_GIT_REPO_DIR>/scripts/docker-compose/imports/keycloak --users realm_file --realm podiumd
 ```
 
 Please see https://www.keycloak.org/server/importExport for details.
@@ -175,7 +175,7 @@ Please see https://www.keycloak.org/server/importExport for details.
 When you do so beware of the following:
 
 1. After you have exported the realm JSON file make the following manual changes in the file:
-   1. Set the value of the `secret` attribute in the `zaakafhandelcomponent` client configuration to: `keycloakZaakafhandelcomponentClientSecret`.
+   1. Set the value of the `secret` attribute in the `zac` client configuration to: `keycloakZaakafhandelcomponentClientSecret`.
 
 #### Roles
 
@@ -183,7 +183,7 @@ All required roles are already included in the Keycloak realm. No need to create
 
 #### Test users
 
-Test users are imported into Keycloak on startup using the `zaakafhandelcomponent-realm.json` file.
+Test users are imported into Keycloak on startup using the `podiumd-realm.json` file.
 
 For a ZAC admin the following user roles are required:
  - `raadpleger`
