@@ -12,8 +12,12 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.app.admin.model.RestBuildInformation
 import nl.info.zac.app.admin.model.RestZaaktypeInrichtingscheck
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
@@ -34,7 +38,8 @@ class HealthCheckRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
     private val healthCheckService: HealthCheckService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
 ) {
     @GET
     @Path("zaaktypes")
@@ -90,10 +95,15 @@ class HealthCheckRestService @Inject constructor(
             )
         }
 
-    private fun listZaaktypes() =
-        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
+    private fun listZaaktypes(): List<ZaakType> {
+        val bpmnZaaktypeUuids = zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
+            .map { it.zaaktypeUuid }
+            .toSet()
+        return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
+            .filter { it.url.extractUuid() !in bpmnZaaktypeUuids }
+    }
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =
         RestZaaktypeInrichtingscheck(
