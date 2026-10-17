@@ -148,8 +148,6 @@ describe("Human tasks form step", () => {
             listCaseDefinitions: () => of([caseDefinition]),
             listFormulierDefinities: () => of(formulierDefinities),
             listReplyTos: () => of([{ mail: "reply1@example.com" }]),
-            listZaakbeeindigRedenen: () => of([]),
-            listResultaattypes: () => of([]),
             updateZaakafhandelparameters: () => updateZaakafhandelparameters,
           }),
         },
