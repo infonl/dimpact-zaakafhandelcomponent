@@ -99,7 +99,7 @@ describe(PersoonZoekComponent.name, () => {
       .spyOn(klantenService, "listPersonen")
       .mockReturnValue(
         createQueryOptions(
-          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({}),
+          fromPartial<GeneratedType<"RestResultaatRestPersoon">>({}),
         ) as never,
       );
 
@@ -291,7 +291,7 @@ describe(PersoonZoekComponent.name, () => {
     beforeEach(() => {
       jest.spyOn(klantenService, "listPersonen").mockReturnValue(
         createQueryOptions(
-          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
+          fromPartial<GeneratedType<"RestResultaatRestPersoon">>({
             resultaten: [fakePersoon],
           }),
         ) as never,
@@ -390,7 +390,7 @@ describe(PersoonZoekComponent.name, () => {
     beforeEach(() => {
       jest.spyOn(klantenService, "listPersonen").mockReturnValue(
         createQueryOptions(
-          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
+          fromPartial<GeneratedType<"RestResultaatRestPersoon">>({
             resultaten: [fakePersoon],
           }),
         ) as never,

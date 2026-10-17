@@ -72,8 +72,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, restPageParameters)
 
             then("correct response is returned") {
-                restResultaat.totaal shouldBe numberOfElements
-                restResultaat.resultaten shouldBe restZaakOverzichtList
+                restResultaat.resultCount shouldBe numberOfElements
+                restResultaat.results shouldBe restZaakOverzichtList
             }
         }
 
@@ -118,8 +118,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, sortedPageParameters)
 
             then("the sort parameters are passed through unchanged and the response is returned") {
-                restResultaat.totaal shouldBe numberOfElements
-                restResultaat.resultaten shouldBe restZaakOverzichtList
+                restResultaat.resultCount shouldBe numberOfElements
+                restResultaat.results shouldBe restZaakOverzichtList
             }
         }
     }

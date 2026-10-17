@@ -19,7 +19,7 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.readZaakUUID
 import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -110,8 +110,8 @@ class SignaleringService @Inject constructor(
      */
     fun signaleringInstellingenInstance(
         signaleringsType: SignaleringType.Type,
-        ownerType: SignaleringTarget?,
-        ownerId: String?
+        ownerType: SignaleringTarget,
+        ownerId: String
     ) = SignaleringInstellingen(signaleringTypeInstance(signaleringsType), ownerType, ownerId)
 
     /**

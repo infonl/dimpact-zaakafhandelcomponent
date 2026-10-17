@@ -14,7 +14,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.shared.exception.ZgwErrorException
-import net.atos.zac.app.shared.RESTResultaat
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
@@ -55,7 +55,7 @@ class DetachedDocumentRestService @Inject constructor(
     @Path("")
     fun listDetachedDocuments(
         restListParameters: RestDetachedDocumentListParameters
-    ): RESTResultaat<RestDetachedDocument> {
+    ): RestResultaat<RestDetachedDocument> {
         assertPolicy(policyService.readWerklijstRechten().canInbox)
         val listParameters = restListParameters.toDetachedDocumentListParameters()
         val resultaat = detachedDocumentService.getDetachedDocumentResult(listParameters)
@@ -67,8 +67,8 @@ class DetachedDocumentRestService @Inject constructor(
                 .extractUuid()
         }
         val restDetachedDocumentResult = RestDetachedDocumentResult(
-            resultaten = restDetachedDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
-            aantalTotaal = resultaat.count
+            results = restDetachedDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
+            resultCount = resultaat.count
         )
         val ontkoppeldDoor = resultaat.detachedByFilter
         if (ontkoppeldDoor.isEmpty()) {
