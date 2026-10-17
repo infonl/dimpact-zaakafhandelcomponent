@@ -1,0 +1,20 @@
+#
+# SPDX-FileCopyrightText: 2025 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Configuration file for https://github.com/UmbrellaDocs/linkspector and related GitHub action
+# to perform checks on markdown files
+dirs:
+  - .
+useGitIgnore: true
+excludedDirs:
+  - src/generated
+  - src/main/app/node_modules
+  - src/main/app/reports
+  - src/main/app/dist
+  - src/main/app/.angular
+  - wildfly*
+ignorePatterns:
+  - pattern: '^https?://localhost'
+  - pattern: '^https?://.+\.example\.com'
+  - pattern: '^http://release-opa\.default\.svc\.cluster\.local:8181$'
