@@ -1,9 +1,31 @@
 ## Context
 
 See proposal.md for the motivation. The sources are the RFC attached to PZ-12637
-(`rfc-unify-bpmn-cmmn-zaaktype-configuration.md`, chunks C1 and D1–D5) and the architecture note
-"Two Engines, One Table" (option B). PZ-12754 has a second attachment, `PZ-12754-rfc-unify-zaaktype-configuration.md`,
-that was not available when this change was written. Check it against this design before layer 5 starts.
+(`rfc-unify-bpmn-cmmn-zaaktype-configuration.md`, chunks C1 and D1–D5), the architecture note
+"Two Engines, One Table" (option B), and RFC-001 attached to PZ-12754
+(`PZ-12754-rfc-unify-zaaktype-configuration.md`, 2026-09-22). RFC-001 proposes the same end state as this design:
+one resource, one payload with `processEngine` and an engine block, one `parameters-edit` built from shared step
+components. It was written before PZ-12637 landed, and differs from this design in these points:
+
+| RFC-001 | This design | Why |
+|---|---|---|
+| Warning windows, mailtemplate koppelingen, and zaakafzenders in the `cmmn` block (§3.1) | At the top level, for both engines | PZ-12637 moved them to the base, and the runtime applies them to BPMN zaken |
+| `processEngine` is never null (§3.1) | Null for a configuration that was never saved | The screen must offer the engine choice for an unsaved configuration (D5) |
+| Keep the two JPA entities; option C later (§3.3, §5.2) | No entity work | PZ-12637 delivered one entity with a process binding and an optional CMMN extension |
+| Step 0: decide and enforce `productaanvraagtype` uniqueness (§7.1) | Not in this change | PZ-12637 settled it: one validator per zaaktype omschrijving, spec "A productaanvraagtype belongs to at most one zaaktype". No DB constraint was added; that stays out of scope |
+| Mail step CMMN only (§3.2) | Mail step for both engines, confirmation email CMMN only | Decision on PZ-12754: BPMN gets koppelingen and afzenders |
+| Steps under `parameters-components/` (§3.2) | Steps under `parameters-edit/steps/` | Next to the container that composes them |
+| The shell keeps the "nothing saved" branch (§3.2) | The container handles it, the shell is deleted (D5) | One component decides the engine, not two |
+| `zac-inputs` migration and replacing the resolver by a query come after the collapse (§6) | TanStack queries move in per step, the resolver does one `GET` | The steps already fetch their own option lists |
+
+RFC-001 points that this design adopts:
+
+- The engine block invariant is checked at the JAX-RS boundary with `@AssertTrue` on the DTO (§3.1), see D2.
+- Admin reads and writes require `beheren`; zaak creation does not use the admin resource (§7.2), see D3.
+- `isZaakspecifiekAutoriseerbaar` stays a read-only, derived field at the top level of the payload (§7.4). It comes
+  from the zaaktype, not from the stored configuration, so it applies to both engines.
+
+RFC-001 guardrails §8.2.1 (reflection test over the base) and §8.2.3 (Konsist rules) are not part of this change.
 
 Current state, on `main` after PZ-12637:
 
@@ -67,7 +89,8 @@ step components that layers 1–4 extract bind to the same field paths before an
 - `RestCmmnConfiguration`: `caseDefinition`, `humanTaskParameters`, `userEventListenerParameters`,
   `intakeMail`, `afrondenMail`, `automaticEmailConfirmation`.
 - `RestBpmnConfiguration`: `processDefinitionKey`.
-- The backend rejects a write whose block does not match `processEngine`, and a write with both blocks.
+- The backend rejects a write whose block does not match `processEngine`, and a write with both blocks, with an
+  `@AssertTrue` on the DTO so the request fails at the JAX-RS boundary (RFC-001 §3.1).
 - The frontend narrows with one type guard per engine. These guards are the only places that read `processEngine`.
 
 The confirmation email goes in the `cmmn` block, although the entity stores it on the base. The
