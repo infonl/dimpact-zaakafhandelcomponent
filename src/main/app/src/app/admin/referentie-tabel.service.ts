@@ -181,7 +181,7 @@ export class ReferentieTabelService {
   }
 
   listAfzenders() {
-    return this.zacHttpClient.GET("/rest/referentietabellen/afzender");
+    return this.zacQueryClient.GET("/rest/referentietabellen/afzender");
   }
 
   listCommunicatiekanalen(inclusiefEFormulier?: boolean) {

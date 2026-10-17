@@ -223,7 +223,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "raadpleegWaarde": "BRPACT-AlgemeneTaken",
                           "zoekWaarde": "BRPACT-ZoekenAlgemeen"
                         },
-                        "caseDefinition": {
+                        "processDefinition": {
+                          "processEngine": "CMMN",
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
@@ -292,7 +293,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "raadpleegWaarde": "BRPACT-AlgemeneTaken",
                           "zoekWaarde": "BRPACT-ZoekenAlgemeen"
                         },
-                        "caseDefinition": {
+                        "processDefinition": {
+                          "processEngine": "CMMN",
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
@@ -361,7 +363,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "raadpleegWaarde": "BRPACT-AlgemeneTaken",
                           "zoekWaarde": "BRPACT-ZoekenAlgemeen"
                         },
-                        "caseDefinition": {
+                        "processDefinition": {
+                          "processEngine": "CMMN",
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
@@ -430,7 +433,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "raadpleegWaarde": "BRPACT-AlgemeneTaken",
                           "zoekWaarde": "BRPACT-ZoekenAlgemeen"
                         },
-                        "caseDefinition": {
+                        "processDefinition": {
+                          "processEngine": "CMMN",
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },

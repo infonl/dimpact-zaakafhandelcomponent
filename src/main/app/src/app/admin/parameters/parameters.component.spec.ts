@@ -43,7 +43,7 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
     },
     {
       event: { value: { key: "a", naam: "Case" } } as MatSelectChange,
-      filter: "caseDefinition" as keyof ZaakafhandelParametersListParameters,
+      filter: "processDefinition" as keyof ZaakafhandelParametersListParameters,
       expectedValue: { key: "a", naam: "Case" },
     },
     {
@@ -89,7 +89,7 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
         valide: ToggleSwitchOptions.INDETERMINATE,
         geldig: ToggleSwitchOptions.INDETERMINATE,
         zaaktype: null,
-        caseDefinition: null,
+        processDefinition: null,
         beginGeldigheid: { van: null, tot: null },
         eindeGeldigheid: { van: null, tot: null },
         sort: "",
@@ -147,27 +147,27 @@ describe(`${ParametersComponent.name} compare functions`, () => {
     });
   });
 
-  describe("compareCaseDefinition", () => {
+  describe("compareProcessDefinition", () => {
     it("should return true when key matches", () => {
       const component = makeComponent();
-      const a = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+      const a = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-1",
       });
-      const b = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+      const b = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-1",
       });
-      expect(component["compareCaseDefinition"](a, b)).toBe(true);
+      expect(component["compareProcessDefinition"](a, b)).toBe(true);
     });
 
     it("should return false when key differs", () => {
       const component = makeComponent();
-      const a = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+      const a = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-1",
       });
-      const b = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+      const b = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-2",
       });
-      expect(component["compareCaseDefinition"](a, b)).toBe(false);
+      expect(component["compareProcessDefinition"](a, b)).toBe(false);
     });
   });
 });

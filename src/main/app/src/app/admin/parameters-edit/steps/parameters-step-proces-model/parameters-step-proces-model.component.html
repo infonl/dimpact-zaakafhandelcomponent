@@ -6,18 +6,18 @@
 <header>
   <h2>{{ zaaktypeOmschrijving() }}</h2>
   <p>
-    {{ "zaps.step.proces-model-methode.intro" | translate }}
+    {{ "zaps.step.procesmodel.intro" | translate }}
   </p>
 </header>
 
 <section>
-  <zac-radio
+  <zac-select
     [form]="form()"
-    key="options"
-    label="zaps.step.proces-model-methode.label"
-    [options]="options"
-    optionDisplayValue="label"
-  ></zac-radio>
+    key="processDefinition"
+    label="procesmodel"
+    [options]="processDefinitions()"
+    [optionDisplayValue]="displayName"
+  ></zac-select>
 
   <div class="flex-row items-center gap-10 ml-1 my-3">
     <mat-icon color="warn" class="pr-3">warning</mat-icon>

@@ -4,29 +4,25 @@
  */
 
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { ProcessModelMethod } from "../../../model/parameters/process-model-method";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 
-export type ProcessModelMethodOption = {
-  label: ProcessModelMethod;
-  value: ProcessModelMethod;
-};
-
-export const processModelMethodOptions: ProcessModelMethodOption[] = [
-  { label: "CMMN", value: "CMMN" },
-  { label: "BPMN", value: "BPMN" },
-];
+export type ProcessDefinition = GeneratedType<"RestProcessDefinition">;
 
 export type ProcessModelForm = FormGroup<{
-  options: FormControl<ProcessModelMethodOption | null>;
+  processDefinition: FormControl<ProcessDefinition | null>;
 }>;
 
 export function createProcessModelForm(
-  method: ProcessModelMethod | null,
+  processDefinition: ProcessDefinition | null,
 ): ProcessModelForm {
   return new FormGroup({
-    options: new FormControl<ProcessModelMethodOption | null>(
-      method ? { label: method, value: method } : null,
+    processDefinition: new FormControl<ProcessDefinition | null>(
+      processDefinition,
       [Validators.required],
     ),
   });
+}
+
+export function toProcessDefinition(form: ProcessModelForm) {
+  return form.controls.processDefinition.value;
 }
