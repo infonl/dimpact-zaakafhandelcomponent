@@ -593,7 +593,7 @@ describe(ZaakDocumentenComponent.name, () => {
 
   describe("selecting documents for a zip download", () => {
     const zipButton = () =>
-      screen.getByRole("button", { name: /actie.downloaden.knop/ });
+      screen.getByRole("button", { name: /actie.downloaden.zip-bestand/ });
 
     it("cannot be downloaded while nothing is selected", async () => {
       await setup();
