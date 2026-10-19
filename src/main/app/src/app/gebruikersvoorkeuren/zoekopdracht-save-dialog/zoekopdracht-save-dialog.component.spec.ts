@@ -20,8 +20,8 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { fromPartial } from "../../../test-helpers";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZoekopdrachtSaveDialogComponent } from "./zoekopdracht-save-dialog.component";
 
 const makeZoekopdracht = (
