@@ -68,23 +68,21 @@ class SignaleringRestService @Inject constructor(
         @Valid restSignaleringPageParameters: RestSignaleringPageParameters
     ): RestResultaat<RestZaakOverzicht> {
         val loggedInUser = loggedInUserInstance.get()
-        return signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            objectsCount.maxPages(restSignaleringPageParameters.rows).let { maxPages ->
+        signaleringService.countZakenSignaleringen(signaleringsType).maxPages(restSignaleringPageParameters.rows)
+            .let { maxPages ->
                 if (restSignaleringPageParameters.page > maxPages) {
                     throw SignaleringException(
                         "Requested page ${restSignaleringPageParameters.page} must be <= $maxPages"
                     )
                 }
             }
-            RestResultaat(
-                signaleringService.listZakenSignaleringenPage(
-                    signaleringsType = signaleringsType,
-                    pageParameters = restSignaleringPageParameters,
-                    loggedInUser = loggedInUser
-                ),
-                objectsCount
-            )
-        }
+        val zaakOverzichten = signaleringService.listZakenSignaleringenPage(
+            signaleringsType = signaleringsType,
+            pageParameters = restSignaleringPageParameters,
+            loggedInUser = loggedInUser
+        )
+        // listing deletes invalid signaleringen, so the total is counted afterwards
+        return RestResultaat(zaakOverzichten, signaleringService.countZakenSignaleringen(signaleringsType))
     }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
