@@ -24,7 +24,6 @@ import java.time.LocalDate
 import java.util.UUID
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.drc.DrcClientService
@@ -41,7 +40,6 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -761,9 +759,9 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
         assertPolicy(zaakRechten.canVerlengen)
-        assertExtensionPeriodIsValid(zaakType, restZaakVerlengGegevens.duurDagen)
         val updatedZaak = suspensionZaakHelper.extendZaak(
             zaak = zaak,
+            zaakType = zaakType,
             dueDate = restZaakVerlengGegevens.einddatumGepland,
             fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
             extensionReason = restZaakVerlengGegevens.redenVerlenging,
@@ -871,22 +869,6 @@ class ZaakRestService @Inject constructor(
             ) {
                 assertPolicy(canVerlengenDoorlooptijd)
                 assertPolicy(canWijzigenDoorlooptijd)
-            }
-        }
-    }
-
-    private fun assertExtensionPeriodIsValid(zaakType: ZaakType, numberOfDays: Int) {
-        if (numberOfDays <= 0) {
-            throw InvalidExtensionPeriodException(
-                "Requested extension is for $numberOfDays days, but it must be at least 1 day"
-            )
-        }
-        zaakType.extensionPeriodDays()?.let { maximumNumberOfDays ->
-            if (numberOfDays > maximumNumberOfDays) {
-                throw InvalidExtensionPeriodException(
-                    "Zaaktype '${zaakType.identificatie}' has a maximum extension term of $maximumNumberOfDays days, " +
-                        "but requested extension is for $numberOfDays days"
-                )
             }
         }
     }
