@@ -663,7 +663,7 @@
   "actie.document.bewerken": "Edit document",
   "actie.downloaden": "Download",
   "actie.downloaden.zip-bestand": "Download ZIP file",
-  "actie.downloaden.zip.geen-selectie": "Select documents to download them here in one ZIP file with one click",
+  "actie.downloaden.zip-bestand.geen-selectie": "Select documents to download them here in one ZIP file with one click",
   "actie.aanvraagdocument.bekijken": "View application document",
   "actie.aanvraagdocument.downloaden": "Download application document",
   "actie.export": "Export",

@@ -605,7 +605,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await setup();
 
       expect(
-        screen.getByText("actie.downloaden.zip.geen-selectie"),
+        screen.getByText("actie.downloaden.zip-bestand.geen-selectie"),
       ).toBeInTheDocument();
     });
 
