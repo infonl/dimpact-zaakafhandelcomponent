@@ -153,3 +153,14 @@ val BEHANDELAAR_1_EN_BRP_ZOEKER_2 = TestUser(
     displayName = "Test Behandelaar domein 1 - BRP zoeker domein 2",
     email = "behandelaar-en-brp-zoeker-test-1@example.com"
 )
+
+/**
+ * A behandelaar in domein test 1 for the BPMN zaak warnings itest only. The warnings endpoint lists every warned zaak
+ * of the logged-in behandelaar, so a user of its own keeps the zaken of other specs out of that list.
+ */
+val BEHANDELAAR_BPMN_WAARSCHUWING_1 = TestUser(
+    username = "behandelaarbpmnwaarschuwing1",
+    password = "behandelaarbpmnwaarschuwing1",
+    displayName = "Test Behandelaar BPMN Waarschuwing 1",
+    email = "behandelaar-bpmn-waarschuwing-test-1@example.com"
+)

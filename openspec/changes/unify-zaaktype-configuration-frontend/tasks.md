@@ -89,10 +89,10 @@
 
 ## 6. Layer 6: BPMN settings in the screen (`feature/PZ-12754-bpmn-settings`)
 
-- [ ] 6.1 Show the two warning windows in the algemeen step for BPMN. Verify with a spec, and with an itest that a
+- [x] 6.1 Show the two warning windows in the algemeen step for BPMN. Verify with a spec, and with an itest that a
       BPMN zaak with a stored window is listed by the zaak warnings endpoint.
-      The screen and the spec are done. The itest is open: the existing "Listing zaak warnings" itest expects exactly
-      one warned zaak of BEHANDELAAR_1, so a BPMN variant needs a user of its own.
+      The itest is `ZaakRestServiceBpmnWarningTest`. It runs as `BEHANDELAAR_BPMN_WAARSCHUWING_1`, a user of its own,
+      because the existing "Listing zaak warnings" itest expects exactly one warned zaak of BEHANDELAAR_1.
 - [x] 6.2 Create `parameters-step-mail`. It shows the mailtemplate koppelingen and the zaakafzenders for both
       engines, and the intake/afronden mail and the confirmation email only for CMMN. Verify with `it.each` specs per
       engine, and move `form-step-5.mail.spec.ts` into it.
