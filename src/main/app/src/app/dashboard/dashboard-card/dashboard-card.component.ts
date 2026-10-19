@@ -45,7 +45,7 @@ export abstract class DashboardCardComponent<
 
   protected reload: Observable<unknown> | null = null;
   private reloader?: Subscription;
-  private readonly queryClient = inject(QueryClient);
+  protected readonly queryClient = inject(QueryClient);
 
   abstract readonly columns: C;
 
