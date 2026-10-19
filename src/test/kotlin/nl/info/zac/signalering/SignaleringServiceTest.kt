@@ -248,7 +248,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createRolMedewerker(
             medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
         )
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser) } returns restZaakOverzicht
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser) } returns restZaakOverzicht
 
         `when`("listing first page of zaken signaleringen") {
             val result = signaleringService.listCheckedZakenSignaleringenPage(
@@ -313,9 +313,9 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createRolMedewerker(
             medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
         )
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakA, loggedInUser) } returns overzichtCharlie
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakB, loggedInUser) } returns overzichtAlpha
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakC, loggedInUser) } returns overzichtBravo
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakA, loggedInUser) } returns overzichtCharlie
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakB, loggedInUser) } returns overzichtAlpha
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakC, loggedInUser) } returns overzichtBravo
 
         `when`("listing the first page") {
             val result = signaleringService.listCheckedZakenSignaleringenPage(
@@ -407,9 +407,9 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createRolMedewerker(
             medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
         )
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakA, loggedInUser) } returns overzichtMid
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakB, loggedInUser) } returns overzichtNew
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakC, loggedInUser) } returns overzichtOld
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakA, loggedInUser) } returns overzichtMid
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakB, loggedInUser) } returns overzichtNew
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakC, loggedInUser) } returns overzichtOld
 
         `when`("listing the second page") {
             val result = signaleringService.listCheckedZakenSignaleringenPage(
@@ -472,9 +472,9 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createRolMedewerker(
             medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
         )
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakA, loggedInUser) } returns overzichtZonnepanelen
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakB, loggedInUser) } returns overzichtAanvraag
-        every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakC, loggedInUser) } returns overzichtMelding
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakA, loggedInUser) } returns overzichtZonnepanelen
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakB, loggedInUser) } returns overzichtAanvraag
+        every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakC, loggedInUser) } returns overzichtMelding
 
         `when`("sorting by ZAAK_ZAAKTYPE ascending") {
             val result = signaleringService.listCheckedZakenSignaleringenPage(
@@ -850,7 +850,7 @@ class SignaleringServiceTest : BehaviorSpec({
                 zgwApiService.findBehandelaarMedewerkerRoleForZaak(reassignedZaak)
             } returns createBehandelaarRol("fakeOtherUserName")
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createBehandelaarRol(loggedInUser.id)
-            every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser) } returns overzicht
+            every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser) } returns overzicht
 
             `when`("the first page of two zaken is listed") {
                 val checkedZakenSignaleringen = signaleringService.listCheckedZakenSignaleringenPage(
@@ -887,8 +887,8 @@ class SignaleringServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(unreadableZaak.uuid) } returns unreadableZaak
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createBehandelaarRol(loggedInUser.id)
-            every { restZaakOverzichtConverter.convertForDisplayIfReadable(unreadableZaak, loggedInUser) } returns null
-            every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser) } returns overzicht
+            every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(unreadableZaak, loggedInUser) } returns null
+            every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser) } returns overzicht
 
             `when`("the zaken signaleringen are listed sorted by identificatie") {
                 val checkedZakenSignaleringen = signaleringService.listCheckedZakenSignaleringenPage(

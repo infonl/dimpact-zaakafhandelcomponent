@@ -65,9 +65,10 @@ class RestZaakOverzichtConverter @Inject constructor(
     }
 
     /**
+     * Converts [zaak] to the limited zaak overview shown on the dashboard.
      * Returns `null` when [loggedInUser] has no read rights on [zaak].
      */
-    fun convertForDisplayIfReadable(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht? {
+    fun convertToDashboardZaakOverzichtOrNull(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht? {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         val zaakrechten = policyService.readZaakRechten(

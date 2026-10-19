@@ -34,7 +34,7 @@
 
 - [x] 4.1 Validate each zaak signalering in `SignaleringService.listCheckedZakenSignaleringenPage`: keep it only when
   the logged-in user is the behandelaar of the zaak and the zaak rechten give `canLezen`, evaluating the rechten
-  once per zaak (replace `RestZaakOverzichtConverter.convertForDisplay` by `convertForDisplayIfReadable`, which
+  once per zaak (replace `RestZaakOverzichtConverter.convertForDisplay` by `convertToDashboardZaakOverzichtOrNull`, which
   returns `null` when the user cannot read the zaak); verify with `SignaleringServiceTest` cases for "other behandelaar", "no read rights" and
   "valid"
 - [x] 4.2 Return the invalid signaleringen with their reason instead of deleting them while listing, and add a

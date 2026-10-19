@@ -82,7 +82,7 @@ private function that takes the list of signaleringen.
 
 - **Zaken:** for each signalering, read the zaak, its behandelaar medewerker rol and its zaak rechten for the
   logged-in user. A signalering is valid when the behandelaar is the logged-in user and `canLezen` is true. The
-  rechten are evaluated once per zaak: `RestZaakOverzichtConverter.convertForDisplayIfReadable` returns `null`
+  rechten are evaluated once per zaak: `RestZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull` returns `null`
   when the user cannot read the zaak.
 - **Taken:** for each signalering, read the taak and check `assignee == loggedInUser.id` and
   `policyService.readTaakRechten(task).canLezen`.

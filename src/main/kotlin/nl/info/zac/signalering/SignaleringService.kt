@@ -514,7 +514,7 @@ class SignaleringService @Inject constructor(
         if (zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.identificatienummer != loggedInUser.id) {
             return CheckedSignalering(signalering, invalidReason = "the user is not the behandelaar of the zaak")
         }
-        return restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser)
+        return restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser)
             ?.let { CheckedSignalering(signalering, result = it) }
             ?: CheckedSignalering(signalering, invalidReason = "the user has no read rights on the zaak")
     }

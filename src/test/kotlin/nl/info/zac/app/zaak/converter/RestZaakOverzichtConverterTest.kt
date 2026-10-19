@@ -67,7 +67,7 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         } returns createZaakRechten()
 
         `when`("converted to dashboard version of RestZaakOverzicht") {
-            val result = restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser)
+            val result = restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser)
 
             then("it contains only the minimal set of properties") {
                 with(result.shouldNotBeNull()) {
@@ -113,7 +113,7 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         } returns createZaakRechten(lezen = false)
 
         `when`("converted to dashboard version of RestZaakOverzicht") {
-            val result = restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser)
+            val result = restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser)
 
             then("no overzicht is returned") {
                 result.shouldBeNull()
