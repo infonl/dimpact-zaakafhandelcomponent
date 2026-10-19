@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.gebruikersvoorkeuren
+package nl.info.zac.app.gebruikersvoorkeuren
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -33,25 +33,14 @@ import net.atos.zac.signalering.model.SignaleringType
 
 class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
     val gebruikersvoorkeurenService = mockk<GebruikersvoorkeurenService>()
-
-    @Suppress("UNCHECKED_CAST")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyService = mockk<PolicyService>()
 
-    val service = GebruikersvoorkeurenRESTService().also { instance ->
-        instance.javaClass.getDeclaredField("gebruikersvoorkeurenService").also {
-            it.isAccessible = true
-            it.set(instance, gebruikersvoorkeurenService)
-        }
-        instance.javaClass.getDeclaredField("loggedInUserInstance").also {
-            it.isAccessible = true
-            it.set(instance, loggedInUserInstance)
-        }
-        instance.javaClass.getDeclaredField("policyService").also {
-            it.isAccessible = true
-            it.set(instance, policyService)
-        }
-    }
+    val gebruikersvoorkeurenRestService = GebruikersvoorkeurenRestService(
+        gebruikersvoorkeurenService,
+        loggedInUserInstance,
+        policyService
+    )
 
     val fakeLoggedInUser = createLoggedInUser(id = "fakeUserId1")
 
@@ -64,7 +53,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.listZoekopdrachten(any()) } returns listOf(fakeZoekopdracht)
 
             `when`("listZoekopdrachten is called with werklijst MIJN_ZAKEN") {
-                val result = service.listZoekopdrachten(Werklijst.MIJN_ZAKEN)
+                val result = gebruikersvoorkeurenRestService.listZoekopdrachten(Werklijst.MIJN_ZAKEN)
 
                 then("GebruikersvoorkeurenService.listZoekopdrachten is called and the list is returned") {
                     verify { gebruikersvoorkeurenService.listZoekopdrachten(any()) }
@@ -79,7 +68,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.deleteZoekopdracht(42L) } just runs
 
             `when`("deleteZoekopdracht is called with ID 42") {
-                service.deleteZoekopdracht(42L)
+                gebruikersvoorkeurenRestService.deleteZoekopdracht(42L)
 
                 then("GebruikersvoorkeurenService.deleteZoekopdracht is called") {
                     verify { gebruikersvoorkeurenService.deleteZoekopdracht(42L) }
@@ -96,7 +85,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.createZoekopdracht(any()) } returns fakeZoekopdracht
 
             `when`("createOrUpdateZoekopdracht is called") {
-                val result = service.createOrUpdateZoekopdracht(restZoekopdracht)
+                val result = gebruikersvoorkeurenRestService.createOrUpdateZoekopdracht(restZoekopdracht)
 
                 then("GebruikersvoorkeurenService.createZoekopdracht is called and result is returned") {
                     verify { gebruikersvoorkeurenService.createZoekopdracht(any()) }
@@ -119,7 +108,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { policyService.readWerklijstRechten() } returns nl.info.zac.policy.output.createWerklijstRechten()
 
             `when`("readTabelGegevens is called with werklijst MIJN_TAKEN") {
-                val result = service.readTabelGegevens(Werklijst.MIJN_TAKEN)
+                val result = gebruikersvoorkeurenRestService.readTabelGegevens(Werklijst.MIJN_TAKEN)
 
                 then("aantalPerPagina from tabelInstellingen is returned") {
                     result.aantalPerPagina shouldBe 25
@@ -135,7 +124,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.updateTabelInstellingen(any()) } just runs
 
             `when`("updateAantalItemsPerPagina is called with a valid aantal") {
-                service.updateAantalItemsPerPagina(Werklijst.MIJN_ZAKEN, validAantal)
+                gebruikersvoorkeurenRestService.updateAantalItemsPerPagina(Werklijst.MIJN_ZAKEN, validAantal)
 
                 then("GebruikersvoorkeurenService.updateTabelInstellingen is called") {
                     verify { gebruikersvoorkeurenService.updateTabelInstellingen(any()) }
@@ -149,7 +138,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             val tooLarge = TabelInstellingen.AANTAL_PER_PAGINA_MAX + 1
 
             `when`("updateAantalItemsPerPagina is called with too large aantal") {
-                service.updateAantalItemsPerPagina(Werklijst.MIJN_ZAKEN, tooLarge)
+                gebruikersvoorkeurenRestService.updateAantalItemsPerPagina(Werklijst.MIJN_ZAKEN, tooLarge)
 
                 then("GebruikersvoorkeurenService.updateTabelInstellingen is NOT called") {
                     verify(exactly = 0) { gebruikersvoorkeurenService.updateTabelInstellingen(any()) }
@@ -165,7 +154,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns listOf(fakeDashboardCard)
 
             `when`("listDashboardCards is called") {
-                val result = service.listDashboardCards()
+                val result = gebruikersvoorkeurenRestService.listDashboardCards()
 
                 then("GebruikersvoorkeurenService.listDashboardCards is called and list is returned") {
                     verify { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") }
@@ -189,7 +178,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.setActief(capture(zoekopdrachtSlot)) } just runs
 
             `when`("setZoekopdrachtActief is called") {
-                service.setZoekopdrachtActief(restZoekopdracht)
+                gebruikersvoorkeurenRestService.setZoekopdrachtActief(restZoekopdracht)
 
                 then("the zoekopdracht of the logged-in user is made active") {
                     with(zoekopdrachtSlot.captured) {
@@ -212,7 +201,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.removeActief(capture(listParametersSlot)) } just runs
 
             `when`("removeZoekopdrachtActief is called with werklijst MIJN_ZAKEN") {
-                service.removeZoekopdrachtActief(Werklijst.MIJN_ZAKEN)
+                gebruikersvoorkeurenRestService.removeZoekopdrachtActief(Werklijst.MIJN_ZAKEN)
 
                 then("the active zoekopdracht of the logged-in user for that werklijst is removed") {
                     listParametersSlot.captured.lijstID shouldBe Werklijst.MIJN_ZAKEN
@@ -227,7 +216,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             val tooSmall = TabelInstellingen.AANTAL_PER_PAGINA_MIN - 1
 
             `when`("updateAantalItemsPerPagina is called with too small aantal") {
-                service.updateAantalItemsPerPagina(Werklijst.MIJN_ZAKEN, tooSmall)
+                gebruikersvoorkeurenRestService.updateAantalItemsPerPagina(Werklijst.MIJN_ZAKEN, tooSmall)
 
                 then("GebruikersvoorkeurenService.updateTabelInstellingen is NOT called") {
                     verify(exactly = 0) { gebruikersvoorkeurenService.updateTabelInstellingen(any()) }
@@ -243,7 +232,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.updateTabelInstellingen(capture(tabelInstellingenSlot)) } just runs
 
             `when`("updateAantalItemsPerPagina is called with the minimum aantal") {
-                service.updateAantalItemsPerPagina(Werklijst.MIJN_TAKEN, TabelInstellingen.AANTAL_PER_PAGINA_MIN)
+                gebruikersvoorkeurenRestService.updateAantalItemsPerPagina(Werklijst.MIJN_TAKEN, TabelInstellingen.AANTAL_PER_PAGINA_MIN)
 
                 then("the tabel instellingen of the logged-in user are updated") {
                     with(tabelInstellingenSlot.captured) {
@@ -274,7 +263,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns listOf(fakeDashboardCard)
 
             `when`("updateDashboardCards is called") {
-                val result = service.updateDashboardCards(listOf(restDashboardCardInstelling))
+                val result = gebruikersvoorkeurenRestService.updateDashboardCards(listOf(restDashboardCardInstelling))
 
                 then("the converted cards are stored and the current cards are returned") {
                     with(dashboardCardsSlot.captured.single()) {
@@ -306,7 +295,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns listOf(fakeDashboardCard)
 
             `when`("addDashboardCard is called") {
-                val result = service.addDashboardCard(restDashboardCardInstelling)
+                val result = gebruikersvoorkeurenRestService.addDashboardCard(restDashboardCardInstelling)
 
                 then("the converted card is added and the current cards are returned") {
                     dashboardCardSlot.captured.cardId shouldBe DashboardCardId.MIJN_TAKEN
@@ -329,7 +318,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns emptyList()
 
             `when`("deleteDashboardCard is called") {
-                val result = service.deleteDashboardCard(restDashboardCardInstelling)
+                val result = gebruikersvoorkeurenRestService.deleteDashboardCard(restDashboardCardInstelling)
 
                 then("the converted card is deleted and the remaining cards are returned") {
                     dashboardCardSlot.captured.cardId shouldBe DashboardCardId.MIJN_TAKEN

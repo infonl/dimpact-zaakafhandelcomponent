@@ -2,144 +2,136 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.gebruikersvoorkeuren
 
-package net.atos.zac.app.gebruikersvoorkeuren;
-
-import static nl.info.zac.app.policy.model.RestWerklijstRechtenKt.toRestWerklijstRechten;
-
-import java.util.List;
-
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-
-import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTDashboardCardInstellingConverter;
-import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTZoekopdrachtConverter;
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling;
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTTabelGegevens;
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
-import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
-import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
-import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
-import nl.info.zac.authentication.LoggedInUser;
-import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService;
-import nl.info.zac.policy.PolicyService;
+import jakarta.enterprise.inject.Instance
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
+import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.PUT
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTDashboardCardInstellingConverter
+import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTZoekopdrachtConverter
+import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling
+import net.atos.zac.app.gebruikersvoorkeuren.model.RESTTabelGegevens
+import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht
+import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
+import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
+import nl.info.zac.app.policy.model.toRestWerklijstRechten
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @Singleton
 @Path("gebruikersvoorkeuren")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class GebruikersvoorkeurenRESTService {
-
-    @Inject
-    private GebruikersvoorkeurenService gebruikersvoorkeurenService;
-
-    @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
-
-    @Inject
-    private PolicyService policyService;
-
+@NoArgConstructor
+@AllOpen
+class GebruikersvoorkeurenRestService @Inject constructor(
+    private val gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val policyService: PolicyService
+) {
     @GET
     @Path("zoekopdracht/{lijstID}")
-    public List<RESTZoekopdracht> listZoekopdrachten(@PathParam("lijstID") final Werklijst lijstID) {
-        final List<Zoekopdracht> zoekopdrachten = gebruikersvoorkeurenService.listZoekopdrachten(
-                new ZoekopdrachtListParameters(lijstID, loggedInUserInstance.get().getId()));
-        return RESTZoekopdrachtConverter.convert(zoekopdrachten);
-    }
+    fun listZoekopdrachten(@PathParam("lijstID") lijstID: Werklijst): List<RESTZoekopdracht> =
+        gebruikersvoorkeurenService.listZoekopdrachten(
+            ZoekopdrachtListParameters(lijstID, loggedInUserInstance.get().id)
+        ).let(RESTZoekopdrachtConverter::convert)
 
     @DELETE
     @Path("zoekopdracht/{id}")
-    public void deleteZoekopdracht(@PathParam("id") final long id) {
-        gebruikersvoorkeurenService.deleteZoekopdracht(id);
-    }
+    fun deleteZoekopdracht(@PathParam("id") id: Long) = gebruikersvoorkeurenService.deleteZoekopdracht(id)
 
     @POST
     @Path("zoekopdracht")
-    public RESTZoekopdracht createOrUpdateZoekopdracht(final RESTZoekopdracht restZoekopdracht) {
-        final Zoekopdracht zoekopdracht = RESTZoekopdrachtConverter.convert(restZoekopdracht, loggedInUserInstance);
-        return RESTZoekopdrachtConverter.convert(gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht));
-    }
+    fun createOrUpdateZoekopdracht(restZoekopdracht: RESTZoekopdracht): RESTZoekopdracht =
+        RESTZoekopdrachtConverter.convert(restZoekopdracht, loggedInUserInstance)
+            .let(gebruikersvoorkeurenService::createZoekopdracht)
+            .let(RESTZoekopdrachtConverter::convert)
 
     @PUT
     @Path("zoekopdracht/actief")
-    public void setZoekopdrachtActief(final RESTZoekopdracht restZoekopdracht) {
-        final Zoekopdracht zoekopdracht = RESTZoekopdrachtConverter.convert(restZoekopdracht, loggedInUserInstance);
-        gebruikersvoorkeurenService.setActief(zoekopdracht);
-    }
+    fun setZoekopdrachtActief(restZoekopdracht: RESTZoekopdracht) =
+        gebruikersvoorkeurenService.setActief(RESTZoekopdrachtConverter.convert(restZoekopdracht, loggedInUserInstance))
 
     @DELETE
     @Path("zoekopdracht/{werklijst}/actief")
-    public void removeZoekopdrachtActief(@PathParam("werklijst") final Werklijst werklijst) {
-        gebruikersvoorkeurenService.removeActief(new ZoekopdrachtListParameters(werklijst, loggedInUserInstance.get().getId()));
-    }
+    fun removeZoekopdrachtActief(@PathParam("werklijst") werklijst: Werklijst) =
+        gebruikersvoorkeurenService.removeActief(ZoekopdrachtListParameters(werklijst, loggedInUserInstance.get().id))
 
     @GET
     @Path("tabel-gegevens/{werklijst}")
-    public RESTTabelGegevens readTabelGegevens(@PathParam("werklijst") final Werklijst werklijst) {
-        final RESTTabelGegevens restTabelGegevens = new RESTTabelGegevens();
-        final TabelInstellingen tabelInstellingen = gebruikersvoorkeurenService.readTabelInstellingen(werklijst,
-                loggedInUserInstance.get().getId()
-        );
-        restTabelGegevens.aantalPerPagina = tabelInstellingen.getAantalPerPagina();
-        restTabelGegevens.pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS;
-        restTabelGegevens.werklijstRechten = toRestWerklijstRechten(policyService.readWerklijstRechten());
-        return restTabelGegevens;
+    fun readTabelGegevens(@PathParam("werklijst") werklijst: Werklijst): RESTTabelGegevens {
+        val tabelInstellingen = gebruikersvoorkeurenService.readTabelInstellingen(
+            werklijst,
+            loggedInUserInstance.get().id
+        )
+        return RESTTabelGegevens().apply {
+            aantalPerPagina = tabelInstellingen.aantalPerPagina
+            pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS
+            werklijstRechten = policyService.readWerklijstRechten().toRestWerklijstRechten()
+        }
     }
 
     @PUT
     @Path("aantal-per-pagina/{werklijst}/{aantal}")
-    public void updateAantalItemsPerPagina(@PathParam("werklijst") final Werklijst werklijst, @PathParam("aantal") final int aantal) {
-        if (aantal <= TabelInstellingen.AANTAL_PER_PAGINA_MAX && aantal >= TabelInstellingen.AANTAL_PER_PAGINA_MIN) {
-            final TabelInstellingen tabelInstellingen = new TabelInstellingen();
-            tabelInstellingen.setAantalPerPagina(aantal);
-            tabelInstellingen.setLijstID(werklijst);
-            tabelInstellingen.setMedewerkerID(loggedInUserInstance.get().getId());
-            gebruikersvoorkeurenService.updateTabelInstellingen(tabelInstellingen);
+    fun updateAantalItemsPerPagina(
+        @PathParam("werklijst") werklijst: Werklijst,
+        @PathParam("aantal") aantal: Int
+    ) {
+        if (aantal in TabelInstellingen.AANTAL_PER_PAGINA_MIN..TabelInstellingen.AANTAL_PER_PAGINA_MAX) {
+            TabelInstellingen().apply {
+                aantalPerPagina = aantal
+                lijstID = werklijst
+                medewerkerID = loggedInUserInstance.get().id
+            }.let(gebruikersvoorkeurenService::updateTabelInstellingen)
         }
     }
 
     @GET
     @Path("dasboardcard/actief")
-    public List<RESTDashboardCardInstelling> listDashboardCards() {
-        return RESTDashboardCardInstellingConverter.convert(
-                gebruikersvoorkeurenService.listDashboardCards(loggedInUserInstance.get().getId()));
-    }
+    fun listDashboardCards(): List<RESTDashboardCardInstelling> =
+        gebruikersvoorkeurenService.listDashboardCards(loggedInUserInstance.get().id)
+            .let(RESTDashboardCardInstellingConverter::convert)
 
     @PUT
     @Path("dasboardcard/actief")
-    public List<RESTDashboardCardInstelling> updateDashboardCards(final List<RESTDashboardCardInstelling> instellingen) {
+    fun updateDashboardCards(instellingen: List<RESTDashboardCardInstelling>): List<RESTDashboardCardInstelling> {
         gebruikersvoorkeurenService.updateDashboardCards(
-                loggedInUserInstance.get().getId(),
-                instellingen.stream().map(RESTDashboardCardInstellingConverter::convert).toList());
-        return listDashboardCards();
+            loggedInUserInstance.get().id,
+            instellingen.map(RESTDashboardCardInstellingConverter::convert)
+        )
+        return listDashboardCards()
     }
 
     @PUT
     @Path("dasboardcard")
-    public List<RESTDashboardCardInstelling> addDashboardCard(RESTDashboardCardInstelling instelling) {
+    fun addDashboardCard(instelling: RESTDashboardCardInstelling): List<RESTDashboardCardInstelling> {
         gebruikersvoorkeurenService.addDashboardCard(
-                loggedInUserInstance.get().getId(),
-                RESTDashboardCardInstellingConverter.convert(instelling));
-        return listDashboardCards();
+            loggedInUserInstance.get().id,
+            RESTDashboardCardInstellingConverter.convert(instelling)
+        )
+        return listDashboardCards()
     }
 
     @DELETE
     @Path("dasboardcard")
-    public List<RESTDashboardCardInstelling> deleteDashboardCard(final RESTDashboardCardInstelling instelling) {
+    fun deleteDashboardCard(instelling: RESTDashboardCardInstelling): List<RESTDashboardCardInstelling> {
         gebruikersvoorkeurenService.deleteDashboardCard(
-                loggedInUserInstance.get().getId(),
-                RESTDashboardCardInstellingConverter.convert(instelling));
-        return listDashboardCards();
+            loggedInUserInstance.get().id,
+            RESTDashboardCardInstellingConverter.convert(instelling)
+        )
+        return listDashboardCards()
     }
 }
