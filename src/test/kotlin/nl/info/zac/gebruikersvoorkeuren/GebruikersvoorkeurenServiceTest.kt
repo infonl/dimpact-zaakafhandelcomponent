@@ -35,6 +35,8 @@ import net.atos.zac.gebruikersvoorkeuren.model.createTabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.gebruikersvoorkeuren.exception.ZoekopdrachtWithSameNameAlreadyExistsException
 import nl.info.zac.signalering.SignaleringService
 
 class GebruikersvoorkeurenServiceTest : BehaviorSpec({
@@ -147,12 +149,15 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { zoekopdrachtTypedQuery.resultList } returns listOf(createZoekopdracht())
 
             `when`("the create zoekopdracht function is called") {
-                val runtimeException = shouldThrow<RuntimeException> {
-                    gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
-                }
+                val zoekopdrachtWithSameNameAlreadyExistsException =
+                    shouldThrow<ZoekopdrachtWithSameNameAlreadyExistsException> {
+                        gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
+                    }
 
-                then("it should throw a RuntimeException that names the zoekopdracht, lijst and medewerker") {
-                    runtimeException.message shouldBe "Er bestaat al een zoekopdracht met naam " +
+                then("it should throw an exception with the error code for the frontend that names the zoekopdracht") {
+                    zoekopdrachtWithSameNameAlreadyExistsException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZOEKOPDRACHT_WITH_SAME_NAME_ALREADY_EXISTS
+                    zoekopdrachtWithSameNameAlreadyExistsException.message shouldBe "Er bestaat al een zoekopdracht met naam " +
                         "'${zoekopdracht.naam}' en lijst '${zoekopdracht.lijstID}' en medewerker: '${zoekopdracht.medewerkerID}'"
                 }
             }
