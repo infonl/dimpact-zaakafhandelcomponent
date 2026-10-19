@@ -31,7 +31,7 @@ previous behandelaar. It lists zaken the user cannot read as well, with their de
   where the user holds another medewerker rol, or has no read rights, are left out. Nothing is stored for
   this card, so nothing is deleted or logged.
 - **The zaken card count matches the listed zaken.** The count is read after the stale signaleringen of the
-  page have been deleted, and the page is refilled with the next signaleringen.
+  page have been deleted. The deletion notifies the dashboard, which loads the card again.
 
 ## Capabilities
 

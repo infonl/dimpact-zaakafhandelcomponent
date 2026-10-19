@@ -111,12 +111,15 @@ autorisatie data into account. A previous behandelaar or taakbehandelaar who kee
 disappear. Granting or removing that rol also produces ROL notifications; the cleanup compares with the current
 behandelaar, so these leave the behandelaar's signaleringen alone.
 
-### Refill the page and count afterwards
+### Let the card reload instead of refilling the page, and count afterwards
 
-On the `SIGNALERING_TIJDSTIP` path the page query is repeated after deletions until a query deletes nothing.
-Deleted rows move later signaleringen into the page, so the page is full when enough valid signaleringen
-exist. The loop ends because every repeat deletes at least one row. On the in-memory sort path all signaleringen
-are validated before sorting and slicing.
+The page is read and validated once. On the in-memory sort path all signaleringen are validated before sorting
+and slicing. Deleting signaleringen already sends a `SIGNALERINGEN` updated screen event for each target and
+type, and the dashboard cards fetch their page again on that event. The second request finds the stale rows
+gone and returns a full page, so the server does not refill the page itself.
+
+*Alternative:* repeat the page query after deletions until a query deletes nothing. It returns a full page in
+one response, at the cost of a loop and extra queries that the screen event makes unnecessary.
 
 `SignaleringRestService.listZakenSignaleringen` keeps its `page > maxPages` check on the count before listing,
 and returns a count made after listing, so the total leaves out the rows just deleted. Stale rows on later
@@ -141,6 +144,8 @@ ZRC round trip per signalering, which the database paging path exists to avoid.
   listing check removes it.
 - [The count of later pages can still include stale rows] → Accepted; it corrects itself when those pages are
   listed.
+- [The first response after a cleanup can contain fewer zaken than requested] → The card loads again on the
+  screen event a moment later and then shows a full page.
 
 ## Migration Plan
 

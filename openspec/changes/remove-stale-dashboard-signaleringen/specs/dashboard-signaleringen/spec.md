@@ -76,11 +76,11 @@ The warning SHALL NOT contain the username or name of the user.
   it
 - **THEN** the zaak is listed, the signalering is kept and no warning is logged
 
-#### Scenario: A page is filled up after stale signaleringen are removed
-- **WHEN** a page of a zaken signalering card is requested and some signaleringen on that page are deleted as
-  stale, while the user has further valid signaleringen of that type
-- **THEN** the page contains as many zaken as requested, taken from the next valid signaleringen in the
-  requested order
+#### Scenario: The card reloads after stale signaleringen are removed
+- **WHEN** a page of a zaken or taken signalering card is requested and signaleringen on that page are deleted
+  as stale
+- **THEN** the response leaves out the deleted signaleringen, and ZAC notifies the user's dashboard that their
+  signaleringen changed, so the card is loaded again with the next valid signaleringen
 
 #### Scenario: The total count leaves out deleted signaleringen
 - **WHEN** a page of a zaken signalering card is requested and signaleringen on that page are deleted as stale
