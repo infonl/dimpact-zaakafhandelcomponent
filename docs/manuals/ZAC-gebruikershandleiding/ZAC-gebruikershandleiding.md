@@ -556,7 +556,7 @@ Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. 
 
 ![Zaakspecifiek geautoriseerde zaak](./images/zaak-zaakspecifiek-geautoriseerd-icoon.png)
 
-Het slot-icoon staat overal waar ZAC het zaaknummer van zo'n zaak toont. Bijvoorbeeld:
+Het slot-icoon staat overal waar ZAC het zaaknummer van een zaakspecifiek geautoriseerde zaak toont. Bijvoorbeeld:
 
 - op de zaakdetailpagina, en bij de zaak op de taak- en documentdetailpagina
 - in de werkvoorraden van zaken en taken
