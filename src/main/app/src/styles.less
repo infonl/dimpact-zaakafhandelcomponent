@@ -109,6 +109,8 @@ mat-sidenav-container {
 
 .table-wrapper {
   overflow-x: auto;
+  // keeps the CDK sticky-cell z-indexes from painting over content outside the table
+  isolation: isolate;
 
   table {
     width: 100%;
@@ -232,10 +234,6 @@ mat-paginator[sticky] {
 
 .warning {
   color: @warning-color;
-}
-
-.gold-star {
-  color: orange;
 }
 
 //tablet portrait
