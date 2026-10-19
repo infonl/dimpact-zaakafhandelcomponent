@@ -7,6 +7,7 @@ package nl.info.zac.itest
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -18,6 +19,7 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
+import nl.info.zac.itest.config.BEHANDELAAR_BPMN_WAARSCHUWING_1
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
@@ -151,8 +153,11 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
         `when`("the zaakbehandelaar lists the kandidaten of the behandelaar groep") {
             val kandidaten = listKandidaten(zaakUuid, GROUP_BEHANDELAARS_TEST_1, BEHANDELAAR_1)
 
-            then("only the medewerker without access is returned") {
-                kandidaten shouldBe listOf(BEHANDELAAR_1_EN_BRP_ZOEKER_2.username)
+            then("only the medewerkers without access are returned") {
+                kandidaten shouldContainExactlyInAnyOrder listOf(
+                    BEHANDELAAR_1_EN_BRP_ZOEKER_2.username,
+                    BEHANDELAAR_BPMN_WAARSCHUWING_1.username
+                )
             }
 
             and("that medewerker cannot read the zaak yet") {
@@ -220,7 +225,8 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             }
 
             and("the medewerker is no longer a kandidaat") {
-                listKandidaten(zaakUuid, GROUP_BEHANDELAARS_TEST_1, BEHANDELAAR_1) shouldBe emptyList()
+                listKandidaten(zaakUuid, GROUP_BEHANDELAARS_TEST_1, BEHANDELAAR_1) shouldBe
+                    listOf(BEHANDELAAR_BPMN_WAARSCHUWING_1.username)
             }
         }
 
