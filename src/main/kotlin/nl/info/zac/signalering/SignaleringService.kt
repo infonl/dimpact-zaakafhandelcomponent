@@ -19,7 +19,7 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.readZaakUUID
 import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -46,8 +46,10 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
@@ -72,6 +74,7 @@ class SignaleringService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val searchService: SearchService,
     dispatcher: CoroutineDispatcher
 ) {
     companion object {
@@ -110,8 +113,8 @@ class SignaleringService @Inject constructor(
      */
     fun signaleringInstellingenInstance(
         signaleringsType: SignaleringType.Type,
-        ownerType: SignaleringTarget?,
-        ownerId: String?
+        ownerType: SignaleringTarget,
+        ownerId: String
     ) = SignaleringInstellingen(signaleringTypeInstance(signaleringsType), ownerType, ownerId)
 
     /**
@@ -513,7 +516,14 @@ class SignaleringService @Inject constructor(
                 listSignaleringen(it)
             }
             .map { flowableTaskService.readTask(it.subject) }
-            .map { it.toRestSignaleringTaakSummary() }
+            .let { taken ->
+                val zaakspecifiekGeautoriseerdeTaakIds = searchService.listZaakspecifiekGeautoriseerdeWaarden(
+                    waarden = taken.map { it.id },
+                    type = ZoekObjectType.TAAK,
+                    veld = "id"
+                )
+                taken.map { it.toRestSignaleringTaakSummary(it.id in zaakspecifiekGeautoriseerdeTaakIds) }
+            }
             .also {
                 LOG.fine { "Successfully listed taken signaleringen of type '$signaleringsType'." }
             }

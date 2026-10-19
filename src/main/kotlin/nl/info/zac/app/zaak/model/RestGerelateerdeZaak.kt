@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -15,6 +16,9 @@ data class RestGerelateerdeZaak(
     var relatieType: RelatieType? = null,
 
     var identificatie: String? = null,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    var isZaakspecifiekGeautoriseerd: Boolean = false,
 
     var zaaktypeOmschrijving: String? = null,
 

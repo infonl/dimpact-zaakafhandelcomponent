@@ -8,7 +8,7 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringVerzonden
@@ -64,10 +64,10 @@ fun getSignaleringInstellingenWhere(
         where.add(builder.equal(root.get<Any>("type").get<Any>("id"), it.toString()))
     }
     if (parameters.dashboard) {
-        where.add(builder.isTrue(root.get("dashboard")))
+        where.add(builder.isTrue(root.get("isDashboard")))
     }
     if (parameters.mail) {
-        where.add(builder.isTrue(root.get("mail")))
+        where.add(builder.isTrue(root.get("isMail")))
     }
     @Suppress("SpreadOperator")
     return builder.and(*where.toTypedArray<Predicate>())

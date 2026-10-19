@@ -59,8 +59,8 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                         policyService.readWerklijstRechten()
                         inboxProductaanvraagService.list(any())
                     }
-                    result.totaal shouldBe 1
-                    result.resultaten.size shouldBe 1
+                    result.resultCount shouldBe 1
+                    result.results.size shouldBe 1
                     result.filterType shouldBe listOf("typeA", "typeB")
                 }
             }
@@ -76,7 +76,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 then("the filterType is set to the type from the request parameters") {
                     val result = service.listInboxProductaanvragen(params)
 
-                    result.totaal shouldBe 0
+                    result.resultCount shouldBe 0
                     result.filterType shouldBe listOf("aanvraag")
                 }
             }
@@ -92,7 +92,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 then("the filterType remains empty") {
                     val result = service.listInboxProductaanvragen(params)
 
-                    result.totaal shouldBe 0
+                    result.resultCount shouldBe 0
                     result.filterType shouldBe emptyList()
                 }
             }

@@ -329,6 +329,7 @@ class ZaakKoppelenRestService @Inject constructor(
             omschrijving = omschrijving,
             zaaktypeOmschrijving = zaaktypeOmschrijving,
             statustypeOmschrijving = statustypeOmschrijving,
+            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
             nietKoppelbaarReden = notLinkableReason,
         )
 

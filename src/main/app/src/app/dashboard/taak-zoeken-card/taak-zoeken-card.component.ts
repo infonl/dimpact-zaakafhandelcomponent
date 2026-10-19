@@ -43,6 +43,7 @@ import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
 import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasource";
 import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -57,6 +58,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
   ],
   standalone: true,
   imports: [
+    ZaakspecifiekGeautoriseerdIconComponent,
     MatTable,
     MatSort,
     MatColumnDef,

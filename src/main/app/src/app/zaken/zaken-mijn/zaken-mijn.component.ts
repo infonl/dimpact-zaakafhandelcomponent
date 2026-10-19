@@ -41,6 +41,7 @@ import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
 
 import { detailExpand } from "../../shared/animations/animations";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
 
 @Component({
   templateUrl: "./zaken-mijn.component.html",
@@ -48,6 +49,7 @@ import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakspecifiekGeautoriseerdIconComponent,
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,

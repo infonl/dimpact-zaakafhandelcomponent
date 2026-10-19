@@ -19,7 +19,12 @@
     <zac-static-text
       label="zaak-identificatie"
       [value]="taak().zaakIdentificatie"
-    />
+    >
+      <zac-zaakspecifiek-geautoriseerd-icon
+        position="content-before"
+        [isZaakspecifiekGeautoriseerd]="taak().isZaakspecifiekGeautoriseerd"
+      />
+    </zac-static-text>
     <zac-static-text label="behandelaar" [value]="taak().behandelaarNaam" />
     <zac-static-text label="groep" [value]="taak().groepNaam" />
   </div>

@@ -48,7 +48,11 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         every { lockService.findLock(uuid) } returns lock
 
         `when`("convert is invoked") {
-            val result = converter.convert(detachedDocument, informatieobjectTypeUUID)
+            val result = converter.convertToRestDetachedDocument(
+                detachedDocument = detachedDocument,
+                informatieobjectTypeUUID = informatieobjectTypeUUID,
+                isZaakspecifiekGeautoriseerd = false
+            )
 
             then("the result should have the expected values") {
                 result.id shouldBe 1L
@@ -89,10 +93,51 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         every { lockService.findLock(uuid) } returns null
 
         `when`("convert is invoked") {
-            val result = converter.convert(detachedDocument, UUID.randomUUID())
+            val result = converter.convertToRestDetachedDocument(
+                detachedDocument = detachedDocument,
+                informatieobjectTypeUUID = UUID.randomUUID(),
+                isZaakspecifiekGeautoriseerd = false
+            )
 
             then("isVergrendeld should be false in the result") {
                 result.isVergrendeld shouldBe false
+            }
+        }
+    }
+
+    given("two detached documents of which only the zaak of the first is zaakspecifiek geautoriseerd") {
+        val zaakspecifiekGeautoriseerdeZaakIdentificatie = "fakeZaakIdentificatie1"
+        val otherZaakIdentificatie = "fakeZaakIdentificatie2"
+        val firstDetachedDocument = createDetachedDocument().apply {
+            zaakID = zaakspecifiekGeautoriseerdeZaakIdentificatie
+        }
+        val secondDetachedDocument = createDetachedDocument().apply { zaakID = otherZaakIdentificatie }
+        val firstInformatieobjectTypeUUID = UUID.randomUUID()
+        val secondInformatieobjectTypeUUID = UUID.randomUUID()
+
+        every { userConverter.convertUserId("fakeUserId") } returns createRESTUser(id = "fakeUserId")
+        every { lockService.findLock(firstDetachedDocument.documentUUID) } returns null
+        every { lockService.findLock(secondDetachedDocument.documentUUID) } returns null
+
+        `when`("the detached documents are converted with the zaakspecifiek geautoriseerde zaaknummers") {
+            val restDetachedDocuments = converter.convertToRestDetachedDocuments(
+                documenten = listOf(firstDetachedDocument, secondDetachedDocument),
+                informatieobjectTypeUUIDs = listOf(firstInformatieobjectTypeUUID, secondInformatieobjectTypeUUID),
+                zaakspecifiekGeautoriseerdeZaakIDs = setOf(zaakspecifiekGeautoriseerdeZaakIdentificatie)
+            )
+
+            then("only the document of the zaakspecifiek geautoriseerde zaak is marked as such") {
+                restDetachedDocuments.map { it.zaakID to it.isZaakspecifiekGeautoriseerd } shouldBe listOf(
+                    zaakspecifiekGeautoriseerdeZaakIdentificatie to true,
+                    otherZaakIdentificatie to false
+                )
+            }
+
+            and("each document keeps its own informatieobjecttype") {
+                restDetachedDocuments.map { it.informatieobjectTypeUUID } shouldBe listOf(
+                    firstInformatieobjectTypeUUID,
+                    secondInformatieobjectTypeUUID
+                )
             }
         }
     }
