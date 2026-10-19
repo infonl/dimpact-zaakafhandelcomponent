@@ -33,6 +33,7 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
     fun createProcessDefinition() = mockk<ProcessDefinition> {
         every { name } returns "fakeProcessName"
         every { key } returns "fakeProcessKey"
+        every { isSuspended } returns false
     }
 
     afterEach { checkUnnecessaryStub() }
@@ -74,6 +75,21 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
             and("the BPMN process definition has no plan items") {
                 processDefinitions.last().humanTaskDefinitions.shouldBeEmpty()
                 processDefinitions.last().userEventListenerDefinitions.shouldBeEmpty()
+            }
+        }
+    }
+
+    given("a suspended BPMN process definition") {
+        every { cmmnService.listCaseDefinitions() } returns emptyList()
+        every { bpmnService.listProcessDefinitions() } returns listOf(
+            mockk<ProcessDefinition> { every { isSuspended } returns true }
+        )
+
+        `when`("the process definitions are listed") {
+            val processDefinitions = converter.listProcessDefinitions()
+
+            then("it is not listed, because a zaak cannot start a suspended process") {
+                processDefinitions.shouldBeEmpty()
             }
         }
     }

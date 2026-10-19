@@ -28,6 +28,7 @@ import nl.info.zac.app.admin.model.toZaakAfzenders
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
 import nl.info.zac.app.zaak.model.toRestResultaatType
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -98,7 +99,9 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             id = restZaaktypeConfiguration.id
             zaaktypeUuid = restZaaktypeConfiguration.zaaktype.uuid
             zaaktypeOmschrijving = restZaaktypeConfiguration.zaaktype.omschrijving
-                ?: throw NullPointerException("restZaakafhandelParameters.zaaktype.omschrijving is null")
+                ?: throw InputValidationFailedException(
+                    message = "The zaaktype of the configuration of zaaktype '$zaaktypeUuid' has no omschrijving"
+                )
             groepID = restZaaktypeConfiguration.defaultGroepId
                 ?: throw NullPointerException("restZaakafhandelParameters.defaultGroepId is null")
             uiterlijkeEinddatumAfdoeningWaarschuwing = restZaaktypeConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
@@ -109,25 +112,36 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             einddatumGeplandWaarschuwing = restZaaktypeConfiguration.einddatumGeplandWaarschuwing
             isSmartDocumentsEnabled = restZaaktypeConfiguration.smartDocuments.isEnabledForZaaktype
             creatiedatum = restZaaktypeConfiguration.creatiedatum ?: ZonedDateTime.now()
-            zaaktypeEmailParameters = restZaaktypeConfiguration.automaticEmailConfirmation
-                .toAutomaticEmailConfirmation(this)
-        }.also {
-            it.applyProcessDefinition(restZaaktypeConfiguration)
-            it.setZaakbeeindigParameters(
-                zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(
-                    restZaaktypeConfiguration.zaakbeeindigParameters
-                )
-            )
-            it.setMailtemplateKoppelingen(
-                restZaaktypeConfiguration.mailtemplateKoppelingen.map { koppeling ->
-                    koppeling.toZaaktypeMailtemplateParameters()
-                }
-            )
-            it.setZaakAfzenders(restZaaktypeConfiguration.zaakAfzenders.toZaakAfzenders())
-            it.zaaktypeBetrokkeneParameters =
-                restZaaktypeConfiguration.betrokkeneKoppelingen.toZaaktypeBetrokkenParameters(it)
-            it.zaaktypeBrpParameters = restZaaktypeConfiguration.brpDoelbindingen.toZaaktypeBrpParameters(it)
+            restZaaktypeConfiguration.automaticEmailConfirmation.ifSupplied {
+                zaaktypeEmailParameters = it.toAutomaticEmailConfirmation(this)
+            }
+        }.also { configuration ->
+            configuration.applyProcessDefinition(restZaaktypeConfiguration)
+            restZaaktypeConfiguration.zaakbeeindigParameters.ifSupplied {
+                configuration.setZaakbeeindigParameters(zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(it))
+            }
+            restZaaktypeConfiguration.mailtemplateKoppelingen.ifSupplied { koppelingen ->
+                configuration.setMailtemplateKoppelingen(koppelingen.map { it.toZaaktypeMailtemplateParameters() })
+            }
+            restZaaktypeConfiguration.zaakAfzenders.ifSupplied {
+                configuration.setZaakAfzenders(it.toZaakAfzenders())
+            }
+            restZaaktypeConfiguration.betrokkeneKoppelingen.ifSupplied {
+                configuration.zaaktypeBetrokkeneParameters = it.toZaaktypeBetrokkenParameters(configuration)
+            }
+            restZaaktypeConfiguration.brpDoelbindingen.ifSupplied {
+                configuration.zaaktypeBrpParameters = it.toZaaktypeBrpParameters(configuration)
+            }
         }
+    }
+
+    /**
+     * JSON-B creates [RestZaaktypeConfiguration] through the generated no-arg constructor, which skips the default
+     * values of its properties. A setting that a request leaves out, which the OpenAPI spec marks optional because it
+     * has a default value, is therefore null although its type is not nullable. Such a setting keeps its stored value.
+     */
+    private inline fun <T> T.ifSupplied(store: (T) -> Unit) {
+        if (this != null) store(this)
     }
 
     private fun ZaaktypeConfiguration.applyProcessDefinition(restZaaktypeConfiguration: RestZaaktypeConfiguration) {
@@ -137,14 +151,12 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         cmmnExtension?.apply {
             intakeMail = restZaaktypeConfiguration.intakeMail?.name
             afrondenMail = restZaaktypeConfiguration.afrondenMail?.name
-            setHumanTaskParametersCollection(
-                humanTaskParametersConverter.convertRESTHumanTaskParameters(
-                    restZaaktypeConfiguration.humanTaskParameters
-                )
-            )
-            setUserEventListenerParametersCollection(
-                convertRESTUserEventListenerParameters(restZaaktypeConfiguration.userEventListenerParameters)
-            )
+            restZaaktypeConfiguration.humanTaskParameters.ifSupplied {
+                setHumanTaskParametersCollection(humanTaskParametersConverter.convertRESTHumanTaskParameters(it))
+            }
+            restZaaktypeConfiguration.userEventListenerParameters.ifSupplied {
+                setUserEventListenerParametersCollection(convertRESTUserEventListenerParameters(it))
+            }
         }
     }
 

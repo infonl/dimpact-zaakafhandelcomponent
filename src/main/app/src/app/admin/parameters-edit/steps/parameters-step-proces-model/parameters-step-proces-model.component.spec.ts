@@ -34,12 +34,23 @@ const bpmnProcessDefinition: ProcessDefinition = {
   naam: "Vergunningsproces",
 };
 
+const caseDefinitionNamedAsBpmnProcessDefinition: ProcessDefinition = {
+  processEngine: "CMMN",
+  key: "fakeVergunningCaseDefinitionKey",
+  naam: "Vergunningsproces",
+};
+
 describe(ParametersStepProcesModelComponent.name, () => {
   const user = userEvent.setup();
 
   async function setup(
     form: ProcessModelForm,
     savedProcessDefinition: ProcessDefinition | null = null,
+    processDefinitions = [
+      caseDefinition,
+      otherCaseDefinition,
+      bpmnProcessDefinition,
+    ],
   ) {
     await render(ParametersStepProcesModelComponent, {
       imports: [TranslateModule.forRoot(), NoopAnimationsModule],
@@ -53,11 +64,7 @@ describe(ParametersStepProcesModelComponent.name, () => {
           provide: ZaakafhandelParametersService,
           useValue: fromPartial<ZaakafhandelParametersService>({
             listProcessDefinitions: () => ({
-              ...createQueryOptions([
-                caseDefinition,
-                otherCaseDefinition,
-                bpmnProcessDefinition,
-              ]),
+              ...createQueryOptions(processDefinitions),
               queryKey: ["processDefinitions"],
             }),
           }),
@@ -106,6 +113,21 @@ describe(ParametersStepProcesModelComponent.name, () => {
       expect(form.value.processDefinition).toEqual(bpmnProcessDefinition);
       expect(form.valid).toBe(true);
     });
+  });
+
+  it("marks only the chosen process definition as selected when a CMMN and a BPMN process definition have the same name", async () => {
+    await setup(createProcessModelForm({ ...bpmnProcessDefinition }), null, [
+      caseDefinitionNamedAsBpmnProcessDefinition,
+      bpmnProcessDefinition,
+    ]);
+
+    await offeredProcessDefinitions();
+
+    expect(
+      screen
+        .getAllByRole("option")
+        .map((option) => option.getAttribute("aria-selected")),
+    ).toEqual(["false", "true"]);
   });
 
   describe("for a saved configuration", () => {

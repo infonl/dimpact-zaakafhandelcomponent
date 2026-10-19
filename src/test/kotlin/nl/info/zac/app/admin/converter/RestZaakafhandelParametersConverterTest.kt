@@ -13,6 +13,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.json.bind.JsonbBuilder
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
@@ -30,9 +31,11 @@ import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
+import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
@@ -200,6 +203,49 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     cmmnExtension?.afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
                     isSmartDocumentsEnabled shouldBe false
+                }
+            }
+        }
+    }
+
+    given(
+        """
+        a stored BPMN configuration with confirmation email parameters and BRP doelbindingen,
+        and a request that leaves out every setting that the OpenAPI spec marks optional
+        """
+    ) {
+        val zaaktypeUuid = UUID.randomUUID()
+        val storedBrpParameters = createZaaktypeBrpParameters()
+        val storedConfiguration = createZaaktypeBpmnConfiguration(
+            zaaktypeUUID = zaaktypeUuid,
+            zaaktypeBrpParameters = storedBrpParameters
+        ).apply {
+            zaaktypeEmailParameters = createAutomaticEmailConfirmation(zaaktypeConfiguration = this)
+        }
+        val storedEmailParameters = storedConfiguration.zaaktypeEmailParameters
+        val restZaaktypeConfiguration = JsonbBuilder.create().fromJson(
+            """
+            {
+              "zaaktype": { "uuid": "$zaaktypeUuid", "omschrijving": "fakeOmschrijving" },
+              "processDefinition": { "processEngine": "BPMN", "key": "fakeBpmnProcessDefinitionKey" },
+              "defaultGroepId": "fakeGroupId",
+              "smartDocuments": { "isEnabledGlobally": false, "isEnabledForZaaktype": false }
+            }
+            """.trimIndent(),
+            RestZaaktypeConfiguration::class.java
+        )
+        every { zaaktypeConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns storedConfiguration
+
+        `when`("converted to DB model representation") {
+            val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                restZaaktypeConfiguration
+            )
+
+            then("the left-out settings keep their stored values") {
+                with(zaaktypeConfiguration) {
+                    groepID shouldBe "fakeGroupId"
+                    getAutomaticEmailConfirmation() shouldBe storedEmailParameters
+                    zaaktypeBrpParameters shouldBe storedBrpParameters
                 }
             }
         }

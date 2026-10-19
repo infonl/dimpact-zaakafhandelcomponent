@@ -14,6 +14,9 @@ import nl.info.zac.util.NoArgConstructor
 /**
  * The process definition that the zaken of a zaaktype run with, together with the plan items that ZAC lets a
  * beheerder configure for it.
+ *
+ * When a zaaktype configuration is stored, ZAC reads only [processEngine] and [key]. It derives [naam] and the plan
+ * item definitions from the process definition itself, and ignores the values in the request.
  */
 @NoArgConstructor
 @AllOpen

@@ -243,7 +243,8 @@ def _cmmn_body(zaaktype: dict) -> dict:
         },
         "intakeMail": "BESCHIKBAAR_UIT",
         "afrondenMail": "BESCHIKBAAR_UIT",
-        "caseDefinition": {
+        "processDefinition": {
+            "processEngine": "CMMN",
             "humanTaskDefinitions": [
                 {
                     "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
@@ -327,13 +328,18 @@ def _cmmn_body(zaaktype: dict) -> dict:
 
 
 def _bpmn_body(zaaktype: dict) -> dict:
-    """Build the POST /rest/zaaktype-bpmn-configuration payload for a BPMN zaaktype."""
+    """Build the PUT /rest/zaakafhandelparameters/{zaaktypeUUID} payload for a BPMN zaaktype."""
     return {
-        "zaaktypeUuid": zaaktype["uuid"],
-        "zaaktypeOmschrijving": zaaktype["description"],
-        "bpmnProcessDefinitionKey": zaaktype["process_key"],
+        "zaaktype": {
+            "uuid": zaaktype["uuid"],
+            "omschrijving": zaaktype["description"],
+        },
+        "processDefinition": {
+            "processEngine": "BPMN",
+            "key": zaaktype["process_key"],
+        },
         "productaanvraagtype": zaaktype["productaanvraagtype"],
-        "groepNaam": zac_testdata.ZAAK_GROUP_ID,
+        "defaultGroepId": zac_testdata.ZAAK_GROUP_ID,
         "defaultBehandelaarId": zac_client.ZAAK_USER,
         "betrokkeneKoppelingen": {"brpKoppelen": True, "kvkKoppelen": True},
         "brpDoelbindingen": {
@@ -341,6 +347,9 @@ def _bpmn_body(zaaktype: dict) -> dict:
             "raadpleegWaarde": "BRPACT-AlgemeneTaken",
             "verwerkingregisterWaarde": "Algemeen",
         },
+        "zaakAfzenders": [
+            {"defaultMail": True, "mail": "GEMEENTE", "speciaal": True, "replyTo": "GEMEENTE"},
+        ],
         "zaakbeeindigParameters": [],
         "zaakNietOntvankelijkResultaattype": {
             "archiefNominatie": "VERNIETIGEN",
@@ -352,6 +361,7 @@ def _bpmn_body(zaaktype: dict) -> dict:
             "toelichting": "fakeNietOntvankelijkToelichting",
             "vervaldatumBesluitVerplicht": False,
         },
+        "smartDocuments": {"enabledForZaaktype": False},
     }
 
 
@@ -446,7 +456,10 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
     """Create zaakafhandelparameters for all 8 zaaktypes (4 CMMN, 4 BPMN)."""
     print("\n=== Creating zaakafhandelparameters ===")
 
-    for zaaktype in zac_testdata.CMMN_ZAAKTYPES:
+    engine_zaaktypes = [("CMMN", zaaktype, _cmmn_body) for zaaktype in zac_testdata.CMMN_ZAAKTYPES] + [
+        ("BPMN", zaaktype, _bpmn_body) for zaaktype in zac_testdata.BPMN_ZAAKTYPES
+    ]
+    for engine, zaaktype, build_body in engine_zaaktypes:
         # GET first: ZAC's PUT uses JPA merge semantics. When a record already exists every
         # nested entity needs its numeric DB id in the request body, otherwise Hibernate raises
         # "detached entity passed to persist". We fetch the existing config and merge the IDs.
@@ -455,36 +468,22 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
             f"{zac_url}/rest/zaakafhandelparameters/{zaaktype['uuid']}",
             headers=zac_client.auth_headers(token),
         )
-        desired = _cmmn_body(zaaktype)
+        desired = build_body(zaaktype)
         if get_status == 200:
             desired = _merge_existing_ids(desired, json.loads(get_body))
 
         t0 = time.monotonic()
         status, body = zac_client.http_request(
             "PUT",
-            f"{zac_url}/rest/zaakafhandelparameters",
+            f"{zac_url}/rest/zaakafhandelparameters/{zaaktype['uuid']}",
             body=desired,
             headers=zac_client.auth_headers(token),
         )
         elapsed = int((time.monotonic() - t0) * 1000)
         ok = "OK" if status == 200 else "FAIL"
-        print(f"  [{ok}] CMMN {zaaktype['description']}: HTTP {status} ({elapsed}ms)")
+        print(f"  [{ok}] {engine} {zaaktype['description']}: HTTP {status} ({elapsed}ms)")
         if status != 200:
             print(f"         Response: {body[:500]}")
-
-    for zaaktype in zac_testdata.BPMN_ZAAKTYPES:
-        t0 = time.monotonic()
-        status, body = zac_client.http_request(
-            "POST",
-            f"{zac_url}/rest/zaaktype-bpmn-configuration",
-            body=_bpmn_body(zaaktype),
-            headers=zac_client.auth_headers(token),
-        )
-        elapsed = int((time.monotonic() - t0) * 1000)
-        ok = "OK" if status == 200 else "FAIL"
-        print(f"  [{ok}] BPMN {zaaktype['description']}: HTTP {status} ({elapsed}ms)")
-        if status != 200:
-            print(f"         Response: {body[:300]}")
 
 
 # ---------------------------------------------------------------------------

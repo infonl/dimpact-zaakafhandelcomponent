@@ -40,4 +40,11 @@ export class ParametersStepProcesModelComponent {
 
   protected readonly displayName = (processDefinition: ProcessDefinition) =>
     processDefinition.naam ?? processDefinition.key;
+
+  protected readonly isSameProcessDefinition = (
+    processDefinition: ProcessDefinition,
+    other?: ProcessDefinition | null,
+  ) =>
+    processDefinition.processEngine === other?.processEngine &&
+    processDefinition.key === other?.key;
 }

@@ -28,7 +28,7 @@ class RestProcessDefinitionConverter @Inject constructor(
 ) {
     fun listProcessDefinitions(): List<RestProcessDefinition> =
         cmmnService.listCaseDefinitions().map { it.toRestProcessDefinition(inclusiefRelaties = true) } +
-            bpmnService.listProcessDefinitions().map { it.toRestProcessDefinition() }
+            bpmnService.listProcessDefinitions().filterNot { it.isSuspended }.map { it.toRestProcessDefinition() }
 
     fun toRestProcessDefinition(processBinding: ZaaktypeProcessBinding, inclusiefRelaties: Boolean) =
         when (processBinding.processEngine) {
