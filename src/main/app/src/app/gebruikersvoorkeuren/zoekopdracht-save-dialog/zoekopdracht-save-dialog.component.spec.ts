@@ -21,6 +21,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { fromPartial } from "../../../test-helpers";
 import { ZoekopdrachtSaveDialogComponent } from "./zoekopdracht-save-dialog.component";
 
 const makeZoekopdracht = (
@@ -34,10 +35,10 @@ const makeZoekopdracht = (
 });
 
 async function setup(zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = []) {
-  const dialogRef = {
+  const dialogRef = fromPartial<MatDialogRef<ZoekopdrachtSaveDialogComponent>>({
     close: jest.fn(),
     disableClose: false,
-  } as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>;
+  });
 
   await TestBed.configureTestingModule({
     imports: [
