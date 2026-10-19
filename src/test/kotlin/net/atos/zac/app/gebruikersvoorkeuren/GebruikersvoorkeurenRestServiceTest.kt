@@ -11,17 +11,25 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
+import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling
+import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht
+import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardId
+import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
+import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht
+import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
 import net.atos.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
 import net.atos.zac.gebruikersvoorkeuren.model.createTabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
+import net.atos.zac.signalering.model.SignaleringType
 
 class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
     val gebruikersvoorkeurenService = mockk<GebruikersvoorkeurenService>()
@@ -82,7 +90,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
 
     context("createOrUpdateZoekopdracht") {
         given("A REST zoekopdracht") {
-            val restZoekopdracht = net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht()
+            val restZoekopdracht = RESTZoekopdracht()
             val fakeZoekopdracht = createZoekopdracht()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every { gebruikersvoorkeurenService.createZoekopdracht(any()) } returns fakeZoekopdracht
@@ -162,6 +170,170 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                 then("GebruikersvoorkeurenService.listDashboardCards is called and list is returned") {
                     verify { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") }
                     result.size shouldBe 1
+                }
+            }
+        }
+    }
+
+    context("setZoekopdrachtActief") {
+        given("A REST zoekopdracht") {
+            val restZoekopdracht = RESTZoekopdracht().apply {
+                id = 7L
+                lijstID = Werklijst.MIJN_TAKEN
+                naam = "fakeName"
+                actief = true
+                json = "{}"
+            }
+            val zoekopdrachtSlot = slot<Zoekopdracht>()
+            every { loggedInUserInstance.get() } returns fakeLoggedInUser
+            every { gebruikersvoorkeurenService.setActief(capture(zoekopdrachtSlot)) } just runs
+
+            `when`("setZoekopdrachtActief is called") {
+                service.setZoekopdrachtActief(restZoekopdracht)
+
+                then("the zoekopdracht of the logged-in user is made active") {
+                    with(zoekopdrachtSlot.captured) {
+                        id shouldBe 7L
+                        lijstID shouldBe Werklijst.MIJN_TAKEN
+                        medewerkerID shouldBe "fakeUserId1"
+                        naam shouldBe "fakeName"
+                        isActief shouldBe true
+                        json shouldBe "{}"
+                    }
+                }
+            }
+        }
+    }
+
+    context("removeZoekopdrachtActief") {
+        given("A werklijst") {
+            val listParametersSlot = slot<ZoekopdrachtListParameters>()
+            every { loggedInUserInstance.get() } returns fakeLoggedInUser
+            every { gebruikersvoorkeurenService.removeActief(capture(listParametersSlot)) } just runs
+
+            `when`("removeZoekopdrachtActief is called with werklijst MIJN_ZAKEN") {
+                service.removeZoekopdrachtActief(Werklijst.MIJN_ZAKEN)
+
+                then("the active zoekopdracht of the logged-in user for that werklijst is removed") {
+                    listParametersSlot.captured.lijstID shouldBe Werklijst.MIJN_ZAKEN
+                    listParametersSlot.captured.medewerkerID shouldBe "fakeUserId1"
+                }
+            }
+        }
+    }
+
+    context("updateAantalItemsPerPagina below the minimum") {
+        given("An aantal below the minimum") {
+            val tooSmall = TabelInstellingen.AANTAL_PER_PAGINA_MIN - 1
+
+            `when`("updateAantalItemsPerPagina is called with too small aantal") {
+                service.updateAantalItemsPerPagina(Werklijst.MIJN_ZAKEN, tooSmall)
+
+                then("GebruikersvoorkeurenService.updateTabelInstellingen is NOT called") {
+                    verify(exactly = 0) { gebruikersvoorkeurenService.updateTabelInstellingen(any()) }
+                }
+            }
+        }
+    }
+
+    context("updateAantalItemsPerPagina at the minimum") {
+        given("An aantal equal to the minimum") {
+            val tabelInstellingenSlot = slot<TabelInstellingen>()
+            every { loggedInUserInstance.get() } returns fakeLoggedInUser
+            every { gebruikersvoorkeurenService.updateTabelInstellingen(capture(tabelInstellingenSlot)) } just runs
+
+            `when`("updateAantalItemsPerPagina is called with the minimum aantal") {
+                service.updateAantalItemsPerPagina(Werklijst.MIJN_TAKEN, TabelInstellingen.AANTAL_PER_PAGINA_MIN)
+
+                then("the tabel instellingen of the logged-in user are updated") {
+                    with(tabelInstellingenSlot.captured) {
+                        aantalPerPagina shouldBe TabelInstellingen.AANTAL_PER_PAGINA_MIN
+                        lijstID shouldBe Werklijst.MIJN_TAKEN
+                        medewerkerID shouldBe "fakeUserId1"
+                    }
+                }
+            }
+        }
+    }
+
+    context("updateDashboardCards") {
+        given("A list of REST dashboard cards") {
+            val restDashboardCardInstelling = RESTDashboardCardInstelling().apply {
+                id = 3L
+                cardId = DashboardCardId.MIJN_ZAKEN
+                signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
+                column = 2
+                row = 1
+            }
+            val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUserId1")
+            val dashboardCardsSlot = slot<List<DashboardCardInstelling>>()
+            every { loggedInUserInstance.get() } returns fakeLoggedInUser
+            every {
+                gebruikersvoorkeurenService.updateDashboardCards("fakeUserId1", capture(dashboardCardsSlot))
+            } just runs
+            every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns listOf(fakeDashboardCard)
+
+            `when`("updateDashboardCards is called") {
+                val result = service.updateDashboardCards(listOf(restDashboardCardInstelling))
+
+                then("the converted cards are stored and the current cards are returned") {
+                    with(dashboardCardsSlot.captured.single()) {
+                        id shouldBe 3L
+                        cardId shouldBe DashboardCardId.MIJN_ZAKEN
+                        signaleringType shouldBe SignaleringType.Type.ZAAK_OP_NAAM
+                        kolom shouldBe 2
+                        volgorde shouldBe 1
+                    }
+                    result.single().cardId shouldBe fakeDashboardCard.cardId
+                }
+            }
+        }
+    }
+
+    context("addDashboardCard") {
+        given("A REST dashboard card") {
+            val restDashboardCardInstelling = RESTDashboardCardInstelling().apply {
+                cardId = DashboardCardId.MIJN_TAKEN
+                column = 1
+                row = 0
+            }
+            val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUserId1")
+            val dashboardCardSlot = slot<DashboardCardInstelling>()
+            every { loggedInUserInstance.get() } returns fakeLoggedInUser
+            every {
+                gebruikersvoorkeurenService.addDashboardCard("fakeUserId1", capture(dashboardCardSlot))
+            } just runs
+            every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns listOf(fakeDashboardCard)
+
+            `when`("addDashboardCard is called") {
+                val result = service.addDashboardCard(restDashboardCardInstelling)
+
+                then("the converted card is added and the current cards are returned") {
+                    dashboardCardSlot.captured.cardId shouldBe DashboardCardId.MIJN_TAKEN
+                    result.single().cardId shouldBe fakeDashboardCard.cardId
+                }
+            }
+        }
+    }
+
+    context("deleteDashboardCard") {
+        given("A REST dashboard card") {
+            val restDashboardCardInstelling = RESTDashboardCardInstelling().apply {
+                cardId = DashboardCardId.MIJN_TAKEN
+            }
+            val dashboardCardSlot = slot<DashboardCardInstelling>()
+            every { loggedInUserInstance.get() } returns fakeLoggedInUser
+            every {
+                gebruikersvoorkeurenService.deleteDashboardCard("fakeUserId1", capture(dashboardCardSlot))
+            } just runs
+            every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns emptyList()
+
+            `when`("deleteDashboardCard is called") {
+                val result = service.deleteDashboardCard(restDashboardCardInstelling)
+
+                then("the converted card is deleted and the remaining cards are returned") {
+                    dashboardCardSlot.captured.cardId shouldBe DashboardCardId.MIJN_TAKEN
+                    result shouldBe emptyList()
                 }
             }
         }
