@@ -298,10 +298,6 @@ export class ZaakViewComponent
         zaak.uuid,
         () => this.invalidatePlanItems(),
       );
-
-      this.utilService.setTitle("title.zaak", {
-        zaak: zaak.identificatie,
-      });
     });
 
     effect(() => {

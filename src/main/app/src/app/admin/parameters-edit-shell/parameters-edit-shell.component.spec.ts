@@ -52,7 +52,6 @@ class StubBpmnComponent {
 describe(ParametersEditShellComponent.name, () => {
   let fixture: ComponentFixture<ParametersEditShellComponent>;
   let component: ParametersEditShellComponent;
-  let utilServiceMock: Pick<UtilService, "setTitle">;
   let routeData$: BehaviorSubject<{ parameters: Record<string, unknown> }>;
 
   function createComponent(parameters: Record<string, unknown>) {
@@ -75,7 +74,6 @@ describe(ParametersEditShellComponent.name, () => {
   }
 
   beforeEach(async () => {
-    utilServiceMock = { setTitle: jest.fn() };
     routeData$ = new BehaviorSubject<{ parameters: Record<string, unknown> }>({
       parameters: {},
     });
@@ -90,7 +88,7 @@ describe(ParametersEditShellComponent.name, () => {
         provideRouter([]),
         {
           provide: UtilService,
-          useValue: utilServiceMock satisfies Pick<UtilService, "setTitle">,
+          useValue: {},
         },
         {
           provide: ConfiguratieService,

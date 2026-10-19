@@ -6,10 +6,10 @@
 import { Component, inject } from "@angular/core";
 import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatSidenavModule } from "@angular/material/sidenav";
-import { Title } from "@angular/platform-browser";
 import { RouterOutlet } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
+import { BreadcrumbsComponent } from "./core/breadcrumbs/breadcrumbs.component";
 import { LoadingComponent } from "./core/loading/loading.component";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { IdentityService } from "./identity/identity.service";
@@ -23,6 +23,7 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
     MatProgressBar,
     MatSidenavModule,
     ToolbarComponent,
+    BreadcrumbsComponent,
     ZoekComponent,
     LoadingComponent,
     RouterOutlet,
@@ -32,10 +33,8 @@ export class AppComponent {
   private readonly queryClient = inject(QueryClient);
   private readonly identityService = inject(IdentityService);
   private readonly translateService = inject(TranslateService);
-  private readonly titleService = inject(Title);
 
   constructor() {
-    this.titleService.setTitle("Zaakafhandelcomponent");
     this.translateService.addLangs(["nl", "en"]);
     this.translateService.setFallbackLang("nl");
     const browserLanguage = this.translateService.getBrowserLang();

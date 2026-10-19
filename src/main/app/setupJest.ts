@@ -140,10 +140,16 @@ if (typeof documentImplementation?._version === "number") {
   };
 }
 
-// jsdom does not implement the Navigation API; a spec sets `canGoBack` through `Object.assign`
+// jsdom does not implement the Navigation API; a spec sets what it needs through `Object.assign`
+const navigationStandIn = () => ({
+  canGoBack: false,
+  currentEntry: null,
+  entries: () => [],
+  traverseTo: jest.fn(),
+});
 Object.defineProperty(window, "navigation", {
   writable: true,
-  value: Object.assign(new EventTarget(), { canGoBack: false }),
+  value: Object.assign(new EventTarget(), navigationStandIn()),
 });
 
 Object.defineProperty(globalThis, "crypto", {
@@ -167,7 +173,7 @@ export const mockMutationFn = (timeout = MUTATION_TIMEOUT) =>
 
 // A spec that needs other values for these, provides its own; those override these.
 beforeEach(() => {
-  Object.assign(window.navigation, { canGoBack: false });
+  Object.assign(window.navigation, navigationStandIn());
   TestBed.configureTestingModule({
     providers: [
       provideHttpClient(),

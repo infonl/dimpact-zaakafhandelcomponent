@@ -40,12 +40,12 @@ const koppeling = fromPartial<GeneratedType<"RESTMailtemplateKoppeling">>({
 
 describe(MailtemplatesComponent.name, () => {
   let httpTestingController: HttpTestingController;
-  let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
+  let utilServiceMock: Pick<UtilService, "openSnackbar">;
 
   const user = userEvent.setup();
 
   async function renderMailtemplates() {
-    utilServiceMock = { setTitle: jest.fn(), openSnackbar: jest.fn() };
+    utilServiceMock = { openSnackbar: jest.fn() };
 
     const rendered = await render(MailtemplatesComponent, {
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
@@ -97,15 +97,6 @@ describe(MailtemplatesComponent.name, () => {
       .map((row) => within(row).queryAllByRole("cell")[1]?.textContent?.trim())
       .filter(Boolean);
   }
-
-  it("sets the title", async () => {
-    await setup();
-
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
-      "title.mailtemplates",
-      undefined,
-    );
-  });
 
   it("shows a row for each mailtemplate", async () => {
     await setup({
