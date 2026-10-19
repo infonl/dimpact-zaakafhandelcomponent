@@ -129,6 +129,19 @@ export class ZakenCardComponent
     effect(() => {
       this.dataSource.data = this.zakenQuery.data()?.resultaten ?? [];
     });
+
+    effect(() => {
+      const totaal = this.zakenQuery.data()?.totaal;
+      if (totaal == null) return;
+      const lastPageNumber = Math.max(0, Math.ceil(totaal / this.pageSize) - 1);
+      if (this.pageNumber() > lastPageNumber) {
+        void this.queryClient.invalidateQueries({
+          queryKey: ["/rest/signaleringen/zaken/{type}"],
+          refetchType: "none",
+        });
+        this.pageNumber.set(lastPageNumber);
+      }
+    });
   }
 
   override ngAfterViewInit(): void {
