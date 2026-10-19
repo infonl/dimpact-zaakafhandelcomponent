@@ -141,6 +141,11 @@
                 {{ row[column] | empty }}
               }
               @if (column === "zaakIdentificatie") {
+                <zac-zaakspecifiek-geautoriseerd-icon
+                  [isZaakspecifiekGeautoriseerd]="
+                    row.isZaakspecifiekGeautoriseerd
+                  "
+                />
                 {{ row[column] | empty }}
               }
               @if (column === "relatieType") {

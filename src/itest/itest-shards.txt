@@ -19,6 +19,7 @@ nl.info.zac.itest.bpmn.BpmnDelegateAuthorisationTest
 nl.info.zac.itest.bpmn.BpmnSendConfirmationEmailRestServiceTest
 nl.info.zac.itest.bpmn.BpmnUserGroupAssignTest
 nl.info.zac.itest.DetachedDocumentRestServiceTest
+nl.info.zac.itest.DetachedDocumentRestServiceZaakspecifiekAutorisatieTest
 nl.info.zac.itest.EnkelvoudigInformatieObjectRestServiceTest
 nl.info.zac.itest.EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest
 nl.info.zac.itest.InboxDocumentRestServiceTest
@@ -56,6 +57,7 @@ nl.info.zac.itest.bpmn.BpmnZaakRestServiceTest
 nl.info.zac.itest.bpmn.BpmnZaakspecifiekAutorisatieTest
 nl.info.zac.itest.CsvRestServiceTest
 nl.info.zac.itest.DocumentCreationRestServiceTest
+nl.info.zac.itest.GebruikersvoorkeurenRestServiceTest
 nl.info.zac.itest.HealthCheckRestServiceTest
 nl.info.zac.itest.IndexingRestServiceTest
 nl.info.zac.itest.LargeDocumentUploadTest

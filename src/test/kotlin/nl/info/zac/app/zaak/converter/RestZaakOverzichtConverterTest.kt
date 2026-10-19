@@ -20,6 +20,7 @@ import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 
 class RestZaakOverzichtConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -30,6 +31,7 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
     val openstaandeTakenConverter = mockk<RestOpenstaandeTakenConverter>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val restZaakOverzichtConverter = RestZaakOverzichtConverter(
         ztcClientService,
         zgwApiService,
@@ -38,7 +40,8 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         userConverter,
         openstaandeTakenConverter,
         policyService,
-        zrcClientService
+        zrcClientService,
+        zaakspecifiekeAutorisatieService
     )
 
     afterEach {
@@ -51,8 +54,14 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every {
-            policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            policyService.readZaakRechten(
+                zaak = zaak,
+                zaaktype = zaakType,
+                loggedInUser = loggedInUser,
+                zaakAutorisatieGegevens = any()
+            )
         } returns createZaakRechten()
 
         `when`("converted to dashboard version of RestZaakOverzicht") {

@@ -27,6 +27,10 @@ data class RestDocumentZoekObject(
     val zaakIdentificatie: String? = null,
     val zaakUuid: String? = null,
     val zaakRelatie: String? = null,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    val isZaakspecifiekGeautoriseerd: Boolean = false,
+
     val creatiedatum: LocalDate? = null,
     val registratiedatum: LocalDate? = null,
     val ontvangstdatum: LocalDate? = null,
@@ -67,6 +71,7 @@ fun DocumentZoekObject.toRestDocumentZoekObject(documentRechten: DocumentRechten
     zaakIdentificatie = this@toRestDocumentZoekObject.zaakIdentificatie,
     zaakUuid = this@toRestDocumentZoekObject.zaakUuid,
     zaakRelatie = this@toRestDocumentZoekObject.zaakRelatie,
+    isZaakspecifiekGeautoriseerd = this@toRestDocumentZoekObject.isZaakspecifiekGeautoriseerd,
     creatiedatum = this@toRestDocumentZoekObject.creatiedatum?.let(::convertToLocalDate),
     registratiedatum = this@toRestDocumentZoekObject.registratiedatum?.let(::convertToLocalDate),
     ontvangstdatum = this@toRestDocumentZoekObject.ontvangstdatum?.let(::convertToLocalDate),

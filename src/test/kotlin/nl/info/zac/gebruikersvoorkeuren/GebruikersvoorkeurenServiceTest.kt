@@ -2,13 +2,11 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.gebruikersvoorkeuren
+package nl.info.zac.gebruikersvoorkeuren
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.optional.shouldBeEmpty
-import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -37,6 +35,8 @@ import net.atos.zac.gebruikersvoorkeuren.model.createTabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.gebruikersvoorkeuren.exception.ZoekopdrachtWithSameNameAlreadyExistsException
 import nl.info.zac.signalering.SignaleringService
 
 class GebruikersvoorkeurenServiceTest : BehaviorSpec({
@@ -149,10 +149,16 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { zoekopdrachtTypedQuery.resultList } returns listOf(createZoekopdracht())
 
             `when`("the create zoekopdracht function is called") {
-                then("it should throw a RuntimeException") {
-                    shouldThrow<RuntimeException> {
+                val zoekopdrachtWithSameNameAlreadyExistsException =
+                    shouldThrow<ZoekopdrachtWithSameNameAlreadyExistsException> {
                         gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
                     }
+
+                then("it should throw an exception with the error code for the frontend that names the zoekopdracht") {
+                    zoekopdrachtWithSameNameAlreadyExistsException.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZOEKOPDRACHT_WITH_SAME_NAME_ALREADY_EXISTS
+                    zoekopdrachtWithSameNameAlreadyExistsException.message shouldBe "Er bestaat al een zoekopdracht met naam " +
+                        "'${zoekopdracht.naam}' en lijst '${zoekopdracht.lijstID}' en medewerker: '${zoekopdracht.medewerkerID}'"
                 }
             }
         }
@@ -167,8 +173,8 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             `when`("findZoekopdracht is called with that ID") {
                 val result = gebruikersvoorkeurenService.findZoekopdracht(zoekopdracht.id!!)
 
-                then("it should return an Optional containing the zoekopdracht") {
-                    result.shouldBePresent { it shouldBe zoekopdracht }
+                then("it should return the zoekopdracht") {
+                    result shouldBe zoekopdracht
                 }
             }
         }
@@ -181,8 +187,8 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             `when`("findZoekopdracht is called with that ID") {
                 val result = gebruikersvoorkeurenService.findZoekopdracht(id)
 
-                then("it should return an empty Optional") {
-                    result.shouldBeEmpty()
+                then("it should return null") {
+                    result shouldBe null
                 }
             }
         }
@@ -196,7 +202,7 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { entityManager.remove(zoekopdracht) } just Runs
 
             `when`("deleteZoekopdracht is called with that ID") {
-                gebruikersvoorkeurenService.deleteZoekopdracht(zoekopdracht.id)
+                gebruikersvoorkeurenService.deleteZoekopdracht(zoekopdracht.id!!)
 
                 then("it should remove the zoekopdracht") {
                     verify(exactly = 1) { entityManager.remove(zoekopdracht) }
@@ -238,7 +244,47 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         }
     }
 
+    context("Listing zoekopdrachten without filters") {
+        given("List parameters without a lijst and with a blank medewerker") {
+            val zoekopdracht = createZoekopdracht(id = 1L)
+
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(Zoekopdracht::class.java) } returns zoekopdrachtCriteriaQuery
+            every { zoekopdrachtCriteriaQuery.from(Zoekopdracht::class.java) } returns zoekopdrachtRoot
+            every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+            every { entityManager.createQuery(zoekopdrachtCriteriaQuery) } returns zoekopdrachtTypedQuery
+            every { zoekopdrachtTypedQuery.resultList } returns listOf(zoekopdracht)
+
+            `when`("listZoekopdrachten is called") {
+                val result = gebruikersvoorkeurenService.listZoekopdrachten(ZoekopdrachtListParameters(null, " "))
+
+                then("it should not filter on lijst or medewerker") {
+                    result shouldBe listOf(zoekopdracht)
+                    verify(exactly = 0) { criteriaBuilder.equal(any(), any<Any>()) }
+                }
+            }
+        }
+    }
+
     context("Setting the active zoekopdracht") {
+        given("A list of zoekopdrachten where the target is already the active one") {
+            val targetZoekopdracht = createZoekopdracht(id = 1L, actief = true)
+            val inactiveZoekopdracht = createZoekopdracht(id = 2L, actief = false)
+
+            setupZoekopdrachtCriteriaChain()
+            every { zoekopdrachtTypedQuery.resultList } returns listOf(targetZoekopdracht, inactiveZoekopdracht)
+
+            `when`("setActief is called for the target zoekopdracht") {
+                gebruikersvoorkeurenService.setActief(targetZoekopdracht)
+
+                then("nothing changes, so no zoekopdracht is merged") {
+                    targetZoekopdracht.isActief shouldBe true
+                    inactiveZoekopdracht.isActief shouldBe false
+                    verify(exactly = 0) { entityManager.merge(any<Zoekopdracht>()) }
+                }
+            }
+        }
+
         given("A list of zoekopdrachten where one is currently active") {
             val targetZoekopdracht = createZoekopdracht(id = 2L, actief = false)
             val activeZoekopdracht = createZoekopdracht(id = 1L, actief = true)

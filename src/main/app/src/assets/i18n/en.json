@@ -874,6 +874,7 @@
   "msg.error.system.reference.table.system.values.cannot.be.changed": "The system values of a system reference table cannot be changed.",
   "msg.error.reference.table.is.in.use.by.zaaktype-cmmn-configuration": "The reference table is in use by one or more case handling parameters and cannot be deleted.",
   "msg.error.reference.table.with.same.code.already.exists": "A reference table with this code already exists. Please use a unique code.",
+  "msg.error.zoekopdracht.with.same.name.already.exists": "A saved search query with this name already exists. Please choose a different name.",
   "msg.error.zrc.client.exception": "Unfortunately a technical error has occurred. No zaken could be retrieved.",
   "msg.error.ztc.client.exception": "Unfortunately a technical error has occurred. No zaaktypes could be retrieved.",
   "msg.error.catalogus.not.configured": "Unfortunately a technical error has occurred. The configured zaaktypecatalogus could not be found.",

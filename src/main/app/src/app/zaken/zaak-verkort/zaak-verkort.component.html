@@ -7,7 +7,11 @@
   <mat-card-header>
     <mat-card-title-group>
       <mat-card-title
-        >{{ "zaak" | translate }} {{ zaak().identificatie }}</mat-card-title
+        >{{ "zaak" | translate }}
+        <zac-zaakspecifiek-geautoriseerd-icon
+          [isZaakspecifiekGeautoriseerd]="zaak().isZaakspecifiekGeautoriseerd"
+        />
+        {{ zaak().identificatie }}</mat-card-title
       >
       <mat-card-subtitle>{{ zaak().zaaktype.omschrijving }}</mat-card-subtitle>
       <a

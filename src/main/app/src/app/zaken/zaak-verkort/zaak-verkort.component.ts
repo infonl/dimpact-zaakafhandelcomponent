@@ -15,6 +15,7 @@ import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
 
 @Component({
   selector: "zac-zaak-verkort",
@@ -22,6 +23,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   styleUrls: ["./zaak-verkort.component.less"],
   standalone: true,
   imports: [
+    ZaakspecifiekGeautoriseerdIconComponent,
     MatCardModule,
     MatIconModule,
     MatIconAnchor,
