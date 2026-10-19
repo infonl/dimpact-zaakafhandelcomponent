@@ -71,10 +71,12 @@ import nl.info.zac.signalering.model.InvalidSignalering
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.task.api.TaskInfo
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
+import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Handler
 import java.util.logging.Level
 import java.util.logging.LogRecord
@@ -95,6 +97,7 @@ class SignaleringServiceTest : BehaviorSpec({
     val criteriaDeleteSignalering = mockk<CriteriaDelete<Signalering>>()
     val rootSignalering = mockk<Root<Signalering>>()
     val pathTijdstip = mockk<Path<Long>>()
+    val pathSignaleringTijdstip = mockk<Path<ZonedDateTime>>()
     val pathTarget = mockk<Path<Any>>()
     val query = mockk<Query>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -105,6 +108,7 @@ class SignaleringServiceTest : BehaviorSpec({
     val searchService = mockk<SearchService>()
     val zgwApiService = mockk<ZgwApiService>()
     val policyService = mockk<PolicyService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val signaleringService = SignaleringService(
         entityManager = entityManager,
         drcClientService = drcClientService,
@@ -119,6 +123,7 @@ class SignaleringServiceTest : BehaviorSpec({
         searchService = searchService,
         zgwApiService = zgwApiService,
         policyService = policyService,
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
         dispatcher = Dispatchers.IO
     )
 
@@ -792,8 +797,19 @@ class SignaleringServiceTest : BehaviorSpec({
             every { pathTarget.get<Any>("id") } returns pathTarget
             every { pathTarget.`in`(any<Collection<*>>()) } returns predicate
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createBehandelaarRol("fakeUserB")
+            val zaakLock = ReentrantLock()
+            var isZaakLockHeldWhileReadingBehandelaar = false
+            var isZaakLockHeldWhileDeleting = false
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns zaakLock
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } answers {
+                isZaakLockHeldWhileReadingBehandelaar = zaakLock.isHeldByCurrentThread
+                createBehandelaarRol("fakeUserB")
+            }
             stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L), deletedCount = 1)
+            every { query.executeUpdate() } answers {
+                isZaakLockHeldWhileDeleting = zaakLock.isHeldByCurrentThread
+                1
+            }
             every { eventingService.send(any<ScreenEvent>()) } returns Unit
 
             `when`("the zaak signaleringen of former behandelaren are deleted") {
@@ -802,6 +818,16 @@ class SignaleringServiceTest : BehaviorSpec({
                 then("only the signalering of A is deleted") {
                     deletedCount shouldBe 1
                     verify(exactly = 1) { pathId.`in`(listOf(1L)) }
+                }
+                and(
+                    """
+                    the behandelaar is read and the signaleringen are deleted under the zaak lock that assigning
+                    the zaak takes, so the lookup never sees the zaak between removing A and adding B as behandelaar
+                    """
+                ) {
+                    isZaakLockHeldWhileReadingBehandelaar shouldBe true
+                    isZaakLockHeldWhileDeleting shouldBe true
+                    zaakLock.isLocked shouldBe false
                 }
             }
         }
@@ -818,6 +844,7 @@ class SignaleringServiceTest : BehaviorSpec({
             every { pathTarget.get<Any>("id") } returns pathTarget
             every { pathTarget.`in`(any<Collection<*>>()) } returns predicate
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L), deletedCount = 1)
             every { eventingService.send(any<ScreenEvent>()) } returns Unit
@@ -965,31 +992,57 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
+    fun stubDeleteUnchangedSignaleringen(signaleringen: List<Signalering>, deletedCount: Int) {
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createCriteriaDelete(Signalering::class.java) } returns criteriaDeleteSignalering
+        every { criteriaDeleteSignalering.from(Signalering::class.java) } returns rootSignalering
+        every { rootSignalering.get<Long>("id") } returns pathId
+        every { rootSignalering.get<ZonedDateTime>("tijdstip") } returns pathSignaleringTijdstip
+        signaleringen.map { it.id to it.tijdstip }.forEach { (signaleringId, tijdstip) ->
+            every { criteriaBuilder.equal(pathId, signaleringId) } returns predicate
+            every { criteriaBuilder.equal(pathSignaleringTijdstip, tijdstip) } returns predicate
+        }
+        every { criteriaBuilder.and(predicate, predicate) } returns predicate
+        every { criteriaBuilder.or(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaDeleteSignalering.where(predicate) } returns criteriaDeleteSignalering
+        every { entityManager.createQuery(criteriaDeleteSignalering) } returns query
+        every { query.executeUpdate() } returns deletedCount
+    }
+
     given("two invalid signaleringen with the same target and type") {
         val zaak = createZaak()
         val warnings = captureSignaleringServiceWarnings()
         val screenEvents = mutableListOf<ScreenEvent>()
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L, 2L), deletedCount = 2)
+        val signaleringen = listOf(
+            createZaakSignaleringWithId(signaleringId = 1L, zaak = zaak),
+            createZaakSignaleringWithId(signaleringId = 2L, zaak = zaak)
+        )
+        stubDeleteUnchangedSignaleringen(signaleringen = signaleringen, deletedCount = 2)
         every { eventingService.send(capture(screenEvents)) } returns Unit
 
         `when`("the invalid signaleringen are deleted") {
             val deletedCount = signaleringService.deleteInvalidSignaleringen(
                 listOf(
                     InvalidSignalering(
-                        signalering = createZaakSignaleringWithId(signaleringId = 1L, zaak = zaak),
+                        signalering = signaleringen[0],
                         reason = "the user is not the behandelaar of the zaak"
                     ),
                     InvalidSignalering(
-                        signalering = createZaakSignaleringWithId(signaleringId = 2L, zaak = zaak),
+                        signalering = signaleringen[1],
                         reason = "the user has no read rights on the zaak"
                     )
                 )
             )
 
-            then("both are deleted in one bulk delete") {
+            then("both are deleted in one bulk delete, each only when it still has the tijdstip it was checked with") {
                 deletedCount shouldBe 2
-                verify(exactly = 1) { pathId.`in`(listOf(1L, 2L)) }
+                signaleringen.map { it.id to it.tijdstip }.forEach { (signaleringId, tijdstip) ->
+                    verify(exactly = 1) {
+                        criteriaBuilder.equal(pathId, signaleringId)
+                        criteriaBuilder.equal(pathSignaleringTijdstip, tijdstip)
+                    }
+                }
+                verify(exactly = 1) { criteriaDeleteSignalering.where(predicate) }
             }
             and("a SIGNALERINGEN screen event is sent, so the dashboard card loads the page again") {
                 screenEvents.map { it.objectType } shouldBe listOf(ScreenEventType.SIGNALERINGEN)
@@ -1001,6 +1054,38 @@ class SignaleringServiceTest : BehaviorSpec({
                     "Deleting signalering with id '2' of type 'ZAAK_OP_NAAM' for ZAAK '${zaak.uuid}', because " +
                         "the user has no read rights on the zaak."
                 )
+            }
+        }
+    }
+
+    given(
+        """
+        an invalid signalering that was stored again with a new tijdstip after the listing checked it,
+        because the taak was assigned back to the user
+        """
+    ) {
+        val checkedTijdstip = ZonedDateTime.now().minusMinutes(5)
+        val checkedSignalering = spyk(
+            createSignalering(targetUser = createUser(id = "fakeUserA"), tijdstip = checkedTijdstip)
+        ) { every { id } returns 1L }
+        stubDeleteUnchangedSignaleringen(signaleringen = listOf(checkedSignalering), deletedCount = 0)
+
+        `when`("the invalid signalering is deleted") {
+            val deletedCount = signaleringService.deleteInvalidSignaleringen(
+                listOf(
+                    InvalidSignalering(
+                        signalering = checkedSignalering,
+                        reason = "the user is not the assignee of the taak"
+                    )
+                )
+            )
+
+            then("the delete only matches the tijdstip that was checked, so the stored-again signalering is kept") {
+                deletedCount shouldBe 0
+                verify(exactly = 1) { criteriaBuilder.equal(pathSignaleringTijdstip, checkedTijdstip) }
+            }
+            and("no screen event is sent, because nothing was deleted") {
+                verify(exactly = 0) { eventingService.send(any<ScreenEvent>()) }
             }
         }
     }

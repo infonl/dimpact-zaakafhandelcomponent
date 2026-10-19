@@ -57,11 +57,16 @@ import nl.info.zac.signalering.model.InvalidSignalering
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.Predicate
+import jakarta.persistence.criteria.Root
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
 import java.util.logging.Logger
+import kotlin.concurrent.withLock
 
 @ApplicationScoped
 @Transactional(SUPPORTS)
@@ -82,6 +87,7 @@ class SignaleringService @Inject constructor(
     private val searchService: SearchService,
     private val zgwApiService: ZgwApiService,
     private val policyService: PolicyService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
     dispatcher: CoroutineDispatcher
 ) {
     companion object {
@@ -227,20 +233,29 @@ class SignaleringService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun deleteZaakSignaleringenOfFormerBehandelaren(zaakUuid: UUID) =
-        deleteUserSignaleringenExceptFor(
-            subjecttype = SignaleringSubject.ZAAK,
-            subject = zaakUuid.toString(),
-            types = setOf(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD),
-            keptUserId = zrcClientService.readZaak(zaakUuid)
-                .let(zgwApiService::findBehandelaarMedewerkerRoleForZaak)
-                ?.identificatienummer
-        )
+        // a reassignment briefly leaves the zaak without behandelaar, so look it up under the lock of the assignment
+        zaakspecifiekeAutorisatieService.lockForZaak(zaakUuid).withLock {
+            deleteUserSignaleringenExceptFor(
+                subjecttype = SignaleringSubject.ZAAK,
+                subject = zaakUuid.toString(),
+                types = setOf(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD),
+                keptUserId = zrcClientService.readZaak(zaakUuid)
+                    .let(zgwApiService::findBehandelaarMedewerkerRoleForZaak)
+                    ?.identificatienummer
+            )
+        }
 
-    private fun deleteSignaleringen(signaleringen: List<Signalering>): Int {
+    private fun deleteSignaleringen(
+        signaleringen: List<Signalering>,
+        deletePredicate: (CriteriaBuilder, Root<Signalering>) -> Predicate = { _, root ->
+            root.get<Long>("id").`in`(signaleringen.map { it.id })
+        }
+    ): Int {
         if (signaleringen.isEmpty()) return 0
-        val query = entityManager.criteriaBuilder.createCriteriaDelete(Signalering::class.java)
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val query = criteriaBuilder.createCriteriaDelete(Signalering::class.java)
         val root = query.from(Signalering::class.java)
-        query.where(root.get<Long>("id").`in`(signaleringen.map { it.id }))
+        query.where(deletePredicate(criteriaBuilder, root))
         // a bulk delete, because removing the entities one by one fails when a concurrent request already deleted them
         val deletedCount = entityManager.createQuery(query).executeUpdate()
         if (deletedCount > 0) {
@@ -534,6 +549,7 @@ class SignaleringService @Inject constructor(
      * Deletes signaleringen that a listing found invalid, and logs a warning for each.
      */
     @Transactional(REQUIRED)
+    @Suppress("SpreadOperator")
     fun deleteInvalidSignaleringen(invalidSignaleringen: List<InvalidSignalering>): Int {
         invalidSignaleringen.forEach {
             LOG.warning {
@@ -541,7 +557,22 @@ class SignaleringService @Inject constructor(
                     "${it.signalering.subjecttype} '${it.signalering.subject}', because ${it.reason}."
             }
         }
-        return invalidSignaleringen.map { it.signalering }.let(::deleteSignaleringen)
+        val signaleringen = invalidSignaleringen.map { it.signalering }
+        return deleteSignaleringen(signaleringen) { criteriaBuilder, root ->
+            signaleringen.map {
+                criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get<Long>("id"), it.id),
+                    criteriaBuilder.equal(root.get<ZonedDateTime>("tijdstip"), it.tijdstip)
+                )
+            }.let { criteriaBuilder.or(*it.toTypedArray()) }
+        }.also { deletedCount ->
+            if (deletedCount < signaleringen.size) {
+                LOG.info {
+                    "Kept ${signaleringen.size - deletedCount} invalid signaleringen, because they were stored " +
+                        "again or deleted after they were checked."
+                }
+            }
+        }
     }
 
     private fun <T : Any> List<CheckedSignalering<T>>.toCheckedSignaleringen() =
