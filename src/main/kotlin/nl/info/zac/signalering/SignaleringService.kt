@@ -544,7 +544,7 @@ class SignaleringService @Inject constructor(
         return invalidSignaleringen.map { it.signalering }.let(::deleteSignaleringen)
     }
 
-    private fun <T> List<CheckedSignalering<T>>.toCheckedSignaleringen() =
+    private fun <T : Any> List<CheckedSignalering<T>>.toCheckedSignaleringen() =
         CheckedSignaleringen(
             valid = mapNotNull { it.result },
             invalid = mapNotNull { checkedSignalering ->
@@ -552,7 +552,7 @@ class SignaleringService @Inject constructor(
             }
         )
 
-    private fun <T, R> CheckedSignaleringen<T>.mapValid(transform: (List<T>) -> List<R>) =
+    private fun <T : Any, R : Any> CheckedSignaleringen<T>.mapValid(transform: (List<T>) -> List<R>) =
         CheckedSignaleringen(valid = transform(valid), invalid = invalid)
 
     private fun <T> List<T>.slicePage(page: Int, rows: Int): List<T> {
@@ -666,9 +666,3 @@ class SignaleringService @Inject constructor(
     private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
         entityManager.find(SignaleringType::class.java, signaleringsType.toString())
 }
-
-private class CheckedSignalering<T>(
-    val signalering: Signalering,
-    val result: T? = null,
-    val invalidReason: String? = null
-)

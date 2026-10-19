@@ -36,6 +36,17 @@ Write a two-letter acronym in capitals (`IOStream`) and capitalize only the firs
 `toRestZaak`). detekt rejects all-caps acronyms of three or more letters in class names only; it does not see a wrongly
 cased two-letter acronym, nor names of nested classes, functions and properties.
 
+## Put each class in its own file
+Declare each top-level class, interface or object in its own file, named after it, also when it is small or only
+used by one other class. A helper class that was `private` in the file of its user becomes `internal` in its own file.
+```kotlin
+// Before: CheckedSignaleringen.kt
+class CheckedSignaleringen<T : Any>(val valid: List<T>, val invalid: List<InvalidSignalering>)
+class InvalidSignalering(val signalering: Signalering, val reason: String)
+// After: CheckedSignaleringen.kt and InvalidSignalering.kt, each with one class
+```
+Top-level functions, such as extension functions and test fixtures, may share a file.
+
 ## Prefer default parameter values over function overloads
 Following the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html#default-parameter-values),
 declare one function with a default parameter value instead of an overload that only fills in an argument.
