@@ -56,6 +56,7 @@ nl.info.zac.itest.bpmn.BpmnZaakRestServiceTest
 nl.info.zac.itest.bpmn.BpmnZaakspecifiekAutorisatieTest
 nl.info.zac.itest.CsvRestServiceTest
 nl.info.zac.itest.DocumentCreationRestServiceTest
+nl.info.zac.itest.GebruikersvoorkeurenRestServiceTest
 nl.info.zac.itest.HealthCheckRestServiceTest
 nl.info.zac.itest.IndexingRestServiceTest
 nl.info.zac.itest.LargeDocumentUploadTest
