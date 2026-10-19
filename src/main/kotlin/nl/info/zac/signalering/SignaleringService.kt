@@ -466,7 +466,9 @@ class SignaleringService @Inject constructor(
                 "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
                     "of type '$signaleringsType' ..."
             }
-            listValidZaakOverzichtenPage(searchParameters, pageParameters, loggedInUser)
+            listSignaleringen(searchParameters, pageParameters)
+                .toCheckedZaakOverzichten(loggedInUser)
+                .deleteInvalidAndListValid()
         } else {
             LOG.fine {
                 "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
@@ -480,21 +482,6 @@ class SignaleringService @Inject constructor(
         }.also {
             LOG.fine {
                 "Successfully listed page ${pageParameters.page} for zaken signaleringen of type '$signaleringsType'."
-            }
-        }
-    }
-
-    // Deleting invalid signaleringen moves later ones into the page, so the page is read again until it is valid.
-    private fun listValidZaakOverzichtenPage(
-        searchParameters: SignaleringZoekParameters,
-        pageParameters: RestPageParameters,
-        loggedInUser: LoggedInUser
-    ): List<RestZaakOverzicht> {
-        while (true) {
-            val checkedSignaleringen = listSignaleringen(searchParameters, pageParameters)
-                .toCheckedZaakOverzichten(loggedInUser)
-            if (deleteInvalidSignaleringen(checkedSignaleringen) == 0) {
-                return checkedSignaleringen.mapNotNull { it.result }
             }
         }
     }
@@ -540,19 +527,15 @@ class SignaleringService @Inject constructor(
     }
 
     private fun <T> List<CheckedSignalering<T>>.deleteInvalidAndListValid(): List<T> {
-        deleteInvalidSignaleringen(this)
-        return mapNotNull { it.result }
-    }
-
-    private fun deleteInvalidSignaleringen(checkedSignaleringen: List<CheckedSignalering<*>>): Int {
-        val invalidSignaleringen = checkedSignaleringen.filter { it.result == null }
+        val invalidSignaleringen = filter { it.result == null }
         invalidSignaleringen.forEach {
             LOG.warning {
                 "Deleting signalering with id '${it.signalering.id}' of type '${it.signalering.type.type}' for " +
                     "${it.signalering.subjecttype} '${it.signalering.subject}', because ${it.invalidReason}."
             }
         }
-        return invalidSignaleringen.map { it.signalering }.let(::deleteSignaleringen)
+        invalidSignaleringen.map { it.signalering }.let(::deleteSignaleringen)
+        return mapNotNull { it.result }
     }
 
     private fun <T> List<T>.slicePage(page: Int, rows: Int): List<T> {

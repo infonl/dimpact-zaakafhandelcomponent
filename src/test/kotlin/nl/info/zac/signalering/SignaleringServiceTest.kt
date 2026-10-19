@@ -38,6 +38,7 @@ import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEvent
+import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
@@ -832,41 +833,27 @@ class SignaleringServiceTest : BehaviorSpec({
     }
 
     context("Listing zaken signaleringen that are no longer valid") {
-        given(
-            """
-            a first page with a signalering of a zaak that now has another behandelaar and one of a valid zaak,
-            followed by a further valid signalering
-            """
-        ) {
+        given("a page with a signalering of a zaak that now has another behandelaar and one of a valid zaak") {
             val loggedInUser = createLoggedInUser(id = "fakeLoggedInUserName")
             val reassignedZaak = createZaak()
             val zaak = createZaak()
-            val nextZaak = createZaak()
             val overzicht = createRESTZaakOverzicht()
-            val nextOverzicht = createRESTZaakOverzicht()
             val staleSignalering = createZaakSignaleringWithId(signaleringId = 1L, zaak = reassignedZaak)
-            val signalering = createZaakSignalering(zaak = zaak)
-            val nextSignalering = createZaakSignalering(zaak = nextZaak)
             val warnings = captureSignaleringServiceWarnings()
+            val screenEvents = mutableListOf<ScreenEvent>()
             stubUserSignaleringenQuery(loggedInUser, SignaleringType.Type.ZAAK_OP_NAAM, SignaleringSubject.ZAAK)
             every { typedQuery.setFirstResult(0) } returns typedQuery
             every { typedQuery.setMaxResults(2) } returns typedQuery
-            every { typedQuery.resultList } returnsMany listOf(
-                listOf(staleSignalering, signalering),
-                listOf(signalering, nextSignalering)
-            )
+            every { typedQuery.resultList } returns listOf(staleSignalering, createZaakSignalering(zaak = zaak))
             every { zrcClientService.readZaak(reassignedZaak.uuid) } returns reassignedZaak
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zrcClientService.readZaak(nextZaak.uuid) } returns nextZaak
             every {
                 zgwApiService.findBehandelaarMedewerkerRoleForZaak(reassignedZaak)
             } returns createBehandelaarRol("fakeOtherUserName")
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createBehandelaarRol(loggedInUser.id)
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(nextZaak) } returns createBehandelaarRol(loggedInUser.id)
             every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser) } returns overzicht
-            every { restZaakOverzichtConverter.convertForDisplayIfReadable(nextZaak, loggedInUser) } returns nextOverzicht
             stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L), deletedCount = 1)
-            every { eventingService.send(any<ScreenEvent>()) } returns Unit
+            every { eventingService.send(capture(screenEvents)) } returns Unit
 
             `when`("the first page of two zaken is listed") {
                 val result = signaleringService.listZakenSignaleringenPage(
@@ -880,10 +867,13 @@ class SignaleringServiceTest : BehaviorSpec({
                     loggedInUser
                 )
 
-                then("the stale signalering is deleted and the page is filled up with the next valid zaak") {
-                    result shouldBe listOf(overzicht, nextOverzicht)
+                then("only the valid zaak is listed, after one page query, and the stale signalering is deleted") {
+                    result shouldBe listOf(overzicht)
+                    verify(exactly = 1) { typedQuery.resultList }
                     verify(exactly = 1) { pathId.`in`(listOf(1L)) }
-                    verify(exactly = 2) { typedQuery.resultList }
+                }
+                and("a SIGNALERINGEN screen event is sent, so the dashboard card loads the page again") {
+                    screenEvents.map { it.objectType } shouldBe listOf(ScreenEventType.SIGNALERINGEN)
                 }
                 and("a warning names the signalering and the reason, but not the user") {
                     warnings.size shouldBe 1
