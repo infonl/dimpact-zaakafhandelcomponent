@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :13-10-2026 <br>
+> Datum :19-10-2026 <br>
 > Versie :   1.10.5 <br>
-> Verandering : Zaakspecifieke autorisatie slot icoon plekken <br>
+> Verandering : Slot-icoon bij zaakspecifiek geautoriseerde zaken in alle lijsten <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -556,10 +556,11 @@ Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. 
 
 ![Zaakspecifiek geautoriseerde zaak](./images/zaak-zaakspecifiek-geautoriseerd-icoon.png)
 
-Het slot-icoon staat overal waar ZAC het zaaknummer van zo'n zaak toont. Bijvoorbeeld
+Het slot-icoon staat overal waar ZAC het zaaknummer van zo'n zaak toont. Bijvoorbeeld:
 
 - op de zaakdetailpagina, en bij de zaak op de taak- en documentdetailpagina
-- de zaken, en taken werkvoorraadden
+- in de werkvoorraden van zaken en taken
+- op de dashboardkaarten en in de zoekresultaten
 
 ### Werken met een zaakspecifiek geautoriseerde zaak
 
