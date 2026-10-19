@@ -105,26 +105,7 @@
           <td mat-cell *matCellDef="let row">{{ row.titel }}</td>
         </ng-container>
 
-        @for (
-          definition of [
-            { column: "identificatie" },
-            { column: "zaakIdentificatie" },
-            { column: "relatieType" },
-            {
-              column: "informatieobjectTypeOmschrijving",
-              header: "informatieobjectTypeOmschrijving.kort",
-            },
-            { column: "bestandsomvang", header: "bestandsomvang.kort" },
-            { column: "status" },
-            {
-              column: "vertrouwelijkheidaanduiding",
-              header: "vertrouwelijkheidaanduiding.kort",
-            },
-            { column: "registratiedatumTijd" },
-            { column: "auteur" },
-          ];
-          track definition.column
-        ) {
+        @for (definition of dataColumnDefinitions; track definition.column) {
           @let column = definition.column;
           <ng-container [matColumnDef]="column">
             <th

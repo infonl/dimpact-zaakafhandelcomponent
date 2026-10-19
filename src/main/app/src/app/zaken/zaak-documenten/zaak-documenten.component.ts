@@ -80,6 +80,27 @@ const BASE_COLUMNS = [
   "url",
 ];
 
+const DATA_COLUMN_DEFINITIONS: ReadonlyArray<{
+  column: string;
+  header?: string;
+}> = [
+  { column: "identificatie" },
+  { column: "zaakIdentificatie" },
+  { column: "relatieType" },
+  {
+    column: "informatieobjectTypeOmschrijving",
+    header: "informatieobjectTypeOmschrijving.kort",
+  },
+  { column: "bestandsomvang", header: "bestandsomvang.kort" },
+  { column: "status" },
+  {
+    column: "vertrouwelijkheidaanduiding",
+    header: "vertrouwelijkheidaanduiding.kort",
+  },
+  { column: "registratiedatumTijd" },
+  { column: "auteur" },
+];
+
 const GEKOPPELDE_COLUMNS = [
   "downloaden",
   "preview",
@@ -166,6 +187,8 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   protected readonly includeLinkedDocuments = computed(
     () => this.heeftGerelateerdeZaken() && this.linkedDocumentsEnabled(),
   );
+
+  protected readonly dataColumnDefinitions = DATA_COLUMN_DEFINITIONS;
 
   protected readonly documentColumns = computed(() =>
     this.includeLinkedDocuments() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,

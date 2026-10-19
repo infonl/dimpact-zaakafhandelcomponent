@@ -109,6 +109,8 @@ mat-sidenav-container {
 
 .table-wrapper {
   overflow-x: auto;
+  // keeps the CDK sticky-cell z-indexes from painting over content outside the table
+  isolation: isolate;
 
   table {
     width: 100%;
