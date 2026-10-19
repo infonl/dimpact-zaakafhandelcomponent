@@ -4,14 +4,7 @@
  */
 package nl.info.zac.signalering.model
 
-import net.atos.zac.signalering.model.Signalering
-
-class CheckedSignaleringen<T>(
+class CheckedSignaleringen<T : Any>(
     val valid: List<T>,
     val invalid: List<InvalidSignalering>
-)
-
-class InvalidSignalering(
-    val signalering: Signalering,
-    val reason: String
 )
