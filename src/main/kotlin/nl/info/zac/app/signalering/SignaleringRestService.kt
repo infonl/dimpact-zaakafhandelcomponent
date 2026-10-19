@@ -82,7 +82,7 @@ class SignaleringRestService @Inject constructor(
             loggedInUser = loggedInUser
         )
         // listing deletes invalid signaleringen, so the total is counted afterwards
-        return RestResultaat(zaakOverzichten, signaleringService.countZakenSignaleringen(signaleringsType))
+        return signaleringService.countZakenSignaleringen(signaleringsType).let { RestResultaat(zaakOverzichten, it) }
     }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize

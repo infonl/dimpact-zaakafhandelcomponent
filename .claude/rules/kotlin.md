@@ -101,6 +101,17 @@ val param.map { someFunction(it) }
 val param.map(::someFunction)
 ```
 
+## Chain function calls instead of nesting them
+When the result of one function call is the only argument of the next call, chain the calls with `.let`, so the
+code reads in the order the calls run. Use a method reference where possible.
+```kotlin
+// Before
+deleteSignaleringen(listSignaleringen(parameters))
+// After
+listSignaleringen(parameters).let(::deleteSignaleringen)
+```
+This does not apply to building an object from named arguments, such as a constructor or a test fixture.
+
 ## Use .apply for object configuration in Kotlin
 When you need to configure an object after creating it, use the `.apply` scope function to make the code more concise and readable. For example:
 ```kotlin// Before
