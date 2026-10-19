@@ -33,6 +33,7 @@ import java.time.ZonedDateTime
 import java.util.*
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
@@ -96,6 +97,7 @@ import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
+import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RestZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RestZaaktype
@@ -118,6 +120,7 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_EXTENSION_PERIOD_INVALID
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ProcessStartData
@@ -4102,6 +4105,148 @@ class ZaakRestServiceTest : BehaviorSpec({
                     restZaak shouldBe updatedRestZaak
                     with(patchZaakSlot.captured) {
                         zaakgeometrie.shouldBeInstanceOf<DeleteGeoJsonGeometry>()
+                    }
+                }
+            }
+        }
+    }
+
+    context("Extending a zaak") {
+        val zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "P30D")
+        val zaakRechten = createZaakRechten(verlengen = true)
+        val loggedInUser = createLoggedInUser()
+
+        given("a zaak of a zaaktype with a maximum extension term of 30 days") {
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val extendedZaak = createZaak(zaaktypeUri = zaakType.url)
+            val restZaak = createRestZaak()
+            val restZaakVerlengGegevens = RestZaakVerlengGegevens(
+                redenVerlenging = "fakeExtensionReason",
+                duurDagen = 30,
+                shouldTakenVerlengen = false,
+                einddatumGepland = LocalDate.of(2026, 2, 1),
+                uiterlijkeEinddatumAfdoening = LocalDate.of(2026, 3, 1)
+            )
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
+            every {
+                suspensionZaakHelper.extendZaak(
+                    zaak = zaak,
+                    dueDate = restZaakVerlengGegevens.einddatumGepland,
+                    fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+                    extensionReason = restZaakVerlengGegevens.redenVerlenging,
+                    numberOfDays = 30
+                )
+            } returns extendedZaak
+            every {
+                restZaakConverter.toRestZaak(
+                    zaak = extendedZaak,
+                    zaakType = zaakType,
+                    zaakRechten = zaakRechten,
+                    loggedInUser = loggedInUser
+                )
+            } returns restZaak
+
+            `when`("the zaak is extended by exactly the maximum extension term") {
+                val result = zaakRestService.verlengenZaak(zaak.uuid, restZaakVerlengGegevens)
+
+                then("the zaak is extended") {
+                    verify(exactly = 1) {
+                        suspensionZaakHelper.extendZaak(
+                            zaak = zaak,
+                            dueDate = restZaakVerlengGegevens.einddatumGepland,
+                            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+                            extensionReason = restZaakVerlengGegevens.redenVerlenging,
+                            numberOfDays = 30
+                        )
+                    }
+                }
+
+                and("the extended zaak is returned") {
+                    result shouldBe restZaak
+                }
+            }
+        }
+
+        given("a zaak of a zaaktype with a maximum extension term of 30 days and an extension of 365 days") {
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val restZaakVerlengGegevens = RestZaakVerlengGegevens(
+                redenVerlenging = "fakeExtensionReason",
+                duurDagen = 365,
+                shouldTakenVerlengen = false,
+                einddatumGepland = LocalDate.of(2027, 1, 1),
+                uiterlijkeEinddatumAfdoening = LocalDate.of(2027, 2, 1)
+            )
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
+
+            `when`("the zaak is extended") {
+                val invalidExtensionPeriodException = shouldThrow<InvalidExtensionPeriodException> {
+                    zaakRestService.verlengenZaak(zaak.uuid, restZaakVerlengGegevens)
+                }
+
+                then("the extension is rejected because it exceeds the maximum extension term") {
+                    invalidExtensionPeriodException.errorCode shouldBe ERROR_CODE_EXTENSION_PERIOD_INVALID
+                    invalidExtensionPeriodException.message shouldBe
+                        "Zaaktype '${zaakType.identificatie}' has a maximum extension term of 30 days, " +
+                        "but requested extension is for 365 days"
+                }
+
+                and("the zaak is not extended") {
+                    verify(exactly = 0) {
+                        suspensionZaakHelper.extendZaak(
+                            zaak = zaak,
+                            dueDate = any(),
+                            fatalDate = any(),
+                            extensionReason = any(),
+                            numberOfDays = any()
+                        )
+                    }
+                }
+            }
+        }
+
+        given("a zaak of a zaaktype with a maximum extension term of 30 days and an extension of 0 days") {
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val restZaakVerlengGegevens = RestZaakVerlengGegevens(
+                redenVerlenging = "fakeExtensionReason",
+                duurDagen = 0,
+                shouldTakenVerlengen = false
+            )
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
+
+            `when`("the zaak is extended") {
+                val invalidExtensionPeriodException = shouldThrow<InvalidExtensionPeriodException> {
+                    zaakRestService.verlengenZaak(zaak.uuid, restZaakVerlengGegevens)
+                }
+
+                then("the extension is rejected because it is not at least 1 day") {
+                    invalidExtensionPeriodException.message shouldBe
+                        "Requested extension is for 0 days, but it must be at least 1 day"
+                }
+
+                and("the zaak is not extended") {
+                    verify(exactly = 0) {
+                        suspensionZaakHelper.extendZaak(
+                            zaak = zaak,
+                            dueDate = any(),
+                            fatalDate = any(),
+                            extensionReason = any(),
+                            numberOfDays = any()
+                        )
                     }
                 }
             }
