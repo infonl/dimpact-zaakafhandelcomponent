@@ -36,10 +36,9 @@
 - [ ] 4.2 Delete the invalid signaleringen by id and log a `WARNING` per row with signalering id, type, zaak
   UUID and reason, without the username; verify the deletion and that no username is in the message in
   `SignaleringServiceTest`
-- [ ] 4.3 On the `SIGNALERING_TIJDSTIP` path, repeat the page query after deletions until a query deletes
-  nothing; on the in-memory sort path, validate before sorting and slicing; verify with
-  `SignaleringServiceTest` cases where stale rows on the requested page are replaced by later valid ones on
-  both paths
+- [ ] 4.3 Validate the page once on the `SIGNALERING_TIJDSTIP` path and all signaleringen before sorting and
+  slicing on the in-memory sort path; verify with `SignaleringServiceTest` cases on both paths that the stale
+  rows are left out of the result and that their deletion sends a `SIGNALERINGEN` screen event
 - [ ] 4.4 In `SignaleringRestService.listZakenSignaleringen`, keep the `page > maxPages` check on the count
   before listing and return a count made after listing; verify with a `SignaleringRestServiceTest` case where
   the returned total excludes the rows deleted while listing
