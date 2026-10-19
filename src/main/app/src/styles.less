@@ -73,7 +73,7 @@ mat-drawer {
 }
 
 mat-drawer-container {
-  height: calc(100% - 68px);
+  height: 100%;
 
   .mat-drawer-content {
     padding: 12px;
@@ -85,7 +85,18 @@ mat-drawer-container.over mat-drawer-content {
 }
 
 mat-sidenav-container {
-  height: calc(100% - 68px);
+  height: 100%;
+}
+
+// The routed page takes the height that the toolbar and the breadcrumbs leave free.
+.main-container > mat-sidenav-content {
+  display: flex;
+  flex-direction: column;
+
+  > router-outlet + * {
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 .side-nav-container {

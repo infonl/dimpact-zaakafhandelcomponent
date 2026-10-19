@@ -443,9 +443,13 @@ export class InformatieObjectViewComponent
             document: this.infoObject.titel,
           });
           const origin = findOrigin(this.location);
-          void (origin
+          void (origin?.key
             ? navigateToBreadcrumb(origin, this.router)
-            : this.router.navigateByUrl("/"));
+            : this.router.navigateByUrl(
+                this.zaak
+                  ? `/zaken/${this.zaak.identificatie}`
+                  : "/documenten/ontkoppelde",
+              ));
         }
       });
   }
