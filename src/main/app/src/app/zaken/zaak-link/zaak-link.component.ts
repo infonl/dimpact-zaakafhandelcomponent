@@ -226,12 +226,12 @@ export class ZaakLinkComponent {
     } = this.formValue();
     return Boolean(
       caseNumberToSearchFor ||
-      caseDescriptionToSearchFor ||
-      caseTypeToSearchFor ||
-      this.startdatum().van ||
-      this.startdatum().tot ||
-      this.einddatum().van ||
-      this.einddatum().tot,
+        caseDescriptionToSearchFor ||
+        caseTypeToSearchFor ||
+        this.startdatum().van ||
+        this.startdatum().tot ||
+        this.einddatum().van ||
+        this.einddatum().tot,
     );
   });
 
