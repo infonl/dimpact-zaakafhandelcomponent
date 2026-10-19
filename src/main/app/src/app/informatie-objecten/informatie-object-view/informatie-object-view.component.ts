@@ -63,6 +63,7 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
 import { ZakenService } from "../../zaken/zaken.service";
 import { DocumentDialogService } from "../document-dialog.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
@@ -74,6 +75,7 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
   styleUrls: ["./informatie-object-view.component.less"],
   standalone: true,
   imports: [
+    ZaakspecifiekGeautoriseerdIconComponent,
     MatButtonModule,
     MatCardModule,
     MatDividerModule,

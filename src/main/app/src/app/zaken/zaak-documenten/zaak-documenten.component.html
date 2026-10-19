@@ -101,6 +101,11 @@
             </th>
             <td mat-cell *matCellDef="let row">
               @if (column == "zaakIdentificatie") {
+                <zac-zaakspecifiek-geautoriseerd-icon
+                  [isZaakspecifiekGeautoriseerd]="
+                    row.isZaakspecifiekGeautoriseerd
+                  "
+                />
                 {{ row[column] | empty }}
               }
               @if (column == "relatieType") {
