@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.app.policy.model.RestTaakRechten
 import nl.info.zac.app.policy.model.toRestTaakRechten
@@ -24,6 +25,10 @@ data class RestTaakZoekObject(
     val zaakIdentificatie: String? = null,
     val zaakOmschrijving: String? = null,
     val zaakToelichting: String? = null,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    val isZaakspecifiekGeautoriseerd: Boolean = false,
+
     val zaaktypeUuid: String? = null,
     val zaaktypeIdentificatie: String? = null,
     val zaaktypeOmschrijving: String? = null,
@@ -57,5 +62,6 @@ fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoek
     zaakUuid = this@toRestTaakZoekObject.zaakUUID,
     zaakToelichting = this@toRestTaakZoekObject.zaakToelichting,
     zaakOmschrijving = this@toRestTaakZoekObject.zaakOmschrijving,
+    isZaakspecifiekGeautoriseerd = this@toRestTaakZoekObject.isZaakspecifiekGeautoriseerd,
     rechten = taakRechten.toRestTaakRechten()
 )
