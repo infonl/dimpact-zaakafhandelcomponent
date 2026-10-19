@@ -399,6 +399,21 @@ describe(ZaakDocumentenComponent.name, () => {
     ).toBeVisible();
   });
 
+  it.each([
+    "informatieobject-type-omschrijving",
+    "bestandsomvang",
+    "vertrouwelijkheidaanduiding",
+  ])(
+    "shows a short %s header with the full label as tooltip",
+    async (column) => {
+      await setup();
+
+      expect(
+        screen.getByRole("columnheader", { name: `${column}.kort` }),
+      ).toHaveAccessibleDescription(column);
+    },
+  );
+
   it("sorts documents with the same title by identificatie", async () => {
     await setup(fakeZaak, [
       fromPartial({

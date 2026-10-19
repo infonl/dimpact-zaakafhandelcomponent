@@ -105,22 +105,36 @@
         </ng-container>
 
         @for (
-          column of [
-            "identificatie",
-            "zaakIdentificatie",
-            "relatieType",
-            "informatieobjectTypeOmschrijving",
-            "bestandsomvang",
-            "status",
-            "vertrouwelijkheidaanduiding",
-            "registratiedatumTijd",
-            "auteur",
+          definition of [
+            { column: "identificatie" },
+            { column: "zaakIdentificatie" },
+            { column: "relatieType" },
+            {
+              column: "informatieobjectTypeOmschrijving",
+              header: "informatieobjectTypeOmschrijving.kort",
+            },
+            { column: "bestandsomvang", header: "bestandsomvang.kort" },
+            { column: "status" },
+            {
+              column: "vertrouwelijkheidaanduiding",
+              header: "vertrouwelijkheidaanduiding.kort",
+            },
+            { column: "registratiedatumTijd" },
+            { column: "auteur" },
           ];
-          track column
+          track definition.column
         ) {
+          @let column = definition.column;
           <ng-container [matColumnDef]="column">
-            <th mat-sort-header mat-header-cell *matHeaderCellDef>
-              {{ column | i18nKey | translate }}
+            <th
+              mat-sort-header
+              mat-header-cell
+              *matHeaderCellDef
+              [matTooltip]="
+                definition.header ? (column | i18nKey | translate) : ''
+              "
+            >
+              {{ definition.header ?? column | i18nKey | translate }}
             </th>
             <td mat-cell *matCellDef="let row">
               @if (column === "identificatie") {
