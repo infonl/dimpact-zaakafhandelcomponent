@@ -67,6 +67,7 @@ import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.signalering.model.InvalidSignalering
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters
@@ -250,11 +251,11 @@ class SignaleringServiceTest : BehaviorSpec({
         every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser) } returns restZaakOverzicht
 
         `when`("listing first page of zaken signaleringen") {
-            val result = signaleringService.listZakenSignaleringenPage(
+            val result = signaleringService.listCheckedZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 restPageParameters,
                 loggedInUser
-            )
+            ).valid
 
             then("paging is used to return the signalering") {
                 result.size shouldBe 1
@@ -317,11 +318,11 @@ class SignaleringServiceTest : BehaviorSpec({
         every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakC, loggedInUser) } returns overzichtBravo
 
         `when`("listing the first page") {
-            val result = signaleringService.listZakenSignaleringenPage(
+            val result = signaleringService.listCheckedZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 pageParameters,
                 loggedInUser
-            )
+            ).valid
 
             then("results are sorted by identificatie ascending and sliced to the page size") {
                 result shouldBe listOf(overzichtAlpha, overzichtBravo)
@@ -344,9 +345,9 @@ class SignaleringServiceTest : BehaviorSpec({
         )
         val loggedInUser = createLoggedInUser()
 
-        `when`("listZakenSignaleringenPage is called") {
+        `when`("listCheckedZakenSignaleringenPage is called") {
             val exception = shouldThrow<InputValidationFailedException> {
-                signaleringService.listZakenSignaleringenPage(
+                signaleringService.listCheckedZakenSignaleringenPage(
                     SignaleringType.Type.ZAAK_OP_NAAM,
                     pageParameters,
                     loggedInUser
@@ -411,11 +412,11 @@ class SignaleringServiceTest : BehaviorSpec({
         every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakC, loggedInUser) } returns overzichtOld
 
         `when`("listing the second page") {
-            val result = signaleringService.listZakenSignaleringenPage(
+            val result = signaleringService.listCheckedZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 pageParameters,
                 loggedInUser
-            )
+            ).valid
 
             then("results are sorted by startdatum descending and the second page is returned") {
                 result shouldBe listOf(overzichtOld)
@@ -476,7 +477,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaakC, loggedInUser) } returns overzichtMelding
 
         `when`("sorting by ZAAK_ZAAKTYPE ascending") {
-            val result = signaleringService.listZakenSignaleringenPage(
+            val result = signaleringService.listCheckedZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 RestSignaleringPageParameters(
                     page = 0,
@@ -485,7 +486,7 @@ class SignaleringServiceTest : BehaviorSpec({
                     sortOrder = SorteerRichting.ASC
                 ),
                 loggedInUser
-            )
+            ).valid
 
             then("rows are returned in zaaktype-ascending order") {
                 result shouldBe listOf(overzichtAanvraag, overzichtMelding, overzichtZonnepanelen)
@@ -493,7 +494,7 @@ class SignaleringServiceTest : BehaviorSpec({
         }
 
         `when`("sorting by ZAAK_OMSCHRIJVING ascending") {
-            val result = signaleringService.listZakenSignaleringenPage(
+            val result = signaleringService.listCheckedZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 RestSignaleringPageParameters(
                     page = 0,
@@ -502,7 +503,7 @@ class SignaleringServiceTest : BehaviorSpec({
                     sortOrder = SorteerRichting.ASC
                 ),
                 loggedInUser
-            )
+            ).valid
 
             then("rows are returned in omschrijving-ascending order") {
                 result shouldBe listOf(overzichtMelding, overzichtZonnepanelen, overzichtAanvraag)
@@ -541,11 +542,11 @@ class SignaleringServiceTest : BehaviorSpec({
         every { typedQuery.resultList } returns emptyList()
 
         `when`("listing the page") {
-            val result = signaleringService.listZakenSignaleringenPage(
+            val result = signaleringService.listCheckedZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 pageParameters,
                 loggedInUser
-            )
+            ).valid
 
             then("an empty list is returned without invoking the ZRC client") {
                 result shouldBe emptyList()
@@ -722,9 +723,9 @@ class SignaleringServiceTest : BehaviorSpec({
         } returns setOf("fakeTaakId1")
 
         `when`("the taken signaleringen are listed") {
-            val restSignaleringTaskSummaries = signaleringService.listTakenSignaleringenPage(
+            val restSignaleringTaskSummaries = signaleringService.listCheckedTakenSignaleringen(
                 SignaleringType.Type.TAAK_OP_NAAM
-            )
+            ).valid
 
             then("only the taak of the zaakspecifiek geautoriseerde zaak is marked as such") {
                 restSignaleringTaskSummaries.map { it.id to it.isZaakspecifiekGeautoriseerd } shouldBe listOf(
@@ -838,9 +839,7 @@ class SignaleringServiceTest : BehaviorSpec({
             val reassignedZaak = createZaak()
             val zaak = createZaak()
             val overzicht = createRESTZaakOverzicht()
-            val staleSignalering = createZaakSignaleringWithId(signaleringId = 1L, zaak = reassignedZaak)
-            val warnings = captureSignaleringServiceWarnings()
-            val screenEvents = mutableListOf<ScreenEvent>()
+            val staleSignalering = createZaakSignalering(zaak = reassignedZaak)
             stubUserSignaleringenQuery(loggedInUser, SignaleringType.Type.ZAAK_OP_NAAM, SignaleringSubject.ZAAK)
             every { typedQuery.setFirstResult(0) } returns typedQuery
             every { typedQuery.setMaxResults(2) } returns typedQuery
@@ -852,11 +851,9 @@ class SignaleringServiceTest : BehaviorSpec({
             } returns createBehandelaarRol("fakeOtherUserName")
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createBehandelaarRol(loggedInUser.id)
             every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser) } returns overzicht
-            stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L), deletedCount = 1)
-            every { eventingService.send(capture(screenEvents)) } returns Unit
 
             `when`("the first page of two zaken is listed") {
-                val result = signaleringService.listZakenSignaleringenPage(
+                val checkedZakenSignaleringen = signaleringService.listCheckedZakenSignaleringenPage(
                     SignaleringType.Type.ZAAK_OP_NAAM,
                     RestSignaleringPageParameters(
                         page = 0,
@@ -867,22 +864,14 @@ class SignaleringServiceTest : BehaviorSpec({
                     loggedInUser
                 )
 
-                then("only the valid zaak is listed, after one page query, and the stale signalering is deleted") {
-                    result shouldBe listOf(overzicht)
-                    verify(exactly = 1) { typedQuery.resultList }
-                    verify(exactly = 1) { pathId.`in`(listOf(1L)) }
+                then("only the valid zaak is returned as valid") {
+                    checkedZakenSignaleringen.valid shouldBe listOf(overzicht)
                 }
-                and("a SIGNALERINGEN screen event is sent, so the dashboard card loads the page again") {
-                    screenEvents.map { it.objectType } shouldBe listOf(ScreenEventType.SIGNALERINGEN)
-                }
-                and("a warning names the signalering and the reason, but not the user") {
-                    warnings.size shouldBe 1
-                    with(warnings.single().message) {
-                        this shouldContain "'1'"
-                        this shouldContain reassignedZaak.uuid.toString()
-                        this shouldContain "not the behandelaar"
-                        this shouldNotContain loggedInUser.id
-                    }
+                and("the stale signalering is returned as invalid with its reason, without deleting it") {
+                    checkedZakenSignaleringen.invalid.map { it.signalering to it.reason } shouldBe listOf(
+                        staleSignalering to "the user is not the behandelaar of the zaak"
+                    )
+                    verify(exactly = 0) { criteriaBuilder.createCriteriaDelete(Signalering::class.java) }
                 }
             }
         }
@@ -892,22 +881,17 @@ class SignaleringServiceTest : BehaviorSpec({
             val unreadableZaak = createZaak()
             val zaak = createZaak()
             val overzicht = createRESTZaakOverzicht()
-            val warnings = captureSignaleringServiceWarnings()
+            val unreadableSignalering = createZaakSignalering(zaak = unreadableZaak)
             stubUserSignaleringenQuery(loggedInUser, SignaleringType.Type.ZAAK_OP_NAAM, SignaleringSubject.ZAAK)
-            every { typedQuery.resultList } returns listOf(
-                createZaakSignaleringWithId(signaleringId = 1L, zaak = unreadableZaak),
-                createZaakSignalering(zaak = zaak)
-            )
+            every { typedQuery.resultList } returns listOf(unreadableSignalering, createZaakSignalering(zaak = zaak))
             every { zrcClientService.readZaak(unreadableZaak.uuid) } returns unreadableZaak
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createBehandelaarRol(loggedInUser.id)
             every { restZaakOverzichtConverter.convertForDisplayIfReadable(unreadableZaak, loggedInUser) } returns null
             every { restZaakOverzichtConverter.convertForDisplayIfReadable(zaak, loggedInUser) } returns overzicht
-            stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L), deletedCount = 1)
-            every { eventingService.send(any<ScreenEvent>()) } returns Unit
 
             `when`("the zaken signaleringen are listed sorted by identificatie") {
-                val result = signaleringService.listZakenSignaleringenPage(
+                val checkedZakenSignaleringen = signaleringService.listCheckedZakenSignaleringenPage(
                     SignaleringType.Type.ZAAK_OP_NAAM,
                     RestSignaleringPageParameters(
                         page = 0,
@@ -918,10 +902,11 @@ class SignaleringServiceTest : BehaviorSpec({
                     loggedInUser
                 )
 
-                then("only the readable zaak is listed and the other signalering is deleted with a warning") {
-                    result shouldBe listOf(overzicht)
-                    verify(exactly = 1) { pathId.`in`(listOf(1L)) }
-                    warnings.single().message shouldContain "no read rights"
+                then("only the readable zaak is valid and the other signalering is invalid because of the read rights") {
+                    checkedZakenSignaleringen.valid shouldBe listOf(overzicht)
+                    checkedZakenSignaleringen.invalid.map { it.signalering to it.reason } shouldBe listOf(
+                        unreadableSignalering to "the user has no read rights on the zaak"
+                    )
                 }
             }
         }
@@ -946,18 +931,12 @@ class SignaleringServiceTest : BehaviorSpec({
         val unassignedTaak = createTestTask(id = "fakeTaakId2", caseVariables = caseVariables)
         val unreadableTaak = createTestTask(id = "fakeTaakId3", assignee = loggedInUser.id, caseVariables = caseVariables)
         val taak = createTestTask(id = "fakeTaakId4", assignee = loggedInUser.id, caseVariables = caseVariables)
-        val warnings = captureSignaleringServiceWarnings()
+        val taken = listOf(reassignedTaak, unassignedTaak, unreadableTaak, taak)
+        val signaleringen = taken.map { createSignalering(type = taakSignaleringType, zaak = null, taskInfo = it) }
         every { loggedInUserInstance.get() } returns loggedInUser
         stubUserSignaleringenQuery(loggedInUser, SignaleringType.Type.TAAK_OP_NAAM, SignaleringSubject.TAAK)
-        every { typedQuery.resultList } returns listOf(reassignedTaak, unassignedTaak, unreadableTaak, taak)
-            .mapIndexed { index, task ->
-                createSignalering(type = taakSignaleringType, zaak = null, taskInfo = task).let { signalering ->
-                    if (task == taak) signalering else spyk(signalering) { every { id } returns index + 1L }
-                }
-            }
-        listOf(reassignedTaak, unassignedTaak, unreadableTaak, taak).forEach {
-            every { flowableTaskService.readTask(it.id) } returns it
-        }
+        every { typedQuery.resultList } returns signaleringen
+        taken.forEach { every { flowableTaskService.readTask(it.id) } returns it }
         every { policyService.readTaakRechten(unreadableTaak) } returns createTaakRechten(lezen = false)
         every { policyService.readTaakRechten(taak) } returns createTaakRechten()
         every {
@@ -967,25 +946,61 @@ class SignaleringServiceTest : BehaviorSpec({
                 veld = "id"
             )
         } returns emptySet()
-        stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L, 2L, 3L), deletedCount = 3)
-        every { eventingService.send(any<ScreenEvent>()) } returns Unit
 
         `when`("the taken signaleringen are listed") {
-            val restSignaleringTaskSummaries = signaleringService.listTakenSignaleringenPage(
+            val checkedTakenSignaleringen = signaleringService.listCheckedTakenSignaleringen(
                 SignaleringType.Type.TAAK_OP_NAAM
             )
 
-            then("only the valid taak is listed and the other signaleringen are deleted") {
-                restSignaleringTaskSummaries.map { it.id } shouldBe listOf("fakeTaakId4")
-                verify(exactly = 1) { pathId.`in`(listOf(1L, 2L, 3L)) }
+            then("only the valid taak is returned as valid") {
+                checkedTakenSignaleringen.valid.map { it.id } shouldBe listOf("fakeTaakId4")
             }
-            and("a warning without the user is logged for each deleted signalering") {
-                warnings.map { it.message.substringAfter("because ") } shouldBe listOf(
-                    "the user is not the assignee of the taak.",
-                    "the user is not the assignee of the taak.",
-                    "the user has no read rights on the taak."
+            and("the other signaleringen are returned as invalid with their reasons") {
+                checkedTakenSignaleringen.invalid.map { it.signalering to it.reason } shouldBe listOf(
+                    signaleringen[0] to "the user is not the assignee of the taak",
+                    signaleringen[1] to "the user is not the assignee of the taak",
+                    signaleringen[2] to "the user has no read rights on the taak"
                 )
-                warnings.forEach { it.message shouldNotContain loggedInUser.id }
+            }
+        }
+    }
+
+    given("two invalid signaleringen with the same target and type") {
+        val zaak = createZaak()
+        val warnings = captureSignaleringServiceWarnings()
+        val screenEvents = mutableListOf<ScreenEvent>()
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        stubDeleteSignaleringenWithIds(signaleringIds = listOf(1L, 2L), deletedCount = 2)
+        every { eventingService.send(capture(screenEvents)) } returns Unit
+
+        `when`("the invalid signaleringen are deleted") {
+            val deletedCount = signaleringService.deleteInvalidSignaleringen(
+                listOf(
+                    InvalidSignalering(
+                        signalering = createZaakSignaleringWithId(signaleringId = 1L, zaak = zaak),
+                        reason = "the user is not the behandelaar of the zaak"
+                    ),
+                    InvalidSignalering(
+                        signalering = createZaakSignaleringWithId(signaleringId = 2L, zaak = zaak),
+                        reason = "the user has no read rights on the zaak"
+                    )
+                )
+            )
+
+            then("both are deleted in one bulk delete") {
+                deletedCount shouldBe 2
+                verify(exactly = 1) { pathId.`in`(listOf(1L, 2L)) }
+            }
+            and("a SIGNALERINGEN screen event is sent, so the dashboard card loads the page again") {
+                screenEvents.map { it.objectType } shouldBe listOf(ScreenEventType.SIGNALERINGEN)
+            }
+            and("a warning per signalering names the signalering and the reason, but not the user") {
+                warnings.map { it.message } shouldBe listOf(
+                    "Deleting signalering with id '1' of type 'ZAAK_OP_NAAM' for ZAAK '${zaak.uuid}', because " +
+                        "the user is not the behandelaar of the zaak.",
+                    "Deleting signalering with id '2' of type 'ZAAK_OP_NAAM' for ZAAK '${zaak.uuid}', because " +
+                        "the user has no read rights on the zaak."
+                )
             }
         }
     }
