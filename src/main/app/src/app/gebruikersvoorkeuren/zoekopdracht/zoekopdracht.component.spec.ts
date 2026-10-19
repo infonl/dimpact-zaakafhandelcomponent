@@ -33,9 +33,9 @@ const ACTIEF_URL = "/rest/gebruikersvoorkeuren/zoekopdracht/actief";
 const REMOVE_ACTIEF_URL = `/rest/gebruikersvoorkeuren/zoekopdracht/${WERKLIJST}/actief`;
 
 const makeZoekopdracht = (
-  fields: Partial<GeneratedType<"RESTZoekopdracht">> = {},
+  fields: Partial<GeneratedType<"RestZoekopdracht">> = {},
 ) =>
-  fromPartial<GeneratedType<"RESTZoekopdracht">>({
+  fromPartial<GeneratedType<"RestZoekopdracht">>({
     id: 1,
     naam: "Zoekopdracht A",
     actief: false,
@@ -89,7 +89,7 @@ describe(ZoekopdrachtComponent.name, () => {
   }
 
   async function loadZoekopdrachten(
-    zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [],
+    zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = [],
   ) {
     httpTestingController.expectOne(ZOEKOPDRACHTEN_URL).flush(zoekopdrachten);
     await sleep();

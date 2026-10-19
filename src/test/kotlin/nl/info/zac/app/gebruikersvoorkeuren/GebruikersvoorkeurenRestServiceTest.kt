@@ -15,17 +15,17 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht
-import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardId
-import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
-import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
-import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht
-import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
-import net.atos.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
-import net.atos.zac.gebruikersvoorkeuren.model.createTabelInstellingen
-import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
+import nl.info.zac.app.gebruikersvoorkeuren.model.RestDashboardCardInstelling
+import nl.info.zac.app.gebruikersvoorkeuren.model.RestZoekopdracht
+import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardId
+import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
+import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import nl.info.zac.gebruikersvoorkeuren.model.Werklijst
+import nl.info.zac.gebruikersvoorkeuren.model.Zoekopdracht
+import nl.info.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
+import nl.info.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
+import nl.info.zac.gebruikersvoorkeuren.model.createTabelInstellingen
+import nl.info.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
@@ -79,7 +79,11 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
 
     context("createOrUpdateZoekopdracht") {
         given("A REST zoekopdracht") {
-            val restZoekopdracht = RESTZoekopdracht()
+            val restZoekopdracht = RestZoekopdracht(
+                lijstID = Werklijst.MIJN_ZAKEN,
+                naam = "fakeName",
+                json = "{}"
+            )
             val fakeZoekopdracht = createZoekopdracht()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every { gebruikersvoorkeurenService.createZoekopdracht(any()) } returns fakeZoekopdracht
@@ -166,13 +170,13 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
 
     context("setZoekopdrachtActief") {
         given("A REST zoekopdracht") {
-            val restZoekopdracht = RESTZoekopdracht().apply {
-                id = 7L
-                lijstID = Werklijst.MIJN_TAKEN
-                naam = "fakeName"
-                actief = true
+            val restZoekopdracht = RestZoekopdracht(
+                id = 7L,
+                lijstID = Werklijst.MIJN_TAKEN,
+                naam = "fakeName",
+                isActief = true,
                 json = "{}"
-            }
+            )
             val zoekopdrachtSlot = slot<Zoekopdracht>()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every { gebruikersvoorkeurenService.setActief(capture(zoekopdrachtSlot)) } just runs
@@ -247,13 +251,13 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
 
     context("updateDashboardCards") {
         given("A list of REST dashboard cards") {
-            val restDashboardCardInstelling = RESTDashboardCardInstelling().apply {
-                id = 3L
-                cardId = DashboardCardId.MIJN_ZAKEN
-                signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
-                column = 2
+            val restDashboardCardInstelling = RestDashboardCardInstelling(
+                id = 3L,
+                cardId = DashboardCardId.MIJN_ZAKEN,
+                signaleringType = SignaleringType.Type.ZAAK_OP_NAAM,
+                column = 2,
                 row = 1
-            }
+            )
             val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUserId1")
             val dashboardCardsSlot = slot<List<DashboardCardInstelling>>()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
@@ -281,11 +285,11 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
 
     context("addDashboardCard") {
         given("A REST dashboard card") {
-            val restDashboardCardInstelling = RESTDashboardCardInstelling().apply {
-                cardId = DashboardCardId.MIJN_TAKEN
-                column = 1
+            val restDashboardCardInstelling = RestDashboardCardInstelling(
+                cardId = DashboardCardId.MIJN_TAKEN,
+                column = 1,
                 row = 0
-            }
+            )
             val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUserId1")
             val dashboardCardSlot = slot<DashboardCardInstelling>()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
@@ -307,9 +311,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
 
     context("deleteDashboardCard") {
         given("A REST dashboard card") {
-            val restDashboardCardInstelling = RESTDashboardCardInstelling().apply {
-                cardId = DashboardCardId.MIJN_TAKEN
-            }
+            val restDashboardCardInstelling = RestDashboardCardInstelling(cardId = DashboardCardId.MIJN_TAKEN)
             val dashboardCardSlot = slot<DashboardCardInstelling>()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every {

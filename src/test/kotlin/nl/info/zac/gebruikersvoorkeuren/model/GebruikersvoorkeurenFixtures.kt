@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.gebruikersvoorkeuren.model
+package nl.info.zac.gebruikersvoorkeuren.model
 
 import java.time.ZonedDateTime
 
@@ -13,7 +13,8 @@ fun createZoekopdracht(
     name: String = "fakeZoekopdracht",
     lijstID: Werklijst = Werklijst.MIJN_ZAKEN,
     medewerkerID: String = "testMedewerker",
-    actief: Boolean = false
+    actief: Boolean = false,
+    json: String = "{}"
 ) = Zoekopdracht().apply {
     this.id = id
     this.creatiedatum = creationDate
@@ -21,6 +22,7 @@ fun createZoekopdracht(
     this.lijstID = lijstID
     this.medewerkerID = medewerkerID
     this.isActief = actief
+    this.json = json
 }
 
 fun createDashboardCardInstelling(

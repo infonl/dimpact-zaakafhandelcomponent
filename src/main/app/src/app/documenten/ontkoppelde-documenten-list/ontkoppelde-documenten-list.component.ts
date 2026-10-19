@@ -270,7 +270,7 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   protected zoekopdrachtChanged(
-    actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht">,
   ) {
     if (actieveZoekopdracht) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json || "{}");

@@ -25,15 +25,15 @@ import { ZoekopdrachtSaveDialogComponent } from "./zoekopdracht-save-dialog.comp
 
 const makeZoekopdracht = (
   naam: string,
-  overrides: Partial<GeneratedType<"RESTZoekopdracht">> = {},
-): GeneratedType<"RESTZoekopdracht"> => ({
+  overrides: Partial<GeneratedType<"RestZoekopdracht">> = {},
+): GeneratedType<"RestZoekopdracht"> => ({
   naam,
   json: "{}",
   lijstID: "TAKEN_WERKVOORRAAD" as GeneratedType<"Werklijst">,
   ...overrides,
 });
 
-async function setup(zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = []) {
+async function setup(zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = []) {
   const dialogRef = {
     close: jest.fn(),
     disableClose: false,

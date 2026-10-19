@@ -1,97 +1,52 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.gebruikersvoorkeuren.model;
+package nl.info.zac.gebruikersvoorkeuren.model
 
-import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
-import net.atos.zac.signalering.model.SignaleringType;
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
+import jakarta.persistence.Transient
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.database.flyway.FlywayIntegrator
+import nl.info.zac.util.AllOpen
 
 @Entity
-@Table(schema = SCHEMA, name = "dashboard_card")
-@SequenceGenerator(schema = SCHEMA, name = "sq_dashboard_card", sequenceName = "sq_dashboard_card", allocationSize = 1)
-public class DashboardCardInstelling {
-
+@Table(schema = FlywayIntegrator.SCHEMA, name = "dashboard_card")
+@SequenceGenerator(schema = FlywayIntegrator.SCHEMA, name = "sq_dashboard_card", sequenceName = "sq_dashboard_card", allocationSize = 1)
+@AllOpen
+class DashboardCardInstelling {
     @Id
     @GeneratedValue(generator = "sq_dashboard_card", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_dashboard_card")
-    private Long id;
+    var id: Long? = null
 
-    @NotBlank @Column(name = "id_medewerker", nullable = false)
-    private String medewerkerId;
+    @NotBlank
+    @Column(name = "id_medewerker", nullable = false)
+    lateinit var medewerkerId: String
 
-    @NotNull @Column(name = "dashboard_card_enum", nullable = false)
+    @NotNull
+    @Column(name = "dashboard_card_enum", nullable = false)
     @Enumerated(EnumType.STRING)
-    private DashboardCardId cardId;
+    lateinit var cardId: DashboardCardId
 
     @Transient
-    private SignaleringType.Type signaleringType;
+    var signaleringType: SignaleringType.Type? = null
 
-    @NotNull @Column(name = "kolom", nullable = false)
-    private int kolom;
+    @NotNull
+    @Column(name = "kolom", nullable = false)
+    var kolom: Int = 0
 
-    @NotNull @Column(name = "volgorde", nullable = false)
-    private int volgorde;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
-    public String getMedewerkerId() {
-        return medewerkerId;
-    }
-
-    public void setMedewerkerId(final String medewerkerID) {
-        this.medewerkerId = medewerkerID;
-    }
-
-    public DashboardCardId getCardId() {
-        return cardId;
-    }
-
-    public void setCardId(final DashboardCardId cardId) {
-        this.cardId = cardId;
-    }
-
-    public SignaleringType.Type getSignaleringType() {
-        return signaleringType;
-    }
-
-    public void setSignaleringType(final SignaleringType.Type signaleringType) {
-        this.signaleringType = signaleringType;
-    }
-
-    public int getKolom() {
-        return kolom;
-    }
-
-    public void setKolom(final int kolom) {
-        this.kolom = kolom;
-    }
-
-    public int getVolgorde() {
-        return volgorde;
-    }
-
-    public void setVolgorde(final int volgorde) {
-        this.volgorde = volgorde;
-    }
+    @NotNull
+    @Column(name = "volgorde", nullable = false)
+    var volgorde: Int = 0
 }

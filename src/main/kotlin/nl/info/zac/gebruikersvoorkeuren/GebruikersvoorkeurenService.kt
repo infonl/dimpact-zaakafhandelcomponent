@@ -7,13 +7,12 @@ package nl.info.zac.gebruikersvoorkeuren
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
-import jakarta.persistence.criteria.Predicate
 import jakarta.transaction.Transactional
-import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
-import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
-import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht
-import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
+import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
+import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import nl.info.zac.gebruikersvoorkeuren.model.Werklijst
+import nl.info.zac.gebruikersvoorkeuren.model.Zoekopdracht
+import nl.info.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
 import nl.info.zac.gebruikersvoorkeuren.exception.ZoekopdrachtWithSameNameAlreadyExistsException
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
@@ -52,11 +51,8 @@ class GebruikersvoorkeurenService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(Zoekopdracht::class.java)
         val root = query.from(Zoekopdracht::class.java)
-        val predicates = mutableListOf<Predicate>()
-        listParameters.lijstID?.let {
-            predicates.add(builder.equal(root.get<Werklijst>(Zoekopdracht.LIJST_ID), it))
-        }
-        if (!listParameters.medewerkerID.isNullOrBlank()) {
+        val predicates = mutableListOf(builder.equal(root.get<Werklijst>(Zoekopdracht.LIJST_ID), listParameters.lijstID))
+        if (listParameters.medewerkerID.isNotBlank()) {
             predicates.add(builder.equal(root.get<String>(Zoekopdracht.MEDEWERKER_ID), listParameters.medewerkerID))
         }
         query.where(builder.and(*predicates.toTypedArray()))

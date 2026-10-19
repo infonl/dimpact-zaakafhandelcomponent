@@ -1,116 +1,66 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.gebruikersvoorkeuren.model;
+package nl.info.zac.gebruikersvoorkeuren.model
 
-import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
-
-import java.time.ZonedDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import nl.info.zac.database.flyway.FlywayIntegrator
+import nl.info.zac.util.AllOpen
+import java.time.ZonedDateTime
 
 @Entity
-@Table(schema = SCHEMA, name = "zoekopdracht")
-@SequenceGenerator(schema = SCHEMA, name = "sq_zoekopdracht", sequenceName = "sq_zoekopdracht", allocationSize = 1)
-public class Zoekopdracht {
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zoekopdracht")
+@SequenceGenerator(schema = FlywayIntegrator.SCHEMA, name = "sq_zoekopdracht", sequenceName = "sq_zoekopdracht", allocationSize = 1)
+@AllOpen
+class Zoekopdracht {
+    companion object {
+        /** Naam van property: [Zoekopdracht.medewerkerID] */
+        const val MEDEWERKER_ID = "medewerkerID"
 
-    /** Naam van property: {@link Zoekopdracht#medewerkerID} */
-    public static final String MEDEWERKER_ID = "medewerkerID";
+        /** Naam van property: [Zoekopdracht.lijstID] */
+        const val LIJST_ID = "lijstID"
 
-    /** Naam van property: {@link Zoekopdracht#lijstID} */
-    public static final String LIJST_ID = "lijstID";
-
-    /** Naam van property: {@link Zoekopdracht#naam} */
-    public static final String NAAM = "naam";
+        /** Naam van property: [Zoekopdracht.naam] */
+        const val NAAM = "naam"
+    }
 
     @Id
     @GeneratedValue(generator = "sq_zoekopdracht", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_zoekopdracht")
-    private Long id;
+    var id: Long? = null
 
-    @NotNull @Column(name = "creatiedatum", nullable = false)
-    private ZonedDateTime creatiedatum;
+    @NotNull
+    @Column(name = "creatiedatum", nullable = false)
+    lateinit var creatiedatum: ZonedDateTime
 
-    @NotBlank @Column(name = "naam", nullable = false)
-    private String naam;
+    @NotBlank
+    @Column(name = "naam", nullable = false)
+    lateinit var naam: String
 
-    @NotNull @Column(name = "id_lijst", nullable = false)
+    @NotNull
+    @Column(name = "id_lijst", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Werklijst lijstID;
+    lateinit var lijstID: Werklijst
 
     @Column(name = "actief")
-    private boolean actief;
+    var isActief: Boolean = false
 
-    @NotBlank @Column(name = "id_medewerker", nullable = false)
-    private String medewerkerID;
+    @NotBlank
+    @Column(name = "id_medewerker", nullable = false)
+    lateinit var medewerkerID: String
 
-    @NotBlank @Column(name = "json_zoekopdracht", nullable = false)
-    private String json;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
-    public ZonedDateTime getCreatiedatum() {
-        return creatiedatum;
-    }
-
-    public void setCreatiedatum(final ZonedDateTime creatiedatum) {
-        this.creatiedatum = creatiedatum;
-    }
-
-    public String getNaam() {
-        return naam;
-    }
-
-    public void setNaam(final String naam) {
-        this.naam = naam;
-    }
-
-    public Werklijst getLijstID() {
-        return lijstID;
-    }
-
-    public void setLijstID(final Werklijst lijstID) {
-        this.lijstID = lijstID;
-    }
-
-    public String getMedewerkerID() {
-        return medewerkerID;
-    }
-
-    public void setMedewerkerID(final String medewerkerID) {
-        this.medewerkerID = medewerkerID;
-    }
-
-    public String getJson() {
-        return json;
-    }
-
-    public void setJson(final String json) {
-        this.json = json;
-    }
-
-    public boolean isActief() {
-        return actief;
-    }
-
-    public void setActief(final boolean actief) {
-        this.actief = actief;
-    }
+    @NotBlank
+    @Column(name = "json_zoekopdracht", nullable = false)
+    lateinit var json: String
 }

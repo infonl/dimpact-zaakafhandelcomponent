@@ -237,7 +237,7 @@ export class InboxProductaanvragenListComponent
   }
 
   protected zoekopdrachtChanged(
-    actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht">,
   ) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = this.withSupportedSort({
