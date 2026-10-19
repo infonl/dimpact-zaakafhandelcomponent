@@ -14,6 +14,7 @@ import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
 import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht
 import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
+import nl.info.zac.gebruikersvoorkeuren.exception.ZoekopdrachtWithSameNameAlreadyExistsException
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -28,13 +29,12 @@ class GebruikersvoorkeurenService @Inject constructor(
     private val entityManager: EntityManager,
     private val signaleringService: SignaleringService
 ) {
-    @Suppress("TooGenericExceptionThrown")
     fun createZoekopdracht(zoekopdracht: Zoekopdracht): Zoekopdracht {
         if (zoekopdracht.id != null) {
             return entityManager.merge(zoekopdracht)
         }
         if (existsZoekopdracht(zoekopdracht)) {
-            throw RuntimeException(
+            throw ZoekopdrachtWithSameNameAlreadyExistsException(
                 "Er bestaat al een zoekopdracht met naam '${zoekopdracht.naam}' en lijst '${zoekopdracht.lijstID}' " +
                     "en medewerker: '${zoekopdracht.medewerkerID}'"
             )
