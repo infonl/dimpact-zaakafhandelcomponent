@@ -87,9 +87,10 @@ class SignaleringRestServiceRolDestroyTest : BehaviorSpec({
             testUser = behandelaar
         ).run {
             code shouldBe HTTP_OK
-            UUID.fromString(JSONObject(bodyAsString).getString("uuid"))
+            bodyAsString.let(::JSONObject).getString("uuid").let(UUID::fromString)
         }
-        val behandelaarRolUrl = JSONObject(openZaakClient.getRolesForZaak(zaakUUID).bodyAsString)
+        val behandelaarRolUrl = openZaakClient.getRolesForZaak(zaakUUID).bodyAsString
+            .let(::JSONObject)
             .getJSONArray("results")
             .let { rollen -> (0 until rollen.length()).map(rollen::getJSONObject) }
             .single { it.getString("omschrijving") == ROLTYPE_NAME_BEHANDELAAR && it.getString("betrokkeneType") == "medewerker" }

@@ -202,7 +202,7 @@ class SignaleringService @Inject constructor(
      * grouped by signalering target and type.
      */
     @Transactional(REQUIRED)
-    fun deleteSignaleringen(parameters: SignaleringZoekParameters) = deleteSignaleringen(listSignaleringen(parameters))
+    fun deleteSignaleringen(parameters: SignaleringZoekParameters) = listSignaleringen(parameters).let(::deleteSignaleringen)
 
     /**
      * Deletes the user signaleringen of the given types for the given subject, except those of [keptUserId].
@@ -215,10 +215,10 @@ class SignaleringService @Inject constructor(
         subject: String,
         types: Set<SignaleringType.Type>,
         keptUserId: String?
-    ) = deleteSignaleringen(
-        listSignaleringen(SignaleringZoekParameters(subjecttype, subject).types(*types.toTypedArray()))
-            .filter { it.targettype == SignaleringTarget.USER && it.target != keptUserId }
-    )
+    ) = SignaleringZoekParameters(subjecttype, subject).types(*types.toTypedArray())
+        .let(::listSignaleringen)
+        .filter { it.targettype == SignaleringTarget.USER && it.target != keptUserId }
+        .let(::deleteSignaleringen)
 
     /**
      * Deletes the user signaleringen of the zaak that belong to a user who is not its current behandelaar.
@@ -229,9 +229,9 @@ class SignaleringService @Inject constructor(
             subjecttype = SignaleringSubject.ZAAK,
             subject = zaakUuid.toString(),
             types = setOf(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD),
-            keptUserId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(
-                zrcClientService.readZaak(zaakUuid)
-            )?.identificatienummer
+            keptUserId = zrcClientService.readZaak(zaakUuid)
+                .let(zgwApiService::findBehandelaarMedewerkerRoleForZaak)
+                ?.identificatienummer
         )
 
     private fun deleteSignaleringen(signaleringen: List<Signalering>): Int {
@@ -519,7 +519,7 @@ class SignaleringService @Inject constructor(
         signalering: Signalering,
         loggedInUser: LoggedInUser
     ): CheckedSignalering<RestZaakOverzicht> {
-        val zaak = zrcClientService.readZaak(UUID.fromString(signalering.subject))
+        val zaak = UUID.fromString(signalering.subject).let(zrcClientService::readZaak)
         if (zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.identificatienummer != loggedInUser.id) {
             return CheckedSignalering(signalering, invalidReason = "the user is not the behandelaar of the zaak")
         }
@@ -552,7 +552,7 @@ class SignaleringService @Inject constructor(
                     "${it.signalering.subjecttype} '${it.signalering.subject}', because ${it.invalidReason}."
             }
         }
-        return deleteSignaleringen(invalidSignaleringen.map { it.signalering })
+        return invalidSignaleringen.map { it.signalering }.let(::deleteSignaleringen)
     }
 
     private fun <T> List<T>.slicePage(page: Int, rows: Int): List<T> {

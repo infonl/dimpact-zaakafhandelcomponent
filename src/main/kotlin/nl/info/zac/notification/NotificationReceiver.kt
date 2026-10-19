@@ -220,7 +220,7 @@ class NotificationReceiver @Inject constructor(
                 notification.resource == Resource.ROL &&
                 notification.action == Action.DELETE
             ) {
-                deleteZaakSignaleringenOfFormerBehandelaren(notification.mainResourceUrl.extractUuid())
+                notification.mainResourceUrl.extractUuid().let(::deleteZaakSignaleringenOfFormerBehandelaren)
             }
             // send signalering events for this notification
             SignaleringEventUtil.getEvents(
