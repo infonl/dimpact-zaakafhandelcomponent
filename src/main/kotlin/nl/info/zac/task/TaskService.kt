@@ -87,10 +87,8 @@ class TaskService @Inject constructor(
             userId != null -> zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
                 grantZaakspecifiekeAutorisatieToNewAssignee(task, userId)
                 flowableTaskService.assignTaskToUser(task.id, userId, reason)
-            }.also {
-                deleteTaakOpNaamSignaleringenExceptFor(it, userId)
-                sendTaakOpNaamSignalering(it, loggedInUser)
-            }
+                    .also { deleteTaakOpNaamSignaleringenExceptFor(it, userId) }
+            }.also { sendTaakOpNaamSignalering(it, loggedInUser) }
             task.assignee != null -> releaseTask(task, reason, loggedInUser)
             else -> task
         }
@@ -100,10 +98,9 @@ class TaskService @Inject constructor(
     }
 
     private fun releaseTask(task: Task, reason: String?, loggedInUser: LoggedInUser): Task =
-        flowableTaskService.releaseTask(task, reason).also {
-            deleteTaakOpNaamSignaleringenExceptFor(it, null)
-            sendTaakOpNaamSignalering(it, loggedInUser)
-        }
+        zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
+            flowableTaskService.releaseTask(task, reason).also { deleteTaakOpNaamSignaleringenExceptFor(it, null) }
+        }.also { sendTaakOpNaamSignalering(it, loggedInUser) }
 
     fun listTasksForZaak(zaakUUID: UUID): List<TaskInfo> = flowableTaskService.listTasksForZaak(zaakUUID)
 
