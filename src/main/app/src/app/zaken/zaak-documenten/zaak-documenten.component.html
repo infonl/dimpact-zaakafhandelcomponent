@@ -203,7 +203,6 @@
               @if (row.rechten.canLezen) {
                 <a
                   mat-icon-button
-                  class="bekijken"
                   [routerLink]="['/informatie-objecten', row.uuid]"
                   [attr.aria-label]="'actie.document.bekijken' | translate"
                   [matTooltip]="'actie.document.bekijken' | translate"

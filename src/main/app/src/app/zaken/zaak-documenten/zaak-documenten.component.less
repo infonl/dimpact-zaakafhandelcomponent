@@ -14,22 +14,13 @@
   isolation: isolate;
 }
 
-.mat-column-downloaden {
-  width: 1px;
-  padding-right: 0;
-
-  mat-checkbox {
-    display: flex;
-  }
-}
-
+.mat-column-downloaden,
 .mat-column-preview,
 .mat-column-bestandstype {
   width: 1px;
   padding-right: 0;
 
-  zac-document-icon,
-  mat-icon {
+  > * {
     display: flex;
   }
 }
@@ -49,10 +40,6 @@
     3,
     var(--mat-icon-button-state-layer-size, 48px)
   );
-
-  .bekijken {
-    grid-column: 1;
-  }
 
   .bewerken {
     grid-column: 2;
