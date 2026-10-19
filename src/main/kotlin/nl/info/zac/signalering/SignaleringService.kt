@@ -52,6 +52,8 @@ import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.signalering.model.CheckedSignaleringen
+import nl.info.zac.signalering.model.InvalidSignalering
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
@@ -445,18 +447,18 @@ class SignaleringService @Inject constructor(
     }
 
     /**
-     * Lists a page of zaken signaleringen for the given signaleringsType.
+     * Lists a page of zaken signaleringen for the given signaleringsType, split into the valid ones and the
+     * invalid ones that [deleteInvalidSignaleringen] deletes.
      *
      * sortField = SIGNALERING_TIJDSTIP → JPA paged by tijdstip desc (fast path).
      * Any other sortField sorts a RestZaakOverzicht field in memory after materialising
      * all matches, since the signaleringen table can't express that ordering.
      */
-    @Transactional(REQUIRED)
-    fun listZakenSignaleringenPage(
+    fun listCheckedZakenSignaleringenPage(
         signaleringsType: SignaleringType.Type,
         pageParameters: RestSignaleringPageParameters,
         loggedInUser: LoggedInUser
-    ): List<RestZaakOverzicht> {
+    ): CheckedSignaleringen<RestZaakOverzicht> {
         validateZakenSortField(pageParameters.sortField)
         val searchParameters = SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
@@ -468,7 +470,7 @@ class SignaleringService @Inject constructor(
             }
             listSignaleringen(searchParameters, pageParameters)
                 .toCheckedZaakOverzichten(loggedInUser)
-                .deleteInvalidAndListValid()
+                .toCheckedSignaleringen()
         } else {
             LOG.fine {
                 "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
@@ -476,9 +478,11 @@ class SignaleringService @Inject constructor(
             }
             listSignaleringen(searchParameters)
                 .toCheckedZaakOverzichten(loggedInUser)
-                .deleteInvalidAndListValid()
-                .sortedWith(zaakOverzichtComparator(pageParameters.sortField, pageParameters.sortOrder))
-                .slicePage(pageParameters.page, pageParameters.rows)
+                .toCheckedSignaleringen()
+                .mapValid {
+                    it.sortedWith(zaakOverzichtComparator(pageParameters.sortField, pageParameters.sortOrder))
+                        .slicePage(pageParameters.page, pageParameters.rows)
+                }
         }.also {
             LOG.fine {
                 "Successfully listed page ${pageParameters.page} for zaken signaleringen of type '$signaleringsType'."
@@ -526,17 +530,30 @@ class SignaleringService @Inject constructor(
         }
     }
 
-    private fun <T> List<CheckedSignalering<T>>.deleteInvalidAndListValid(): List<T> {
-        val invalidSignaleringen = filter { it.result == null }
+    /**
+     * Deletes signaleringen that a listing found invalid, and logs a warning for each.
+     */
+    @Transactional(REQUIRED)
+    fun deleteInvalidSignaleringen(invalidSignaleringen: List<InvalidSignalering>): Int {
         invalidSignaleringen.forEach {
             LOG.warning {
                 "Deleting signalering with id '${it.signalering.id}' of type '${it.signalering.type.type}' for " +
-                    "${it.signalering.subjecttype} '${it.signalering.subject}', because ${it.invalidReason}."
+                    "${it.signalering.subjecttype} '${it.signalering.subject}', because ${it.reason}."
             }
         }
-        invalidSignaleringen.map { it.signalering }.let(::deleteSignaleringen)
-        return mapNotNull { it.result }
+        return invalidSignaleringen.map { it.signalering }.let(::deleteSignaleringen)
     }
+
+    private fun <T> List<CheckedSignalering<T>>.toCheckedSignaleringen() =
+        CheckedSignaleringen(
+            valid = mapNotNull { it.result },
+            invalid = mapNotNull { checkedSignalering ->
+                checkedSignalering.invalidReason?.let { InvalidSignalering(checkedSignalering.signalering, it) }
+            }
+        )
+
+    private fun <T, R> CheckedSignaleringen<T>.mapValid(transform: (List<T>) -> List<R>) =
+        CheckedSignaleringen(valid = transform(valid), invalid = invalid)
 
     private fun <T> List<T>.slicePage(page: Int, rows: Int): List<T> {
         val fromIndex = (page * rows).coerceAtMost(size)
@@ -578,12 +595,12 @@ class SignaleringService @Inject constructor(
         )
 
     /**
-     * Lists a page of taken signaleringen for the given signaleringsType
+     * Lists the taken signaleringen for the given signaleringsType, split into the valid ones and the invalid ones
+     * that [deleteInvalidSignaleringen] deletes.
      */
-    @Transactional(REQUIRED)
-    fun listTakenSignaleringenPage(
+    fun listCheckedTakenSignaleringen(
         signaleringsType: SignaleringType.Type
-    ): List<RestSignaleringTaskSummary> {
+    ): CheckedSignaleringen<RestSignaleringTaskSummary> {
         val loggedInUser = loggedInUserInstance.get()
         return SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
@@ -593,8 +610,8 @@ class SignaleringService @Inject constructor(
                 listSignaleringen(it)
             }
             .map { checkTaakSignalering(it, loggedInUser) }
-            .deleteInvalidAndListValid()
-            .let { taken ->
+            .toCheckedSignaleringen()
+            .mapValid { taken ->
                 val zaakspecifiekGeautoriseerdeTaakIds = searchService.listZaakspecifiekGeautoriseerdeWaarden(
                     waarden = taken.map { it.id },
                     type = ZoekObjectType.TAAK,

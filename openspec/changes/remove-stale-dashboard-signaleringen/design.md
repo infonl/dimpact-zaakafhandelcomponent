@@ -84,6 +84,10 @@ private function that takes the list of signaleringen.
   when the user cannot read the zaak.
 - **Taken:** for each signalering, read the taak and check `assignee == loggedInUser.id` and
   `policyService.readTaakRechten(task).canLezen`.
+- Listing and deleting are separate. `SignaleringService.listCheckedZakenSignaleringenPage` and
+  `listCheckedTakenSignaleringen` only read and check, and return the valid and the invalid signaleringen.
+  `SignaleringRestService` then calls `SignaleringService.deleteInvalidSignaleringen`, the only part that runs
+  in a transaction, so the ZRC and OPA calls of the check stay outside it.
 - Invalid signaleringen are deleted with the bulk delete by id and logged at `WARNING` with the signalering id,
   type, subject and reason (`not behandelaar`/`not assignee` or `no read rights`). The username is left out
   because it is staff personal data (`docs/development/logging.md`); the signalering id identifies the row.

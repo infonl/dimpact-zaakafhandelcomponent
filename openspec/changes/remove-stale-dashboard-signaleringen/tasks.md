@@ -32,14 +32,15 @@
 
 ## 4. Validation in the zaken listing
 
-- [x] 4.1 Validate each zaak signalering in `SignaleringService.listZakenSignaleringenPage`: keep it only when
+- [x] 4.1 Validate each zaak signalering in `SignaleringService.listCheckedZakenSignaleringenPage`: keep it only when
   the logged-in user is the behandelaar of the zaak and the zaak rechten give `canLezen`, evaluating the rechten
   once per zaak (replace `RestZaakOverzichtConverter.convertForDisplay` by `convertForDisplayIfReadable`, which
   returns `null` when the user cannot read the zaak); verify with `SignaleringServiceTest` cases for "other behandelaar", "no read rights" and
   "valid"
-- [x] 4.2 Delete the invalid signaleringen by id and log a `WARNING` per row with signalering id, type, zaak
-  UUID and reason, without the username; verify the deletion and that no username is in the message in
-  `SignaleringServiceTest`
+- [x] 4.2 Return the invalid signaleringen with their reason instead of deleting them while listing, and add a
+  transactional `SignaleringService.deleteInvalidSignaleringen` that deletes them by id and logs a `WARNING` per
+  row with signalering id, type, subject and reason, without the username, which `SignaleringRestService` calls
+  after listing; verify in `SignaleringServiceTest` and `SignaleringRestServiceTest`
 - [x] 4.3 Validate the page once on the `SIGNALERING_TIJDSTIP` path and all signaleringen before sorting and
   slicing on the in-memory sort path; verify with `SignaleringServiceTest` cases on both paths that the stale
   rows are left out of the result and that their deletion sends a `SIGNALERINGEN` screen event
@@ -49,7 +50,7 @@
 
 ## 5. Validation in the taken listing
 
-- [x] 5.1 Validate each taak signalering in `SignaleringService.listTakenSignaleringenPage`: keep it only when
+- [x] 5.1 Validate each taak signalering in `SignaleringService.listCheckedTakenSignaleringen`: keep it only when
   the logged-in user is the assignee and `policyService.readTaakRechten(task).canLezen` is true; delete the rest
   by id and log a `WARNING` per row with signalering id, type, taak ID and reason, without the username; verify
   with `SignaleringServiceTest` cases for "other assignee", "unassigned", "no read rights" and "valid"

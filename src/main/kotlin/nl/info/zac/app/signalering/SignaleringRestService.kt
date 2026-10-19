@@ -76,13 +76,14 @@ class SignaleringRestService @Inject constructor(
                     )
                 }
             }
-        val zaakOverzichten = signaleringService.listZakenSignaleringenPage(
+        val checkedZakenSignaleringen = signaleringService.listCheckedZakenSignaleringenPage(
             signaleringsType = signaleringsType,
             pageParameters = restSignaleringPageParameters,
             loggedInUser = loggedInUser
         )
-        // listing deletes invalid signaleringen, so the total is counted afterwards
-        return signaleringService.countZakenSignaleringen(signaleringsType).let { RestResultaat(zaakOverzichten, it) }
+        signaleringService.deleteInvalidSignaleringen(checkedZakenSignaleringen.invalid)
+        return signaleringService.countZakenSignaleringen(signaleringsType)
+            .let { RestResultaat(checkedZakenSignaleringen.valid, it) }
     }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
@@ -92,7 +93,9 @@ class SignaleringRestService @Inject constructor(
     fun listTakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type
     ): List<RestSignaleringTaskSummary> =
-        signaleringService.listTakenSignaleringenPage(signaleringsType)
+        signaleringService.listCheckedTakenSignaleringen(signaleringsType)
+            .also { signaleringService.deleteInvalidSignaleringen(it.invalid) }
+            .valid
 
     @GET
     @Path("/informatieobjecten/{type}")
