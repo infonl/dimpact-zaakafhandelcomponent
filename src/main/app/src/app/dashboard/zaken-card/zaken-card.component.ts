@@ -130,6 +130,10 @@ export class ZakenCardComponent
       this.dataSource.data = this.zakenQuery.data()?.resultaten ?? [];
     });
 
+    // Listing the signaleringen deletes the stale ones, so the total can drop below the page this card shows.
+    // Asking for that page again is rejected by the backend, so move to the last page that still exists.
+    // The cached pages are marked stale first, because they were loaded before the stale signaleringen
+    // were deleted.
     effect(() => {
       const totaal = this.zakenQuery.data()?.totaal;
       if (totaal == null) return;
