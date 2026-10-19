@@ -994,7 +994,7 @@ describe(CaseDetailsEditComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        screen.getByText(
+        await screen.findByText(
           "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found",
         ),
       ).toBeInTheDocument();
@@ -1024,7 +1024,7 @@ describe(CaseDetailsEditComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        screen.getByText(
+        await screen.findByText(
           "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released",
         ),
       ).toBeInTheDocument();
