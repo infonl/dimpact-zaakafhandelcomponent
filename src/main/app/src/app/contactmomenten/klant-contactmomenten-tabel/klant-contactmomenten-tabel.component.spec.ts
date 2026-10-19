@@ -249,7 +249,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(lastSearch().page).toBe(0);
   });
 
-  it("keeps searching for the bsn it was first rendered with when the bsn changes", async () => {
+  it("searches for the new bsn when the bsn changes", async () => {
     await setup({ bsn: "999993896", vestigingsnummer: "000099998888" });
     await receive([]);
 
@@ -259,13 +259,13 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(listContactmomenten).toHaveBeenCalledTimes(2);
     expect(lastSearch()).toEqual(
       expect.objectContaining({
-        bsn: "999993896",
+        bsn: "999990408",
         vestigingsnummer: "000099998888",
       }),
     );
   });
 
-  it("keeps searching for the vestigingsnummer it was first rendered with when the vestigingsnummer changes", async () => {
+  it("searches for the new vestigingsnummer when the vestigingsnummer changes", async () => {
     await setup({ bsn: "999993896", vestigingsnummer: "000099998888" });
     await receive([]);
 
@@ -276,7 +276,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(lastSearch()).toEqual(
       expect.objectContaining({
         bsn: "999993896",
-        vestigingsnummer: "000099998888",
+        vestigingsnummer: "000011112222",
       }),
     );
   });
