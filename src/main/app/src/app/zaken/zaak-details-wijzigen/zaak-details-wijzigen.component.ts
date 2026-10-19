@@ -35,6 +35,7 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -60,6 +61,7 @@ import { ZakenService } from "../zaken.service";
 })
 export class CaseDetailsEditComponent implements OnInit {
   private readonly zakenService = inject(ZakenService);
+  private readonly zaakDialogService = inject(ZaakDialogService);
   private readonly referentieTabelService = inject(ReferentieTabelService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
@@ -184,7 +186,7 @@ export class CaseDetailsEditComponent implements OnInit {
       this.form.controls.groep.disable();
     }
 
-    if (zaak.isZaakspecifiekGeautoriseerd || !zaak.rechten.canWijzigen) {
+    if (!zaak.rechten.canWijzigen) {
       this.form.controls.isZaakspecifiekGeautoriseerd.disable();
     }
 
@@ -352,6 +354,25 @@ export class CaseDetailsEditComponent implements OnInit {
     }
 
     const value = this.form.getRawValue();
+    const isLiftingZaakspecifiekeAutorisatie =
+      this.zaak().isZaakspecifiekGeautoriseerd &&
+      !value.isZaakspecifiekGeautoriseerd;
+
+    if (!isLiftingZaakspecifiekeAutorisatie) {
+      this.save(value.isZaakspecifiekGeautoriseerd || undefined);
+      return;
+    }
+
+    this.zaakDialogService
+      .openZaakspecifiekeAutorisatieOpheffen()
+      .afterClosed()
+      .subscribe((isConfirmed) => {
+        if (isConfirmed) this.save(false);
+      });
+  }
+
+  private save(isZaakspecifiekGeautoriseerd: boolean | undefined) {
+    const value = this.form.getRawValue();
     this.updateZaakMutation.mutate({
       reden: value.reden ?? "",
       zaak: {
@@ -365,8 +386,7 @@ export class CaseDetailsEditComponent implements OnInit {
           value.uiterlijkeEinddatumAfdoening?.toISOString(),
         omschrijving: value.omschrijving ?? "",
         toelichting: value.toelichting ?? undefined,
-        isZaakspecifiekGeautoriseerd:
-          value.isZaakspecifiekGeautoriseerd || undefined,
+        isZaakspecifiekGeautoriseerd,
       },
     });
   }

@@ -297,6 +297,25 @@ class ZrcClientServiceTest : BehaviorSpec({
         }
     }
 
+    given("A zaakeigenschap to be deleted") {
+        val zaakUuid = UUID.randomUUID()
+        val zaakeigenschapUuid = UUID.randomUUID()
+        val auditExplanation = "fakeExplanation"
+        every { zrcClient.zaakeigenschapDelete(zaakUuid, zaakeigenschapUuid) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any()) } answers { secondArg<() -> Any?>()() }
+
+        `when`("deleteZaakeigenschap is called") {
+            zrcClientService.deleteZaakeigenschap(zaakUuid, zaakeigenschapUuid, auditExplanation)
+
+            then("it should delete the zaakeigenschap and set the audit description") {
+                verify(exactly = 1) {
+                    zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
+                    zrcClient.zaakeigenschapDelete(zaakUuid, zaakeigenschapUuid)
+                }
+            }
+        }
+    }
+
     given("A zaakobject to be deleted") {
         val zaakobject = createZaakobjectPand()
         val toelichting = "fakeToelichting"

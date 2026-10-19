@@ -72,7 +72,6 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_ZAAKTYPE_NOT_ZAAKSPECIFIEK_AUTORISEERBAAR("msg.error.zaaktype.not.zaakspecifiek-autoriseerbaar"),
     ERROR_CODE_ZAAK_WITHOUT_BEHANDELAAR_CANNOT_BE_MARKED("msg.error.zaak.without.behandelaar.cannot.be.marked"),
     ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_NOT_ALLOWED("msg.error.zaakspecifieke.autorisatie.not.allowed"),
-    ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_CANNOT_BE_LIFTED("msg.error.zaakspecifieke.autorisatie.cannot.be.lifted"),
     ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_RELEASED(
         "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released"
     ),

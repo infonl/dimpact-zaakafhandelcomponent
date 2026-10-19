@@ -6,7 +6,6 @@
 package nl.info.zac.signalering.model
 
 import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType

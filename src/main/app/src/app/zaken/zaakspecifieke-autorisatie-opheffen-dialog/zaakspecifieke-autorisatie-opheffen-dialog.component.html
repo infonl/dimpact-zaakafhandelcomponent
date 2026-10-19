@@ -1,0 +1,24 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<zac-generic-dialog
+  titleKey="title.zaakspecifieke-autorisatie.opheffen"
+  [melding]="'msg.zaakspecifieke-autorisatie.opheffen.bevestigen' | translate"
+  (cancelled)="dialogRef.close(false)"
+/>
+
+<mat-dialog-actions>
+  <button
+    mat-raised-button
+    color="primary"
+    type="button"
+    (click)="dialogRef.close(true)"
+  >
+    {{ "actie.opheffen" | translate }}
+  </button>
+  <button mat-raised-button type="button" (click)="dialogRef.close(false)">
+    {{ "actie.sluiten" | translate }}
+  </button>
+</mat-dialog-actions>

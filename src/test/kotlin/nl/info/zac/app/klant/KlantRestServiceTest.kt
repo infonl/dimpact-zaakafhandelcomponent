@@ -813,8 +813,8 @@ class KlantRestServiceTest : BehaviorSpec({
                 val result = klantRestService.listBedrijven(restListBedrijvenParameters)
 
                 then("the result should contain the expected company") {
-                    result.resultaten.size shouldBe 1
-                    with(result.resultaten.first()) {
+                    result.results.size shouldBe 1
+                    with(result.results.first()) {
                         this.naam shouldBe "fakeName"
                         this.kvkNummer shouldBe "fakeKvkNummer"
                         // the type should be converted to uppercase in the response
@@ -842,8 +842,8 @@ class KlantRestServiceTest : BehaviorSpec({
                 val result = klantRestService.listBedrijven(restListBedrijvenParameters)
 
                 then("the result should contain the CoC-number") {
-                    result.resultaten.size shouldBe 1
-                    with(result.resultaten.first()) {
+                    result.results.size shouldBe 1
+                    with(result.results.first()) {
                         this.kvkNummer shouldBe "fakeKvkNummer"
                     }
                 }
@@ -866,7 +866,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 then(
                     "the result should contain the company since the available company is koppelbaar since it has a KVK number"
                 ) {
-                    result.resultaten.size shouldBe 1
+                    result.results.size shouldBe 1
                 }
             }
         }
@@ -887,7 +887,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 then(
                     "the result should contain the company since the available company is koppelbaar since it has a KVK number"
                 ) {
-                    result.resultaten.size shouldBe 1
+                    result.results.size shouldBe 1
                 }
             }
         }
@@ -911,7 +911,7 @@ class KlantRestServiceTest : BehaviorSpec({
                          or a vestigingsnummer
                     """.trimIndent()
                 ) {
-                    result.resultaten.size shouldBe 0
+                    result.results.size shouldBe 0
                 }
             }
         }
@@ -937,7 +937,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 then("it should return the found person in the result") {
                     verify { brpClientService.retrievePersoon(bsn, any(), any()) }
-                    result.resultaten.size shouldBe 1
+                    result.results.size shouldBe 1
                 }
             }
         }
@@ -957,7 +957,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 val result = klantRestService.listPersonen(restListPersonenParameters)
 
                 then("the result should be empty") {
-                    result.resultaten shouldBe emptyList()
+                    result.results shouldBe emptyList()
                 }
             }
         }
@@ -1026,7 +1026,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             any()
                         )
                     }
-                    result.resultaten.size shouldBe 1
+                    result.results.size shouldBe 1
                 }
                 then("retrievePersonen should not be called") {
                     verify(exactly = 0) {

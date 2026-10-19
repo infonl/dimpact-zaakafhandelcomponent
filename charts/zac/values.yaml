@@ -669,7 +669,7 @@ office_converter:
    # url: ""
   image:
     repository: docker.io/gotenberg/gotenberg
-    tag: "8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769"
+    tag: "8.38.1@sha256:aa552cc115db488e0f0bcb07446aac13071ad51505b642c84bb894500907b42b"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -724,7 +724,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.162.0@sha256:39923a8e431bd1f57be82411999d389fcfe40857492e4365456d97a4c1f74be6"
+    tag: "0.163.1@sha256:1175b03003053962012f5a231f5567f66a3e8fdb960c7835c0e48f7aa1555806"
   presets:
     clusterMetrics:
       enabled: false
@@ -755,7 +755,7 @@ nginx:
   image:
     repository: docker.io/nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5
+    tag: 1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
   service:
     type: ClusterIP
     port: 80

@@ -35,7 +35,7 @@ import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
 import net.atos.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
 import net.atos.zac.gebruikersvoorkeuren.model.createTabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
-import net.atos.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.SignaleringService
 

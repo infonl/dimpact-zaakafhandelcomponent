@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.klant.model.bedrijven
 
-import net.atos.zac.app.shared.RESTResultaat
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.kvk.zoeken.model.generated.AdresType
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -63,7 +63,7 @@ fun ResultaatItem.toRestBedrijf(): RestBedrijf {
     )
 }
 
-fun List<RestBedrijf>.toRestResultaat() = RESTResultaat(this)
+fun List<RestBedrijf>.toRestResultaat() = RestResultaat(this)
 
 private fun ResultaatItem.toName(): String =
     this.naam.replace(" ", NON_BREAKING_SPACE)
