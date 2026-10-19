@@ -64,7 +64,10 @@ class RestZaakOverzichtConverter @Inject constructor(
         )
     }
 
-    fun convertForDisplay(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht {
+    /**
+     * Returns `null` when [loggedInUser] has no read rights on [zaak].
+     */
+    fun convertForDisplayIfReadable(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht? {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         val zaakrechten = policyService.readZaakRechten(
@@ -73,16 +76,14 @@ class RestZaakOverzichtConverter @Inject constructor(
             loggedInUser = loggedInUser,
             zaakAutorisatieGegevens = zaakAutorisatieGegevens
         )
+        if (!zaakrechten.canLezen) return null
         return RestZaakOverzicht(
             identificatie = zaak.identificatie,
-            isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd
-        ).apply {
-            if (zaakrechten.canLezen) {
-                startdatum = zaak.startdatum
-                omschrijving = zaak.omschrijving
-                zaaktype = zaakType.omschrijving
-            }
-        }
+            isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
+            startdatum = zaak.startdatum,
+            omschrijving = zaak.omschrijving,
+            zaaktype = zaakType.omschrijving
+        )
     }
 
     private fun Zaak.toRestZaakResultaat(): RestZaakResultaat? = this.resultaat

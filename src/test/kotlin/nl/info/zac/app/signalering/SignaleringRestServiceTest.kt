@@ -96,6 +96,32 @@ class SignaleringRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("zaken signaleringen for ZAAK_OP_NAAM of which listing the page deletes two invalid ones") {
+        val signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
+        val restPageParameters = RestSignaleringPageParameters(
+            page = 0,
+            rows = 5,
+            sortField = SorteerVeld.SIGNALERING_TIJDSTIP,
+            sortOrder = SorteerRichting.DESC
+        )
+        val restZaakOverzichtList = List(5) { createRESTZaakOverzicht() }
+        val loggedInUser = createLoggedInUser()
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { signaleringService.countZakenSignaleringen(signaleringType) } returnsMany listOf(11L, 9L)
+        every {
+            signaleringService.listZakenSignaleringenPage(signaleringType, restPageParameters, loggedInUser)
+        } returns restZaakOverzichtList
+
+        `when`("listing zaken signaleringen") {
+            val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, restPageParameters)
+
+            then("the total is counted after listing, so it leaves out the deleted signaleringen") {
+                restResultaat.resultCount shouldBe 9
+                restResultaat.results shouldBe restZaakOverzichtList
+            }
+        }
+    }
+
     given("zaken signaleringen for ZAAK_OP_NAAM with sort parameters") {
         val signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
         val numberOfElements = 7
