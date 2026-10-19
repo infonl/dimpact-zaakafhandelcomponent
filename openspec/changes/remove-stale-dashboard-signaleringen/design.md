@@ -67,6 +67,8 @@ not that behandelaar.
 Flowable task changes produce no notifications. `TaskService.assignTask` (user assignment) and `releaseTask`
 delete the `TAAK_OP_NAAM` signaleringen for the taak of every user other than the new assignee (all of them on
 release). Without this, every task reassignment would end up as a warning in the listing check.
+The cleanup runs under the zaak lock that assigning already takes, and releasing takes that lock too, so a
+concurrent assignment of the same taak cannot delete the signalering of the newer assignee.
 
 ### One deletion helper in Kotlin, no change to `SignaleringZoekParameters`
 

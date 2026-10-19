@@ -163,6 +163,8 @@ class TaskServiceTest : BehaviorSpec({
             )
         } returns task
 
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
+
         `when`("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
             taskService.assignTask(
                 task = task,
@@ -315,6 +317,8 @@ class TaskServiceTest : BehaviorSpec({
         every {
             indexingService.commit()
         } just runs
+
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
 
         `when`(
             """"
@@ -512,6 +516,8 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
+
         `when`(
             """
             the 'assign tasks' function is called with REST taak verdelen gegevens without a assignee
@@ -575,6 +581,8 @@ class TaskServiceTest : BehaviorSpec({
         every {
             indexingService.commit()
         } just runs
+
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
 
         `when`(
             """
@@ -648,6 +656,8 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
+
         `when`("the 'release tasks' function is called with REST taak vrijgeven gegevens") {
             taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
 
@@ -704,6 +714,8 @@ class TaskServiceTest : BehaviorSpec({
         every {
             indexingService.commit()
         } just runs
+
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
 
         `when`(
             """
@@ -977,8 +989,21 @@ class TaskServiceTest : BehaviorSpec({
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
             } returns false
-            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
+            val zaakLock = ReentrantLock()
+            var isZaakLockHeldWhileDeleting = false
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns zaakLock
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
+            every {
+                signaleringService.deleteUserSignaleringenExceptFor(
+                    subjecttype = any(),
+                    subject = any(),
+                    types = any(),
+                    keptUserId = any()
+                )
+            } answers {
+                isZaakLockHeldWhileDeleting = zaakLock.isHeldByCurrentThread
+                0
+            }
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
             every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
             every { eventingService.send(any<ScreenEvent>()) } just runs
@@ -1003,6 +1028,9 @@ class TaskServiceTest : BehaviorSpec({
                         )
                     }
                 }
+                and("they are deleted under the lock of the zaak, so a concurrent assignment cannot interleave") {
+                    isZaakLockHeldWhileDeleting shouldBe true
+                }
             }
         }
 
@@ -1013,8 +1041,22 @@ class TaskServiceTest : BehaviorSpec({
                 caseVariables = mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
             )
             val releasedTask = createTestTask(id = "fakeTaskId", caseVariables = task.caseVariables)
+            val zaakLock = ReentrantLock()
+            var isZaakLockHeldWhileDeleting = false
             every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns zaakLock
             every { flowableTaskService.releaseTask(task, "fakeReason") } returns releasedTask
+            every {
+                signaleringService.deleteUserSignaleringenExceptFor(
+                    subjecttype = any(),
+                    subject = any(),
+                    types = any(),
+                    keptUserId = any()
+                )
+            } answers {
+                isZaakLockHeldWhileDeleting = zaakLock.isHeldByCurrentThread
+                0
+            }
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
             every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
             every { eventingService.send(any<ScreenEvent>()) } just runs
@@ -1038,6 +1080,9 @@ class TaskServiceTest : BehaviorSpec({
                             keptUserId = null
                         )
                     }
+                }
+                and("the task is released and they are deleted under the lock of the zaak") {
+                    isZaakLockHeldWhileDeleting shouldBe true
                 }
             }
         }
