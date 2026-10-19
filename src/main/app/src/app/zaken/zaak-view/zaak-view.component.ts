@@ -88,6 +88,7 @@ import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiat
 
 @Component({
   templateUrl: "./zaak-view.component.html",
+  styleUrls: ["./zaak-view.component.less"],
   animations: [detailExpand],
   standalone: true,
   imports: [
