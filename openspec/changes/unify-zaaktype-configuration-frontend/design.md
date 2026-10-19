@@ -146,6 +146,7 @@ rendered stepper.
 
 | # | Branch | Layer | Behaviour change |
 |---|---|---|---|
+| 0 | `PZ-12754-zaakafhandelparameters-za-ps-frontend-backend-api-code-voor-bpmn-en-cmmn-vereenvoudigen` | This OpenSpec change | none |
 | 1 | `feature/PZ-12754-step-beeindiging` | Shared beëindiging step, used by both edit components | none |
 | 2 | `feature/PZ-12754-step-koppelingen` | Shared koppelingen step; restore the two `aria-label`s | none (a11y fix) |
 | 3 | `feature/PZ-12754-step-proces-model` | One process model step in place of three | none |

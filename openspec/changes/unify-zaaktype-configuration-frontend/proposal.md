@@ -43,9 +43,9 @@ composed payloads (see design.md, D1).
 - The admin service uses TanStack `queryOptions()` and `mutationOptions()` for every endpoint that the step
   components call.
 
-Delivery: a GitHub stack of six pull requests (design.md, D6). Layers 1 to 4 are frontend refactors without a
-behaviour change. Layer 5 changes the REST contract and the frontend in one pull request. Layer 6 adds the BPMN
-settings to the screen.
+Delivery: a GitHub stack of seven pull requests (design.md, D6): this change, then six code layers. Layers 1 to 4
+are frontend refactors without a behaviour change. Layer 5 changes the REST contract and the frontend in one pull
+request. Layer 6 adds the BPMN settings to the screen.
 
 ## Capabilities
 
