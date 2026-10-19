@@ -25,7 +25,7 @@ import { ZaakIndicatiesComponent } from "../../../shared/indicaties/zaak-indicat
 import { LocationPipe } from "../../../shared/pipes/location.pipe";
 import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ZaakspecifiekGeautoriseerdIconComponent } from "../../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
+import { ZaakIdentificatieComponent } from "../../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakBetrokkeneListComponent } from "../../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { LocatieTonenComponent } from "../../zaak-locatie-tonen/zaak-locatie-tonen.component";
 import { ZaakHistorieComponent } from "../../zaken-historie/zaak-historie.component";
@@ -40,7 +40,7 @@ import { ZaakDetailsMedewerkersTabComponent } from "./zaak-details-medewerkers-t
   styleUrls: ["./zaak-details-card.component.less"],
   standalone: true,
   imports: [
-    ZaakspecifiekGeautoriseerdIconComponent,
+    ZaakIdentificatieComponent,
     MatCard,
     MatCardContent,
     MatCardHeader,
