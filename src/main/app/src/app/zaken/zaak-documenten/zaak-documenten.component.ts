@@ -15,8 +15,11 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { MatIconAnchor, MatIconButton } from "@angular/material/button";
-import { MatBadge } from "@angular/material/badge";
+import {
+  MatButton,
+  MatIconAnchor,
+  MatIconButton,
+} from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
@@ -102,7 +105,7 @@ const GEKOPPELDE_COLUMNS = [
   standalone: true,
   imports: [
     RouterLink,
-    MatBadge,
+    MatButton,
     MatCardModule,
     MatSlideToggleModule,
     MatTableModule,

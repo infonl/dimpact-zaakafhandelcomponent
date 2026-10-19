@@ -3,17 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-.mat-mdc-slide-toggle {
-  right: 30px;
-  position: absolute;
+.header-acties {
+  margin-left: auto;
+  position: relative;
+  z-index: 1;
 }
 
-#downloadZip_button:not([disabled]) {
-  color: var(--mat-table-row-item-label-text-color);
-}
-
-#downloadZip_button:hover {
-  color: #000000;
+// keeps the CDK sticky-cell z-indexes from painting over the header button shadow
+.table-wrapper {
+  isolation: isolate;
 }
 
 .mat-column-downloaden {

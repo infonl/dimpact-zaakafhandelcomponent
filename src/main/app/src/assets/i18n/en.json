@@ -659,7 +659,7 @@
   "actie.document.downloaden": "Download document",
   "actie.document.bewerken": "Edit document",
   "actie.downloaden": "Download",
-  "actie.downloaden.zip": "Click to download all selected files in one ZIP file",
+  "actie.downloaden.knop": "Download ZIP file",
   "actie.downloaden.zip.geen-selectie": "Select documents to download them here in one ZIP file with one click",
   "actie.aanvraagdocument.bekijken": "View application document",
   "actie.aanvraagdocument.downloaden": "Download application document",

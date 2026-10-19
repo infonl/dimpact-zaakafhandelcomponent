@@ -578,7 +578,7 @@ describe(ZaakDocumentenComponent.name, () => {
 
   describe("selecting documents for a zip download", () => {
     const zipButton = () =>
-      screen.getByRole("button", { name: "actie.downloaden.zip" });
+      screen.getByRole("button", { name: /actie.downloaden.knop/ });
 
     it("cannot be downloaded while nothing is selected", async () => {
       await setup();
@@ -630,7 +630,7 @@ describe(ZaakDocumentenComponent.name, () => {
       );
       await settle();
 
-      expect(zipButton()).toHaveTextContent("1");
+      expect(zipButton()).toHaveTextContent("(1)");
     });
 
     it("selects and deselects every document at once", async () => {
