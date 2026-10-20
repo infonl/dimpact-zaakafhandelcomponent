@@ -2729,7 +2729,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         given(
             """
             an unmarked zaak with a behandelaar and one update that marks the zaak and moves it to another
-            groep without naming a behandelaar, whose current behandelaar is not a member of that groep
+            groep together with its current behandelaar, who is not a member of that groep
             """
         ) {
             val changeDescription = "change description"
@@ -2742,7 +2742,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeCurrentBehandelaarId")
             )
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = null,
+                behandelaar = createRestUser(id = "fakeCurrentBehandelaarId"),
                 restGroup = restGroup,
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
@@ -2895,13 +2895,13 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("a zaak with a behandelaar and an update that changes the groep without naming a behandelaar") {
+        given("a zaak with a behandelaar and an update that keeps the groep and clears the behandelaar") {
             val changeDescription = "change description"
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
             val loggedInUser = createLoggedInUser(id = "fakeLoggedInUserId")
-            val restGroup = createRestGroup(id = "fakeNewGroupId")
+            val restGroup = createRestGroup(id = "fakeCurrentGroupId")
             val restZaakCreateData = createRestZaakCreateData(
                 behandelaar = null,
                 restGroup = restGroup,
@@ -2930,10 +2930,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeExistingBehandelaarId")
             )
-            val zaakAssignment = createZaakAssignment(
-                group = createGroup(id = "fakeNewGroupId"),
-                user = createUser(id = "fakeExistingBehandelaarId")
-            )
+            val zaakAssignment = createZaakAssignment(group = createGroup(id = "fakeCurrentGroupId"), user = null)
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                     zaak = any(),
@@ -2943,7 +2940,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every {
-                zaakService.readZaakAssignment(groupId = "fakeNewGroupId", userName = "fakeExistingBehandelaarId")
+                zaakService.readZaakAssignment(groupId = "fakeCurrentGroupId", userName = null)
             } returns zaakAssignment
             every {
                 zaakspecifiekeAutorisatieService.shouldMarkZaakspecifiekGeautoriseerd(
@@ -2972,7 +2969,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             `when`("the update is requested") {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
-                then("the zaak keeps its existing behandelaar instead of having the rol removed") {
+                then("the behandelaar is released while the zaak stays assigned to its groep") {
                     verify(exactly = 1) {
                         zaakService.assignZaak(zaak, zaakAssignment, changeDescription)
                     }

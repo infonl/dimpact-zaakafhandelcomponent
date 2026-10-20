@@ -900,16 +900,12 @@ class ZaakRestService @Inject constructor(
             ?.betrokkeneIdentificatie
             ?.identificatie
 
-    /**
-     * An absent `behandelaar` keeps the one the zaak already has: a partial update never releases a
-     * behandelaar, that goes through the dedicated vrijgeven endpoint.
-     */
     private fun resolveRequestedAssignment(
         zaak: Zaak,
         restZaak: RestZaakCreateData,
         currentBehandelaarId: String?
     ) = restZaak.groep?.id?.let { requestedGroupId ->
-        val requestedBehandelaarId = restZaak.behandelaar?.id ?: currentBehandelaarId
+        val requestedBehandelaarId = restZaak.behandelaar?.id
         val currentGroupId = zgwApiService.findGroepForZaak(zaak)
             ?.betrokkeneIdentificatie
             ?.identificatie
