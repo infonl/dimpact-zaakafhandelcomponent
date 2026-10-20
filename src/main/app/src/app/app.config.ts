@@ -111,6 +111,7 @@ export const appConfig: ApplicationConfig = {
       QUERY_CLIENT,
       withDevtools(() => ({
         loadDevtools: isDevMode(),
+        buttonPosition: "bottom-left",
       })),
     ),
     provideStartupPrefetch(),
