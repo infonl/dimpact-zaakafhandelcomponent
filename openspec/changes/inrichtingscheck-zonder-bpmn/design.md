@@ -12,11 +12,10 @@ roltype, resultaattype, statustype and eigenschap caches.
 
 ## Goals / Non-Goals
 
-**Goals:** every requirement in `specs/zaaktype-inrichtingscheck/spec.md` and
-`specs/zaaktypecatalogus-cache/spec.md`.
+**Goals:** every requirement in `specs/zaaktype-inrichtingscheck/spec.md`.
 
 **Non-Goals:** BPMN-specific inrichtingschecks; changing the checks for CMMN zaaktypes; removing the admin
-endpoint in `UtilRestService` that clears all caches.
+endpoint in `UtilRestService` that clears all caches; changing which caches a zaaktype notification clears.
 
 ## Decisions
 
@@ -38,21 +37,19 @@ card suggested a scheduled synchronisation that does not exist. Both `ztc-cache`
 nothing else, not the itest or e2e tests, calls them. The admin endpoint in `UtilRestService` stays as a manual
 fallback.
 
-### A zaaktype notification clears every catalogue cache
+### Leave the cache clearing on a zaaktype notification as it is
 
-`updateZaaktypeConfiguration` also clears the informatieobjecttype, zaaktype-informatieobjecttype and
-besluittype caches, so a zaaktype notification clears every cache the button cleared. Expiry alone is not
-enough: `expireAfterAccess` keeps an entry that is read often alive, so stale data could stay indefinitely.
-Clearing whole caches, rather than only the entries of the changed zaaktype, matches what the method already
-does for the other caches; zaaktypes change rarely.
+A zaaktype notification keeps clearing the zaaktype, roltype, resultaattype, statustype and eigenschap caches,
+and not the informatieobjecttype, zaaktype-informatieobjecttype and besluittype caches the button also
+cleared. Those three are cached per zaaktype URL, and a published change in Open Zaak creates a new zaaktype
+version with a new URL, which is not cached yet. Clearing them as well would only help in rare cases, so the
+admin endpoint covers those instead.
 
 ## Risks / Trade-offs
 
-- [Open Zaak changes an informatieobjecttype or besluittype without a zaaktype notification, or a notification
-  is missed] → The cached data stays until it expires or the next zaaktype notification. A beheerder can still
-  clear all caches with the admin endpoint.
-- [Every zaaktype notification clears all catalogue caches] → A few extra Open Zaak reads after a zaaktype
-  change; acceptable given how rarely zaaktypes change.
+- [Cached informatieobjecttypen or besluittypen of a zaaktype change without a new zaaktype version, or a
+  notification is missed] → The cached data stays until nobody reads it for an hour. A beheerder clears it with
+  the admin endpoint, which the handleiding describes.
 
 ## Migration Plan
 
