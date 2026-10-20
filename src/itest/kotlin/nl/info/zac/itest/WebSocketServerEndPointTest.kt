@@ -527,22 +527,24 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         }
 
         given(
-            "a websocket that subscribes to all changes of a zaak and then cancels all its subscriptions, " +
-                "and a second websocket that subscribes to all changes of the same zaak"
+            "two websockets that both subscribe to all changes of the same zaak, " +
+                "after which the first websocket cancels all its subscriptions"
         ) {
             val webSocketTestListener = WebSocketTestListener(
                 textToBeSentOnOpen = subscriptionMessage("CREATE", SCREEN_EVENT_TYPE_ZAAK, zaakUuid)
             )
+            val otherWebSocketTestListener = WebSocketTestListener(
+                textToBeSentOnOpen = subscriptionMessage("CREATE", SCREEN_EVENT_TYPE_ZAAK, zaakUuid)
+            )
             val webSocket = connectWebSocket(webSocketTestListener)
+            connectWebSocket(otherWebSocketTestListener)
             awaitZaakEvent(webSocketTestListener)
+            awaitZaakEvent(otherWebSocketTestListener)
             webSocket.send("""{ "subscriptionType": "DELETE_ALL" }""")
             webSocket.send(subscriptionMessage("CREATE", SCREEN_EVENT_TYPE_ZAAK_ROLLEN, zaakUuid))
             awaitRolEvent(webSocketTestListener)
             webSocketTestListener.messagesReceived.clear()
-            val otherWebSocketTestListener = WebSocketTestListener(
-                textToBeSentOnOpen = subscriptionMessage("CREATE", SCREEN_EVENT_TYPE_ZAAK, zaakUuid)
-            )
-            connectWebSocket(otherWebSocketTestListener)
+            otherWebSocketTestListener.messagesReceived.clear()
 
             `when`("a notification is sent to ZAC that the zaak has been updated") {
                 eventually(30.seconds) {
@@ -550,7 +552,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
                     otherWebSocketTestListener.messagesReceived.containsEventFor(SCREEN_EVENT_TYPE_ZAAK) shouldBe true
                 }
 
-                then("only the second websocket receives the event for the zaak") {
+                then("the second websocket keeps its subscription and only it receives the event for the zaak") {
                     continually(5.seconds) {
                         webSocketTestListener.messagesReceived.forNone {
                             JSONObject(it).getString("objectType") shouldBe SCREEN_EVENT_TYPE_ZAAK
