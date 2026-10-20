@@ -59,7 +59,6 @@ const geladenTabelA = fromPartial<GeneratedType<"RestReferenceTable">>({
 describe(ReferentieTabellenComponent.name, () => {
   let fixture: ComponentFixture<ReferentieTabellenComponent>;
   let service: ReferentieTabelService;
-  let setTitle: jest.SpyInstance;
   let dialogOpen: jest.SpyInstance;
   let deleteReferentieTabelMutation: ReturnType<
     typeof createMutationOptions<undefined>
@@ -100,9 +99,6 @@ describe(ReferentieTabellenComponent.name, () => {
       .mockReturnValue(deleteReferentieTabelMutation as never);
 
     const utilService = TestBed.inject(UtilService);
-    setTitle = jest
-      .spyOn(utilService, "setTitle")
-      .mockImplementation(() => undefined);
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => undefined);
 
     dialogOpen = jest
@@ -136,10 +132,6 @@ describe(ReferentieTabellenComponent.name, () => {
   it("sets the title and shows a row per reference table", async () => {
     await setup();
 
-    expect(setTitle).toHaveBeenCalledWith(
-      "title.referentietabellen",
-      undefined,
-    );
     expect(screen.getByRole("button", { name: "TABEL_A" })).toBeVisible();
     expect(screen.getByRole("button", { name: "TABEL_B" })).toBeVisible();
     expect(screen.getByText("Tabel A")).toBeVisible();

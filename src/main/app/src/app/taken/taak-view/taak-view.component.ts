@@ -31,10 +31,9 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute } from "@angular/router";
 import type { FormioForm } from "@formio/angular";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
-import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -197,11 +196,9 @@ export class TaakViewComponent
     private readonly route: ActivatedRoute,
     private readonly takenService: TakenService,
     private readonly zakenService: ZakenService,
-    public readonly utilService: UtilService,
     private readonly websocketService: WebsocketService,
     private readonly taakFormulierenService: TaakFormulierenService,
     private readonly identityService: IdentityService,
-    protected readonly translate: TranslateService,
     private readonly formioSetupService: FormioSetupService,
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
@@ -352,15 +349,6 @@ export class TaakViewComponent
     } catch (e) {
       console.warn(e);
     }
-
-    this.utilService.setTitle("title.taak", {
-      taak: this.translate.instant(
-        this.isReadonly() ? "title.taak.raadplegen" : "title.taak.behandelen",
-        {
-          taak: taak.naam,
-        },
-      ),
-    });
   }
 
   protected isReadonly() {
