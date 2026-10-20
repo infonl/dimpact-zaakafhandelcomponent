@@ -6,6 +6,7 @@ package nl.info.zac.itest.bpmn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -27,6 +28,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KE
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.seconds
@@ -36,6 +38,10 @@ class ZaakRestServiceBpmnWarningTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
     val zaakHelper = ZaakHelper(zacClient)
+    val afterThirtySeconds = eventuallyConfig {
+        duration = 30.seconds
+        interval = 2.seconds
+    }
 
     fun storeBpmnTest1Configuration(fatalDateWarningWindow: Int?) = zacClient.createZaaktypeBpmnConfiguration(
         zaakTypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
@@ -58,7 +64,7 @@ class ZaakRestServiceBpmnWarningTest : BehaviorSpec({
 
     afterSpec {
         storeBpmnTest1Configuration(fatalDateWarningWindow = null).code shouldBe HTTP_OK
-        storeZaakVerlopendMailSetting(isMailEnabled = false).code shouldBe HTTP_OK
+        storeZaakVerlopendMailSetting(isMailEnabled = false).code shouldBe HTTP_NO_CONTENT
     }
 
     given(
@@ -110,19 +116,17 @@ class ZaakRestServiceBpmnWarningTest : BehaviorSpec({
             }
         }
 
-        `when`("the signaleringen are sent") {
-            val sendSignaleringenResponse = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/internal/signaleringen/send-signaleringen",
-                headers = mapOf(
-                    "Content-Type" to "application/json",
-                    "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders()
-            )
-
+        `when`("the signaleringen are sent once the zaak with its fatal date is indexed for searching") {
             then("I get the due-date signalering of the BPMN zaak by mail") {
-                sendSignaleringenResponse.code shouldBe HTTP_OK
                 lateinit var receivedMails: JSONArray
-                eventually(10.seconds) {
+                eventually(afterThirtySeconds) {
+                    itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/internal/signaleringen/send-signaleringen",
+                        headers = mapOf(
+                            "Content-Type" to "application/json",
+                            "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+                        ).toHeaders()
+                    ).code shouldBe HTTP_OK
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/${BEHANDELAAR_BPMN_WAARSCHUWING_1.email}/messages/",
                         testUser = BEHANDELAAR_BPMN_WAARSCHUWING_1
