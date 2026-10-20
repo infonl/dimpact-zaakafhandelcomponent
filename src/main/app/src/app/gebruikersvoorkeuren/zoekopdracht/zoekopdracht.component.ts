@@ -46,11 +46,11 @@ import { ZoekFilters } from "./zoekfilters.model";
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   readonly werklijst = input.required<GeneratedType<"Werklijst">>();
   readonly zoekFilters = input.required<ZoekFilters>();
-  readonly zoekopdracht = output<GeneratedType<"RESTZoekopdracht">>();
+  readonly zoekopdracht = output<GeneratedType<"RestZoekopdracht">>();
   readonly filtersChanged = input.required<EventEmitter<void>>();
 
-  protected zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [];
-  protected actieveZoekopdracht: GeneratedType<"RESTZoekopdracht"> | null =
+  protected zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = [];
+  protected actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null =
     null;
   protected actieveFilters = false;
   private filtersChangedSubscription$!: Subscription;
@@ -97,7 +97,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected setActief(zoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+  protected setActief(zoekopdracht: GeneratedType<"RestZoekopdracht">) {
     this.actieveZoekopdracht = zoekopdracht;
     this.actieveFilters = true;
     this.zoekopdracht.emit(this.actieveZoekopdracht);
@@ -106,7 +106,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
 
   protected deleteZoekopdracht(
     $event: MouseEvent,
-    zoekopdracht: GeneratedType<"RESTZoekopdracht">,
+    zoekopdracht: GeneratedType<"RestZoekopdracht">,
   ) {
     $event.stopPropagation();
     this.deleteZoekopdrachtMutation.mutate(zoekopdracht.id!);

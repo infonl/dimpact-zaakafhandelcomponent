@@ -38,7 +38,7 @@ const DASHBOARD_CARDS_URL = "/rest/gebruikersvoorkeuren/dasboardcard/actief";
 const DASHBOARD_CARD_URL = "/rest/gebruikersvoorkeuren/dasboardcard";
 const SIGNALERING_TYPEN_URL = "/rest/signaleringen/typen/dashboard";
 
-const instellingen: GeneratedType<"RESTDashboardCardInstelling">[] = [
+const instellingen: GeneratedType<"RestDashboardCardInstelling">[] = [
   { cardId: "MIJN_TAKEN", column: 0, row: 0 },
   { cardId: "MIJN_ZAKEN_NIEUW", column: 0, row: 1 },
   { cardId: "MIJN_ZAKEN", column: 1, row: 0 },
@@ -388,7 +388,7 @@ describe(DashboardComponent.name, () => {
       .expectOne(DASHBOARD_CARD_URL)
       .flush([
         { cardId: "MIJN_TAKEN", column: 2, row: 7 },
-      ] satisfies GeneratedType<"RESTDashboardCardInstelling">[]);
+      ] satisfies GeneratedType<"RestDashboardCardInstelling">[]);
     await sleep();
     fixture.detectChanges();
     flushAnimationFrames();

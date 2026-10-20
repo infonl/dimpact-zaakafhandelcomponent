@@ -175,7 +175,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   editMode = new FormControl(false);
   showHint = false;
 
-  instellingen: GeneratedType<"RESTDashboardCardInstelling">[] = []; // the last loaded card settings
+  instellingen: GeneratedType<"RestDashboardCardInstelling">[] = []; // the last loaded card settings
   available: DashboardCard[] = []; // cards that are not on the dashboard
   grid: Array<DashboardCard[]> = []; // cards that are on the dashboard
 
@@ -479,7 +479,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       cardId: card.id,
       signaleringType: card.signaleringType,
       // Add other required properties with default values if needed
-    } satisfies GeneratedType<"RESTDashboardCardInstelling">;
+    } satisfies GeneratedType<"RestDashboardCardInstelling">;
   }
 }
 

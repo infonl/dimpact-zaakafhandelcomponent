@@ -16,17 +16,21 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTDashboardCardInstellingConverter
-import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTZoekopdrachtConverter
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTTabelGegevens
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
-import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
-import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
+import nl.info.zac.app.gebruikersvoorkeuren.model.RestDashboardCardInstelling
+import nl.info.zac.app.gebruikersvoorkeuren.model.RestTabelGegevens
+import nl.info.zac.app.gebruikersvoorkeuren.model.RestZoekopdracht
+import nl.info.zac.app.gebruikersvoorkeuren.model.toDashboardCardInstelling
+import nl.info.zac.app.gebruikersvoorkeuren.model.toRestDashboardCardInstelling
+import nl.info.zac.app.gebruikersvoorkeuren.model.toRestZoekopdracht
+import nl.info.zac.app.gebruikersvoorkeuren.model.toZoekopdracht
 import nl.info.zac.app.policy.model.toRestWerklijstRechten
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
+import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
+import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import nl.info.zac.gebruikersvoorkeuren.model.Werklijst
+import nl.info.zac.gebruikersvoorkeuren.model.Zoekopdracht
+import nl.info.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -44,10 +48,10 @@ class GebruikersvoorkeurenRestService @Inject constructor(
 ) {
     @GET
     @Path("zoekopdracht/{lijstID}")
-    fun listZoekopdrachten(@PathParam("lijstID") lijstID: Werklijst): List<RESTZoekopdracht> =
+    fun listZoekopdrachten(@PathParam("lijstID") lijstID: Werklijst): List<RestZoekopdracht> =
         gebruikersvoorkeurenService.listZoekopdrachten(
             ZoekopdrachtListParameters(lijstID, loggedInUserInstance.get().id)
-        ).let(RESTZoekopdrachtConverter::convert)
+        ).map(Zoekopdracht::toRestZoekopdracht)
 
     @DELETE
     @Path("zoekopdracht/{id}")
@@ -55,15 +59,15 @@ class GebruikersvoorkeurenRestService @Inject constructor(
 
     @POST
     @Path("zoekopdracht")
-    fun createOrUpdateZoekopdracht(restZoekopdracht: RESTZoekopdracht): RESTZoekopdracht =
-        RESTZoekopdrachtConverter.convert(restZoekopdracht, loggedInUserInstance)
+    fun createOrUpdateZoekopdracht(restZoekopdracht: RestZoekopdracht): RestZoekopdracht =
+        restZoekopdracht.toZoekopdracht(loggedInUserInstance.get())
             .let(gebruikersvoorkeurenService::createZoekopdracht)
-            .let(RESTZoekopdrachtConverter::convert)
+            .toRestZoekopdracht()
 
     @PUT
     @Path("zoekopdracht/actief")
-    fun setZoekopdrachtActief(restZoekopdracht: RESTZoekopdracht) =
-        gebruikersvoorkeurenService.setActief(RESTZoekopdrachtConverter.convert(restZoekopdracht, loggedInUserInstance))
+    fun setZoekopdrachtActief(restZoekopdracht: RestZoekopdracht) =
+        gebruikersvoorkeurenService.setActief(restZoekopdracht.toZoekopdracht(loggedInUserInstance.get()))
 
     @DELETE
     @Path("zoekopdracht/{werklijst}/actief")
@@ -72,16 +76,16 @@ class GebruikersvoorkeurenRestService @Inject constructor(
 
     @GET
     @Path("tabel-gegevens/{werklijst}")
-    fun readTabelGegevens(@PathParam("werklijst") werklijst: Werklijst): RESTTabelGegevens {
+    fun readTabelGegevens(@PathParam("werklijst") werklijst: Werklijst): RestTabelGegevens {
         val tabelInstellingen = gebruikersvoorkeurenService.readTabelInstellingen(
             werklijst,
             loggedInUserInstance.get().id
         )
-        return RESTTabelGegevens().apply {
-            aantalPerPagina = tabelInstellingen.aantalPerPagina
-            pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS
+        return RestTabelGegevens(
+            aantalPerPagina = tabelInstellingen.aantalPerPagina,
+            pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS,
             werklijstRechten = policyService.readWerklijstRechten().toRestWerklijstRechten()
-        }
+        )
     }
 
     @PUT
@@ -101,36 +105,36 @@ class GebruikersvoorkeurenRestService @Inject constructor(
 
     @GET
     @Path("dasboardcard/actief")
-    fun listDashboardCards(): List<RESTDashboardCardInstelling> =
+    fun listDashboardCards(): List<RestDashboardCardInstelling> =
         gebruikersvoorkeurenService.listDashboardCards(loggedInUserInstance.get().id)
-            .let(RESTDashboardCardInstellingConverter::convert)
+            .map(DashboardCardInstelling::toRestDashboardCardInstelling)
 
     @PUT
     @Path("dasboardcard/actief")
-    fun updateDashboardCards(instellingen: List<RESTDashboardCardInstelling>): List<RESTDashboardCardInstelling> {
+    fun updateDashboardCards(instellingen: List<RestDashboardCardInstelling>): List<RestDashboardCardInstelling> {
         gebruikersvoorkeurenService.updateDashboardCards(
             loggedInUserInstance.get().id,
-            instellingen.map(RESTDashboardCardInstellingConverter::convert)
+            instellingen.map(RestDashboardCardInstelling::toDashboardCardInstelling)
         )
         return listDashboardCards()
     }
 
     @PUT
     @Path("dasboardcard")
-    fun addDashboardCard(instelling: RESTDashboardCardInstelling): List<RESTDashboardCardInstelling> {
+    fun addDashboardCard(instelling: RestDashboardCardInstelling): List<RestDashboardCardInstelling> {
         gebruikersvoorkeurenService.addDashboardCard(
             loggedInUserInstance.get().id,
-            RESTDashboardCardInstellingConverter.convert(instelling)
+            instelling.toDashboardCardInstelling()
         )
         return listDashboardCards()
     }
 
     @DELETE
     @Path("dasboardcard")
-    fun deleteDashboardCard(instelling: RESTDashboardCardInstelling): List<RESTDashboardCardInstelling> {
+    fun deleteDashboardCard(instelling: RestDashboardCardInstelling): List<RestDashboardCardInstelling> {
         gebruikersvoorkeurenService.deleteDashboardCard(
             loggedInUserInstance.get().id,
-            RESTDashboardCardInstellingConverter.convert(instelling)
+            instelling.toDashboardCardInstelling()
         )
         return listDashboardCards()
     }
