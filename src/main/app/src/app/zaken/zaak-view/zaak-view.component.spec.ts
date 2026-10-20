@@ -307,7 +307,7 @@ describe(ZaakViewComponent.name, () => {
       policyService = TestBed.inject(PolicyService);
     });
 
-    it("should render <zac-notities> when notitieRechten.lezen is true", () => {
+    it("should render <zac-notities> when notitieRechten.lezen is true", async () => {
       testQueryClient.setQueryData(
         policyService.readNotitieRechten().queryKey,
         { canLezen: true, canWijzigen: false },
@@ -316,11 +316,11 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        screen().getByRole("button", { name: "Notities" }),
+        await screen().findByRole("button", { name: "Notities" }),
       ).toBeInTheDocument();
     });
 
-    it("should render <zac-notities> when notitieRechten.wijzigen is true", () => {
+    it("should render <zac-notities> when notitieRechten.wijzigen is true", async () => {
       testQueryClient.setQueryData(
         policyService.readNotitieRechten().queryKey,
         { canLezen: false, canWijzigen: true },
@@ -329,7 +329,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        screen().getByRole("button", { name: "Notities" }),
+        await screen().findByRole("button", { name: "Notities" }),
       ).toBeInTheDocument();
     });
 
