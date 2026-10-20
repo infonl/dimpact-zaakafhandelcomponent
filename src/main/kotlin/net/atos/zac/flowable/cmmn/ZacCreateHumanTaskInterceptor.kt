@@ -69,24 +69,20 @@ class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
             )?.let {
             context.getTaskEntity().description = it
         }
-        (context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ZAAK_UUID) as UUID).let {
-            val screenEvent = ScreenEventType.ZAAK_TAKEN.updated(it)
-            // Wait some time before handling the event to make sure that the task has been created.
-            screenEvent.setDelay(SECONDS_TO_DELAY)
-            FlowableHelper.getInstance().eventingService.send(screenEvent)
+        val screenEvent = ScreenEventType.ZAAK_TAKEN.updated(
+            context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ZAAK_UUID) as UUID
+        )
+        // On creation of a human task the event observer will assume its owner is the actor who created it.
+        val signaleringEvent = context.getTaskEntity().assignee?.let {
+            SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, context.getTaskEntity(), null)
         }
-        context.getTaskEntity().assignee?.let {
-            // On creation of a human task the event observer will assume its owner is the actor who created it.
-            val signaleringEvent = SignaleringEventUtil.event(
-                SignaleringType.Type.TAAK_OP_NAAM,
-                context.getTaskEntity(),
-                null
-            )
-            // The event observer reads the task, which only exists for it once Flowable has committed the
-            // transaction. The task listeners in the same transaction, such as the one of the
-            // aanvullende informatie task, call external APIs, so no fixed delay is long enough.
-            Context.getTransactionContext().addTransactionListener(TransactionState.COMMITTED) {
-                FlowableHelper.getInstance().eventingService.send(signaleringEvent)
+        // The handlers of these events read the task, which only exists for them once Flowable has committed
+        // the transaction. The task listeners in the same transaction, such as the one of the
+        // aanvullende informatie task, call external APIs, so no fixed delay is long enough.
+        Context.getTransactionContext().addTransactionListener(TransactionState.COMMITTED) {
+            with(FlowableHelper.getInstance().eventingService) {
+                send(screenEvent)
+                signaleringEvent?.let(::send)
             }
         }
         FlowableHelper.getInstance().indexeerService.addOrUpdateTaak(context.getTaskEntity().id)

@@ -22,6 +22,8 @@ import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TR
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_ZAAK_UUID
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.model.SignaleringType
+import net.atos.zac.websocket.event.ScreenEvent
+import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.search.IndexingService
 import org.flowable.cmmn.engine.impl.persistence.entity.PlanItemInstanceEntity
@@ -44,6 +46,7 @@ class ZacCreateHumanTaskInterceptorTest : BehaviorSpec({
     val taskEntity = mockk<TaskEntity>()
     val createHumanTaskAfterContext = mockk<CreateHumanTaskAfterContext>()
     val taskId = "fakeTaskId"
+    val zaakUuid = UUID.randomUUID()
 
     val zacCreateHumanTaskInterceptor = ZacCreateHumanTaskInterceptor()
 
@@ -52,7 +55,6 @@ class ZacCreateHumanTaskInterceptorTest : BehaviorSpec({
 
     fun stubCreatedHumanTask(assignee: String?) {
         every { FlowableHelper.getInstance() } returns flowableHelper
-        every { flowableHelper.eventingService } returns eventingService
         every { flowableHelper.taakVariabelenService } returns taakVariabelenService
         every { flowableHelper.indexeerService } returns indexingService
         every { createHumanTaskAfterContext.planItemInstanceEntity } returns planItemInstanceEntity
@@ -61,10 +63,11 @@ class ZacCreateHumanTaskInterceptorTest : BehaviorSpec({
             every { getTransientVariable(VAR_TRANSIENT_TAAKDATA) } returns emptyMap<String, String>()
             every { getTransientVariable(VAR_TRANSIENT_DUE_DATE) } returns null
             every { getTransientVariable(VAR_TRANSIENT_DESCRIPTION) } returns null
-            every { getTransientVariable(VAR_TRANSIENT_ZAAK_UUID) } returns UUID.randomUUID()
+            every { getTransientVariable(VAR_TRANSIENT_ZAAK_UUID) } returns zaakUuid
         }
         every { taskEntity.id } returns taskId
         every { taskEntity.assignee } returns assignee
+        every { Context.getTransactionContext() } returns transactionContext
     }
 
     afterContainer {
@@ -78,7 +81,6 @@ class ZacCreateHumanTaskInterceptorTest : BehaviorSpec({
     given("a human task that is created with an assignee") {
         val transactionListenerSlot = slot<TransactionListener>()
         stubCreatedHumanTask(assignee = "fakeAssignee")
-        every { Context.getTransactionContext() } returns transactionContext
         every {
             transactionContext.addTransactionListener(TransactionState.COMMITTED, capture(transactionListenerSlot))
         } returns Unit
@@ -88,19 +90,32 @@ class ZacCreateHumanTaskInterceptorTest : BehaviorSpec({
 
             then(
                 """
-                no taak op naam signalering event is sent yet, so that the event observer never reads a task
-                that does not exist yet for it
+                no zaak taken screen event and no taak op naam signalering event are sent yet, so that their
+                handlers never read a task that does not exist yet for them
                 """
             ) {
-                verify(exactly = 0) { eventingService.send(any<SignaleringEvent<*>>()) }
+                verify(exactly = 0) {
+                    eventingService.send(any<ScreenEvent>())
+                    eventingService.send(any<SignaleringEvent<*>>())
+                }
             }
         }
 
         `when`("the Flowable transaction is committed") {
+            every { flowableHelper.eventingService } returns eventingService
             zacCreateHumanTaskInterceptor.afterCreateHumanTask(createHumanTaskAfterContext)
             transactionListenerSlot.captured.execute(mockk<CommandContext>())
 
-            then("a taak op naam signalering event for the task is sent") {
+            then("a zaak taken screen event for the zaak is sent") {
+                val screenEventSlot = slot<ScreenEvent>()
+                verify(exactly = 1) { eventingService.send(capture(screenEventSlot)) }
+                with(screenEventSlot.captured) {
+                    objectType shouldBe ScreenEventType.ZAAK_TAKEN
+                    objectId.resource shouldBe zaakUuid.toString()
+                }
+            }
+
+            and("a taak op naam signalering event for the task is sent") {
                 val signaleringEventSlot = slot<SignaleringEvent<*>>()
                 verify(exactly = 1) { eventingService.send(capture(signaleringEventSlot)) }
                 with(signaleringEventSlot.captured) {
@@ -113,16 +128,20 @@ class ZacCreateHumanTaskInterceptorTest : BehaviorSpec({
     }
 
     given("a human task that is created without an assignee") {
+        val transactionListenerSlot = slot<TransactionListener>()
         stubCreatedHumanTask(assignee = null)
+        every {
+            transactionContext.addTransactionListener(TransactionState.COMMITTED, capture(transactionListenerSlot))
+        } returns Unit
 
-        `when`("the human task has been created") {
+        `when`("the Flowable transaction is committed") {
+            every { flowableHelper.eventingService } returns eventingService
             zacCreateHumanTaskInterceptor.afterCreateHumanTask(createHumanTaskAfterContext)
+            transactionListenerSlot.captured.execute(mockk<CommandContext>())
 
-            then("no transaction listener is registered and no signalering event is sent") {
-                verify(exactly = 0) {
-                    transactionContext.addTransactionListener(any(), any())
-                    eventingService.send(any<SignaleringEvent<*>>())
-                }
+            then("only a zaak taken screen event is sent") {
+                verify(exactly = 1) { eventingService.send(any<ScreenEvent>()) }
+                verify(exactly = 0) { eventingService.send(any<SignaleringEvent<*>>()) }
             }
         }
     }
