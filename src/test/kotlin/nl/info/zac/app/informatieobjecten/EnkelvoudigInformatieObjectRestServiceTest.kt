@@ -21,8 +21,8 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.StreamingOutput
-import net.atos.zac.event.EventingService
-import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.zac.event.EventingService
+import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest

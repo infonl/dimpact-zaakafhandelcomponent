@@ -13,7 +13,7 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.event.EventingService
+import nl.info.zac.event.EventingService
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
 import nl.info.zac.app.admin.model.RestDeletedSignaleringenResponse

@@ -14,9 +14,9 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.event.EventingService
-import net.atos.zac.websocket.event.ScreenEvent
-import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.event.EventingService
+import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.note.converter.NoteConverter
 import nl.info.zac.note.NoteService
 import nl.info.zac.note.createNote

@@ -24,9 +24,9 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.StreamingOutput
 import jakarta.ws.rs.core.UriInfo
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import net.atos.zac.event.EventingService
+import nl.info.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
-import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum

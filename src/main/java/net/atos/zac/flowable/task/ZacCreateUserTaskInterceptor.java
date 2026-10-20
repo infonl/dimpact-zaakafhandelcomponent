@@ -14,8 +14,8 @@ import org.flowable.engine.interceptor.CreateUserTaskAfterContext;
 import org.flowable.engine.interceptor.CreateUserTaskBeforeContext;
 import org.flowable.engine.interceptor.CreateUserTaskInterceptor;
 
-import net.atos.zac.websocket.event.ScreenEvent;
-import net.atos.zac.websocket.event.ScreenEventType;
+import nl.info.zac.websocket.event.ScreenEvent;
+import nl.info.zac.websocket.event.ScreenEventType;
 
 public class ZacCreateUserTaskInterceptor implements CreateUserTaskInterceptor {
 

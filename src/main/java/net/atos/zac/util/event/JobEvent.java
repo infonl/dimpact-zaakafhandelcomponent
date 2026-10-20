@@ -5,8 +5,8 @@
 
 package net.atos.zac.util.event;
 
-import net.atos.zac.event.AbstractEvent;
-import net.atos.zac.event.Opcode;
+import nl.info.zac.event.AbstractEvent;
+import nl.info.zac.event.Opcode;
 
 public class JobEvent extends AbstractEvent<String, JobId> {
 

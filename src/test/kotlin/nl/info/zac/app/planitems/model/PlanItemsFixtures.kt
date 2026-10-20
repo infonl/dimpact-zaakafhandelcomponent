@@ -5,7 +5,7 @@
 
 package nl.info.zac.app.planitems.model
 
-import net.atos.zac.app.mail.model.RestMailGegevens
+import nl.info.zac.app.mail.model.RestMailGegevens
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.zaak.model.createRestGroup

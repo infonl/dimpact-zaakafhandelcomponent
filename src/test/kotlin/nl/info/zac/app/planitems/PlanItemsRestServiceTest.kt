@@ -17,7 +17,7 @@ import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.mail.model.createRestMailGegevens
+import nl.info.zac.app.mail.model.createRestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.zac.util.time.convertToDate

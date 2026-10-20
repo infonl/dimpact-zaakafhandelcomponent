@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.event.EventingService
+import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.drc.DrcClientService

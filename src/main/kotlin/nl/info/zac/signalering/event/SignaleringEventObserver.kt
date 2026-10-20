@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.ObservesAsync
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.zac.event.AbstractEventObserver
+import nl.info.zac.event.AbstractEventObserver
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.event.SignaleringEventUtil
