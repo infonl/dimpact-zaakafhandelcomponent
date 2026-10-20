@@ -22,7 +22,10 @@
     <p style="white-space: pre-line">{{ data.details }}</p>
   }
   @if (data.showServerErrorTexts) {
-    @for (serverErrorText of serverErrorTexts | async; track serverErrorText) {
+    @for (
+      serverErrorText of serverErrorTextsQuery.data() ?? [];
+      track serverErrorText
+    ) {
       <p>
         {{ serverErrorText }}
       </p>

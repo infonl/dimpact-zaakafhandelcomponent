@@ -4,18 +4,19 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
+import { testQueryClient } from "../../../setupJest";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { FoutAfhandelingComponent } from "./fout-afhandeling.component";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
 describe(FoutAfhandelingComponent.name, () => {
-  let fixture: ComponentFixture<FoutAfhandelingComponent>;
-  let component: FoutAfhandelingComponent;
   let foutAfhandelingService: FoutAfhandelingService;
   let referentieTabelService: ReferentieTabelService;
 
@@ -26,7 +27,12 @@ describe(FoutAfhandelingComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideQueryClient(testQueryClient),
+      ],
     }).compileComponents();
 
     foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
@@ -40,78 +46,49 @@ describe(FoutAfhandelingComponent.name, () => {
   ) => {
     foutAfhandelingService.foutmelding = foutmelding;
     foutAfhandelingService.bericht = bericht;
-    jest
-      .spyOn(referentieTabelService, "listServerErrorTexts")
-      .mockReturnValue(of(serverErrorTexts) as never);
+    testQueryClient.setQueryData(
+      referentieTabelService.listServerErrorTextsQuery().queryKey,
+      serverErrorTexts,
+    );
 
-    fixture = TestBed.createComponent(FoutAfhandelingComponent);
-    component = fixture.componentInstance;
+    const fixture = TestBed.createComponent(FoutAfhandelingComponent);
     fixture.detectChanges();
   };
 
   it("displays foutmelding in heading when set", () => {
     setup("Er is een fout opgetreden", "", []);
 
-    const heading = (fixture.nativeElement as HTMLElement).querySelector("h2");
-    expect(heading?.textContent).toContain("Er is een fout opgetreden");
+    expect(
+      screen.getByRole("heading", { name: "Er is een fout opgetreden" }),
+    ).toBeInTheDocument();
   });
 
   it("falls back to default translation key in heading when foutmelding is empty", () => {
     setup("", "", []);
 
-    const heading = (fixture.nativeElement as HTMLElement).querySelector("h2");
-    expect(heading?.textContent).toContain("error-card.title.default");
+    expect(
+      screen.getByRole("heading", { name: "error-card.title.default" }),
+    ).toBeInTheDocument();
   });
 
-  it("shows bericht paragraph when bericht is non-empty", () => {
+  it("shows bericht when bericht is non-empty", () => {
     setup("", "Neem contact op met de beheerder", []);
 
-    const nativeElement = fixture.nativeElement as HTMLElement;
-    const paragraphs = nativeElement.querySelectorAll("p");
-    const berichtTexts = Array.from(paragraphs).map((p) => p.textContent ?? "");
     expect(
-      berichtTexts.some((t) => t.includes("Neem contact op met de beheerder")),
-    ).toBe(true);
+      screen.getByText("Neem contact op met de beheerder"),
+    ).toBeInTheDocument();
   });
 
-  it("does not show bericht paragraph when bericht is empty", () => {
+  it("shows no paragraphs when there is neither bericht nor server error texts", () => {
     setup("Fout", "", []);
 
-    const nativeElement = fixture.nativeElement as HTMLElement;
-    const paragraphs = nativeElement.querySelectorAll("p");
-    expect(paragraphs.length).toBe(0);
+    expect(screen.queryAllByRole("paragraph")).toHaveLength(0);
   });
 
-  it("shows server error text paragraphs when serverErrorTexts emits values", () => {
+  it("shows the server error texts", () => {
     setup("", "", ["Server onbeschikbaar", "Probeer het later"]);
 
-    const nativeElement = fixture.nativeElement as HTMLElement;
-    const paragraphs = nativeElement.querySelectorAll("p");
-    const texts = Array.from(paragraphs).map(
-      (p) => p.textContent?.trim() ?? "",
-    );
-    expect(texts).toContain("Server onbeschikbaar");
-    expect(texts).toContain("Probeer het later");
-  });
-
-  it("does not show server error text paragraphs when serverErrorTexts emits empty array", () => {
-    setup("", "", []);
-
-    const nativeElement = fixture.nativeElement as HTMLElement;
-    const paragraphs = nativeElement.querySelectorAll("p");
-    expect(paragraphs.length).toBe(0);
-  });
-
-  it("reads foutmelding and bericht from FoutAfhandelingService on init", () => {
-    setup("Technische fout", "Details van de fout", []);
-
-    expect(component["foutmelding"]).toBe("Technische fout");
-    expect(component["bericht"]).toBe("Details van de fout");
-  });
-
-  it("calls listServerErrorTexts on ReferentieTabelService", () => {
-    setup("", "", []);
-
-    expect(referentieTabelService.listServerErrorTexts).toHaveBeenCalled();
+    expect(screen.getByText("Server onbeschikbaar")).toBeInTheDocument();
+    expect(screen.getByText("Probeer het later")).toBeInTheDocument();
   });
 });
