@@ -354,8 +354,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
       this.algemeenFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
-      this.koppelingenForm.valid &&
-      this.zaakbeeindigFormGroup.valid
+      this.koppelingenForm.valid
     );
   }
 

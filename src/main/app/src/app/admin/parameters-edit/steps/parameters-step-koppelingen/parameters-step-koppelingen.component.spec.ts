@@ -94,16 +94,17 @@ describe.each([
     return form;
   }
 
+  const byLabel = (label: string) => new RegExp(`^${label}$`, "i");
   const brpKoppelen = () =>
-    screen.getByRole("switch", { name: "gegevens.koppelen.brp" });
+    screen.getByRole("switch", { name: byLabel("gegevens.koppelen.brp") });
   const kvkKoppelen = () =>
-    screen.getByRole("switch", { name: "gegevens.koppelen.kvk" });
+    screen.getByRole("switch", { name: byLabel("gegevens.koppelen.kvk") });
   const doelbinding = (label: string) =>
-    screen.queryByRole("combobox", { name: label });
+    screen.queryByRole("combobox", { name: byLabel(label) });
 
   async function chooseBrpDoelbinding(values: Record<string, string>) {
     for (const [label, value] of Object.entries(values)) {
-      await user.click(screen.getByRole("combobox", { name: label }));
+      await user.click(screen.getByRole("combobox", { name: byLabel(label) }));
       await user.click(screen.getByRole("option", { name: value }));
     }
   }

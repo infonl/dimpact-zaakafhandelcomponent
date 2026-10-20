@@ -11,74 +11,45 @@
     <p>
       {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
     </p>
-    <form class="flex-col gap-12" [formGroup]="form()">
-      <div class="flex-row items-center gap-8">
-        <mat-slide-toggle
-          formControlName="brpKoppelen"
-          [aria-label]="'gegevens.koppelen.brp' | translate"
-          (click)="$event.stopPropagation()"
-          color="primary"
-        ></mat-slide-toggle>
-        <p>{{ "gegevens.koppelen.brp" | translate }}</p>
-      </div>
+    <section class="flex-col gap-12">
+      <zac-toggle
+        [form]="form()"
+        key="brpKoppelen"
+        label="gegevens.koppelen.brp"
+      ></zac-toggle>
       @if (brpDoelbindingSetupEnabled() && form().controls.brpKoppelen.value) {
-        <section class="flex-col" formGroupName="brpDoelbindingen">
+        <section class="flex-col">
           <p>
             {{ "title.admin.parameters.step.brp-doelbinding" | translate }}
           </p>
-          <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-            <mat-label>{{
-              "brp-doelbinding.zoek-waarde" | translate
-            }}</mat-label>
-            <mat-select
-              placeholder="{{ 'resultaat.kies' | translate }}"
-              formControlName="zoekWaarde"
-            >
-              @for (value of brpSearchValuesQuery.data() ?? []; track value) {
-                <mat-option [value]="value">{{ value }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-            <mat-label>{{
-              "brp-doelbinding.raadpleeg-waarde" | translate
-            }}</mat-label>
-            <mat-select
-              placeholder="{{ 'resultaat.kies' | translate }}"
-              formControlName="raadpleegWaarde"
-            >
-              @for (value of brpViewValuesQuery.data() ?? []; track value) {
-                <mat-option [value]="value">{{ value }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-            <mat-label>{{
-              "brp-doelbinding.verwerkingregister-waarde" | translate
-            }}</mat-label>
-            <mat-select
-              placeholder="{{ 'resultaat.kies' | translate }}"
-              formControlName="verwerkingregisterWaarde"
-            >
-              @for (
-                value of brpProcessingValuesQuery.data() ?? [];
-                track value
-              ) {
-                <mat-option [value]="value">{{ value }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <zac-select
+            class="flex-1 w33 w100-md"
+            [form]="form().controls.brpDoelbindingen"
+            key="zoekWaarde"
+            label="brp-doelbinding.zoek-waarde"
+            [options]="brpSearchValuesQuery.data() ?? []"
+          ></zac-select>
+          <zac-select
+            class="flex-1 w33 w100-md"
+            [form]="form().controls.brpDoelbindingen"
+            key="raadpleegWaarde"
+            label="brp-doelbinding.raadpleeg-waarde"
+            [options]="brpViewValuesQuery.data() ?? []"
+          ></zac-select>
+          <zac-select
+            class="flex-1 w33 w100-md"
+            [form]="form().controls.brpDoelbindingen"
+            key="verwerkingregisterWaarde"
+            label="brp-doelbinding.verwerkingregister-waarde"
+            [options]="brpProcessingValuesQuery.data() ?? []"
+          ></zac-select>
         </section>
       }
-      <div class="flex-row items-center gap-8">
-        <mat-slide-toggle
-          formControlName="kvkKoppelen"
-          [aria-label]="'gegevens.koppelen.kvk' | translate"
-          (click)="$event.stopPropagation()"
-          color="primary"
-        ></mat-slide-toggle>
-        <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
-      </div>
-    </form>
+      <zac-toggle
+        [form]="form()"
+        key="kvkKoppelen"
+        label="gegevens.koppelen.kvk"
+      ></zac-toggle>
+    </section>
   </mat-card-content>
 </mat-card>
