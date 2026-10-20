@@ -20,9 +20,9 @@ import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { ReferentieTabelService } from "../../../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../../zaakafhandel-parameters.service";
 import {
-  createHumanTaskReferentieTabelForm,
   HumanTaskForm,
   HumanTasksForm,
+  syncReferentieTabellen,
 } from "./human-tasks-form";
 
 @Component({
@@ -94,29 +94,10 @@ export class ParametersStepHumantasksComponent {
     );
   }
 
-  /**
-   * Gives the human task a reference table for each field of its formulier, and none for the fields of another
-   * formulier. A new field gets the reference table whose code is the name of the field.
-   */
   protected syncReferentieTabellen(humanTaskForm: HumanTaskForm) {
-    const veldNamen = this.veldDefinities(humanTaskForm).map(
-      ({ naam }) => naam ?? "",
-    );
-    const { referentieTabellen } = humanTaskForm.controls;
-
-    for (const veld of Object.keys(referentieTabellen.controls)) {
-      if (!veldNamen.includes(veld)) referentieTabellen.removeControl(veld);
-    }
-    for (const veld of veldNamen) {
-      if (referentieTabellen.contains(veld)) continue;
-      referentieTabellen.addControl(
-        veld,
-        createHumanTaskReferentieTabelForm({
-          tabel: this.referentieTabellenQuery
-            .data()
-            ?.find(({ code }) => code === veld),
-        }),
-      );
-    }
+    syncReferentieTabellen(humanTaskForm, {
+      formulierDefinities: this.formulierDefinitiesQuery.data() ?? [],
+      referentieTabellen: this.referentieTabellenQuery.data() ?? [],
+    });
   }
 }

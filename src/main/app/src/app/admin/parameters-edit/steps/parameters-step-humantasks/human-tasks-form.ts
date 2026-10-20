@@ -39,6 +39,44 @@ export function createHumanTaskReferentieTabelForm({
   });
 }
 
+/**
+ * Gives the human task a reference table for each field of its formulier, and none for the fields of another
+ * formulier. A new field gets the reference table whose code is the name of the field.
+ */
+export function syncReferentieTabellen(
+  humanTaskForm: HumanTaskForm,
+  {
+    formulierDefinities,
+    referentieTabellen,
+  }: {
+    formulierDefinities: ReadonlyArray<
+      GeneratedType<"RESTTaakFormulierDefinitie">
+    >;
+    referentieTabellen: ReadonlyArray<GeneratedType<"RestReferenceTable">>;
+  },
+) {
+  const veldNamen = (
+    formulierDefinities.find(
+      ({ id }) => id === humanTaskForm.controls.formulierDefinitieId.value,
+    )?.veldDefinities ?? []
+  ).map(({ naam }) => naam ?? "");
+  const { referentieTabellen: referentieTabellenForm } =
+    humanTaskForm.controls;
+
+  for (const veld of Object.keys(referentieTabellenForm.controls)) {
+    if (!veldNamen.includes(veld)) referentieTabellenForm.removeControl(veld);
+  }
+  for (const veld of veldNamen) {
+    if (referentieTabellenForm.contains(veld)) continue;
+    referentieTabellenForm.addControl(
+      veld,
+      createHumanTaskReferentieTabelForm({
+        tabel: referentieTabellen.find(({ code }) => code === veld),
+      }),
+    );
+  }
+}
+
 function createHumanTaskForm(
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
 ): HumanTaskForm {

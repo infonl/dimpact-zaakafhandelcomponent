@@ -900,7 +900,6 @@
   "msg.error.formio.init": "Error while initializing form component '{{context}}': {{error}}",
   "msg.error.kvk.unknown": "CoC-number is unknown.",
   "msg.error.zaaktype.configuration.not.found": "Zaaktype configuration not found.",
-  "msg.error.multiple.zaaktype.configurations.found": "Multiple configurations for the same zaaktype found.",
   "msg.error.bad.brp.protocollering.configuration": "Invalid BRP Protocollering configuration.",
   "msg.error.extension.period.invalid": "Invalid extension period.",
   "msg.error.zaak.has.besluit.cannot.be.terminated": "The case cannot be terminated because a decision is already linked to it.",

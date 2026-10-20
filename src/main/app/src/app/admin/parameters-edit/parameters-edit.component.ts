@@ -23,6 +23,7 @@ import {
 import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -30,13 +31,17 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
+import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersStepButtonsComponent } from "./parameters-step-buttons.component";
 import { createActiesFormForProcessDefinition } from "./steps/parameters-step-acties/acties-form";
 import { ParametersStepActiesComponent } from "./steps/parameters-step-acties/parameters-step-acties.component";
 import { ParametersStepAlgemeenComponent } from "./steps/parameters-step-algemeen/parameters-step-algemeen.component";
 import { ParametersStepBeeindigingComponent } from "./steps/parameters-step-beeindiging/parameters-step-beeindiging.component";
-import { createHumanTasksFormForProcessDefinition } from "./steps/parameters-step-humantasks/human-tasks-form";
+import {
+  createHumanTasksFormForProcessDefinition,
+  syncReferentieTabellen,
+} from "./steps/parameters-step-humantasks/human-tasks-form";
 import { ParametersStepHumantasksComponent } from "./steps/parameters-step-humantasks/parameters-step-humantasks.component";
 import { ParametersStepKoppelingenComponent } from "./steps/parameters-step-koppelingen/parameters-step-koppelingen.component";
 import { ParametersStepMailComponent } from "./steps/parameters-step-mail/parameters-step-mail.component";
@@ -83,6 +88,14 @@ export class ParametersEditComponent extends AdminComponent implements OnInit {
     ZaakafhandelParametersService,
   );
 
+  private readonly referentieTabelService = inject(ReferentieTabelService);
+  private readonly formulierDefinitiesQuery = injectQuery(() =>
+    this.zaakafhandelParametersService.listFormulierDefinities(),
+  );
+  private readonly referentieTabellenQuery = injectQuery(() =>
+    this.referentieTabelService.listReferentieTabellenQuery(),
+  );
+
   protected readonly configuration = signal<
     GeneratedType<"RestZaaktypeConfiguration">
   >(inject(ActivatedRoute).snapshot.data["parameters"]);
@@ -125,6 +138,15 @@ export class ParametersEditComponent extends AdminComponent implements OnInit {
           toForm(this.configuration(), { isBrpDoelbindingSetupEnabled }),
         ),
       );
+    });
+
+    effect(() => {
+      const form = this.form();
+      if (!form) return;
+      if (!this.formulierDefinitiesQuery.data()) return;
+      if (!this.referentieTabellenQuery.data()) return;
+
+      untracked(() => this.syncReferentieTabellen(form));
     });
   }
 
@@ -178,10 +200,24 @@ export class ParametersEditComponent extends AdminComponent implements OnInit {
         "acties",
         createActiesFormForProcessDefinition(processDefinition),
       );
+      this.syncReferentieTabellen(form);
       applyProcessDefinition(form, processDefinition);
       this.processDefinition.set(processDefinition);
     });
 
     this.form.set(form);
+  }
+
+  /**
+   * The Taken step renders only once it is opened, so the container gives the human tasks their default reference
+   * tables; otherwise a configuration saved without opening that step stores none.
+   */
+  private syncReferentieTabellen(form: ZaaktypeConfigurationForm) {
+    for (const humanTaskForm of form.controls.humanTasks.controls) {
+      syncReferentieTabellen(humanTaskForm, {
+        formulierDefinities: this.formulierDefinitiesQuery.data() ?? [],
+        referentieTabellen: this.referentieTabellenQuery.data() ?? [],
+      });
+    }
   }
 }

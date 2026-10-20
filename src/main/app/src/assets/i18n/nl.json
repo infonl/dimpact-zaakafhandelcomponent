@@ -900,7 +900,6 @@
   "msg.error.formio.init": "Fout bij initialiseren van formulieronderdeel '{{context}}': {{error}}",
   "msg.error.kvk.unknown": "KvK-nummer is onbekend.",
   "msg.error.zaaktype.configuration.not.found": "Zaaktypeconfiguratie niet gevonden.",
-  "msg.error.multiple.zaaktype.configurations.found": "Er zijn meerdere configuraties voor hetzelfde zaaktype gevonden.",
   "msg.error.bad.brp.protocollering.configuration": "Ongeldige BRP Protocollering-configuratie.",
   "msg.error.extension.period.invalid": "Ongeldige verlengingsperiode.",
   "msg.error.zaak.has.besluit.cannot.be.terminated": "De zaak kan niet afgebroken worden als er een besluit aan hangt.",

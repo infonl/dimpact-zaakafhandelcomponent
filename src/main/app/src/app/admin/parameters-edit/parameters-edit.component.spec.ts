@@ -61,6 +61,17 @@ const sharedSettings = {
   smartDocuments: { isEnabledGlobally: true, isEnabledForZaaktype: true },
 };
 
+const formulierDefinities = [
+  fromPartial<GeneratedType<"RESTTaakFormulierDefinitie">>({
+    id: "ADVIES",
+    veldDefinities: [{ naam: "ADVIES" }],
+  }),
+];
+
+const adviesReferentieTabel = fromPartial<GeneratedType<"RestReferenceTable">>(
+  { id: 1, code: "ADVIES", naam: "Advies" },
+);
+
 const cmmnConfiguration = fromPartial<ZaaktypeConfiguration>({
   ...sharedSettings,
   processDefinition: caseDefinition,
@@ -126,6 +137,10 @@ describe(ParametersEditComponent.name, () => {
               queryKey: ["processDefinitions"],
             }),
             updateZaakafhandelparameters: () => updateZaakafhandelparameters,
+            listFormulierDefinities: () => ({
+              ...createQueryOptions(formulierDefinities),
+              queryKey: ["formulierDefinities"],
+            }),
           }),
         },
         {
@@ -149,6 +164,10 @@ describe(ParametersEditComponent.name, () => {
             listBrpSearchValues: () => createQueryOptions([]),
             listBrpViewValues: () => createQueryOptions([]),
             listBrpProcessingValues: () => createQueryOptions([]),
+            listReferentieTabellenQuery: () => ({
+              ...createQueryOptions([adviesReferentieTabel]),
+              queryKey: ["referentieTabellen"],
+            }),
           }),
         },
         {
@@ -256,6 +275,40 @@ describe(ParametersEditComponent.name, () => {
       });
     },
   );
+
+  it("stores the default reference table of each formulier field without opening the Taken step", async () => {
+    const { updateZaakafhandelparameters } = await setup(
+      fromPartial<ZaaktypeConfiguration>({
+        ...cmmnConfiguration,
+        humanTaskParameters: [
+          {
+            planItemDefinition: { id: "fakeTaskId", naam: "Taak" },
+            formulierDefinitieId: "ADVIES",
+            actief: true,
+            referentieTabellen: [],
+          },
+        ],
+      }),
+    );
+
+    await waitFor(() => expect(opslaan()).toBeEnabled());
+    await user.click(opslaan());
+
+    await waitFor(() =>
+      expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          humanTaskParameters: [
+            expect.objectContaining({
+              referentieTabellen: [
+                { veld: "ADVIES", tabel: adviesReferentieTabel },
+              ],
+            }),
+          ],
+        }),
+        expect.anything(),
+      ),
+    );
+  });
 
   it("stores SmartDocuments switched off for the zaaktype once it is switched off in the koppelingen step", async () => {
     const { updateZaakafhandelparameters } = await setup(bpmnConfiguration);
