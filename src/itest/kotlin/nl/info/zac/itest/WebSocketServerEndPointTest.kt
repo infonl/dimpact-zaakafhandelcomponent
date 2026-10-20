@@ -13,6 +13,7 @@ import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotBeBlank
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
@@ -21,6 +22,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_WEBSOCKET_BASE_URI
@@ -32,20 +34,24 @@ import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 private const val SCREEN_EVENT_TYPE_ZAAK = "ZAAK"
+private const val SCREEN_EVENT_TYPE_TAAK = "TAAK"
+private const val SCREEN_EVENT_TYPE_ZAAK_TAKEN = "ZAAK_TAKEN"
 
 class WebSocketServerEndPointTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
+    val taskHelper = TaskHelper(zacClient)
     val testStartEpochSecond = Instant.now().epochSecond
     lateinit var zaakUuid: UUID
 
-    fun subscriptionMessage(subscriptionType: String, objectType: String, resource: UUID) = """
+    fun subscriptionMessage(subscriptionType: String, objectType: String, resource: Any) = """
         {
             "subscriptionType": "$subscriptionType",
             "event": {
@@ -147,6 +153,83 @@ class WebSocketServerEndPointTest : BehaviorSpec({
                             getJSONObject("objectId").getString("resource") shouldBe zaakUuid.toString()
                             getJSONObject("objectId").isNull("detail") shouldBe true
                             getString("actorUserId").shouldNotBeBlank()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    context("Receiving the screen events of a taak on a websocket") {
+        given(
+            "a zaak with an open taak, and a websocket that subscribes to all changes of the taak " +
+                "and to all changes of the taken of the zaak"
+        ) {
+            val zaakMetTaakJson = zacClient.createZaakAndRetrieve(
+                zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+                groupId = GROUP_BEHANDELAARS_TEST_1.name,
+                groupName = GROUP_BEHANDELAARS_TEST_1.description,
+                startDate = DATE_TIME_2000_01_01,
+                testUser = BEHANDELAAR_1
+            ).run {
+                code shouldBe HTTP_OK
+                JSONObject(bodyAsString)
+            }
+            val zaakMetTaakUuid = zaakMetTaakJson.getString("uuid").let(UUID::fromString)
+            val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
+                zaakUuid = zaakMetTaakUuid,
+                zaakIdentificatie = zaakMetTaakJson.getString("identificatie"),
+                fatalDate = LocalDate.now().plusWeeks(1),
+                group = GROUP_BEHANDELAARS_TEST_1,
+                testUser = BEHANDELAAR_1
+            )
+            val webSocketTestListener = WebSocketTestListener(
+                textToBeSentOnOpen = subscriptionMessage("CREATE", SCREEN_EVENT_TYPE_TAAK, taskId)
+            )
+            connectWebSocket(webSocketTestListener)
+                .send(subscriptionMessage("CREATE", SCREEN_EVENT_TYPE_ZAAK_TAKEN, zaakMetTaakUuid))
+
+            `when`("a behandelaar assigns the taak to themselves") {
+                eventually(30.seconds) {
+                    itestHttpClient.performPatchRequest(
+                        url = "$ZAC_API_URI/taken/toekennen",
+                        requestBodyAsString = """
+                            {
+                                "taakId": "$taskId",
+                                "zaakUuid": "$zaakMetTaakUuid",
+                                "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                                "behandelaarId": "${BEHANDELAAR_1.username}",
+                                "reden": "fakeReason"
+                            }
+                        """.trimIndent(),
+                        testUser = BEHANDELAAR_1
+                    ).code shouldBe HTTP_NO_CONTENT
+                    with(webSocketTestListener.messagesReceived) {
+                        containsEventFor(SCREEN_EVENT_TYPE_TAAK) shouldBe true
+                        containsEventFor(SCREEN_EVENT_TYPE_ZAAK_TAKEN) shouldBe true
+                    }
+                }
+
+                then("the websocket receives an update of the taak, caused by the behandelaar") {
+                    webSocketTestListener.messagesReceived.forAtLeastOne {
+                        with(JSONObject(it)) {
+                            getString("opcode") shouldBe "UPDATED"
+                            getString("objectType") shouldBe SCREEN_EVENT_TYPE_TAAK
+                            getJSONObject("objectId").getString("resource") shouldBe taskId
+                            getJSONObject("objectId").isNull("detail") shouldBe true
+                            getString("actorUserId") shouldBe BEHANDELAAR_1.username
+                        }
+                    }
+                }
+
+                and("the websocket receives an update of the taken of the zaak, caused by the behandelaar") {
+                    webSocketTestListener.messagesReceived.forAtLeastOne {
+                        with(JSONObject(it)) {
+                            getString("opcode") shouldBe "UPDATED"
+                            getString("objectType") shouldBe SCREEN_EVENT_TYPE_ZAAK_TAKEN
+                            getJSONObject("objectId").getString("resource") shouldBe zaakMetTaakUuid.toString()
+                            getJSONObject("objectId").isNull("detail") shouldBe true
+                            getString("actorUserId") shouldBe BEHANDELAAR_1.username
                         }
                     }
                 }
