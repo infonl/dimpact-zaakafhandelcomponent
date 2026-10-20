@@ -158,9 +158,9 @@ describe("The configuration of a zaaktype in the admin screen", () => {
       });
 
       it("keeps the process definition it is bound to", () => {
-        expect(toForm(configuration, brpSetup).controls.procesModel.disabled).toBe(
-          true,
-        );
+        expect(
+          toForm(configuration, brpSetup).controls.procesModel.disabled,
+        ).toBe(true);
       });
 
       it("is valid as it was read", () => {

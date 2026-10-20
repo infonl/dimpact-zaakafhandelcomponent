@@ -394,7 +394,9 @@ describe(ParametersEditComponent.name, () => {
       await user.click(
         within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
       );
-      await user.click(await screen.findByRole("option", { name: "test-group" }));
+      await user.click(
+        await screen.findByRole("option", { name: "test-group" }),
+      );
       await waitFor(() => expect(opslaan()).toBeEnabled());
       await user.click(opslaan());
       const procesModel = await goToStep("gegevens.procesmodel");
