@@ -98,6 +98,7 @@ import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
+import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RestZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RestZaaktype
@@ -4157,6 +4158,70 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(patchZaakSlot.captured) {
                         zaakgeometrie.shouldBeInstanceOf<DeleteGeoJsonGeometry>()
                     }
+                }
+            }
+        }
+    }
+
+    context("Extending a zaak") {
+        val zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "P30D")
+        val zaakRechten = createZaakRechten(verlengen = true)
+        val loggedInUser = createLoggedInUser()
+
+        given("a zaak and an extension of 30 days") {
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val extendedZaak = createZaak(zaaktypeUri = zaakType.url)
+            val restZaak = createRestZaak()
+            val restZaakVerlengGegevens = RestZaakVerlengGegevens(
+                redenVerlenging = "fakeExtensionReason",
+                duurDagen = 30,
+                shouldTakenVerlengen = false,
+                einddatumGepland = LocalDate.of(2026, 2, 1),
+                uiterlijkeEinddatumAfdoening = LocalDate.of(2026, 3, 1)
+            )
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
+            every {
+                suspensionZaakHelper.extendZaak(
+                    zaak = zaak,
+                    zaakType = zaakType,
+                    dueDate = restZaakVerlengGegevens.einddatumGepland,
+                    fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+                    extensionReason = restZaakVerlengGegevens.redenVerlenging,
+                    numberOfDays = 30
+                )
+            } returns extendedZaak
+            every {
+                restZaakConverter.toRestZaak(
+                    zaak = extendedZaak,
+                    zaakType = zaakType,
+                    zaakRechten = zaakRechten,
+                    loggedInUser = loggedInUser
+                )
+            } returns restZaak
+
+            `when`("the zaak is extended") {
+                val result = zaakRestService.verlengenZaak(zaak.uuid, restZaakVerlengGegevens)
+
+                then("the zaak is extended with the zaaktype, so that its extension term is checked") {
+                    verify(exactly = 1) {
+                        suspensionZaakHelper.extendZaak(
+                            zaak = zaak,
+                            zaakType = zaakType,
+                            dueDate = restZaakVerlengGegevens.einddatumGepland,
+                            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+                            extensionReason = restZaakVerlengGegevens.redenVerlenging,
+                            numberOfDays = 30
+                        )
+                    }
+                }
+
+                and("the extended zaak is returned") {
+                    result shouldBe restZaak
                 }
             }
         }

@@ -762,6 +762,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(zaakRechten.canVerlengen)
         val updatedZaak = suspensionZaakHelper.extendZaak(
             zaak = zaak,
+            zaakType = zaakType,
             dueDate = restZaakVerlengGegevens.einddatumGepland,
             fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
             extensionReason = restZaakVerlengGegevens.redenVerlenging,
