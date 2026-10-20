@@ -1,84 +1,69 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.websocket
 
-package net.atos.zac.websocket;
-
-import static net.atos.zac.websocket.SubscriptionType.DELETE_ALL;
-
-import java.io.StringReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jakarta.json.Json;
-import jakarta.json.JsonException;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonReader;
-import jakarta.websocket.DecodeException;
-import jakarta.websocket.Decoder;
-import jakarta.websocket.EndpointConfig;
-
-import net.atos.zac.event.Opcode;
-import net.atos.zac.websocket.event.ScreenEvent;
-import net.atos.zac.websocket.event.ScreenEventId;
-import net.atos.zac.websocket.event.ScreenEventType;
+import jakarta.json.Json
+import jakarta.json.JsonException
+import jakarta.websocket.DecodeException
+import jakarta.websocket.Decoder
+import jakarta.websocket.EndpointConfig
+import net.atos.zac.event.Opcode
+import net.atos.zac.websocket.SubscriptionType.DELETE_ALL
+import net.atos.zac.websocket.SubscriptionType.SubscriptionMessage
+import net.atos.zac.websocket.event.ScreenEvent
+import net.atos.zac.websocket.event.ScreenEventId
+import net.atos.zac.websocket.event.ScreenEventType
+import java.io.StringReader
+import java.util.logging.Level
+import java.util.logging.Logger
 
 /**
  * Converts websocket messages to SubscriptionType.SubscriptionMessage objects
  */
-public class WebSocketSubscriptionMessageDecoder implements Decoder.Text<SubscriptionType.SubscriptionMessage> {
+class WebSocketSubscriptionMessageDecoder : Decoder.Text<SubscriptionMessage> {
+    companion object {
+        private val LOG = Logger.getLogger(WebSocketSubscriptionMessageDecoder::class.java.name)
 
-    private static final Logger LOG = Logger.getLogger(WebSocketSubscriptionMessageDecoder.class.getName());
+        private const val SUBSCRIPTION_TYPE = "subscriptionType"
+        private const val EVENT = "event"
+        private const val EVENT_OPCODE = "opcode"
+        private const val EVENT_TYPE = "objectType"
+        private const val EVENT_OBJECT_ID = "objectId"
+        private const val EVENT_RESOURCE = "resource"
+    }
 
-    private static final String SUBSCRIPTION_TYPE = "subscriptionType";
-
-    private static final String EVENT = "event";
-
-    private static final String EVENT_OPCODE = "opcode";
-
-    private static final String EVENT_TYPE = "objectType";
-
-    private static final String EVENT_OBJECT_ID = "objectId";
-
-    private static final String EVENT_RESOURCE = "resource";
-
-    @Override
-    public SubscriptionType.SubscriptionMessage decode(final String jsonMessage) throws DecodeException {
-        try (final JsonReader jsonReader = Json.createReader(new StringReader(jsonMessage))) {
-            final JsonObject jsonObject = jsonReader.readObject();
-
-            final SubscriptionType subscriptionType = SubscriptionType.valueOf(jsonObject.getString(SUBSCRIPTION_TYPE));
+    @Throws(DecodeException::class)
+    override fun decode(jsonMessage: String): SubscriptionMessage =
+        Json.createReader(StringReader(jsonMessage)).use { jsonReader ->
+            val jsonObject = jsonReader.readObject()
+            val subscriptionType = SubscriptionType.valueOf(jsonObject.getString(SUBSCRIPTION_TYPE))
             if (subscriptionType == DELETE_ALL) {
-                return subscriptionType.message();
+                subscriptionType.message()
+            } else {
+                val jsonEvent = jsonObject.getJsonObject(EVENT)
+                val opcode = Opcode.valueOf(jsonEvent.getString(EVENT_OPCODE))
+                val screenEventType = ScreenEventType.valueOf(jsonEvent.getString(EVENT_TYPE))
+                val resource = jsonEvent.getJsonObject(EVENT_OBJECT_ID).getString(EVENT_RESOURCE)
+                subscriptionType.message(ScreenEvent(opcode, screenEventType, ScreenEventId(resource, null)))
             }
-
-            final JsonObject jsonEvent = jsonObject.getJsonObject(EVENT);
-            final Opcode operatie = Opcode.valueOf(jsonEvent.getString(EVENT_OPCODE));
-            final ScreenEventType objectType = ScreenEventType.valueOf(jsonEvent.getString(EVENT_TYPE));
-            final String resource = jsonEvent.getJsonObject(EVENT_OBJECT_ID).getString(EVENT_RESOURCE);
-            return subscriptionType.message(new ScreenEvent(operatie, objectType, new ScreenEventId(resource, null)));
         }
-    }
 
-    @Override
-    public void init(final EndpointConfig endpointConfig) {
+    override fun init(endpointConfig: EndpointConfig) {
         // NOOP
     }
 
-    @Override
-    public void destroy() {
+    override fun destroy() {
         // NOOP
     }
 
-    @Override
-    public boolean willDecode(final String jsonMessage) {
-        try (final JsonReader jsonReader = Json.createReader(new StringReader(jsonMessage))) {
-            jsonReader.readObject();
-            return true;
-        } catch (final JsonException e) {
-            LOG.log(Level.WARNING, String.format("SubscriptionMessage cannot be decrypted: %s", jsonMessage), e);
-            return false;
+    override fun willDecode(jsonMessage: String): Boolean =
+        try {
+            Json.createReader(StringReader(jsonMessage)).use { it.readObject() }
+            true
+        } catch (jsonException: JsonException) {
+            LOG.log(Level.WARNING, "SubscriptionMessage cannot be decrypted: $jsonMessage", jsonException)
+            false
         }
-    }
 }
