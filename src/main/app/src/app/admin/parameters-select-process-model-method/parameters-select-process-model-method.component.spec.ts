@@ -10,6 +10,7 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { BehaviorSubject } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
@@ -78,10 +79,10 @@ describe(ParameterSelectProcessModelMethodComponent.name, () => {
     expect(await opslaanButton.isDisabled()).toBe(true);
   });
 
-  it("should display the zaaktype omschrijving from route data", () => {
-    expect(fixture.nativeElement.querySelector("h2").textContent.trim()).toBe(
-      "Test zaaktype omschrijving",
-    );
+  it("shows the zaaktype omschrijving from the route data", () => {
+    expect(
+      screen.getByRole("heading", { name: "Test zaaktype omschrijving" }),
+    ).toBeVisible();
   });
 
   it("should emit CMMN selection when CMMN option is chosen", () => {
