@@ -27,7 +27,7 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
 // rendering this seven step form once per test needs more room than the default timeout
-describe("Algemeen form step", () => {
+describe("Zaakmodel in the algemeen form step", () => {
   const user = userEvent.setup();
 
   const caseDefinition = fromPartial<GeneratedType<"RESTCaseDefinition">>({
@@ -131,14 +131,15 @@ describe("Algemeen form step", () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listBehandelaarGroupsForZaaktype: (zaaktypeDescription: string) =>
-              of(
-                zaaktypeDescription === "fakeZaaktypeOmschrijving"
-                  ? groups
-                  : [],
-              ),
-            listUsersInGroup: (groupId: string) =>
-              of(groupId === "test-group-id" ? usersOfDefaultGroup : []),
+            listBehandelaarGroupsForZaaktype: () => of(groups),
+            listBehandelaarGroupsForZaaktypeQuery: () => ({
+              ...createQueryOptions(groups),
+              queryKey: ["behandelaarGroups"],
+            }),
+            listUsersInGroupQuery: () => ({
+              ...createQueryOptions(usersOfDefaultGroup),
+              queryKey: ["usersInGroup"],
+            }),
           }),
         },
         {
@@ -172,10 +173,8 @@ describe("Algemeen form step", () => {
     await user.click(screen.getByRole("option", { name: option }));
   }
 
-  it("refuses to save until a zaakmodel and a groep are chosen", async () => {
-    const algemeen = await setup(
-      createParameters({ caseDefinition: null, defaultGroepId: null }),
-    );
+  it("refuses to save until a zaakmodel is chosen", async () => {
+    const algemeen = await setup(createParameters({ caseDefinition: null }));
     const opslaan = within(algemeen).getByRole("button", {
       name: "actie.opslaan",
     });
@@ -186,80 +185,7 @@ describe("Algemeen form step", () => {
       within(algemeen).getByRole("combobox", { name: /zaak-model/i }),
       "Case Definition 1",
     );
-    await chooseOption(
-      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
-      "test-group",
-    );
 
     expect(opslaan).toBeEnabled();
-  });
-
-  it("offers only the behandelaar groepen of the zaaktype as groep", async () => {
-    const algemeen = await setup();
-
-    await user.click(
-      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
-    );
-
-    expect(
-      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
-    ).toEqual(["test-group", "test-group-2"]);
-  });
-
-  it("shows a zaaktype without zaakspecifieke autorisatie as such", async () => {
-    const algemeen = await setup();
-
-    expect(
-      within(algemeen).getByText("zaakspecifiek-autoriseerbaar"),
-    ).toBeVisible();
-    expect(within(algemeen).getByText("actie.nee")).toBeVisible();
-  });
-
-  it("shows a zaaktype with zaakspecifieke autorisatie as such", async () => {
-    const algemeen = await setup(
-      createParameters({ isZaakspecifiekAutoriseerbaar: true }),
-    );
-
-    expect(within(algemeen).getByText("actie.ja")).toBeVisible();
-  });
-
-  it("preselects the behandelaar of the default groep", async () => {
-    const algemeen = await setup();
-
-    expect(
-      within(algemeen).getByRole("combobox", { name: /behandelaar/i }),
-    ).toHaveTextContent("test-user");
-  });
-
-  it("offers the medewerkers of the default groep as behandelaar", async () => {
-    const algemeen = await setup();
-
-    await user.click(
-      within(algemeen).getByRole("combobox", { name: /behandelaar/i }),
-    );
-
-    expect(
-      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
-    ).toEqual(["geen.generiek", "test-user", "test-user-2"]);
-  });
-
-  it("forgets the behandelaar when another groep is chosen", async () => {
-    const algemeen = await setup();
-
-    await chooseOption(
-      within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
-      "test-group-2",
-    );
-
-    const behandelaar = within(algemeen).getByRole("combobox", {
-      name: /behandelaar.standaard/i,
-    });
-    expect(behandelaar).not.toHaveTextContent("test-user");
-
-    await user.click(behandelaar);
-
-    expect(
-      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
-    ).toEqual(["geen.generiek"]);
   });
 });

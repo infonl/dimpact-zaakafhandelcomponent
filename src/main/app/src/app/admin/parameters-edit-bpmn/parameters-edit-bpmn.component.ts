@@ -9,12 +9,16 @@ import {
   Component,
   inject,
   input,
-  OnDestroy,
   output,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -23,20 +27,21 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { forkJoin, Subject, takeUntil } from "rxjs";
-import { IdentityService } from "src/app/identity/identity.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "src/app/shared/confirm-dialog/confirm-dialog.component";
-import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
 import { injectMutation } from "src/app/shared/http/inject-mutation";
-import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
 import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
+import {
+  createAlgemeenForm,
+  toAlgemeenSettings,
+} from "../parameters-edit/steps/parameters-step-algemeen/algemeen-form";
+import { ParametersStepAlgemeenComponent } from "../parameters-edit/steps/parameters-step-algemeen/parameters-step-algemeen.component";
 import { ParametersStepBeeindigingComponent } from "../parameters-edit/steps/parameters-step-beeindiging/parameters-step-beeindiging.component";
 import {
   createZaakbeeindigingForm,
@@ -67,15 +72,14 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
     MatFormFieldModule,
     TranslateModule,
     ZacSelect,
-    ZacInput,
-    StaticTextComponent,
     SmartDocumentsFormComponent,
+    ParametersStepAlgemeenComponent,
     ParametersStepBeeindigingComponent,
     ParametersStepKoppelingenComponent,
     ParametersStepProcesModelComponent,
   ],
 })
-export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
+export class ParametersEditBpmnComponent implements AfterViewInit {
   readonly selectedIndexStart = input<number>(0);
   readonly switchModellingMethod = output<ProcessModelMethodSelection>();
 
@@ -83,7 +87,6 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     "smartDocumentsFormRef",
   );
 
-  private readonly destroy$ = new Subject<void>();
   private readonly dialog = inject(MatDialog);
 
   protected readonly createOrUpdateBpmnZaakafhandelparametersMutation =
@@ -94,8 +97,6 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
 
   protected bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] =
     [];
-  protected groepen: GeneratedType<"RestGroup">[] = [];
-  protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
@@ -134,27 +135,18 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
 
   protected brpDoelbindingSetupEnabled = false;
 
-  protected algemeenFormGroup = this.formBuilder.group({
+  protected algemeenFormGroup = new FormGroup({
     bpmnDefinition:
-      this.formBuilder.control<GeneratedType<"RestBpmnProcessDefinition"> | null>(
-        null,
-        [Validators.required],
-      ),
-    defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
-      null,
-      [Validators.required],
-    ),
-    defaultBehandelaar:
-      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
-    productaanvraagtype: this.formBuilder.control<string | null>(null),
+      new FormControl<GeneratedType<"RestBpmnProcessDefinition"> | null>(null, [
+        Validators.required,
+      ]),
+    algemeen: createAlgemeenForm(),
   });
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly formBuilder: FormBuilder,
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly identityService: IdentityService,
     private readonly configuratieService: ConfiguratieService,
   ) {
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
@@ -168,16 +160,12 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       this.bpmnProcessDefinitions =
         data.parameters.bpmnProcessDefinitions || [];
 
-      forkJoin([
-        configuratieService.readBrpDoelbindingSetupEnabled(),
-        this.identityService.listBehandelaarGroupsForZaaktype(
-          this.bpmnZaakafhandelParameters.zaaktype.omschrijving!,
-        ),
-      ]).subscribe(async ([brpDoelbindingSetupEnabled, groepen]) => {
-        this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
-        this.groepen = groepen;
-        await this.createForm();
-      });
+      configuratieService
+        .readBrpDoelbindingSetupEnabled()
+        .subscribe((brpDoelbindingSetupEnabled) => {
+          this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
+          this.createForm();
+        });
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
@@ -193,12 +181,21 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  async createForm() {
+  createForm() {
     if (this.isSavedZaakafhandelParameters) {
       this.cmmnBpmnFormGroup.disable({ emitEvent: false });
     }
 
-    this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters);
+    const { groepNaam, defaultBehandelaarId, productaanvraagtype } =
+      this.bpmnZaakafhandelParameters;
+    this.algemeenFormGroup.setControl(
+      "algemeen",
+      createAlgemeenForm({
+        defaultGroepId: groepNaam,
+        defaultBehandelaarId,
+        productaanvraagtype,
+      }),
+    );
 
     this.algemeenFormGroup.controls.bpmnDefinition.setValue(
       this.bpmnProcessDefinitions?.find(
@@ -207,36 +204,6 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
       ) || null,
     );
-
-    const { groepNaam: defaultGroepId, defaultBehandelaarId } =
-      this.bpmnZaakafhandelParameters;
-
-    this.algemeenFormGroup.controls.defaultGroep.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((group) => {
-        if (!group) return;
-
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-          this.medewerkers = users;
-          const pickedUserId =
-            this.algemeenFormGroup.controls.defaultBehandelaar.value?.id;
-          const defaultUser = users.find(
-            ({ id }) => id === (pickedUserId ?? defaultBehandelaarId),
-          );
-          this.algemeenFormGroup.controls.defaultBehandelaar.setValue(
-            defaultUser ?? null,
-          );
-        });
-      });
-
-    if (defaultGroepId) {
-      const defaultGroup = this.groepen?.find(
-        ({ id }) => id === defaultGroepId,
-      );
-      this.algemeenFormGroup.controls.defaultGroep.setValue(
-        defaultGroup ?? null,
-      );
-    }
 
     this.koppelingenForm = createKoppelingenForm(
       this.bpmnZaakafhandelParameters,
@@ -254,6 +221,10 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     if (!bpmnProcessDefinitionKey) {
       return;
     }
+
+    const algemeen = toAlgemeenSettings(
+      this.algemeenFormGroup.controls.algemeen,
+    );
 
     this.bpmnZaakafhandelParameters.betrokkeneKoppelingen =
       toBetrokkeneKoppelingen(this.koppelingenForm);
@@ -273,11 +244,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         zaaktypeOmschrijving:
           this.bpmnZaakafhandelParameters.zaaktype.omschrijving || "",
         bpmnProcessDefinitionKey: bpmnProcessDefinitionKey,
-        productaanvraagtype:
-          this.algemeenFormGroup.value.productaanvraagtype || null,
-        groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
-        defaultBehandelaarId:
-          this.algemeenFormGroup.value.defaultBehandelaar?.id || null,
+        productaanvraagtype: algemeen.productaanvraagtype || null,
+        groepNaam: algemeen.defaultGroepId || "",
+        defaultBehandelaarId: algemeen.defaultBehandelaarId || null,
         betrokkeneKoppelingen:
           this.bpmnZaakafhandelParameters.betrokkeneKoppelingen,
         brpDoelbindingen: this.bpmnZaakafhandelParameters.brpDoelbindingen,
@@ -345,10 +314,5 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
 
   private isDirty(): boolean {
     return this.algemeenFormGroup.dirty;
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

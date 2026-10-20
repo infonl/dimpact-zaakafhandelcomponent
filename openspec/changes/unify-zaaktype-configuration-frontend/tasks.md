@@ -1,6 +1,6 @@
 ## 0. Baseline and stack
 
-- [ ] 0.1 Read `PZ-12754-rfc-unify-zaaktype-configuration.md` from PZ-12754. Record every difference with design.md
+- [x] 0.1 Read `PZ-12754-rfc-unify-zaaktype-configuration.md` from PZ-12754. Record every difference with design.md
       in this change before layer 5 starts, or record that there is none.
 - [x] 0.2 The bottom layer of the stack is the branch that holds this OpenSpec change
       (`PZ-12754-zaakafhandelparameters-za-ps-frontend-backend-api-code-voor-bpmn-en-cmmn-vereenvoudigen`).
@@ -44,10 +44,10 @@
 
 ## 4. Layer 4: shared algemeen step (`feature/PZ-12754-step-algemeen`)
 
-- [ ] 4.1 Create `parameters-step-algemeen` with the groep/behandelaar cascade, productaanvraagtype, the two warning
+- [x] 4.1 Create `parameters-step-algemeen` with the groep/behandelaar cascade, productaanvraagtype, the two warning
       windows, and a definition slot (case definition or process definition). Hide the warning windows for BPMN
       in this layer, to keep it free of behaviour changes. Verify the groep cascade with a spec per engine.
-- [ ] 4.2 Use the step in both edit components. Verify that `form-step-2.algemeen.spec.ts`, now moved to the step spec
+- [x] 4.2 Use the step in both edit components. Verify that `form-step-2.algemeen.spec.ts`, now moved to the step spec
       with `it.each`, passes for both engines.
 - [ ] 4.3 Run `./gradlew spotlessApply` and `npm test`, and open the PR (`refactor(admin): …`, `Solves PZ-12754`).
 
