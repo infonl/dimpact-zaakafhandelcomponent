@@ -71,7 +71,7 @@ fun RestZaakCreateData.toZaak(
 ).apply {
     this.bronorganisatie = bronOrganisatie
     this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
-    this.startdatum = this@toZaak.startdatum
+    this.startdatum = this@toZaak.startdatum ?: LocalDate.now()
     this.zaaktype = zaaktype.url
     this.communicatiekanaalNaam = this@toZaak.communicatiekanaal
     this.omschrijving = this@toZaak.omschrijving

@@ -90,6 +90,9 @@ describe(FoutDetailedDialogComponent.name, () => {
       TestBed.inject(QUERY_CLIENT).getQueryState([SERVER_ERROR_TEXTS_URL]),
     ).toMatchObject({ status: "error", fetchStatus: "idle" });
 
+    expect(
+      TestBed.inject(QUERY_CLIENT).getQueryState([SERVER_ERROR_TEXTS_URL]),
+    ).toMatchObject({ status: "error", fetchStatus: "idle" });
     httpTestingController.expectNone(SERVER_ERROR_TEXTS_URL);
     expect(foutAfhandelen).not.toHaveBeenCalled();
   });

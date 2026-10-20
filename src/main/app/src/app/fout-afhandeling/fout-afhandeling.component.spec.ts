@@ -115,6 +115,9 @@ describe(FoutAfhandelingComponent.name, () => {
       .flush(null, { status: 500, statusText: "Internal Server Error" });
     await sleep();
 
+    expect(
+      TestBed.inject(QUERY_CLIENT).getQueryState([SERVER_ERROR_TEXTS_URL]),
+    ).toMatchObject({ status: "error", fetchStatus: "idle" });
     httpTestingController.expectNone(SERVER_ERROR_TEXTS_URL);
     expect(foutAfhandelen).not.toHaveBeenCalled();
   });
