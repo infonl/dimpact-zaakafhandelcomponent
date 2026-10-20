@@ -119,12 +119,12 @@
               {{ definition.header ?? column | i18nKey | translate }}
             </th>
             <td mat-cell *matCellDef="let row">
-                @if (column === "identificatie") {
-                  {{ row[column] | empty }}
-                }
-                @if (column === "zaakIdentificatie") {
-                  <zac-zaak-identificatie
-                    [identificatie]="row[column]"
+              @if (column === "identificatie") {
+                {{ row[column] | empty }}
+              }
+              @if (column === "zaakIdentificatie") {
+                <zac-zaak-identificatie
+                  [identificatie]="row[column]"
                   [isZaakspecifiekGeautoriseerd]="
                     row.isZaakspecifiekGeautoriseerd
                   "
