@@ -920,7 +920,7 @@
   "msg.error.group.not.behandelaar.for.zaaktype": "The selected group is not a behandelaar group for this zaaktype.",
   "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd": "{{medewerker}} now has access to this zaak",
   "msg.zaakspecifiek-geautoriseerde-medewerker.geen-kandidaten": "All employees of this group already have access to this zaak.",
-  "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen.bevestigen": "Unlink employee \"{{medewerker}}\" from the case? This revokes the access of this employee to this case.",
+  "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen.bevestigen": "Unlink employee “{{medewerker}}” from the case? This revokes the access of this employee to this case.",
   "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppeld": "{{medewerker}} has been unlinked from this case",
   "msg.error.medewerker.not.zaakspecifiek.geautoriseerd": "This employee is not a case-specific authorised employee of this case and cannot be unlinked.",
   "msg.error.medewerker.cannot.be.detached": "The case handler and the handlers of open tasks cannot be unlinked.",
