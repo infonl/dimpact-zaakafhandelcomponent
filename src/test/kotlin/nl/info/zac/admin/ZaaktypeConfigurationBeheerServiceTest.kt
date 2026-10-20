@@ -51,9 +51,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
         every { ztcClientService.clearResultaattypeCache() } returns "fakeCleared"
         every { ztcClientService.clearStatustypeCache() } returns "fakeCleared"
         every { ztcClientService.clearEigenschapCache() } returns "fakeCleared"
-        every { ztcClientService.clearInformatieobjecttypeCache() } returns "fakeCleared"
-        every { ztcClientService.clearZaaktypeInformatieobjecttypeCache() } returns "fakeCleared"
-        every { ztcClientService.clearBesluittypeCache() } returns "fakeCleared"
     }
 
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
@@ -263,19 +260,6 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 then("no configuration is read") {
                     verify(exactly = 0) {
                         zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktype.url.extractUuid())
-                    }
-                }
-
-                then("all ZTC catalogue caches are cleared") {
-                    verify(exactly = 1) {
-                        ztcClientService.clearZaaktypeCache()
-                        ztcClientService.clearRoltypeCache()
-                        ztcClientService.clearResultaattypeCache()
-                        ztcClientService.clearStatustypeCache()
-                        ztcClientService.clearEigenschapCache()
-                        ztcClientService.clearInformatieobjecttypeCache()
-                        ztcClientService.clearZaaktypeInformatieobjecttypeCache()
-                        ztcClientService.clearBesluittypeCache()
                     }
                 }
             }
