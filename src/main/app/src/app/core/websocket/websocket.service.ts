@@ -53,7 +53,6 @@ type SocketMessage = {
   providedIn: "root",
 })
 export class WebsocketService {
-  // This must be bigger than the SECONDS_TO_DELAY defined in ScreenEventObserver.java
   private static DEFAULT_SUSPENSION_TIMEOUT = 5; // seconds
 
   private readonly PROTOCOL: string = window.location.protocol.replace(
