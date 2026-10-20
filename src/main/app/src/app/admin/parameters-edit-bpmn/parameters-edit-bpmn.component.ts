@@ -14,22 +14,13 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatSelectModule } from "@angular/material/select";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatStepperModule } from "@angular/material/stepper";
-import { MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { forkJoin, Subject, takeUntil } from "rxjs";
@@ -55,7 +46,12 @@ import {
   createZaakbeeindigingForm,
   toZaakbeeindigParameters,
 } from "../parameters-edit/steps/parameters-step-beeindiging/zaakbeeindiging-form";
-import { ReferentieTabelService } from "../referentie-tabel.service";
+import {
+  createKoppelingenForm,
+  toBetrokkeneKoppelingen,
+  toBrpDoelbindingen,
+} from "../parameters-edit/steps/parameters-step-koppelingen/koppelingen-form";
+import { ParametersStepKoppelingenComponent } from "../parameters-edit/steps/parameters-step-koppelingen/parameters-step-koppelingen.component";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
 @Component({
@@ -71,9 +67,6 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
     MatCardModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatTableModule,
     TranslateModule,
     ZacSelect,
     ZacRadio,
@@ -81,6 +74,7 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
     StaticTextComponent,
     SmartDocumentsFormComponent,
     ParametersStepBeeindigingComponent,
+    ParametersStepKoppelingenComponent,
   ],
 })
 export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
@@ -147,21 +141,12 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       label: string;
     }>({ label: "BPMN", value: "BPMN" }, []),
   });
-  protected brpDoelbindingenFormGroup = new FormGroup({
-    zoekWaarde: new FormControl(""),
-    raadpleegWaarde: new FormControl(""),
-    verwerkingregisterWaarde: new FormControl(""),
-  });
-
-  protected betrokkeneKoppelingen = new FormGroup({
-    brpKoppelen: new FormControl(false),
-    kvkKoppelen: new FormControl(false),
-  });
+  protected koppelingenForm = createKoppelingenForm(
+    {},
+    { isBrpDoelbindingSetupEnabled: false },
+  );
   protected zaakbeeindigFormGroup = createZaakbeeindigingForm({});
 
-  protected brpConsultingValues: string[] = [];
-  protected brpSearchValues: string[] = [];
-  protected brpProcessingValues: string[] = [];
   protected brpDoelbindingSetupEnabled = false;
 
   protected algemeenFormGroup = this.formBuilder.group({
@@ -186,7 +171,6 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     private readonly cdr: ChangeDetectorRef,
     private readonly identityService: IdentityService,
     private readonly configuratieService: ConfiguratieService,
-    private readonly referentieTabelService: ReferentieTabelService,
   ) {
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       if (!data?.parameters?.zaakafhandelParameters) {
@@ -200,29 +184,15 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
         data.parameters.bpmnProcessDefinitions || [];
 
       forkJoin([
-        referentieTabelService.listBrpSearchValues(),
-        referentieTabelService.listBrpViewValues(),
-        referentieTabelService.listBrpProcessingValues(),
         configuratieService.readBrpDoelbindingSetupEnabled(),
         this.identityService.listBehandelaarGroupsForZaaktype(
           this.bpmnZaakafhandelParameters.zaaktype.omschrijving!,
         ),
-      ]).subscribe(
-        async ([
-          brpSearchValues,
-          brpViewValues,
-          brpProcessingValues,
-          brpDoelbindingSetupEnabled,
-          groepen,
-        ]) => {
-          this.brpSearchValues = brpSearchValues;
-          this.brpConsultingValues = brpViewValues;
-          this.brpProcessingValues = brpProcessingValues;
-          this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
-          this.groepen = groepen;
-          await this.createForm();
-        },
-      );
+      ]).subscribe(async ([brpDoelbindingSetupEnabled, groepen]) => {
+        this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
+        this.groepen = groepen;
+        await this.createForm();
+      });
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
@@ -283,72 +253,13 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       );
     }
 
-    this.createBetrokkeneKoppelingenForm();
+    this.koppelingenForm = createKoppelingenForm(
+      this.bpmnZaakafhandelParameters,
+      { isBrpDoelbindingSetupEnabled: this.brpDoelbindingSetupEnabled },
+    );
     this.zaakbeeindigFormGroup = createZaakbeeindigingForm(
       this.bpmnZaakafhandelParameters,
     );
-
-    if (this.brpDoelbindingSetupEnabled) {
-      this.createBrpDoelbindingForm();
-    }
-  }
-
-  private createBetrokkeneKoppelingenForm() {
-    this.betrokkeneKoppelingen = this.formBuilder.group({
-      kvkKoppelen: [
-        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen
-          ?.isKvkKoppelenEnabled ?? false,
-      ],
-      brpKoppelen: [
-        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen
-          ?.isBrpKoppelenEnabled ?? false,
-      ],
-    });
-
-    this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        this.brpDoelbindingenFormGroup.controls.raadpleegWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-        this.brpDoelbindingenFormGroup.controls.zoekWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-        this.brpDoelbindingenFormGroup.controls.verwerkingregisterWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-
-        this.brpDoelbindingenFormGroup.updateValueAndValidity({
-          emitEvent: false,
-        });
-        if (value) return;
-
-        this.brpDoelbindingenFormGroup.reset();
-      });
-  }
-
-  private createBrpDoelbindingForm() {
-    this.brpDoelbindingenFormGroup = this.formBuilder.group({
-      raadpleegWaarde: [
-        this.bpmnZaakafhandelParameters.brpDoelbindingen?.raadpleegWaarde ?? "",
-        this.betrokkeneKoppelingen.controls.brpKoppelen.value
-          ? [Validators.required]
-          : [],
-      ],
-      zoekWaarde: [
-        this.bpmnZaakafhandelParameters.brpDoelbindingen?.zoekWaarde ?? "",
-        this.betrokkeneKoppelingen.controls.brpKoppelen.value
-          ? [Validators.required]
-          : [],
-      ],
-      verwerkingregisterWaarde: [
-        this.bpmnZaakafhandelParameters.brpDoelbindingen
-          ?.verwerkingregisterWaarde ?? "",
-        this.betrokkeneKoppelingen.controls.brpKoppelen.value
-          ? [Validators.required]
-          : [],
-      ],
-    });
   }
 
   protected opslaan() {
@@ -359,16 +270,11 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.bpmnZaakafhandelParameters.betrokkeneKoppelingen = {
-      isKvkKoppelenEnabled: Boolean(
-        this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
-      ),
-      isBrpKoppelenEnabled: Boolean(
-        this.betrokkeneKoppelingen.controls.brpKoppelen.value,
-      ),
-    };
-    this.bpmnZaakafhandelParameters.brpDoelbindingen =
-      this.brpDoelbindingenFormGroup.value;
+    this.bpmnZaakafhandelParameters.betrokkeneKoppelingen =
+      toBetrokkeneKoppelingen(this.koppelingenForm);
+    this.bpmnZaakafhandelParameters.brpDoelbindingen = toBrpDoelbindingen(
+      this.koppelingenForm,
+    );
 
     this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
       this.zaakbeeindigFormGroup.controls.zaakNietOntvankelijkResultaattype.value;
@@ -448,8 +354,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
       this.algemeenFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
-      this.brpDoelbindingenFormGroup.valid &&
-      this.zaakbeeindigFormGroup.valid
+      this.koppelingenForm.valid
     );
   }
 

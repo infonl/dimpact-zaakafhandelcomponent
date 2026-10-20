@@ -1,0 +1,55 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-card>
+  <mat-card-content>
+    <h2>
+      {{ "gegevens.landelijk.koppelingen" | translate }}
+    </h2>
+    <p>
+      {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
+    </p>
+    <section class="flex-col gap-12">
+      <zac-toggle
+        [form]="form()"
+        key="brpKoppelen"
+        label="gegevens.koppelen.brp"
+      ></zac-toggle>
+      @if (brpDoelbindingSetupEnabled() && form().controls.brpKoppelen.value) {
+        <section class="flex-col">
+          <p>
+            {{ "title.admin.parameters.step.brp-doelbinding" | translate }}
+          </p>
+          <zac-select
+            class="flex-1 w33 w100-md"
+            [form]="form().controls.brpDoelbindingen"
+            key="zoekWaarde"
+            label="brp-doelbinding.zoek-waarde"
+            [options]="brpSearchValuesQuery.data() ?? []"
+          ></zac-select>
+          <zac-select
+            class="flex-1 w33 w100-md"
+            [form]="form().controls.brpDoelbindingen"
+            key="raadpleegWaarde"
+            label="brp-doelbinding.raadpleeg-waarde"
+            [options]="brpViewValuesQuery.data() ?? []"
+          ></zac-select>
+          <zac-select
+            class="flex-1 w33 w100-md"
+            [form]="form().controls.brpDoelbindingen"
+            key="verwerkingregisterWaarde"
+            label="brp-doelbinding.verwerkingregister-waarde"
+            [options]="brpProcessingValuesQuery.data() ?? []"
+          ></zac-select>
+        </section>
+      }
+      <zac-toggle
+        [form]="form()"
+        key="kvkKoppelen"
+        label="gegevens.koppelen.kvk"
+      ></zac-toggle>
+    </section>
+  </mat-card-content>
+</mat-card>

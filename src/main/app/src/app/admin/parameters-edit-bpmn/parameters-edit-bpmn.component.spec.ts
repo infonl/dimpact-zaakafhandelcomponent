@@ -24,7 +24,6 @@ import { IdentityService } from "../../identity/identity.service";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
-import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn.component";
 
@@ -32,7 +31,6 @@ describe(ParametersEditBpmnComponent.name, () => {
   let fixture: ComponentFixture<ParametersEditBpmnComponent>;
   let component: ParametersEditBpmnComponent;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
-  let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
   let loader: HarnessLoader;
   let utilService: UtilService;
@@ -114,17 +112,6 @@ describe(ParametersEditBpmnComponent.name, () => {
     zaakafhandelParametersService = TestBed.inject(
       ZaakafhandelParametersService,
     );
-    referentieTabelService = TestBed.inject(ReferentieTabelService);
-    jest
-      .spyOn(referentieTabelService, "listBrpViewValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpProcessingValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpSearchValues")
-      .mockReturnValue(of([]));
-
     identityService = TestBed.inject(IdentityService);
     jest
       .spyOn(identityService, "listBehandelaarGroupsForZaaktype")

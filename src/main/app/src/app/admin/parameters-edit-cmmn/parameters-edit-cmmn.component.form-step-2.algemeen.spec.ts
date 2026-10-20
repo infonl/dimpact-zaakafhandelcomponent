@@ -126,9 +126,6 @@ describe("Algemeen form step", () => {
           useValue: fromPartial<ReferentieTabelService>({
             listReferentieTabellen: () => of([]),
             listAfzenders: () => of(["other@example.com"]),
-            listBrpSearchValues: () => of([]),
-            listBrpViewValues: () => of([]),
-            listBrpProcessingValues: () => of([]),
           }),
         },
         {

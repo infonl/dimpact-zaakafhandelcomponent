@@ -157,9 +157,6 @@ describe("Human tasks form step", () => {
             listReferentieTabellen: () =>
               of([{ id: 1, code: "ADVIES", name: "Advies" }]),
             listAfzenders: () => of(["other@example.com"]),
-            listBrpSearchValues: () => of([]),
-            listBrpViewValues: () => of([]),
-            listBrpProcessingValues: () => of([]),
           }),
         },
         {
