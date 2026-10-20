@@ -447,6 +447,7 @@ class ZaakRestService @Inject constructor(
                 )
             }
             .map { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak = it, loggedInUser = loggedInUser) }
+            .filter { it.rechten?.canLezen == true && it.behandelaar?.id == loggedInUser.id }
     }
 
     @GET

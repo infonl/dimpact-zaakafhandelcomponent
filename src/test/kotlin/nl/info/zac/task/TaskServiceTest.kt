@@ -23,6 +23,8 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEvent
+import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.model.createZaak
@@ -36,6 +38,7 @@ import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRolty
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.Task
@@ -50,6 +53,7 @@ class TaskServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val taskHistoryService = mockk<TaskHistoryService>()
+    val signaleringService = mockk<SignaleringService>(relaxed = true)
     val loggedInUser = mockk<LoggedInUser>()
     val task1 = mockk<Task>()
     val task2 = mockk<Task>()
@@ -59,7 +63,8 @@ class TaskServiceTest : BehaviorSpec({
         eventingService = eventingService,
         zrcClientService = zrcClientService,
         zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
-        taskHistoryService = taskHistoryService
+        taskHistoryService = taskHistoryService,
+        signaleringService = signaleringService
     )
     val taskId1 = "fakeTaskId1"
     val taskId2 = "fakeTaskId2"
@@ -157,6 +162,8 @@ class TaskServiceTest : BehaviorSpec({
                 restTaakToekennenGegevens.reden
             )
         } returns task
+
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
 
         `when`("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
             taskService.assignTask(
@@ -310,6 +317,8 @@ class TaskServiceTest : BehaviorSpec({
         every {
             indexingService.commit()
         } just runs
+
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
 
         `when`(
             """"
@@ -507,6 +516,8 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
+
         `when`(
             """
             the 'assign tasks' function is called with REST taak verdelen gegevens without a assignee
@@ -570,6 +581,8 @@ class TaskServiceTest : BehaviorSpec({
         every {
             indexingService.commit()
         } just runs
+
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
 
         `when`(
             """
@@ -643,6 +656,8 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
+
         `when`("the 'release tasks' function is called with REST taak vrijgeven gegevens") {
             taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
 
@@ -699,6 +714,8 @@ class TaskServiceTest : BehaviorSpec({
         every {
             indexingService.commit()
         } just runs
+
+        every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
 
         `when`(
             """
@@ -953,6 +970,154 @@ class TaskServiceTest : BehaviorSpec({
                         flowableTaskService.assignTaskToUser(any(), any(), any())
                         flowableTaskService.assignTaskToGroup(any(), any(), any())
                         indexingService.indexeerDirect(any<String>(), any(), any())
+                    }
+                }
+            }
+        }
+    }
+
+    context("Removing the TAAK_OP_NAAM signaleringen of previous assignees") {
+        given("a task assigned to a medewerker") {
+            val zaak = createZaak()
+            val task = createTestTask(
+                id = "fakeTaskId",
+                assignee = "fakePreviousAssignee",
+                caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid)
+            )
+            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every {
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
+            } returns false
+            val zaakLock = ReentrantLock()
+            var isZaakLockHeldWhileDeleting = false
+            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns zaakLock
+            every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
+            every {
+                signaleringService.deleteUserSignaleringenExceptFor(
+                    subjecttype = any(),
+                    subject = any(),
+                    types = any(),
+                    keptUserId = any()
+                )
+            } answers {
+                isZaakLockHeldWhileDeleting = zaakLock.isHeldByCurrentThread
+                0
+            }
+            every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
+
+            `when`("the task is assigned to another medewerker") {
+                taskService.assignTask(
+                    task = task,
+                    groupId = "fakeGroupId",
+                    userId = "fakeNewAssignee",
+                    reason = "fakeReason",
+                    loggedInUser = loggedInUser
+                )
+
+                then("the TAAK_OP_NAAM signaleringen of the task of everyone but the new assignee are deleted") {
+                    verify(exactly = 1) {
+                        signaleringService.deleteUserSignaleringenExceptFor(
+                            subjecttype = SignaleringSubject.TAAK,
+                            subject = "fakeTaskId",
+                            types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
+                            keptUserId = "fakeNewAssignee"
+                        )
+                    }
+                }
+                and("they are deleted under the lock of the zaak, so a concurrent assignment cannot interleave") {
+                    isZaakLockHeldWhileDeleting shouldBe true
+                }
+            }
+        }
+
+        given("a task assigned to a medewerker that is released") {
+            val task = createTestTask(
+                id = "fakeTaskId",
+                assignee = "fakePreviousAssignee",
+                caseVariables = mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
+            )
+            val releasedTask = createTestTask(id = "fakeTaskId", caseVariables = task.caseVariables)
+            val zaakLock = ReentrantLock()
+            var isZaakLockHeldWhileDeleting = false
+            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns zaakLock
+            every { flowableTaskService.releaseTask(task, "fakeReason") } returns releasedTask
+            every {
+                signaleringService.deleteUserSignaleringenExceptFor(
+                    subjecttype = any(),
+                    subject = any(),
+                    types = any(),
+                    keptUserId = any()
+                )
+            } answers {
+                isZaakLockHeldWhileDeleting = zaakLock.isHeldByCurrentThread
+                0
+            }
+            every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
+
+            `when`("the task is assigned to the group only") {
+                taskService.assignTask(
+                    task = task,
+                    groupId = "fakeGroupId",
+                    userId = null,
+                    reason = "fakeReason",
+                    loggedInUser = loggedInUser
+                )
+
+                then("all user TAAK_OP_NAAM signaleringen of the task are deleted") {
+                    verify(exactly = 1) {
+                        signaleringService.deleteUserSignaleringenExceptFor(
+                            subjecttype = SignaleringSubject.TAAK,
+                            subject = "fakeTaskId",
+                            types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
+                            keptUserId = null
+                        )
+                    }
+                }
+                and("the task is released and they are deleted under the lock of the zaak") {
+                    isZaakLockHeldWhileDeleting shouldBe true
+                }
+            }
+        }
+
+        given("a task that is already assigned to the medewerker it is assigned to again") {
+            val task = createTestTask(
+                id = "fakeTaskId",
+                assignee = "fakeAssignee",
+                caseVariables = mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
+            )
+            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
+            every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeAssignee", "fakeReason") } returns task
+            every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+            every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
+
+            `when`("the task is assigned to that same medewerker again") {
+                taskService.assignTask(
+                    task = task,
+                    groupId = "fakeGroupId",
+                    userId = "fakeAssignee",
+                    reason = "fakeReason",
+                    loggedInUser = loggedInUser
+                )
+
+                then("the TAAK_OP_NAAM signaleringen of that medewerker are kept") {
+                    verify(exactly = 1) {
+                        signaleringService.deleteUserSignaleringenExceptFor(
+                            subjecttype = SignaleringSubject.TAAK,
+                            subject = "fakeTaskId",
+                            types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
+                            keptUserId = "fakeAssignee"
+                        )
                     }
                 }
             }

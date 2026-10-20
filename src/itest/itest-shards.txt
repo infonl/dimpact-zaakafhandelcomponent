@@ -46,6 +46,7 @@ nl.info.zac.itest.ZaaktypeConfigurationSplitMigrationTest
 # specs annotated with @Isolate
 nl.info.zac.itest.IndexingAdminRestServiceTest
 nl.info.zac.itest.KlantRestServiceTest
+nl.info.zac.itest.SignaleringRestServiceRolDestroyTest
 
 # other specs
 nl.info.zac.itest.AanvullendeInformatieTaskCompleteTest

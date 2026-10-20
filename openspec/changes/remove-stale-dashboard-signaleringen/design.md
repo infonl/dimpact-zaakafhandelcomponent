@@ -67,6 +67,8 @@ not that behandelaar.
 Flowable task changes produce no notifications. `TaskService.assignTask` (user assignment) and `releaseTask`
 delete the `TAAK_OP_NAAM` signaleringen for the taak of every user other than the new assignee (all of them on
 release). Without this, every task reassignment would end up as a warning in the listing check.
+The cleanup runs under the zaak lock that assigning already takes, and releasing takes that lock too, so a
+concurrent assignment of the same taak cannot delete the signalering of the newer assignee.
 
 ### One deletion helper in Kotlin, no change to `SignaleringZoekParameters`
 
@@ -80,10 +82,14 @@ private function that takes the list of signaleringen.
 
 - **Zaken:** for each signalering, read the zaak, its behandelaar medewerker rol and its zaak rechten for the
   logged-in user. A signalering is valid when the behandelaar is the logged-in user and `canLezen` is true. The
-  rechten are evaluated once per zaak: the overzicht is built from the same rechten instead of a second
-  evaluation in `convertForDisplay`.
+  rechten are evaluated once per zaak: `RestZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull` returns `null`
+  when the user cannot read the zaak.
 - **Taken:** for each signalering, read the taak and check `assignee == loggedInUser.id` and
   `policyService.readTaakRechten(task).canLezen`.
+- Listing and deleting are separate. `SignaleringService.listCheckedZakenSignaleringenPage` and
+  `listCheckedTakenSignaleringen` only read and check, and return the valid and the invalid signaleringen.
+  `SignaleringRestService` then calls `SignaleringService.deleteInvalidSignaleringen`, the only part that runs
+  in a transaction, so the ZRC and OPA calls of the check stay outside it.
 - Invalid signaleringen are deleted with the bulk delete by id and logged at `WARNING` with the signalering id,
   type, subject and reason (`not behandelaar`/`not assignee` or `no read rights`). The username is left out
   because it is staff personal data (`docs/development/logging.md`); the signalering id identifies the row.

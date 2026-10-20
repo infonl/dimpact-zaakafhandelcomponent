@@ -68,23 +68,22 @@ class SignaleringRestService @Inject constructor(
         @Valid restSignaleringPageParameters: RestSignaleringPageParameters
     ): RestResultaat<RestZaakOverzicht> {
         val loggedInUser = loggedInUserInstance.get()
-        return signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            objectsCount.maxPages(restSignaleringPageParameters.rows).let { maxPages ->
+        signaleringService.countZakenSignaleringen(signaleringsType).maxPages(restSignaleringPageParameters.rows)
+            .let { maxPages ->
                 if (restSignaleringPageParameters.page > maxPages) {
                     throw SignaleringException(
                         "Requested page ${restSignaleringPageParameters.page} must be <= $maxPages"
                     )
                 }
             }
-            RestResultaat(
-                signaleringService.listZakenSignaleringenPage(
-                    signaleringsType = signaleringsType,
-                    pageParameters = restSignaleringPageParameters,
-                    loggedInUser = loggedInUser
-                ),
-                objectsCount
-            )
-        }
+        val checkedZakenSignaleringen = signaleringService.listCheckedZakenSignaleringenPage(
+            signaleringsType = signaleringsType,
+            pageParameters = restSignaleringPageParameters,
+            loggedInUser = loggedInUser
+        )
+        signaleringService.deleteInvalidSignaleringen(checkedZakenSignaleringen.invalid)
+        return signaleringService.countZakenSignaleringen(signaleringsType)
+            .let { RestResultaat(checkedZakenSignaleringen.valid, it) }
     }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
@@ -94,7 +93,9 @@ class SignaleringRestService @Inject constructor(
     fun listTakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type
     ): List<RestSignaleringTaskSummary> =
-        signaleringService.listTakenSignaleringenPage(signaleringsType)
+        signaleringService.listCheckedTakenSignaleringen(signaleringsType)
+            .also { signaleringService.deleteInvalidSignaleringen(it.invalid) }
+            .valid
 
     @GET
     @Path("/informatieobjecten/{type}")
