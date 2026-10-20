@@ -57,9 +57,8 @@ Current state, on `main` after PZ-12637:
 **Goals:**
 
 - The REST contract and the frontend are engine-agnostic. Only the process definition reference names its engine.
-  The frontend decides by engine in two places only: which process definitions a saved configuration may switch
-  to, and the confirmation email, which a BPMN process sends itself. Every other step shows what the chosen process
-  definition has use for.
+  The frontend decides by engine in one place only: the confirmation email, which a BPMN process sends itself. Every
+  other step shows what the chosen process definition has use for.
 - Every layer of the stack compiles and passes `./gradlew build`, `npm test`, and `./gradlew itest`, and merges
   on its own, in stack order.
 - The two edit components (1780 ts lines today) are deleted. The container and its step components together are
@@ -175,9 +174,10 @@ parameters-edit                  container: route data, one typed FormGroup, sub
 `mat-stepper` collects its steps when it renders, so steps cannot appear or disappear under a rendered stepper.
 
 - **Saved configuration.** The process definition is known from the `GET`. The container renders the stepper
-  with the steps that the process definition has use for, at the algemeen step. The process model step offers
-  only the process definitions of the engine that the configuration is bound to, because a configuration never
-  changes engine.
+  with the steps that the process definition has use for, at the algemeen step. The process model step shows the
+  process definition of the configuration and does not let the beheerder choose another one, as on `main`: the
+  steps and the plan item settings that were filled in depend on it. The backend still accepts another definition
+  of the same engine, so the lock is a choice of the screen only.
 - **Unsaved configuration.** The container first renders the stepper with only the process model step, which
   offers the process definitions of every engine in one list. When the beheerder chooses one, the container
   renders the stepper anew with the steps that it has use for. It renders the stepper inside a `@for` over the
@@ -185,7 +185,8 @@ parameters-edit                  container: route data, one typed FormGroup, sub
   steps to a rendered one. The stepper keeps its selected step across the re-render.
 - Choosing another process definition before the first save keeps every value, because the container owns the
   form. The human task and acties forms are rebuilt from the plan items of the new definition. The confirm dialog
-  that the two screens showed before a switch of engine is gone, together with its i18n text.
+  that the two screens showed before a switch of engine is gone, together with its i18n text. Once the
+  configuration is saved, the process model step is locked as for a saved configuration.
 
 ### D6. The stack
 
@@ -197,7 +198,7 @@ parameters-edit                  container: route data, one typed FormGroup, sub
 | 3 | `feature/PZ-12754-step-proces-model` | One process model step in place of three | none |
 | 4 | `feature/PZ-12754-step-algemeen` | Shared algemeen step with the definition slot | none |
 | 5 | `feature/PZ-12754-one-resource` | Backend contract (D2, D3) + container (D4, D5) + resolver; delete the BPMN resource, both edit components, and the shell | contract |
-| 6 | `feature/PZ-12754-bpmn-settings` | Mail step and warning windows for BPMN | yes, for beheerders |
+| 6 | `feature/PZ-12754-bpmn-settings` | Mail step and warning windows for BPMN; lock the process definition of a saved configuration | yes, for beheerders |
 
 - Layers 1–4 are possible before the contract change, because both edit components already have these steps.
   Each layer extracts one step, makes both components use it, and moves its spec from the CMMN spec files into
@@ -227,6 +228,9 @@ parameters-edit                  container: route data, one typed FormGroup, sub
   used by the mail dialog of the zaak, not by BPMN service tasks, which name their own template. The
   collapsed text in the mail step covers only the confirmation email. If beheerders get confused, the next step
   is help text per section, not a behaviour change.
+- [A BPMN configuration without a default zaakafzender can no longer be saved] → The mail step now shows the
+  zaakafzenders for BPMN, and demands a default one as it does for CMMN. A beheerder who opens such a
+  configuration sees the error on the mail step and picks one. The special afzenders are always offered.
 - [Removing `startenZaak` from the BPMN reads breaks an unknown caller] → `git grep` shows one caller outside the
   admin service and the itests: the zaak creation screen, which now reads the defaults from the zaaktype (D3). An
   itest checks that a user without `beheren` is refused.

@@ -41,6 +41,23 @@ export function createAlgemeenForm(
   });
 }
 
+/**
+ * The input of a warning window gives a string, because `zac-input` binds its `type`, and Angular only picks the
+ * number value accessor for a static `type="number"`.
+ */
+function toNumber(value: number | string | null) {
+  return value === null || value === "" ? null : Number(value);
+}
+
 export function toAlgemeenSettings(form: AlgemeenForm): AlgemeenSettings {
-  return form.getRawValue();
+  const settings = form.getRawValue();
+  return {
+    ...settings,
+    einddatumGeplandWaarschuwing: toNumber(
+      settings.einddatumGeplandWaarschuwing,
+    ),
+    uiterlijkeEinddatumAfdoeningWaarschuwing: toNumber(
+      settings.uiterlijkeEinddatumAfdoeningWaarschuwing,
+    ),
+  };
 }

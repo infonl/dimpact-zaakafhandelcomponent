@@ -20,7 +20,6 @@ import { ProcessDefinition, ProcessModelForm } from "./process-model-form";
 export class ParametersStepProcesModelComponent {
   readonly form = input.required<ProcessModelForm>();
   readonly zaaktypeOmschrijving = input<string | null>();
-  readonly savedProcessDefinition = input<ProcessDefinition | null>(null);
 
   private readonly zaakafhandelParametersService = inject(
     ZaakafhandelParametersService,
@@ -29,14 +28,9 @@ export class ParametersStepProcesModelComponent {
     this.zaakafhandelParametersService.listProcessDefinitions(),
   );
 
-  /** A saved configuration never changes process engine, so it only offers the process definitions of its engine. */
-  protected readonly processDefinitions = computed(() => {
-    const savedProcessEngine = this.savedProcessDefinition()?.processEngine;
-    return (this.processDefinitionsQuery.data() ?? []).filter(
-      ({ processEngine }) =>
-        !savedProcessEngine || processEngine === savedProcessEngine,
-    );
-  });
+  protected readonly processDefinitions = computed(
+    () => this.processDefinitionsQuery.data() ?? [],
+  );
 
   protected readonly displayName = (processDefinition: ProcessDefinition) =>
     processDefinition.naam ?? processDefinition.key;

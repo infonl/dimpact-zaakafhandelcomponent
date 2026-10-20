@@ -37,8 +37,7 @@ for a process definition that has user event listeners.
 
 The system SHALL let a beheerder choose the process definition of a zaaktype configuration from one list. For a
 configuration that was never saved, the list SHALL offer the process definitions of every engine. For a saved
-configuration, the list SHALL offer only the process definitions of the engine that the configuration is bound
-to, because a configuration never changes engine.
+configuration, the screen SHALL show its process definition and SHALL NOT let the beheerder choose another one.
 
 #### Scenario: Unsaved configuration offers the process definitions of every engine
 - **GIVEN** a zaaktype version without a saved configuration
@@ -46,11 +45,15 @@ to, because a configuration never changes engine.
 - **THEN** the process model step offers the CMMN case definitions and the BPMN process definitions in one list,
   and the screen shows the other steps once the beheerder has chosen one
 
-#### Scenario: Saved configuration keeps its engine
+#### Scenario: Saved configuration keeps its process definition
 - **GIVEN** a zaaktype whose saved configuration is bound to a BPMN process definition
 - **WHEN** a beheerder opens the process model step
-- **THEN** the step offers only BPMN process definitions, so the beheerder can choose another process definition
-  but no case definition
+- **THEN** the step shows that process definition and does not let the beheerder choose another one
+
+#### Scenario: The process definition is locked once the configuration is saved
+- **GIVEN** a zaaktype version without a saved configuration, for which a beheerder chose a process definition
+- **WHEN** the beheerder saves the configuration
+- **THEN** the process model step no longer lets the beheerder choose another process definition
 
 #### Scenario: Another process definition keeps the filled in settings
 - **GIVEN** a zaaktype version without a saved configuration, for which a beheerder chose a process definition

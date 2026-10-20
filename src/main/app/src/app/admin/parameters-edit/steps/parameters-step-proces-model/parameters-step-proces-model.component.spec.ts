@@ -45,7 +45,6 @@ describe(ParametersStepProcesModelComponent.name, () => {
 
   async function setup(
     form: ProcessModelForm,
-    savedProcessDefinition: ProcessDefinition | null = null,
     processDefinitions = [
       caseDefinition,
       otherCaseDefinition,
@@ -57,7 +56,6 @@ describe(ParametersStepProcesModelComponent.name, () => {
       inputs: {
         form,
         zaaktypeOmschrijving: "Test zaaktype omschrijving",
-        savedProcessDefinition,
       },
       providers: [
         {
@@ -116,7 +114,7 @@ describe(ParametersStepProcesModelComponent.name, () => {
   });
 
   it("marks only the chosen process definition as selected when a CMMN and a BPMN process definition have the same name", async () => {
-    await setup(createProcessModelForm({ ...bpmnProcessDefinition }), null, [
+    await setup(createProcessModelForm({ ...bpmnProcessDefinition }), [
       caseDefinitionNamedAsBpmnProcessDefinition,
       bpmnProcessDefinition,
     ]);
@@ -130,14 +128,14 @@ describe(ParametersStepProcesModelComponent.name, () => {
     ).toEqual(["false", "true"]);
   });
 
-  describe("for a saved configuration", () => {
-    it("offers only the process definitions of the process engine that it is bound to", async () => {
-      await setup(createProcessModelForm(caseDefinition), caseDefinition);
+  it("does not let the beheerder choose another process definition once the form is locked", async () => {
+    const form = createProcessModelForm(caseDefinition);
+    form.disable();
+    await setup(form);
 
-      expect(await offeredProcessDefinitions()).toEqual([
-        "Generiek zaakafhandelmodel",
-        "Ander zaakafhandelmodel",
-      ]);
-    });
+    expect(
+      screen.getByRole("combobox", { name: /procesmodel/i }),
+    ).toHaveAttribute("aria-disabled", "true");
+    expect(form.controls.processDefinition.value).toEqual(caseDefinition);
   });
 });

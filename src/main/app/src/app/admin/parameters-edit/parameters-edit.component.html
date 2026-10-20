@@ -40,9 +40,6 @@
             <zac-parameters-step-proces-model
               [form]="form.controls.procesModel"
               [zaaktypeOmschrijving]="configuration().zaaktype.omschrijving"
-              [savedProcessDefinition]="
-                configuration().processDefinition ?? null
-              "
             />
             <zac-parameters-step-buttons
               [isFirst]="true"
@@ -66,9 +63,6 @@
                   [zaaktype]="configuration().zaaktype"
                   [isZaakspecifiekAutoriseerbaar]="
                     configuration().isZaakspecifiekAutoriseerbaar ?? false
-                  "
-                  [showWarningWindows]="
-                    processDefinition.processEngine === 'CMMN'
                   "
                 />
                 <zac-parameters-step-buttons
@@ -117,7 +111,7 @@
             </mat-step>
           }
 
-          @if (processDefinition?.processEngine === "CMMN") {
+          @if (processDefinition) {
             <mat-step
               [stepControl]="form.controls.mail"
               [hasError]="form.controls.mail.invalid"
@@ -133,9 +127,7 @@
                 />
               </ng-template>
             </mat-step>
-          }
 
-          @if (processDefinition) {
             <mat-step
               [stepControl]="form.controls.beeindiging"
               [hasError]="form.controls.beeindiging.invalid"

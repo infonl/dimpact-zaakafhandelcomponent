@@ -2977,6 +2977,32 @@
       "groups": ["/behandelaars-test-group-with-a-very-long-name-0001"]
     },
     {
+      "id": "3f6a2c1e-7b84-4d0a-9e15-c2b7d8a4f901",
+      "username": "behandelaarbpmnwaarschuwing1",
+      "firstName": "Test",
+      "lastName": "Behandelaar BPMN Waarschuwing 1",
+      "email": "behandelaar-bpmn-waarschuwing-test-1@example.com",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "8a1d5e2f-3c47-4b9e-a6d0-f2e9c1b7a835",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"QbdbRprHQ6MBOrMQKj8PcCA2OFDy556vUNCbXyz8IF0=\",\"salt\":\"91XPuE/POij80RWdC7wn7Q==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/behandelaars-test-1"]
+    },
+    {
       "id": "8d9e0f1a-2b3c-4d5e-8f9a-0b1c2d3e4f5a",
       "username": "zaakspecifiekautorisatiebehandelaar1",
       "firstName": "Test",
