@@ -87,8 +87,6 @@ describe(ParametersEditCmmnComponent.name, () => {
             listCaseDefinitions: () => of([caseDefinition]),
             listFormulierDefinities: () => of([]),
             listReplyTos: () => of([]),
-            listZaakbeeindigRedenen: () => of([]),
-            listResultaattypes: () => of([]),
             updateZaakafhandelparameters: () =>
               createMutationOptions(zaakafhandelParameters),
           }),

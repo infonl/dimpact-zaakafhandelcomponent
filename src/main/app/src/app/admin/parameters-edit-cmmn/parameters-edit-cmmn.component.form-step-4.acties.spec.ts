@@ -109,8 +109,6 @@ describe("Acties form step", () => {
             listCaseDefinitions: () => of([caseDefinition]),
             listFormulierDefinities: () => of([]),
             listReplyTos: () => of([{ mail: "reply1@example.com" }]),
-            listZaakbeeindigRedenen: () => of([]),
-            listResultaattypes: () => of([]),
             updateZaakafhandelparameters: () =>
               createMutationOptions(zaakafhandelParameters),
           }),

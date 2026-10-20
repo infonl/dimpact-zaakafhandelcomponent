@@ -40,7 +40,7 @@ export class ZaakafhandelParametersService {
   }
 
   listZaakbeeindigRedenen() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/zaakbeeindigredenen",
     );
   }
@@ -55,7 +55,7 @@ export class ZaakafhandelParametersService {
   }
 
   listResultaattypes(zaaktypeUUID: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/resultaattypes/{zaaktypeUUID}",
       {
         path: { zaaktypeUUID },
