@@ -24,17 +24,6 @@ import java.time.ZonedDateTime
 @SequenceGenerator(schema = FlywayIntegrator.SCHEMA, name = "sq_zoekopdracht", sequenceName = "sq_zoekopdracht", allocationSize = 1)
 @AllOpen
 class Zoekopdracht {
-    companion object {
-        /** Naam van property: [Zoekopdracht.medewerkerID] */
-        const val MEDEWERKER_ID = "medewerkerID"
-
-        /** Naam van property: [Zoekopdracht.lijstID] */
-        const val LIJST_ID = "lijstID"
-
-        /** Naam van property: [Zoekopdracht.naam] */
-        const val NAAM = "naam"
-    }
-
     @Id
     @GeneratedValue(generator = "sq_zoekopdracht", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_zoekopdracht")

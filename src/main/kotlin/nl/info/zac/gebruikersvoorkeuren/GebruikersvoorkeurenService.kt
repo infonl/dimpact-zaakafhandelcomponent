@@ -51,9 +51,9 @@ class GebruikersvoorkeurenService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(Zoekopdracht::class.java)
         val root = query.from(Zoekopdracht::class.java)
-        val predicates = mutableListOf(builder.equal(root.get<Werklijst>(Zoekopdracht.LIJST_ID), listParameters.lijstID))
+        val predicates = mutableListOf(builder.equal(root.get<Werklijst>(Zoekopdracht::lijstID.name), listParameters.lijstID))
         if (listParameters.medewerkerID.isNotBlank()) {
-            predicates.add(builder.equal(root.get<String>(Zoekopdracht.MEDEWERKER_ID), listParameters.medewerkerID))
+            predicates.add(builder.equal(root.get<String>(Zoekopdracht::medewerkerID.name), listParameters.medewerkerID))
         }
         query.where(builder.and(*predicates.toTypedArray()))
         return entityManager.createQuery(query).resultList
@@ -88,9 +88,9 @@ class GebruikersvoorkeurenService @Inject constructor(
         val query = builder.createQuery(Zoekopdracht::class.java)
         val root = query.from(Zoekopdracht::class.java)
         val predicates = arrayOf(
-            builder.equal(root.get<Werklijst>(Zoekopdracht.LIJST_ID), zoekopdracht.lijstID),
-            builder.equal(root.get<String>(Zoekopdracht.MEDEWERKER_ID), zoekopdracht.medewerkerID),
-            builder.equal(builder.lower(root.get(Zoekopdracht.NAAM)), zoekopdracht.naam.lowercase(Locale.ROOT))
+            builder.equal(root.get<Werklijst>(Zoekopdracht::lijstID.name), zoekopdracht.lijstID),
+            builder.equal(root.get<String>(Zoekopdracht::medewerkerID.name), zoekopdracht.medewerkerID),
+            builder.equal(builder.lower(root.get(Zoekopdracht::naam.name)), zoekopdracht.naam.lowercase(Locale.ROOT))
         )
         query.where(builder.and(*predicates))
         return entityManager.createQuery(query).resultList.isNotEmpty()
