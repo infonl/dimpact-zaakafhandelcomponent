@@ -4,22 +4,29 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import { inject } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
-import { testQueryClient } from "../../../setupJest";
+import { sleep, testQueryClient } from "../../../setupJest";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
+import { QUERY_CLIENT } from "../shared/http/query-client";
 import { FoutAfhandelingComponent } from "./fout-afhandeling.component";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
-describe(FoutAfhandelingComponent.name, () => {
-  let foutAfhandelingService: FoutAfhandelingService;
-  let referentieTabelService: ReferentieTabelService;
+const SERVER_ERROR_TEXTS_URL = "/rest/referentietabellen/server-error-text";
 
+describe(FoutAfhandelingComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -34,9 +41,6 @@ describe(FoutAfhandelingComponent.name, () => {
         provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
-
-    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
-    referentieTabelService = TestBed.inject(ReferentieTabelService);
   });
 
   const setup = (
@@ -44,6 +48,8 @@ describe(FoutAfhandelingComponent.name, () => {
     bericht: string,
     serverErrorTexts: string[],
   ) => {
+    const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    const referentieTabelService = TestBed.inject(ReferentieTabelService);
     foutAfhandelingService.foutmelding = foutmelding;
     foutAfhandelingService.bericht = bericht;
     testQueryClient.setQueryData(
@@ -90,5 +96,26 @@ describe(FoutAfhandelingComponent.name, () => {
 
     expect(screen.getByText("Server onbeschikbaar")).toBeInTheDocument();
     expect(screen.getByText("Probeer het later")).toBeInTheDocument();
+  });
+
+  it("neither retries nor opens an error dialog when the server error texts fail to load", async () => {
+    TestBed.overrideProvider(QueryClient, {
+      useFactory: () => inject(QUERY_CLIENT),
+    });
+    const foutAfhandelen = jest.spyOn(
+      TestBed.inject(FoutAfhandelingService),
+      "foutAfhandelen",
+    );
+    const httpTestingController = TestBed.inject(HttpTestingController);
+
+    TestBed.createComponent(FoutAfhandelingComponent).detectChanges();
+    await sleep();
+    httpTestingController
+      .expectOne(SERVER_ERROR_TEXTS_URL)
+      .flush(null, { status: 500, statusText: "Internal Server Error" });
+    await sleep();
+
+    httpTestingController.expectNone(SERVER_ERROR_TEXTS_URL);
+    expect(foutAfhandelen).not.toHaveBeenCalled();
   });
 });

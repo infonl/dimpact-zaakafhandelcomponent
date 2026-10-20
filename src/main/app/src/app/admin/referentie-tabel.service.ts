@@ -194,12 +194,9 @@ export class ReferentieTabelService {
   }
 
   listServerErrorTextsQuery() {
-    return {
-      ...this.zacQueryClient.GET("/rest/referentietabellen/server-error-text"),
-      // Shown inside the error dialog, so a failure must not open another one.
-      meta: { reportErrors: false },
-      retry: false,
-    };
+    return this.zacQueryClient.GET(
+      "/rest/referentietabellen/server-error-text",
+    );
   }
 
   listBrpSearchValues() {

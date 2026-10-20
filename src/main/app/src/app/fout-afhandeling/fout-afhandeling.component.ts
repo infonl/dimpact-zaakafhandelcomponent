@@ -24,9 +24,12 @@ export class FoutAfhandelingComponent implements OnInit {
 
   protected bericht: string | null = null;
   protected foutmelding: string | null = null;
-  protected readonly serverErrorTextsQuery = injectQuery(() =>
-    this.referentieTabelService.listServerErrorTextsQuery(),
-  );
+  protected readonly serverErrorTextsQuery = injectQuery(() => ({
+    ...this.referentieTabelService.listServerErrorTextsQuery(),
+    // A failure would open the error dialog, which loads these texts again.
+    meta: { reportErrors: false },
+    retry: false,
+  }));
 
   ngOnInit() {
     this.foutmelding = this.foutAfhandelingService.foutmelding;

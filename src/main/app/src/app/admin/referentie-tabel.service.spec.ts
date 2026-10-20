@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpErrorResponse, provideHttpClient } from "@angular/common/http";
+import { provideHttpClient } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -17,8 +17,6 @@ import {
 import { testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { QUERY_CLIENT } from "../shared/http/query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ReferentieTabelService } from "./referentie-tabel.service";
 
@@ -51,27 +49,6 @@ describe(ReferentieTabelService.name, () => {
       { id: 1, name: "fakeValueName1" },
       { id: 2, name: "fakeValueName2" },
     ],
-  });
-
-  describe("listServerErrorTextsQuery", () => {
-    it("neither retries nor opens an error dialog when the server fails, because the texts are shown inside that dialog", async () => {
-      const foutAfhandelen = jest.spyOn(
-        TestBed.inject(FoutAfhandelingService),
-        "foutAfhandelen",
-      );
-
-      const result = TestBed.inject(QUERY_CLIENT).fetchQuery(
-        service.listServerErrorTextsQuery(),
-      );
-      await Promise.resolve();
-      httpTestingController
-        .expectOne("/rest/referentietabellen/server-error-text")
-        .flush(null, { status: 500, statusText: "Internal Server Error" });
-
-      await expect(result).rejects.toBeInstanceOf(HttpErrorResponse);
-      httpTestingController.verify();
-      expect(foutAfhandelen).not.toHaveBeenCalled();
-    });
   });
 
   describe("renameReferentieTabel", () => {

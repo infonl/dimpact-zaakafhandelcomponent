@@ -4,17 +4,21 @@
  */
 
 import { HttpTestingController } from "@angular/common/http/testing";
+import { Provider } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import { sleep } from "../../../../setupJest";
+import { QUERY_CLIENT } from "../../shared/http/query-client";
+import { FoutAfhandelingService } from "../fout-afhandeling.service";
 import { FoutDetailedDialogComponent } from "./fout-detailed-dialog.component";
 
 const SERVER_ERROR_TEXTS_URL = "/rest/referentietabellen/server-error-text";
 
-function setup(showServerErrorTexts: boolean) {
+function setup(showServerErrorTexts: boolean, providers: Provider[] = []) {
   TestBed.configureTestingModule({
     imports: [
       FoutDetailedDialogComponent,
@@ -31,6 +35,7 @@ function setup(showServerErrorTexts: boolean) {
           showServerErrorTexts,
         },
       },
+      ...providers,
     ],
   });
 
@@ -65,5 +70,24 @@ describe(FoutDetailedDialogComponent.name, () => {
     expect(
       screen.getByText("Neem contact op met de beheerder"),
     ).toBeInTheDocument();
+  });
+
+  it("neither retries nor opens another error dialog when the server error texts fail to load", async () => {
+    const { httpTestingController } = setup(true, [
+      provideTanStackQuery(QUERY_CLIENT),
+    ]);
+    const foutAfhandelen = jest.spyOn(
+      TestBed.inject(FoutAfhandelingService),
+      "foutAfhandelen",
+    );
+    await sleep();
+
+    httpTestingController
+      .expectOne(SERVER_ERROR_TEXTS_URL)
+      .flush(null, { status: 500, statusText: "Internal Server Error" });
+    await sleep();
+
+    httpTestingController.expectNone(SERVER_ERROR_TEXTS_URL);
+    expect(foutAfhandelen).not.toHaveBeenCalled();
   });
 });
