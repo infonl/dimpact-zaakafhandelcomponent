@@ -139,10 +139,7 @@ export class ZakenCardComponent
       if (totaal == null || this.zakenQuery.isFetching()) return;
       const lastPageNumber = Math.max(0, Math.ceil(totaal / this.pageSize) - 1);
       if (this.pageNumber() > lastPageNumber) {
-        void this.queryClient.invalidateQueries({
-          queryKey: ["/rest/signaleringen/zaken/{type}"],
-          refetchType: "none",
-        });
+        void this.signaleringenService.markZakenSignaleringStale();
         this.pageNumber.set(lastPageNumber);
       }
     });
