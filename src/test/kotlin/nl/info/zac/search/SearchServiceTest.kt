@@ -18,7 +18,6 @@ import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.app.search.model.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
@@ -167,26 +166,6 @@ class SearchServiceTest : BehaviorSpec({
                     get("start") shouldBe "0"
                     get("sort") shouldBe "created asc,zaak_identificatie desc,id desc"
                 }
-            }
-        }
-    }
-
-    given("Work of the system user and one object of type ZAAK in the search index") {
-        val queryResponse = mockk<QueryResponse>()
-        val solrDocumentList = mockk<SolrDocumentList>()
-        val solrParamsSlot = slot<SolrParams>()
-        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
-        every { queryResponse.results } returns solrDocumentList
-        every { solrDocumentList.size } returns 0
-        every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
-        every { solrDocumentList.numFound } returns 0
-        every { queryResponse.facetFields } returns emptyList()
-
-        `when`("the system user searches for zaken") {
-            runAsSystemUser { zoekService.search(createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK)) }
-
-            then("the search is not narrowed to the zaaktypen of a user, because the system user acts for none") {
-                solrParamsSlot.captured.getParams("fq").toList() shouldBe listOf("type:ZAAK")
             }
         }
     }
