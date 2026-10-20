@@ -24,15 +24,15 @@ import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardId
-import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
-import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
-import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht
-import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
-import net.atos.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
-import net.atos.zac.gebruikersvoorkeuren.model.createTabelInstellingen
-import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
+import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardId
+import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
+import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import nl.info.zac.gebruikersvoorkeuren.model.Werklijst
+import nl.info.zac.gebruikersvoorkeuren.model.Zoekopdracht
+import nl.info.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
+import nl.info.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
+import nl.info.zac.gebruikersvoorkeuren.model.createTabelInstellingen
+import nl.info.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.exception.ErrorCode
@@ -244,23 +244,21 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         }
     }
 
-    context("Listing zoekopdrachten without filters") {
-        given("List parameters without a lijst and with a blank medewerker") {
+    context("Listing zoekopdrachten with a blank medewerker") {
+        given("List parameters with a lijst and a blank medewerker") {
             val zoekopdracht = createZoekopdracht(id = 1L)
-
-            every { entityManager.criteriaBuilder } returns criteriaBuilder
-            every { criteriaBuilder.createQuery(Zoekopdracht::class.java) } returns zoekopdrachtCriteriaQuery
-            every { zoekopdrachtCriteriaQuery.from(Zoekopdracht::class.java) } returns zoekopdrachtRoot
-            every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
-            every { entityManager.createQuery(zoekopdrachtCriteriaQuery) } returns zoekopdrachtTypedQuery
+            setupZoekopdrachtCriteriaChain()
             every { zoekopdrachtTypedQuery.resultList } returns listOf(zoekopdracht)
 
             `when`("listZoekopdrachten is called") {
-                val result = gebruikersvoorkeurenService.listZoekopdrachten(ZoekopdrachtListParameters(null, " "))
+                val result = gebruikersvoorkeurenService.listZoekopdrachten(
+                    ZoekopdrachtListParameters(Werklijst.MIJN_ZAKEN, " ")
+                )
 
-                then("it should not filter on lijst or medewerker") {
+                then("it should filter on the lijst only and not on the medewerker") {
                     result shouldBe listOf(zoekopdracht)
-                    verify(exactly = 0) { criteriaBuilder.equal(any(), any<Any>()) }
+                    verify(exactly = 1) { criteriaBuilder.equal(any(), any<Any>()) }
+                    verify(exactly = 1) { criteriaBuilder.equal(any(), Werklijst.MIJN_ZAKEN) }
                 }
             }
         }

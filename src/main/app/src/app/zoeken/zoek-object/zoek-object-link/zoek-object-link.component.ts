@@ -14,7 +14,7 @@ import { ZaakIndicatiesComponent } from "../../../shared/indicaties/zaak-indicat
 import { openedFromSearchState } from "../../../shared/navigation/navigation-origin";
 import { ReadMoreComponent } from "../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ZaakspecifiekGeautoriseerdIconComponent } from "../../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
+import { ZaakIdentificatieComponent } from "../../../shared/zaak-identificatie/zaak-identificatie.component";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
@@ -25,7 +25,7 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
   templateUrl: "./zoek-object-link.component.html",
   standalone: true,
   imports: [
-    ZaakspecifiekGeautoriseerdIconComponent,
+    ZaakIdentificatieComponent,
     RouterLink,
     MatIconModule,
     TranslateModule,

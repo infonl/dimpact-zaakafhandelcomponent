@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.gebruikersvoorkeuren.model
 
-package net.atos.zac.gebruikersvoorkeuren.model;
-
-public enum Werklijst {
+enum class Werklijst {
     WERKVOORRAAD_ZAKEN,
     WERKVOORRAAD_TAKEN,
     MIJN_ZAKEN,
@@ -13,5 +12,5 @@ public enum Werklijst {
     AFGEHANDELDE_ZAKEN,
     INBOX_DOCUMENTEN,
     ONTKOPPELDE_DOCUMENTEN,
-    INBOX_PRODUCTAANVRAGEN,
+    INBOX_PRODUCTAANVRAGEN
 }

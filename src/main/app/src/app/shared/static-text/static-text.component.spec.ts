@@ -106,6 +106,25 @@ describe(StaticTextComponent.name, () => {
 
       expect(screen.getByText("fakeOtherValue")).toBeInTheDocument();
     });
+
+    it("shows content projected as the value instead of the value", async () => {
+      await render(
+        `<zac-static-text label="fakeLabel" value="fakeValue">
+          <span position="content">fakeProjectedValue</span>
+        </zac-static-text>`,
+        {
+          imports: [
+            StaticTextComponent,
+            NoopAnimationsModule,
+            TranslateModule.forRoot(),
+          ],
+        },
+      );
+
+      expect(screen.getByText("fakeProjectedValue")).toBeInTheDocument();
+      expect(screen.queryByText("fakeValue")).not.toBeInTheDocument();
+      expect(screen.queryByText("-")).not.toBeInTheDocument();
+    });
   });
 
   describe("maxLength", () => {

@@ -7,10 +7,9 @@ import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import { DOCUMENT, inject, Injectable, signal, Signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
-import { InterpolationParameters, TranslateService } from "@ngx-translate/core";
-import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { TranslateService } from "@ngx-translate/core";
+import { Observable, Subject } from "rxjs";
 import { map, shareReplay } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { OrderUtil } from "../../shared/order/order-util";
@@ -29,15 +28,10 @@ export type Progress = {
   providedIn: "root",
 })
 export class UtilService {
-  private headerTitle: BehaviorSubject<string> = new BehaviorSubject<string>(
-    "zaakafhandelcomponent",
-  );
-
   readonly loading = signal(false);
 
   readonly progress = signal<Progress | null>(null);
 
-  public headerTitle$: Observable<string> = this.headerTitle.asObservable();
   public disable$ = new Subject<boolean>();
 
   public isHandset$: Observable<boolean> = this.breakpointObserver
@@ -59,7 +53,6 @@ export class UtilService {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private translate: TranslateService,
-    private titleService: Title,
     private router: Router,
     private snackbar: MatSnackBar,
     private dialog: MatDialog,
@@ -84,14 +77,6 @@ export class UtilService {
         Array.from(this.document.getElementsByClassName(styleClass)),
       );
     }, [] as Element[]);
-  }
-
-  setTitle(title: string, params?: InterpolationParameters): void {
-    const _title = this.translate.instant(title, params);
-    this.titleService.setTitle(
-      this.translate.instant("title", { title: _title }),
-    );
-    this.headerTitle.next(_title);
   }
 
   setLoading(loading: boolean): void {

@@ -15,13 +15,15 @@
       }}"
     >
       @if (zoekObject().type === "ZAAK") {
-        <zac-zaakspecifiek-geautoriseerd-icon
+        <zac-zaak-identificatie
+          [identificatie]="getName()"
           [isZaakspecifiekGeautoriseerd]="
             zaakZoekObject.isZaakspecifiekGeautoriseerd
           "
         />
+      } @else {
+        <read-more maxLength="25" [text]="getName()"></read-more>
       }
-      <read-more maxLength="25" [text]="getName()"></read-more>
       <mat-icon>visibility</mat-icon>
     </a>
   </div>

@@ -16,12 +16,10 @@
     />
   </div>
   <div class="flex-1 w33">
-    <zac-static-text
-      label="zaak-identificatie"
-      [value]="taak().zaakIdentificatie"
-    >
-      <zac-zaakspecifiek-geautoriseerd-icon
-        position="content-before"
+    <zac-static-text label="zaak-identificatie">
+      <zac-zaak-identificatie
+        position="content"
+        [identificatie]="taak().zaakIdentificatie"
         [isZaakspecifiekGeautoriseerd]="taak().isZaakspecifiekGeautoriseerd"
       />
     </zac-static-text>

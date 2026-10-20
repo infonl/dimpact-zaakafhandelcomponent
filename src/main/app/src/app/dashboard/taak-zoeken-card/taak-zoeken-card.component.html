@@ -24,10 +24,10 @@
         {{ "zaak-identificatie" | translate }}
       </th>
       <td mat-cell *matCellDef="let object">
-        <zac-zaakspecifiek-geautoriseerd-icon
+        <zac-zaak-identificatie
+          [identificatie]="object.zaakIdentificatie"
           [isZaakspecifiekGeautoriseerd]="object.isZaakspecifiekGeautoriseerd"
         />
-        {{ object.zaakIdentificatie }}
       </td>
     </ng-container>
     <ng-container matColumnDef="zaaktypeOmschrijving">

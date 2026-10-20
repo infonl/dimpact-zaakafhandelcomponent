@@ -35,7 +35,7 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
@@ -47,7 +47,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   styleUrls: ["./bag-zaken-tabel.component.less"],
   standalone: true,
   imports: [
-    ZaakspecifiekGeautoriseerdIconComponent,
+    ZaakIdentificatieComponent,
     ReactiveFormsModule,
     MatCardModule,
     MatTableModule,

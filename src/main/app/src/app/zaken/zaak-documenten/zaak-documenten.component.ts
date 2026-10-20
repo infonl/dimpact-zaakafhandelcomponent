@@ -52,14 +52,13 @@ import { injectMutation } from "../../shared/http/inject-mutation";
 import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { ZacNarrowMatCheckboxDirective } from "../../shared/material/narrow-checkbox.directive";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZakenService } from "../zaken.service";
 
 const LIST_QUERY_KEY = "/rest/informatieobjecten/informatieobjectenList";
@@ -126,7 +125,7 @@ const GEKOPPELDE_COLUMNS = [
   animations: [detailExpand],
   standalone: true,
   imports: [
-    ZaakspecifiekGeautoriseerdIconComponent,
+    ZaakIdentificatieComponent,
     RouterLink,
     MatButton,
     MatCardModule,
@@ -134,7 +133,6 @@ const GEKOPPELDE_COLUMNS = [
     MatTableModule,
     MatSortModule,
     MatCheckbox,
-    ZacNarrowMatCheckboxDirective,
     MatIconModule,
     MatIconAnchor,
     MatIconButton,

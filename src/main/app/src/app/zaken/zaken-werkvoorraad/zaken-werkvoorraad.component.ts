@@ -71,7 +71,7 @@ import { BatchProcessService } from "src/app/shared/batch-progress/batch-process
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
-import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZakenVerdelenDialogComponent } from "../zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "../zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
@@ -82,7 +82,7 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
-    ZaakspecifiekGeautoriseerdIconComponent,
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
@@ -179,7 +179,6 @@ export class ZakenWerkvoorraadComponent
 
   override ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.zaken.werkvoorraad");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

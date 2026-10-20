@@ -183,7 +183,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await showProductaanvragen([inboxProductaanvraag]);
 
     fixture.componentInstance["zoekopdrachtChanged"](
-      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+      fromPartial<GeneratedType<"RestZoekopdracht">>({
         json: JSON.stringify({ type: "type-B" }),
       }),
     );
@@ -202,7 +202,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await showProductaanvragen([inboxProductaanvraag]);
 
     fixture.componentInstance["zoekopdrachtChanged"](
-      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+      fromPartial<GeneratedType<"RestZoekopdracht">>({
         json: JSON.stringify({ sort: "type", type: "type-B" }),
       }),
     );
@@ -301,7 +301,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await showProductaanvragen([inboxProductaanvraag]);
 
     fixture.componentInstance["zoekopdrachtChanged"](
-      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+      fromPartial<GeneratedType<"RestZoekopdracht">>({
         json: JSON.stringify({ sort: "initiator", order: "asc" }),
       }),
     );

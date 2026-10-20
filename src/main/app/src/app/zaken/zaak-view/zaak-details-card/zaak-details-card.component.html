@@ -14,10 +14,10 @@
     <section class="flex-row space-between items-center">
       <div>
         <mat-card-title>
-          <zac-zaakspecifiek-geautoriseerd-icon
+          <zac-zaak-identificatie
+            [identificatie]="zaak().identificatie"
             [isZaakspecifiekGeautoriseerd]="zaak().isZaakspecifiekGeautoriseerd"
           />
-          {{ zaak().identificatie }}
         </mat-card-title>
         <mat-card-subtitle>{{
           zaak().zaaktype.omschrijving

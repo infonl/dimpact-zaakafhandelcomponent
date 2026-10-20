@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringDetail
 import net.atos.zac.signalering.model.SignaleringTarget

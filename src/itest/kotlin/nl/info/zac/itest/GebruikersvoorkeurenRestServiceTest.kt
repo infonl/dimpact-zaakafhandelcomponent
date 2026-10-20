@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -14,9 +15,12 @@ import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
+import java.time.LocalDate
 
 private const val DEFAULT_ITEMS_PER_PAGE = 25
 private const val UPDATED_ITEMS_PER_PAGE = 50
+private const val ITEMS_PER_PAGE_BELOW_MINIMUM = 5
+private val PAGE_SIZE_OPTIONS = listOf(10, 25, 50, 100)
 private const val UPDATED_CARD_COLUMN = 2
 private const val UPDATED_CARD_ROW = 3
 
@@ -34,17 +38,19 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             JSONArray(bodyAsString).map { it as JSONObject }
         }
 
-    fun createZoekopdracht(naam: String) =
+    fun createOrUpdateZoekopdracht(zoekopdracht: JSONObject) =
         itestHttpClient.performJSONPostRequest(
             url = "$gebruikersvoorkeurenUri/zoekopdracht",
-            requestBodyAsString = """
-                {
-                    "lijstID": "MIJN_ZAKEN",
-                    "naam": "$naam",
-                    "json": "{}"
-                }
-            """.trimIndent(),
+            requestBodyAsString = zoekopdracht.toString(),
             testUser = testUser
+        )
+
+    fun createZoekopdracht(naam: String, json: String = "{}") =
+        createOrUpdateZoekopdracht(
+            JSONObject()
+                .put("lijstID", "MIJN_ZAKEN")
+                .put("naam", naam)
+                .put("json", json)
         )
 
     fun listDashboardCards() =
@@ -76,9 +82,20 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                     testUser = testUser
                 )
 
-                then("the default number of items per page is returned") {
+                then("the default number of items per page, the page size options and the werklijst rechten are returned") {
                     response.code shouldBe HTTP_OK
-                    JSONObject(response.bodyAsString).getInt("aantalPerPagina") shouldBe DEFAULT_ITEMS_PER_PAGE
+                    with(JSONObject(response.bodyAsString)) {
+                        getInt("aantalPerPagina") shouldBe DEFAULT_ITEMS_PER_PAGE
+                        getJSONArray("pageSizeOptions").toList() shouldBe PAGE_SIZE_OPTIONS
+                        getJSONObject("werklijstRechten").keySet() shouldBe setOf(
+                            "canInbox",
+                            "canOntkoppeldeDocumentenVerwijderen",
+                            "canInboxProductaanvragenVerwijderen",
+                            "canZakenTaken",
+                            "canZakenTakenVerdelen",
+                            "canZakenTakenExporteren"
+                        )
+                    }
                 }
             }
 
@@ -99,6 +116,24 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                     JSONObject(readResponse.bodyAsString).getInt("aantalPerPagina") shouldBe UPDATED_ITEMS_PER_PAGE
                 }
             }
+
+            `when`("the number of items per page is set to a value below the minimum") {
+                val updateResponse = itestHttpClient.performPutRequest(
+                    url = "$gebruikersvoorkeurenUri/aantal-per-pagina/MIJN_ZAKEN/$ITEMS_PER_PAGE_BELOW_MINIMUM",
+                    requestBodyAsString = "",
+                    testUser = testUser
+                )
+                val readResponse = itestHttpClient.performGetRequest(
+                    url = "$gebruikersvoorkeurenUri/tabel-gegevens/MIJN_ZAKEN",
+                    testUser = testUser
+                )
+
+                then("the value is ignored and the previous number of items per page is kept") {
+                    updateResponse.code shouldBe HTTP_NO_CONTENT
+                    readResponse.code shouldBe HTTP_OK
+                    JSONObject(readResponse.bodyAsString).getInt("aantalPerPagina") shouldBe UPDATED_ITEMS_PER_PAGE
+                }
+            }
         }
     }
 
@@ -108,14 +143,17 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             var secondZoekopdrachtId = 0L
 
             `when`("a zoekopdracht is created") {
-                val response = createZoekopdracht("fakeZoekopdracht1")
+                val response = createZoekopdracht("fakeZoekopdracht1", """{"fakeField":"fakeValue1"}""")
 
-                then("the zoekopdracht is returned and is the active one") {
+                then("the zoekopdracht is returned with today as creation date and is the active one") {
                     response.code shouldBe HTTP_OK
                     with(JSONObject(response.bodyAsString)) {
                         firstZoekopdrachtId = getLong("id")
                         getString("naam") shouldBe "fakeZoekopdracht1"
+                        getString("json") shouldBe """{"fakeField":"fakeValue1"}"""
                         getBoolean("actief") shouldBe true
+                        LocalDate.parse(getString("creatiedatum")) shouldBeIn
+                            (-1L..1L).map { LocalDate.now().plusDays(it) }
                     }
                 }
             }
@@ -141,6 +179,31 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                         firstZoekopdrachtId to false,
                         secondZoekopdrachtId to true
                     )
+                }
+            }
+
+            `when`("the listed second zoekopdracht is sent back with a new json, as the frontend does to overwrite it") {
+                val listedSecondZoekopdracht = listZoekopdrachten().single { it.getLong("id") == secondZoekopdrachtId }
+                val response = createOrUpdateZoekopdracht(
+                    listedSecondZoekopdracht.put("json", """{"fakeField":"fakeValue2"}""")
+                )
+
+                then("the existing zoekopdracht is updated and stays the active one") {
+                    response.code shouldBe HTTP_OK
+                    with(JSONObject(response.bodyAsString)) {
+                        getLong("id") shouldBe secondZoekopdrachtId
+                        getString("naam") shouldBe "fakeZoekopdracht2"
+                        getString("json") shouldBe """{"fakeField":"fakeValue2"}"""
+                        getBoolean("actief") shouldBe true
+                    }
+                    with(listZoekopdrachten()) {
+                        associate { it.getLong("id") to it.getBoolean("actief") } shouldBe mapOf(
+                            firstZoekopdrachtId to false,
+                            secondZoekopdrachtId to true
+                        )
+                        single { it.getLong("id") == secondZoekopdrachtId }.getString("json") shouldBe
+                            """{"fakeField":"fakeValue2"}"""
+                    }
                 }
             }
 
@@ -202,17 +265,20 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
         given("a medewerker without dashboard cards") {
             var taakOpNaamCardId = 0L
 
-            `when`("a dashboard card without signalering type is added") {
+            `when`("a dashboard card without signalering type and without position is added") {
                 val response = itestHttpClient.performPutRequest(
                     url = "$gebruikersvoorkeurenUri/dasboardcard",
-                    requestBodyAsString = """{ "cardId": "MIJN_ZAKEN", "column": 0, "row": 0 }""",
+                    requestBodyAsString = """{ "cardId": "MIJN_ZAKEN" }""",
                     testUser = testUser
                 )
 
-                then("the dashboard card is returned") {
+                then("the dashboard card is returned in the first column and row") {
                     response.code shouldBe HTTP_OK
-                    JSONArray(response.bodyAsString).map { (it as JSONObject).getString("cardId") } shouldBe
-                        listOf("MIJN_ZAKEN")
+                    with(JSONArray(response.bodyAsString).map { it as JSONObject }.single()) {
+                        getString("cardId") shouldBe "MIJN_ZAKEN"
+                        getInt("column") shouldBe 0
+                        getInt("row") shouldBe 0
+                    }
                 }
             }
 

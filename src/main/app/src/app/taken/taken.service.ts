@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Location } from "@angular/common";
 import { inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
@@ -10,7 +11,10 @@ import { UtilService } from "../core/service/util.service";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { findOrigin } from "../shared/navigation/navigation-origin";
+import {
+  findOrigin,
+  navigateToBreadcrumb,
+} from "../shared/navigation/navigation-origin";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -22,6 +26,7 @@ export class TakenService {
   private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
   readTaak(taskId: string) {
     return this.zacHttpClient.GET("/rest/taken/{taskId}", {
@@ -100,7 +105,10 @@ export class TakenService {
     if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
       return;
 
-    return this.router.navigateByUrl(findOrigin(this.router) ?? "/");
+    const origin = findOrigin(this.location);
+    return origin
+      ? navigateToBreadcrumb(origin, this.router)
+      : this.router.navigateByUrl("/");
   }
 
   verdelenVanuitLijst() {
