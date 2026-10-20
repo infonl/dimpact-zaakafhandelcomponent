@@ -136,7 +136,7 @@ export class ZakenCardComponent
     // were deleted.
     effect(() => {
       const totaal = this.zakenQuery.data()?.totaal;
-      if (totaal == null) return;
+      if (totaal == null || this.zakenQuery.isFetching()) return;
       const lastPageNumber = Math.max(0, Math.ceil(totaal / this.pageSize) - 1);
       if (this.pageNumber() > lastPageNumber) {
         void this.queryClient.invalidateQueries({
