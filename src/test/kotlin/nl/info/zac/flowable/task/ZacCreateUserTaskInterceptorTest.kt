@@ -104,6 +104,7 @@ class ZacCreateUserTaskInterceptorTest : BehaviorSpec({
             every { flowableHelper.eventingService } returns eventingService
             every { eventingService.send(capture(screenEventSlot)) } returns Unit
 
+            zacCreateUserTaskInterceptor.afterCreateUserTask(createUserTaskAfterContext)
             transactionListenerSlot.captured.execute(mockk<CommandContext>())
 
             then("a zaak taken screen event for the zaak is sent") {
