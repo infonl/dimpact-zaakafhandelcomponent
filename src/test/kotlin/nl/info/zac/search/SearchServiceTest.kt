@@ -495,6 +495,38 @@ class SearchServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        `when`("searching ${SorteerRichting.NONE.value} on ${SorteerVeld.ZAAK_IDENTIFICATIE}") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.ZAAK,
+                    sorteerRichting = SorteerRichting.NONE,
+                    sorteerVeld = SorteerVeld.ZAAK_IDENTIFICATIE
+                )
+            )
+
+            then("it should sort in the default order, including the zaak identificatie") {
+                with(solrParamsSlot.captured) {
+                    get("sort") shouldBe "created desc,zaak_identificatie desc,id desc"
+                }
+            }
+        }
+
+        `when`("searching ${SorteerRichting.NONE.value} on ${SorteerVeld.CREATED}") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.ZAAK,
+                    sorteerRichting = SorteerRichting.NONE,
+                    sorteerVeld = SorteerVeld.CREATED
+                )
+            )
+
+            then("it should sort in the default order, including the creation date") {
+                with(solrParamsSlot.captured) {
+                    get("sort") shouldBe "created desc,zaak_identificatie desc,id desc"
+                }
+            }
+        }
     }
 
     given("A logged-in user who holds the zaakspecifiek_geautoriseerd role for one zaaktype but not another") {

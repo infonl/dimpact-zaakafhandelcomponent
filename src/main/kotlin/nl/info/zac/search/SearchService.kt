@@ -88,9 +88,11 @@ class SearchService @Inject constructor(
         query.setParam("q.op", SimpleParams.AND_OPERATOR)
         query.rows = zoekParameters.rows
         query.start = zoekParameters.start
-        if (zoekParameters.sortering.richting != SorteerRichting.NONE) {
+        val primarySorteerVeld = zoekParameters.sortering.sorteerVeld
+            .takeIf { zoekParameters.sortering.richting != SorteerRichting.NONE }
+        primarySorteerVeld?.let {
             query.addSort(
-                zoekParameters.sortering.sorteerVeld.veld,
+                it.veld,
                 if (zoekParameters.sortering.richting == SorteerRichting.DESCENDING) {
                     SolrQuery.ORDER.desc
                 } else {
@@ -99,10 +101,10 @@ class SearchService @Inject constructor(
             )
         }
 
-        if (zoekParameters.sortering.sorteerVeld != SorteerVeld.CREATED) {
+        if (primarySorteerVeld != SorteerVeld.CREATED) {
             query.addSort(SorteerVeld.CREATED.veld, SolrQuery.ORDER.desc)
         }
-        if (zoekParameters.sortering.sorteerVeld != SorteerVeld.ZAAK_IDENTIFICATIE) {
+        if (primarySorteerVeld != SorteerVeld.ZAAK_IDENTIFICATIE) {
             query.addSort(SorteerVeld.ZAAK_IDENTIFICATIE.veld, SolrQuery.ORDER.desc)
         }
 
