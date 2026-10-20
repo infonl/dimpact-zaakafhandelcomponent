@@ -113,8 +113,12 @@ const bpmnProcessDefinitionSteps = [
 describe(ParametersEditComponent.name, () => {
   const user = userEvent.setup();
 
-  async function setup(configuration: ZaaktypeConfiguration) {
-    const updateZaakafhandelparameters = createMutationOptions(configuration);
+  async function setup(
+    configuration: ZaaktypeConfiguration,
+    savedConfiguration = configuration,
+  ) {
+    const updateZaakafhandelparameters =
+      createMutationOptions(savedConfiguration);
 
     await render(ParametersEditComponent, {
       imports: [TranslateModule.forRoot(), NoopAnimationsModule],
@@ -242,19 +246,14 @@ describe(ParametersEditComponent.name, () => {
         );
       });
 
-      it("offers only the process definitions of the process engine that it is bound to", async () => {
+      it("does not let the beheerder choose another process definition", async () => {
         await setup(configuration);
 
         const procesModel = await goToStep("gegevens.procesmodel");
-        await user.click(
-          within(procesModel).getByRole("combobox", { name: /procesmodel/i }),
-        );
 
         expect(
-          (await screen.findAllByRole("option")).map((option) =>
-            option.textContent?.trim(),
-          ),
-        ).toEqual([configuration.processDefinition?.naam]);
+          within(procesModel).getByRole("combobox", { name: /procesmodel/i }),
+        ).toHaveAttribute("aria-disabled", "true");
       });
 
       it("stores its process definition and keeps SmartDocuments switched on without opening the koppelingen step", async () => {
@@ -386,6 +385,26 @@ describe(ParametersEditComponent.name, () => {
         await waitFor(() => expectSteps(steps));
       },
     );
+
+    it("no longer lets the beheerder choose another process definition once it is saved", async () => {
+      await setup(unsavedConfiguration, bpmnConfiguration);
+
+      await chooseProcessDefinition("Vergunningsproces");
+      const algemeen = await goToStep("gegevens.algemeen");
+      await user.click(
+        within(algemeen).getByRole("combobox", { name: /^groep.standaard$/i }),
+      );
+      await user.click(await screen.findByRole("option", { name: "test-group" }));
+      await waitFor(() => expect(opslaan()).toBeEnabled());
+      await user.click(opslaan());
+      const procesModel = await goToStep("gegevens.procesmodel");
+
+      await waitFor(() =>
+        expect(
+          within(procesModel).getByRole("combobox", { name: /procesmodel/i }),
+        ).toHaveAttribute("aria-disabled", "true"),
+      );
+    });
 
     it("keeps the filled in settings when the beheerder goes back to the process model step and chooses another process definition", async () => {
       await setup(unsavedConfiguration);

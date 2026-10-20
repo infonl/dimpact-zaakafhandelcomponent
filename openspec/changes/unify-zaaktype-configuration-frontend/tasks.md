@@ -90,7 +90,8 @@
 ## 6. Layer 6: BPMN settings in the screen (`feature/PZ-12754-bpmn-settings`)
 
 - [x] 6.1 Show the two warning windows in the algemeen step for BPMN. Verify with a spec, and with an itest that a
-      BPMN zaak with a stored window is listed by the zaak warnings endpoint.
+      BPMN zaak 1 day from its fatal date, with a stored window of 2 days, is listed by the zaak warnings endpoint and
+      gets its due-date signalering.
       The itest is `ZaakRestServiceBpmnWarningTest`. It runs as `BEHANDELAAR_BPMN_WAARSCHUWING_1`, a user of its own,
       because the existing "Listing zaak warnings" itest expects exactly one warned zaak of BEHANDELAAR_1.
 - [x] 6.2 Create `parameters-step-mail`. It shows the mailtemplate koppelingen and the zaakafzenders for both
@@ -102,6 +103,8 @@
 - [ ] 6.4 Add itests: a BPMN zaak uses its mailtemplate koppeling in `GET /mailtemplates/{mail}/{zaakUUID}`, and
       lists its default zaakafzender. Verify with `./gradlew itest`.
       Written as `ZaaktypeConfigurationRestServiceBpmnMailTest`; not run yet.
+- [x] 6.6 Lock the process definition of a saved configuration in the process model step, as on `main` (design D5).
+      Verify with specs for a saved configuration and for one that is saved for the first time.
 - [ ] 6.5 Run `./gradlew spotlessApply` and `npm test`, and open the PR. Title:
       `feat(admin): let a beheerder set the warning windows and mail settings of a BPMN zaaktype`. The body ends with
       `Solves PZ-12754`.
