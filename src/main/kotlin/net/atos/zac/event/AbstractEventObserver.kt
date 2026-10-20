@@ -1,13 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.zac.event;
+package net.atos.zac.event
 
 /**
  * Generic code for beans that listen to AbstractEvents.
  */
-public abstract class AbstractEventObserver<EVENT extends AbstractEvent> {
-    public abstract void onFire(final EVENT event);
+@Suppress("AbstractClassCanBeInterface")
+abstract class AbstractEventObserver<EVENT : AbstractEvent<*, *>> {
+    abstract fun onFire(event: EVENT)
 }

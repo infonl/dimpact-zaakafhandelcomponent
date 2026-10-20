@@ -2,83 +2,52 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.websocket.event;
+package net.atos.zac.websocket.event
 
-import static net.atos.zac.event.Opcode.DELETED;
-import static net.atos.zac.event.Opcode.SKIPPED;
-import static net.atos.zac.event.Opcode.UPDATED;
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-
-import java.net.URI;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import org.flowable.task.api.TaskInfo;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
-
-import net.atos.zac.event.Opcode;
-import net.atos.zac.signalering.model.Signalering;
-import nl.info.client.zgw.brc.model.generated.Besluit;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import nl.info.client.zgw.zrc.model.generated.Zaak;
-import nl.info.zac.app.zaak.model.RestZaakOverzicht;
-import nl.info.zac.notification.Channel;
-import nl.info.zac.notification.Notification;
+import net.atos.zac.event.Opcode
+import net.atos.zac.event.Opcode.DELETED
+import net.atos.zac.event.Opcode.SKIPPED
+import net.atos.zac.event.Opcode.UPDATED
+import net.atos.zac.signalering.model.Signalering
+import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.notification.Action
+import nl.info.zac.notification.Channel
+import nl.info.zac.notification.Notification
+import nl.info.zac.notification.Resource
+import org.flowable.task.api.TaskInfo
+import java.net.URI
+import java.util.EnumSet
+import java.util.UUID
 
 /**
- * Enumeration of the type of objects that can be referenced by a {@link ScreenEvent} event.
- * <p>
+ * Enumeration of the type of objects that can be referenced by a [ScreenEvent] event.
+ *
  * Maps to object-type.ts
  */
-public enum ScreenEventType {
-
+@Suppress("TooManyFunctions")
+enum class ScreenEventType {
     BESLUIT {
-        @Override
-        public ScreenEvent event(final Opcode opcode, final Besluit besluit) {
-            return instance(opcode, this, besluit);
-        }
+        override fun event(opcode: Opcode, besluit: Besluit) = instance(opcode, this, besluit)
     },
 
     BESLUIT_INFORMATIEOBJECTEN {
-        @Override
-        public ScreenEvent event(final Opcode opcode, final Besluit besluit) {
-            return instance(opcode, this, besluit);
-        }
+        override fun event(opcode: Opcode, besluit: Besluit) = instance(opcode, this, besluit)
     },
 
     ENKELVOUDIG_INFORMATIEOBJECT {
-        @Override
-        public ScreenEvent event(
-                final Opcode opcode,
-                final EnkelvoudigInformatieObject enkelvoudigInformatieobject
-        ) {
-            return instance(opcode, this, enkelvoudigInformatieobject);
-        }
+        override fun event(opcode: Opcode, enkelvoudigInformatieobject: EnkelvoudigInformatieObject) =
+            instance(opcode, this, enkelvoudigInformatieobject)
     },
 
     SIGNALERINGEN {
-        @Override
-        public ScreenEvent event(
-                final Opcode opcode,
-                final Signalering signalering
-        ) {
-            return instance(opcode, this, signalering);
-        }
+        override fun event(opcode: Opcode, signalering: Signalering) = instance(opcode, this, signalering)
     },
 
     TAAK {
-        @Override
-        public ScreenEvent event(final Opcode opcode, final TaskInfo taskInfo) {
-            return instance(opcode, this, taskInfo);
-        }
+        override fun event(opcode: Opcode, taskInfo: TaskInfo) = instance(opcode, this, taskInfo)
     },
 
     TAKEN_VERDELEN,
@@ -86,40 +55,25 @@ public enum ScreenEventType {
     TAKEN_VRIJGEVEN,
 
     ZAAK {
-        @Override
-        public ScreenEvent event(final Opcode opcode, final Zaak zaak) {
-            return instance(opcode, this, zaak);
-        }
+        override fun event(opcode: Opcode, zaak: Zaak) = instance(opcode, this, zaak)
     },
 
     ZAAK_BESLUITEN {
-        @Override
-        public ScreenEvent event(final Opcode opcode, final Zaak zaak) {
-            return instance(opcode, this, zaak);
-        }
+        override fun event(opcode: Opcode, zaak: Zaak) = instance(opcode, this, zaak)
     },
 
     ZAAK_INFORMATIEOBJECTEN {
-        @Override
-        public ScreenEvent event(final Opcode opcode, final Zaak zaak) {
-            return instance(opcode, this, zaak);
-        }
+        override fun event(opcode: Opcode, zaak: Zaak) = instance(opcode, this, zaak)
     },
 
     ZAAK_NOTITIES,
 
     ZAAK_ROLLEN {
-        @Override
-        public ScreenEvent event(final Opcode opcode, final Zaak zaak) {
-            return instance(opcode, this, zaak);
-        }
+        override fun event(opcode: Opcode, zaak: Zaak) = instance(opcode, this, zaak)
     },
 
     ZAAK_TAKEN {
-        @Override
-        public ScreenEvent event(final Opcode opcode, final Zaak zaak) {
-            return instance(opcode, this, zaak);
-        }
+        override fun event(opcode: Opcode, zaak: Zaak) = instance(opcode, this, zaak)
     },
 
     ZAKEN_VERDELEN,
@@ -128,146 +82,140 @@ public enum ScreenEventType {
 
     ANY;
 
-    /**
-     * Returns a set of all screen event types defined in this enum except for {@link #ANY}.
-     */
-    public static Set<ScreenEventType> any() {
-        return EnumSet.complementOf(EnumSet.of(ANY));
-    }
+    companion object {
+        /**
+         * Returns a set of all screen event types defined in this enum except for [ANY].
+         */
+        fun any(): Set<ScreenEventType> = EnumSet.complementOf(EnumSet.of(ANY))
 
-    // This is the factory method.
-    private static ScreenEvent instance(
-            final Opcode opcode,
-            final ScreenEventType type,
-            final String id,
-            final String detail
-    ) {
-        return new ScreenEvent(opcode, type, new ScreenEventId(id, detail));
-    }
+        /**
+         * Maps incoming notifications to specific screen events.
+         *
+         * @param channel      the channel the notification came in on
+         * @param mainResource the involved main resource (may be equal to the resource)
+         * @param resource     the actually modified resource
+         * @return the set of events that the parameters map to
+         */
+        fun getEvents(
+            channel: Channel,
+            mainResource: Notification.ResourceInfo,
+            resource: Notification.ResourceInfo
+        ): Set<ScreenEvent> {
+            val events = HashSet<ScreenEvent>()
+            when (channel) {
+                Channel.BESLUITEN -> addBesluitenEvents(events, mainResource, resource)
+                Channel.INFORMATIEOBJECTEN -> addInformatieobjectenEvents(events, mainResource, resource)
+                Channel.ZAKEN -> addZakenEvents(events, mainResource, resource)
+                else -> {}
+            }
+            return events
+        }
 
-    // In these methods you determine what is used as an id, make sure that this is consistent with the other methods
-    private static ScreenEvent instance(
-            final Opcode opcode,
-            final ScreenEventType type,
-            final UUID uuid,
-            final UUID detail
-    ) {
-        return instance(opcode, type,
-                uuid.toString(),
-                detail != null ? detail.toString() : null);
-    }
+        private fun addBesluitenEvents(
+            events: MutableSet<ScreenEvent>,
+            mainResource: Notification.ResourceInfo,
+            resource: Notification.ResourceInfo
+        ) {
+            when (resource.type) {
+                Resource.BESLUIT -> BESLUIT.addEvent(events, resource, null)
+                Resource.BESLUITINFORMATIEOBJECT -> BESLUIT_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource)
+                else -> {}
+            }
+        }
 
-    private static ScreenEvent instance(
-            final Opcode opcode,
-            final ScreenEventType type,
-            final URI url,
-            final URI detail
-    ) {
-        return instance(opcode, type, extractUuid(url), detail != null ? extractUuid(detail) : null);
-    }
+        private fun addInformatieobjectenEvents(
+            events: MutableSet<ScreenEvent>,
+            mainResource: Notification.ResourceInfo,
+            resource: Notification.ResourceInfo
+        ) {
+            when (resource.type) {
+                Resource.INFORMATIEOBJECT -> ENKELVOUDIG_INFORMATIEOBJECT.addEvent(events, resource, null)
+                Resource.GEBRUIKSRECHTEN -> ENKELVOUDIG_INFORMATIEOBJECT.addEvent(events, mainResource, resource)
+                else -> {}
+            }
+        }
 
-    // These methods determine what is used as an id, so that it is the same everywhere
+        private fun addZakenEvents(
+            events: MutableSet<ScreenEvent>,
+            mainResource: Notification.ResourceInfo,
+            resource: Notification.ResourceInfo
+        ) {
+            when (resource.type) {
+                Resource.ZAAK -> ZAAK.addEvent(events, resource, null)
+                Resource.STATUS,
+                Resource.RESULTAAT,
+                Resource.ZAAKEIGENSCHAP,
+                Resource.KLANTCONTACT,
+                Resource.ZAAKOBJECT -> ZAAK.addEvent(events, mainResource, resource)
+                Resource.ZAAKINFORMATIEOBJECT -> ZAAK_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource)
+                Resource.ROL -> ZAAK_ROLLEN.addEvent(events, mainResource, resource)
+                Resource.ZAAKBESLUIT -> ZAAK_BESLUITEN.addEvent(events, mainResource, resource)
+                else -> {}
+            }
+        }
 
-    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final Zaak zaak) {
-        return instance(opcode, type, zaak.getUuid(), null);
-    }
+        private fun instance(opcode: Opcode, type: ScreenEventType, id: String, detail: String? = null) =
+            ScreenEvent(opcode, type, ScreenEventId(id, detail))
 
-    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final TaskInfo taskinfo) {
-        return instance(opcode, type, taskinfo.getId(), (String) null);
-    }
+        // In these methods you determine what is used as an id, make sure that this is consistent with the other methods
+        private fun instance(opcode: Opcode, type: ScreenEventType, uuid: UUID, detail: UUID? = null) =
+            instance(opcode = opcode, type = type, id = uuid.toString(), detail = detail?.toString())
 
-    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final Besluit besluit) {
-        return instance(opcode, type, besluit.getUrl(), null);
-    }
+        private fun instance(opcode: Opcode, type: ScreenEventType, url: URI, detail: URI? = null) =
+            instance(opcode = opcode, type = type, uuid = url.extractUuid(), detail = detail?.extractUuid())
 
-    private static ScreenEvent instance(
-            final Opcode opcode,
-            final ScreenEventType type,
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject
-    ) {
-        return instance(opcode, type, enkelvoudigInformatieobject.getUrl(), null);
-    }
+        // These methods determine what is used as an id, so that it is the same everywhere
+        private fun instance(opcode: Opcode, type: ScreenEventType, zaak: Zaak) = instance(opcode, type, zaak.uuid)
 
-    private static ScreenEvent instance(
-            final Opcode opcode,
-            final ScreenEventType type,
-            final Signalering signalering
-    ) {
-        return instance(opcode, type, signalering.getTarget(), signalering.getType().getType().name());
-    }
+        private fun instance(opcode: Opcode, type: ScreenEventType, taskInfo: TaskInfo) =
+            instance(opcode, type, taskInfo.id)
 
-    private final static KotlinModule KOTLIN_MODULE = (new KotlinModule.Builder()).build();
-    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .registerModule(new JavaTimeModule())
-            .registerModule(KOTLIN_MODULE)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        private fun instance(opcode: Opcode, type: ScreenEventType, besluit: Besluit) =
+            instance(opcode, type, besluit.url)
 
-    private static ScreenEvent instance(
-            final Opcode opcode,
-            final ScreenEventType type,
-            final String eventResourceId,
-            final List<RestZaakOverzicht> restZaakOverzichtList
-    ) throws JsonProcessingException {
-        String details = OBJECT_MAPPER.writeValueAsString(restZaakOverzichtList);
-        return instance(opcode, type, eventResourceId, details);
+        private fun instance(
+            opcode: Opcode,
+            type: ScreenEventType,
+            enkelvoudigInformatieobject: EnkelvoudigInformatieObject
+        ) = instance(opcode, type, enkelvoudigInformatieobject.url)
+
+        private fun instance(opcode: Opcode, type: ScreenEventType, signalering: Signalering) =
+            instance(opcode = opcode, type = type, id = signalering.target, detail = signalering.type.type.name)
+
+        private fun notAllowed(type: ScreenEventType): Nothing =
+            throw IllegalArgumentException("This argument is not allowed for screen event type $type")
     }
 
     // These methods determine on which object types the different arguments are allowed
-    private ScreenEvent event(final Opcode opcode, final UUID uuid) {
-        return instance(opcode, this, uuid, null); // Allowed with all object types
-    }
 
-    private ScreenEvent event(final Opcode opcode, final URI url) {
-        return instance(opcode, this, url, null); // Allowed with all object types
-    }
+    // Allowed with all object types
+    private fun event(opcode: Opcode, uuid: UUID) = instance(opcode, this, uuid)
 
-    private ScreenEvent event(final Opcode opcode, final String eventResourceId) {
-        return instance(opcode, this, eventResourceId, (String) null);
-    }
+    // Allowed with all object types
+    private fun event(opcode: Opcode, url: URI) = instance(opcode, this, url)
 
-    private ScreenEvent event(
-            final Opcode opcode,
-            final Notification.ResourceInfo resource,
-            final Notification.ResourceInfo detail
-    ) {
-        return instance(opcode, this,
-                resource.getUrl(),
-                detail != null ? detail.getUrl() : null); // Allowed with all object types
-    }
+    private fun event(opcode: Opcode, eventResourceId: String) = instance(opcode, this, eventResourceId)
 
-    public ScreenEvent event(final Opcode opcode, final Zaak zaak) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
-    }
+    // Allowed with all object types
+    private fun event(opcode: Opcode, resource: Notification.ResourceInfo, detail: Notification.ResourceInfo?) =
+        instance(opcode = opcode, type = this, url = resource.url, detail = detail?.url)
 
-    public ScreenEvent event(final Opcode opcode, final TaskInfo taskInfo) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
-    }
+    // The following methods are not allowed, except for the object types that override them
 
-    public ScreenEvent event(final Opcode opcode, final Besluit besluit) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
-    }
+    open fun event(opcode: Opcode, zaak: Zaak): ScreenEvent = notAllowed(this)
 
-    public ScreenEvent event(
-            final Opcode opcode,
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject
-    ) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
-    }
+    open fun event(opcode: Opcode, taskInfo: TaskInfo): ScreenEvent = notAllowed(this)
 
-    public ScreenEvent event(final Opcode opcode, final Signalering signalering) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
-    }
+    open fun event(opcode: Opcode, besluit: Besluit): ScreenEvent = notAllowed(this)
 
-    public ScreenEvent event(
-            final Opcode opcode,
-            final String signaleringResourceId,
-            final List<RestZaakOverzicht> restZaakOverzichtList
-    ) throws JsonProcessingException {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
-    }
+    open fun event(opcode: Opcode, enkelvoudigInformatieobject: EnkelvoudigInformatieObject): ScreenEvent =
+        notAllowed(this)
 
-    // These are factory methods to create handy and unambiguous ScreenEvents for an object type
-    // Note that there are no "created" factory methods as there will never be a listener for those (the new objectId is unknown client side).
+    open fun event(opcode: Opcode, signalering: Signalering): ScreenEvent = notAllowed(this)
+
+    // These are factory methods to create handy and unambiguous ScreenEvents for an object type.
+    // Note that there are no "created" factory methods as there will never be a listener for those
+    // (the new objectId is unknown client side).
 
     /**
      * Pay attention! If you use this method, you are responsible for providing the correct UUID.
@@ -276,9 +224,7 @@ public enum ScreenEventType {
      * @param uuid identification of the modified object.
      * @return instance of the event
      */
-    public final ScreenEvent updated(final UUID uuid) {
-        return event(UPDATED, uuid);
-    }
+    fun updated(uuid: UUID) = event(UPDATED, uuid)
 
     /**
      * Pay attention! If you use this method, you are responsible for providing the correct URI.
@@ -287,9 +233,7 @@ public enum ScreenEventType {
      * @param url identification of the modified object.
      * @return instance of the event
      */
-    public final ScreenEvent updated(final URI url) {
-        return event(UPDATED, url);
-    }
+    fun updated(url: URI) = event(UPDATED, url)
 
     /**
      * Factory method for ScreenEvent (with case identification).
@@ -297,9 +241,7 @@ public enum ScreenEventType {
      * @param zaak modified zaak.
      * @return instance of the event
      */
-    public final ScreenEvent updated(final Zaak zaak) {
-        return event(UPDATED, zaak);
-    }
+    fun updated(zaak: Zaak) = event(UPDATED, zaak)
 
     /**
      * Factory method for ScreenEvent (with identification of a task).
@@ -307,9 +249,7 @@ public enum ScreenEventType {
      * @param taskInfo modified task
      * @return instance of the event
      */
-    public final ScreenEvent updated(final TaskInfo taskInfo) {
-        return event(UPDATED, taskInfo);
-    }
+    fun updated(taskInfo: TaskInfo) = event(UPDATED, taskInfo)
 
     /**
      * Factory method for ScreenEvent (with besluit identification).
@@ -317,9 +257,7 @@ public enum ScreenEventType {
      * @param besluit modified besluit.
      * @return instance of the event
      */
-    public final ScreenEvent updated(final Besluit besluit) {
-        return event(UPDATED, besluit);
-    }
+    fun updated(besluit: Besluit) = event(UPDATED, besluit)
 
     /**
      * Factory method for ScreenEvent (identifying a single Information object).
@@ -327,9 +265,7 @@ public enum ScreenEventType {
      * @param enkelvoudigInformatieobject modified enkelvoudigInformatieobject.
      * @return instance of the event
      */
-    public final ScreenEvent updated(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
-        return event(UPDATED, enkelvoudigInformatieobject);
-    }
+    fun updated(enkelvoudigInformatieobject: EnkelvoudigInformatieObject) = event(UPDATED, enkelvoudigInformatieobject)
 
     /**
      * Factory method for ScreenEvent (with identification of a signalering target).
@@ -337,10 +273,7 @@ public enum ScreenEventType {
      * @param signalering a created or deleted signalering
      * @return instance of the event
      */
-    public final ScreenEvent updated(final Signalering signalering) {
-        return event(UPDATED, signalering);
-    }
-
+    fun updated(signalering: Signalering) = event(UPDATED, signalering)
 
     /**
      * Factory method for ScreenEvent (with string identification of a custom resource).
@@ -348,16 +281,7 @@ public enum ScreenEventType {
      * @param eventResourceId identification of the custom resource.
      * @return instance of the event
      */
-    public final ScreenEvent updated(final String eventResourceId) {
-        return event(UPDATED, eventResourceId);
-    }
-
-    public final ScreenEvent updated(
-            final String eventResourceId,
-            final List<RestZaakOverzicht> restZaakOverzichtList
-    ) throws JsonProcessingException {
-        return event(UPDATED, eventResourceId, restZaakOverzichtList);
-    }
+    fun updated(eventResourceId: String) = event(UPDATED, eventResourceId)
 
     /**
      * Pay attention! If you use this method, you are responsible for providing the correct UUID. Preferably use the other deletion methods.
@@ -365,19 +289,15 @@ public enum ScreenEventType {
      * @param uuid identification of the deleted object.
      * @return instance of the event
      */
-    public final ScreenEvent deleted(final UUID uuid) {
-        return event(DELETED, uuid);
-    }
+    fun deleted(uuid: UUID) = event(DELETED, uuid)
 
     /**
      * Pay attention! If you use this method, you are responsible for providing the correct URI. Preferably use the other creation methods.
      *
-     * @param url identificatioon of the deleted object.
+     * @param url identification of the deleted object.
      * @return instance of the event
      */
-    public final ScreenEvent deleted(final URI url) {
-        return event(DELETED, url);
-    }
+    fun deleted(url: URI) = event(DELETED, url)
 
     /**
      * Factory method for ScreenEvent (with case identification).
@@ -385,19 +305,15 @@ public enum ScreenEventType {
      * @param zaak deleted zaak.
      * @return instance of the event
      */
-    public final ScreenEvent deleted(final Zaak zaak) {
-        return event(DELETED, zaak);
-    }
+    fun deleted(zaak: Zaak) = event(DELETED, zaak)
 
     /**
      * Factory method for ScreenEvent (with identification of a task).
      *
-     * @param taskinfo deleted task.
+     * @param taskInfo deleted task.
      * @return instance of the event
      */
-    public final ScreenEvent deleted(final TaskInfo taskinfo) {
-        return event(DELETED, taskinfo);
-    }
+    fun deleted(taskInfo: TaskInfo) = event(DELETED, taskInfo)
 
     /**
      * Factory method for ScreenEvent (with identification of a besluit).
@@ -405,29 +321,7 @@ public enum ScreenEventType {
      * @param besluit deleted besluit.
      * @return instance of the event
      */
-    public final ScreenEvent deleted(final Besluit besluit) {
-        return event(DELETED, besluit);
-    }
-
-    /**
-     * Factory method for ScreenEvent (with identification of a zaak) when a zaak was skipped during handling.
-     *
-     * @param zaak the skipped zaak.
-     * @return instance of the event
-     */
-    public final ScreenEvent skipped(final Zaak zaak) {
-        return event(SKIPPED, zaak);
-    }
-
-    /**
-     * Factory method for ScreenEvent to skip any `eventResourceId`.
-     *
-     * @param eventResourceId the skipped event.
-     * @return instance of the event
-     */
-    public final ScreenEvent skipped(final String eventResourceId) {
-        return event(SKIPPED, eventResourceId);
-    }
+    fun deleted(besluit: Besluit) = event(DELETED, besluit)
 
     /**
      * Factory method for ScreenEvent (with case identification).
@@ -435,86 +329,36 @@ public enum ScreenEventType {
      * @param enkelvoudigInformatieobject deleted enkelvoudigInformatieobject.
      * @return instance of the event
      */
-    public final ScreenEvent deleted(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
-        return event(DELETED, enkelvoudigInformatieobject);
-    }
-
-    private void addEvent(
-            final Set<ScreenEvent> events,
-            final Notification.ResourceInfo resource,
-            final Notification.ResourceInfo detail
-    ) {
-        switch (resource.getAction()) {
-            case CREATE:
-                // There cannot be any websockets listeners for Opcode.CREATED, so don't send the event.
-                // (The new objectId would have to be known client side before it exists to subscribe to it. ;-)
-                break;
-            case UPDATE:
-                events.add(event(UPDATED, resource, detail));
-                break;
-            case DELETE:
-                events.add(event(DELETED, resource, detail));
-                break;
-            default:
-                break;
-        }
-    }
+    fun deleted(enkelvoudigInformatieobject: EnkelvoudigInformatieObject) = event(DELETED, enkelvoudigInformatieobject)
 
     /**
-     * Maps incoming notifications to specific screen events.
+     * Factory method for ScreenEvent (with identification of a zaak) when a zaak was skipped during handling.
      *
-     * @param channel      the channel the notification came in on
-     * @param mainResource the involved main resource (may be equal to the resource)
-     * @param resource     the actually modified resource
-     * @return the set of events that the parameters map to
+     * @param zaak the skipped zaak.
+     * @return instance of the event
      */
-    public static Set<ScreenEvent> getEvents(
-            final Channel channel,
-            final Notification.ResourceInfo mainResource,
-            final Notification.ResourceInfo resource
+    fun skipped(zaak: Zaak) = event(SKIPPED, zaak)
+
+    /**
+     * Factory method for ScreenEvent to skip any `eventResourceId`.
+     *
+     * @param eventResourceId the skipped event.
+     * @return instance of the event
+     */
+    fun skipped(eventResourceId: String) = event(SKIPPED, eventResourceId)
+
+    private fun addEvent(
+        events: MutableSet<ScreenEvent>,
+        resource: Notification.ResourceInfo,
+        detail: Notification.ResourceInfo?
     ) {
-        final Set<ScreenEvent> events = new HashSet<>();
-        switch (channel) {
-            case BESLUITEN:
-                switch (resource.getType()) {
-                    case BESLUIT:
-                        ScreenEventType.BESLUIT.addEvent(events, resource, null);
-                        break;
-                    case BESLUITINFORMATIEOBJECT:
-                        ScreenEventType.BESLUIT_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource);
-                        break;
-                }
-                break;
-            case INFORMATIEOBJECTEN:
-                switch (resource.getType()) {
-                    case INFORMATIEOBJECT:
-                        ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.addEvent(events, resource, null);
-                        break;
-                    case GEBRUIKSRECHTEN:
-                        ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.addEvent(events, mainResource, resource);
-                        break;
-                }
-                break;
-            case ZAKEN:
-                switch (resource.getType()) {
-                    case ZAAK:
-                        ScreenEventType.ZAAK.addEvent(events, resource, null);
-                        break;
-                    case STATUS, RESULTAAT, ZAAKEIGENSCHAP, KLANTCONTACT, ZAAKOBJECT:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
-                    case ZAAKINFORMATIEOBJECT:
-                        ScreenEventType.ZAAK_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource);
-                        break;
-                    case ROL:
-                        ScreenEventType.ZAAK_ROLLEN.addEvent(events, mainResource, resource);
-                        break;
-                    case ZAAKBESLUIT:
-                        ScreenEventType.ZAAK_BESLUITEN.addEvent(events, mainResource, resource);
-                        break;
-                }
-                break;
+        when (resource.action) {
+            // There cannot be any websockets listeners for Opcode.CREATED, so don't send the event.
+            // (The new objectId would have to be known client side before it exists to subscribe to it. ;-)
+            Action.CREATE -> {}
+            Action.UPDATE -> events.add(event(UPDATED, resource, detail))
+            Action.DELETE -> events.add(event(DELETED, resource, detail))
+            else -> {}
         }
-        return events;
     }
 }

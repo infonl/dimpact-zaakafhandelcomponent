@@ -8,7 +8,11 @@ import org.flowable.task.api.history.HistoricTaskLogEntryType
 import org.flowable.task.service.impl.persistence.entity.HistoricTaskInstanceEntityImpl
 import org.flowable.task.service.impl.persistence.entity.HistoricTaskLogEntryEntityImpl
 
-fun createHistoricTaskInstanceEntityImpl() = HistoricTaskInstanceEntityImpl()
+fun createHistoricTaskInstanceEntityImpl(
+    id: String = "fakeHistoricTaskInstanceId"
+) = HistoricTaskInstanceEntityImpl().apply {
+    this.id = id
+}
 
 fun createHistoricTaskLogEntryEntityImpl(
     type: HistoricTaskLogEntryType = HistoricTaskLogEntryType.USER_TASK_CREATED,

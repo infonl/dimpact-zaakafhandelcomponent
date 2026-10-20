@@ -2,103 +2,78 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.event
 
-package net.atos.zac.event;
+import jakarta.json.bind.annotation.JsonbTransient
+import java.io.Serializable
+import java.time.Instant
+import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.logging.Logger
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+@Suppress("SerialVersionUIDInSerializableClass")
+abstract class AbstractEvent<TYPE, ID : Any> : Serializable {
+    companion object {
+        private val LOG = Logger.getLogger(AbstractEvent::class.java.name)
+    }
 
-import jakarta.json.bind.annotation.JsonbTransient;
+    var timestamp: Long = 0
+        private set
 
-public abstract class AbstractEvent<TYPE, ID> implements Serializable {
-    private static final Logger LOG = Logger.getLogger(AbstractEvent.class.getName());
+    lateinit var opcode: Opcode
+        private set
 
-    private long timestamp;
-
-    private Opcode opcode;
-
-    private ID objectId;
+    lateinit var objectId: ID
+        private set
 
     @JsonbTransient
-    private int delay;
+    private var delay: Int = 0
+
+    abstract val objectType: TYPE
 
     /**
      * Constructor for the sake of JAXB
      */
-    public AbstractEvent() {
-        super();
+    constructor()
+
+    constructor(opcode: Opcode, objectId: ID) {
+        this.timestamp = Instant.now().epochSecond
+        this.opcode = opcode
+        this.objectId = objectId
     }
 
-    public AbstractEvent(final Opcode opcode, final ID objectId) {
-        this.timestamp = Instant.now().getEpochSecond();
-        this.opcode = opcode;
-        this.objectId = objectId;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public Opcode getOpcode() {
-        return opcode;
-    }
-
-    public abstract TYPE getObjectType();
-
-    public ID getObjectId() {
-        return objectId;
-    }
-
-    public void delay() {
-        if (0 < delay) {
+    fun delay() {
+        if (delay > 0) {
             try {
-                TimeUnit.SECONDS.sleep(delay);
-            } catch (InterruptedException e) {
-                LOG.log(Level.WARNING, "Thread interrupted", e);
-                Thread.currentThread().interrupt();
+                TimeUnit.SECONDS.sleep(delay.toLong())
+            } catch (interruptedException: InterruptedException) {
+                LOG.log(Level.WARNING, "Thread interrupted", interruptedException)
+                Thread.currentThread().interrupt()
             }
         }
     }
 
-    public void setDelay(final int seconds) {
-        this.delay = seconds;
+    fun setDelay(seconds: Int) {
+        delay = seconds
     }
 
-    @Override
-    public boolean equals(final Object obj) {
-        // snel antwoord
-        if (obj == this) {
-            return true;
-        }
-        // gebruik getClass i.p.v. instanceof, maar dan wel met de null check
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        // cast en vergelijk
-        final AbstractEvent<?, ?> other = (AbstractEvent<?, ?>) obj;
-        if (getOpcode() != other.getOpcode()) {
-            return false;
-        }
-        if (!getObjectType().equals(other.getObjectType())) {
-            return false;
-        }
-        return getObjectId().equals(other.getObjectId());
+    override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        // use getClass instead of instanceof, so that events of different subclasses are never equal
+        if (other == null || javaClass != other.javaClass) return false
+        other as AbstractEvent<*, *>
+        return opcode == other.opcode && objectType == other.objectType && objectId == other.objectId
     }
 
-    @Override
-    public int hashCode() {
-        int result = getOpcode().hashCode();
-        result = 31 * result + getObjectType().hashCode();
-        result = 31 * result + getObjectId().hashCode();
-        return result;
+    override fun hashCode(): Int {
+        var result = opcode.hashCode()
+        result = 31 * result + objectType.hashCode()
+        result = 31 * result + objectId.hashCode()
+        return result
     }
 
-    @Override
-    public String toString() {
-        final String className = 0 < delay ? getClass().getSimpleName() + String.format("+%ds", delay) : getClass().getSimpleName();
-        return String.format("%s %s %s %s", className, getOpcode(), getObjectType(), getObjectId());
+    override fun toString(): String {
+        val className = if (delay > 0) "${javaClass.simpleName}+${delay}s" else javaClass.simpleName
+        return "$className $opcode $objectType $objectId"
     }
 }

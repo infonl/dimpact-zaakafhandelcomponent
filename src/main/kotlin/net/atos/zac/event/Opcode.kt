@@ -1,19 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.event
 
-package net.atos.zac.event;
-
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.EnumSet
 
 /**
- * Enumeration containing the operations as used by the {@link AbstractEvent}.
+ * Enumeration containing the operations as used by the [AbstractEvent].
  * Maps to opcode.ts
  */
-public enum Opcode {
-
+enum class Opcode {
     /**
      * Indication that the mentioned object has been added.
      */
@@ -39,10 +36,10 @@ public enum Opcode {
      */
     SKIPPED;
 
-    /**
-     * Returns a set of all opcodes defined in this enum except for {@link #ANY}.
-     */
-    public static Set<Opcode> any() {
-        return EnumSet.complementOf(EnumSet.of(ANY));
+    companion object {
+        /**
+         * Returns a set of all opcodes defined in this enum except for [ANY].
+         */
+        fun any(): Set<Opcode> = EnumSet.complementOf(EnumSet.of(ANY))
     }
 }

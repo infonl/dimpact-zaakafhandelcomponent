@@ -2,60 +2,57 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.websocket.event;
+package net.atos.zac.websocket.event
 
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jakarta.websocket.Session;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.atos.zac.event.AbstractEventObserver;
-import net.atos.zac.websocket.SessionRegistry;
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.ObservesAsync
+import jakarta.inject.Inject
+import jakarta.inject.Named
+import net.atos.zac.event.AbstractEventObserver
+import net.atos.zac.websocket.SessionRegistry
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.util.logging.Level
+import java.util.logging.Logger
 
 /**
- * This bean listens for {@link ScreenEvent}, converts them to a Websockets event and then forwards it to the browsers that have subscribed
+ * This bean listens for [ScreenEvent], converts them to a Websockets event and then forwards it to the browsers that have subscribed
  * to it.
  */
 @Named
 @ApplicationScoped
-public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {
-    private static final Logger LOG = Logger.getLogger(ScreenEventObserver.class.getName());
-    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
-    private final SessionRegistry sessionRegistry;
-
-    @Inject
-    public ScreenEventObserver(SessionRegistry sessionRegistry) {
-        this.sessionRegistry = sessionRegistry;
+@NoArgConstructor
+@AllOpen
+class ScreenEventObserver @Inject constructor(
+    private val sessionRegistry: SessionRegistry
+) : AbstractEventObserver<ScreenEvent>() {
+    companion object {
+        private val LOG = Logger.getLogger(ScreenEventObserver::class.java.name)
+        private val JSON_MAPPER = ObjectMapper()
     }
 
-    @Override
-    public void onFire(final @ObservesAsync ScreenEvent event) {
+    @Suppress("TooGenericExceptionCaught")
+    override fun onFire(@ObservesAsync event: ScreenEvent) {
         try {
-            LOG.fine(() -> String.format("Received screen event: %s", event.toString()));
-            event.delay();
-            sendToWebsocketSubscribers(event);
-        } catch (final Throwable exception) {
-            LOG.log(Level.WARNING, "asynchronous guard", exception);
+            LOG.fine { "Received screen event: $event" }
+            event.delay()
+            sendToWebsocketSubscribers(event)
+        } catch (throwable: Throwable) {
+            LOG.log(Level.WARNING, "asynchronous guard", throwable)
         }
     }
 
-    private void sendToWebsocketSubscribers(final ScreenEvent event) {
+    private fun sendToWebsocketSubscribers(event: ScreenEvent) {
         try {
-            final Set<Session> subscribers = sessionRegistry.listSessions(event);
-            if (!subscribers.isEmpty()) {
-                final String json = JSON_MAPPER.writeValueAsString(event);
-                subscribers.forEach(session -> session.getAsyncRemote().sendText(json));
+            val subscribers = sessionRegistry.listSessions(event)
+            if (subscribers.isNotEmpty()) {
+                val json = JSON_MAPPER.writeValueAsString(event)
+                subscribers.forEach { it.asyncRemote.sendText(json) }
             }
-        } catch (final JsonProcessingException e) {
-            LOG.log(Level.WARNING, "Failed to convert the ScreenUpdateEvent to JSON.", e);
+        } catch (jsonProcessingException: JsonProcessingException) {
+            LOG.log(Level.WARNING, "Failed to convert the ScreenUpdateEvent to JSON.", jsonProcessingException)
         }
     }
 }
