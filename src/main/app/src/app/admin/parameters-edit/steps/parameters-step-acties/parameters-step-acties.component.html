@@ -5,23 +5,18 @@
 
 <mat-accordion class="flex-col">
   @for (actieForm of form().controls; track actieForm) {
-    <mat-expansion-panel [formGroup]="actieForm" class="flex-col">
+    <mat-expansion-panel class="flex-col">
       <mat-expansion-panel-header>
         <mat-panel-title>
           {{ actieForm.controls.naam.value }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div class="flex-row flex-wrap">
-        <mat-form-field class="w33 w100-md" floatLabel="always">
-          <mat-label>{{ "toelichting" | translate }}</mat-label>
-          <textarea
-            matInput
-            class="toelichting"
-            formControlName="toelichting"
-            maxlength="1000"
-          ></textarea>
-        </mat-form-field>
-      </div>
+      <zac-textarea
+        class="w33 w100-md"
+        [form]="actieForm"
+        key="toelichting"
+        label="toelichting"
+      ></zac-textarea>
     </mat-expansion-panel>
   }
 </mat-accordion>

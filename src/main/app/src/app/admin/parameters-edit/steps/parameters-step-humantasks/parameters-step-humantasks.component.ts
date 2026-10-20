@@ -4,19 +4,25 @@
  */
 
 import { NgClass } from "@angular/common";
-import { Component, effect, inject, input, untracked } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  untracked,
+} from "@angular/core";
 import { MatExpansionModule } from "@angular/material/expansion";
-import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatSelectModule } from "@angular/material/select";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../../core/service/util.service";
 import { IdentityService } from "../../../../identity/identity.service";
+import { ZacInput } from "../../../../shared/form/input/input";
+import { ZacSelect } from "../../../../shared/form/select/select";
+import { ZacToggle } from "../../../../shared/form/toggle/toggle";
 import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
+import { toI18nKey } from "../../../../shared/utils/i18n-key";
 import { ReferentieTabelService } from "../../../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../../zaakafhandel-parameters.service";
 import {
@@ -32,15 +38,13 @@ import {
   standalone: true,
   imports: [
     NgClass,
-    ReactiveFormsModule,
     MatExpansionModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSlideToggleModule,
     TranslateModule,
     I18nKeyPipe,
+    ZacInput,
+    ZacSelect,
+    ZacToggle,
   ],
 })
 export class ParametersStepHumantasksComponent {
@@ -70,6 +74,19 @@ export class ParametersStepHumantasksComponent {
     };
   });
 
+  protected readonly formulierDefinitieIds = computed(() =>
+    (this.formulierDefinitiesQuery.data() ?? []).flatMap(({ id }) =>
+      id ? [id] : [],
+    ),
+  );
+  protected readonly groepIds = computed(() =>
+    (this.groepenQuery.data() ?? []).map(({ id }) => id),
+  );
+
+  protected readonly formulierDefinitieLabel = (id: string | null) =>
+    toI18nKey(`formulier-definitie.${id}`);
+  protected readonly groepNaam = (id: string | null) =>
+    this.groepenQuery.data()?.find((groep) => groep.id === id)?.naam ?? "";
   protected readonly compareObject = (a: unknown, b: unknown) =>
     this.utilService.compare(a, b);
 
@@ -81,6 +98,17 @@ export class ParametersStepHumantasksComponent {
       for (const humanTaskForm of untracked(this.form).controls) {
         this.syncReferentieTabellen(humanTaskForm);
       }
+    });
+
+    effect((onCleanup) => {
+      const subscriptions = this.form().controls.map((humanTaskForm) =>
+        humanTaskForm.controls.formulierDefinitieId.valueChanges.subscribe(
+          () => this.syncReferentieTabellen(humanTaskForm),
+        ),
+      );
+      onCleanup(() =>
+        subscriptions.forEach((subscription) => subscription.unsubscribe()),
+      );
     });
   }
 

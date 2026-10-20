@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FormArray, FormControl, FormGroup } from "@angular/forms";
+import { FormArray, FormControl, FormGroup, Validators } from "@angular/forms";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 export type ActieForm = FormGroup<{
@@ -25,7 +25,9 @@ export function createActiesForm(
         new FormGroup({
           id: new FormControl(id ?? "", { nonNullable: true }),
           naam: new FormControl(naam ?? "", { nonNullable: true }),
-          toelichting: new FormControl(toelichting ?? null),
+          toelichting: new FormControl(toelichting ?? null, [
+            Validators.maxLength(1000),
+          ]),
         }),
     ),
   );

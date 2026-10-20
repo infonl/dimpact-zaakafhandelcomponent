@@ -101,6 +101,7 @@ function createHumanTaskForm(
     defaultGroepId: new FormControl(humanTaskParameters.defaultGroepId ?? null),
     doorlooptijd: new FormControl(humanTaskParameters.doorlooptijd ?? null, [
       Validators.min(0),
+      Validators.max(2147483647),
     ]),
     actief: new FormControl(humanTaskParameters.actief ?? true, {
       nonNullable: true,

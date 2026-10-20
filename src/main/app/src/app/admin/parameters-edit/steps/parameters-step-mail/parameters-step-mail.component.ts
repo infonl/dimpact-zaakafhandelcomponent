@@ -12,16 +12,14 @@ import {
   signal,
   untracked,
 } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
-import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatRadioModule } from "@angular/material/radio";
-import { MatSelectModule } from "@angular/material/select";
 import { MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
@@ -46,16 +44,14 @@ import {
   styleUrl: "./parameters-step-mail.component.less",
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
     MatDividerModule,
     MatExpansionModule,
-    MatFormFieldModule,
+    MatError,
     MatIconModule,
     MatMenuModule,
     MatRadioModule,
-    MatSelectModule,
     MatTableModule,
     TranslateModule,
     I18nKeyPipe,
@@ -95,6 +91,24 @@ export class ParametersStepMailComponent {
     { label: "statusmail.optie.beschikbaar-uit", value: "BESCHIKBAAR_UIT" },
     { label: "statusmail.optie.niet-beschikbaar", value: "NIET_BESCHIKBAAR" },
   ];
+
+  protected readonly mailOptieValues = this.mailOpties.map(({ value }) => value);
+  protected readonly mailOptieLabel = (
+    value: GeneratedType<"ZaakafhandelparametersStatusMailOption">,
+  ) => this.mailOpties.find((mailOptie) => mailOptie.value === value)?.label ?? "";
+
+  protected readonly mailtemplatesPerMail = computed(() =>
+    Object.fromEntries(
+      this.mailtemplateKoppelingen.map((mail) => [
+        mail,
+        this.mailtemplates(mail),
+      ]),
+    ),
+  );
+
+  protected readonly replyToMails = computed(() =>
+    (this.replyTosQuery.data() ?? []).map(({ mail }) => mail ?? ""),
+  );
 
   protected readonly zaakAfzenderForms = signal<ZaakAfzenderForm[]>([]);
 

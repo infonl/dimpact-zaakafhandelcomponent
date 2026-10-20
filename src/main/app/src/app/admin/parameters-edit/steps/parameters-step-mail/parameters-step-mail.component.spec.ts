@@ -104,11 +104,11 @@ describe(ParametersStepMailComponent.name, () => {
 
       await waitFor(() =>
         expect(
-          screen.getByRole("combobox", { name: "statusmail.type.intake" }),
+          screen.getByRole("combobox", { name: /^statusmail.type.intake$/i }),
         ).toHaveTextContent("statusmail.optie.beschikbaar-uit"),
       );
       expect(
-        screen.getByRole("combobox", { name: "statusmail.type.afronden" }),
+        screen.getByRole("combobox", { name: /^statusmail.type.afronden$/i }),
       ).toHaveTextContent("statusmail.optie.beschikbaar-uit");
     });
   });
@@ -133,10 +133,10 @@ describe(ParametersStepMailComponent.name, () => {
       await setupWithoutThoseSettings();
 
       expect(
-        screen.queryByRole("combobox", { name: "statusmail.type.intake" }),
+        screen.queryByRole("combobox", { name: /^statusmail.type.intake$/i }),
       ).not.toBeInTheDocument();
       expect(
-        screen.queryByRole("combobox", { name: "statusmail.type.afronden" }),
+        screen.queryByRole("combobox", { name: /^statusmail.type.afronden$/i }),
       ).not.toBeInTheDocument();
       expect(
         screen.queryByRole("switch", { name: /ontvangstbevestiging/i }),
@@ -201,6 +201,26 @@ describe(ParametersStepMailComponent.name, () => {
       );
     });
 
+    it("stores the reply-to address that is chosen for an afzender", async () => {
+      const form = await setup();
+
+      await user.click(
+        within(afzenderRow("test@example.com")).getByRole("combobox", {
+          name: /^mail.antwoord$/i,
+        }),
+      );
+      await user.click(
+        await screen.findByRole("option", { name: "reply1@example.com" }),
+      );
+
+      expect(toZaakAfzenders(form)).toContainEqual(
+        expect.objectContaining({
+          mail: "test@example.com",
+          replyTo: "reply1@example.com",
+        }),
+      );
+    });
+
     it("removes an afzender from the list", async () => {
       const form = await setup();
 
@@ -229,7 +249,7 @@ describe(ParametersStepMailComponent.name, () => {
       await user.click(
         within(
           screen.getByRole("region", { name: /mail.zaak-algemeen/ }),
-        ).getByRole("combobox", { name: "title.mailtemplate" }),
+        ).getByRole("combobox", { name: /^title.mailtemplate$/i }),
       );
       await user.click(
         await screen.findByRole("option", { name: "Zaak algemeen" }),
@@ -247,7 +267,7 @@ describe(ParametersStepMailComponent.name, () => {
 
       expect(ontvangstbevestiging()).not.toBeChecked();
       expect(
-        screen.queryByRole("combobox", { name: /mail.antwoord/i }),
+        screen.queryByRole("group", { name: "gegevens.mail.ontvangstbevestiging" }),
       ).not.toBeInTheDocument();
     });
 
@@ -259,7 +279,11 @@ describe(ParametersStepMailComponent.name, () => {
       await user.click(ontvangstbevestiging());
 
       expect(
-        screen.getByRole("combobox", { name: /mail.antwoord/i }),
+        within(
+          screen.getByRole("group", {
+            name: "gegevens.mail.ontvangstbevestiging",
+          }),
+        ).getByRole("combobox", { name: /mail.antwoord/i }),
       ).toBeVisible();
       expect(form.valid).toBe(false);
     });

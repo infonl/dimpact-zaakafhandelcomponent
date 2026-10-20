@@ -127,7 +127,7 @@ describe(ParametersStepHumantasksComponent.name, () => {
   ) {
     await user.click(
       within(taskFields(task)).getByRole("combobox", {
-        name: "formulier-definitie",
+        name: /^formulier-definitie$/i,
       }),
     );
     await user.click(
@@ -152,13 +152,13 @@ describe(ParametersStepHumantasksComponent.name, () => {
 
     const fields = within(taskFields("Taak 1"));
     expect(
-      fields.getByRole("combobox", { name: "formulier-definitie" }),
+      fields.getByRole("combobox", { name: /^formulier-definitie$/i }),
     ).toBeVisible();
     expect(
-      fields.getByRole("combobox", { name: "groep.standaard" }),
+      fields.getByRole("combobox", { name: /^groep.standaard$/i }),
     ).toBeVisible();
     expect(
-      fields.getByRole("spinbutton", { name: "doorlooptijd" }),
+      fields.getByRole("spinbutton", { name: /^doorlooptijd$/i }),
     ).toHaveValue(5);
   });
 
@@ -197,7 +197,7 @@ describe(ParametersStepHumantasksComponent.name, () => {
     await user.click(taskHeader("Uitstel aanvragen"));
     const doorlooptijd = within(taskFields("Uitstel aanvragen")).getByRole(
       "spinbutton",
-      { name: "doorlooptijd" },
+      { name: /^doorlooptijd$/i },
     );
 
     await user.clear(doorlooptijd);
@@ -217,7 +217,7 @@ describe(ParametersStepHumantasksComponent.name, () => {
     await waitFor(() =>
       expect(
         within(taskFields("Taak 1")).getByRole("combobox", {
-          name: "referentietabel.advies",
+          name: /^referentietabel.advies$/i,
         }),
       ).toHaveTextContent("Advies"),
     );
@@ -232,7 +232,7 @@ describe(ParametersStepHumantasksComponent.name, () => {
       "formulier-definitie.default-taakformulier",
     );
     const doorlooptijd = within(taskFields("Taak 1")).getByRole("spinbutton", {
-      name: "doorlooptijd",
+      name: /^doorlooptijd$/i,
     });
     await user.clear(doorlooptijd);
     await user.type(doorlooptijd, "10");

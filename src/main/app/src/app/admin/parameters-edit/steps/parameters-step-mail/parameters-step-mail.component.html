@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<form [formGroup]="form()" class="flex-col">
+<div class="flex-col">
   @if (
     form().controls.intakeMail.enabled || form().controls.afrondenMail.enabled
   ) {
@@ -11,30 +11,24 @@
       <mat-card-content class="flex-col">
         <div class="flex-row flex-wrap gap-20">
           @if (form().controls.intakeMail.enabled) {
-            <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-              <mat-label>{{ "statusmail.type.intake" | translate }}</mat-label>
-              <mat-select formControlName="intakeMail">
-                @for (mailOptie of mailOpties; track mailOptie) {
-                  <mat-option [value]="mailOptie.value">{{
-                    mailOptie.label | translate
-                  }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <zac-select
+              class="flex-1 w33 w100-md"
+              [form]="form()"
+              key="intakeMail"
+              label="statusmail.type.intake"
+              [options]="mailOptieValues"
+              [optionDisplayValue]="mailOptieLabel"
+            ></zac-select>
           }
           @if (form().controls.afrondenMail.enabled) {
-            <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-              <mat-label>{{
-                "statusmail.type.afronden" | translate
-              }}</mat-label>
-              <mat-select formControlName="afrondenMail">
-                @for (mailOptie of mailOpties; track mailOptie) {
-                  <mat-option [value]="mailOptie.value">{{
-                    mailOptie.label | translate
-                  }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <zac-select
+              class="flex-1 w33 w100-md"
+              [form]="form()"
+              key="afrondenMail"
+              label="statusmail.type.afronden"
+              [options]="mailOptieValues"
+              [optionDisplayValue]="mailOptieLabel"
+            ></zac-select>
           }
         </div>
       </mat-card-content>
@@ -85,17 +79,13 @@
               translate="mail.antwoord"
             ></th>
             <td mat-cell *matCellDef="let zaakAfzenderForm">
-              <mat-select
-                placeholder="{{ 'verzender.geen' | translate }}"
-                [formControl]="zaakAfzenderForm.controls.replyTo"
-              >
-                <mat-option>{{ "verzender.geen" | translate }}</mat-option>
-                @for (replyTo of replyTosQuery.data() ?? []; track replyTo) {
-                  <mat-option [value]="replyTo.mail">
-                    {{ replyToDisplayValue(replyTo.mail ?? null) | translate }}
-                  </mat-option>
-                }
-              </mat-select>
+              <zac-select
+                [form]="zaakAfzenderForm"
+                key="replyTo"
+                label="mail.antwoord"
+                [options]="replyToMails()"
+                [optionDisplayValue]="replyToDisplayValue"
+              ></zac-select>
             </td>
           </ng-container>
           <ng-container matColumnDef="id" stickyEnd>
@@ -163,7 +153,7 @@
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <mat-accordion formGroupName="mailtemplateKoppelingen">
+      <mat-accordion>
         @for (mail of mailtemplateKoppelingen; track mail) {
           <mat-expansion-panel class="flex-col">
             <mat-expansion-panel-header>
@@ -171,25 +161,15 @@
                 {{ "mail." + mail | i18nKey | translate }}
               </mat-panel-title>
             </mat-expansion-panel-header>
-            <div class="flex-row flex-wrap">
-              <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                <mat-label>{{ "title.mailtemplate" | translate }}</mat-label>
-                <mat-select
-                  placeholder="{{ 'mailtemplate.kies' | translate }}"
-                  [formControlName]="mail"
-                  [compareWith]="compareMailtemplate"
-                >
-                  @for (
-                    mailtemplate of mailtemplates(mail);
-                    track mailtemplate
-                  ) {
-                    <mat-option [value]="mailtemplate">{{
-                      mailtemplate.mailTemplateNaam
-                    }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
+            <zac-select
+              class="flex-1 w33 w100-md"
+              [form]="form().controls.mailtemplateKoppelingen"
+              [key]="mail"
+              label="title.mailtemplate"
+              [options]="mailtemplatesPerMail()[mail]"
+              optionDisplayValue="mailTemplateNaam"
+              [compare]="compareMailtemplate"
+            ></zac-select>
           </mat-expansion-panel>
         }
       </mat-accordion>
@@ -214,7 +194,9 @@
         form().controls.automaticEmailConfirmation.controls.isEnabled.value
       ) {
         <mat-card-content>
-          <fieldset>
+          <fieldset
+            [attr.aria-label]="'gegevens.mail.ontvangstbevestiging' | translate"
+          >
             <section class="row">
               <zac-select
                 class="col-12"
@@ -245,4 +227,4 @@
       }
     </mat-card>
   }
-</form>
+</div>

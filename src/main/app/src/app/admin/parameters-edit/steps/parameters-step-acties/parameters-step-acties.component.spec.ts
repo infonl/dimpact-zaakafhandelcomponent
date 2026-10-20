@@ -33,7 +33,7 @@ describe(ParametersStepActiesComponent.name, () => {
   const toelichting = () =>
     within(screen.getByRole("region", { name: "Event 1" })).getByRole(
       "textbox",
-      { name: "toelichting" },
+      { name: /^toelichting$/i },
     );
 
   it("lists a panel per actie", async () => {

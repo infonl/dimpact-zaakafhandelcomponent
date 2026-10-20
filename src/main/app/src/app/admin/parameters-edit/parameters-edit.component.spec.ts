@@ -69,7 +69,7 @@ const formulierDefinities = [
 ];
 
 const adviesReferentieTabel = fromPartial<GeneratedType<"RestReferenceTable">>(
-  { id: 1, code: "ADVIES", naam: "Advies" },
+  { id: 1, code: "ADVIES", name: "Advies" },
 );
 
 const cmmnConfiguration = fromPartial<ZaaktypeConfiguration>({
