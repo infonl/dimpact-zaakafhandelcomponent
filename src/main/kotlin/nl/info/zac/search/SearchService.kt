@@ -9,6 +9,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.FilterParameters
@@ -69,8 +70,10 @@ class SearchService @Inject constructor(
     @Suppress("LongMethod")
     fun search(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
-        getAllowedZaaktypenFilterQuery()?.let(query::addFilterQuery)
-        addZaakspecifiekGeautoriseerdFilterQuery(query)
+        if (!isSystemWork()) {
+            getAllowedZaaktypenFilterQuery()?.let(query::addFilterQuery)
+            addZaakspecifiekGeautoriseerdFilterQuery(query)
+        }
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
         getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
@@ -210,6 +213,8 @@ class SearchService @Inject constructor(
                 null
             }
         }
+
+    private fun isSystemWork() = LoggedInUserProvider.systemUser.get()
 
     // Mirrors OPA's `lezen` rules, which evaluate the roles for the zaaktype together with the overall roles.
     private fun getAllowedZaaktypenFilterQuery(): String? =
