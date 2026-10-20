@@ -40,6 +40,21 @@ class SensitiveDataServiceTest : BehaviorSpec({
         }
     }
 
+    given("sensitive data whose UUID key has expired while the data still refers to that key") {
+        val data = "sensitive-data-with-expired-key"
+        val expiredUuid = UUID.randomUUID()
+        SensitiveDataService.dataToUuidStorage.put(data, expiredUuid)
+
+        `when`("the data is put into the service again") {
+            val uuid = sensitiveDataService.put(data)
+
+            then("a new UUID is returned that can be used to retrieve the data") {
+                uuid shouldNotBe expiredUuid
+                sensitiveDataService.get(uuid) shouldBe data
+            }
+        }
+    }
+
     given("multiple strings of sensitive data") {
         val data1 = "sensitive-data-1"
         val data2 = "sensitive-data-2"
