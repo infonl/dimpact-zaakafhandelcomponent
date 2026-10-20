@@ -31,12 +31,6 @@ import nl.info.zac.util.AllOpen
 @AllOpen
 class TabelInstellingen {
     companion object {
-        /** Naam van property: [TabelInstellingen.medewerkerID] */
-        const val MEDEWERKER_ID = "medewerkerID"
-
-        /** Naam van property: [TabelInstellingen.lijstID] */
-        const val LIJST_ID = "lijstID"
-
         const val AANTAL_PER_PAGINA_DEFAULT = 25
         const val AANTAL_PER_PAGINA_MAX = 100
         const val AANTAL_PER_PAGINA_MIN = 10

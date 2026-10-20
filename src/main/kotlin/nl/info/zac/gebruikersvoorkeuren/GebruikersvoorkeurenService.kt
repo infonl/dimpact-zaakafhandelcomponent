@@ -65,8 +65,8 @@ class GebruikersvoorkeurenService @Inject constructor(
         val query = builder.createQuery(TabelInstellingen::class.java)
         val root = query.from(TabelInstellingen::class.java)
         val predicates = arrayOf(
-            builder.equal(root.get<Werklijst>(TabelInstellingen.LIJST_ID), lijstID),
-            builder.equal(root.get<String>(TabelInstellingen.MEDEWERKER_ID), medewerkerID)
+            builder.equal(root.get<Werklijst>(TabelInstellingen::lijstID.name), lijstID),
+            builder.equal(root.get<String>(TabelInstellingen::medewerkerID.name), medewerkerID)
         )
         query.where(builder.and(*predicates))
         return entityManager.createQuery(query).resultList.firstOrNull() ?: TabelInstellingen().apply {
