@@ -34,7 +34,7 @@ import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
-import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
 type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
@@ -45,7 +45,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
   styleUrls: ["./informatie-object-link.component.less"],
   standalone: true,
   imports: [
-    ZaakspecifiekGeautoriseerdIconComponent,
+    ZaakIdentificatieComponent,
     NgClass,
     ReactiveFormsModule,
     MatButtonModule,

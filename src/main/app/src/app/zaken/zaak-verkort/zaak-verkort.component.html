@@ -8,11 +8,10 @@
     <mat-card-title-group>
       <mat-card-title
         >{{ "zaak" | translate }}
-        <zac-zaakspecifiek-geautoriseerd-icon
+        <zac-zaak-identificatie
+          [identificatie]="zaak().identificatie"
           [isZaakspecifiekGeautoriseerd]="zaak().isZaakspecifiekGeautoriseerd"
-        />
-        {{ zaak().identificatie }}</mat-card-title
-      >
+      /></mat-card-title>
       <mat-card-subtitle>{{ zaak().zaaktype.omschrijving }}</mat-card-subtitle>
       <a
         [routerLink]="['/zaken', zaak().identificatie]"

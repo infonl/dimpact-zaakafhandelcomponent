@@ -9,7 +9,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
 import { I18nKeyPipe } from "../../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
-import { ZaakspecifiekGeautoriseerdIconComponent } from "../../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
+import { ZaakIdentificatieComponent } from "../../../shared/zaak-identificatie/zaak-identificatie.component";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZoekObjectLinkComponent } from "../zoek-object-link/zoek-object-link.component";
 import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
@@ -20,7 +20,7 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
   templateUrl: "./taak-zoek-object.component.html",
   standalone: true,
   imports: [
-    ZaakspecifiekGeautoriseerdIconComponent,
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     ZoekObjectLinkComponent,
     StaticTextComponent,

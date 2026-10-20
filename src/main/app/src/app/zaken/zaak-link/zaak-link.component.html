@@ -122,10 +122,10 @@
           {{ "zaak.identificatie" | translate }}
         </th>
         <td *matCellDef="let row" mat-cell>
-          <zac-zaakspecifiek-geautoriseerd-icon
+          <zac-zaak-identificatie
+            [identificatie]="row.identificatie"
             [isZaakspecifiekGeautoriseerd]="row.isZaakspecifiekGeautoriseerd"
           />
-          {{ row.identificatie | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="zaaktypeOmschrijving">

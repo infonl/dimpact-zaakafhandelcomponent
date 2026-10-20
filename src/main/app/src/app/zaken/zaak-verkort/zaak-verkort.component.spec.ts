@@ -54,7 +54,7 @@ describe(ZaakVerkortComponent.name, () => {
   it("renders the zaak identificatie in the card title", () => {
     setup(makeZaak({ identificatie: "ZAAK-2026-001" }));
 
-    expect(screen.getByText("zaak ZAAK-2026-001")).toBeVisible();
+    expect(screen.getByText("ZAAK-2026-001")).toBeVisible();
   });
 
   it("renders zaaktype omschrijving as subtitle", () => {
@@ -152,6 +152,6 @@ describe(ZaakVerkortComponent.name, () => {
     );
     fixture.detectChanges();
 
-    expect(screen.getByText("zaak ZAAK-2026-002")).toBeVisible();
+    expect(screen.getByText("ZAAK-2026-002")).toBeVisible();
   });
 });

@@ -40,7 +40,7 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { toI18nKey } from "../../shared/utils/i18n-key";
-import { ZaakspecifiekGeautoriseerdIconComponent } from "../../shared/zaakspecifiek-geautoriseerd-icon/zaakspecifiek-geautoriseerd-icon.component";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZakenService } from "../zaken.service";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
@@ -55,7 +55,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   styleUrls: ["./zaak-link.component.less"],
   standalone: true,
   imports: [
-    ZaakspecifiekGeautoriseerdIconComponent,
+    ZaakIdentificatieComponent,
     ReactiveFormsModule,
     TranslateModule,
     MatToolbar,
