@@ -34,7 +34,9 @@ describe(ZaakafhandelParametersService.name, () => {
 
   describe("updateZaakafhandelparameters", () => {
     it("confirms the save to the user", async () => {
-      await runMutationOnSuccess(service.updateZaakafhandelparameters());
+      await runMutationOnSuccess(
+        service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
+      );
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaakafhandelparameters.opgeslagen",
@@ -46,7 +48,9 @@ describe(ZaakafhandelParametersService.name, () => {
         .spyOn(testQueryClient, "invalidateQueries")
         .mockResolvedValue(undefined);
 
-      await runMutationOnSuccess(service.updateZaakafhandelparameters());
+      await runMutationOnSuccess(
+        service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
+      );
 
       expect(invalidateQueries).toHaveBeenCalledWith({
         queryKey: TestBed.inject(
@@ -63,44 +67,52 @@ describe(ZaakafhandelParametersService.name, () => {
         )
         .mockResolvedValue(undefined);
 
-      await runMutationOnSuccess(service.updateZaakafhandelparameters());
+      await runMutationOnSuccess(
+        service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
+      );
 
       expect(invalidateFoundMailtemplates).toHaveBeenCalled();
     });
-  });
 
-  describe("createOrUpdateBpmnZaakafhandelparameters", () => {
-    it("posts the BPMN configuration of the zaaktype", async () => {
+    it("puts the configuration of the zaaktype to its own resource", async () => {
       const configuration = fromPartial<
-        GeneratedType<"RestZaaktypeBpmnConfiguration">
+        GeneratedType<"RestZaaktypeConfiguration">
       >({
-        zaaktypeUuid: "fakeZaaktypeUuid",
-        bpmnProcessDefinitionKey: "fakeProcessDefinitionKey",
+        zaaktype: { uuid: "fakeZaaktypeUuid" },
+        processDefinition: {
+          processEngine: "BPMN",
+          key: "fakeProcessDefinitionKey",
+        },
       });
 
       runMutation(
         testQueryClient,
-        service.createOrUpdateBpmnZaakafhandelparameters(),
+        service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
         configuration,
       ).subscribe();
       await sleep();
 
       const request = httpTestingController.expectOne(
-        "/rest/zaaktype-bpmn-configuration",
+        "/rest/zaakafhandelparameters/fakeZaaktypeUuid",
       );
-      expect(request.request.method).toBe("POST");
+      expect(request.request.method).toBe("PUT");
       expect(request.request.body).toEqual(configuration);
       request.flush(configuration);
     });
 
-    it("confirms the save to the user", async () => {
+    it("makes the screen read the stored configuration again", async () => {
+      const invalidateQueries = jest
+        .spyOn(testQueryClient, "invalidateQueries")
+        .mockResolvedValue(undefined);
+
       await runMutationOnSuccess(
-        service.createOrUpdateBpmnZaakafhandelparameters(),
+        service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
       );
 
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.zaakafhandelparameters.opgeslagen",
-      );
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey:
+          service.readZaakafhandelparameters("fakeZaaktypeUuid").queryKey,
+      });
     });
   });
 });

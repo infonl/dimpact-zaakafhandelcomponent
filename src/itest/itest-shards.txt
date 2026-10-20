@@ -36,9 +36,9 @@ nl.info.zac.itest.ZaakRestServiceCompleteTest
 nl.info.zac.itest.ZaakRestServiceExtensionTest
 nl.info.zac.itest.ZaakRestServiceLinkParentChildZaken
 nl.info.zac.itest.ZaakspecifiekeAutorisatieRestServiceTest
-nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationRestServiceTest
+nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnTest
 nl.info.zac.itest.ZaaktypeConfigurationSchemaRepairMigrationTest
-nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationPreservedSettingsTest
+nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnUpdateTest
 nl.info.zac.itest.ZaaktypeConfigurationSplitMigrationTest
 
 [shard 2]
@@ -56,6 +56,7 @@ nl.info.zac.itest.bpmn.BpmnProcessDefinitionRestServiceTest
 nl.info.zac.itest.bpmn.BpmnSuspendResumeExtendRestServiceTest
 nl.info.zac.itest.bpmn.BpmnZaakRestServiceTest
 nl.info.zac.itest.bpmn.BpmnZaakspecifiekAutorisatieTest
+nl.info.zac.itest.bpmn.ZaakRestServiceBpmnWarningTest
 nl.info.zac.itest.CsvRestServiceTest
 nl.info.zac.itest.DocumentCreationRestServiceTest
 nl.info.zac.itest.GebruikersvoorkeurenRestServiceTest
@@ -105,6 +106,8 @@ nl.info.zac.itest.ZaakKoppelenRestServiceTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeVervaldatumBesluitArchiveTest
 nl.info.zac.itest.ZaakRestServiceHistoryTest
-nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest
+nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnSmartDocumentsTest
 nl.info.zac.itest.ZaaktypeConfigurationRestServiceTest
-nl.info.zac.itest.bpmn.ZaaktypeBpmnConfigurationRestServiceProductaanvraagtypeTest
+nl.info.zac.itest.ZaaktypeConfigurationRestServiceRoundTripTest
+nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnProductaanvraagtypeTest
+nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnMailTest

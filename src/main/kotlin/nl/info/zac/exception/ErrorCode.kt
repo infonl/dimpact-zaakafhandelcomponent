@@ -64,7 +64,6 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_DETACHED_DOCUMENT_NOT_FOUND("msg.error.detached.document.not.found"),
     ERROR_CODE_DOCUMENT_HAS_ALREADY_BEEN_SIGNED("msg.error.document.has.already.been.signed"),
     ERROR_CODE_ZAAKTYPE_CONFIGURATION_NOT_FOUND("msg.error.zaaktype.configuration.not.found"),
-    ERROR_CODE_MULTIPLE_ZAAKTYPE_CONFIGURATIONS_FOUND("msg.error.multiple.zaaktype.configurations.found"),
     ERROR_CODE_BAD_BRP_PROTOCOLLERING_CONFIGURATION("msg.error.bad.brp.protocollering.configuration"),
     ERROR_CODE_EXTENSION_PERIOD_INVALID("msg.error.extension.period.invalid"),
     ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED("msg.error.afleidingwijze.brondatum.not.supported"),

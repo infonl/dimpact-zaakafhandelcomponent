@@ -19,7 +19,6 @@ import { Observable, of } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
-import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -69,9 +68,6 @@ export class ZaakCreateComponent {
   private readonly router = inject(Router);
   private readonly klantenService = inject(KlantenService);
   private readonly referentieTabelService = inject(ReferentieTabelService);
-  private readonly zaakafhandelParametersService = inject(
-    ZaakafhandelParametersService,
-  );
 
   private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
@@ -85,8 +81,6 @@ export class ZaakCreateComponent {
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes = this.zakenService.listZaaktypesForCreation();
-  protected bpmnCaseTypesConfigurations: GeneratedType<"RestZaaktypeBpmnConfiguration">[] =
-    [];
   protected communicationChannels: string[] = [];
   protected confidentialityNotices =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
@@ -134,12 +128,6 @@ export class ZaakCreateComponent {
     this.form.controls.behandelaar.disable();
     this.form.controls.initiatorIdentificatie.disable();
 
-    this.zaakafhandelParametersService
-      .getZaaktypeBpmnConfiguration()
-      .subscribe((configs) => {
-        this.bpmnCaseTypesConfigurations = configs;
-      });
-
     this.referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
       .subscribe((channels) => {
@@ -179,17 +167,9 @@ export class ZaakCreateComponent {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
 
-          const selectedZaaktype = this.form.controls.zaaktype.value;
-          const bpmnConfig = this.bpmnCaseTypesConfigurations?.find(
-            ({ zaaktypeUuid }) => zaaktypeUuid === selectedZaaktype?.uuid,
-          );
-          let defaultBehandelaarId: string | undefined | null;
-          if (bpmnConfig) {
-            defaultBehandelaarId = bpmnConfig.defaultBehandelaarId;
-          } else {
-            defaultBehandelaarId =
-              selectedZaaktype?.zaakafhandelparameters?.defaultBehandelaarId;
-          }
+          const defaultBehandelaarId =
+            this.form.controls.zaaktype.value?.zaakafhandelparameters
+              ?.defaultBehandelaarId;
 
           this.form.controls.behandelaar.setValue(
             this.users.find(({ id }) => id === defaultBehandelaarId) ?? null,
@@ -237,15 +217,9 @@ export class ZaakCreateComponent {
       caseType.omschrijving!,
     );
 
-    const bpmnDefaultGroepId = this.bpmnCaseTypesConfigurations.find(
-      ({ zaaktypeUuid }) => zaaktypeUuid === caseType.uuid,
-    )?.groepNaam;
-
     this.groups.subscribe((groups) => {
       const selectedGroup = groups?.find(
-        ({ id }) =>
-          id === zaakafhandelparameters?.defaultGroepId ||
-          id === bpmnDefaultGroepId,
+        ({ id }) => id === zaakafhandelparameters?.defaultGroepId,
       );
       this.form.controls.groep.setValue(selectedGroup);
     });

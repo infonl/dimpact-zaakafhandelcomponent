@@ -1,0 +1,27 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<header>
+  <h2>{{ zaaktypeOmschrijving() }}</h2>
+  <p>
+    {{ "zaps.step.procesmodel.intro" | translate }}
+  </p>
+</header>
+
+<section>
+  <zac-select
+    [form]="form()"
+    key="processDefinition"
+    label="procesmodel"
+    [options]="processDefinitions()"
+    [optionDisplayValue]="displayName"
+    [compare]="isSameProcessDefinition"
+  ></zac-select>
+
+  <div class="flex-row items-center gap-10 ml-1 my-3">
+    <mat-icon color="warn" class="pr-3">warning</mat-icon>
+    <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>
+  </div>
+</section>

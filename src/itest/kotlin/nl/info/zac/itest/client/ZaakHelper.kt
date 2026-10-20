@@ -194,10 +194,18 @@ class ZaakHelper(
     }
 
     /**
+     * Sends a request to the ZAC notification endpoint to notify ZAC about a change of a zaak,
+     * so that ZAC will reindex the zaak in Solr.
+     */
+    fun sendZaakUpdateNotification(zaakUuid: UUID) = sendZaakNotification(zaakUuid, "partial_update")
+
+    /**
      * Sends a request to the ZAC notification endpoint to notify ZAC about the creation of a zaak,
      * so that ZAC will index the newly created zaak in Solr.
      */
-    private fun sendZaakCreateNotification(zaakUuid: UUID) {
+    private fun sendZaakCreateNotification(zaakUuid: UUID) = sendZaakNotification(zaakUuid, "create")
+
+    private fun sendZaakNotification(zaakUuid: UUID, action: String) {
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/notificaties",
             headers = Headers.headersOf(
@@ -212,7 +220,7 @@ class ZaakHelper(
                     "resource" to "zaak",
                     "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
                     "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
-                    "actie" to "create",
+                    "actie" to action,
                     "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                 )
             ).toString()
