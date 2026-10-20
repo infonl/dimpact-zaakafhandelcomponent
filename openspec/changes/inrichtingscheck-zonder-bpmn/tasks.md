@@ -13,15 +13,13 @@
 
 ## 3. Synchronise button removed (PR 3)
 
-- [ ] 3.1 `ZaaktypeConfigurationBeheerService.updateZaaktypeConfiguration` also clears the informatieobjecttype,
-      zaaktype-informatieobjecttype and besluittype caches; update its unit test.
-- [ ] 3.2 Remove `DELETE /rest/health-check/ztc-cache` and `GET /rest/health-check/ztc-cache` and their tests;
+- [ ] 3.1 Remove `DELETE /rest/health-check/ztc-cache` and `GET /rest/health-check/ztc-cache` and their tests;
       regenerate the OpenAPI spec and frontend types.
-- [ ] 3.3 Remove the *Zaaktype catalogus synchronisatie* card, its service calls and its i18n texts in
+- [ ] 3.2 Remove the *Zaaktype catalogus synchronisatie* card, its service calls and its i18n texts in
       `nl.json` and `en.json`; update the specs.
-- [ ] 3.4 Handleiding: remove the *Zaaktypecatalogus synchronisatie* section and replace "synchroniseer de
+- [ ] 3.3 Handleiding: remove the *Zaaktypecatalogus synchronisatie* section and replace "synchroniseer de
       zaaktypecatalogus" with: ZAC fetches the changed data once Open Zaak sends a notification about the
-      changed zaaktype.
+      changed zaaktype, and a beheerder can clear the cached catalogue data with the admin endpoint.
 
 ## 4. Wrap-up
 

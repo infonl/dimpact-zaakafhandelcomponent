@@ -11,11 +11,9 @@ zaakafhandelparameters therefore always shows false errors, so a beheerder canno
 - **The synchronise button goes**: the card *Zaaktype catalogus synchronisatie* is removed from the
   inrichtingscheck page. **BREAKING** for the REST contract: `DELETE /rest/health-check/ztc-cache` and
   `GET /rest/health-check/ztc-cache` are removed. The admin endpoint that clears all caches stays.
-- **A zaaktype notification refreshes the whole catalogue cache**: when Open Zaak reports a created or changed
-  zaaktype, ZAC also clears the cached informatieobjecttypen, zaaktype-informatieobjecttypen and besluittypen,
-  so it no longer needs the button to pick up changes.
 - **The handleiding** drops the synchronisation section, says BPMN zaaktypes are not checked or shown, and
-  explains that ZAC fetches changed data once Open Zaak sends a notification about the changed zaaktype.
+  explains that ZAC fetches changed data once Open Zaak sends a notification about the changed zaaktype, and
+  how a beheerder clears the cached catalogue data by hand.
 
 ## Capabilities
 
@@ -23,7 +21,6 @@ zaakafhandelparameters therefore always shows false errors, so a beheerder canno
 
 - `zaaktype-inrichtingscheck`: which zaaktypes the inrichtingscheck checks and shows, and that it offers no
   manual synchronisation.
-- `zaaktypecatalogus-cache`: when ZAC refreshes the catalogue data it caches from Open Zaak.
 
 ### Modified Capabilities
 
@@ -31,8 +28,7 @@ None.
 
 ## Impact
 
-- **Backend**: `HealthCheckRestService` filters BPMN zaaktypes and loses the two `ztc-cache` endpoints;
-  `ZaaktypeConfigurationBeheerService.updateZaaktypeConfiguration` clears three more ZTC caches.
+- **Backend**: `HealthCheckRestService` filters BPMN zaaktypes and loses the two `ztc-cache` endpoints.
 - **Frontend**: the synchronisation card, its service calls and i18n texts are removed.
 - **Docs**: `docs/manuals/inrichting-zaakafhandelcomponent/inrichting-zaakafhandelcomponent.md`.
 - **Database, Solr, OPA, Open Zaak**: no change.
