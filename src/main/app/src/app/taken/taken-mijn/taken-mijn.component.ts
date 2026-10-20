@@ -111,7 +111,6 @@ export class TakenMijnComponent
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.utilService.setTitle("title.taken.mijn");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

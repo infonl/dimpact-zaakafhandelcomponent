@@ -11,7 +11,6 @@ import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
-import { UtilService } from "../../core/service/util.service";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -48,11 +47,9 @@ export class BedrijfViewComponent {
   );
 
   constructor(
-    private readonly utilService: UtilService,
     private readonly route: ActivatedRoute,
     private readonly klantenService: KlantenService,
   ) {
-    this.utilService.setTitle("bedrijfsgegevens");
     this.route.data.subscribe((data) => {
       this.bedrijf = data.bedrijf;
       this.profielOphalenMogelijk =

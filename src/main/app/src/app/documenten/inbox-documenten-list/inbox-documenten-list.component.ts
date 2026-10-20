@@ -155,7 +155,6 @@ export class InboxDocumentenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.documenten.inbox-documenten");
     this.listParameters = SessionStorageUtil.getItem(
       "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),

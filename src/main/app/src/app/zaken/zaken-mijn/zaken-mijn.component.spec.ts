@@ -17,7 +17,6 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
-import { UtilService } from "../../core/service/util.service";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -26,7 +25,6 @@ import { ZakenMijnComponent } from "./zaken-mijn.component";
 describe(ZakenMijnComponent.name, () => {
   let component: ZakenMijnComponent;
   let fixture: ComponentFixture<ZakenMijnComponent>;
-  let utilService: UtilService;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -57,18 +55,9 @@ describe(ZakenMijnComponent.name, () => {
       ],
     });
 
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockReturnValue(undefined);
-
     fixture = TestBed.createComponent(ZakenMijnComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
-
-  describe("ngOnInit", () => {
-    it("sets the page title to title.zaken.mijn", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith("title.zaken.mijn");
-    });
   });
 
   describe("getWerklijst", () => {

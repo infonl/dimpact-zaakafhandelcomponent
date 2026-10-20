@@ -115,7 +115,6 @@ export class ZakenMijnComponent
       this.zoekenService,
       this.utilService,
     );
-    this.utilService.setTitle("title.zaken.mijn");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

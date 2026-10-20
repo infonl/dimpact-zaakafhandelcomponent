@@ -4,7 +4,6 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
-import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -16,7 +15,11 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import {
+  MatButton,
+  MatIconAnchor,
+  MatIconButton,
+} from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
@@ -24,6 +27,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTooltip } from "@angular/material/tooltip";
 import { Router, RouterLink } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
@@ -61,7 +65,10 @@ const LIST_QUERY_KEY = "/rest/informatieobjecten/informatieobjectenList";
 
 const BASE_COLUMNS = [
   "downloaden",
+  "preview",
+  "bestandstype",
   "titel",
+  "identificatie",
   "informatieobjectTypeOmschrijving",
   "bestandsomvang",
   "status",
@@ -72,9 +79,33 @@ const BASE_COLUMNS = [
   "url",
 ];
 
+const DATA_COLUMN_DEFINITIONS: ReadonlyArray<{
+  column: string;
+  header?: string;
+}> = [
+  { column: "identificatie" },
+  { column: "zaakIdentificatie" },
+  { column: "relatieType" },
+  {
+    column: "informatieobjectTypeOmschrijving",
+    header: "informatieobjectTypeOmschrijving.kort",
+  },
+  { column: "bestandsomvang", header: "bestandsomvang.kort" },
+  { column: "status" },
+  {
+    column: "vertrouwelijkheidaanduiding",
+    header: "vertrouwelijkheidaanduiding.kort",
+  },
+  { column: "registratiedatumTijd" },
+  { column: "auteur" },
+];
+
 const GEKOPPELDE_COLUMNS = [
   "downloaden",
+  "preview",
+  "bestandstype",
   "titel",
+  "identificatie",
   "zaakIdentificatie",
   "relatieType",
   "informatieobjectTypeOmschrijving",
@@ -95,8 +126,8 @@ const GEKOPPELDE_COLUMNS = [
   standalone: true,
   imports: [
     ZaakIdentificatieComponent,
-    NgClass,
     RouterLink,
+    MatButton,
     MatCardModule,
     MatSlideToggleModule,
     MatTableModule,
@@ -106,6 +137,7 @@ const GEKOPPELDE_COLUMNS = [
     MatIconAnchor,
     MatIconButton,
     MatMenuModule,
+    MatTooltip,
     TranslatePipe,
     DocumentIconComponent,
     DocumentViewerComponent,
@@ -153,6 +185,8 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   protected readonly includeLinkedDocuments = computed(
     () => this.heeftGerelateerdeZaken() && this.linkedDocumentsEnabled(),
   );
+
+  protected readonly dataColumnDefinitions = DATA_COLUMN_DEFINITIONS;
 
   protected readonly documentColumns = computed(() =>
     this.includeLinkedDocuments() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,
@@ -350,6 +384,19 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   isPreviewBeschikbaar(formaat: FileFormat) {
     return FileFormatUtil.isPreviewAvailable(formaat);
+  }
+
+  protected togglePreview(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ) {
+    this.documentPreviewRow =
+      this.documentPreviewRow === document ? null : document;
+  }
+
+  protected onLinkedDocumentsToggle(enabled: boolean) {
+    this.linkedDocumentsEnabled.set(enabled);
+    this.downloadAlsZipSelection.clear();
+    this.selectAll = false;
   }
 
   updateSelected(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {

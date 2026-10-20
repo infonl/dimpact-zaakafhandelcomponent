@@ -175,10 +175,7 @@ describe(`${ParametersComponent.name} compare functions`, () => {
 describe(ParametersComponent.name, () => {
   let fixture: ComponentFixture<ParametersComponent>;
   let component: ParametersComponent;
-  let utilServiceMock: Pick<
-    UtilService,
-    "setTitle" | "getUniqueItemsList" | "loading"
-  >;
+  let utilServiceMock: Pick<UtilService, "getUniqueItemsList" | "loading">;
   let zaakafhandelParametersServiceMock: Pick<
     ZaakafhandelParametersService,
     "listZaakafhandelParameters"
@@ -186,13 +183,9 @@ describe(ParametersComponent.name, () => {
 
   beforeEach(async () => {
     utilServiceMock = {
-      setTitle: jest.fn(),
       getUniqueItemsList: jest.fn().mockReturnValue([]),
       loading: signal(false),
-    } satisfies Pick<
-      UtilService,
-      "setTitle" | "getUniqueItemsList" | "loading"
-    >;
+    } satisfies Pick<UtilService, "getUniqueItemsList" | "loading">;
 
     zaakafhandelParametersServiceMock = {
       listZaakafhandelParameters: jest.fn().mockReturnValue(of([])),
@@ -228,10 +221,6 @@ describe(ParametersComponent.name, () => {
 
   it("should create and call setupMenu on init", () => {
     expect(component).toBeTruthy();
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
-      "title.parameters",
-      undefined,
-    );
   });
 
   it("should show no-data message when data is empty and not loading", () => {

@@ -1,13 +1,54 @@
 /*
- * SPDX-FileCopyrightText: 2022 - 2023 Atos
+ * SPDX-FileCopyrightText: 2022 - 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-.mat-mdc-slide-toggle {
-  right: 30px;
-  position: absolute;
+.header-acties {
+  margin-left: auto;
+  position: relative;
+  z-index: 1;
 }
 
-#downloadZip_button:hover {
-  color: #000000;
+.mat-column-downloaden,
+.mat-column-preview,
+.mat-column-bestandstype {
+  width: 1px;
+  padding-right: 0;
+
+  > * {
+    display: flex;
+  }
+}
+
+.mat-column-identificatie,
+.mat-column-zaakIdentificatie,
+.mat-column-status {
+  white-space: nowrap;
+}
+
+.mat-column-titel {
+  min-width: 200px;
+}
+
+.acties {
+  grid-template-columns: repeat(
+    3,
+    var(--mat-icon-button-state-layer-size, 48px)
+  );
+
+  .bewerken {
+    grid-column: 2;
+  }
+
+  .menu {
+    grid-column: 3;
+  }
+}
+
+.preview-chevron {
+  transition: transform 150ms;
+
+  &.open {
+    transform: rotate(180deg);
+  }
 }

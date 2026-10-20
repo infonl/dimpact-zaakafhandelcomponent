@@ -17,7 +17,6 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
-import { UtilService } from "../../core/service/util.service";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -26,7 +25,6 @@ import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld.component";
 describe(ZakenAfgehandeldComponent.name, () => {
   let component: ZakenAfgehandeldComponent;
   let fixture: ComponentFixture<ZakenAfgehandeldComponent>;
-  let utilService: UtilService;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -57,20 +55,9 @@ describe(ZakenAfgehandeldComponent.name, () => {
       ],
     });
 
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockReturnValue(undefined);
-
     fixture = TestBed.createComponent(ZakenAfgehandeldComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
-
-  describe("ngOnInit", () => {
-    it("sets the page title to title.zaken.afgehandeld", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith(
-        "title.zaken.afgehandeld",
-      );
-    });
   });
 
   describe("getWerklijst", () => {
