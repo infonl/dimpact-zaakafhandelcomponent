@@ -98,6 +98,7 @@ class ZaakRestServiceBpmnWarningTest : BehaviorSpec({
             """.trimIndent(),
             testUser = BEHANDELAAR_BPMN_WAARSCHUWING_1
         ).code shouldBe HTTP_OK
+        zaakHelper.sendZaakUpdateNotification(zaakUuid)
 
         `when`("I list my zaak warnings") {
             val response = itestHttpClient.performGetRequest(
