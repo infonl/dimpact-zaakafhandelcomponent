@@ -72,5 +72,18 @@ class ScreenEventObserverTest : BehaviorSpec({
                 }
             }
         }
+
+        given("a screen event for which listing the subscribed sessions fails") {
+            val screenEvent = createScreenEvent(screenEventType = ScreenEventType.TAAK)
+            every { sessionRegistry.listSessions(screenEvent) } throws IllegalStateException("fakeMessage")
+
+            `when`("the event is fired") {
+                screenEventObserver.onFire(screenEvent)
+
+                then("the failure is logged and not thrown, because nobody awaits the asynchronous event") {
+                    verify(exactly = 1) { sessionRegistry.listSessions(screenEvent) }
+                }
+            }
+        }
     }
 })
