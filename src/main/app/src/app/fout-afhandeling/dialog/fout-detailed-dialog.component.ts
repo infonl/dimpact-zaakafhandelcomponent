@@ -39,9 +39,10 @@ export class FoutDetailedDialogComponent {
     showServerErrorTexts?: boolean;
   }>(MAT_DIALOG_DATA);
 
-  protected readonly serverErrorTextsQuery = injectQuery(() =>
-    this.referentieTabelService.listServerErrorTextsQuery(),
-  );
+  protected readonly serverErrorTextsQuery = injectQuery(() => ({
+    ...this.referentieTabelService.listServerErrorTextsQuery(),
+    enabled: Boolean(this.data.showServerErrorTexts),
+  }));
 
   close(): void {
     this.dialogRef.close();
