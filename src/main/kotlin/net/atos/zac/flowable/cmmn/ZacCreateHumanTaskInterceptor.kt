@@ -12,6 +12,8 @@ import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor
+import org.flowable.common.engine.impl.cfg.TransactionState
+import org.flowable.common.engine.impl.context.Context
 import java.util.Date
 import java.util.UUID
 
@@ -80,9 +82,12 @@ class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
                 context.getTaskEntity(),
                 null
             )
-            // Wait some time before handling the event to make sure that the task has been created.
-            signaleringEvent.setDelay(SECONDS_TO_DELAY)
-            FlowableHelper.getInstance().eventingService.send(signaleringEvent)
+            // The event observer reads the task, which only exists for it once Flowable has committed the
+            // transaction. The task listeners in the same transaction, such as the one of the
+            // aanvullende informatie task, call external APIs, so no fixed delay is long enough.
+            Context.getTransactionContext().addTransactionListener(TransactionState.COMMITTED) {
+                FlowableHelper.getInstance().eventingService.send(signaleringEvent)
+            }
         }
         FlowableHelper.getInstance().indexeerService.addOrUpdateTaak(context.getTaskEntity().id)
     }
