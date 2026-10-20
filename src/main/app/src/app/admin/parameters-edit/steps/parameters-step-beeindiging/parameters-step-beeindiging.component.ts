@@ -4,14 +4,14 @@
  */
 
 import { Component, computed, inject, input } from "@angular/core";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatSelectModule } from "@angular/material/select";
 import { MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../../core/service/util.service";
+import { ZacCheckbox } from "../../../../shared/form/checkbox/checkbox";
+import { ZacSelect } from "../../../../shared/form/select/select";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZaakafhandelParametersService } from "../../../zaakafhandel-parameters.service";
 import {
@@ -23,8 +23,8 @@ import {
 type ZaakbeeindigingRow = {
   /** `null` for the row of the zaak niet ontvankelijk, which is always chosen */
   naam: string | null;
-  selected: FormControl<boolean> | null;
-  resultaattype: FormControl<GeneratedType<"RestResultaattype"> | null>;
+  /** `null` for the row of the zaak niet ontvankelijk, whose resultaattype lives on the step form itself */
+  redenForm: ZaakbeeindigRedenForm | null;
 };
 
 @Component({
@@ -34,10 +34,10 @@ type ZaakbeeindigingRow = {
   imports: [
     ReactiveFormsModule,
     MatCardModule,
-    MatCheckboxModule,
-    MatSelectModule,
     MatTableModule,
     TranslateModule,
+    ZacCheckbox,
+    ZacSelect,
   ],
 })
 export class ParametersStepBeeindigingComponent {
@@ -56,20 +56,18 @@ export class ParametersStepBeeindigingComponent {
     this.zaakafhandelParametersService.listResultaattypes(this.zaaktypeUuid()),
   );
 
+  protected readonly zaakNietOntvankelijkSelectedForm = new FormGroup({
+    selected: new FormControl(true, { nonNullable: true }),
+  });
+
   protected readonly rows = computed<ZaakbeeindigingRow[]>(() => [
-    {
-      naam: null,
-      selected: null,
-      resultaattype: this.form().controls.zaakNietOntvankelijkResultaattype,
-    },
-    ...(this.zaakbeeindigRedenenQuery.data() ?? []).map((zaakbeeindigReden) => {
-      const { controls } = this.redenForm(zaakbeeindigReden);
-      return {
+    { naam: null, redenForm: null },
+    ...(this.zaakbeeindigRedenenQuery.data() ?? []).map(
+      (zaakbeeindigReden) => ({
         naam: zaakbeeindigReden.naam ?? "",
-        selected: controls.selected,
-        resultaattype: controls.resultaattype,
-      };
-    }),
+        redenForm: this.redenForm(zaakbeeindigReden),
+      }),
+    ),
   ]);
 
   protected readonly compareObject = (a: unknown, b: unknown) =>

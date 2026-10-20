@@ -89,9 +89,14 @@ describe.each([
     return screen.getByRole("row", { name: new RegExp(naam) });
   }
 
+  function checkboxOf(row: HTMLElement) {
+    return within(row).getByRole("checkbox", { name: /^actief$/i });
+  }
+
   async function chooseResultaat(row: HTMLElement, naam: string) {
-    // the select of a table cell has no form field around it, so the click has to land inside the select
-    await user.click(within(row).getByText("resultaat.kies"));
+    await user.click(
+      within(row).getByRole("combobox", { name: /^resultaat$/i }),
+    );
     await user.click(screen.getByRole("option", { name: naam }));
   }
 
@@ -108,9 +113,7 @@ describe.each([
   it("always ends a zaak that is niet ontvankelijk", async () => {
     await setup();
 
-    const checkbox = within(redenRow("zaak-is-niet-ontvankelijk")).getByRole(
-      "checkbox",
-    );
+    const checkbox = checkboxOf(redenRow("zaak-is-niet-ontvankelijk"));
 
     expect(checkbox).toBeChecked();
     expect(checkbox).toBeDisabled();
@@ -119,15 +122,15 @@ describe.each([
   it("shows the stored redenen as chosen and the others as unchosen", async () => {
     await setup();
 
-    expect(within(redenRow("Reden 2")).getByRole("checkbox")).toBeChecked();
-    expect(within(redenRow("Reden 1")).getByRole("checkbox")).not.toBeChecked();
+    expect(checkboxOf(redenRow("Reden 2"))).toBeChecked();
+    expect(checkboxOf(redenRow("Reden 1"))).not.toBeChecked();
   });
 
   it("demands a resultaat for a reden that is chosen", async () => {
     const form = await setup();
     const row = redenRow("Reden 1");
 
-    await user.click(within(row).getByRole("checkbox"));
+    await user.click(checkboxOf(row));
 
     expect(form.valid).toBe(false);
 
@@ -138,7 +141,7 @@ describe.each([
 
   it("drops the demand for a resultaat when the reden is unchosen again", async () => {
     const form = await setup();
-    const checkbox = within(redenRow("Reden 1")).getByRole("checkbox");
+    const checkbox = checkboxOf(redenRow("Reden 1"));
 
     await user.click(checkbox);
     await user.click(checkbox);
@@ -151,9 +154,9 @@ describe.each([
     const form = await setup();
     const row = redenRow("Reden 1");
 
-    await user.click(within(row).getByRole("checkbox"));
+    await user.click(checkboxOf(row));
     await chooseResultaat(row, "Afgehandeld");
-    await user.click(within(redenRow("Reden 2")).getByRole("checkbox"));
+    await user.click(checkboxOf(redenRow("Reden 2")));
 
     expect(toZaakbeeindigParameters(form)).toEqual([
       {

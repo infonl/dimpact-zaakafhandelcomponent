@@ -11,10 +11,19 @@
           <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              @if (row.selected) {
-                <mat-checkbox [formControl]="row.selected"></mat-checkbox>
+              @if (row.redenForm) {
+                <zac-checkbox
+                  [form]="row.redenForm"
+                  key="selected"
+                  label="actief"
+                ></zac-checkbox>
               } @else {
-                <mat-checkbox [checked]="true" [disabled]="true"></mat-checkbox>
+                <zac-checkbox
+                  [form]="zaakNietOntvankelijkSelectedForm"
+                  key="selected"
+                  label="actief"
+                  readonly
+                ></zac-checkbox>
               }
             </td>
           </ng-container>
@@ -27,20 +36,25 @@
           <ng-container matColumnDef="resultaat">
             <th mat-header-cell *matHeaderCellDef translate="resultaat"></th>
             <td mat-cell *matCellDef="let row">
-              <mat-select
-                placeholder="{{ 'resultaat.kies' | translate }}"
-                [formControl]="row.resultaattype"
-                [compareWith]="compareObject"
-              >
-                @for (
-                  resultaattype of resultaattypesQuery.data() ?? [];
-                  track resultaattype
-                ) {
-                  <mat-option [value]="resultaattype">{{
-                    resultaattype.naam
-                  }}</mat-option>
-                }
-              </mat-select>
+              @if (row.redenForm) {
+                <zac-select
+                  [form]="row.redenForm"
+                  key="resultaattype"
+                  label="resultaat"
+                  [options]="resultaattypesQuery.data() ?? []"
+                  optionDisplayValue="naam"
+                  [compare]="compareObject"
+                ></zac-select>
+              } @else {
+                <zac-select
+                  [form]="form()"
+                  key="zaakNietOntvankelijkResultaattype"
+                  label="resultaat"
+                  [options]="resultaattypesQuery.data() ?? []"
+                  optionDisplayValue="naam"
+                  [compare]="compareObject"
+                ></zac-select>
+              }
             </td>
           </ng-container>
           <tr
