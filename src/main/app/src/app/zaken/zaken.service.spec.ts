@@ -182,6 +182,24 @@ describe(ZakenService.name, () => {
       });
       await request;
     });
+
+    it("sends the release of the behandelaar along with the zaakgegevens", async () => {
+      const request = service.updateZaak("fakeZaakUuid").mutationFn!(
+        { zaak: {}, reden: "fakeReden", isBehandelaarVrijgegeven: true },
+        fromPartial<MutationFunctionContext>({}),
+      );
+      const httpRequest = httpTestingController.expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid",
+      );
+      httpRequest.flush({});
+
+      expect(httpRequest.request.body).toEqual({
+        zaak: {},
+        reden: "fakeReden",
+        isBehandelaarVrijgegeven: true,
+      });
+      await request;
+    });
   });
 
   describe.each([

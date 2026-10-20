@@ -704,6 +704,52 @@ describe(CaseDetailsEditComponent.name, () => {
       request.flush({});
     });
 
+    it("releases a cleared behandelaar explicitly, so the update does not keep the current one", async () => {
+      renderComponent({
+        behandelaar: fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      });
+      component["form"].controls.behandelaar.enable();
+      component["form"].controls.behandelaar.setValue(null);
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.isBehandelaarVrijgegeven).toBe(true);
+      expect(request.request.body.zaak.behandelaar).toBeUndefined();
+      request.flush({});
+    });
+
+    it("does not release a behandelaar that is still selected", async () => {
+      renderComponent({
+        behandelaar: fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      });
+      component["form"].controls.behandelaar.enable();
+      component["form"].controls.behandelaar.setValue(
+        fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      );
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.isBehandelaarVrijgegeven).toBe(false);
+      request.flush({});
+    });
+
     it("sends a single request when behandelaar and groep are unchanged", async () => {
       renderComponent();
       jest.spyOn(zakenService, "toekennenAanIngelogdeMedewerker");

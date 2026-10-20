@@ -43,9 +43,11 @@ type ZaakDetailsUpdate = Partial<
   >
 >;
 
-type ZaakDetailsUpdateVariables = {
+type ZaakDetailsUpdateVariables = Pick<
+  GeneratedType<"RestZaakEditMetRedenGegevens">,
+  "reden" | "isBehandelaarVrijgegeven"
+> & {
   zaak: ZaakDetailsUpdate;
-  reden: string;
 };
 
 @Injectable({
@@ -112,9 +114,14 @@ export class ZakenService {
     });
     // Endpoint accepts a partial zaak; the generated body type requires the
     // full RestZaakCreateData, so assert the partial here (one spot).
-    const toBody = ({ zaak, reden }: ZaakDetailsUpdateVariables) => ({
+    const toBody = ({
+      zaak,
+      reden,
+      isBehandelaarVrijgegeven,
+    }: ZaakDetailsUpdateVariables) => ({
       zaak: zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
       reden,
+      isBehandelaarVrijgegeven,
     });
 
     return this.zaakMutation(

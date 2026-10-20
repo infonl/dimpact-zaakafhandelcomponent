@@ -673,7 +673,7 @@ class ZaakRestService @Inject constructor(
         val currentBehandelaarId = currentBehandelaarId(zaak)
         val requestedAssignment = resolveRequestedAssignment(
             zaak = zaak,
-            restZaak = restZaakEditMetRedenGegevens.zaak,
+            restZaakEditMetRedenGegevens = restZaakEditMetRedenGegevens,
             currentBehandelaarId = currentBehandelaarId
         )
         val shouldZaakspecifiekeAutorisatieBeRemoved = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
@@ -900,12 +900,18 @@ class ZaakRestService @Inject constructor(
             ?.betrokkeneIdentificatie
             ?.identificatie
 
+    /**
+     * An absent `behandelaar` keeps the one the zaak already has, so that a partial update never releases a
+     * behandelaar by leaving it out. A client that sends the complete assignment, like the 'Zaak bewerken'
+     * form, releases the behandelaar explicitly with `isBehandelaarVrijgegeven`.
+     */
     private fun resolveRequestedAssignment(
         zaak: Zaak,
-        restZaak: RestZaakCreateData,
+        restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens,
         currentBehandelaarId: String?
-    ) = restZaak.groep?.id?.let { requestedGroupId ->
-        val requestedBehandelaarId = restZaak.behandelaar?.id
+    ) = restZaakEditMetRedenGegevens.zaak.groep?.id?.let { requestedGroupId ->
+        val requestedBehandelaarId = restZaakEditMetRedenGegevens.zaak.behandelaar?.id
+            ?: currentBehandelaarId.takeUnless { restZaakEditMetRedenGegevens.isBehandelaarVrijgegeven }
         val currentGroupId = zgwApiService.findGroepForZaak(zaak)
             ?.betrokkeneIdentificatie
             ?.identificatie
