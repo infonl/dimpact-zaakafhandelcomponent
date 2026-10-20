@@ -45,8 +45,8 @@ export const ADMIN_ROUTES: Routes = [
           {
             path: "",
             title: (route) =>
-              (route.data["parameters"] as ResolvedParameters)
-                .zaaktype.omschrijving ?? "",
+              (route.data["parameters"] as ResolvedParameters).zaaktype
+                .omschrijving ?? "",
             loadComponent: () =>
               import("./parameters-edit/parameters-edit.component").then(
                 (module) => module.ParametersEditComponent,

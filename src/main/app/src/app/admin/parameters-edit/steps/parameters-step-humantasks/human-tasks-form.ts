@@ -60,8 +60,7 @@ export function syncReferentieTabellen(
       ({ id }) => id === humanTaskForm.controls.formulierDefinitieId.value,
     )?.veldDefinities ?? []
   ).map(({ naam }) => naam ?? "");
-  const { referentieTabellen: referentieTabellenForm } =
-    humanTaskForm.controls;
+  const { referentieTabellen: referentieTabellenForm } = humanTaskForm.controls;
 
   for (const veld of Object.keys(referentieTabellenForm.controls)) {
     if (!veldNamen.includes(veld)) referentieTabellenForm.removeControl(veld);

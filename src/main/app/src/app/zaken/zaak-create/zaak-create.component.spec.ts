@@ -128,7 +128,6 @@ describe(ZaakCreateComponent.name, () => {
         ),
     });
 
-
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     jest
       .spyOn(referentieTabelService, "listCommunicatiekanalen")

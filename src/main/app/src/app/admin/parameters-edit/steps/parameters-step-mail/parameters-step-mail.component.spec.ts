@@ -267,7 +267,9 @@ describe(ParametersStepMailComponent.name, () => {
 
       expect(ontvangstbevestiging()).not.toBeChecked();
       expect(
-        screen.queryByRole("group", { name: "gegevens.mail.ontvangstbevestiging" }),
+        screen.queryByRole("group", {
+          name: "gegevens.mail.ontvangstbevestiging",
+        }),
       ).not.toBeInTheDocument();
     });
 

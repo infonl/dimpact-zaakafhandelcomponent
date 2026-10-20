@@ -92,10 +92,13 @@ export class ParametersStepMailComponent {
     { label: "statusmail.optie.niet-beschikbaar", value: "NIET_BESCHIKBAAR" },
   ];
 
-  protected readonly mailOptieValues = this.mailOpties.map(({ value }) => value);
+  protected readonly mailOptieValues = this.mailOpties.map(
+    ({ value }) => value,
+  );
   protected readonly mailOptieLabel = (
     value: GeneratedType<"ZaakafhandelparametersStatusMailOption">,
-  ) => this.mailOpties.find((mailOptie) => mailOptie.value === value)?.label ?? "";
+  ) =>
+    this.mailOpties.find((mailOptie) => mailOptie.value === value)?.label ?? "";
 
   protected readonly mailtemplatesPerMail = computed(() =>
     Object.fromEntries(

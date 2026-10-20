@@ -102,8 +102,8 @@ export class ParametersStepHumantasksComponent {
 
     effect((onCleanup) => {
       const subscriptions = this.form().controls.map((humanTaskForm) =>
-        humanTaskForm.controls.formulierDefinitieId.valueChanges.subscribe(
-          () => this.syncReferentieTabellen(humanTaskForm),
+        humanTaskForm.controls.formulierDefinitieId.valueChanges.subscribe(() =>
+          this.syncReferentieTabellen(humanTaskForm),
         ),
       );
       onCleanup(() =>
