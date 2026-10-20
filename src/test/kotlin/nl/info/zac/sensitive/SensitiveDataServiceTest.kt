@@ -8,6 +8,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.util.UUID
+import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.TimeUnit
 
 class SensitiveDataServiceTest : BehaviorSpec({
     val sensitiveDataService = SensitiveDataService()
@@ -36,6 +38,39 @@ class SensitiveDataServiceTest : BehaviorSpec({
 
             then("the same UUID is returned each time") {
                 uuid1 shouldBe uuid2
+            }
+        }
+    }
+
+    given("sensitive data whose UUID key has expired while the data still refers to that key") {
+        val data = "sensitive-data-with-expired-key"
+        val expiredUuid = UUID.randomUUID()
+        SensitiveDataService.dataToUuidStorage.put(data, expiredUuid)
+
+        `when`("the data is put into the service again") {
+            val uuid = sensitiveDataService.put(data)
+
+            then("a new UUID is returned that can be used to retrieve the data") {
+                uuid shouldNotBe expiredUuid
+                sensitiveDataService.get(uuid) shouldBe data
+            }
+        }
+    }
+
+    given("sensitive data that is stored under a new UUID key while an older UUID key for that data is still being removed") {
+        val data = "sensitive-data-with-late-removal"
+        val currentUuid = sensitiveDataService.put(data)
+        val olderUuid = UUID.randomUUID()
+        SensitiveDataService.uuidToDataStorage.put(olderUuid, data)
+
+        `when`("the removal of the older UUID key completes") {
+            SensitiveDataService.uuidToDataStorage.invalidate(olderUuid)
+            // Caffeine runs removal listeners asynchronously on the common pool by default
+            ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS)
+
+            then("the data still refers to the new UUID key") {
+                sensitiveDataService.put(data) shouldBe currentUuid
+                sensitiveDataService.get(currentUuid) shouldBe data
             }
         }
     }
