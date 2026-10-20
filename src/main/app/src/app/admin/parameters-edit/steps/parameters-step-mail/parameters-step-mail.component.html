@@ -1,0 +1,230 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div class="flex-col">
+  @if (
+    form().controls.intakeMail.enabled || form().controls.afrondenMail.enabled
+  ) {
+    <mat-card>
+      <mat-card-content class="flex-col">
+        <div class="flex-row flex-wrap gap-20">
+          @if (form().controls.intakeMail.enabled) {
+            <zac-select
+              class="flex-1 w33 w100-md"
+              [form]="form()"
+              key="intakeMail"
+              label="statusmail.type.intake"
+              [options]="mailOptieValues"
+              [optionDisplayValue]="mailOptieLabel"
+            ></zac-select>
+          }
+          @if (form().controls.afrondenMail.enabled) {
+            <zac-select
+              class="flex-1 w33 w100-md"
+              [form]="form()"
+              key="afrondenMail"
+              label="statusmail.type.afronden"
+              [options]="mailOptieValues"
+              [optionDisplayValue]="mailOptieLabel"
+            ></zac-select>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        {{ "gegevens.mail.afzenders" | translate }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="zaakAfzenderForms()">
+          <ng-container matColumnDef="default">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ "default" | translate }}
+            </th>
+            <td mat-cell *matCellDef="let zaakAfzenderForm">
+              <mat-radio-button
+                (click)="chooseDefaultAfzender(zaakAfzenderForm)"
+                [checked]="zaakAfzenderForm.controls.isDefaultMail.value"
+              >
+              </mat-radio-button>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="mail">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              translate="mail.afzender"
+            ></th>
+            <td mat-cell *matCellDef="let zaakAfzenderForm">
+              {{
+                zaakAfzenderForm.controls.isSpeciaal.value
+                  ? ("gegevens.mail.afzender." +
+                      zaakAfzenderForm.controls.mail.value
+                    | i18nKey
+                    | translate)
+                  : zaakAfzenderForm.controls.mail.value
+              }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="replyto">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              translate="mail.antwoord"
+            ></th>
+            <td mat-cell *matCellDef="let zaakAfzenderForm">
+              <zac-select
+                [form]="zaakAfzenderForm"
+                key="replyTo"
+                label="mail.antwoord"
+                [options]="replyToMails()"
+                [optionDisplayValue]="replyToDisplayValue"
+              ></zac-select>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="id" stickyEnd>
+            <th mat-header-cell *matHeaderCellDef>
+              @if (0 < addableAfzenders().length) {
+                <button
+                  mat-icon-button
+                  type="button"
+                  id="afzender-toevoegen"
+                  title="{{ 'actie.toevoegen' | translate }}"
+                  aria-label="Afzender toevoegen"
+                  [matMenuTriggerFor]="afzendersMenu"
+                >
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              }
+              <mat-menu #afzendersMenu="matMenu">
+                <mat-divider class="hide-gt-xs"></mat-divider>
+                @for (afzender of addableAfzenders(); track afzender) {
+                  <button
+                    mat-menu-item
+                    type="button"
+                    (click)="addZaakAfzender(afzender)"
+                  >
+                    {{ afzender }}
+                  </button>
+                }
+              </mat-menu>
+            </th>
+            <td mat-cell *matCellDef="let zaakAfzenderForm">
+              @if (!zaakAfzenderForm.controls.isSpeciaal.value) {
+                <button
+                  mat-icon-button
+                  type="button"
+                  id="afzender-verwijderen"
+                  title="{{ 'actie.verwijderen' | translate }}"
+                  (click)="removeZaakAfzender(zaakAfzenderForm)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </td>
+          </ng-container>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="['default', 'mail', 'replyto', 'id']"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: ['default', 'mail', 'replyto', 'id']"
+          ></tr>
+        </table>
+      </div>
+      @if (form().controls.zaakAfzenders.hasError("noDefaultAfzender")) {
+        <mat-error>
+          {{ "validators.required" | translate }}
+        </mat-error>
+      }
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        {{ "gegevens.mail.templates" | translate }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-accordion>
+        @for (mail of mailtemplateKoppelingen; track mail) {
+          <mat-expansion-panel class="flex-col">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ "mail." + mail | i18nKey | translate }}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <zac-select
+              class="flex-1 w33 w100-md"
+              [form]="form().controls.mailtemplateKoppelingen"
+              [key]="mail"
+              label="title.mailtemplate"
+              [options]="mailtemplatesPerMail()[mail]"
+              optionDisplayValue="mailTemplateNaam"
+              [compare]="compareMailtemplate"
+            ></zac-select>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </mat-card-content>
+  </mat-card>
+  @if (form().controls.automaticEmailConfirmation.enabled) {
+    <mat-card>
+      <mat-card-header class="mb-2">
+        <mat-card-title>
+          <zac-toggle
+            label="gegevens.mail.ontvangstbevestiging"
+            labelPosition="before"
+            [form]="form().controls.automaticEmailConfirmation"
+            key="isEnabled"
+          ></zac-toggle>
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ "gegevens.mail.ontvangstbevestiging.hint" | translate }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      @if (
+        form().controls.automaticEmailConfirmation.controls.isEnabled.value
+      ) {
+        <mat-card-content>
+          <fieldset
+            [attr.aria-label]="'gegevens.mail.ontvangstbevestiging' | translate"
+          >
+            <section class="row">
+              <zac-select
+                class="col-12"
+                [form]="form().controls.automaticEmailConfirmation"
+                key="templateName"
+                label="title.mailtemplate"
+                [options]="ontvangstbevestigingTemplateNames()"
+              ></zac-select>
+              <zac-select
+                class="col-12"
+                [form]="form().controls.automaticEmailConfirmation"
+                key="emailSender"
+                label="mail.afzender"
+                [options]="ontvangstbevestigingAfzenders()"
+                [optionDisplayValue]="replyToDisplayValue"
+              ></zac-select>
+              <zac-select
+                class="col-12"
+                [form]="form().controls.automaticEmailConfirmation"
+                key="emailReply"
+                label="mail.antwoord"
+                [options]="ontvangstbevestigingAfzenders()"
+                [optionDisplayValue]="replyToDisplayValue"
+              ></zac-select>
+            </section>
+          </fieldset>
+        </mat-card-content>
+      }
+    </mat-card>
+  }
+</div>

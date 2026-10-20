@@ -151,7 +151,8 @@ class ZaaktypeConfiguration {
 
     /**
      * Binds this configuration to the given engine and definition, replacing the definition of a previous binding.
-     * A configuration never changes engine, and a BPMN-bound configuration has no CMMN extension.
+     * A configuration never changes engine. A CMMN-bound configuration has a CMMN extension for the settings of the
+     * plan items of its case definition, and a BPMN-bound configuration has none.
      */
     fun bindTo(processEngine: ProcessEngine, definitionKey: String) {
         getProcessEngine()?.takeIf { it != processEngine }?.let {
@@ -160,8 +161,9 @@ class ZaaktypeConfiguration {
                     "bound to $processEngine"
             )
         }
-        if (processEngine == ProcessEngine.BPMN) {
-            cmmnExtension = null
+        when (processEngine) {
+            ProcessEngine.CMMN -> getOrCreateCmmnExtension()
+            ProcessEngine.BPMN -> cmmnExtension = null
         }
         val binding = processBinding ?: ZaaktypeProcessBinding().also { processBinding = it }
         binding.zaaktypeConfiguration = this

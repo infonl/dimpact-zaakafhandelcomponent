@@ -451,6 +451,7 @@ object ItestConfiguration {
     )
 
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
+    const val BPMN_TEST_PROCESS_DEFINITION_NAME = "Integration Tests BPMN Process Definition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
     const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"

@@ -43,18 +43,10 @@ const storedBeeindiging = {
   ],
 };
 
-describe.each([
-  [
-    "CMMN",
-    fromPartial<GeneratedType<"RestZaaktypeConfiguration">>(storedBeeindiging),
-  ],
-  [
-    "BPMN",
-    fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>(
-      storedBeeindiging,
-    ),
-  ],
-])("Beeindiging step of a %s zaaktype", (_engine, configuration) => {
+const configuration =
+  fromPartial<GeneratedType<"RestZaaktypeConfiguration">>(storedBeeindiging);
+
+describe("Beeindiging step", () => {
   const user = userEvent.setup();
 
   async function setup() {

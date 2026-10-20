@@ -53,30 +53,31 @@
 
 ## 5. Layer 5: one resource and one container (`feature/PZ-12754-one-resource`)
 
-- [ ] 5.1 Backend: add `processEngine`, `RestCmmnConfiguration`, and `RestBpmnConfiguration` to
-      `RestZaaktypeConfiguration`, and move the CMMN-only fields into the `cmmn` block (design D2). Update
-      `RestZaaktypeConfigurationConverter`. Verify with a unit test per engine that a read has only its own block, and
-      that an unbound configuration has none.
-- [ ] 5.2 Backend: replace `PUT /zaakafhandelparameters` with `PUT /zaakafhandelparameters/{zaaktypeUUID}`. It rejects
-      a block that does not match `processEngine`, both blocks at once, and a path key that does not match the
-      payload. It requires `beheren` (design D3). Verify each rejection with a unit test.
-- [ ] 5.3 Backend: delete `ZaaktypeBpmnConfigurationRestService`, `RestZaaktypeBpmnConfiguration`, and their unit
+- [x] 5.1 Backend: replace `caseDefinition` with `processDefinition` (`RestProcessDefinition`) in
+      `RestZaaktypeConfiguration`, and keep the plan item settings at the top level (design D2). A binding to
+      CMMN creates the CMMN extension. Update `RestZaaktypeConfigurationConverter`. Verify with unit tests of the
+      converter, the entity, and `RestProcessDefinitionConverter`.
+- [x] 5.2 Backend: replace `PUT /zaakafhandelparameters` with `PUT /zaakafhandelparameters/{zaaktypeUUID}`. It rejects
+      a payload without a process definition and a path key that does not match the payload. It requires `beheren`.
+      Replace the `case-definitions` endpoints with `GET /zaakafhandelparameters/process-definitions`, and delete
+      `RESTCaseDefinition` (design D3). Verify each rejection with a unit test.
+- [x] 5.3 Backend: delete `ZaaktypeBpmnConfigurationRestService`, `RestZaaktypeBpmnConfiguration`, and their unit
       tests. Verify `./gradlew build` and that `git grep zaaktype-bpmn-configuration -- src/main` finds nothing.
 - [ ] 5.4 Itests: move `ZaaktypeBpmnConfigurationRestServiceTest`, `NotificationZaaktypeCompletionParametersTest`, and
       `ZacClient` to the one resource. Add one parameterised itest that round-trips the engine-agnostic settings for
       both engines, and one for "the BPMN resource is gone". Verify with `./gradlew itest`.
-- [ ] 5.5 Run `./gradlew generateOpenApiSpec` and regenerate the frontend types. Diff the spec against the baseline of
+- [x] 5.5 Run `./gradlew generateOpenApiSpec` and regenerate the frontend types. Diff the spec against the baseline of
       0.3, and verify that the only changes are those of design D2 and D3. Paste the summary into the PR body.
-- [ ] 5.6 Frontend: write `toForm()` and `toRestConfiguration()` next to the container, with `it.each` specs over both
+- [x] 5.6 Frontend: write `toForm()` and `toRestConfiguration()` next to the container, with `it.each` specs over both
       engines. These include the "unopened step keeps its stored values" case for SmartDocuments and BRP. Verify
       with `npm test`.
-- [ ] 5.7 Frontend: create the `parameters-edit` container (design D4, D5). It renders the stepper once for a saved
+- [x] 5.7 Frontend: create the `parameters-edit` container (design D4, D5). It renders the stepper once for a saved
       configuration, and renders the process model step first for an unsaved one. Verify with specs: "saved BPMN
       shows no humantask step", "choose BPMN, go back to step 1, values kept".
-- [ ] 5.8 Frontend: change the resolver to one `GET`. Use TanStack `queryOptions()` and `mutationOptions()` in
+- [x] 5.8 Frontend: change the resolver to one `GET`. Use TanStack `queryOptions()` and `mutationOptions()` in
       `zaakafhandel-parameters.service.ts` for the read and the `PUT`, and point the `parameters/:uuid` route at the
       container. Verify the resolver spec and `npm test`.
-- [ ] 5.9 Delete `parameters-edit-cmmn`, `parameters-edit-bpmn`, `parameters-edit-shell`, and
+- [x] 5.9 Delete `parameters-edit-cmmn`, `parameters-edit-bpmn`, `parameters-edit-shell`, and
       `parameters-select-process-model-method`, after moving their
       remaining specs (humantasks, acties, mail, all-steps, selected-index-start) to the steps or the container.
       Verify `npm test`, `npm run lint`, and `ngc -p tsconfig.app.json`.
