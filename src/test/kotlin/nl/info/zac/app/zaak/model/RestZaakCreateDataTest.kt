@@ -8,6 +8,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import jakarta.json.bind.JsonbBuilder
+import nl.info.client.zgw.ztc.model.createZaakType
+import java.time.LocalDate
 
 class RestZaakCreateDataTest : BehaviorSpec({
     val jsonb = JsonbBuilder.create()
@@ -73,6 +75,39 @@ class RestZaakCreateDataTest : BehaviorSpec({
 
             then("the field keeps the name the client sends") {
                 json shouldContain "\"isZaakspecifiekGeautoriseerd\":true"
+            }
+        }
+    }
+
+    given("rest zaak create data without a startdatum") {
+        val restZaakCreateData = createRestZaakCreateData(startDatum = null)
+
+        `when`("it is converted to a zaak") {
+            val zaak = restZaakCreateData.toZaak(
+                zaaktype = createZaakType(),
+                bronOrganisatie = "fakeBronOrganisatie",
+                verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
+            )
+
+            then("the zaak starts today") {
+                zaak.startdatum shouldBe LocalDate.now()
+            }
+        }
+    }
+
+    given("rest zaak create data with a startdatum") {
+        val startdatum = LocalDate.of(2023, 9, 15)
+        val restZaakCreateData = createRestZaakCreateData(startDatum = startdatum)
+
+        `when`("it is converted to a zaak") {
+            val zaak = restZaakCreateData.toZaak(
+                zaaktype = createZaakType(),
+                bronOrganisatie = "fakeBronOrganisatie",
+                verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
+            )
+
+            then("the zaak keeps the given startdatum") {
+                zaak.startdatum shouldBe startdatum
             }
         }
     }
