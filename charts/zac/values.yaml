@@ -564,10 +564,18 @@ solr-operator:
       runAsUser: 8983
       runAsGroup: 8983
       fsGroup: 8983
+      # only change ownership when the volume root does not match, so a large index is not re-chowned on every start
+      fsGroupChangePolicy: OnRootMismatch
       seccompProfile:
         type: RuntimeDefault
-     # -- securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only
-    containerSecurityContext: {}
+     # -- securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only.
+     # Capabilities and privilege escalation can only be set per container, so the init containers keep the defaults
+     # for those.
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
      # -- tolerations for solr in solrcloud
     tolerations: []
      # -- topologySpreadConstraints for solr in solrcloud
