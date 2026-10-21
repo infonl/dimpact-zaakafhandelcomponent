@@ -28,7 +28,7 @@
 }
 
 <ng-template #title let-breadcrumb>
-  @if (breadcrumb.isZaakspecifiekGeautoriseerd) {
+  @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
     <zac-zaak-identificatie
       [identificatie]="breadcrumb.title"
       [isZaakspecifiekGeautoriseerd]="true"

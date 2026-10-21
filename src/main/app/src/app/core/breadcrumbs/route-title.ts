@@ -12,16 +12,31 @@ export function translatedTitle(key: string): ResolveFn<string> {
   return () => inject(TranslateService).get(key);
 }
 
+export type BreadcrumbDetails = {
+  zaak: Pick<
+    GeneratedType<"RestZaak">,
+    "uuid" | "isZaakspecifiekGeautoriseerd"
+  >;
+};
+
 export type Breadcrumb = {
   title: string;
   url: string;
   key?: string;
-  zaakUuid?: string;
-  isZaakspecifiekGeautoriseerd?: boolean | null;
+  details?: Partial<BreadcrumbDetails>;
 };
+
+type BreadcrumbDetailsFn = (
+  route: ActivatedRouteSnapshot,
+) => Partial<BreadcrumbDetails>;
 
 export const BREADCRUMB_ORIGIN = { breadcrumbs: "origin" } as const;
 export const BREADCRUMB_DETAIL = { breadcrumbs: "detail" } as const;
+
+// The details end up in the browser history with the trail, so they must be plain data.
+export function breadcrumbDetails(details: BreadcrumbDetailsFn) {
+  return { breadcrumbDetails: details };
+}
 
 export function breadcrumbKind(root: ActivatedRouteSnapshot) {
   let route = root;
@@ -39,7 +54,9 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
   ) {
     // A route without a title of its own inherits the title of its parent.
     if (route.routeConfig?.title !== undefined && route.title) {
-      const zaak = route.data["zaak"] as GeneratedType<"RestZaak"> | undefined;
+      const details = route.data["breadcrumbDetails"] as
+        | BreadcrumbDetailsFn
+        | undefined;
       crumbs.push({
         title: route.title,
         url:
@@ -47,8 +64,7 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
           route.pathFromRoot
             .flatMap(({ url }) => url.map(({ path }) => path))
             .join("/"),
-        zaakUuid: zaak?.uuid,
-        isZaakspecifiekGeautoriseerd: zaak?.isZaakspecifiekGeautoriseerd,
+        details: details?.(route),
       });
     }
   }

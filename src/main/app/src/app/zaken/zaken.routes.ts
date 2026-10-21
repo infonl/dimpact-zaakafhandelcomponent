@@ -7,11 +7,19 @@ import { Routes } from "@angular/router";
 import {
   BREADCRUMB_DETAIL,
   BREADCRUMB_ORIGIN,
+  breadcrumbDetails,
   translatedTitle,
 } from "../core/breadcrumbs/route-title";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakIdentificatieResolver } from "./zaak-identificatie-resolver.service";
+
+const zaakBreadcrumbDetails = breadcrumbDetails((route) => {
+  const { uuid, isZaakspecifiekGeautoriseerd } = route.data[
+    "zaak"
+  ] as GeneratedType<"RestZaak">;
+  return { zaak: { uuid, isZaakspecifiekGeautoriseerd } };
+});
 
 export const ZAKEN_ROUTES: Routes = [
   {
@@ -74,6 +82,6 @@ export const ZAKEN_ROUTES: Routes = [
         (m) => m.ZaakViewComponent,
       ),
     resolve: { zaak: ZaakIdentificatieResolver },
-    data: BREADCRUMB_DETAIL,
+    data: { ...BREADCRUMB_DETAIL, ...zaakBreadcrumbDetails },
   },
 ];

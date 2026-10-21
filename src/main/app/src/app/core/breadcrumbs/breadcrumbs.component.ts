@@ -64,9 +64,13 @@ export class BreadcrumbsComponent {
     const root = this.router.routerState.snapshot.root;
     const kind = breadcrumbKind(root);
     const state = this.location.getState() as NavigationState;
+    const resolvedTrail = breadcrumbs(root);
+    const savedTrail = state?.navigationTrail;
     const trail = this.withCurrentZaken(
-      state?.navigationTrail ?? this.startTrail(root, kind, state),
-      breadcrumbs(root),
+      savedTrail
+        ? this.withResolvedPage(savedTrail, resolvedTrail.at(-1))
+        : this.startTrail(root, kind, state),
+      resolvedTrail,
     );
     this.saveTrail(trail);
     this.originTrail = kind ? trail : null;
@@ -94,6 +98,19 @@ export class BreadcrumbsComponent {
       : [...routeTrail, page];
   }
 
+  private withResolvedPage(
+    savedTrail: Breadcrumb[],
+    resolvedPage: Breadcrumb | undefined,
+  ) {
+    const savedPage = savedTrail.at(-1);
+    if (!savedPage || !resolvedPage) return savedTrail;
+
+    return [
+      ...savedTrail.slice(0, -1),
+      { ...savedPage, details: resolvedPage.details },
+    ];
+  }
+
   private updateZaken() {
     const trail = this.withCurrentZaken(this.breadcrumbs());
     if (trail.every((breadcrumb, index) => breadcrumb === this.breadcrumbs()[index]))
@@ -106,24 +123,31 @@ export class BreadcrumbsComponent {
 
   private withCurrentZaken(trail: Breadcrumb[], resolvedTrail: Breadcrumb[] = []) {
     return trail.map((breadcrumb) => {
-      const { zaakUuid } = breadcrumb;
-      if (!zaakUuid) return breadcrumb;
+      const uuid = breadcrumb.details?.zaak?.uuid;
+      if (!uuid) return breadcrumb;
 
       const zaak =
-        resolvedTrail.find((resolved) => resolved.zaakUuid === zaakUuid) ??
+        resolvedTrail.find(({ details }) => details?.zaak?.uuid === uuid)
+          ?.details?.zaak ??
         this.queryClient.getQueryData(
-          this.zakenService.readZaakQuery(zaakUuid).queryKey,
+          this.zakenService.readZaakQuery(uuid).queryKey,
         );
       if (
         !zaak ||
         zaak.isZaakspecifiekGeautoriseerd ===
-          breadcrumb.isZaakspecifiekGeautoriseerd
+          breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd
       )
         return breadcrumb;
 
       return {
         ...breadcrumb,
-        isZaakspecifiekGeautoriseerd: zaak.isZaakspecifiekGeautoriseerd,
+        details: {
+          ...breadcrumb.details,
+          zaak: {
+            uuid,
+            isZaakspecifiekGeautoriseerd: zaak.isZaakspecifiekGeautoriseerd,
+          },
+        },
       };
     });
   }

@@ -26,6 +26,7 @@ import { BreadcrumbsComponent } from "./breadcrumbs.component";
 import {
   BREADCRUMB_DETAIL,
   BREADCRUMB_ORIGIN,
+  breadcrumbDetails,
   translatedTitle,
 } from "./route-title";
 import { ZacTitleStrategy } from "./zac-title-strategy";
@@ -76,7 +77,15 @@ describe(BreadcrumbsComponent.name, () => {
                     );
                   },
                 },
-                data: BREADCRUMB_DETAIL,
+                data: {
+                  ...BREADCRUMB_DETAIL,
+                  ...breadcrumbDetails((route) => {
+                    const { uuid, isZaakspecifiekGeautoriseerd } = route.data[
+                      "zaak"
+                    ] as GeneratedType<"RestZaak">;
+                    return { zaak: { uuid, isZaakspecifiekGeautoriseerd } };
+                  }),
+                },
                 component: PageStubComponent,
               },
             ],
@@ -301,7 +310,9 @@ describe(BreadcrumbsComponent.name, () => {
     expect(navigationTrail(TestBed.inject(Location)).at(-1)).toEqual(
       expect.objectContaining({
         title: "ZAAK-1",
-        isZaakspecifiekGeautoriseerd: true,
+        details: {
+          zaak: { uuid: "uuid-ZAAK-1", isZaakspecifiekGeautoriseerd: true },
+        },
       }),
     );
   });
@@ -336,5 +347,33 @@ describe(BreadcrumbsComponent.name, () => {
     expect(
       screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("shows the lock on a page restored from the history whose saved trail has no details of its zaak", async () => {
+    const fixture = await navigateTo(
+      "/zaken/mijn",
+      "/zaken/ZAAK-ZAAKSPECIFIEK",
+    );
+    const location = TestBed.inject(Location);
+    location.replaceState(location.path(), "", {
+      navigationTrail: navigationTrail(location).map(({ title, url, key }) => ({
+        title,
+        url,
+        key,
+      })),
+    });
+    await TestBed.inject(Router).navigateByUrl("/taken/1");
+
+    location.back();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(TestBed.inject(Router).url).toBe("/zaken/ZAAK-ZAAKSPECIFIEK");
+    expect(
+      within(screen.getByRole("listitem", { current: "page" })).getByRole(
+        "img",
+        { name: "Zaakspecifiek geautoriseerd" },
+      ),
+    ).toBeInTheDocument();
   });
 });
