@@ -9,16 +9,26 @@
       @for (breadcrumb of breadcrumbs(); track $index) {
         @if ($last) {
           <li aria-current="page">
-            <ng-container
-              *ngTemplateOutlet="title; context: { $implicit: breadcrumb }"
-            />
+            @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
+              <zac-zaak-identificatie
+                [identificatie]="breadcrumb.title"
+                [isZaakspecifiekGeautoriseerd]="true"
+              />
+            } @else {
+              {{ breadcrumb.title }}
+            }
           </li>
         } @else {
           <li>
             <a [href]="breadcrumb.url" (click)="navigate($event, breadcrumb)">
-              <ng-container
-                *ngTemplateOutlet="title; context: { $implicit: breadcrumb }"
-              />
+              @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
+                <zac-zaak-identificatie
+                  [identificatie]="breadcrumb.title"
+                  [isZaakspecifiekGeautoriseerd]="true"
+                />
+              } @else {
+                {{ breadcrumb.title }}
+              }
             </a>
           </li>
         }
@@ -26,14 +36,3 @@
     </ol>
   </nav>
 }
-
-<ng-template #title let-breadcrumb>
-  @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
-    <zac-zaak-identificatie
-      [identificatie]="breadcrumb.title"
-      [isZaakspecifiekGeautoriseerd]="true"
-    />
-  } @else {
-    {{ breadcrumb.title }}
-  }
-</ng-template>
