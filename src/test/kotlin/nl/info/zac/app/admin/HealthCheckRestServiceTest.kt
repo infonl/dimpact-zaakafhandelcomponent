@@ -15,6 +15,9 @@ import io.mockk.verify
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createBuildInformation
@@ -30,11 +33,13 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
     val healthCheckService = mockk<HealthCheckService>()
     val policyService = mockk<PolicyService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val healthCheckRestService = HealthCheckRestService(
         ztcClientService = ztcClientService,
         configurationService = configurationService,
         healthCheckService = healthCheckService,
-        policyService = policyService
+        policyService = policyService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService
     )
 
     afterEach {
@@ -52,6 +57,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         )
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
+        every { zaaktypeConfigurationService.findConfiguration(any()) } returns null
         every { ztcClientService.listZaaktypen(catalogusURI) } returns zaaktypen
         zaaktypen.forEachIndexed { index, zaaktype ->
             every { healthCheckService.controleerZaaktype(zaaktypen[index].url) } returns zaaktypeInrichtingschecks[index]
@@ -85,6 +91,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         val zaaktype = createZaakType()
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
+        every { zaaktypeConfigurationService.findConfiguration(any()) } returns null
         every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(zaaktype)
         every { healthCheckService.controleerZaaktype(zaaktype.url) } returns createZaaktypeInrichtingscheck(
             zaaktype = zaaktype,
@@ -106,6 +113,35 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             }
             and("the zaaktype is still reported as valid") {
                 result.single().isValide shouldBe true
+            }
+        }
+    }
+
+    given("A zaaktype bound to BPMN and a zaaktype bound to CMMN") {
+        val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
+        val bpmnZaaktype = createZaakType()
+        val cmmnZaaktype = createZaakType()
+        every { policyService.readOverigeRechten().canBeheren } returns true
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
+        every {
+            zaaktypeConfigurationService.findConfiguration(bpmnZaaktype.url.extractUuid())
+        } returns createZaaktypeBpmnConfiguration(zaaktypeUUID = bpmnZaaktype.url.extractUuid())
+        every {
+            zaaktypeConfigurationService.findConfiguration(cmmnZaaktype.url.extractUuid())
+        } returns createZaaktypeCmmnConfiguration(zaaktypeUUID = cmmnZaaktype.url.extractUuid())
+        every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(bpmnZaaktype, cmmnZaaktype)
+        every { healthCheckService.controleerZaaktype(cmmnZaaktype.url) } returns createZaaktypeInrichtingscheck(
+            zaaktype = cmmnZaaktype
+        )
+
+        `when`("listZaaktypeInrichtingschecks is called") {
+            val result = healthCheckRestService.listZaaktypeInrichtingschecks()
+
+            then("only the CMMN zaaktype is returned") {
+                result.single().zaaktype.uuid shouldBe cmmnZaaktype.url.extractUuid()
+            }
+            and("the BPMN zaaktype is not checked") {
+                verify(exactly = 0) { healthCheckService.controleerZaaktype(bpmnZaaktype.url) }
             }
         }
     }

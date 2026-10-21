@@ -12,8 +12,12 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.app.admin.model.RestBuildInformation
 import nl.info.zac.app.admin.model.RestZaaktypeInrichtingscheck
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
@@ -34,7 +38,8 @@ class HealthCheckRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
     private val healthCheckService: HealthCheckService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
 ) {
     @GET
     @Path("zaaktypes")
@@ -94,6 +99,11 @@ class HealthCheckRestService @Inject constructor(
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
+            .filterNot(::isBoundToBpmn)
+
+    private fun isBoundToBpmn(zaaktype: ZaakType) =
+        zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())?.getProcessEngine() ==
+            ProcessEngine.BPMN
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =
         RestZaaktypeInrichtingscheck(

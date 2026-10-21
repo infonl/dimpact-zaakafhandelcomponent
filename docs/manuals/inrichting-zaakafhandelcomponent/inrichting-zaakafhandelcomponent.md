@@ -232,7 +232,8 @@ Na het wijzigen van data in de zaaktypecatalogus in Open Zaak is het nodig om de
 De volgende gegevens worden gesynchroniseerd: Zaaktypen, Informatieobjecttypen, Besluittypen, Zaaktype-informatieobjecttypen, Resultaattypen, Statustypen en Roltypen. 
 
 #### Zaaktype inrichtingscheck
-Hier kan voor een zaaktype dat nog niet volledig en correct is ingericht worden gecheckt welke onderdelen nog inrichting nodig hebben. Als een zaaktype niet in deze lijst voorkomt dan is de minimaal benodigde inrichting correct. Er wordt hier een validatie uitgevoerd op de ZAC zaakafhandelparameters en de zaaktypecatalogus implementatie.
+Hier kan voor een zaaktype dat nog niet volledig en correct is ingericht worden gecheckt welke onderdelen nog inrichting nodig hebben. Als een CMMN-zaaktype niet in deze lijst voorkomt dan is de minimaal benodigde inrichting correct. Er wordt hier een validatie uitgevoerd op de ZAC zaakafhandelparameters en de zaaktypecatalogus implementatie.
+Zaaktypes waarvan in de zaakafhandelparameters BPMN is gekozen, worden niet gecontroleerd en niet getoond.
 Om een zaaktype in deze lijst te controleren klik je op de regel. Daarna worden alle inrichtingsonderdelen die aandacht nodig hebben geopend en wordt per onderdeel vermeld wat er niet correct is ingericht.
 Voor nu worden de volgende onderdelen gecheckt:
 - Zaakafhandelparameters | er wordt gecheckt of deze volledig zijn ingericht
