@@ -100,7 +100,7 @@ describe(ParametersStepHumantasksComponent.name, () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listBehandelaarGroupsForZaaktypeQuery: () => ({
+            listBehandelaarGroupsForZaaktype: () => ({
               ...createQueryOptions([
                 { id: "test-group-id", naam: "test-group" },
               ]),

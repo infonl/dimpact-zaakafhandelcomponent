@@ -18,10 +18,12 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -54,6 +56,7 @@ export class ZakenVerdelenDialogComponent {
   private readonly zakenService = inject(ZakenService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
+  private readonly queryClient = inject(QueryClient);
 
   protected readonly data = inject<ZaakZoekObject[]>(MAT_DIALOG_DATA);
 
@@ -109,9 +112,13 @@ export class ZakenVerdelenDialogComponent {
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
         this.form.controls.medewerker.disable();
-        if (!group) return;
+        // While the user types, the autocomplete reports the typed text instead of a group.
+        if (!group?.id) return;
 
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+        runQuery(
+          this.queryClient,
+          this.identityService.listUsersInGroup(group.id),
+        ).subscribe((users) => {
           this.form.controls.medewerker.enable();
           this.users = users;
         });

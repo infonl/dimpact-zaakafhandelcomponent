@@ -13,11 +13,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 
@@ -43,6 +45,7 @@ export class TaakEditComponent {
   private readonly identityService = inject(IdentityService);
   private readonly takenService = inject(TakenService);
   private readonly translateService = inject(TranslateService);
+  private readonly queryClient = inject(QueryClient);
 
   protected readonly sideNav = input.required<MatDrawer>();
   protected readonly task = input.required<GeneratedType<"RestTask">>();
@@ -79,19 +82,23 @@ export class TaakEditComponent {
 
   constructor() {
     effect(() => {
-      this.identityService
-        .listBehandelaarGroupsForZaaktype(this.task().zaaktypeOmschrijving!)
-        .subscribe((groups) => {
-          const taskGroup = this.task().groep;
-          if (taskGroup && !groups.find((group) => group.id === taskGroup.id)) {
-            groups.unshift(taskGroup);
-          }
-          this.groups = groups;
-          this.form.patchValue({
-            groep: taskGroup,
-            behandelaar: this.task().behandelaar,
-          });
+      runQuery(
+        this.queryClient,
+        this.identityService.listBehandelaarGroupsForZaaktype(
+          this.task().zaaktypeOmschrijving!,
+        ),
+      ).subscribe((behandelaarGroups) => {
+        const groups = [...behandelaarGroups];
+        const taskGroup = this.task().groep;
+        if (taskGroup && !groups.find((group) => group.id === taskGroup.id)) {
+          groups.unshift(taskGroup);
+        }
+        this.groups = groups;
+        this.form.patchValue({
+          groep: taskGroup,
+          behandelaar: this.task().behandelaar,
         });
+      });
 
       if (
         this.task().status === "AFGEROND" ||
@@ -108,7 +115,10 @@ export class TaakEditComponent {
         this.form.controls.behandelaar.disable();
         if (!group) return;
 
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+        runQuery(
+          this.queryClient,
+          this.identityService.listUsersInGroup(group.id),
+        ).subscribe((users) => {
           this.form.controls.behandelaar.enable();
           this.users = users;
         });

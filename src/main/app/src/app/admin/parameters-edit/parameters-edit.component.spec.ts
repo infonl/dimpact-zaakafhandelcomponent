@@ -154,13 +154,13 @@ describe(ParametersEditComponent.name, () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listBehandelaarGroupsForZaaktypeQuery: () => ({
+            listBehandelaarGroupsForZaaktype: () => ({
               ...createQueryOptions([
                 { id: "test-group-id", naam: "test-group" },
               ]),
               queryKey: ["behandelaarGroups"],
             }),
-            listUsersInGroupQuery: () => ({
+            listUsersInGroup: () => ({
               ...createQueryOptions([]),
               queryKey: ["usersInGroup"],
             }),

@@ -67,7 +67,7 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
   });
 
   protected readonly groupsQuery = injectQuery(() =>
-    this.identityService.listBehandelaarGroupsForZaaktypeQuery(
+    this.identityService.listBehandelaarGroupsForZaaktype(
       this.zaak().zaaktype.omschrijving ?? "",
     ),
   );

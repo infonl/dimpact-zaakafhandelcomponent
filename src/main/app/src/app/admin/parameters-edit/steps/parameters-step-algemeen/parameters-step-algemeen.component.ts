@@ -54,9 +54,7 @@ export class ParametersStepAlgemeenComponent {
   private readonly groepenQuery = injectQuery(() => {
     const omschrijving = this.zaaktype().omschrijving ?? "";
     return {
-      ...this.identityService.listBehandelaarGroupsForZaaktypeQuery(
-        omschrijving,
-      ),
+      ...this.identityService.listBehandelaarGroupsForZaaktype(omschrijving),
       enabled: Boolean(omschrijving),
     };
   });
@@ -72,7 +70,7 @@ export class ParametersStepAlgemeenComponent {
   private readonly medewerkersQuery = injectQuery(() => {
     const groepId = this.defaultGroepId() ?? "";
     return {
-      ...this.identityService.listUsersInGroupQuery(groepId),
+      ...this.identityService.listUsersInGroup(groepId),
       enabled: Boolean(groepId),
     };
   });

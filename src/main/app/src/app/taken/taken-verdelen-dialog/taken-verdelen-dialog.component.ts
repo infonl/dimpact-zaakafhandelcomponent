@@ -19,11 +19,13 @@ import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
@@ -54,6 +56,7 @@ export class TakenVerdelenDialogComponent {
   private readonly takenService = inject(TakenService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
+  private readonly queryClient = inject(QueryClient);
 
   protected readonly data = inject<{
     taken: TaakZoekObject[];
@@ -107,9 +110,13 @@ export class TakenVerdelenDialogComponent {
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
         this.form.controls.medewerker.disable();
-        if (!group) return;
+        // While the user types, the autocomplete reports the typed text instead of a group.
+        if (!group?.id) return;
 
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+        runQuery(
+          this.queryClient,
+          this.identityService.listUsersInGroup(group.id),
+        ).subscribe((users) => {
           this.form.controls.medewerker.enable();
           this.users = users;
         });

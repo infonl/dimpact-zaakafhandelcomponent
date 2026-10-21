@@ -29,6 +29,7 @@ import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { BackButtonDirective } from "../../shared/navigation/back-button.directive";
 import {
   BSN_LENGTH,
@@ -162,8 +163,13 @@ export class ZaakCreateComponent {
           this.form.controls.behandelaar.disable();
           return;
         }
+        // While the user types, the autocomplete reports the typed text instead of a group.
+        if (!value.id) return;
 
-        this.identityService.listUsersInGroup(value.id).subscribe((users) => {
+        runQuery(
+          this.queryClient,
+          this.identityService.listUsersInGroup(value.id),
+        ).subscribe((users) => {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
 
@@ -212,9 +218,14 @@ export class ZaakCreateComponent {
 
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
+    // While the user types, the autocomplete reports the typed text instead of a zaaktype.
+    if (!caseType.omschrijving) return;
 
-    this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
-      caseType.omschrijving!,
+    this.groups = runQuery(
+      this.queryClient,
+      this.identityService.listBehandelaarGroupsForZaaktype(
+        caseType.omschrijving,
+      ),
     );
 
     this.groups.subscribe((groups) => {

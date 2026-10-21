@@ -20,7 +20,8 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { EMPTY, lastValueFrom, switchMap } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { EMPTY, switchMap } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
@@ -31,6 +32,7 @@ import {
   FormField,
 } from "../../shared/form/composed-form/form-field.types";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
 
@@ -56,6 +58,7 @@ export class HumanTaskDoComponent implements OnInit {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly taakFormulierenService = inject(TaakFormulierenService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly queryClient = inject(QueryClient);
 
   readonly planItem = input<GeneratedType<"RestPlanItem"> | null | undefined>(
     null,
@@ -110,7 +113,7 @@ export class HumanTaskDoComponent implements OnInit {
         ]);
       this.form.addControl("group", groupControl);
 
-      const groups = await lastValueFrom(
+      const groups = await this.queryClient.fetchQuery(
         this.identityService.listBehandelaarGroupsForZaaktype(
           this.zaak().zaaktype.omschrijving!,
         ),
@@ -147,8 +150,10 @@ export class HumanTaskDoComponent implements OnInit {
 
       if (groupControl.value) {
         userControl.enable();
-        this.identityService
-          .listUsersInGroup(groupControl.value.id)
+        runQuery(
+          this.queryClient,
+          this.identityService.listUsersInGroup(groupControl.value.id),
+        )
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((users) => this.updateUserOptions(users));
       }
@@ -162,7 +167,12 @@ export class HumanTaskDoComponent implements OnInit {
               return EMPTY;
             }
             userControl.enable();
-            return this.identityService.listUsersInGroup(value.id);
+            // While the user types, the autocomplete reports the typed text instead of a group.
+            if (!value.id) return EMPTY;
+            return runQuery(
+              this.queryClient,
+              this.identityService.listUsersInGroup(value.id),
+            );
           }),
         )
         .subscribe((users) => this.updateUserOptions(users));

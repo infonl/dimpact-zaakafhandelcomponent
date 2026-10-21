@@ -62,7 +62,7 @@ describe(ParametersStepAlgemeenComponent.name, () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listBehandelaarGroupsForZaaktypeQuery: (
+            listBehandelaarGroupsForZaaktype: (
               zaaktypeDescription: string,
             ) => ({
               ...createQueryOptions(
@@ -72,7 +72,7 @@ describe(ParametersStepAlgemeenComponent.name, () => {
               ),
               queryKey: ["behandelaarGroups", zaaktypeDescription],
             }),
-            listUsersInGroupQuery: (groupId: string) => ({
+            listUsersInGroup: (groupId: string) => ({
               ...createQueryOptions(
                 groupId === "test-group-id" ? usersOfDefaultGroup : [],
               ),
