@@ -5,7 +5,6 @@
 
 import { inject, Injectable } from "@angular/core";
 import { PutBody } from "../shared/http/http-client";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 
@@ -13,7 +12,6 @@ import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie"
   providedIn: "root",
 })
 export class KlantenService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   /* istanbul ignore next */
@@ -96,7 +94,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   readVestigingsprofiel(vestigingsnummer: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/klanten/vestigingsprofiel/{vestigingsnummer}",
       {
         path: { vestigingsnummer },
@@ -106,14 +104,14 @@ export class KlantenService {
 
   /* istanbul ignore next */
   readBasisprofiel(kvkNummer: string) {
-    return this.zacHttpClient.GET("/rest/klanten/basisprofiel/{kvkNummer}", {
+    return this.zacQueryClient.GET("/rest/klanten/basisprofiel/{kvkNummer}", {
       path: { kvkNummer },
     });
   }
 
   /* istanbul ignore next */
   getPersonenParameters() {
-    return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
+    return this.zacQueryClient.GET("/rest/klanten/personen/parameters");
   }
 
   listAuthorisedBrpGemeenten() {
@@ -139,7 +137,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listBetrokkeneRoltypen(zaaktypeUuid: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/klanten/roltype/{zaaktypeUuid}/betrokkene",
       {
         path: { zaaktypeUuid },
@@ -149,29 +147,16 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listRoltypen() {
-    return this.zacHttpClient.GET("/rest/klanten/roltype");
+    return this.zacQueryClient.GET("/rest/klanten/roltype");
   }
 
   /* istanbul ignore next */
   getContactDetailsForPerson(temporaryPersonId: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/klanten/contactdetails/person/{temporaryPersonId}",
       {
         path: { temporaryPersonId: temporaryPersonId },
       },
     );
-  }
-
-  /* istanbul ignore next */
-  getContactDetailsForPersonQuery(temporaryPersonId: string) {
-    return {
-      ...this.zacQueryClient.GET(
-        "/rest/klanten/contactdetails/person/{temporaryPersonId}",
-        {
-          path: { temporaryPersonId: temporaryPersonId },
-        },
-      ),
-      meta: { reportErrors: false },
-    };
   }
 }

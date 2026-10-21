@@ -1061,6 +1061,16 @@ describe(ZaakViewComponent.name, () => {
           fromPartial<GeneratedType<"RestMailtemplate">>({}),
         );
       }
+      const klantenService = TestBed.inject(KlantenService);
+      testQueryClient.setQueryData(
+        klantenService.getPersonenParameters().queryKey,
+        [],
+      );
+      testQueryClient.setQueryData(
+        klantenService.listBetrokkeneRoltypen(zaakWithEveryPanel.zaaktype.uuid)
+          .queryKey,
+        [],
+      );
       jest
         .spyOn(
           TestBed.inject(InformatieObjectenService),

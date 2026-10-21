@@ -8,8 +8,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Validators } from "@angular/forms";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
-import { KlantenService } from "src/app/klanten/klanten.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
+import { injectContactEmailPrefill } from "../../../klanten/inject-contact-email-prefill";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { runQuery } from "../../../shared/http/run-query";
@@ -25,7 +25,7 @@ import { AbstractTaskForm } from "./abstract-task-form";
 export class ExternAdviesMailTaskForm extends AbstractTaskForm {
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zakenService = inject(ZakenService);
-  private readonly klantenService = inject(KlantenService);
+  private readonly prefillContactEmail = injectContactEmailPrefill();
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
@@ -76,21 +76,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       Validators.required,
       CustomValidators.emails,
     ]);
-    const emailAddress = zaak.zaakSpecificContactDetails?.emailAddress;
-    if (emailAddress) {
-      emailadresControl.setValue(emailAddress);
-    } else {
-      const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
-      if (temporaryPersonId) {
-        this.klantenService
-          .getContactDetailsForPerson(temporaryPersonId)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe((value) => {
-            if (!value.emailadres) return;
-            emailadresControl.setValue(value.emailadres);
-          });
-      }
-    }
+    this.prefillContactEmail(emailadresControl, zaak);
 
     return [
       {
