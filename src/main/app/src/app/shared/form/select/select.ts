@@ -48,6 +48,11 @@ export class ZacSelect<
    */
   protected readonly suffix = input<string>();
 
+  /**
+   * Shows an option that returns `true` as disabled, so that it can be seen but not selected.
+   */
+  readonly optionDisabled = input<(option: Option) => boolean>(() => false);
+
   protected displaySuffix = (option: Option) => {
     const suffix = this.suffix();
     if (suffix && suffix in option) return option[suffix];

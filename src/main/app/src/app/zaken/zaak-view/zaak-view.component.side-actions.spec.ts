@@ -291,6 +291,16 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
+    it("refetches the zaak once a zaak has been linked to it or created from it", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      fixture.componentInstance["zaakLinked"]();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+
     it("refetches the zaak once a taak has been started", () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
