@@ -63,6 +63,7 @@ describe(ZaakViewComponent.name, () => {
   let utilService: UtilService;
   let zakenService: ZakenService;
   let bagService: BAGService;
+  let bagObjectenQuery: ReturnType<typeof createQueryOptions<never[]>>;
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
   let takenService: TakenService;
@@ -153,10 +154,11 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue({
+    bagObjectenQuery = {
       ...createQueryOptions([]),
       queryKey: ["fakeBagObjectenQueryKey"],
-    } as never);
+    };
+    jest.spyOn(bagService, "list").mockReturnValue(bagObjectenQuery as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     jest
@@ -432,7 +434,7 @@ describe(ZaakViewComponent.name, () => {
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak: opschortbareZaak });
       fixture.detectChanges();
-      jest.mocked(bagService.list).mockClear();
+      bagObjectenQuery.queryFn.mockClear();
     });
 
     it("does not reload BAG objects when only zaak content changes", () => {
@@ -442,7 +444,7 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
 
-      expect(bagService.list).not.toHaveBeenCalled();
+      expect(bagObjectenQuery.queryFn).not.toHaveBeenCalled();
     });
 
     it("rebuilds the action menu when rechten change", () => {
@@ -590,23 +592,25 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("reloads the bag objecten, which are fetched separately from the zaak", async () => {
-      jest.mocked(bagService.list).mockClear();
+      bagObjectenQuery.queryFn.mockClear();
 
       const pending = zaakChangedCallback(zaakChangedEvent);
       await flushRefetch({ ...zaak, omschrijving: "changedByOtherUser" });
       await pending;
 
       expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
+      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
     });
 
     it("reloads the bag objecten of an unchanged zaak, since they are not part of it", async () => {
-      jest.mocked(bagService.list).mockClear();
+      bagObjectenQuery.queryFn.mockClear();
 
       const pending = zaakChangedCallback(zaakChangedEvent);
       await flushRefetch({ ...zaak });
       await pending;
 
       expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
+      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
     });
 
     it("reloads the opschorting of a zaak that was already opgeschort before the change", async () => {

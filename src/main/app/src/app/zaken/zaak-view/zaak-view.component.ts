@@ -189,8 +189,25 @@ export class ZaakViewComponent
     );
   });
 
-  bagObjecten: GeneratedType<"RestBagObjectGegevens">[] = [];
-  gekoppeldeBagObjecten: GeneratedType<"RestBagObject">[] = [];
+  private readonly bagObjectenQuery = injectQuery(() => {
+    const uuid = this.zaakUuid();
+    return {
+      ...this.bagService.list(uuid ?? ""),
+      staleTime: StaleTimes.Instant,
+      gcTime: 0,
+      enabled: Boolean(uuid),
+    };
+  });
+
+  protected readonly bagObjecten = computed(
+    () => this.bagObjectenQuery.data() ?? [],
+  );
+
+  protected readonly gekoppeldeBagObjecten = computed(() =>
+    this.bagObjecten().flatMap(({ zaakobject }) =>
+      zaakobject ? [zaakobject] : [],
+    ),
+  );
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
@@ -230,7 +247,7 @@ export class ZaakViewComponent
     {
       onSuccess: () => {
         this.utilService.openSnackbar("msg.bag-object.gekoppeld");
-        this.loadBagObjecten();
+        this.invalidateBagObjecten();
       },
     },
   );
@@ -298,15 +315,6 @@ export class ZaakViewComponent
         zaak.uuid,
         () => this.invalidatePlanItems(),
       );
-    });
-
-    effect(() => {
-      const uuid = this.zaakUuid();
-      if (!uuid) return;
-      // loadBagObjecten reads the whole zaak getter internally (for .uuid) —
-      // untracked so that doesn't also make this effect re-run on unrelated
-      // content changes.
-      untracked(() => this.loadBagObjecten());
     });
 
     effect(() => {
@@ -406,7 +414,7 @@ export class ZaakViewComponent
     await this.queryClient.refetchQueries({ queryKey });
 
     // Not part of RestZaak, so the echo check below says nothing about these.
-    this.loadBagObjecten();
+    this.invalidateBagObjecten();
     this.dialogs.loadOpschorting(this.zaak);
     this.invalidateZaakHistorie();
 
@@ -478,16 +486,9 @@ export class ZaakViewComponent
     this.betrokkenenService.betrokkeneGeselecteerd(this.zaak, klantgegevens);
   }
 
-  private loadBagObjecten() {
-    runQuery(this.queryClient, {
-      ...this.bagService.list(this.zaak.uuid),
-      staleTime: StaleTimes.Instant,
-      gcTime: 0,
-    }).subscribe((bagObjecten) => {
-      this.gekoppeldeBagObjecten = bagObjecten
-        .map(({ zaakobject }) => zaakobject!)
-        .filter(Boolean);
-      this.bagObjecten = bagObjecten;
+  private invalidateBagObjecten() {
+    void this.queryClient.invalidateQueries({
+      queryKey: this.bagService.list(this.zaak.uuid).queryKey,
     });
   }
 
@@ -584,7 +585,7 @@ export class ZaakViewComponent
         this.sideActions.clear();
         if (!result) return;
 
-        this.loadBagObjecten();
+        this.invalidateBagObjecten();
         this.utilService.openSnackbar("msg.bag-object.ontkoppelen.uitgevoerd", {
           omschrijving: bagObject?.omschrijving,
         });

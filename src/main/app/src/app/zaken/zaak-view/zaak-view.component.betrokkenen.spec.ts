@@ -59,6 +59,7 @@ describe(ZaakViewComponent.name, () => {
   let utilService: UtilService;
   let zakenService: ZakenService;
   let bagService: BAGService;
+  let bagObjectenQuery: ReturnType<typeof createQueryOptions<never[]>>;
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
   let takenService: TakenService;
@@ -148,10 +149,11 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue({
+    bagObjectenQuery = {
       ...createQueryOptions([]),
       queryKey: ["fakeBagObjectenQueryKey"],
-    } as never);
+    };
+    jest.spyOn(bagService, "list").mockReturnValue(bagObjectenQuery as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     jest
@@ -525,14 +527,7 @@ describe(ZaakViewComponent.name, () => {
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
       const httpTestingController = TestBed.inject(HttpTestingController);
       httpTestingController.match(() => true);
-      // the view already listed them while initialising, so ignore that call
-      const list = jest
-        .spyOn(bagService, "list")
-        .mockClear()
-        .mockReturnValue({
-          ...createQueryOptions([]),
-          queryKey: ["fakeBagObjectenQueryKey"],
-        } as never);
+      bagObjectenQuery.queryFn.mockClear();
 
       fixture.componentInstance["adresGeselecteerd"](bagObject);
       await new Promise(requestAnimationFrame);
@@ -547,7 +542,7 @@ describe(ZaakViewComponent.name, () => {
         zaakUuid: zaak.uuid,
         zaakobject: bagObject,
       });
-      expect(list).toHaveBeenCalledWith(zaak.uuid);
+      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
       expect(openSnackbar).toHaveBeenCalledWith("msg.bag-object.gekoppeld");
     });
   });
