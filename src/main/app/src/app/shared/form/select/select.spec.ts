@@ -192,4 +192,33 @@ describe(ZacSelect.name, () => {
       expect(renderSelect({ subscriptSizing: "dynamic" })).toBe("dynamic");
     });
   });
+
+  describe("a disabled option", () => {
+    it("should be shown, but cannot be selected", async () => {
+      const user = userEvent.setup();
+      const form = createTestForm();
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "option");
+      componentRef.setInput("optionDisplayValue", "name");
+      componentRef.setInput("options", [
+        { id: 1, name: "fakeEnabledOption" },
+        { id: 2, name: "fakeDisabledOption" },
+      ]);
+      componentRef.setInput(
+        "optionDisabled",
+        (option: TestOption) => option.id === 2,
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await user.click(screen.getByRole("combobox"));
+
+      expect(
+        screen.getByRole("option", { name: "fakeEnabledOption" }),
+      ).toHaveAttribute("aria-disabled", "false");
+      expect(
+        screen.getByRole("option", { name: "fakeDisabledOption" }),
+      ).toHaveAttribute("aria-disabled", "true");
+    });
+  });
 });

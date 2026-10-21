@@ -53,6 +53,11 @@ export class ZacSelect<
 
   public readonly subscriptSizing = input<SubscriptSizing>("fixed");
 
+  /**
+   * Shows an option that returns `true` as disabled, so that it can be seen but not selected.
+   */
+  readonly optionDisabled = input<(option: Option) => boolean>(() => false);
+
   protected displaySuffix = (option: Option) => {
     const suffix = this.suffix();
     if (suffix && suffix in option) return option[suffix];

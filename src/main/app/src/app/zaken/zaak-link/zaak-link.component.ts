@@ -26,6 +26,7 @@ import { MatIcon } from "@angular/material/icon";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableModule } from "@angular/material/table";
+import { MatTabsModule } from "@angular/material/tabs";
 import { MatToolbar } from "@angular/material/toolbar";
 import { MatTooltip } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -35,17 +36,31 @@ import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
 import { EmptyPipe } from "src/app/shared/pipes/empty.pipe";
+import { I18nKeyPipe } from "src/app/shared/pipes/i18n-key.pipe";
 import { DateRangeFilterComponent } from "src/app/shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { toI18nKey } from "../../shared/utils/i18n-key";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
+import {
+  ZaakCreateKoppeling,
+  zaaktypenForKoppeling,
+} from "../zaak-create/zaak-create-koppeling";
+import { ZaakCreateComponent } from "../zaak-create/zaak-create.component";
 import { ZakenService } from "../zaken.service";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ({
     label: toI18nKey(`zaak.koppelen.link.type.${value}`),
+    value,
+  }) as const;
+
+const newCaseRelationOption = <T extends ZaakCreateKoppeling["relatieType"]>(
+  value: T,
+) =>
+  ({
+    label: toI18nKey(`zaak.koppelen.nieuw.type.${value}`),
     value,
   }) as const;
 
@@ -71,7 +86,10 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
     ZacAutoComplete,
     DateRangeFilterComponent,
     EmptyPipe,
+    I18nKeyPipe,
     MatTooltip,
+    MatTabsModule,
+    ZaakCreateComponent,
   ],
 })
 export class ZaakLinkComponent {
@@ -144,6 +162,56 @@ export class ZaakLinkComponent {
   protected readonly caseTypes = computed(
     () => this.caseTypesQuery.data() ?? [],
   );
+
+  protected readonly newCaseRelationOptionsList = [
+    newCaseRelationOption("GERELATEERD"),
+    newCaseRelationOption("DEELZAAK"),
+  ] as const;
+
+  protected readonly newCaseForm = this.formBuilder.group({
+    relationType: new FormControl<
+      (typeof this.newCaseRelationOptionsList)[number] | null
+    >(this.newCaseRelationOptionsList[0], [Validators.required]),
+  });
+
+  private readonly newCaseRelationType = toSignal(
+    this.newCaseForm.controls.relationType.valueChanges,
+    { initialValue: this.newCaseForm.controls.relationType.value },
+  );
+
+  protected readonly isNewCaseRelationOptionDisabled = (
+    option: (typeof this.newCaseRelationOptionsList)[number],
+  ) => option.value === "DEELZAAK" && Boolean(this.zaak().isDeelzaak);
+
+  protected readonly koppeling = computed<ZaakCreateKoppeling | null>(() => {
+    const relatieType = this.newCaseRelationType()?.value;
+    return relatieType ? { zaak: this.zaak(), relatieType } : null;
+  });
+
+  private readonly mayLinkNewCase = computed(() =>
+    Boolean(this.zaak().isOpen && this.zaak().rechten.canKoppelen),
+  );
+
+  private readonly creatableCaseTypesQuery = injectQuery(() => ({
+    ...this.zakenService.listZaaktypesForCreationQuery(),
+    enabled: this.mayLinkNewCase(),
+  }));
+
+  protected readonly canCreateLinkedCase = computed(
+    () =>
+      this.mayLinkNewCase() &&
+      (this.creatableCaseTypesQuery.data() ?? []).length > 0,
+  );
+
+  protected readonly hasNoOfferedCaseTypes = computed(() => {
+    const koppeling = this.koppeling();
+    const creatableCaseTypes = this.creatableCaseTypesQuery.data();
+    return Boolean(
+      koppeling &&
+        creatableCaseTypes &&
+        zaaktypenForKoppeling(creatableCaseTypes, koppeling).length === 0,
+    );
+  });
 
   protected readonly startdatum = signal<GeneratedType<"RestDatumRange">>({
     van: null,
@@ -296,9 +364,20 @@ export class ZaakLinkComponent {
     );
   }
 
+  protected linkedCaseCreated(identificatie: string) {
+    this.utilService.openSnackbar("msg.zaak.aangemaakt-en-gekoppeld", {
+      case: identificatie,
+    });
+    this.zaakLinked.emit();
+    this.close();
+  }
+
   protected close() {
     void this.sideNav().close();
     this.reset();
+    this.newCaseForm.reset({
+      relationType: this.newCaseRelationOptionsList[0],
+    });
   }
 
   protected reset() {

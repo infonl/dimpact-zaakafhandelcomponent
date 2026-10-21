@@ -2,7 +2,7 @@
   ~ SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<mat-sidenav-container class="p-2">
+<mat-sidenav-container [class.p-2]="!koppeling()">
   <mat-sidenav position="end">
     @switch (activeSideAction) {
       @case ("actie.initiator.koppelen") {
@@ -35,14 +35,19 @@
   <form [formGroup]="form" (ngSubmit)="formSubmit()">
     <fieldset>
       <legend>
-        <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
+        @if (koppeling()) {
+          <h2>{{ "actie.zaak.aanmaken" | translate }}</h2>
+        } @else {
+          <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
+        }
+        <ng-content></ng-content>
       </legend>
       <section class="row">
         <zac-auto-complete
           key="zaaktype"
           class="col-12 col-md-6"
           [form]="form"
-          [options]="caseTypes"
+          [options]="caseTypes()"
           [optionDisplayValue]="'omschrijving'"
         >
           <mat-hint>{{
@@ -56,23 +61,36 @@
           class="col-12 col-md-6"
           [form]="form"
           [displayValue]="'naam'"
-          (click)="canAddInitiator() && openSideNav('actie.initiator.koppelen')"
-        >
-          <button
-            type="button"
-            mat-icon-button
-            matSuffix
-            [disabled]="!canAddInitiator()"
-            (click)="
+          (click)="
+            !koppeling() &&
               canAddInitiator() &&
-                (hasInitiator()
-                  ? clearInitiator()
-                  : openSideNav('actie.initiator.koppelen'));
-              $event.stopPropagation()
-            "
-          >
-            <mat-icon>{{ hasInitiator() ? "close" : "person" }}</mat-icon>
-          </button>
+              openSideNav('actie.initiator.koppelen')
+          "
+        >
+          @if (koppeling()) {
+            <mat-icon>person</mat-icon>
+          } @else {
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              [disabled]="!canAddInitiator()"
+              (click)="
+                canAddInitiator() &&
+                  (hasInitiator()
+                    ? clearInitiator()
+                    : openSideNav('actie.initiator.koppelen'));
+                $event.stopPropagation()
+              "
+            >
+              <mat-icon>{{ hasInitiator() ? "close" : "person" }}</mat-icon>
+            </button>
+          }
+          @if (initiatorNotCopied()) {
+            <mat-hint>{{
+              "zaak.aanmaken.initiator.niet-overgenomen" | translate
+            }}</mat-hint>
+          }
         </zac-input>
       </section>
       <section class="row">
@@ -168,9 +186,15 @@
         >
           {{ "actie.aanmaken" | translate }}
         </button>
-        <button type="button" mat-raised-button zacBackButton>
-          {{ "actie.annuleren" | translate }}
-        </button>
+        @if (koppeling()) {
+          <button type="button" mat-raised-button (click)="cancelled.emit()">
+            {{ "actie.annuleren" | translate }}
+          </button>
+        } @else {
+          <button type="button" mat-raised-button zacBackButton>
+            {{ "actie.annuleren" | translate }}
+          </button>
+        }
       </mat-action-row>
     </fieldset>
   </form>
