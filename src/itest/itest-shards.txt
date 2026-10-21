@@ -67,6 +67,7 @@ nl.info.zac.itest.LoggingTest
 nl.info.zac.itest.NoteServiceTest
 nl.info.zac.itest.NotificationZaakUpdateWebSocketListenerTest
 nl.info.zac.itest.SearchRestServiceZaakspecifiekAutorisatieTest
+nl.info.zac.itest.WebSocketServerEndPointTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeAfgehandeldArchiveTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeIngangsdatumBesluitArchiveTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeTermijnArchiveTest

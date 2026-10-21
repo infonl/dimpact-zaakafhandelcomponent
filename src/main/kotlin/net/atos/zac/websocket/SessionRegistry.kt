@@ -112,20 +112,14 @@ class SessionRegistry {
      * This method is applied to all event arguments to make sure that the objectId being quoted (by Angular?) doesn't cause any problems.
      * Events that are otherwise equal except for the quoted/unquoted objectIds should in all cases be regarded as the same event.
      */
-    fun fix(event: ScreenEvent): ScreenEvent {
-        val resource = fix(event.objectId.resource())
-        val detail = fix(event.objectId.detail())
-        return if (resource != null || detail != null) {
-            ScreenEvent(event.opcode, event.objectType, ScreenEventId(resource, detail))
-        } else {
-            event
-        }
-    }
+    fun fix(event: ScreenEvent) =
+        ScreenEvent(
+            event.opcode,
+            event.objectType,
+            ScreenEventId(fix(event.objectId.resource), event.objectId.detail?.let(::fix))
+        )
 
-    private fun fix(id: String?): String? {
-        if (id == null) {
-            return null
-        }
+    private fun fix(id: String): String {
         val matcher = QUOTED.matcher(id)
         return if (matcher.matches()) fix(matcher.replaceAll("$1")) else id
     }
