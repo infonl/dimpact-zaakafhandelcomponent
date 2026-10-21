@@ -16,6 +16,7 @@ export type Breadcrumb = {
   title: string;
   url: string;
   key?: string;
+  zaakUuid?: string;
   isZaakspecifiekGeautoriseerd?: boolean | null;
 };
 
@@ -46,6 +47,7 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
           route.pathFromRoot
             .flatMap(({ url }) => url.map(({ path }) => path))
             .join("/"),
+        zaakUuid: zaak?.uuid,
         isZaakspecifiekGeautoriseerd: zaak?.isZaakspecifiekGeautoriseerd,
       });
     }

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Location } from "@angular/common";
 import { provideLocationMocks } from "@angular/common/testing";
 import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
@@ -17,6 +18,10 @@ import {
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
+import { navigationTrail } from "../../shared/navigation/navigation-origin";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZakenService } from "../../zaken/zaken.service";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
 import {
   BREADCRUMB_DETAIL,
@@ -29,6 +34,20 @@ import { ZacTitleStrategy } from "./zac-title-strategy";
 class PageStubComponent {}
 
 describe(BreadcrumbsComponent.name, () => {
+  let zaakspecifiekGeautoriseerdeZaken: string[];
+
+  beforeEach(() => {
+    zaakspecifiekGeautoriseerdeZaken = ["ZAAK-ZAAKSPECIFIEK"];
+  });
+
+  function zaak(identificatie: string, isZaakspecifiekGeautoriseerd: boolean) {
+    return fromPartial<GeneratedType<"RestZaak">>({
+      uuid: `uuid-${identificatie}`,
+      identificatie,
+      isZaakspecifiekGeautoriseerd,
+    });
+  }
+
   async function navigateTo(...urls: string[]) {
     const { fixture } = await render(BreadcrumbsComponent, {
       imports: [TranslateModule.forRoot()],
@@ -49,10 +68,13 @@ describe(BreadcrumbsComponent.name, () => {
                 path: ":id",
                 title: (route) => route.paramMap.get("id") ?? "",
                 resolve: {
-                  zaak: (route: ActivatedRouteSnapshot) => ({
-                    isZaakspecifiekGeautoriseerd:
-                      route.paramMap.get("id") === "ZAAK-ZAAKSPECIFIEK",
-                  }),
+                  zaak: (route: ActivatedRouteSnapshot) => {
+                    const identificatie = route.paramMap.get("id") ?? "";
+                    return zaak(
+                      identificatie,
+                      zaakspecifiekGeautoriseerdeZaken.includes(identificatie),
+                    );
+                  },
                 },
                 data: BREADCRUMB_DETAIL,
                 component: PageStubComponent,
@@ -119,6 +141,7 @@ describe(BreadcrumbsComponent.name, () => {
       await TestBed.inject(Router).navigateByUrl(url);
     }
     fixture.detectChanges();
+    return fixture;
   }
 
   function crumbs() {
@@ -218,11 +241,13 @@ describe(BreadcrumbsComponent.name, () => {
   it("shows a lock that screen readers announce as zaakspecifiek geautoriseerd beside the zaaknummer of a zaakspecifiek geautoriseerde zaak", async () => {
     await navigateTo("/zaken/mijn", "/zaken/ZAAK-ZAAKSPECIFIEK");
 
+    const currentPage = screen.getByRole("listitem", { current: "page" });
+    expect(currentPage).toHaveTextContent("ZAAK-ZAAKSPECIFIEK");
     expect(
-      screen.getByText("ZAAK-ZAAKSPECIFIEK").closest("li"),
-    ).toContainElement(
-      screen.getByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
-    );
+      within(currentPage).getByRole("img", {
+        name: "Zaakspecifiek geautoriseerd",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("keeps the lock on the zaak crumb when a taak is opened from a zaakspecifiek geautoriseerde zaak", async () => {
@@ -230,15 +255,84 @@ describe(BreadcrumbsComponent.name, () => {
 
     const zaakLink = screen.getByRole("link", { name: /ZAAK-ZAAKSPECIFIEK/ });
     expect(zaakLink).toHaveAttribute("href", "/zaken/ZAAK-ZAAKSPECIFIEK");
-    expect(zaakLink).toContainElement(
-      screen.getByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
-    );
+    expect(
+      within(zaakLink).getByRole("img", {
+        name: "Zaakspecifiek geautoriseerd",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("shows no lock beside the zaaknummer of a zaak that is not zaakspecifiek geautoriseerd", async () => {
     await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
 
     expect(screen.getByText("ZAAK-1")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows the lock as soon as the zaak is saved as zaakspecifiek geautoriseerd, without a navigation", async () => {
+    const fixture = await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
+
+    TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-1", true));
+    fixture.detectChanges();
+
+    expect(
+      screen.getByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    ).toBeInTheDocument();
+  });
+
+  it("removes the lock as soon as the zaakspecifieke autorisatie of the zaak is lifted, without a navigation", async () => {
+    const fixture = await navigateTo("/zaken/mijn", "/zaken/ZAAK-ZAAKSPECIFIEK");
+
+    TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-ZAAKSPECIFIEK", false));
+    fixture.detectChanges();
+
+    expect(
+      screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("saves the changed zaakspecifieke autorisatie in the trail of the page, for a reload", async () => {
+    await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
+
+    TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-1", true));
+
+    expect(navigationTrail(TestBed.inject(Location)).at(-1)).toEqual(
+      expect.objectContaining({
+        title: "ZAAK-1",
+        isZaakspecifiekGeautoriseerd: true,
+      }),
+    );
+  });
+
+  it("keeps the changed lock on the zaak crumb when a taak is opened after the save", async () => {
+    const fixture = await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
+    TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-1", true));
+
+    await TestBed.inject(Router).navigateByUrl("/taken/1");
+    fixture.detectChanges();
+
+    expect(
+      within(screen.getByRole("link", { name: /ZAAK-1/ })).getByRole("img", {
+        name: "Zaakspecifiek geautoriseerd",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the current zaakspecifieke autorisatie of the zaak when its page is restored from the history", async () => {
+    const fixture = await navigateTo(
+      "/zaken/mijn",
+      "/zaken/ZAAK-ZAAKSPECIFIEK",
+      "/taken/1",
+    );
+    zaakspecifiekGeautoriseerdeZaken = [];
+
+    TestBed.inject(Location).back();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(TestBed.inject(Router).url).toBe("/zaken/ZAAK-ZAAKSPECIFIEK");
     expect(
       screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
     ).not.toBeInTheDocument();
