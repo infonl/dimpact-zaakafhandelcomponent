@@ -19,12 +19,13 @@ endpoint in `UtilRestService` that clears all caches; changing which caches a za
 
 ## Decisions
 
-### Filter BPMN zaaktypes with one query, before any check
+### Filter BPMN zaaktypes on their configuration, before any check
 
-`listZaaktypeInrichtingschecks` asks `ZaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)`
-once for the zaaktypes bound to BPMN and skips those before it builds a check. So a BPMN zaaktype costs no
-Open Zaak reads and does not appear in the response. Checking each zaaktype and then dropping the BPMN ones
-would still do every read; a query per zaaktype would add a database call per zaaktype.
+`listZaaktypeInrichtingschecks` reads the configuration of each zaaktype with
+`ZaaktypeConfigurationService.findConfiguration` and skips the zaaktypes bound to BPMN before it builds a check.
+So a BPMN zaaktype costs no Open Zaak reads and does not appear in the response. Checking each zaaktype and then
+dropping the BPMN ones would still do every read. `findConfiguration` is cached, and the check already reads the
+configuration of every zaaktype it checks, so the filter adds no database work.
 
 A zaaktype without a configuration, or bound to CMMN, stays in: the check is how a beheerder finds a zaaktype
 that still needs its zaakafhandelparameters. The requirement *One answer for the configuration of a zaaktype*
