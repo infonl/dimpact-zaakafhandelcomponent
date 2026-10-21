@@ -5,9 +5,12 @@
 
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
+import { screen, within } from "@testing-library/angular";
+import userEvent, {
+  PointerEventsCheckLevel,
+} from "@testing-library/user-event";
 import { GenericDialogComponent } from "./generic-dialog.component";
 
 @Component({
@@ -21,7 +24,7 @@ import { GenericDialogComponent } from "./generic-dialog.component";
       [loading]="loading"
       (cancelled)="cancelled = cancelled + 1"
     >
-      <span data-testid="projected">projected body</span>
+      <span>projected body</span>
     </zac-generic-dialog>
   `,
 })
@@ -46,41 +49,40 @@ const setup = () => {
 
 describe(GenericDialogComponent.name, () => {
   it("renders the title and the projected content", () => {
-    const { fixture } = setup();
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain("actie.zaak.opschorten");
-    expect(
-      element.querySelector("[data-testid='projected']")?.textContent,
-    ).toContain("projected body");
+    setup();
+    expect(screen.getByRole("heading")).toHaveTextContent(
+      "actie.zaak.opschorten",
+    );
+    expect(screen.getByText("projected body")).toBeInTheDocument();
   });
 
   it("renders the melding when provided", () => {
     const { fixture, host } = setup();
     host.melding = "een melding";
     fixture.detectChanges();
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      "een melding",
-    );
+    expect(screen.getByText("een melding")).toBeInTheDocument();
   });
 
-  it("emits cancel when the close (X) button is clicked", () => {
-    const { fixture, host } = setup();
-    const closeButton = fixture.debugElement.query(By.css("mat-toolbar button"))
-      .nativeElement as HTMLButtonElement;
-    closeButton.click();
+  it("emits cancel when the close (X) button is clicked", async () => {
+    const user = userEvent.setup();
+    const { host } = setup();
+    await user.click(within(screen.getByRole("heading")).getByRole("button"));
     expect(host.cancelled).toBe(1);
   });
 
-  it("disables the close (X) button while loading", () => {
+  it("disables the close (X) button while loading", async () => {
+    // Material sets pointer-events: none on a disabled button; click it anyway to prove nothing is emitted
+    const user = userEvent.setup({
+      pointerEventsCheck: PointerEventsCheckLevel.Never,
+    });
     const { fixture, host } = setup();
     host.loading = true;
     fixture.detectChanges();
 
-    const closeButton = fixture.debugElement.query(By.css("mat-toolbar button"))
-      .nativeElement as HTMLButtonElement;
-    expect(closeButton.disabled).toBe(true);
+    const closeButton = within(screen.getByRole("heading")).getByRole("button");
+    expect(closeButton).toBeDisabled();
 
-    closeButton.click();
+    await user.click(closeButton);
     expect(host.cancelled).toBe(0);
   });
 });

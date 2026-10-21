@@ -6,7 +6,7 @@
 import { booleanAttribute, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslatePipe, provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, TranslatePipe } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";

@@ -7,7 +7,7 @@ import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
 import { provideRouter } from "@angular/router";
-import { TranslateService, provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, Observable } from "rxjs";
 import { testQueryClient } from "../../../../../setupJest";

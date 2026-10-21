@@ -15,7 +15,7 @@ import {
   Router,
   TitleStrategy,
 } from "@angular/router";
-import { TranslateService, provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, TranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";

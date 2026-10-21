@@ -14,6 +14,7 @@ import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/te
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { Observable, of } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { fromPartial } from "src/test-helpers";
@@ -84,22 +85,21 @@ describe(ZacDocuments.name, () => {
 
   describe("Label display", () => {
     it("should display the key as label when no label input is given", () => {
-      const labelElement = fixture.nativeElement.querySelector("div");
-      expect(labelElement.textContent.trim()).toBe("documents");
+      expect(screen.getByText("documents")).toBeInTheDocument();
     });
 
     it("should display custom label when provided", () => {
       componentRef.setInput("label", "Bijlagen");
       fixture.detectChanges();
-      const labelElement = fixture.nativeElement.querySelector("div");
-      expect(labelElement.textContent.trim()).toBe("Bijlagen");
+      expect(screen.getByText("Bijlagen")).toBeInTheDocument();
     });
   });
 
   describe("Empty state", () => {
     it("should show geen gegevens message when no documents and not loading", () => {
-      const emptyMessage = fixture.nativeElement.querySelector("em");
-      expect(emptyMessage).toBeTruthy();
+      expect(
+        screen.getByText("msg.geen.gegevens.gevonden"),
+      ).toBeInTheDocument();
     });
 
     it("should show spinner when loading", async () => {
@@ -122,36 +122,33 @@ describe(ZacDocuments.name, () => {
     });
 
     it("should render a row for each document", () => {
-      const rows = fixture.nativeElement.querySelectorAll("tr[mat-row]");
-      expect(rows.length).toBe(1);
+      expect(
+        screen.getAllByRole("row", { name: /Test Document/ }),
+      ).toHaveLength(1);
     });
 
     it("should show document title in the titel column", () => {
-      const rows = fixture.nativeElement.querySelectorAll("td[mat-cell]");
-      const titelCell = Array.from<HTMLElement>(rows).find((cell) =>
-        cell.textContent?.includes("Test Document"),
-      );
-      expect(titelCell).toBeTruthy();
+      expect(
+        screen.getByRole("cell", { name: /Test Document/ }),
+      ).toBeInTheDocument();
     });
 
     it("should render a view link with correct href", () => {
-      const viewLinks =
-        fixture.nativeElement.querySelectorAll("a[mat-icon-button]");
-      const viewLink = Array.from<Element>(viewLinks).find((link) =>
-        (link as HTMLAnchorElement).href?.includes(
-          "/informatie-objecten/doc-uuid-1",
-        ),
+      expect(
+        screen.getByRole("link", { name: "actie.document.bekijken" }),
+      ).toHaveAttribute(
+        "href",
+        expect.stringContaining("/informatie-objecten/doc-uuid-1"),
       );
-      expect(viewLink).toBeTruthy();
     });
 
     it("should render a download link via service", () => {
-      const downloadLinks =
-        fixture.nativeElement.querySelectorAll("a[mat-icon-button]");
-      const downloadLink = Array.from<Element>(downloadLinks).find((link) =>
-        (link as HTMLAnchorElement).href?.includes("/download/doc-uuid-1"),
+      expect(
+        screen.getByRole("link", { name: "actie.downloaden" }),
+      ).toHaveAttribute(
+        "href",
+        expect.stringContaining("/download/doc-uuid-1"),
       );
-      expect(downloadLink).toBeTruthy();
     });
   });
 

@@ -7,6 +7,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import {
   NotificationDialogComponent,
   NotificationDialogData,
@@ -38,14 +40,14 @@ describe("NotificationDialogComponent", () => {
   });
 
   it("displays the message as HTML", () => {
-    const p = fixture.nativeElement.querySelector(
-      "[mat-dialog-content] p",
-    ) as HTMLElement;
-    expect(p.innerHTML).toBe(dialogData.melding);
+    const paragraph = screen.getByRole("paragraph");
+    expect(paragraph.innerHTML).toBe(dialogData.melding);
   });
 
-  it("closes the dialog with true when the user confirms", () => {
-    fixture.nativeElement.querySelector("#confirmButton").click();
+  it("closes the dialog with true when the user confirms", async () => {
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "actie.ok" }));
     expect(mockDialogRef.close).toHaveBeenCalledWith(true);
   });
 });

@@ -12,6 +12,8 @@ import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
+import { screen, waitFor, within } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
@@ -59,9 +61,9 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [headerItem]);
       fixture.detectChanges();
 
-      const subheaders = fixture.nativeElement.querySelectorAll("h3");
+      const subheaders = screen.getAllByRole("heading", { level: 3 });
       expect(subheaders.length).toBe(1);
-      expect(subheaders[0].textContent.trim()).toContain("test.header");
+      expect(subheaders[0]).toHaveTextContent("test.header");
     });
 
     it("should render divider after header menu items", async () => {
@@ -84,9 +86,8 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [linkItem]);
       fixture.detectChanges();
 
-      const anchor = fixture.nativeElement.querySelector("a[mat-list-item]");
-      expect(anchor).toBeTruthy();
-      expect(anchor.getAttribute("href")).toBe("/test-url");
+      const anchor = screen.getByRole("link", { name: "test.link" });
+      expect(anchor).toHaveAttribute("href", "/test-url");
     });
 
     it("should render button menu items", () => {
@@ -99,10 +100,9 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [buttonItem]);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-list-item]",
-      );
-      expect(button).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: "test.button" }),
+      ).toBeInTheDocument();
     });
 
     it("should render href menu items", () => {
@@ -115,10 +115,8 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [hrefItem]);
       fixture.detectChanges();
 
-      const anchor = fixture.nativeElement.querySelector(
-        'a[mat-list-item][href="https://example.com"]',
-      );
-      expect(anchor).toBeTruthy();
+      const anchor = screen.getByRole("link", { name: "test.href" });
+      expect(anchor).toHaveAttribute("href", "https://example.com");
     });
 
     it("should render href menu items as native anchor elements to enable browser navigation", async () => {
@@ -131,18 +129,12 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [hrefItem]);
       fixture.detectChanges();
 
-      const anchor = fixture.nativeElement.querySelector(
-        'a[mat-list-item][href="https://example.com"]',
-      );
+      const anchor = screen.getByRole("link", { name: "test.href" });
 
-      // Verify it's a real anchor element (not just mat-list-item)
       expect(anchor.tagName).toBe("A");
-
-      // Verify href is set correctly for native browser navigation
-      expect(anchor.getAttribute("href")).toBe("https://example.com");
-
-      // Verify no routerLink is present (which would intercept navigation)
-      expect(anchor.hasAttribute("routerLink")).toBe(false);
+      expect(anchor).toHaveAttribute("href", "https://example.com");
+      // a routerLink would intercept the native navigation
+      expect(anchor).not.toHaveAttribute("routerLink");
     });
 
     it("should render href menu items with download URLs for document downloads", async () => {
@@ -156,13 +148,10 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [hrefItem]);
       fixture.detectChanges();
 
-      const anchor = fixture.nativeElement.querySelector("a[mat-list-item]");
+      const anchor = screen.getByRole("link", { name: "download.document" });
 
-      // Verify it's a real anchor element
       expect(anchor.tagName).toBe("A");
-
-      // Verify href is set correctly for download
-      expect(anchor.getAttribute("href")).toBe(downloadUrl);
+      expect(anchor).toHaveAttribute("href", downloadUrl);
     });
 
     it("should render multiple menu items of different types", async () => {
@@ -180,7 +169,7 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", menuItems);
       fixture.detectChanges();
 
-      const headers = fixture.nativeElement.querySelectorAll("h3");
+      const headers = screen.getAllByRole("heading", { level: 3 });
       const links = await loader.getAllHarnesses(MatNavListItemHarness);
 
       const linkTexts = await Promise.all(links.map((item) => item.getText()));
@@ -274,8 +263,8 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [headerItem]);
       fixture.detectChanges();
 
-      const headerIcon = fixture.nativeElement.querySelector("h3 mat-icon");
-      expect(headerIcon.textContent.trim()).toBe("more_horiz");
+      const header = screen.getByRole("heading", { level: 3 });
+      expect(within(header).getByText("more_horiz")).toBeInTheDocument();
     });
   });
 
@@ -287,8 +276,8 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [linkItem]);
       fixture.detectChanges();
 
-      const anchor = fixture.nativeElement.querySelector("a[mat-list-item]");
-      expect(anchor.classList.contains("mdc-list-item--disabled")).toBe(true);
+      const anchor = screen.getByRole("link", { name: "test.link" });
+      expect(anchor).toHaveClass("mdc-list-item--disabled");
     });
 
     it("should disable button menu items when disabled property is true", async () => {
@@ -302,10 +291,9 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [buttonItem]);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-list-item]",
-      );
-      expect(button.disabled).toBe(true);
+      expect(
+        screen.getByRole("button", { name: "test.button" }),
+      ).toBeDisabled();
     });
 
     it("should disable href menu items when disabled property is true", () => {
@@ -319,10 +307,8 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [hrefItem]);
       fixture.detectChanges();
 
-      const anchor = fixture.nativeElement.querySelector(
-        "a[mat-list-item][href]",
-      );
-      expect(anchor.classList.contains("mdc-list-item--disabled")).toBe(true);
+      const anchor = screen.getByRole("link", { name: "test.href" });
+      expect(anchor).toHaveClass("mdc-list-item--disabled");
     });
 
     it("should activate link menu items when activated property is true", () => {
@@ -332,8 +318,8 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [linkItem]);
       fixture.detectChanges();
 
-      const anchor = fixture.nativeElement.querySelector("a[mat-list-item]");
-      expect(anchor.classList.contains("mdc-list-item--activated")).toBe(true);
+      const anchor = screen.getByRole("link", { name: "test.link" });
+      expect(anchor).toHaveClass("mdc-list-item--activated");
     });
 
     it("should activate button menu items when matching activeItem", () => {
@@ -347,30 +333,27 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("activeItem", "test.button");
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-list-item]",
-      );
-      expect(button.classList.contains("mdc-list-item--activated")).toBe(true);
+      const button = screen.getByRole("button", { name: "test.button" });
+      expect(button).toHaveClass("mdc-list-item--activated");
     });
   });
 
   describe("menu item interactions", () => {
-    it("should call button function when clicked", () => {
+    it("should call button function when clicked", async () => {
       const mockFn = jest.fn();
       const buttonItem = new ButtonMenuItem("test.button", mockFn, "settings");
 
       fixture.componentRef.setInput("menu", [buttonItem]);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-list-item]",
-      );
-      button.click();
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "test.button" }));
 
       expect(mockFn).toHaveBeenCalled();
     });
 
-    it("should not call button function when disabled", () => {
+    it("should not call button function when disabled", async () => {
       const mockFn = jest.fn();
       const buttonItem = new ButtonMenuItem("test.button", mockFn, "settings");
       buttonItem.disabled = true;
@@ -378,15 +361,14 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [buttonItem]);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-list-item]",
-      );
-      button.click();
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "test.button" }));
 
       expect(mockFn).not.toHaveBeenCalled();
     });
 
-    it("should emit activeItemChange when button is clicked", () => {
+    it("should emit activeItemChange when button is clicked", async () => {
       const activeItemChangeSpy = jest.fn();
       component["activeItemChange"].subscribe(activeItemChangeSpy);
 
@@ -399,15 +381,14 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [buttonItem]);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-list-item]",
-      );
-      button.click();
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "test.button" }));
 
       expect(activeItemChangeSpy).toHaveBeenCalledWith("test.button");
     });
 
-    it("should handle async button menu items", () => {
+    it("should handle async button menu items", async () => {
       const asyncButtonItem = new AsyncButtonMenuItem(
         "test.async",
         () => of(void 0),
@@ -417,15 +398,14 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [asyncButtonItem]);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-list-item]",
-      );
-      button.click();
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "test.async" }));
 
       expect(utilServiceMock.setLoading).toHaveBeenCalledWith(true);
     });
 
-    it("should re-enable button after async operation completes", (done) => {
+    it("should re-enable button after async operation completes", async () => {
       const asyncButtonItem = new AsyncButtonMenuItem(
         "test.async",
         () => of(void 0),
@@ -435,16 +415,14 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [asyncButtonItem]);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-list-item]",
-      );
-      button.click();
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "test.async" }));
 
-      setTimeout(() => {
+      await waitFor(() => {
         expect(asyncButtonItem.disabled).toBe(false);
         expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
-        done();
-      }, 100);
+      });
     });
   });
 
@@ -453,9 +431,9 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", []);
       fixture.detectChanges();
 
-      const toggleButton =
-        fixture.nativeElement.querySelector("#toggleMenuButon");
-      expect(toggleButton).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: "actie.menu.aanpassen" }),
+      ).toBeInTheDocument();
     });
 
     it("should toggle menu mode from CLOSED to AUTO", () => {

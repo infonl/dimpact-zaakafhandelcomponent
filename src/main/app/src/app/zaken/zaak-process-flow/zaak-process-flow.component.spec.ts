@@ -3,10 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
 import { ZaakProcessFlowComponent } from "./zaak-process-flow.component";
 
 const ZAAK = {
@@ -22,26 +27,33 @@ const ZAAK = {
 describe(ZaakProcessFlowComponent.name, () => {
   let fixture: ComponentFixture<ZaakProcessFlowComponent>;
   let closeMock: jest.Mock;
+  let user: ReturnType<typeof userEvent.setup>;
 
-  const getButton = (iconName: string): HTMLButtonElement => {
-    const buttons = fixture.nativeElement.querySelectorAll(
-      "button",
-    ) as NodeListOf<HTMLButtonElement>;
-    return Array.from(buttons).find(
-      (btn) => btn.querySelector("mat-icon")?.textContent?.trim() === iconName,
-    ) as HTMLButtonElement;
-  };
+  const getButton = (tooltip: string): HTMLButtonElement =>
+    screen.getByRole("button", { description: tooltip });
 
   const getImage = (): HTMLImageElement =>
-    fixture.nativeElement.querySelector("img");
+    screen.getByRole("img", { name: "Test Process - versie 3" });
 
   const getZoomTransform = (): string => getImage().style.transform;
 
-  const dispatchArrowKey = (key: string) =>
-    document.dispatchEvent(new KeyboardEvent("keydown", { key }));
+  const clickAndRender = async (element: HTMLElement) => {
+    await user.click(element);
+    fixture.detectChanges();
+  };
+
+  const mockScrollBy = () => {
+    const scrollByMock = jest.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollBy", {
+      value: scrollByMock,
+      configurable: true,
+    });
+    return scrollByMock;
+  };
 
   beforeEach(async () => {
     closeMock = jest.fn();
+    user = userEvent.setup();
 
     await TestBed.configureTestingModule({
       imports: [ZaakProcessFlowComponent, NoopAnimationsModule],
@@ -49,68 +61,71 @@ describe(ZaakProcessFlowComponent.name, () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakProcessFlowComponent);
-    fixture.componentRef.setInput("sideNav", {
-      close: closeMock,
-    } as unknown as MatDrawer);
+    fixture.componentRef.setInput(
+      "sideNav",
+      fromPartial<MatDrawer>({ close: closeMock }),
+    );
     fixture.componentRef.setInput("zaak", ZAAK);
     fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    delete (HTMLElement.prototype as Partial<HTMLElement>).scrollBy;
   });
 
   describe("header", () => {
     it("shows the zaak identificatie", () => {
-      const heading: HTMLElement = fixture.nativeElement.querySelector("h3");
-      expect(heading.textContent).toContain("ZAAK-2026-001");
+      expect(
+        screen.getByRole("heading", { level: 3, name: /ZAAK-2026-001/ }),
+      ).toBeInTheDocument();
     });
 
-    it("calls sideNav.close() when the close button is clicked", () => {
-      getButton("close").click();
+    it("calls sideNav.close() when the close button is clicked", async () => {
+      const closeButton = await TestbedHarnessEnvironment.loader(
+        fixture,
+      ).getHarness(MatButtonHarness.with({ text: "close" }));
+      await closeButton.click();
       expect(closeMock).toHaveBeenCalled();
     });
   });
 
   describe("zoom-in button", () => {
-    it("increases the zoom level when clicked", () => {
+    it("increases the zoom level when clicked", async () => {
       expect(getZoomTransform()).toBe("scale(1)");
-      getButton("add").click();
-      fixture.detectChanges();
+      await clickAndRender(getButton("actie.zoom.in"));
       expect(getZoomTransform()).toBe("scale(1.25)");
     });
 
-    it("is disabled at maximum zoom", () => {
+    it("is disabled at maximum zoom", async () => {
       for (let i = 0; i < 12; i++) {
-        getButton("add").click();
-        fixture.detectChanges();
+        await clickAndRender(getButton("actie.zoom.in"));
       }
-      expect(getButton("add").disabled).toBe(true);
+      expect(getButton("actie.zoom.in")).toBeDisabled();
     });
   });
 
   describe("zoom-out button", () => {
-    it("decreases the zoom level when clicked", () => {
-      getButton("add").click();
-      fixture.detectChanges();
-      getButton("remove").click();
-      fixture.detectChanges();
+    it("decreases the zoom level when clicked", async () => {
+      await clickAndRender(getButton("actie.zoom.in"));
+      await clickAndRender(getButton("actie.zoom.out"));
       expect(getZoomTransform()).toBe("scale(1)");
     });
 
-    it("is disabled at minimum zoom", () => {
+    it("is disabled at minimum zoom", async () => {
       for (let i = 0; i < 3; i++) {
-        getButton("remove").click();
-        fixture.detectChanges();
+        await clickAndRender(getButton("actie.zoom.out"));
       }
-      expect(getButton("remove").disabled).toBe(true);
+      expect(getButton("actie.zoom.out")).toBeDisabled();
     });
   });
 
   describe("reset zoom button", () => {
-    it("resets zoom to 1 after zooming in", () => {
-      getButton("add").click();
-      fixture.detectChanges();
+    it("resets zoom to 1 after zooming in", async () => {
+      await clickAndRender(getButton("actie.zoom.in"));
       expect(getZoomTransform()).toBe("scale(1.25)");
 
-      getButton("zoom_out_map").click();
-      fixture.detectChanges();
+      await clickAndRender(getButton("actie.zoom.reset"));
       expect(getZoomTransform()).toBe("scale(1)");
     });
   });
@@ -128,62 +143,57 @@ describe(ZaakProcessFlowComponent.name, () => {
       expect(getZoomTransform()).toBe("scale(1)");
     });
 
-    it("zooms in when the diagram container is clicked", () => {
-      fixture.nativeElement.querySelector(".diagram-container").click();
-      fixture.detectChanges();
+    it("zooms in when the diagram container is clicked", async () => {
+      await clickAndRender(getImage());
       expect(getZoomTransform()).toBe("scale(1.25)");
     });
   });
 
   describe("keyboard shortcuts", () => {
-    it("zooms in on ArrowUp", () => {
-      dispatchArrowKey("ArrowUp");
+    it("zooms in on ArrowUp", async () => {
+      await user.keyboard("{ArrowUp}");
       fixture.detectChanges();
       expect(getZoomTransform()).toBe("scale(1.25)");
     });
 
-    it("zooms out on ArrowDown", () => {
-      dispatchArrowKey("ArrowUp");
+    it("zooms out on ArrowDown", async () => {
+      await user.keyboard("{ArrowUp}");
       fixture.detectChanges();
-      dispatchArrowKey("ArrowDown");
+      await user.keyboard("{ArrowDown}");
       fixture.detectChanges();
       expect(getZoomTransform()).toBe("scale(1)");
     });
 
-    it("scrolls the container left on ArrowLeft", () => {
-      const container: HTMLDivElement =
-        fixture.nativeElement.querySelector(".diagram-container");
-      const scrollByMock = jest.fn();
-      Object.defineProperty(container, "scrollBy", { value: scrollByMock });
+    it("scrolls the diagram container left on ArrowLeft", async () => {
+      const scrollByMock = mockScrollBy();
 
-      dispatchArrowKey("ArrowLeft");
+      await user.keyboard("{ArrowLeft}");
 
       expect(scrollByMock).toHaveBeenCalledWith({
         left: -100,
         behavior: "smooth",
       });
+      expect(scrollByMock.mock.contexts[0]).toContainElement(getImage());
     });
 
-    it("scrolls the container right on ArrowRight", () => {
-      const container: HTMLDivElement =
-        fixture.nativeElement.querySelector(".diagram-container");
-      const scrollByMock = jest.fn();
-      Object.defineProperty(container, "scrollBy", { value: scrollByMock });
+    it("scrolls the diagram container right on ArrowRight", async () => {
+      const scrollByMock = mockScrollBy();
 
-      dispatchArrowKey("ArrowRight");
+      await user.keyboard("{ArrowRight}");
 
       expect(scrollByMock).toHaveBeenCalledWith({
         left: 100,
         behavior: "smooth",
       });
+      expect(scrollByMock.mock.contexts[0]).toContainElement(getImage());
     });
 
-    it("does not zoom when an input element has focus", () => {
+    it("does not zoom when an input element has focus", async () => {
       const input = document.createElement("input");
       document.body.appendChild(input);
       input.focus();
 
-      dispatchArrowKey("ArrowUp");
+      await user.keyboard("{ArrowUp}");
       fixture.detectChanges();
 
       expect(getZoomTransform()).toBe("scale(1)");

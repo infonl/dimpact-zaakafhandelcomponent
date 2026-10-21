@@ -84,12 +84,11 @@ describe(ZacTextarea.name, () => {
     expect(host.form.controls.notes.value).toBe("new text");
   });
 
-  it("is readonly when the readonly input is set", () => {
+  it("is readonly when the readonly input is set", async () => {
     host.readonly = true;
     fixture.detectChanges();
-    const textarea: HTMLTextAreaElement =
-      fixture.nativeElement.querySelector("textarea");
-    expect(textarea.readOnly).toBe(true);
+    const input = await loader.getHarness(MatInputHarness);
+    expect(await input.isReadonly()).toBe(true);
   });
 
   it("is disabled when the form control is disabled", async () => {

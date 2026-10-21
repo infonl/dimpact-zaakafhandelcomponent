@@ -18,7 +18,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslatePipe, provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, TranslatePipe } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../setupJest";

@@ -42,7 +42,7 @@ const makeZaak = (
   });
 
 const makeSideNav = (): MatDrawer =>
-  ({ close: jest.fn() }) as unknown as MatDrawer;
+  fromPartial<MatDrawer>({ close: jest.fn() });
 
 describe(ZaakdataComponent.name, () => {
   let fixture: ComponentFixture<ZaakdataComponent>;

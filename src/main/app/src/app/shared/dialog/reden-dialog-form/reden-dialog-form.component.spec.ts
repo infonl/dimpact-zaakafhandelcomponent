@@ -8,6 +8,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { of, throwError } from "rxjs";
 import { ZacInput } from "../../form/input/input";
 import { ZacTextarea } from "../../form/textarea/textarea";
@@ -40,9 +41,7 @@ const setup = (data: Partial<RedenDialogData> = {}) => {
   return { fixture, component: fixture.componentInstance, dialogRefMock };
 };
 
-const submitButton = (fixture: ComponentFixture<RedenDialogFormComponent>) =>
-  fixture.debugElement.query(By.css('button[type="submit"]'))
-    .nativeElement as HTMLButtonElement;
+const submitButton = () => screen.getByRole("button", { name: "actie.ja" });
 
 // Enters a valid, dirty reden so the submit guard lets the callback run.
 const enterReden = (
@@ -69,12 +68,12 @@ describe(RedenDialogFormComponent.name, () => {
 
   it("disables submit until a valid, dirty reden is entered", () => {
     const { fixture, component } = setup();
-    expect(submitButton(fixture).disabled).toBe(true);
+    expect(submitButton()).toBeDisabled();
 
     enterReden(component);
     fixture.detectChanges();
 
-    expect(submitButton(fixture).disabled).toBe(false);
+    expect(submitButton()).not.toBeDisabled();
   });
 
   it("does not run the callback when submitted while pristine", () => {

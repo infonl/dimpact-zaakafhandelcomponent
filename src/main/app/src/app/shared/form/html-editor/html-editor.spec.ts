@@ -15,9 +15,11 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
-import { Toolbar } from "ngx-editor";
+import { screen } from "@testing-library/angular";
+import { NgxEditorComponent, Toolbar } from "ngx-editor";
 import { CustomValidators } from "../../validators/customValidators";
 import { ZacHtmlEditor } from "./html-editor";
 
@@ -32,6 +34,9 @@ describe(ZacHtmlEditor.name, () => {
   let componentRef: ComponentRef<typeof component>;
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
+
+  const editor = () =>
+    fixture.debugElement.query(By.directive(NgxEditorComponent));
 
   const createTestForm = () => {
     return new FormGroup<TestForm>({
@@ -61,14 +66,11 @@ describe(ZacHtmlEditor.name, () => {
     });
 
     it("should display the editor", () => {
-      const editorElement = fixture.nativeElement.querySelector("ngx-editor");
-      expect(editorElement).toBeTruthy();
+      expect(editor()).not.toBeNull();
     });
 
     it("should display the editor menu", () => {
-      const menuElement =
-        fixture.nativeElement.querySelector("ngx-editor-menu");
-      expect(menuElement).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Bold" })).toBeInTheDocument();
     });
 
     it("should bind to the form control", () => {
@@ -105,8 +107,7 @@ describe(ZacHtmlEditor.name, () => {
       componentRef.setInput("key", "content");
       fixture.detectChanges();
 
-      const editorElement = fixture.nativeElement.querySelector("ngx-editor");
-      expect(editorElement.getAttribute("maxlength")).toBe("100");
+      expect(screen.getByText("0 / 100")).toBeInTheDocument();
     });
 
     it("should display required validation error when field is empty and has required validator", async () => {
@@ -209,8 +210,7 @@ describe(ZacHtmlEditor.name, () => {
       componentRef.setInput("key", "content");
       fixture.detectChanges();
 
-      const editorElement = fixture.nativeElement.querySelector("ngx-editor");
-      expect(editorElement.getAttribute("outputformat")).toBe("html");
+      expect(editor().componentInstance.outputFormat).toBe("html");
     });
   });
 });
