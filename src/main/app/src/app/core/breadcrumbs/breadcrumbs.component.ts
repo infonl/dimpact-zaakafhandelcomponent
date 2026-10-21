@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Location } from "@angular/common";
+import { Location, NgTemplateOutlet } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
@@ -15,6 +15,7 @@ import {
   NavigationState,
   openedFromSearchState,
 } from "../../shared/navigation/navigation-origin";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { Breadcrumb, breadcrumbKind, breadcrumbs } from "./route-title";
 
 @Component({
@@ -22,7 +23,7 @@ import { Breadcrumb, breadcrumbKind, breadcrumbs } from "./route-title";
   templateUrl: "./breadcrumbs.component.html",
   styleUrls: ["./breadcrumbs.component.less"],
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [NgTemplateOutlet, TranslatePipe, ZaakIdentificatieComponent],
 })
 export class BreadcrumbsComponent {
   private readonly router = inject(Router);

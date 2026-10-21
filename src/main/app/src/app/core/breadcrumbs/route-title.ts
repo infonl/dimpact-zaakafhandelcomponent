@@ -6,12 +6,18 @@
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, ResolveFn } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 export function translatedTitle(key: string): ResolveFn<string> {
   return () => inject(TranslateService).get(key);
 }
 
-export type Breadcrumb = { title: string; url: string; key?: string };
+export type Breadcrumb = {
+  title: string;
+  url: string;
+  key?: string;
+  isZaakspecifiekGeautoriseerd?: boolean | null;
+};
 
 export const BREADCRUMB_ORIGIN = { breadcrumbs: "origin" } as const;
 export const BREADCRUMB_DETAIL = { breadcrumbs: "detail" } as const;
@@ -32,6 +38,7 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
   ) {
     // A route without a title of its own inherits the title of its parent.
     if (route.routeConfig?.title !== undefined && route.title) {
+      const zaak = route.data["zaak"] as GeneratedType<"RestZaak"> | undefined;
       crumbs.push({
         title: route.title,
         url:
@@ -39,6 +46,7 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
           route.pathFromRoot
             .flatMap(({ url }) => url.map(({ path }) => path))
             .join("/"),
+        isZaakspecifiekGeautoriseerd: zaak?.isZaakspecifiekGeautoriseerd,
       });
     }
   }

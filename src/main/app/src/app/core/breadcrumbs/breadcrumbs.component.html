@@ -8,15 +8,32 @@
     <ol>
       @for (breadcrumb of breadcrumbs(); track $index) {
         @if ($last) {
-          <li aria-current="page">{{ breadcrumb.title }}</li>
+          <li aria-current="page">
+            <ng-container
+              *ngTemplateOutlet="title; context: { $implicit: breadcrumb }"
+            />
+          </li>
         } @else {
           <li>
-            <a [href]="breadcrumb.url" (click)="navigate($event, breadcrumb)">{{
-              breadcrumb.title
-            }}</a>
+            <a [href]="breadcrumb.url" (click)="navigate($event, breadcrumb)">
+              <ng-container
+                *ngTemplateOutlet="title; context: { $implicit: breadcrumb }"
+              />
+            </a>
           </li>
         }
       }
     </ol>
   </nav>
 }
+
+<ng-template #title let-breadcrumb>
+  @if (breadcrumb.isZaakspecifiekGeautoriseerd) {
+    <zac-zaak-identificatie
+      [identificatie]="breadcrumb.title"
+      [isZaakspecifiekGeautoriseerd]="true"
+    />
+  } @else {
+    {{ breadcrumb.title }}
+  }
+</ng-template>

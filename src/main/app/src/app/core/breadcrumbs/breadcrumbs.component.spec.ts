@@ -7,7 +7,13 @@ import { provideLocationMocks } from "@angular/common/testing";
 import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Title } from "@angular/platform-browser";
-import { provideRouter, Router, TitleStrategy } from "@angular/router";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
+import {
+  ActivatedRouteSnapshot,
+  provideRouter,
+  Router,
+  TitleStrategy,
+} from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -42,6 +48,12 @@ describe(BreadcrumbsComponent.name, () => {
               {
                 path: ":id",
                 title: (route) => route.paramMap.get("id") ?? "",
+                resolve: {
+                  zaak: (route: ActivatedRouteSnapshot) => ({
+                    isZaakspecifiekGeautoriseerd:
+                      route.paramMap.get("id") === "ZAAK-ZAAKSPECIFIEK",
+                  }),
+                },
                 data: BREADCRUMB_DETAIL,
                 component: PageStubComponent,
               },
@@ -92,6 +104,7 @@ describe(BreadcrumbsComponent.name, () => {
         ]),
         { provide: TitleStrategy, useClass: ZacTitleStrategy },
         provideLocationMocks(),
+        provideNoopAnimations(),
       ],
     });
     TestBed.inject(TranslateService).setTranslation("nl", {
@@ -99,6 +112,7 @@ describe(BreadcrumbsComponent.name, () => {
       breadcrumbs: "Kruimelpad",
       "actie.admin": "Beheer-instellingen",
       "title.parameters": "Zaakafhandelparameters",
+      "zaak.is-zaakspecifiek-geautoriseerd": "Zaakspecifiek geautoriseerd",
     });
     TestBed.inject(TranslateService).use("nl");
     for (const url of urls) {
@@ -199,5 +213,34 @@ describe(BreadcrumbsComponent.name, () => {
     await userEvent.setup().click(screen.getByRole("link", { name: "ZAAK-1" }));
 
     expect(crumbs()).toEqual(["Zaken", "Mijn zaken", "ZAAK-1"]);
+  });
+
+  it("shows a lock that screen readers announce as zaakspecifiek geautoriseerd beside the zaaknummer of a zaakspecifiek geautoriseerde zaak", async () => {
+    await navigateTo("/zaken/mijn", "/zaken/ZAAK-ZAAKSPECIFIEK");
+
+    expect(
+      screen.getByText("ZAAK-ZAAKSPECIFIEK").closest("li"),
+    ).toContainElement(
+      screen.getByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    );
+  });
+
+  it("keeps the lock on the zaak crumb when a taak is opened from a zaakspecifiek geautoriseerde zaak", async () => {
+    await navigateTo("/zaken/mijn", "/zaken/ZAAK-ZAAKSPECIFIEK", "/taken/1");
+
+    const zaakLink = screen.getByRole("link", { name: /ZAAK-ZAAKSPECIFIEK/ });
+    expect(zaakLink).toHaveAttribute("href", "/zaken/ZAAK-ZAAKSPECIFIEK");
+    expect(zaakLink).toContainElement(
+      screen.getByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    );
+  });
+
+  it("shows no lock beside the zaaknummer of a zaak that is not zaakspecifiek geautoriseerd", async () => {
+    await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
+
+    expect(screen.getByText("ZAAK-1")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    ).not.toBeInTheDocument();
   });
 });
