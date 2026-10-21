@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.354](https://img.shields.io/badge/Version-1.0.354-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
+![Version: 1.0.355](https://img.shields.io/badge/Version-1.0.355-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -369,6 +369,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
 | solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:99813cb178ace2cd9c6c53ee3bddef5d2f5708aa438335111d7a9e3c5e1aaebe"` | solr busybox image tag |
+| solr-operator.solr.containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}}` | securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only. Capabilities and privilege escalation can only be set per container, so the init containers keep the defaults for those. |
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
@@ -381,9 +382,10 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.livenessProbe | object | `{"exec":{"command":["sh","-c","set -- /etc/secrets/*-solrcloud-basic-auth; [ \"$#\" -eq 1 ] && [ -r \"$1/password\" ] || { echo \"expected one *-solrcloud-basic-auth secret in /etc/secrets\" >&2; exit 1; }; scheme=http; [ \"${SOLR_SSL_ENABLED:-false}\" = true ] && scheme=https; printf 'user = \"%s:%s\"\\n' \"$(sed 's/[\\\\\"]/\\\\&/g' \"$1/username\")\" \"$(sed 's/[\\\\\"]/\\\\&/g' \"$1/password\")\" | curl -sfk -o /dev/null --max-time 4 -K - \"$scheme://localhost:${SOLR_PORT:-8983}/solr/admin/info/health\""]},"failureThreshold":6,"periodSeconds":20,"timeoutSeconds":5}` | livenessProbe override for solr in solrcloud: restarts a node whose /solr/admin/info/health fails (500 while the CoreContainer is shut down, 503 without ZooKeeper). failureThreshold 6 x 20s = 120s rides out a ZooKeeper restart. An exec probe with `curl -f`, not httpGet: with basic auth (probesRequireAuth) the Solr Operator turns an httpGet probe into `solr api -get ... | grep -v JAVA_TOOL_OPTIONS`, which passes whenever anything is printed, errors included. The credentials come from the one basic-auth secret the operator mounts under /etc/secrets and go to curl on stdin (`-K -`), not in its argv. Port and scheme follow the operator's SOLR_PORT and SOLR_SSL_ENABLED env. |
 | solr-operator.solr.logLevel | string | `"INFO"` |  |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
+| solr-operator.solr.podSecurityContext | object | `{"fsGroup":8983,"fsGroupChangePolicy":"OnRootMismatch","runAsGroup":8983,"runAsNonRoot":true,"runAsUser":8983,"seccompProfile":{"type":"RuntimeDefault"}}` | pod securityContext for solr in solrcloud. The Solr Operator sets no securityContext on its own init containers (cp-solr-xml, setup-zk), so they inherit this one: without it the busybox cp-solr-xml container runs as root. 8983 is the solr image's own user, which owns the existing Solr data. |
 | solr-operator.solr.readinessProbe | object | `{"exec":{"command":["sh","-c","set -- /etc/secrets/*-solrcloud-basic-auth; [ \"$#\" -eq 1 ] && [ -r \"$1/password\" ] || { echo \"expected one *-solrcloud-basic-auth secret in /etc/secrets\" >&2; exit 1; }; scheme=http; [ \"${SOLR_SSL_ENABLED:-false}\" = true ] && scheme=https; printf 'user = \"%s:%s\"\\n' \"$(sed 's/[\\\\\"]/\\\\&/g' \"$1/username\")\" \"$(sed 's/[\\\\\"]/\\\\&/g' \"$1/password\")\" | curl -sfk -o /dev/null --max-time 4 -K - \"$scheme://localhost:${SOLR_PORT:-8983}/solr/admin/info/health\""]},"failureThreshold":6,"periodSeconds":10,"timeoutSeconds":5}` | readinessProbe override for solr in solrcloud: takes a node whose /solr/admin/info/health fails out of the Service. failureThreshold 6 x 10s = 60s rides out a short ZooKeeper restart, so the nodes don't all leave the Service at once. The same exec probe as the livenessProbe, for the same reason: the Solr Operator's own readiness probe has the never-failing `| grep -v` pipeline when probesRequireAuth is set. |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
-| solr-operator.solr.resources | object | `{}` |  |
+| solr-operator.solr.resources | object | `{}` | resource limits and requests for solr in solrcloud |
 | solr-operator.solr.startupProbe | object | `{}` |  |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
