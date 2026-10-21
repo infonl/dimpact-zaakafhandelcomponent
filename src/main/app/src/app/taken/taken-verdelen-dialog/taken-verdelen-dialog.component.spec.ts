@@ -25,7 +25,6 @@ import {
   mutationOptions,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
@@ -79,9 +78,10 @@ async function setup(
   }).compileComponents();
 
   const identityService = TestBed.inject(IdentityService);
-  jest
-    .spyOn(identityService, "listUsersInGroup")
-    .mockReturnValue(of([mockUser]));
+  testQueryClient.setQueryData(
+    identityService.listUsersInGroup(mockGroup.id).queryKey,
+    [mockUser],
+  );
   jest
     .spyOn(identityService, "listBehandelaarGroupsForZaaktypesQuery")
     .mockReturnValue(

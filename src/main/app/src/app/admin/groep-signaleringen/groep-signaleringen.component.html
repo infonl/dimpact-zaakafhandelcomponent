@@ -25,7 +25,7 @@
             placeholder="{{ 'groep.kies' | translate }}"
             (selectionChange)="laadSignaleringSettings($event.value)"
           >
-            @for (groep of groepen | async; track groep) {
+            @for (groep of groepenQuery.data() ?? []; track groep.id) {
               <mat-option [value]="groep">{{ groep.naam }}</mat-option>
             }
           </mat-select>

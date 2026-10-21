@@ -74,17 +74,26 @@ describe(ZaakCreateComponent.name, () => {
     }).compileComponents();
 
     identityService = TestBed.inject(IdentityService);
-    jest
-      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-      .mockReturnValue(
-        of([
+    const queryClient = TestBed.inject(QueryClient);
+    for (const zaaktypeDescription of [
+      "test-cmmn-description-1",
+      "test-bpmn-description-1",
+    ]) {
+      queryClient.setQueryData(
+        identityService.listBehandelaarGroupsForZaaktype(zaaktypeDescription)
+          .queryKey,
+        [
           { id: "test-cmmn-group-id", naam: "test group CMMN" },
           { id: "test-bpmn-group-id", naam: "test group BPMN" },
-        ]),
+        ],
       );
-    jest
-      .spyOn(identityService, "listUsersInGroup")
-      .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
+    }
+    for (const groupId of ["test-cmmn-group-id", "test-bpmn-group-id"]) {
+      queryClient.setQueryData(
+        identityService.listUsersInGroup(groupId).queryKey,
+        [{ id: "test-user-id", naam: "test user" }],
+      );
+    }
 
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "listZaaktypesForCreation").mockReturnValue(
@@ -233,9 +242,6 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test-cmmn-description-1");
-        expect(
-          identityService.listBehandelaarGroupsForZaaktype,
-        ).toHaveBeenCalledWith("test-cmmn-description-1");
 
         // --- Groep ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({
@@ -248,7 +254,6 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test group CMMN");
-        expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
         // --- Behandelaar ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({
@@ -278,9 +283,6 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test-bpmn-description-1");
-        expect(
-          identityService.listBehandelaarGroupsForZaaktype,
-        ).toHaveBeenCalledWith("test-bpmn-description-1");
 
         // --- Groep ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({
@@ -293,7 +295,6 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test group BPMN");
-        expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
         // --- Behandelaar should be enabled ---
         expect(await inputs[5].isDisabled()).toBe(false);

@@ -27,6 +27,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { map, Observable, of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
@@ -40,6 +41,7 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
 
@@ -79,6 +81,7 @@ export class CaseDetailsEditComponent implements OnInit {
   private readonly identityService = inject(IdentityService);
   private readonly translateService = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly queryClient = inject(QueryClient);
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly loggedInUser = input.required<GeneratedType<"RestLoggedInUser">>();
@@ -177,17 +180,20 @@ export class CaseDetailsEditComponent implements OnInit {
       zaak.rechten.canWijzigen && zaak.rechten.canWijzigenDoorlooptijd,
     );
 
-    this.groups = this.identityService
-      .listBehandelaarGroupsForZaaktype(zaak.zaaktype.omschrijving!)
-      .pipe(
-        map((groups) => {
-          const currentGroup = zaak.groep;
-          if (currentGroup && !groups.find((g) => g.id === currentGroup.id)) {
-            return [currentGroup, ...groups];
-          }
-          return groups;
-        }),
-      );
+    this.groups = runQuery(
+      this.queryClient,
+      this.identityService.listBehandelaarGroupsForZaaktype(
+        zaak.zaaktype.omschrijving!,
+      ),
+    ).pipe(
+      map((groups) => {
+        const currentGroup = zaak.groep;
+        if (currentGroup && !groups.find((g) => g.id === currentGroup.id)) {
+          return [currentGroup, ...groups];
+        }
+        return groups;
+      }),
+    );
 
     if (!zaak.rechten.canWijzigen) {
       this.form.controls.communicatiekanaal.disable();
@@ -267,7 +273,10 @@ export class CaseDetailsEditComponent implements OnInit {
           this.form.controls.behandelaar.enable();
         }
 
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+        runQuery(
+          this.queryClient,
+          this.identityService.listUsersInGroup(group.id),
+        ).subscribe((users) => {
           const currentBehandelaar = zaak.behandelaar;
           const options =
             currentBehandelaar &&

@@ -23,7 +23,6 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
@@ -65,7 +64,10 @@ const setup = async (
   });
   const identityService = TestBed.inject(IdentityService);
   const httpTestingController = TestBed.inject(HttpTestingController);
-  jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
+  testQueryClient.setQueryData(
+    identityService.listUsersInGroup(mockGroups[0].id).queryKey,
+    [],
+  );
   const fixture: ComponentFixture<ZakenVerdelenDialogComponent> =
     TestBed.createComponent(ZakenVerdelenDialogComponent);
   fixture.detectChanges();
