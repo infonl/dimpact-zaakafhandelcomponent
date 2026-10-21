@@ -17,7 +17,7 @@ import { TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { fromPartial } from "../../../test-helpers";
@@ -41,12 +41,9 @@ async function setup(zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = []) {
   });
 
   await TestBed.configureTestingModule({
-    imports: [
-      ZoekopdrachtSaveDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ZoekopdrachtSaveDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideZonelessChangeDetection(),
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),

@@ -18,7 +18,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe, provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../setupJest";
@@ -67,12 +67,9 @@ describe(KlantZoekComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        KlantZoekComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [KlantZoekComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
@@ -84,7 +81,7 @@ describe(KlantZoekComponent.name, () => {
             NgIf,
             MatTabsModule,
             MatIconModule,
-            TranslateModule,
+            TranslatePipe,
             PersoonZoekStubComponent,
             BedrijfZoekStubComponent,
           ],

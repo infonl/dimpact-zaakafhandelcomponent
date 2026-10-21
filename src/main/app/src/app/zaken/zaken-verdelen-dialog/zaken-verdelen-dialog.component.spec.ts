@@ -19,7 +19,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -49,12 +49,9 @@ const setup = async (
   const dialogRefMock = { close: jest.fn(), disableClose: false };
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    imports: [
-      ZakenVerdelenDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ZakenVerdelenDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideZoneChangeDetection(),
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),

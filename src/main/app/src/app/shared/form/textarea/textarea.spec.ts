@@ -22,7 +22,7 @@ import {
 import { MatInputModule } from "@angular/material/input";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { ZacTextarea } from "./textarea";
 
@@ -58,11 +58,11 @@ describe(ZacTextarea.name, () => {
         HostComponent,
         ReactiveFormsModule,
         NoopAnimationsModule,
-        TranslateModule.forRoot(),
         MatFormFieldModule,
         MatInputModule,
         CapitalizeFirstLetterPipe,
       ],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HostComponent);

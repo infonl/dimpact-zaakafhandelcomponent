@@ -16,7 +16,7 @@ import {
 } from "@angular/forms";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { Toolbar } from "ngx-editor";
 import { CustomValidators } from "../../validators/customValidators";
 import { ZacHtmlEditor } from "./html-editor";
@@ -43,7 +43,8 @@ describe(ZacHtmlEditor.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZacHtmlEditor, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [ZacHtmlEditor, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZacHtmlEditor<TestForm, keyof TestForm>);

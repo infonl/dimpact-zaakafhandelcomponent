@@ -4,7 +4,7 @@
  */
 
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { testQueryClient } from "../../../setupJest";
 import { fromPartial } from "../../test-helpers";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -15,7 +15,7 @@ describe(MailtemplateService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
+      providers: [provideTranslateService()],
     });
     service = TestBed.inject(MailtemplateService);
   });

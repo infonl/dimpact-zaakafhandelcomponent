@@ -8,7 +8,7 @@ import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -30,12 +30,9 @@ const makeZaak = (fields: Partial<GeneratedType<"RestZaak">> = {}) =>
 
 const setup = (zaak = makeZaak()) => {
   TestBed.configureTestingModule({
-    imports: [
-      ZaakVerkortComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ZaakVerkortComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideHttpClient(),
       provideRouter([]),
       { provide: LOCALE_ID, useValue: "nl" },

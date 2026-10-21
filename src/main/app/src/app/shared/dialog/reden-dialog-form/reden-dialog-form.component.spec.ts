@@ -7,7 +7,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of, throwError } from "rxjs";
 import { ZacInput } from "../../form/input/input";
 import { ZacTextarea } from "../../form/textarea/textarea";
@@ -25,12 +25,9 @@ const setup = (data: Partial<RedenDialogData> = {}) => {
   };
 
   TestBed.configureTestingModule({
-    imports: [
-      RedenDialogFormComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [RedenDialogFormComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       { provide: MAT_DIALOG_DATA, useValue: dialogData },
       { provide: MatDialogRef, useValue: dialogRefMock },
     ],

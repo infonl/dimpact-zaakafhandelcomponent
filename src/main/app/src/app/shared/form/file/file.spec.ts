@@ -19,7 +19,7 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { waitFor } from "@testing-library/angular";
 import { of } from "rxjs";
@@ -77,8 +77,9 @@ describe(ZacFile.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZacFile, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [ZacFile, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         TranslateService,
         provideHttpClient(),
         provideTanStackQuery(testQueryClient),

@@ -20,7 +20,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   mutationOptions,
   provideTanStackQuery,
@@ -65,12 +65,9 @@ async function setup(
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
-    imports: [
-      TakenVerdelenDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [TakenVerdelenDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideZoneChangeDetection(),
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),

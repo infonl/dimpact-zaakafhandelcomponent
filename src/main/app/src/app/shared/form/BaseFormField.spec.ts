@@ -6,7 +6,7 @@
 import { Type } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { MutationObserver } from "@tanstack/angular-query-experimental";
 import { render, waitFor } from "@testing-library/angular";
 import { testQueryClient } from "../../../../setupJest";
@@ -31,7 +31,8 @@ describe.each(formFields)("%s", (_, component, extraInputs) => {
     });
 
     const { fixture } = await render(component, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService()],
       inputs: { form, key: "naam", label: "fakeLabel", ...extraInputs },
     });
 

@@ -7,7 +7,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -33,12 +33,9 @@ const setup = (data: Partial<ZaakAfbrekenDialogData> = {}) => {
   };
 
   TestBed.configureTestingModule({
-    imports: [
-      ZaakAfbrekenDialogFormComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ZaakAfbrekenDialogFormComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       { provide: MAT_DIALOG_DATA, useValue: dialogData },
       { provide: MatDialogRef, useValue: dialogRefMock },
     ],

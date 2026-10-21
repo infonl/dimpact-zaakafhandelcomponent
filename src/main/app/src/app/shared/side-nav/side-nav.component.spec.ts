@@ -11,7 +11,7 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
@@ -35,10 +35,10 @@ describe(SideNavComponent.name, () => {
     await TestBed.configureTestingModule({
       imports: [
         SideNavComponent,
-        TranslateModule.forRoot(),
         NoopAnimationsModule,
         RouterModule.forRoot([]),
       ],
+      providers: [provideTranslateService()],
     })
       .overrideProvider(UtilService, { useValue: utilServiceMock })
       .compileComponents();

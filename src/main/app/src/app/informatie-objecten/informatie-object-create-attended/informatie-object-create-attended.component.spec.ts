@@ -16,7 +16,7 @@ import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   provideTanStackQuery,
@@ -111,8 +111,9 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       InformatieObjectCreateAttendedComponent,
       {
         inputs: { zaak, sideNav, ...inputs },
-        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        imports: [NoopAnimationsModule],
         providers: [
+          provideTranslateService(),
           provideRouter([]),
           provideHttpClient(withInterceptorsFromDi()),
           provideHttpClientTesting(),
@@ -185,8 +186,9 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       InformatieObjectCreateAttendedComponent,
       {
         inputs: { zaak, sideNav },
-        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        imports: [NoopAnimationsModule],
         providers: [
+          provideTranslateService(),
           provideRouter([]),
           provideHttpClient(withInterceptorsFromDi()),
           provideHttpClientTesting(),

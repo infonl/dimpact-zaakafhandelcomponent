@@ -4,7 +4,7 @@
  */
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
@@ -48,9 +48,10 @@ describe(ParametersStepMailComponent.name, () => {
     settingsNotInUse.forEach((setting) => form.controls[setting].disable());
 
     await render(ParametersStepMailComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       inputs: { form },
       providers: [
+        provideTranslateService(),
         {
           provide: MailtemplateBeheerService,
           useValue: fromPartial<MailtemplateBeheerService>({

@@ -6,7 +6,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { ZaakProcessFlowComponent } from "./zaak-process-flow.component";
 
 const ZAAK = {
@@ -44,11 +44,8 @@ describe(ZaakProcessFlowComponent.name, () => {
     closeMock = jest.fn();
 
     await TestBed.configureTestingModule({
-      imports: [
-        ZaakProcessFlowComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [ZaakProcessFlowComponent, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakProcessFlowComponent);

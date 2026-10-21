@@ -10,7 +10,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   queryOptions,
@@ -54,11 +54,11 @@ describe(PersoonsgegevensComponent.name, () => {
     await TestBed.configureTestingModule({
       imports: [
         PersoonsgegevensComponent,
-        TranslateModule.forRoot(),
         NoopAnimationsModule,
         RouterModule.forRoot([]),
       ],
       providers: [
+        provideTranslateService(),
         { provide: KlantenService, useValue: klantenServiceMock },
         provideQueryClient(testQueryClient),
         provideHttpClient(),

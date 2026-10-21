@@ -12,7 +12,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -28,12 +28,9 @@ describe(ZakenMijnComponent.name, () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [
-        ZakenMijnComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [ZakenMijnComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         {
           provide: ActivatedRoute,
           useValue: {

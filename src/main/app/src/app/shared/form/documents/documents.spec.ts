@@ -13,7 +13,7 @@ import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { fromPartial } from "src/test-helpers";
@@ -54,8 +54,12 @@ describe(ZacDocuments.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZacDocuments, NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideRouter([])],
+      imports: [ZacDocuments, NoopAnimationsModule],
+      providers: [
+        provideTranslateService(),
+        provideHttpClient(),
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);

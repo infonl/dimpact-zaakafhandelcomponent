@@ -12,7 +12,7 @@ import { MatSortHeaderHarness } from "@angular/material/sort/testing";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -55,12 +55,9 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZaakWaarschuwingenCardComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ZaakWaarschuwingenCardComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),

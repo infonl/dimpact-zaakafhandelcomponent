@@ -8,7 +8,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../../setupJest";
@@ -27,9 +27,9 @@ describe(KlantZoekDialog.name, () => {
         KlantZoekComponent,
         NoopAnimationsModule,
         MatDialogModule,
-        TranslateModule.forRoot(),
       ],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideRouter([]),
         provideQueryClient(testQueryClient),

@@ -19,7 +19,7 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import { ZacInput } from "./input";
 
@@ -48,13 +48,8 @@ describe(ZacInput.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZacInput,
-        ReactiveFormsModule,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
-      providers: [TranslateService],
+      imports: [ZacInput, ReactiveFormsModule, NoopAnimationsModule],
+      providers: [provideTranslateService(), TranslateService],
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
@@ -402,12 +397,8 @@ describe(`${ZacInput.name} content projection into the suffix slot`, () => {
     await render(
       `<zac-input [form]="form" key="name"><button type="button">Zoeken</button></zac-input>`,
       {
-        imports: [
-          ZacInput,
-          ReactiveFormsModule,
-          TranslateModule.forRoot(),
-          NoopAnimationsModule,
-        ],
+        imports: [ZacInput, ReactiveFormsModule, NoopAnimationsModule],
+        providers: [provideTranslateService()],
         componentProperties: {
           form: new FormGroup({
             name: new FormControl<string | null>(null, { nonNullable: true }),

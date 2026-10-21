@@ -12,7 +12,7 @@ import { inject } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   QueryClient,
@@ -29,12 +29,9 @@ const SERVER_ERROR_TEXTS_URL = "/rest/referentietabellen/server-error-text";
 describe(FoutAfhandelingComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        FoutAfhandelingComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [FoutAfhandelingComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

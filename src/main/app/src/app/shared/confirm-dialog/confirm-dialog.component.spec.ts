@@ -6,7 +6,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import {
   ConfirmDialogComponent,
@@ -20,12 +20,9 @@ function setup(data: ConfirmDialogData) {
   > = { close: jest.fn(), disableClose: false };
 
   TestBed.configureTestingModule({
-    imports: [
-      ConfirmDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ConfirmDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       { provide: MatDialogRef, useValue: mockDialogRef },
       { provide: MAT_DIALOG_DATA, useValue: data },
     ],

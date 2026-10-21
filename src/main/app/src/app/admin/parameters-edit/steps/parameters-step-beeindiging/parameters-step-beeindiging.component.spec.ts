@@ -4,7 +4,7 @@
  */
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
@@ -53,9 +53,10 @@ describe("Beeindiging step", () => {
     const form = createZaakbeeindigingForm(configuration);
 
     await render(ParametersStepBeeindigingComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       inputs: { form, zaaktypeUuid: "zaaktype-uuid" },
       providers: [
+        provideTranslateService(),
         {
           provide: ZaakafhandelParametersService,
           useValue: fromPartial<ZaakafhandelParametersService>({

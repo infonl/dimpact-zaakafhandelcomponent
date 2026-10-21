@@ -7,7 +7,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -37,12 +37,11 @@ describe(TaakZoekObjectComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        TaakZoekObjectComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
+      imports: [TaakZoekObjectComponent, NoopAnimationsModule],
+      providers: [
+        provideTranslateService(),
+        provideRouter([{ path: "**", children: [] }]),
       ],
-      providers: [provideRouter([{ path: "**", children: [] }])],
     }).compileComponents();
 
     sideNav = fromPartial<MatSidenav>({ close: jest.fn() });

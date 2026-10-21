@@ -8,7 +8,7 @@ import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, RenderResult, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
@@ -101,8 +101,8 @@ describe(ZaakDocumentenComponent.name, () => {
     rendered = await render(ZaakDocumentenComponent, {
       inputs: { zaak },
       on: { documentMoveToCase },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [provideZonelessChangeDetection()],
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService(), provideZonelessChangeDetection()],
     });
 
     fixture = rendered.fixture;

@@ -23,7 +23,7 @@ import { MatSortHarness } from "@angular/material/sort/testing";
 import { MatTableModule } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -138,7 +138,7 @@ const zaaktypeZonderEigenschap = fromPartial<
     MatSortModule,
     MatFormFieldModule,
     MatInputModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     SideNavComponent,
     ToggleFilterComponent,
@@ -173,12 +173,9 @@ describe(InrichtingscheckComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        TestInrichtingscheckComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [TestInrichtingscheckComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),

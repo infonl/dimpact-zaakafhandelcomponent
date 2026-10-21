@@ -7,7 +7,7 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { sleep } from "../../../../setupJest";
@@ -30,8 +30,9 @@ describe(ZaakOntkoppelenDialogComponent.name, () => {
     dialogRef = { close: jest.fn(), disableClose: false };
 
     ({ fixture } = await render(ZaakOntkoppelenDialogComponent, {
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         { provide: MAT_DIALOG_DATA, useValue: dialogData },
         { provide: MatDialogRef, useValue: dialogRef },
       ],

@@ -11,7 +11,7 @@ import {
 import { provideLocationMocks } from "@angular/common/testing";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial, runMutationOnSuccess } from "src/test-helpers";
@@ -29,8 +29,8 @@ describe(TakenService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         provideHttpClient(withInterceptorsFromDi()),
         provideQueryClient(testQueryClient),
         provideLocationMocks(),

@@ -4,7 +4,7 @@
  */
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
@@ -75,9 +75,10 @@ describe(ParametersStepHumantasksComponent.name, () => {
     const form = createHumanTasksForm(humanTaskParameters);
 
     await render(ParametersStepHumantasksComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       inputs: { form, zaaktypeOmschrijving: "fakeOmschrijving" },
       providers: [
+        provideTranslateService(),
         {
           provide: ZaakafhandelParametersService,
           useValue: fromPartial<ZaakafhandelParametersService>({

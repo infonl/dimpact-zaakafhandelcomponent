@@ -22,7 +22,7 @@ import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { within } from "@testing-library/angular";
 import { randomUUID } from "crypto";
@@ -112,10 +112,10 @@ describe(TaakViewComponent.name, () => {
         TaakViewComponent,
         MatSidenav,
         RouterModule.forRoot([]),
-        TranslateModule.forRoot(),
         NoopAnimationsModule,
       ],
       providers: [
+        provideTranslateService(),
         WebsocketService,
         TakenService,
         ZakenService,

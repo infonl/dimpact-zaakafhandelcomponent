@@ -5,7 +5,7 @@
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Data } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { BehaviorSubject } from "rxjs";
 import { ErrorCardComponent } from "./error-card.component";
@@ -18,8 +18,11 @@ describe(ErrorCardComponent.name, () => {
     routeData = new BehaviorSubject<Data>({});
 
     await TestBed.configureTestingModule({
-      imports: [ErrorCardComponent, TranslateModule.forRoot()],
-      providers: [{ provide: ActivatedRoute, useValue: { data: routeData } }],
+      imports: [ErrorCardComponent],
+      providers: [
+        provideTranslateService(),
+        { provide: ActivatedRoute, useValue: { data: routeData } },
+      ],
     }).compileComponents();
   });
 

@@ -7,7 +7,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { GenericDialogComponent } from "./generic-dialog.component";
 
 @Component({
@@ -35,7 +35,8 @@ class HostComponent {
 
 const setup = () => {
   TestBed.configureTestingModule({
-    imports: [HostComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+    imports: [HostComponent, NoopAnimationsModule],
+    providers: [provideTranslateService()],
   });
   const fixture: ComponentFixture<HostComponent> =
     TestBed.createComponent(HostComponent);

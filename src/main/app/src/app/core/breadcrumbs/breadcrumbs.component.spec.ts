@@ -15,7 +15,7 @@ import {
   Router,
   TitleStrategy,
 } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -51,8 +51,8 @@ describe(BreadcrumbsComponent.name, () => {
 
   async function navigateTo(...urls: string[]) {
     const { fixture } = await render(BreadcrumbsComponent, {
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         provideRouter([
           { path: "untitled", component: PageStubComponent },
           {

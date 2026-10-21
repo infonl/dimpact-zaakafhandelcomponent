@@ -10,7 +10,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   queryOptions,
@@ -122,12 +122,12 @@ describe(ZaakViewComponent.name, () => {
         SideNavComponent,
         StaticTextComponent,
         ZaakProcessFlowComponent,
-        TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         PlanItemsService,
         {

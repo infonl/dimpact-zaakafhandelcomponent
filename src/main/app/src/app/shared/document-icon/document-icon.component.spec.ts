@@ -4,7 +4,7 @@
  */
 
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import { DocumentIconComponent } from "./document-icon.component";
 
@@ -12,7 +12,7 @@ describe(DocumentIconComponent.name, () => {
   const setup = async (bestandsnaam?: string) => {
     const { fixture } = await render(DocumentIconComponent, {
       inputs: { bestandsnaam },
-      imports: [TranslateModule.forRoot()],
+      providers: [provideTranslateService()],
     });
 
     const translateService = TestBed.inject(TranslateService);

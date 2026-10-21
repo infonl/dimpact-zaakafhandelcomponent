@@ -16,7 +16,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fireEvent, render, screen, within } from "@testing-library/angular";
 import userEvent, { UserEvent } from "@testing-library/user-event";
@@ -72,8 +72,9 @@ describe(InformatieObjectVerzendenComponent.name, () => {
     } = await render(InformatieObjectVerzendenComponent, {
       inputs: { zaak, sideNav },
       on: { documentSent },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideZonelessChangeDetection(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),

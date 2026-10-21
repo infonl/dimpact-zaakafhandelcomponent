@@ -15,7 +15,7 @@ import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of, ReplaySubject } from "rxjs";
@@ -92,12 +92,9 @@ describe(InformatieObjectViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        InformatieObjectViewComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [InformatieObjectViewComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,

@@ -7,7 +7,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Provider } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { MatPaginatorIntl } from "@angular/material/paginator";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { waitFor } from "@testing-library/angular";
 import { appConfig } from "./app.config";
@@ -21,8 +21,7 @@ describe("appConfig", () => {
         provider.provide === MatPaginatorIntl,
     );
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [paginatorProvider!],
+      providers: [provideTranslateService(), paginatorProvider!],
     });
 
     const paginatorIntl = TestBed.inject(MatPaginatorIntl);

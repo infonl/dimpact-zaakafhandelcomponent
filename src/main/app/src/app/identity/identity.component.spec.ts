@@ -10,7 +10,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatCardHarness } from "@angular/material/card/testing";
 import { MatListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -38,12 +38,9 @@ describe(IdentityComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        IdentityComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [IdentityComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         IdentityService,
         provideHttpClient(),
         provideQueryClient(testQueryClient),
