@@ -43,7 +43,7 @@ class ScreenEventObserverTest : BehaviorSpec({
             `when`("the event is fired") {
                 screenEventObserver.onFire(screenEvent)
 
-                then("the event is sent to the session as JSON, without its delay") {
+                then("the event is sent to the session as JSON") {
                     verify(exactly = 1) { asyncRemoteEndpoint.sendText(any()) }
                     objectMapper.readTree(jsonSlot.captured) shouldBe objectMapper.readTree(
                         """
