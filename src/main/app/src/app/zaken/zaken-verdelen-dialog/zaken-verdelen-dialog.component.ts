@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -18,12 +25,11 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -56,7 +62,6 @@ export class ZakenVerdelenDialogComponent {
   private readonly zakenService = inject(ZakenService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
-  private readonly queryClient = inject(QueryClient);
 
   protected readonly data = inject<ZaakZoekObject[]>(MAT_DIALOG_DATA);
 
@@ -93,16 +98,34 @@ export class ZakenVerdelenDialogComponent {
     return groupsQuery !== undefined && groupsQuery.length === 0;
   });
 
-  protected users: GeneratedType<"RestUser">[] = [];
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
+  protected readonly users = computed(() => this.usersQuery.data() ?? []);
 
   constructor() {
+    effect(() => {
+      const usersLoaded =
+        !!this.selectedGroupId() && this.usersQuery.isSuccess();
+      untracked(() => {
+        if (usersLoaded) {
+          this.form.controls.medewerker.enable();
+        } else {
+          this.form.controls.medewerker.disable();
+        }
+      });
+    });
+
     this.groupsQuery.mutate({
       zaaktypeDescriptions: this.data.map(
         ({ zaaktypeOmschrijving }) => zaaktypeOmschrijving,
       ),
     });
 
-    this.form.controls.medewerker.disable();
     if (this.isBehandelaarRequired) {
       this.form.controls.medewerker.addValidators(Validators.required);
     }
@@ -111,17 +134,8 @@ export class ZakenVerdelenDialogComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
-        this.form.controls.medewerker.disable();
         // While the user types, the autocomplete reports the typed text instead of a group.
-        if (!group?.id) return;
-
-        runQuery(
-          this.queryClient,
-          this.identityService.listUsersInGroup(group.id),
-        ).subscribe((users) => {
-          this.form.controls.medewerker.enable();
-          this.users = users;
-        });
+        this.selectedGroupId.set(group?.id);
       });
   }
 

@@ -6,6 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -24,6 +25,7 @@ import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -62,6 +64,7 @@ describe(ZaakCreateComponent.name, () => {
         UtilService,
         IdentityService,
         provideQueryClient(new QueryClient()),
+        provideZonelessChangeDetection(),
       ],
       imports: [
         ZaakCreateComponent,
@@ -268,6 +271,64 @@ describe(ZaakCreateComponent.name, () => {
         expect(await input.getValue()).toBe("test user");
       });
 
+      it("should pre-select the default groep and behandelaar of the zaaktype", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const { autocompleteOptions } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          query: "cmmn",
+        });
+
+        await autocompleteOptions[0].click();
+
+        expect(await inputs[4].getValue()).toBe("test group CMMN");
+        expect(await inputs[5].getValue()).toBe("test user");
+      });
+
+      it("should keep the groep and behandelaar that the user picked when they are read again", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const { autocompleteOptions } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          query: "cmmn",
+        });
+        await autocompleteOptions[0].click();
+        const form = fixture.componentInstance["form"];
+        form.controls.groep.setValue({
+          id: "test-bpmn-group-id",
+          naam: "test group BPMN",
+        });
+        await sleep();
+        await fixture.whenStable();
+        form.controls.behandelaar.setValue(null);
+
+        const queryClient = TestBed.inject(QueryClient);
+        queryClient.setQueryData(
+          identityService.listBehandelaarGroupsForZaaktype(
+            "test-cmmn-description-1",
+          ).queryKey,
+          [
+            { id: "test-cmmn-group-id", naam: "test group CMMN" },
+            { id: "test-bpmn-group-id", naam: "test group BPMN" },
+            { id: "test-new-group-id", naam: "test new group" },
+          ],
+        );
+        queryClient.setQueryData(
+          identityService.listUsersInGroup("test-bpmn-group-id").queryKey,
+          [
+            { id: "test-user-id", naam: "test user" },
+            { id: "test-new-user-id", naam: "test new user" },
+          ],
+        );
+        await sleep();
+        await fixture.whenStable();
+
+        expect(form.controls.groep.value?.id).toBe("test-bpmn-group-id");
+        expect(form.controls.behandelaar.value).toBeNull();
+      });
+
       it("should handle BPMN case type selection", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
         expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
@@ -358,6 +419,7 @@ describe(ZaakCreateComponent.name, () => {
         // --- Submit ---
         expect(await submitButton.isDisabled()).toBe(false);
         await submitButton.click();
+        await sleep();
 
         expect(zakenService.createZaak).toHaveBeenCalled();
         expect(navigateSpy).toHaveBeenCalledWith([

@@ -111,7 +111,7 @@
           key="groep"
           class="col-12 col-md-6"
           [form]="form"
-          [options]="groups"
+          [options]="groups()"
           [optionDisplayValue]="'naam'"
         >
           <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
@@ -121,7 +121,7 @@
           key="behandelaar"
           optionDisplayValue="naam"
           [form]="form"
-          [options]="users"
+          [options]="users()"
         >
           <mat-label>{{
             "actie.zaak.toekennen.medewerker" | translate
