@@ -41,8 +41,8 @@ composed payloads (see design.md, D1).
 - The screen shows the humantask, user event listener, and intake/afronden mail settings when the chosen process
   definition has those plan items, so not for a BPMN zaaktype. The confirmation email stays CMMN only.
 - A beheerder chooses the process definition from one list, with the definitions of both engines, in place of an
-  engine choice followed by a definition. A saved configuration offers only the definitions of its engine, and the
-  backend keeps rejecting a change of engine.
+  engine choice followed by a definition. The screen locks the process definition of a saved configuration, as on
+  `main`, and the backend keeps rejecting a change of engine.
 - The admin service uses TanStack `queryOptions()` and `mutationOptions()` for every endpoint that the step
   components call.
 

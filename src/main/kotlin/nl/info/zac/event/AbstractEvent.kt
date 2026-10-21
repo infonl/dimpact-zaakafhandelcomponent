@@ -4,19 +4,11 @@
  */
 package nl.info.zac.event
 
-import jakarta.json.bind.annotation.JsonbTransient
 import java.io.Serializable
 import java.time.Instant
-import java.util.concurrent.TimeUnit
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @Suppress("SerialVersionUIDInSerializableClass")
 abstract class AbstractEvent<TYPE, ID : Any> : Serializable {
-    companion object {
-        private val LOG = Logger.getLogger(AbstractEvent::class.java.name)
-    }
-
     var timestamp: Long = 0
         private set
 
@@ -25,9 +17,6 @@ abstract class AbstractEvent<TYPE, ID : Any> : Serializable {
 
     lateinit var objectId: ID
         private set
-
-    @JsonbTransient
-    private var delay: Int = 0
 
     abstract val objectType: TYPE
 
@@ -40,21 +29,6 @@ abstract class AbstractEvent<TYPE, ID : Any> : Serializable {
         this.timestamp = Instant.now().epochSecond
         this.opcode = opcode
         this.objectId = objectId
-    }
-
-    fun delay() {
-        if (delay > 0) {
-            try {
-                TimeUnit.SECONDS.sleep(delay.toLong())
-            } catch (interruptedException: InterruptedException) {
-                LOG.log(Level.WARNING, "Thread interrupted", interruptedException)
-                Thread.currentThread().interrupt()
-            }
-        }
-    }
-
-    fun setDelay(seconds: Int) {
-        delay = seconds
     }
 
     override fun equals(other: Any?): Boolean {
@@ -72,8 +46,5 @@ abstract class AbstractEvent<TYPE, ID : Any> : Serializable {
         return result
     }
 
-    override fun toString(): String {
-        val className = if (delay > 0) "${javaClass.simpleName}+${delay}s" else javaClass.simpleName
-        return "$className $opcode $objectType $objectId"
-    }
+    override fun toString() = "${javaClass.simpleName} $opcode $objectType $objectId"
 }

@@ -25,6 +25,15 @@ class ScreenEventIdTest : BehaviorSpec({
                 ScreenEventId("fakeResource", null) shouldNotBe ScreenEventId("otherFakeResource", null)
             }
         }
+
+        given("a screen event id") {
+            val screenEventId = ScreenEventId("fakeResource", "fakeDetail")
+
+            then("it is equal to itself, but not to an object of another class with the same resource") {
+                screenEventId shouldBe screenEventId
+                screenEventId.equals("fakeResource") shouldBe false
+            }
+        }
     }
 
     context("Converting a screen event id to a string") {

@@ -62,26 +62,24 @@
       >
       </zac-select>
     </section>
-    @if (showWarningWindows()) {
-      <section class="row">
+    <section class="row">
+      <zac-input
+        class="col-12 col-lg-6"
+        key="uiterlijkeEinddatumAfdoeningWaarschuwing"
+        [form]="form()"
+      >
+        <span matSuffix>{{ "kalenderdagen" | translate }}</span>
+      </zac-input>
+      @if (zaaktype().hasServicenorm) {
         <zac-input
           class="col-12 col-lg-6"
-          key="uiterlijkeEinddatumAfdoeningWaarschuwing"
+          key="einddatumGeplandWaarschuwing"
           [form]="form()"
         >
           <span matSuffix>{{ "kalenderdagen" | translate }}</span>
         </zac-input>
-        @if (zaaktype().hasServicenorm) {
-          <zac-input
-            class="col-12 col-lg-6"
-            key="einddatumGeplandWaarschuwing"
-            [form]="form()"
-          >
-            <span matSuffix>{{ "kalenderdagen" | translate }}</span>
-          </zac-input>
-        }
-      </section>
-    }
+      }
+    </section>
     <section class="row">
       <zac-input
         class="col-12 col-lg-6"

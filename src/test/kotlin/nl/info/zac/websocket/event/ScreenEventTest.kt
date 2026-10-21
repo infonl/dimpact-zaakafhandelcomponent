@@ -35,10 +35,28 @@ class ScreenEventTest : BehaviorSpec({
                     createScreenEvent(screenEventType = ScreenEventType.TAAK)
             }
         }
+
+        given("two screen events with a different id") {
+            then("they are not equal") {
+                createScreenEvent(screenEventId = createScreenEventId(resource = "fakeResource")) shouldNotBe
+                    createScreenEvent(screenEventId = createScreenEventId(resource = "otherFakeResource"))
+            }
+        }
+
+        given("a screen event") {
+            val screenEvent = createScreenEvent()
+            val missingObject: Any? = null
+
+            then("it is equal to itself, but not to null or to an object of another class") {
+                screenEvent shouldBe screenEvent
+                screenEvent.equals(missingObject) shouldBe false
+                screenEvent.equals("fakeString") shouldBe false
+            }
+        }
     }
 
     context("Converting a screen event to a string") {
-        given("a screen event without a delay") {
+        given("a screen event") {
             val screenEvent = createScreenEvent(
                 opcode = Opcode.UPDATED,
                 screenEventType = ScreenEventType.ZAAK,
@@ -47,18 +65,6 @@ class ScreenEventTest : BehaviorSpec({
 
             then("the string holds the class name, opcode, type and id") {
                 screenEvent.toString() shouldBe "ScreenEvent UPDATED ZAAK fakeResource;fakeDetail"
-            }
-        }
-
-        given("a screen event with a delay") {
-            val screenEvent = createScreenEvent(
-                opcode = Opcode.UPDATED,
-                screenEventType = ScreenEventType.ZAAK,
-                screenEventId = createScreenEventId(resource = "fakeResource", detail = "fakeDetail")
-            ).apply { setDelay(3) }
-
-            then("the class name in the string is followed by the delay in seconds") {
-                screenEvent.toString() shouldBe "ScreenEvent+3s UPDATED ZAAK fakeResource;fakeDetail"
             }
         }
     }

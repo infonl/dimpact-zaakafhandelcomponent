@@ -90,6 +90,45 @@ class SubscriptionTypeTest : BehaviorSpec({
                     illegalArgumentException.message shouldBe "Missing event argument"
                 }
             }
+
+            `when`("a message is created without an event argument") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> { SubscriptionType.CREATE.message() }
+
+                then("it fails, because only a delete all message can do without an event") {
+                    illegalArgumentException.message shouldBe "Missing event argument"
+                }
+            }
+        }
+
+        given("a delete subscription type and no screen event") {
+            `when`("a message is created") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> { SubscriptionType.DELETE.message(null) }
+
+                then("it fails, because a delete message needs an event") {
+                    illegalArgumentException.message shouldBe "Missing event argument"
+                }
+            }
+        }
+
+        listOf(SubscriptionType.CREATE, SubscriptionType.DELETE).forEach { subscriptionType ->
+            given("a $subscriptionType subscription message without a screen event") {
+                val subscriptionMessage = SubscriptionType.SubscriptionMessage(subscriptionType, null)
+                val untouchedSessionRegistry = mockk<SessionRegistry>()
+
+                `when`("the message is registered") {
+                    val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                        subscriptionMessage.register(untouchedSessionRegistry, session)
+                    }
+
+                    then("it fails without changing the subscriptions of the session") {
+                        illegalArgumentException.message shouldBe "Missing event argument"
+                        verify(exactly = 0) {
+                            untouchedSessionRegistry.create(any(), any())
+                            untouchedSessionRegistry.delete(any(), any())
+                        }
+                    }
+                }
+            }
         }
     }
 })

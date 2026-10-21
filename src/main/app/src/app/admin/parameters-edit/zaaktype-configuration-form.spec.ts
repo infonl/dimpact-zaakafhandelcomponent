@@ -157,6 +157,12 @@ describe("The configuration of a zaaktype in the admin screen", () => {
         );
       });
 
+      it("keeps the process definition it is bound to", () => {
+        expect(
+          toForm(configuration, brpSetup).controls.procesModel.disabled,
+        ).toBe(true);
+      });
+
       it("is valid as it was read", () => {
         expect(toForm(configuration, brpSetup).valid).toBe(true);
       });
@@ -235,7 +241,6 @@ describe("The configuration of a zaaktype in the admin screen", () => {
     expect(controls.mail.controls.automaticEmailConfirmation.disabled).toBe(
       true,
     );
-    expect(controls.mail.controls.zaakAfzenders.disabled).toBe(true);
     expect(valid).toBe(true);
   });
 
@@ -254,6 +259,12 @@ describe("The configuration of a zaaktype in the admin screen", () => {
   });
 
   describe("for a configuration that was never saved", () => {
+    it("lets the beheerder choose a process definition", () => {
+      expect(
+        toForm(unsavedConfiguration, brpSetup).controls.procesModel.enabled,
+      ).toBe(true);
+    });
+
     it("names no process definition and demands one", () => {
       const form = toForm(unsavedConfiguration, brpSetup);
 

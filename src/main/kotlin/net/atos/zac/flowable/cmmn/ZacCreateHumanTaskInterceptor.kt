@@ -30,11 +30,6 @@ class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
         const val VAR_TRANSIENT_CANDIDATE_GROUP = "candidateGroupId"
         const val VAR_TRANSIENT_ASSIGNEE = "assignee"
         const val VAR_TRANSIENT_OWNER = "owner"
-
-        /**
-         * This must be lower than the DEFAULT_SUSPENSION_TIMEOUT defined in `websockets.service.ts`
-         */
-        const val SECONDS_TO_DELAY: Int = 3
     }
 
     override fun beforeCreateHumanTask(context: CreateHumanTaskBeforeContext) {

@@ -37,7 +37,6 @@ class ScreenEventObserver @Inject constructor(
     override fun onFire(@ObservesAsync event: ScreenEvent) {
         try {
             LOG.fine { "Received screen event: $event" }
-            event.delay()
             sendToWebsocketSubscribers(event)
         } catch (throwable: Throwable) {
             LOG.log(Level.WARNING, "asynchronous guard", throwable)

@@ -38,7 +38,7 @@ class SensitiveDataService {
             .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
             .removalListener { key: UUID?, value: String?, cause ->
                 LOG.fine { "Removing sensitive storage data with key '$key', because of: '$cause'" }
-                value?.let { dataToUuidStorage.invalidate(value) }
+                if (key != null && value != null) dataToUuidStorage.asMap().remove(value, key)
             }.build()
     }
 
@@ -52,11 +52,12 @@ class SensitiveDataService {
      * @return the UUID key for the stored sensitive data
      */
     fun put(data: String): UUID =
-        dataToUuidStorage.get(data) {
-            UUID.randomUUID().also { uuid ->
-                uuidToDataStorage.put(uuid, data)
+        checkNotNull(
+            dataToUuidStorage.asMap().compute(data) { _, existingUuid ->
+                existingUuid?.takeIf { uuidToDataStorage.getIfPresent(it) != null }
+                    ?: UUID.randomUUID().also { uuid -> uuidToDataStorage.put(uuid, data) }
             }
-        }
+        )
 
     /**
      * Retrieves the sensitive data for a given UUID key.
