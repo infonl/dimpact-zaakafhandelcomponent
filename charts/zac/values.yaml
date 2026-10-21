@@ -556,6 +556,18 @@ solr-operator:
       size: 1Gi
      # -- resource limits and requests for solr in solrcloud
     resources: {}
+     # -- pod securityContext for solr in solrcloud. The Solr Operator sets no securityContext on its own init
+     # containers (cp-solr-xml, setup-zk), so they inherit this one: without it the busybox cp-solr-xml container
+     # runs as root. 8983 is the solr image's own user, which owns the existing Solr data.
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 8983
+      runAsGroup: 8983
+      fsGroup: 8983
+      seccompProfile:
+        type: RuntimeDefault
+     # -- securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only
+    containerSecurityContext: {}
      # -- tolerations for solr in solrcloud
     tolerations: []
      # -- topologySpreadConstraints for solr in solrcloud

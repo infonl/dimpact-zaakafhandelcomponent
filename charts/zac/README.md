@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.353](https://img.shields.io/badge/Version-1.0.353-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
+![Version: 1.0.354](https://img.shields.io/badge/Version-1.0.354-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -369,6 +369,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
 | solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:99813cb178ace2cd9c6c53ee3bddef5d2f5708aa438335111d7a9e3c5e1aaebe"` | solr busybox image tag |
+| solr-operator.solr.containerSecurityContext | object | `{}` |  |
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
@@ -381,6 +382,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.livenessProbe | object | `{"failureThreshold":6,"httpGet":{"path":"/solr/admin/info/health","port":8983},"periodSeconds":20,"timeoutSeconds":1}` | livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period. failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts. |
 | solr-operator.solr.logLevel | string | `"INFO"` |  |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
+| solr-operator.solr.podSecurityContext | object | `{"fsGroup":8983,"runAsGroup":8983,"runAsNonRoot":true,"runAsUser":8983,"seccompProfile":{"type":"RuntimeDefault"}}` | pod securityContext for solr in solrcloud. The Solr Operator sets no securityContext on its own init containers (cp-solr-xml, setup-zk), so they inherit this one: without it the busybox cp-solr-xml container runs as root. 8983 is the solr image's own user, which owns the existing Solr data. |
 | solr-operator.solr.readinessProbe | object | `{}` |  |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
 | solr-operator.solr.resources | object | `{}` |  |
