@@ -26,7 +26,7 @@ import net.atos.zac.flowable.bpmn.UserTaskCompletionListener;
 import net.atos.zac.flowable.bpmn.function.TaskFunctionsDelegate;
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
-import net.atos.zac.flowable.task.ZacCreateUserTaskInterceptor;
+import nl.info.zac.flowable.task.ZacCreateUserTaskInterceptor;
 
 /**
  * Looks up the ZAC Flowable process engine.

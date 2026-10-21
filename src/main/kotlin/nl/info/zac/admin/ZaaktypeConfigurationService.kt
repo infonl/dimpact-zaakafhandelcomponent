@@ -80,9 +80,6 @@ class ZaaktypeConfigurationService @Inject constructor(
     fun listCurrentConfigurationsByProductaanvraagtype(productaanvraagtype: String): List<ZaaktypeConfiguration> =
         zaaktypeConfigurationRepository.listCurrentByProductaanvraagtype(productaanvraagtype)
 
-    fun listConfigurationsBoundTo(processEngine: ProcessEngine): List<ZaaktypeConfiguration> =
-        zaaktypeConfigurationRepository.listBoundTo(processEngine)
-
     fun listDefinitionKeysBoundTo(processEngine: ProcessEngine): List<String> =
         zaaktypeConfigurationRepository.listDistinctDefinitionKeys(processEngine)
 

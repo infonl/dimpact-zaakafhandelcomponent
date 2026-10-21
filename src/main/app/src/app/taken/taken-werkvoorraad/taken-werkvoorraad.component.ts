@@ -59,6 +59,7 @@ import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filt
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { TakenVerdelenDialogComponent } from "../taken-verdelen-dialog/taken-verdelen-dialog.component";
@@ -72,6 +73,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
@@ -165,7 +167,6 @@ export class TakenWerkvoorraadComponent
 
   override ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.taken.werkvoorraad");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

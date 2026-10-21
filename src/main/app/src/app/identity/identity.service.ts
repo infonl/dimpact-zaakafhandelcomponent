@@ -49,6 +49,12 @@ export class IdentityService {
     });
   }
 
+  listUsersInGroupQuery(groupId: string) {
+    return this.zacQueryClient.GET("/rest/identity/groups/{groupId}/users", {
+      path: { groupId },
+    });
+  }
+
   listUsers() {
     return this.zacHttpClient.GET(`/rest/identity/users`);
   }

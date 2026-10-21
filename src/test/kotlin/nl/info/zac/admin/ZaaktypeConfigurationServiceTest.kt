@@ -188,25 +188,6 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                 }
             }
         }
-
-        given("configurations listed by bound engine") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
-            val config = ZaaktypeConfiguration().apply {
-                zaaktypeUuid = UUID.randomUUID()
-                zaaktypeOmschrijving = "fakeOmschrijving"
-            }
-            every {
-                zaaktypeConfigurationRepository.listBoundTo(ProcessEngine.BPMN)
-            } returns listOf(config)
-
-            `when`("listing configurations bound to engine") {
-                val list = zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
-
-                then("it returns the list from repository") {
-                    list shouldContainExactly listOf(config)
-                }
-            }
-        }
     }
 
     context("smart documents status and termination reasons") {

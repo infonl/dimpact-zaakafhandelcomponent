@@ -1,0 +1,71 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-accordion class="flex-col">
+  @for (humanTaskForm of form().controls; track humanTaskForm) {
+    <mat-expansion-panel class="flex-col" hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          @if (humanTaskForm.valid) {
+            <mat-icon outlined color="primary">check_circle</mat-icon>
+          } @else {
+            <mat-icon outlined color="warn">error</mat-icon>
+          }
+          <span [ngClass]="{ disabled: !humanTaskForm.controls.actief.value }">
+            {{ humanTaskForm.controls.planItemDefinition.value.naam }}
+          </span>
+        </mat-panel-title>
+        <zac-toggle
+          [form]="humanTaskForm"
+          key="actief"
+          label="actief"
+          labelPosition="before"
+          (click)="$event.stopPropagation()"
+        ></zac-toggle>
+      </mat-expansion-panel-header>
+      <zac-select
+        class="w33 w100-md"
+        [form]="humanTaskForm"
+        key="formulierDefinitieId"
+        label="formulier-definitie"
+        [options]="formulierDefinitieIds()"
+        [optionDisplayValue]="formulierDefinitieLabel"
+      ></zac-select>
+      <zac-select
+        class="w33 w100-md"
+        [form]="humanTaskForm"
+        key="defaultGroepId"
+        label="groep.standaard"
+        [options]="groepIds()"
+        [optionDisplayValue]="groepNaam"
+      ></zac-select>
+      <zac-input
+        class="w33 w100-md"
+        [form]="humanTaskForm"
+        key="doorlooptijd"
+        label="doorlooptijd"
+        type="number"
+      >
+        <span>{{ "kalenderdagen" | translate }}</span>
+      </zac-input>
+      @for (veld of veldDefinities(humanTaskForm); track veld) {
+        @if (
+          humanTaskForm.controls.referentieTabellen.controls[veld.naam ?? ""];
+          as referentieTabelForm
+        ) {
+          <zac-select
+            class="w33 w100-md"
+            [form]="referentieTabelForm"
+            key="tabel"
+            [label]="'referentietabel.' + veld.naam | i18nKey"
+            [options]="referentieTabellenQuery.data() ?? []"
+            optionDisplayValue="name"
+            [compare]="compareObject"
+          ></zac-select>
+        }
+      }
+    </mat-expansion-panel>
+  }
+</mat-accordion>

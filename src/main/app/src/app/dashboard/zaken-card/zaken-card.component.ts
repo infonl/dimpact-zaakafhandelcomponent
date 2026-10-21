@@ -39,6 +39,7 @@ import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -54,6 +55,7 @@ const DEFAULT_SORT_ORDER: GeneratedType<"SorteerRichting"> = "DESC";
   ],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     MatTable,
     MatSort,
     MatColumnDef,
@@ -126,6 +128,20 @@ export class ZakenCardComponent
 
     effect(() => {
       this.dataSource.data = this.zakenQuery.data()?.resultaten ?? [];
+    });
+
+    // Listing the signaleringen deletes the stale ones, so the total can drop below the page this card shows.
+    // Asking for that page again is rejected by the backend, so move to the last page that still exists.
+    // The cached pages are marked stale first, because they were loaded before the stale signaleringen
+    // were deleted.
+    effect(() => {
+      const totaal = this.zakenQuery.data()?.totaal;
+      if (totaal == null || this.zakenQuery.isFetching()) return;
+      const lastPageNumber = Math.max(0, Math.ceil(totaal / this.pageSize) - 1);
+      if (this.pageNumber() > lastPageNumber) {
+        void this.signaleringenService.markZakenSignaleringStale();
+        this.pageNumber.set(lastPageNumber);
+      }
     });
   }
 

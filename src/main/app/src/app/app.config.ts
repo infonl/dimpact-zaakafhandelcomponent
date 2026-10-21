@@ -28,6 +28,7 @@ import {
   provideRouter,
   Router,
   RouteReuseStrategy,
+  TitleStrategy,
 } from "@angular/router";
 import {
   provideTranslateService,
@@ -42,6 +43,7 @@ import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { persistQueryClient } from "@tanstack/query-persist-client-core";
 import { APP_ROUTES } from "./app.routes";
+import { ZacTitleStrategy } from "./core/breadcrumbs/zac-title-strategy";
 import { provideStartupPrefetch } from "./core/startup-prefetch";
 import { createCacheBustingTranslateLoader } from "./core/translate-loader.service";
 import { RouteReuseStrategyService } from "./informatie-objecten/route-reuse-strategy.service";
@@ -58,6 +60,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(),
     provideRouter(APP_ROUTES),
+    { provide: TitleStrategy, useClass: ZacTitleStrategy },
     // When a resolver fails on the first page load, Angular resets the address bar to the
     // root url. Keep the url the user asked for, so a reload retries it. This listens to the
     // public router events because they fire after that reset; withNavigationErrorHandler
@@ -111,6 +114,7 @@ export const appConfig: ApplicationConfig = {
       QUERY_CLIENT,
       withDevtools(() => ({
         loadDevtools: isDevMode(),
+        buttonPosition: "bottom-left",
       })),
     ),
     provideStartupPrefetch(),

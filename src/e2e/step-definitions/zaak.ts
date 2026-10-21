@@ -452,7 +452,7 @@ Then(
   async function (this: CustomWorld, user, profile) {
     const openFormsTestId = this.testStorage.get("open-forms-testid");
 
-    await this.page.getByText("plagiarism").nth(1).click();
+    await this.page.locator(".preview-chevron").nth(1).click();
     await this.expect(
       this.page.getByAltText("Bijgevoegd document"),
     ).toBeVisible();

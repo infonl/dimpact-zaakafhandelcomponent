@@ -20,7 +20,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import net.atos.zac.app.shared.RESTResultaat
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.klant.KlantClientService
@@ -212,7 +212,7 @@ class KlantRestService @Inject constructor(
     fun listPersonen(
         restListPersonenParameters: RestListPersonenParameters,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
-    ): RESTResultaat<RestPersoon> {
+    ): RestResultaat<RestPersoon> {
         val brpRechten = policyService.readBrpRechten(restListPersonenParameters.gemeenteVanInschrijving)
         assertPolicy(brpRechten.canZoeken)
         return restListPersonenParameters.bsn
@@ -242,7 +242,7 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("bedrijven")
-    fun listBedrijven(restListBedrijvenParameters: RestListBedrijvenParameters): RESTResultaat<RestBedrijf> =
+    fun listBedrijven(restListBedrijvenParameters: RestListBedrijvenParameters): RestResultaat<RestBedrijf> =
         kvkClientService.search(restListBedrijvenParameters.toKvkZoekenParameters()).resultaten
             .filter { it.isKoppelbaar() }
             .map { it.toRestBedrijf() }
@@ -277,7 +277,7 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("contactmomenten")
-    fun listContactmomenten(parameters: RestListContactmomentenParameters): RESTResultaat<RestContactmoment> {
+    fun listContactmomenten(parameters: RestListContactmomentenParameters): RestResultaat<RestContactmoment> {
         val number = parameters.bsn ?: parameters.vestigingsnummer ?: throw InputValidationFailedException(
             message = "Either a BSN or a vestigingsnummer is required to list contactmomenten"
         )
@@ -286,7 +286,7 @@ class KlantRestService @Inject constructor(
         val klantcontactListPage = betrokkenenWithKlantcontactList
             .mapNotNull { it.expand?.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
-        return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
+        return RestResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
 
     private fun readVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {

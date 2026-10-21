@@ -63,6 +63,7 @@ import {
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 
 @Component({
@@ -70,6 +71,7 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
   styleUrls: ["./ontkoppelde-documenten-list.component.less"],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     RouterLink,
     MatDrawerContainer,
     MatDrawer,
@@ -167,7 +169,6 @@ export class OntkoppeldeDocumentenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.documenten.ontkoppelde-documenten");
     this.listParameters = SessionStorageUtil.getItem(
       "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
@@ -269,7 +270,7 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   protected zoekopdrachtChanged(
-    actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht">,
   ) {
     if (actieveZoekopdracht) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json || "{}");

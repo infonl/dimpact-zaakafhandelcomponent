@@ -21,10 +21,13 @@
     />
   </div>
   <div class="flex-1 w33">
-    <zac-static-text
-      label="zaak-identificatie"
-      [value]="document().zaakIdentificatie"
-    />
+    <zac-static-text label="zaak-identificatie">
+      <zac-zaak-identificatie
+        position="content"
+        [identificatie]="document().zaakIdentificatie"
+        [isZaakspecifiekGeautoriseerd]="document().isZaakspecifiekGeautoriseerd"
+      />
+    </zac-static-text>
     <zac-static-text label="document-type" [value]="document().documentType" />
     <zac-static-text label="auteur" [value]="document().auteur" />
   </div>

@@ -7,6 +7,8 @@ package nl.info.zac.app.zaak
 import nl.info.zac.admin.model.ZaaktypeDeadlineWarningWindows
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import nl.info.client.zgw.shared.model.Results
+import nl.info.zac.app.zaak.model.createRestZaakRechten
+import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -96,6 +98,7 @@ import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
+import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RestZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RestZaaktype
@@ -1138,7 +1141,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                     uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(5)
                 )
                 val loggedInUser = createLoggedInUser()
-                val restZaakOverzicht = mockk<RestZaakOverzicht>()
+                val restZaakOverzicht = createRESTZaakOverzicht().apply {
+                    rechten = createRestZaakRechten()
+                    behandelaar = createRestUser(id = loggedInUser.id)
+                }
                 every { loggedInUserInstance.get() } returns loggedInUser
                 every { zaaktypeConfigurationService.listDeadlineWarningWindows() } returns listOf(
                     ZaaktypeDeadlineWarningWindows(
@@ -1152,7 +1158,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     countValue = 2,
                     resultsValue = listOf(zaakNearItsDeadline, zaakFarFromItsDeadline)
                 )
-                every { restZaakOverzichtConverter.convert(zaakNearItsDeadline, loggedInUser) } returns restZaakOverzicht
+                every { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaakNearItsDeadline, loggedInUser) } returns restZaakOverzicht
 
                 `when`("the zaak warnings are listed") {
                     val zaakWarnings = zaakRestService.listZaakWarnings()
@@ -1180,7 +1186,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
             )
             val loggedInUser = createLoggedInUser()
-            val restZaakOverzicht = mockk<RestZaakOverzicht>()
+            val restZaakOverzicht = createRESTZaakOverzicht().apply {
+                rechten = createRestZaakRechten()
+                behandelaar = createRestUser(id = loggedInUser.id)
+            }
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaaktypeConfigurationService.listDeadlineWarningWindows() } returns listOf(
                 ZaaktypeDeadlineWarningWindows(
@@ -1194,7 +1203,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 resultsValue = listOf(zaakNearItsEinddatumGepland, zaakFarFromItsEinddatumGepland)
             )
             every {
-                restZaakOverzichtConverter.convert(zaakNearItsEinddatumGepland, loggedInUser)
+                restZaakOverzichtConverter.convertToRestZaakOverzicht(zaakNearItsEinddatumGepland, loggedInUser)
             } returns restZaakOverzicht
 
             `when`("the zaak warnings are listed") {
@@ -1204,6 +1213,52 @@ class ZaakRestServiceTest : BehaviorSpec({
                     """only the zaak within the einddatum-gepland warning window is listed, regardless of its
                         uiterlijke einddatum afdoening"""
                 ) {
+                    zaakWarnings shouldBe listOf(restZaakOverzicht)
+                }
+            }
+        }
+    
+        given(
+            """zaken near their deadline of which the user is behandelaar with read rights, behandelaar without read
+                rights, and only holds another medewerker rol such as the zaakspecifiek geautoriseerde medewerker rol"""
+        ) {
+            val zaaktypeUuid = UUID.randomUUID()
+            val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid")
+            val zaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1))
+            val unreadableZaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1))
+            val reassignedZaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1))
+            val loggedInUser = createLoggedInUser()
+            val restZaakOverzicht = createRESTZaakOverzicht().apply {
+                rechten = createRestZaakRechten()
+                behandelaar = createRestUser(id = loggedInUser.id)
+            }
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaaktypeConfigurationService.listDeadlineWarningWindows() } returns listOf(
+                ZaaktypeDeadlineWarningWindows(
+                    zaaktypeUuid = zaaktypeUuid,
+                    einddatumGeplandWaarschuwing = null,
+                    uiterlijkeEinddatumAfdoeningWaarschuwing = 2
+                )
+            )
+            every { zrcClientService.listZaken(any()) } returns Results(
+                countValue = 3,
+                resultsValue = listOf(zaak, unreadableZaak, reassignedZaak)
+            )
+            every { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak, loggedInUser) } returns restZaakOverzicht
+            every {
+                restZaakOverzichtConverter.convertToRestZaakOverzicht(unreadableZaak, loggedInUser)
+            } returns createRESTZaakOverzicht().apply { rechten = createRestZaakRechten(lezen = false) }
+            every {
+                restZaakOverzichtConverter.convertToRestZaakOverzicht(reassignedZaak, loggedInUser)
+            } returns createRESTZaakOverzicht().apply {
+                rechten = createRestZaakRechten()
+                behandelaar = createRestUser(id = "fakeOtherBehandelaarId")
+            }
+
+            `when`("the zaak warnings are listed") {
+                val zaakWarnings = zaakRestService.listZaakWarnings()
+
+                then("only the zaak the user is behandelaar of and may read is listed") {
                     zaakWarnings shouldBe listOf(restZaakOverzicht)
                 }
             }
@@ -4103,6 +4158,70 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(patchZaakSlot.captured) {
                         zaakgeometrie.shouldBeInstanceOf<DeleteGeoJsonGeometry>()
                     }
+                }
+            }
+        }
+    }
+
+    context("Extending a zaak") {
+        val zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "P30D")
+        val zaakRechten = createZaakRechten(verlengen = true)
+        val loggedInUser = createLoggedInUser()
+
+        given("a zaak and an extension of 30 days") {
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val extendedZaak = createZaak(zaaktypeUri = zaakType.url)
+            val restZaak = createRestZaak()
+            val restZaakVerlengGegevens = RestZaakVerlengGegevens(
+                redenVerlenging = "fakeExtensionReason",
+                duurDagen = 30,
+                shouldTakenVerlengen = false,
+                einddatumGepland = LocalDate.of(2026, 2, 1),
+                uiterlijkeEinddatumAfdoening = LocalDate.of(2026, 3, 1)
+            )
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            } returns zaakRechten
+            every {
+                suspensionZaakHelper.extendZaak(
+                    zaak = zaak,
+                    zaakType = zaakType,
+                    dueDate = restZaakVerlengGegevens.einddatumGepland,
+                    fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+                    extensionReason = restZaakVerlengGegevens.redenVerlenging,
+                    numberOfDays = 30
+                )
+            } returns extendedZaak
+            every {
+                restZaakConverter.toRestZaak(
+                    zaak = extendedZaak,
+                    zaakType = zaakType,
+                    zaakRechten = zaakRechten,
+                    loggedInUser = loggedInUser
+                )
+            } returns restZaak
+
+            `when`("the zaak is extended") {
+                val result = zaakRestService.verlengenZaak(zaak.uuid, restZaakVerlengGegevens)
+
+                then("the zaak is extended with the zaaktype, so that its extension term is checked") {
+                    verify(exactly = 1) {
+                        suspensionZaakHelper.extendZaak(
+                            zaak = zaak,
+                            zaakType = zaakType,
+                            dueDate = restZaakVerlengGegevens.einddatumGepland,
+                            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+                            extensionReason = restZaakVerlengGegevens.redenVerlenging,
+                            numberOfDays = 30
+                        )
+                    }
+                }
+
+                and("the extended zaak is returned") {
+                    result shouldBe restZaak
                 }
             }
         }

@@ -5,6 +5,7 @@
 
 package nl.info.zac.app.informatieobjecten.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -17,6 +18,9 @@ class RestGekoppeldeZaakEnkelvoudigInformatieObject : RestEnkelvoudigInformatieo
     var relatieType: RelatieType? = null
 
     var zaakIdentificatie: String? = null
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    var isZaakspecifiekGeautoriseerd: Boolean = false
 
     var zaakUUID: UUID? = null
 }

@@ -241,15 +241,16 @@
         (documentMoveToCase)="documentMoveToCase($event)"
       ></zac-zaak-documenten>
     </div>
+    @if (
+      notitieRechtenQuery.data()?.canLezen ||
+      notitieRechtenQuery.data()?.canWijzigen
+    ) {
+      @defer (on immediate) {
+        <zac-notities
+          [zaakUuid]="zaak.uuid"
+          [notitieRechten]="notitieRechtenQuery.data()"
+        ></zac-notities>
+      }
+    }
   </mat-drawer-content>
 </mat-drawer-container>
-
-@if (
-  notitieRechtenQuery.data()?.canLezen ||
-  notitieRechtenQuery.data()?.canWijzigen
-) {
-  <zac-notities
-    [zaakUuid]="zaak.uuid"
-    [notitieRechten]="notitieRechtenQuery.data()"
-  ></zac-notities>
-}

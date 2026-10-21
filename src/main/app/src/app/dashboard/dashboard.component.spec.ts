@@ -20,7 +20,6 @@ import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 
 import { sleep, testQueryClient } from "../../../setupJest";
-import { UtilService } from "../core/service/util.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { toI18nKey } from "../shared/utils/i18n-key";
 import { DashboardComponent } from "./dashboard.component";
@@ -39,7 +38,7 @@ const DASHBOARD_CARDS_URL = "/rest/gebruikersvoorkeuren/dasboardcard/actief";
 const DASHBOARD_CARD_URL = "/rest/gebruikersvoorkeuren/dasboardcard";
 const SIGNALERING_TYPEN_URL = "/rest/signaleringen/typen/dashboard";
 
-const instellingen: GeneratedType<"RESTDashboardCardInstelling">[] = [
+const instellingen: GeneratedType<"RestDashboardCardInstelling">[] = [
   { cardId: "MIJN_TAKEN", column: 0, row: 0 },
   { cardId: "MIJN_ZAKEN_NIEUW", column: 0, row: 1 },
   { cardId: "MIJN_ZAKEN", column: 1, row: 0 },
@@ -161,7 +160,6 @@ describe(DashboardComponent.name, () => {
         provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
-        { provide: UtilService, useValue: { setTitle: jest.fn() } },
       ],
     });
 
@@ -390,7 +388,7 @@ describe(DashboardComponent.name, () => {
       .expectOne(DASHBOARD_CARD_URL)
       .flush([
         { cardId: "MIJN_TAKEN", column: 2, row: 7 },
-      ] satisfies GeneratedType<"RESTDashboardCardInstelling">[]);
+      ] satisfies GeneratedType<"RestDashboardCardInstelling">[]);
     await sleep();
     fixture.detectChanges();
     flushAnimationFrames();

@@ -36,6 +36,7 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
@@ -54,6 +55,7 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./klant-zaken-tabel.component.less"],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     NgClass,
     ReactiveFormsModule,
     MatCardModule,

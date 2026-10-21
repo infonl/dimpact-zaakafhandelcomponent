@@ -317,6 +317,58 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
+    given("a request containing an authorization header and a rol destroy notificatie for an existing zaak") {
+        val zaakUUID = UUID.randomUUID()
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ROL,
+            resourceUrl = URI("https://example.com/fakezaak/$zaakUUID/rollen/${UUID.randomUUID()}"),
+            mainResourceUrl = URI("https://example.com/fakezaak/$zaakUUID"),
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID) } returns 1
+        every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the rol destroy notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then("the zaak signaleringen of users who are no longer behandelaar of the zaak are deleted") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) { signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID) }
+            }
+        }
+    }
+    given("a request containing an authorization header and a rol destroy notificatie for a zaak that no longer exists") {
+        val zaakUUID = UUID.randomUUID()
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ROL,
+            resourceUrl = URI("https://example.com/fakezaak/$zaakUUID/rollen/${UUID.randomUUID()}"),
+            mainResourceUrl = URI("https://example.com/fakezaak/$zaakUUID"),
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every {
+            signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID)
+        } throws NotFoundException("fakeNotFound")
+        every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the rol destroy notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then("no signaleringen are deleted and the rest of the notification is still handled") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) { indexingService.addOrUpdateZaak(zaakUUID, false) }
+            }
+        }
+    }
     given("a request containing an authorization header and a notificatie for a ZAAK_GEAUTORISEERD zaakeigenschap update") {
         val zaakUUID = UUID.randomUUID()
         val zaakeigenschapUUID = UUID.randomUUID()

@@ -23,6 +23,7 @@ import { WebsocketListener } from "../../core/websocket/model/websocket-listener
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
 import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDocumentenComponent } from "./zaak-documenten.component";
@@ -45,6 +46,7 @@ const fakeDocument = fromPartial<
   GeneratedType<"RestEnkelvoudigInformatieobject">
 >({
   uuid: "doc-uuid-1",
+  identificatie: "DOCUMENT-2026-0000000002",
   titel: "Test document",
   bestandsnaam: "test.pdf",
   formaat: "application/pdf",
@@ -384,6 +386,136 @@ describe(ZaakDocumentenComponent.name, () => {
     expect(linkedDocumentsToggle()).toBeEnabled();
   });
 
+  it("shows the identificatie of each document", async () => {
+    await setup();
+
+    expect(
+      screen.getByRole("columnheader", { name: "identificatie" }),
+    ).toBeVisible();
+    expect(
+      within(documentRow("Test document")).getByRole("cell", {
+        name: "DOCUMENT-2026-0000000002",
+      }),
+    ).toBeVisible();
+  });
+
+  it.each([
+    "informatieobject-type-omschrijving",
+    "bestandsomvang",
+    "vertrouwelijkheidaanduiding",
+  ])(
+    "shows a short %s header with the full label as tooltip",
+    async (column) => {
+      await setup();
+
+      expect(
+        screen.getByRole("columnheader", { name: `${column}.kort` }),
+      ).toHaveAccessibleDescription(column);
+    },
+  );
+
+  it("sorts documents with the same title by identificatie", async () => {
+    await setup(fakeZaak, [
+      fromPartial({
+        ...fakeDocument,
+        uuid: "doc-uuid-3",
+        identificatie: "DOCUMENT-2026-0000000003",
+      }),
+      fromPartial({
+        ...fakeDocument,
+        uuid: "doc-uuid-1",
+        identificatie: "DOCUMENT-2026-0000000001",
+      }),
+    ]);
+
+    await user.click(
+      screen.getByRole("columnheader", { name: "identificatie" }),
+    );
+    await settle();
+
+    const identificaties = screen
+      .getAllByRole("cell", { name: /^DOCUMENT-2026-/ })
+      .map((cell) => cell.textContent?.trim());
+    expect(identificaties).toEqual([
+      "DOCUMENT-2026-0000000001",
+      "DOCUMENT-2026-0000000003",
+    ]);
+  });
+
+  describe("sorting the documents", () => {
+    const sortableDocument = (
+      document: Partial<GekoppeldeZaakEnkelvoudigInformatieobject>,
+    ) =>
+      fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+        ...fakeDocument,
+        ...document,
+      });
+
+    const titlesInOrder = () =>
+      screen
+        .getAllByText(/ document$/)
+        .map((title) => title.textContent?.split(" document")[0]);
+
+    const sortBy = async (column: string) => {
+      await user.click(screen.getByRole("columnheader", { name: column }));
+      await settle();
+    };
+
+    it("sorts the documents of related cases by zaak", async () => {
+      await setup(fakeZaakMetRelaties, [
+        sortableDocument({
+          uuid: "doc-uuid-c",
+          titel: "derde document",
+          zaakIdentificatie: "ZAAK-2024-003",
+        }),
+        sortableDocument({
+          uuid: "doc-uuid-a",
+          titel: "eerste document",
+          zaakIdentificatie: "ZAAK-2024-001",
+        }),
+        sortableDocument({
+          uuid: "doc-uuid-b",
+          titel: "tweede document",
+          zaakIdentificatie: "ZAAK-2024-002",
+        }),
+      ]);
+
+      await sortBy("zaak-identificatie");
+
+      expect(titlesInOrder()).toEqual(["eerste", "tweede", "derde"]);
+    });
+
+    it("keeps sorting after the related documents are switched off and on again", async () => {
+      const documents = [
+        sortableDocument({ uuid: "doc-uuid-b", titel: "beta document" }),
+        sortableDocument({ uuid: "doc-uuid-a", titel: "alfa document" }),
+      ];
+      await setup(fakeZaakMetRelaties, documents);
+
+      await user.click(linkedDocumentsToggle()!);
+      await flushList(documents);
+      await user.click(linkedDocumentsToggle()!);
+      await settle();
+      await sortBy("titel");
+
+      expect(titlesInOrder()).toEqual(["alfa", "beta"]);
+    });
+
+    it("keeps sorting after the related documents are switched off", async () => {
+      const documents = [
+        sortableDocument({ uuid: "doc-uuid-b", titel: "beta document" }),
+        sortableDocument({ uuid: "doc-uuid-a", titel: "alfa document" }),
+      ];
+      await setup(fakeZaakMetRelaties, documents);
+
+      await user.click(linkedDocumentsToggle()!);
+      await flushList(documents);
+      await sortBy("titel");
+
+      expect(titlesInOrder()).toEqual(["alfa", "beta"]);
+    });
+  });
+
   it("shows a message when the zaak has no documents", async () => {
     await setup(fakeZaak, []);
 
@@ -461,12 +593,20 @@ describe(ZaakDocumentenComponent.name, () => {
 
   describe("selecting documents for a zip download", () => {
     const zipButton = () =>
-      screen.getByRole("button", { name: "actie.downloaden.zip" });
+      screen.getByRole("button", { name: /actie.downloaden.zip-bestand/ });
 
     it("cannot be downloaded while nothing is selected", async () => {
       await setup();
 
       expect(zipButton()).toBeDisabled();
+    });
+
+    it("explains that documents must be selected before a zip download", async () => {
+      await setup();
+
+      expect(
+        screen.getByText("actie.downloaden.zip-bestand.geen-selectie"),
+      ).toBeInTheDocument();
     });
 
     it("allows a zip download once a document is selected", async () => {
@@ -497,6 +637,17 @@ describe(ZaakDocumentenComponent.name, () => {
       expect(zipButton()).toBeDisabled();
     });
 
+    it("counts the selected documents on the zip button", async () => {
+      await setup(fakeZaak, [fakeDocument, fakeEditableDocument]);
+
+      await user.click(
+        within(documentRow("Test document")).getByRole("checkbox"),
+      );
+      await settle();
+
+      expect(zipButton()).toHaveTextContent("(1)");
+    });
+
     it("selects and deselects every document at once", async () => {
       await setup(fakeZaak, [fakeDocument, fakeEditableDocument]);
 
@@ -515,6 +666,21 @@ describe(ZaakDocumentenComponent.name, () => {
       await user.click(selectAll);
 
       expect(zipButton()).toBeDisabled();
+    });
+
+    it("clears the selection when the related documents are switched off", async () => {
+      await setup(fakeZaakMetRelaties, [fakeDocument, fakeEditableDocument]);
+
+      await user.click(
+        screen.getByRole("checkbox", { name: "actie.alles.selecteren" }),
+      );
+      await user.click(linkedDocumentsToggle()!);
+      await flushList([fakeDocument, fakeEditableDocument]);
+
+      expect(zipButton()).toBeDisabled();
+      expect(
+        screen.getByRole("checkbox", { name: "actie.alles.selecteren" }),
+      ).not.toBeChecked();
     });
 
     it("downloads the selected documents as a zip and clears the selection", async () => {
@@ -677,6 +843,47 @@ describe(ZaakDocumentenComponent.name, () => {
       fixture.detectChanges();
 
       expect(screen.queryByTitle("Test document")).toBeNull();
+    });
+
+    it("shows the preview from the preview icon", async () => {
+      await setup();
+
+      await user.click(
+        within(documentRow("Test document")).getByText("expand_more"),
+      );
+      fixture.detectChanges();
+
+      expect(screen.getByTitle("Test document")).toBeVisible();
+    });
+
+    it("shows the preview when clicking anywhere in the row", async () => {
+      await setup();
+
+      await user.click(
+        within(documentRow("Test document")).getByRole("cell", {
+          name: "DOCUMENT-2026-0000000002",
+        }),
+      );
+      fixture.detectChanges();
+
+      expect(screen.getByTitle("Test document")).toBeVisible();
+    });
+
+    it("does not toggle the preview when opening the row menu", async () => {
+      await setup();
+
+      await openRowMenu("Test document");
+      fixture.detectChanges();
+
+      expect(screen.queryByTitle("Test document")).toBeNull();
+    });
+
+    it("explains the preview icon in a tooltip", async () => {
+      await setup();
+
+      expect(
+        within(documentRow("Test document")).getByText("expand_more"),
+      ).toHaveAccessibleDescription("document.preview");
     });
 
     it("shows no preview for a format that cannot be previewed", async () => {

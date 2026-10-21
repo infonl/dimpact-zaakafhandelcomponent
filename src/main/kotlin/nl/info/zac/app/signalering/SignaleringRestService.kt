@@ -15,8 +15,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.app.shared.RestResultaat
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
@@ -66,25 +66,24 @@ class SignaleringRestService @Inject constructor(
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @Valid restSignaleringPageParameters: RestSignaleringPageParameters
-    ): RESTResultaat<RestZaakOverzicht> {
+    ): RestResultaat<RestZaakOverzicht> {
         val loggedInUser = loggedInUserInstance.get()
-        return signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            objectsCount.maxPages(restSignaleringPageParameters.rows).let { maxPages ->
+        signaleringService.countZakenSignaleringen(signaleringsType).maxPages(restSignaleringPageParameters.rows)
+            .let { maxPages ->
                 if (restSignaleringPageParameters.page > maxPages) {
                     throw SignaleringException(
                         "Requested page ${restSignaleringPageParameters.page} must be <= $maxPages"
                     )
                 }
             }
-            RESTResultaat(
-                signaleringService.listZakenSignaleringenPage(
-                    signaleringsType = signaleringsType,
-                    pageParameters = restSignaleringPageParameters,
-                    loggedInUser = loggedInUser
-                ),
-                objectsCount
-            )
-        }
+        val checkedZakenSignaleringen = signaleringService.listCheckedZakenSignaleringenPage(
+            signaleringsType = signaleringsType,
+            pageParameters = restSignaleringPageParameters,
+            loggedInUser = loggedInUser
+        )
+        signaleringService.deleteInvalidSignaleringen(checkedZakenSignaleringen.invalid)
+        return signaleringService.countZakenSignaleringen(signaleringsType)
+            .let { RestResultaat(checkedZakenSignaleringen.valid, it) }
     }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
@@ -94,7 +93,9 @@ class SignaleringRestService @Inject constructor(
     fun listTakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type
     ): List<RestSignaleringTaskSummary> =
-        signaleringService.listTakenSignaleringenPage(signaleringsType)
+        signaleringService.listCheckedTakenSignaleringen(signaleringsType)
+            .also { signaleringService.deleteInvalidSignaleringen(it.invalid) }
+            .valid
 
     @GET
     @Path("/informatieobjecten/{type}")

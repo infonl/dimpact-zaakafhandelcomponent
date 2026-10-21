@@ -261,7 +261,7 @@ export abstract class ZoekenDataSource<
     return this.tableSubject.value as OBJECT[];
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RestZoekopdracht">) {
     if (!this._drop) {
       // view is reinitialized after a drop event, but the data doesn't change, so don't reload the data after a drop event.
       if (actieveZoekopdracht?.json) {
