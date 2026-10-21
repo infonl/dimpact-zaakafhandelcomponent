@@ -14,9 +14,11 @@ import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import nl.info.zac.itest.config.USER_WITHOUT_READ_ROLE
 import org.json.JSONObject
@@ -211,6 +213,52 @@ class AppContainerTest : BehaviorSpec({
                     shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
                     shouldContain("class=\"home-button\"")
                     shouldNotContain("/sign-out")
+                }
+            }
+        }
+        listOf("/documenten/inbox", "/productaanvragen/inbox").forEach { path ->
+            `when`("$path is requested for a user who has the 'coordinator' role") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_BASE_URI$path",
+                    testUser = COORDINATOR_1
+                )
+                then("the response should be ok") {
+                    response.code shouldBe HTTP_OK
+                }
+            }
+            `when`("$path is requested for a user who has the 'behandelaar' role but not the 'inbox' right") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_BASE_URI$path",
+                    testUser = BEHANDELAAR_1
+                )
+                then("the response is forbidden and shows the generic no-permission page with a home button") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                    with(response.bodyAsString) {
+                        shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
+                        shouldContain("class=\"home-button\"")
+                    }
+                }
+            }
+        }
+        `when`("/zaken/create is requested for a user who has the 'behandelaar' role") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/zaken/create",
+                testUser = BEHANDELAAR_1
+            )
+            then("the response should be ok") {
+                response.code shouldBe HTTP_OK
+            }
+        }
+        `when`("/zaken/create is requested for a user who has only the 'raadpleger' role") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/zaken/create",
+                testUser = RAADPLEGER_1
+            )
+            then("the response is forbidden and shows the generic no-permission page with a home button") {
+                response.code shouldBe HTTP_FORBIDDEN
+                with(response.bodyAsString) {
+                    shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
+                    shouldContain("class=\"home-button\"")
                 }
             }
         }
