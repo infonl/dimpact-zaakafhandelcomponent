@@ -2,6 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+@file:Suppress("TooManyFunctions")
 
 package nl.info.zac.zaak.model
 
@@ -11,6 +12,8 @@ import nl.info.client.zgw.zrc.util.isDeelzaak
 import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isLinkedTo
 import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.policy.output.ZaakRechten
 import java.util.UUID
 
@@ -31,6 +34,11 @@ fun Zaak.toZaakLinkData(rechten: ZaakRechten) = ZaakLinkData(
     canLezen = rechten.canLezen,
     canKoppelen = rechten.canKoppelen
 )
+
+fun ZaakType.getDeelzaaktypenSet() = deelzaaktypen
+    .orEmpty()
+    .map { it.extractUuid() }
+    .toSet()
 
 fun Zaak.alreadyGerelateerdReason(foundZaakUuid: UUID) =
     ZaakNotLinkableReason.ALREADY_GERELATEERD.takeIf { isLinkedTo(foundZaakUuid) }
@@ -72,6 +80,27 @@ fun ZaakLinkData.hoofdzaakDeelzaakNotLinkableReason(
     !canKoppelen || !deelzaak.canKoppelen -> ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
     else -> null
 }
+
+/**
+ * The reason why a new zaak of zaaktype [newZaaktypeUuid], which does not exist yet, cannot be linked to this zaak.
+ * [relatieType] is the role of the new zaak, so [RelatieType.DEELZAAK] makes the new zaak a deelzaak of this zaak.
+ * Only [RelatieType.GERELATEERD] and [RelatieType.DEELZAAK] can be used; see [canLinkNewZaakAs].
+ */
+fun ZaakLinkData.newZaakNotLinkableReason(
+    relatieType: RelatieType,
+    newZaaktypeUuid: UUID,
+    allowedDeelzaaktypes: Set<UUID>
+): ZaakNotLinkableReason? = when {
+    !canLezen || !canKoppelen -> ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
+    !isOpen -> ZaakNotLinkableReason.AFGEHANDELD
+    relatieType == RelatieType.DEELZAAK && isDeelzaak -> ZaakNotLinkableReason.IS_DEELZAAK
+    relatieType == RelatieType.DEELZAAK && newZaaktypeUuid !in allowedDeelzaaktypes ->
+        ZaakNotLinkableReason.ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK
+    else -> null
+}
+
+fun canLinkNewZaakAs(relatieType: RelatieType) = relatieType == RelatieType.GERELATEERD ||
+    relatieType == RelatieType.DEELZAAK
 
 fun ZaakLinkData.gerelateerdNotLinkableReason(): ZaakNotLinkableReason? =
     ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN.takeIf { !canKoppelen }
