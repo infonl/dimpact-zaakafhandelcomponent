@@ -479,7 +479,11 @@ export class ZaakViewComponent
   }
 
   private loadBagObjecten() {
-    this.bagService.list(this.zaak.uuid).subscribe((bagObjecten) => {
+    runQuery(this.queryClient, {
+      ...this.bagService.list(this.zaak.uuid),
+      staleTime: StaleTimes.Instant,
+      gcTime: 0,
+    }).subscribe((bagObjecten) => {
       this.gekoppeldeBagObjecten = bagObjecten
         .map(({ zaakobject }) => zaakobject!)
         .filter(Boolean);

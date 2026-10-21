@@ -16,7 +16,7 @@ import { notifyManager } from "@tanstack/query-core";
 import { Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
@@ -148,7 +148,10 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue(of([]));
+    jest.spyOn(bagService, "list").mockReturnValue({
+      ...createQueryOptions([]),
+      queryKey: ["fakeBagObjectenQueryKey"],
+    } as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     jest
@@ -526,7 +529,10 @@ describe(ZaakViewComponent.name, () => {
       const list = jest
         .spyOn(bagService, "list")
         .mockClear()
-        .mockReturnValue(of([]));
+        .mockReturnValue({
+          ...createQueryOptions([]),
+          queryKey: ["fakeBagObjectenQueryKey"],
+        } as never);
 
       fixture.componentInstance["adresGeselecteerd"](bagObject);
       await new Promise(requestAnimationFrame);

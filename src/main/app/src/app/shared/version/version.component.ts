@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, input, OnInit } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { HealthCheckService } from "../../admin/health-check.service";
 import { DatumPipe } from "../pipes/datum.pipe";
-import { GeneratedType } from "../utils/generated-types";
 
 export enum VersionLayout {
   VERBOSE = "VERBOSE",
@@ -32,18 +32,12 @@ export enum VersionLayout {
     TranslateModule,
   ],
 })
-export class VersionComponent implements OnInit {
+export class VersionComponent {
   private readonly healthCheckService = inject(HealthCheckService);
 
   protected readonly versionLayout = VersionLayout;
   protected readonly layout = input<VersionLayout>();
-  protected buildInformatie?: GeneratedType<"RestBuildInformation">;
-
-  ngOnInit() {
-    this.healthCheckService
-      .readBuildInformatie()
-      .subscribe((buildInformatie) => {
-        this.buildInformatie = buildInformatie;
-      });
-  }
+  protected readonly buildInformatieQuery = injectQuery(() =>
+    this.healthCheckService.readBuildInformatie(),
+  );
 }

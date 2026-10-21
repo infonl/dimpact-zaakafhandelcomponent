@@ -180,7 +180,8 @@ describe(ParametersEditComponent.name, () => {
         {
           provide: SmartDocumentsService,
           useValue: fromPartial<SmartDocumentsService>({
-            getAllSmartDocumentsTemplateGroups: () => of([]),
+            getAllSmartDocumentsTemplateGroups: () =>
+              createQueryOptions([]) as never,
             getTemplatesMappingQuery: () => createQueryOptions([]) as never,
             addParentIdsToTemplates: () => [],
             addTemplateMappings: () => [],

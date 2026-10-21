@@ -216,7 +216,10 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue(of([]));
+    jest.spyOn(bagService, "list").mockReturnValue({
+      ...createQueryOptions([]),
+      queryKey: ["fakeBagObjectenQueryKey"],
+    } as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     userEventListenerPlanItemsQuerySpy = jest
