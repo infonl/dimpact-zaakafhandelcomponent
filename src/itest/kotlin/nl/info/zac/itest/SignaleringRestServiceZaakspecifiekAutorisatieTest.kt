@@ -69,6 +69,9 @@ class SignaleringRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             ).toString()
         )
 
+    fun readLatestSignalering() =
+        itestHttpClient.performGetRequest(url = "$ZAC_API_URI/signaleringen/latest", testUser = previousBehandelaar)
+
     given(
         """
         A zaakspecifiek geautoriseerde zaak with a ZAAK_OP_NAAM signalering for its behandelaar,
@@ -83,7 +86,7 @@ class SignaleringRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
                 """{"isDashboardEnabled":true,"isMailEnabled":false,"subjecttype":"ZAAK","type":"ZAAK_OP_NAAM"}""",
             testUser = previousBehandelaar
         ).code shouldBe HTTP_OK
-        val zaakUUID = zacClient.createZaakAndRetrieve(
+        val (zaakUUID, zaakIdentificatie) = zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,
@@ -92,7 +95,9 @@ class SignaleringRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             testUser = BEHANDELAAR_1
         ).run {
             code shouldBe HTTP_OK
-            bodyAsString.let(::JSONObject).getString("uuid").let(UUID::fromString)
+            bodyAsString.let(::JSONObject).let {
+                UUID.fromString(it.getString("uuid")) to it.getString("identificatie")
+            }
         }
         val behandelaarRolUrl = openZaakClient.getRolesForZaak(zaakUUID).bodyAsString
             .let(::JSONObject)
@@ -105,10 +110,7 @@ class SignaleringRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             rolUrl = behandelaarRolUrl.replace(OPEN_ZAAK_EXTERNAL_URI, OPEN_ZAAK_BASE_URI)
         ).code shouldBe HTTP_NO_CONTENT
         eventually(afterThirtySeconds) {
-            itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/signaleringen/latest",
-                testUser = previousBehandelaar
-            ).code shouldBe HTTP_OK
+            readLatestSignalering().code shouldBe HTTP_OK
         }
         itestHttpClient.performPatchRequest(
             url = "$ZAC_API_URI/zaken/zaak/$zaakUUID",
@@ -128,12 +130,9 @@ class SignaleringRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             """.trimIndent(),
             testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
         ).code shouldBe HTTP_OK
+        readLatestSignalering().code shouldBe HTTP_OK
 
-        `when`("the previous behandelaar reads the zaak and lists the dashboard card of recently assigned zaken") {
-            val zaakResponse = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaakUUID",
-                testUser = previousBehandelaar
-            )
+        `when`("the previous behandelaar lists the dashboard card of recently assigned zaken and then reads the zaak") {
             val listResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
                 requestBodyAsString = """
@@ -141,23 +140,27 @@ class SignaleringRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = previousBehandelaar
             )
+            val latestSignaleringResponseAfterListing = readLatestSignalering()
+            val zaakResponse = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUUID",
+                testUser = previousBehandelaar
+            )
 
-            then("the previous behandelaar may still read the zaak") {
-                zaakResponse.code shouldBe HTTP_OK
-            }
-            and("the dashboard card does not list the zaak, because the user is no longer its behandelaar") {
+            then("the dashboard card does not list the zaak, because the user is no longer its behandelaar") {
                 val responseBody = listResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
                 listResponse.code shouldBe HTTP_OK
                 JSONObject(responseBody).getJSONArray("resultaten")
-                    .let { resultaten -> (0 until resultaten.length()).map { resultaten.getJSONObject(it).getString("uuid") } }
-                    .shouldNotContain(zaakUUID.toString())
+                    .let { resultaten ->
+                        (0 until resultaten.length()).map { resultaten.getJSONObject(it).getString("identificatie") }
+                    }
+                    .shouldNotContain(zaakIdentificatie)
             }
-            and("the signalering of the previous behandelaar is deleted") {
-                itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/signaleringen/latest",
-                    testUser = previousBehandelaar
-                ).code shouldBe HTTP_NO_CONTENT
+            and("listing the dashboard card deleted the signalering of the previous behandelaar") {
+                latestSignaleringResponseAfterListing.code shouldBe HTTP_NO_CONTENT
+            }
+            and("the previous behandelaar may still read the zaak") {
+                zaakResponse.code shouldBe HTTP_OK
             }
         }
     }
