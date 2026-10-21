@@ -13,6 +13,8 @@ import { MatHint, MatLabel } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
+import { MatSidenavContainer } from "@angular/material/sidenav";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router, RouterModule, Routes } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -21,15 +23,18 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { screen } from "@testing-library/angular";
+import { screen, waitFor } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
+import { ZaakCreateKoppeling } from "./zaak-create-koppeling";
 import { ZaakCreateComponent } from "./zaak-create.component";
 
 const routes: Routes = [{ path: "", component: ZaakCreateComponent }];
@@ -52,7 +57,39 @@ describe(ZaakCreateComponent.name, () => {
   let loader: HarnessLoader;
   let router: Router;
 
-  beforeEach(() => {
+  beforeAll(() => {
+    // disable animations for the tests
+    (
+      Element.prototype as unknown as {
+        animate: (
+          keyframes: Keyframe[] | PropertyIndexedKeyframes,
+          options?: number | KeyframeAnimationOptions,
+        ) => AnimationMock;
+      }
+    ).animate = () => {
+      const listeners: Record<string, Array<() => void>> = {};
+
+      const player: AnimationMock = {
+        play: () => {},
+        pause: () => {},
+        cancel: () => {},
+        finish: () => {
+          (listeners["finish"] || []).forEach((cb) => cb());
+        },
+        addEventListener: (name: string, cb: () => void) => {
+          (listeners[name] ||= []).push(cb);
+        },
+        removeEventListener: (name: string, cb: () => void) => {
+          listeners[name] = (listeners[name] || []).filter((fn) => fn !== cb);
+        },
+        finished: Promise.resolve(),
+      };
+
+      return player;
+    };
+  });
+
+  beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
         ZakenService,
@@ -87,8 +124,8 @@ describe(ZaakCreateComponent.name, () => {
       .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
 
     zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "listZaaktypesForCreation").mockReturnValue(
-      of([
+    jest.spyOn(zakenService, "listZaaktypesForCreationQuery").mockReturnValue(
+      createQueryOptions([
         fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-cmmn-zaaktype-1",
           omschrijving: "test-cmmn-description-1",
@@ -116,7 +153,7 @@ describe(ZaakCreateComponent.name, () => {
             zaaktype: { uuid: "uuid-test-bpmn-zaaktype-1" },
           },
         }),
-      ]),
+      ]) as never,
     );
     jest.spyOn(zakenService, "createZaak").mockReturnValue({
       mutationKey: [],
@@ -150,41 +187,14 @@ describe(ZaakCreateComponent.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
 
     fixture.detectChanges();
+    await waitFor(() =>
+      expect(TestBed.inject(QueryClient).isFetching()).toBe(0),
+    );
+    await sleep(10);
+    fixture.detectChanges();
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
-    beforeAll(() => {
-      // disable animations for the tests
-      (
-        Element.prototype as unknown as {
-          animate: (
-            keyframes: Keyframe[] | PropertyIndexedKeyframes,
-            options?: number | KeyframeAnimationOptions,
-          ) => AnimationMock;
-        }
-      ).animate = () => {
-        const listeners: Record<string, Array<() => void>> = {};
-
-        const player: AnimationMock = {
-          play: () => {},
-          pause: () => {},
-          cancel: () => {},
-          finish: () => {
-            (listeners["finish"] || []).forEach((cb) => cb());
-          },
-          addEventListener: (name: string, cb: () => void) => {
-            (listeners[name] ||= []).push(cb);
-          },
-          removeEventListener: (name: string, cb: () => void) => {
-            listeners[name] = (listeners[name] || []).filter((fn) => fn !== cb);
-          },
-          finished: Promise.resolve(),
-        };
-
-        return player;
-      };
-    });
-
     const getAutocompleteOptions = async (options: {
       loader: HarnessLoader;
       inputs: MatInputHarness[];
@@ -220,7 +230,7 @@ describe(ZaakCreateComponent.name, () => {
     describe("case type selection", () => {
       it("should handle CMMN case type selection", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
-        expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
+        expect(zakenService.listZaaktypesForCreationQuery).toHaveBeenCalled();
 
         // --- Zaaktype ---
         let { autocompleteOptions, input } = await getAutocompleteOptions({
@@ -265,7 +275,7 @@ describe(ZaakCreateComponent.name, () => {
 
       it("should handle BPMN case type selection", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
-        expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
+        expect(zakenService.listZaaktypesForCreationQuery).toHaveBeenCalled();
 
         // --- Zaaktype ---
         let { autocompleteOptions, input } = await getAutocompleteOptions({
@@ -365,6 +375,13 @@ describe(ZaakCreateComponent.name, () => {
         ]);
       });
     });
+  });
+
+  const sidenavContainer = (): HTMLElement =>
+    fixture.debugElement.query(By.directive(MatSidenavContainer)).nativeElement;
+
+  it("insets the form as a page", () => {
+    expect(sidenavContainer()).toHaveClass("p-2");
   });
 
   describe("communication channel", () => {
@@ -612,6 +629,381 @@ describe(ZaakCreateComponent.name, () => {
         }),
       );
       expect(fixture.componentInstance["canAddInitiator"]()).toBe(true);
+    });
+  });
+
+  describe("creating a zaak that is linked to the current zaak", () => {
+    const user = userEvent.setup({ delay: null });
+
+    const deelzaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
+      uuid: "fake-deelzaaktype-uuid",
+      omschrijving: "fakeDeelzaaktype",
+      vertrouwelijkheidaanduiding: "OPENBAAR",
+      zaakafhandelparameters: {
+        defaultGroepId: "test-cmmn-group-id",
+        betrokkeneKoppelingen: {
+          isBrpKoppelenEnabled: true,
+          isKvkKoppelenEnabled: false,
+        },
+      },
+    });
+    const otherZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
+      uuid: "fake-other-zaaktype-uuid",
+      omschrijving: "fakeOtherZaaktype",
+      vertrouwelijkheidaanduiding: "OPENBAAR",
+      zaakafhandelparameters: {
+        defaultGroepId: "test-cmmn-group-id",
+        betrokkeneKoppelingen: {
+          isBrpKoppelenEnabled: true,
+          isKvkKoppelenEnabled: false,
+        },
+      },
+    });
+
+    const createCurrentZaak = (
+      fields: Partial<GeneratedType<"RestZaak">> = {},
+    ) =>
+      fromPartial<GeneratedType<"RestZaak">>({
+        uuid: "fake-current-zaak-uuid",
+        identificatie: "ZAAK-2026-001",
+        zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+          uuid: "fake-current-zaaktype-uuid",
+          zaaktypeRelaties: [
+            { zaaktypeUuid: "fake-deelzaaktype-uuid", relatieType: "DEELZAAK" },
+            {
+              zaaktypeUuid: "fake-not-startable-zaaktype-uuid",
+              relatieType: "DEELZAAK",
+            },
+          ],
+        }),
+        ...fields,
+      });
+
+    const personInitiator = fromPartial<
+      GeneratedType<"BetrokkeneIdentificatie">
+    >({
+      type: "BSN",
+      bsn: "999993896",
+      temporaryPersonId: "fake-temporary-person-id",
+    });
+
+    const klantQueryOptions = <T,>(klant: T) =>
+      ({
+        ...createQueryOptions(klant),
+        queryKey: ["fake-klant"],
+      }) as never;
+
+    const renderLinked = async (koppeling: ZaakCreateKoppeling) => {
+      fixture.destroy();
+      jest
+        .spyOn(zakenService, "listZaaktypesForCreationQuery")
+        .mockReturnValue(
+          createQueryOptions([deelzaaktype, otherZaaktype]) as never,
+        );
+      fixture = TestBed.createComponent(ZaakCreateComponent);
+      fixture.autoDetectChanges();
+      fixture.componentRef.setInput("koppeling", koppeling);
+      const zaakCreated = jest.fn();
+      const cancelled = jest.fn();
+      fixture.componentInstance.zaakCreated.subscribe(zaakCreated);
+      fixture.componentInstance.cancelled.subscribe(cancelled);
+      await settle();
+      return { zaakCreated, cancelled };
+    };
+
+    const settle = async () => {
+      fixture.detectChanges();
+      await waitFor(() =>
+        expect(TestBed.inject(QueryClient).isFetching()).toBe(0),
+      );
+      await sleep(10);
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const zaaktypeField = () =>
+      screen.getByRole("combobox", { name: /zaaktype/i });
+
+    const offeredZaaktypen = async () => {
+      await user.click(zaaktypeField());
+      return screen
+        .queryAllByRole("option")
+        .map((option) => option.textContent?.trim());
+    };
+
+    const chooseZaaktype = async (omschrijving: string) => {
+      await user.click(zaaktypeField());
+      await user.click(screen.getByRole("option", { name: omschrijving }));
+      await settle();
+      await waitFor(() => expect(zaaktypeField()).toHaveValue(omschrijving));
+    };
+
+    const fillRequiredFieldsAndSubmit = async () => {
+      await user.type(
+        screen.getByRole("textbox", { name: /omschrijving/i }),
+        "fakeOmschrijving",
+      );
+      await user.click(
+        screen.getByRole("combobox", { name: /communicatiekanaal/i }),
+      );
+      await user.click(screen.getByRole("option", { name: "Rooksignalen" }));
+      await user.click(screen.getByRole("button", { name: "actie.aanmaken" }));
+      await settle();
+    };
+
+    const mockCreateZaak = (
+      mutationFn: jest.Mock = jest.fn().mockResolvedValue(
+        fromPartial<GeneratedType<"CreateZaakResponse">>({
+          identificatie: "ZAAK-2026-002",
+        }),
+      ),
+    ) => {
+      jest
+        .spyOn(zakenService, "createZaak")
+        .mockReturnValue({ mutationKey: [], mutationFn });
+      return mutationFn;
+    };
+
+    it("shows the form as a section without the page title", async () => {
+      await renderLinked({
+        zaak: createCurrentZaak(),
+        relatieType: "GERELATEERD",
+      });
+
+      expect(
+        screen.getByRole("heading", { level: 2, name: "actie.zaak.aanmaken" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { level: 1 }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not inset the form, so that it lines up with the fields above it in the sidebar", async () => {
+      await renderLinked({
+        zaak: createCurrentZaak(),
+        relatieType: "GERELATEERD",
+      });
+
+      expect(sidenavContainer()).not.toHaveClass("p-2");
+    });
+
+    it("offers every zaaktype the employee may start for a gerelateerde zaak", async () => {
+      await renderLinked({
+        zaak: createCurrentZaak(),
+        relatieType: "GERELATEERD",
+      });
+
+      expect(await offeredZaaktypen()).toEqual([
+        "fakeDeelzaaktype",
+        "fakeOtherZaaktype",
+      ]);
+    });
+
+    it("offers only the deelzaaktypen of the current zaaktype that the employee may start for a deelzaak", async () => {
+      await renderLinked({
+        zaak: createCurrentZaak(),
+        relatieType: "DEELZAAK",
+      });
+
+      expect(await offeredZaaktypen()).toEqual(["fakeDeelzaaktype"]);
+    });
+
+    it("offers no zaaktypen for a deelzaak when the current zaaktype has no deelzaaktype the employee may start", async () => {
+      await renderLinked({
+        zaak: createCurrentZaak({
+          zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+            uuid: "fake-current-zaaktype-uuid",
+            zaaktypeRelaties: [
+              {
+                zaaktypeUuid: "fake-not-startable-zaaktype-uuid",
+                relatieType: "DEELZAAK",
+              },
+            ],
+          }),
+        }),
+        relatieType: "DEELZAAK",
+      });
+
+      expect(await offeredZaaktypen()).toEqual([]);
+    });
+
+    it("clears the chosen zaaktype when the relation changes to one that does not offer it", async () => {
+      const zaak = createCurrentZaak();
+      await renderLinked({ zaak, relatieType: "GERELATEERD" });
+      await chooseZaaktype("fakeOtherZaaktype");
+      expect(zaaktypeField()).toHaveValue("fakeOtherZaaktype");
+
+      fixture.componentRef.setInput("koppeling", {
+        zaak,
+        relatieType: "DEELZAAK",
+      });
+      await settle();
+
+      await waitFor(() => expect(zaaktypeField()).toHaveValue(""));
+    });
+
+    it("keeps the chosen zaaktype when the relation changes to one that still offers it", async () => {
+      const zaak = createCurrentZaak();
+      await renderLinked({ zaak, relatieType: "GERELATEERD" });
+      await chooseZaaktype("fakeDeelzaaktype");
+
+      fixture.componentRef.setInput("koppeling", {
+        zaak,
+        relatieType: "DEELZAAK",
+      });
+      await settle();
+
+      await waitFor(() =>
+        expect(zaaktypeField()).toHaveValue("fakeDeelzaaktype"),
+      );
+    });
+
+    it("shows the initiator of the current zaak, which cannot be changed", async () => {
+      const klantenService = TestBed.inject(KlantenService);
+      jest.spyOn(klantenService, "readPersoon").mockReturnValue(
+        klantQueryOptions(
+          fromPartial<GeneratedType<"RestPersoon">>({
+            naam: "fakeInitiatorNaam",
+          }),
+        ),
+      );
+
+      await renderLinked({
+        zaak: createCurrentZaak({ initiatorIdentificatie: personInitiator }),
+        relatieType: "GERELATEERD",
+      });
+
+      expect(screen.getByText("fakeInitiatorNaam")).toBeInTheDocument();
+      expect(
+        screen.getByRole("textbox", { name: /initiator/i }),
+      ).toBeDisabled();
+      expect(klantenService.readPersoon).toHaveBeenCalledWith(
+        "fake-temporary-person-id",
+        "fake-current-zaaktype-uuid",
+      );
+    });
+
+    it("shows an empty initiator when the current zaak has no initiator", async () => {
+      await renderLinked({
+        zaak: createCurrentZaak({ initiatorIdentificatie: null }),
+        relatieType: "GERELATEERD",
+      });
+
+      expect(screen.getByRole("textbox", { name: /initiator/i })).toHaveValue(
+        "",
+      );
+      expect(
+        screen.queryByText("zaak.aanmaken.initiator.niet-overgenomen"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("creates the zaak with the initiator of the current zaak and the relation, and reports it instead of opening it", async () => {
+      jest.spyOn(TestBed.inject(KlantenService), "readPersoon").mockReturnValue(
+        klantQueryOptions(
+          fromPartial<GeneratedType<"RestPersoon">>({
+            naam: "fakeInitiatorNaam",
+          }),
+        ),
+      );
+      const createZaak = mockCreateZaak();
+      const { zaakCreated } = await renderLinked({
+        zaak: createCurrentZaak({ initiatorIdentificatie: personInitiator }),
+        relatieType: "DEELZAAK",
+      });
+
+      await chooseZaaktype("fakeDeelzaaktype");
+      await fillRequiredFieldsAndSubmit();
+
+      expect(createZaak).toHaveBeenCalledWith(
+        expect.objectContaining({
+          zaak: expect.objectContaining({
+            initiatorIdentificatie: expect.objectContaining({
+              type: "BSN",
+              temporaryPersonId: "fake-temporary-person-id",
+            }),
+          }),
+          koppeling: {
+            zaakUuid: "fake-current-zaak-uuid",
+            relatieType: "DEELZAAK",
+          },
+        }),
+        expect.anything(),
+      );
+      expect(zaakCreated).toHaveBeenCalledWith("ZAAK-2026-002");
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("creates the zaak without the initiator and says so when the zaaktype does not allow that kind of initiator", async () => {
+      jest.spyOn(TestBed.inject(KlantenService), "readBedrijf").mockReturnValue(
+        klantQueryOptions(
+          fromPartial<GeneratedType<"RestBedrijf">>({
+            naam: "fakeBedrijfNaam",
+          }),
+        ),
+      );
+      const createZaak = mockCreateZaak();
+      await renderLinked({
+        zaak: createCurrentZaak({
+          initiatorIdentificatie: fromPartial<
+            GeneratedType<"BetrokkeneIdentificatie">
+          >({
+            type: "VN",
+            kvkNummer: "12345678",
+            vestigingsnummer: "000012345678",
+          }),
+        }),
+        relatieType: "GERELATEERD",
+      });
+      expect(screen.getByText("fakeBedrijfNaam")).toBeInTheDocument();
+
+      await chooseZaaktype("fakeOtherZaaktype");
+
+      expect(
+        screen.getByText("zaak.aanmaken.initiator.niet-overgenomen"),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("fakeBedrijfNaam")).not.toBeInTheDocument();
+
+      await fillRequiredFieldsAndSubmit();
+
+      expect(createZaak).toHaveBeenCalledWith(
+        expect.objectContaining({
+          zaak: expect.objectContaining({ initiatorIdentificatie: null }),
+          koppeling: {
+            zaakUuid: "fake-current-zaak-uuid",
+            relatieType: "GERELATEERD",
+          },
+        }),
+        expect.anything(),
+      );
+    });
+
+    it("keeps the entered data and reports nothing when the server refuses the zaak", async () => {
+      mockCreateZaak(jest.fn().mockRejectedValue(new Error("fakeError")));
+      const { zaakCreated } = await renderLinked({
+        zaak: createCurrentZaak(),
+        relatieType: "GERELATEERD",
+      });
+
+      await chooseZaaktype("fakeOtherZaaktype");
+      await fillRequiredFieldsAndSubmit();
+
+      expect(zaakCreated).not.toHaveBeenCalled();
+      expect(
+        screen.getByRole("textbox", { name: /omschrijving/i }),
+      ).toHaveValue("fakeOmschrijving");
+    });
+
+    it("reports a cancel instead of going back", async () => {
+      jest.spyOn(history, "back").mockImplementation(() => {});
+      const { cancelled } = await renderLinked({
+        zaak: createCurrentZaak(),
+        relatieType: "GERELATEERD",
+      });
+
+      await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+      expect(cancelled).toHaveBeenCalled();
+      expect(history.back).not.toHaveBeenCalled();
     });
   });
 });
