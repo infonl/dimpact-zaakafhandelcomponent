@@ -21,6 +21,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import nl.info.zac.itest.config.USER_WITHOUT_READ_ROLE
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_MOVED_TEMP
 import java.net.HttpURLConnection.HTTP_OK
@@ -318,6 +319,37 @@ class AppContainerTest : BehaviorSpec({
             then("the response redirects to the same page without the OIDC parameters, so that a new login starts") {
                 response.code shouldBe HTTP_MOVED_TEMP
                 response.headers["Location"] shouldBe "/documenten/inbox"
+            }
+        }
+
+        `when`("the callback URL is requested with the state cookie of the same login attempt") {
+            val response = itestHttpClient.performGetRequest(
+                url = callbackUrl,
+                headers = buildHeaders(acceptType = null).newBuilder()
+                    .add("Cookie", "OAuth_Token_Request_State=fakeState")
+                    .build()
+            )
+
+            then(
+                "the request is not redirected to itself but handled as an OIDC callback, which is forbidden " +
+                    "because the code is not valid"
+            ) {
+                response.code shouldBe HTTP_FORBIDDEN
+                response.headers["Location"] shouldBe null
+            }
+        }
+
+        `when`("the callback URL with a path that starts with two slashes is requested without a state cookie") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI//attacker.example/documenten/inbox?state=fakeState&code=fakeCode"
+            )
+
+            then(
+                "the response is a bad request and does not redirect to the path, because a browser would open " +
+                    "that path on another host"
+            ) {
+                response.code shouldBe HTTP_BAD_REQUEST
+                response.headers["Location"] shouldBe null
             }
         }
     }
