@@ -18,7 +18,7 @@ import {
 import { notifyManager } from "@tanstack/query-core";
 import { of, ReplaySubject } from "rxjs";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
@@ -59,6 +59,9 @@ describe(ZaakViewComponent.name, () => {
 
   let zakenService: ZakenService;
   let bagService: BAGService;
+  let bagObjectenQuery: ReturnType<
+    typeof createQueryOptions<GeneratedType<"RestBagObjectGegevens">[]>
+  >;
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
   let takenService: TakenService;
@@ -154,7 +157,11 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue(of([]));
+    bagObjectenQuery = {
+      ...createQueryOptions<GeneratedType<"RestBagObjectGegevens">[]>([]),
+      queryKey: ["fakeBagObjectenQueryKey"],
+    };
+    jest.spyOn(bagService, "list").mockReturnValue(bagObjectenQuery as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     jest
@@ -531,6 +538,29 @@ describe(ZaakViewComponent.name, () => {
         expect.any(Function),
       );
     });
+
+    it("reloads the bag objecten once a bag object is ontkoppeld", async () => {
+      jest
+        .spyOn(TestBed.inject(ZaakDialogService), "openVerwijderBagObject")
+        .mockReturnValue(
+          fromPartial<MatDialogRef<RedenDialogFormComponent>>({
+            afterClosed: () => of(true),
+          }),
+        );
+      bagObjectenQuery.queryFn.mockClear();
+
+      detailsCard().bagObjectVerwijderen.emit(
+        fromPartial<GeneratedType<"RestBagObjectGegevens">>({
+          uuid: "fakeBagObjectGegevensUuid",
+          zaakobject: fromPartial<GeneratedType<"RestBagObject">>({
+            omschrijving: "fakeBagObjectOmschrijving",
+          }),
+        }),
+      );
+      await new Promise(requestAnimationFrame);
+
+      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
+    });
   });
 
   describe("the BAG object koppelen side action", () => {
@@ -544,6 +574,31 @@ describe(ZaakViewComponent.name, () => {
         .componentInstance as BagZoekComponent;
 
       expect(bagZoek.isSelectable()).toBe(true);
+    });
+
+    it("passes the bag objecten that are linked to the zaak to the BAG search", async () => {
+      const gekoppeldBagObject = fromPartial<GeneratedType<"RestBagObject">>({
+        identificatie: "fakeGekoppeldBagObjectIdentificatie",
+        bagObjectType: "ADRES",
+        omschrijving: "fakeGekoppeldBagObjectOmschrijving",
+      });
+      bagObjectenQuery.queryFn.mockResolvedValue([
+        fromPartial<GeneratedType<"RestBagObjectGegevens">>({
+          uuid: "fakeGekoppeldBagObjectGegevensUuid",
+          bagObject: gekoppeldBagObject,
+          zaakobject: gekoppeldBagObject,
+        }),
+      ]);
+      mockActivatedRoute.data.next({ zaak });
+      sideActions.activeAction.set("actie.bag-object.koppelen");
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const bagZoek = fixture.debugElement.query(By.directive(BagZoekComponent))
+        .componentInstance as BagZoekComponent;
+
+      expect(bagZoek.gekoppeldeBagObjecten()).toEqual([gekoppeldBagObject]);
     });
   });
 });

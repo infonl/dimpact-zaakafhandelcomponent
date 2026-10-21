@@ -6,7 +6,6 @@
 import { inject, Injectable } from "@angular/core";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZakenService } from "../zaken/zaken.service";
@@ -15,7 +14,6 @@ import { ZakenService } from "../zaken/zaken.service";
   providedIn: "root",
 })
 export class BAGService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly zakenService = inject(ZakenService);
 
@@ -33,7 +31,7 @@ export class BAGService {
   }
 
   list(zaakUuid: string) {
-    return this.zacHttpClient.GET("/rest/bag/zaak/{zaakUuid}", {
+    return this.zacQueryClient.GET("/rest/bag/zaak/{zaakUuid}", {
       path: { zaakUuid },
     });
   }
@@ -48,7 +46,7 @@ export class BAGService {
   }
 
   read(type: GeneratedType<"BagObjectType">, id: string) {
-    return this.zacHttpClient.GET("/rest/bag/{type}/{id}", {
+    return this.zacQueryClient.GET("/rest/bag/{type}/{id}", {
       path: { type, id },
     });
   }
