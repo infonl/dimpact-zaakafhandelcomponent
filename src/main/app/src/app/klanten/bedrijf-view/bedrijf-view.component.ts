@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { runQuery } from "../../shared/http/run-query";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -45,6 +47,7 @@ export class BedrijfViewComponent {
     "",
     "error",
   );
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -61,17 +64,21 @@ export class BedrijfViewComponent {
   protected ophalenProfiel() {
     this.profielOphalenMogelijk = false;
     if (this.bedrijf?.vestigingsnummer) {
-      this.klantenService
-        .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
-        .subscribe((value) => {
-          this.profiel = value;
-        });
+      runQuery(
+        this.queryClient,
+        this.klantenService.readVestigingsprofiel(
+          this.bedrijf.vestigingsnummer,
+        ),
+      ).subscribe((value) => {
+        this.profiel = value;
+      });
     } else if (this.bedrijf?.kvkNummer) {
-      this.klantenService
-        .readBasisprofiel(this.bedrijf.kvkNummer)
-        .subscribe((value) => {
-          this.profiel = value;
-        });
+      runQuery(
+        this.queryClient,
+        this.klantenService.readBasisprofiel(this.bedrijf.kvkNummer),
+      ).subscribe((value) => {
+        this.profiel = value;
+      });
     }
   }
 }

@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, OnInit, output } from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
+import { runQuery } from "../../../../shared/http/run-query";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantenService } from "../../../klanten.service";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
@@ -76,6 +78,7 @@ export class KlantKoppelBetrokkeneComponent implements OnInit {
     ]),
   });
   protected betrokkeneRoltypen: GeneratedType<"RestRoltype">[] = [];
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly klantenService: KlantenService,
@@ -86,11 +89,12 @@ export class KlantKoppelBetrokkeneComponent implements OnInit {
     const zaaktypeUUID = this.zaaktypeUUID();
     if (!zaaktypeUUID) return;
 
-    this.klantenService
-      .listBetrokkeneRoltypen(zaaktypeUUID)
-      .subscribe((betrokkeneRoltypen) => {
-        this.betrokkeneRoltypen = betrokkeneRoltypen;
-      });
+    runQuery(
+      this.queryClient,
+      this.klantenService.listBetrokkeneRoltypen(zaaktypeUUID),
+    ).subscribe((betrokkeneRoltypen) => {
+      this.betrokkeneRoltypen = betrokkeneRoltypen;
+    });
   }
 
   klantGeselecteerd(klant: GeneratedType<"RestPersoon" | "RestBedrijf">) {

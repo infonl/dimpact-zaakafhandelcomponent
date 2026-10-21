@@ -20,8 +20,9 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { runQuery } from "../../shared/http/run-query";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -48,6 +49,7 @@ import { KlantenService } from "../klanten.service";
 })
 export class BedrijfsgegevensComponent {
   private readonly klantenService = inject(KlantenService);
+  private readonly queryClient = inject(QueryClient);
 
   protected zaak = input.required<GeneratedType<"RestZaak">>();
 
@@ -103,17 +105,19 @@ export class BedrijfsgegevensComponent {
   protected ophalenProfiel() {
     const data = this.bedrijfQuery.data();
     if (data?.vestigingsnummer) {
-      this.klantenService
-        .readVestigingsprofiel(data.vestigingsnummer)
-        .subscribe((value) => {
-          this.profiel.set(value);
-        });
+      runQuery(
+        this.queryClient,
+        this.klantenService.readVestigingsprofiel(data.vestigingsnummer),
+      ).subscribe((value) => {
+        this.profiel.set(value);
+      });
     } else if (data?.kvkNummer) {
-      this.klantenService
-        .readBasisprofiel(data.kvkNummer)
-        .subscribe((value) => {
-          this.profiel.set(value);
-        });
+      runQuery(
+        this.queryClient,
+        this.klantenService.readBasisprofiel(data.kvkNummer),
+      ).subscribe((value) => {
+        this.profiel.set(value);
+      });
     }
   }
 }

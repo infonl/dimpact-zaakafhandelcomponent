@@ -20,8 +20,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
-import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
@@ -422,41 +421,47 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("calls readVestigingsprofiel with the vestigingsnummer", () => {
+      it("calls readVestigingsprofiel with the vestigingsnummer", async () => {
         jest
           .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(of(makeBedrijfsprofiel()));
+          .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
         component["ophalenProfiel"]();
+        await sleep();
         expect(klantenService.readVestigingsprofiel).toHaveBeenCalledWith(
           "12345678",
         );
       });
 
-      it("does not call readBasisprofiel", () => {
+      it("does not call readBasisprofiel", async () => {
         jest
           .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(of(makeBedrijfsprofiel()));
+          .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
         const spy = jest.spyOn(klantenService, "readBasisprofiel");
         component["ophalenProfiel"]();
+        await sleep();
         expect(spy).not.toHaveBeenCalled();
       });
 
-      it("populates profiel signal after service call", () => {
+      it("populates profiel signal after service call", async () => {
         const profiel = makeBedrijfsprofiel();
         jest
           .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(of(profiel));
+          .mockReturnValue(createQueryOptions(profiel) as never);
         component["ophalenProfiel"]();
+        await sleep();
         expect(component["profiel"]()).toEqual(profiel);
       });
 
-      it("renders totaalWerkzamePersonen after profiel is loaded", () => {
+      it("renders totaalWerkzamePersonen after profiel is loaded", async () => {
         jest
           .spyOn(klantenService, "readVestigingsprofiel")
           .mockReturnValue(
-            of(makeBedrijfsprofiel({ totaalWerkzamePersonen: 25 })),
+            createQueryOptions(
+              makeBedrijfsprofiel({ totaalWerkzamePersonen: 25 }),
+            ) as never,
           );
         component["ophalenProfiel"]();
+        await sleep();
         fixture.detectChanges();
 
         expect(
@@ -465,26 +470,32 @@ describe(BedrijfsgegevensComponent.name, () => {
         expect(screen.getByText("25")).toBeInTheDocument();
       });
 
-      it("renders hoofdactiviteit after profiel is loaded", () => {
+      it("renders hoofdactiviteit after profiel is loaded", async () => {
         jest
           .spyOn(klantenService, "readVestigingsprofiel")
           .mockReturnValue(
-            of(makeBedrijfsprofiel({ sbiHoofdActiviteit: "Software" })),
+            createQueryOptions(
+              makeBedrijfsprofiel({ sbiHoofdActiviteit: "Software" }),
+            ) as never,
           );
         component["ophalenProfiel"]();
+        await sleep();
         fixture.detectChanges();
 
         expect(screen.getByText("hoofdactiviteit")).toBeInTheDocument();
         expect(screen.getByText("Software")).toBeInTheDocument();
       });
 
-      it("renders website after profiel is loaded", () => {
+      it("renders website after profiel is loaded", async () => {
         jest
           .spyOn(klantenService, "readVestigingsprofiel")
           .mockReturnValue(
-            of(makeBedrijfsprofiel({ website: "https://test.nl" })),
+            createQueryOptions(
+              makeBedrijfsprofiel({ website: "https://test.nl" }),
+            ) as never,
           );
         component["ophalenProfiel"]();
+        await sleep();
         fixture.detectChanges();
 
         expect(screen.getByText("website")).toBeInTheDocument();
@@ -511,67 +522,79 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("calls readBasisprofiel with the kvkNummer", () => {
+      it("calls readBasisprofiel with the kvkNummer", async () => {
         jest
           .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(of(makeBedrijfsprofiel()));
+          .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
         component["ophalenProfiel"]();
+        await sleep();
         expect(klantenService.readBasisprofiel).toHaveBeenCalledWith(
           "12345678",
         );
       });
 
-      it("does not call readVestigingsprofiel", () => {
+      it("does not call readVestigingsprofiel", async () => {
         jest
           .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(of(makeBedrijfsprofiel()));
+          .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
         const spy = jest.spyOn(klantenService, "readVestigingsprofiel");
         component["ophalenProfiel"]();
+        await sleep();
         expect(spy).not.toHaveBeenCalled();
       });
 
-      it("populates profiel signal after service call", () => {
+      it("populates profiel signal after service call", async () => {
         const profiel = makeBedrijfsprofiel({ rechtsvorm: "BV" });
         jest
           .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(of(profiel));
+          .mockReturnValue(createQueryOptions(profiel) as never);
         component["ophalenProfiel"]();
+        await sleep();
         expect(component["profiel"]()).toEqual(profiel);
       });
 
-      it("renders rechtsvorm after profiel is loaded", () => {
+      it("renders rechtsvorm after profiel is loaded", async () => {
         jest
           .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(of(makeBedrijfsprofiel({ rechtsvorm: "BV" })));
+          .mockReturnValue(
+            createQueryOptions(
+              makeBedrijfsprofiel({ rechtsvorm: "BV" }),
+            ) as never,
+          );
         component["ophalenProfiel"]();
+        await sleep();
         fixture.detectChanges();
 
         expect(screen.getByText("rechtsvorm")).toBeInTheDocument();
         expect(screen.getByText("BV")).toBeInTheDocument();
       });
 
-      it("renders uitgebreideRechtsvorm after profiel is loaded", () => {
+      it("renders uitgebreideRechtsvorm after profiel is loaded", async () => {
         jest.spyOn(klantenService, "readBasisprofiel").mockReturnValue(
-          of(
+          createQueryOptions(
             makeBedrijfsprofiel({
               uitgebreideRechtsvorm: "Besloten Vennootschap",
             }),
-          ),
+          ) as never,
         );
         component["ophalenProfiel"]();
+        await sleep();
         fixture.detectChanges();
 
         expect(screen.getByText("uitgebreide-rechtsvorm")).toBeInTheDocument();
         expect(screen.getByText("Besloten Vennootschap")).toBeInTheDocument();
       });
 
-      it("renders statutaireNaam after profiel is loaded", () => {
+      it("renders statutaireNaam after profiel is loaded", async () => {
         jest
           .spyOn(klantenService, "readBasisprofiel")
           .mockReturnValue(
-            of(makeBedrijfsprofiel({ statutaireNaam: "Test BV Statutair" })),
+            createQueryOptions(
+              makeBedrijfsprofiel({ statutaireNaam: "Test BV Statutair" }),
+            ) as never,
           );
         component["ophalenProfiel"]();
+        await sleep();
         fixture.detectChanges();
 
         expect(screen.getByText("statutaire-naam")).toBeInTheDocument();
@@ -590,8 +613,9 @@ describe(BedrijfsgegevensComponent.name, () => {
 
       jest
         .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(makeBedrijfsprofiel()));
+        .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
       component["ophalenProfiel"]();
+      await sleep();
     });
 
     afterEach(() => {

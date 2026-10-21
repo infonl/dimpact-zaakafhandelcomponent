@@ -12,7 +12,6 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -77,13 +76,14 @@ describe(KlantZakenTabelComponent.name, () => {
         }),
       ),
     );
-    listRoltypen.mockReturnValue(
-      of(
+    listRoltypen.mockReturnValue({
+      ...createQueryOptions(
         roltypen.map((naam) =>
           fromPartial<GeneratedType<"RestRoltype">>({ naam }),
         ),
       ),
-    );
+      queryKey: ["/rest/klanten/roltype"],
+    });
 
     const rendered = await render(KlantZakenTabelComponent, {
       bindings: [inputBinding("klant", () => klant)],

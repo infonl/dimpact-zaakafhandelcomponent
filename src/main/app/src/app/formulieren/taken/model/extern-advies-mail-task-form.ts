@@ -82,8 +82,10 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
     } else {
       const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
       if (temporaryPersonId) {
-        this.klantenService
-          .getContactDetailsForPerson(temporaryPersonId)
+        runQuery(
+          this.queryClient,
+          this.klantenService.getContactDetailsForPerson(temporaryPersonId),
+        )
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((value) => {
             if (!value.emailadres) return;
